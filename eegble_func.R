@@ -21,14 +21,7 @@ as_eegble.eeg_data <- function(x, .id = as.character(Sys.time()), verbose = TRUE
   eegble
 }
 
-# file_io
-read_vhdr <- function(x, ...) {
 
-}
-
-read_edf <- function(x, ...) {
-  
-}
 
 # Info
 
@@ -37,19 +30,14 @@ nchan <- function(eegble){
 }
 
 chan_names <- function(eegble){
-    #also rename them with <-
   c(eegble$chan_info$labels)
 }
 
-chan_names <- function(eegble){
-    #also rename them with <-
-  c(eegble$chan_info$labels)
-}
 
-event_names <- function(eegble){
-    #also rename them with <-
-  levels(eegble$data$event)
-}
+# event_names <- function(eegble){
+#     #also rename them with <-
+#   levels(eegble$data$event)
+# }
 
 
 chan_info <- function(eegble){
@@ -60,10 +48,37 @@ gral_info <- function(eegble){
   eegble$gral_info
 }
 
-# print.eggbl <- function(eegble,...){
+srate <- function(eegble){
+  eegble$gral_info$srate
+}
+
+
+
+duration <- function(eegble){
+  map_dbl(eegble$data, ~ nrow(.x$signals) ) / srate(eegble) 
+}
+
+summary.eegbl <- function(eegble, ...){
+  message(paste0("# EEG data (eegble) from ", nchan(eegble), " channels:"))
+  # message(paste0( chan_names(eegble), collapse = ", "))
+  message(paste0("# Sampling rate: ", srate(eegble), " Hz."))
+  message(paste0("# Duration: ", duration(eegble), " ms."))
+  # message(paste0("# Events (markers/triggers): ", 
+  #                   paste0(event_names(eegble),collapse =", "), "."))
+  message(paste0("# Size in memory: ", capture.output(pryr::object_size(eegble)), "."))
+
+  map_dfr(eegble$data, ~ .x$signals ) %>% summary()
+
+  # print(eegble$data, ...)
+}
+
+# summary.eegbl <- function(eegble,...){
 # }
 
-summary.eggbl <- function(eegble,...){
+
+`chan_names<-` <-  function(eegble, value){
+
+  eegble$chan_info$labels <- value
 }
 
 
@@ -95,63 +110,79 @@ segment <- function(x, ...){
    UseMethod("segment")
 }
 
-slice <- function(x, ...){
-  UseMethod("slice")
+# library(rlang)
+# named_quos <- function(...) {
+#   quos <- quos(...)
+#   exprs_auto_name(quos, printer = tidy_text)
+# }
+# tidy_text <- function(quo, width = 60L) {
+#   expr <- quo_get_expr(quo)
+#   if (is_data_pronoun(expr)) {
+#     as_string(node_cadr(node_cdr(expr)))
+#   } else {
+#     quo_text(quo, width = width)
+#   }
+# }
+
+slice.eegbl <- function(x, ...) {
+  dots <- rlang::enquos(...) #NSE
+  x$data <- map(x$data, ~ slice(.x$signals, !!!dots))
+  x
 }
 
-slice.eegbl <- function(eegble, from = NULL, to = NULL){
-#add support for :
 
-  eegble$data <- eegble$data   %>%  
-        {if(is.character(from)) { 
-            filter(.,time >= time[event %in% from])
-         } else if(is.numeric(from)){
-                 filter(.,time >= from)
-         } else if(is.null(from)){ 
-          .
-         }  %>%  
-        {if(is.character(to)) { 
-            filter(.,time <= time[event %in% to])
-         } else if(is.numeric(to)){
-             filter(.,time <= to)
-         }} else if(is.null(to)){
-             .
-         }}  %>% 
-                 mutate(time = time - first(time)) # start from 0
-  eegble
-}
+# slice_it <- function(eegble, from = NULL, to = NULL){
+# #add support for :
+
+#   eegble$data <- eegble$data   %>%  group_by(.id) %>%
+#         {if(is.character(from)) { 
+#             filter(.,time >= time[event %in% from])
+#          } else if(is.numeric(from)){
+#                  filter(.,time >= from)
+#          } else if(is.null(from)){ 
+#           .
+#          }  %>%  
+#         {if(is.character(to)) { 
+#             filter(.,time <= time[event %in% to])
+#          } else if(is.numeric(to)){
+#              filter(.,time <= to)
+#          }} else if(is.null(to)){
+#              .
+#          }}  %>% 
+#                  mutate(time = time - first(time)) # start from 0
+#   eegble
+# }
 
 
 segment.eegbl <- function(eegble, events, lim = c(-1,1)){
-                      
 tsteps_lead <- round(lim[1] * eegble$gral_info$srate)
 tsteps_lag <- round(lim[2] * eegble$gral_info$srate)
 
 window <- seq(tsteps_lead, tsteps_lag)
 
-eegble$data <- eegble$data %>% 
-              mutate(event_id = ifelse(event %in% events,1,0))  %>%
-              mutate(event_id = ifelse(event_id == 1, cumsum(event_id),0))%>% 
+eegble$data <- eegble$data %>% group_by(.id) %>%
+              mutate(.seg_id = ifelse(event %in% events,1,0))  %>%
+              mutate(.seg_id = ifelse(.seg_id == 1, cumsum(.seg_id),0))%>% 
               select(-one_of(eegble$chan_info$labels), 
                       one_of(eegble$chan_info$labels)) 
 
   # Old for loop 
-  # for(i in which(eegble$data$event_id!=0)){
+  # for(i in which(eegble$data$.seg_id!=0)){
   #     eegble$data[i + window, ]$time <- eegble$data[i + window, ]$time - eegble$data[i, ]$time
   # }
 
   decimals <- function(x) match(TRUE, round(x, 1:20) == x)
 
-  event_rows <- expand.grid(which(eegble$data$event_id!=0),window) %>%
+  event_rows <- expand.grid(which(eegble$data$.seg_id!=0),window) %>%
                 .[order(.$Var1),] 
   # new times need to be rounded
   eegble$data[rowSums(event_rows), ]$time <- round(eegble$data[rowSums(event_rows), ]$time - eegble$data[event_rows[,1], ]$time,  decimals(1/eegble$gral_info$srate)) 
 
-  eegble$data[rowSums(event_rows), ]$event_id <- eegble$data[event_rows[,1], ]$event_id  
+  eegble$data[rowSums(event_rows), ]$.seg_id <- eegble$data[event_rows[,1], ]$.seg_id  
 
-  eegble$data <- eegble$data %>% filter(event_id != 0) 
+  eegble$data <- eegble$data %>% filter(.seg_id != 0) 
 
-  eegble$data %>% group_by(.id, event_id) %>%
+  eegble$data %>% group_by(.id, .seg_id) %>%
              summarize(n = n()) %>% 
              {unique(.$n)} %>% 
              length() %>% 
@@ -163,4 +194,14 @@ eegble$data <- eegble$data %>%
 
 bind <- function(eegble, ...){
 
+}
+
+
+plot_chan <- function(eegble, chans, ...) {
+  #? allow formulas as chans? Pz + Fz + mean(Fz)
+  eegble_long <-  eegble$data %>% gather(key = chan, value = ampl, one_of(chans))
+  ggplot(eegble_long, aes(x = time, y = ampl, group=chan)) +
+            scale_x_continuous(name = "Time (ms)") + 
+            scale_y_continuous(name = "Amplitude") + 
+            geom_line(aes(group = .seg_id), alpha = .5)
 }

@@ -10,14 +10,14 @@ read_vhdr <- function(file, verbose = TRUE,...) {
     if(data_ext == "dat" || data_ext == "eeg" ){
       vmrk_file <- header_info$common_info$vmrk_file
       srate  <- header_info$common_info$srate
-      events <- read_vmrk(paste0(file_path, vmrk_file))
+      events <- read_vmrk(file = paste0(file_path, vmrk_file))
       data <- read_dat(file = paste0(file_path, data_file), 
                         chan_info = header_info$chan_info, 
                         srate = srate, 
                         orientation = header_info$common_info$orientation, 
                         format = header_info$common_info$format,
                         events = events, 
-                        .id = file,
+                        .id = vmrk_file,
                         verbose = verbose)
     } else {
       warning(paste0(".",data_ext, " files are unsupported."))
@@ -51,7 +51,7 @@ read_dat <- function(file, chan_info = NULL,
 
 
   colnames(signals)  <- chan_info$labels
-  
+  chan_info$labels <- as_factor(chan_info$labels)
   # time <- tibble::tibble(sample = 1:dim(signals)[[1]]) %>%
   #             dplyr::mutate(time = (sample - 1) / srate)
   # data <- eeg_data(data =   signals, srate = srate,
@@ -59,16 +59,23 @@ read_dat <- function(file, chan_info = NULL,
   #                    events = event_table, timings = timings,
   #                    continuous = TRUE)
 
-  eegble <- list(data = NULL, chan_info = NULL, gral_info = NULL)
-  
+
+  eegble <- list(data = list(list(signals = NULL, events = NULL)), 
+                chan_info = NULL, gral_info = NULL)
+  names(eegble$data) <- .id
+
   eegble$chan_info <- chan_info
   eegble$gral_info <- list(srate = srate, 
                		 	   reference = NA)
-  eegble$data <- tibble::tibble(sample = 1:dim(signals)[[1]]) %>%
-  					left_join(events, by = "sample") %>%
-              dplyr::transmute(time = (sample - 1) / srate, event, .id = .id) %>% 
-              bind_cols(signals) %>% 
-              group_by(`.id`)
+  eegble$data[[.id]]$signals <- tibble(sample = 1:nrow(signals)) %>%
+            bind_cols(signals)
+
+  # name the channels of the corresponding events, using factor  
+  events <- mutate(events, channel = if_else(channel==0,NA_integer_,channel) 
+      %>%  chan_info$labels[.] %>% as_factor(levels = chan_info$labels ))
+  
+  eegble$data[[.id]]$events <- events
+
 
   eegble <- unclass(eegble)
   class(eegble) <- "eegbl"
@@ -77,7 +84,7 @@ read_dat <- function(file, chan_info = NULL,
 }
 
 
-
+# TODO: use all info, segments to segment, bad to reject
 read_vmrk <- function(file) {
   # Each entry looks like this in the vmrk file:
   # Mk<Marker number>=<Type>,<Description>,<Position in data
@@ -91,14 +98,14 @@ read_vmrk <- function(file) {
   end <- markers_info_lines %>% max - start 
 
   col_names = c("Mk_number=Type","description","sample", 
-              "size_sample", "channel","date")
+              "size", "channel","date")
 
-  tibble_vmrk <- suppressWarnings(readr::read_csv(file, col_names = col_names,
+  events <- suppressWarnings(readr::read_csv(file, col_names = col_names,
                     col_types = readr::cols(
                                 `Mk_number=Type` = readr::col_character(),
                                 description = readr::col_character(),
                                 sample = readr::col_integer(),
-                                size_sample = readr::col_integer(),
+                                size = readr::col_integer(),
                                 channel = readr::col_integer(),
                                 date = readr::col_double()
                                 ),
@@ -106,11 +113,9 @@ read_vmrk <- function(file) {
                     trim_ws = TRUE)) %>%
                   tidyr::separate(`Mk_number=Type`, 
                             c("mk","type"), sep ="=") %>%
-                  dplyr::mutate(mk = as.numeric(stringr::str_remove(mk,"Mk")))
+                  dplyr::mutate(mk = as.numeric(stringr::str_remove(mk,"Mk"))) %>%
+                  dplyr::select(-mk, -date)
 
-  events <- tibble_vmrk %>% 
-                  dplyr::transmute(event = as_factor(description), sample) %>% 
-                  dplyr::filter(!is.na(event))
   
   # segs <- tibble_vmrk %>%  dplyr::transmute(
   #                           bounds = ifelse(type == "Stimulus", NA, type), sample) %>%
