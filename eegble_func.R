@@ -110,26 +110,108 @@ segment <- function(x, ...){
    UseMethod("segment")
 }
 
-# library(rlang)
-# named_quos <- function(...) {
-#   quos <- quos(...)
-#   exprs_auto_name(quos, printer = tidy_text)
-# }
-# tidy_text <- function(quo, width = 60L) {
-#   expr <- quo_get_expr(quo)
-#   if (is_data_pronoun(expr)) {
-#     as_string(node_cadr(node_cdr(expr)))
-#   } else {
-#     quo_text(quo, width = width)
-#   }
-# }
-
 slice.eegbl <- function(x, ...) {
   dots <- rlang::enquos(...) #NSE
-  x$data <- map(x$data, ~ slice(.x$signals, !!!dots))
+  x$data <- map(x$data, ~ list(signals= slice(.x$signals, !!!dots), 
+                              event = .x$event))
   x
 }
 
+filter.eggbl <- function(.data, ...) {
+  
+}
+
+slice_time <- function(x, from = NULL, to = NULL){
+
+from <- if_else(is.null(from), -Inf, from)
+to <- if_else(is.null(to), Inf, to)
+  x$data <- map(x$data, ~ list(signals= filter(.x$signals, 
+                sample >= from * srate(x),
+                sample <= to * srate(x) ), 
+                              events = .x$events))
+
+  # x$data <- map(x$data, ~ filter(.x$signals, 
+  #               if(!is.null(from)) {sample >= from * srate(x)} else {},
+  #               if(!is.null(to)) {sample <= to * srate(x)} else {} ))
+  x
+}
+
+
+# s <- function(from=description=="s10"){
+
+# from <- rlang::enquo(from)
+# heavy_eeg$data$autoocularICA1.vmrk %>% {filter(.$signals, sample >= 
+#                   min(filter(.$events, !!from)$sample ))}
+  
+# }
+# s()
+
+slice_from_event <- function(x, ...){
+
+  from <- rlang::enquos(...)
+  x$data <- map(x$data, ~ list(signals= filter(.x$signals, 
+                sample >= min(filter(.$events, !!!from)$sample)), 
+                              events = .x$events))
+  # x$data <- map(x$data, ~ list(signals= filter(.x$signals, 
+  #               sample >= min(filter(.$events, !!!from)$sample)), 
+  #                             event = .x$event))
+  x
+}
+
+slice_to_event <- function(x, ...){
+
+  to <- rlang::enquos(...)
+  x$data <- map(x$data, ~ list(signals= filter(.x$signals, 
+                sample <= max(filter(.$events, !!!to)$sample)), 
+                              events = .x$events))
+  x
+}
+
+
+drop_events <- function(x) {
+
+   x$data <- map(x$data, ~ 
+                    list(signals = .x$signals,
+                         events = filter(.x$events, 
+                          sample >= min(.x$signals$sample) - size, 
+                                  sample <= max(.x$signals$sample))))
+  x 
+}
+
+# Bad Interval
+
+thewhat <- tibble(sample = 1:10L, y= 1.0, z =2.0)
+thewhere <- tibble(cond = replicate (10,sample(c("a","b","c"),1)),
+     sample= 1:10L, 
+     duration = replicate (10,sample(1:3L,1)), where = replicate (10,sample(c(NA,"y","z"),1)))
+
+NAs <- filter(thewhere, cond=="a") %>% 
+      mutate( s = map2(sample,sample + duration - 1,seq)) %>% unnest
+
+mutate(thewhat, y = if_else(sample %in% NAs$s,  NA_real_, y  ))
+mutate(thewhat, y = if_else(sample %in% NAs$s[NAs$where =="y"],  
+        NA_real_, y  ))
+
+map2_dfc(NAs$where, NAs$s, ~ 
+      mutate(a,  y = 
+        if_else(sample == .y,  NA_integer_,sample  )))
+
+
+
+NAify_samples <- function(x, ...){
+  to <- rlang::enquos(...)
+
+   x$data <- map(x$data, ~ 
+                    list(signals = .x$signals[.x$signals$], Fp1 = 
+                      case_when(between(sample, ) )  
+                         events = filter(.x$events, 
+                          sample >= min(.x$signals$sample) - size, 
+                                  sample <= max(.x$signals$sample))))
+  x 
+}
+
+
+# heavy_eeg$data$autoocularICA1.vmrk$events 
 
 # slice_it <- function(eegble, from = NULL, to = NULL){
 # #add support for :
