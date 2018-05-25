@@ -30,7 +30,7 @@ nchan <- function(eegble){
 }
 
 chan_names <- function(eegble){
-  c(eegble$chan_info$labels)
+  levels(eegble$chan_info$labels)
 }
 
 
@@ -76,10 +76,10 @@ summary.eegbl <- function(eegble, ...){
 # }
 
 
-`chan_names<-` <-  function(eegble, value){
+# `chan_names<-` <-  function(eegble, value){
 
-  eegble$chan_info$labels <- value
-}
+#   eegble$chan_info$labels <- value
+# }
 
 
 rename_chan <- function(eegble){
@@ -178,36 +178,85 @@ drop_events <- function(x) {
   x 
 }
 
-# Bad Interval
+# # Bad Interval
 
-thewhat <- tibble(sample = 1:10L, y= 1.0, z =2.0)
-thewhere <- tibble(cond = replicate (10,sample(c("a","b","c"),1)),
-     sample= 1:10L, 
-     duration = replicate (10,sample(1:3L,1)), where = replicate (10,sample(c(NA,"y","z"),1)))
+# thewhat <- tibble(sample = 1:10L, y= 1.0, z =2.0)
+# thewhere <- tibble(cond = replicate (10,sample(c("a","b","c"),1)),
+#      sample= 1:10L, 
+#      duration = replicate (10,sample(1:3L,1)), where = replicate (10,sample(c(NA,"y","z"),1)))
 
-NAs <- filter(thewhere, cond=="a") %>% 
-      mutate( s = map2(sample,sample + duration - 1,seq)) %>% unnest
+# NAs <- filter(thewhere, cond=="a") %>% 
+#       mutate( s = map2(sample,sample + duration - 1,seq)) %>% unnest
 
-mutate(thewhat, y = if_else(sample %in% NAs$s,  NA_real_, y  ))
-mutate(thewhat, y = if_else(sample %in% NAs$s[NAs$where =="y"],  
-        NA_real_, y  ))
+# mutate(thewhat, y = if_else(sample %in% NAs$s,  NA_real_, y  ))
+# mutate(thewhat, y = if_else(sample %in% NAs$s[NAs$where =="y"],  
+#         NA_real_, y  ))
+# mutate_at(thewhat, y = if_else(sample %in% NAs$s[NAs$where =="y"],  
+#         NA_real_, y  ))
 
-map2_dfc(NAs$where, NAs$s, ~ 
-      mutate(a,  y = 
-        if_else(sample == .y,  NA_integer_,sample  )))
+# thewhat$sample %in% NAs$sample 
+
+# map_dfc(select(thewhat,-sample), 
+#   ~ if_else(thewhat$sample %in% NAs$sample, NA_real_,.x))
+
+# thewhat$sample %in% NAs$sample
+# thewhat$sample %in% (NAs$sample * ("y" == NAs$where))
+
+# map_dfc(select(thewhat,-sample), 
+#   ~ names(.x))
 
 
+
+# map2_dfc(NAs$where, NAs$s, ~ 
+#       mutate(thewhat,  y = 
+#         if_else(sample == .y,  NA_integer_,sample  )))
+
+#   NAs <- map(heavy_eeg$data, ~ filter(.x$events, description == "Bad Min-Max") %>% 
+#       mutate( sample = map2(sample, sample + size - 1,seq)) %>% 
+#       unnest %>%
+#       select(channel, sample))
+
+
+# map(heavy_eeg$data, ~ mutate_at(.x$signals,chan_names(heavy_eeg),
+#   funs(if_else(sample %in% 
+#     transmute(filter( .x$events,description == "Bad Min-Max", is.na(channel)),sample), NA_real_,. )) ))
+# myN400_CONG$data$cong4003.vmrk$events
+
+# ll <- filter(myN400_CONG$data$cong4003.vmrk$events, description== "Bad Min-Max") %>% 
+# select(sample, size, channel)
+
+#  # pmap(ll, function(s,z,c) rowwise(myN400_CONG$data$cong4003.vmrk$signals) %>% 
+#  #  mutate_at(
+#  #  one_of(as.character(c)), funs(if_else(sample %in% seq(s, s + z -1),
+#  #            NA_real_, .  ))))
+
+# pmap(ll, function(s,z,c) mutate(myN400_CONG$data$cong4003.vmrk$signals,
+#    Pz = if_else(sample %in% 1:10,
+#             NA_real_, Pz  )))
+
+# rowwise(myN400_CONG$data$cong4003.vmrk$signals) %>% mutate( Pz = 
+#   if_else(sample %in% 1:10, NA_real_, Pz  ))
 
 NAify_samples <- function(x, ...){
-  to <- rlang::enquos(...)
+  dots <- rlang::enquos(...)
 
-   x$data <- map(x$data, ~ 
-                    list(signals = .x$signals[.x$signals$], Fp1 = 
-                      case_when(between(sample, ) )  
-                         events = filter(.x$events, 
-                          sample >= min(.x$signals$sample) - size, 
-                                  sample <= max(.x$signals$sample))))
-  x 
+  # NAs <- map(x$data, ~ filter(.x$events, !!!dots) %>% 
+  #     mutate( sample = map2(sample, sample + size - 1,seq)) %>% 
+  #     unnest %>%
+  #     select(channel, sample)
+
+   # x$data <- map(x$data, ~ 
+   #                  list(signals = .x$signals[.x$signals$], Fp1 = 
+   #                    case_when(between(sample, ) )  
+   #                       events = filter(.x$events, 
+   #                        sample >= min(.x$signals$sample) - size, 
+   #                                sample <= max(.x$signals$sample))))
+
+  # x$data <- map(x$data, ~ mutate_at(.x,chan_names(.x),
+  # funs(if_else(sample %in% select(filter( NAs, is.na(where)),sample), NA_real_,. )) )
+
+
+  # x 
 }
 
 
@@ -235,55 +284,103 @@ NAify_samples <- function(x, ...){
 #   eegble
 # }
 
+# times0 <- heavy_eeg$data$autoocularICA1.vmrk$events %>% filter(description == "s10") %>%
+# select(sample) %>% unlist
+# names(times0) <- NULL
+# dfs <- map_dfr(times0, 
+#   ~ heavy_eeg$data$autoocularICA1.vmrk$signal %>% 
+#   filter(sample >= .x - 1 * 500, sample <= .x + 1 * 500 ) %>% 
+#    mutate(time = sample/500 -.x) %>% select(sample, time, everything()),
+#    .id = "segment"
+#    )
 
-segment.eegbl <- function(eegble, events, lim = c(-1,1)){
-tsteps_lead <- round(lim[1] * eegble$gral_info$srate)
-tsteps_lag <- round(lim[2] * eegble$gral_info$srate)
+# dfl <- map(times0, 
+#   ~ heavy_eeg$data$autoocularICA1.vmrk$signal %>% 
+#   filter(sample >= .x - 1 * 500, sample <= .x + 1 * 500 ) %>% 
+#    mutate(time = sample/500 -.x) %>% select(sample, time, everything())
+#    )
 
-window <- seq(tsteps_lead, tsteps_lag)
+# pryr::object_size(dfs)
+# pryr::object_size(dfl)
 
-eegble$data <- eegble$data %>% group_by(.id) %>%
-              mutate(.seg_id = ifelse(event %in% events,1,0))  %>%
-              mutate(.seg_id = ifelse(.seg_id == 1, cumsum(.seg_id),0))%>% 
-              select(-one_of(eegble$chan_info$labels), 
-                      one_of(eegble$chan_info$labels)) 
 
-  # Old for loop 
-  # for(i in which(eegble$data$.seg_id!=0)){
-  #     eegble$data[i + window, ]$time <- eegble$data[i + window, ]$time - eegble$data[i, ]$time
-  # }
+#   times0 <- map(heavy_eeg$data, ~.x$events %>% 
+# filter(description == "s10") %>% select(segment = sample) %>% unlist)
 
-  decimals <- function(x) match(TRUE, round(x, 1:20) == x)
 
-  event_rows <- expand.grid(which(eegble$data$.seg_id!=0),window) %>%
-                .[order(.$Var1),] 
-  # new times need to be rounded
-  eegble$data[rowSums(event_rows), ]$time <- round(eegble$data[rowSums(event_rows), ]$time - eegble$data[event_rows[,1], ]$time,  decimals(1/eegble$gral_info$srate)) 
+# map2(.x= times0, .y= heavy_eeg$data,
+#   function(t0 , df) map(.x=t0, ~ df$signals %>%
+#     filter(sample >= .x - 1 * 500, sample <= .x + 1 * 500 ) %>%
+#     mutate(time = sample/500 -.x) %>% select(sample, time, everything())
+#     ) %>% {list(signals = .,  events = df$events)} )
 
-  eegble$data[rowSums(event_rows), ]$.seg_id <- eegble$data[event_rows[,1], ]$.seg_id  
 
-  eegble$data <- eegble$data %>% filter(.seg_id != 0) 
 
-  eegble$data %>% group_by(.id, .seg_id) %>%
-             summarize(n = n()) %>% 
-             {unique(.$n)} %>% 
-             length() %>% 
-             if(. > 1) warning("Segments have inequal size.")
 
-  eegble
+decimals <- function(x) match(TRUE, round(x, 1:20) == x)
+
+segment.eegbl <- function(eegble, ..., lim = c(-1,1)){
+
+  dots <- rlang::enquos(...)
+
+  # creates a list of vector with the times zero for each "file"
+  times0 <- map(eegble$data, ~.x$events %>% 
+    filter(!!!dots) %>% select(segment = sample) %>% unlist)
+   
+  # for each vector of times zero (t0) associated with the data of each file   
+  eegble$data <- map2(.x= times0, .y= eegble$data,
+  # iterate over the vector of times zeros (in sample)
+  function(t0 , df) map(.x=t0, ~ df$signals %>%
+    # filter the relevant samples
+    filter(sample >= .x + lim[1] * srate(eegble), 
+           sample <= .x + lim[2] * srate(eegble)) %>%
+    # add a time column
+    mutate(time = round(sample/srate(eegble) -.x/srate(eegble), 
+      decimals(1/srate(eegble)))) %>% 
+    # order the signals df:
+    select(sample, time, everything())
+    # reconstruct
+    ) %>% {list(signals = .,  events = df$events)} )
+
+eegble
 }
 
 
-bind <- function(eegble, ...){
+bind <- function(eegble1, eegble2){
 
+#validate
+eegble1$data <- c(eegble1$data,eegble2$data) 
+eegble1
 }
 
 
-plot_chan <- function(eegble, chans, ...) {
-  #? allow formulas as chans? Pz + Fz + mean(Fz)
-  eegble_long <-  eegble$data %>% gather(key = chan, value = ampl, one_of(chans))
-  ggplot(eegble_long, aes(x = time, y = ampl, group=chan)) +
-            scale_x_continuous(name = "Time (ms)") + 
-            scale_y_continuous(name = "Amplitude") + 
-            geom_line(aes(group = .seg_id), alpha = .5)
+as_long_dataframe <- function(eegble, chans) {
+  chan_rv <- setdiff(chan_names(eegble),chans)
+  
+  map(eegble$data, ~ 
+    map_dfr(.x$signals , .id = "segment", ~ .x) %>% 
+    select(-one_of(chan_rv)) %>%
+    gather(key = channel, value = amplitude, one_of(chans)) ) %>%
+  map_dfr(.id = "file", ~ .x)
+
+    
 }
+
+# plot_chan <- function(eegble, chans, ...) {
+#   #? allow formulas as chans? Pz + Fz + mean(Fz)
+  
+#   chan_rv <- setdiff(chan_names(eegble),chans)
+  
+#   eegble_long <-  map(eegble$data, ~ 
+#     map_dfr(.x$signals , .id = "segment", ~ .x) %>% 
+#     select(-one_of(chan_rv)) %>%
+#     gather(key = channel, value = amplitude, one_of(chans)) )
+
+    
+
+
+#   ggplot(eegble_long[[1]], aes(x = time, y = amplitude, group=channel)) +
+#             scale_x_continuous(name = "Time (ms)") + 
+#             scale_y_continuous(name = "Amplitude") + 
+#             geom_line(aes(group = segment), alpha = .5)
+# }

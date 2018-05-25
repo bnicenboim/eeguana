@@ -9,14 +9,13 @@ read_vhdr <- function(file, verbose = TRUE,...) {
     # It only accepts .dat files (for now)
     if(data_ext == "dat" || data_ext == "eeg" ){
       vmrk_file <- header_info$common_info$vmrk_file
-      srate  <- header_info$common_info$srate
       events <- read_vmrk(file = paste0(file_path, vmrk_file))
       data <- read_dat(file = paste0(file_path, data_file), 
-                        chan_info = header_info$chan_info, 
-                        srate = srate, 
-                        orientation = header_info$common_info$orientation, 
-                        format = header_info$common_info$format,
-                        events = events, 
+                        common_info = header_info$common_info,
+                         chan_info = header_info$chan_info, 
+                        # orientation = header_info$common_info$orientation, 
+                        # format = header_info$common_info$format,
+                         events = events, 
                         .id = vmrk_file,
                         verbose = verbose)
     } else {
@@ -24,37 +23,49 @@ read_vhdr <- function(file, verbose = TRUE,...) {
     }  
 }
 
-read_dat <- function(file, chan_info = NULL, 
-                   srate, orientation, format, events = NULL, .id = file, verbose = verbose) {
+
+
+read_dat <- function(file, common_info = NULL, chan_info = NULL, events = NULL, .id = file, verbose = verbose) {
   
   n_chan <- nrow(chan_info)
-  samplesize <- case_when(
-  					str_detect(format, regex("float_32", ignore_case = TRUE)) ~ 4,
-  					str_detect(format, regex("int_32", ignore_case = TRUE)) ~ 4,
-  					str_detect(format, regex("int_16", ignore_case = TRUE)) ~ 2,
-  					TRUE ~ NA_real_)
+  
+  if(common_info$format == "BINARY") {
+     samplesize <- case_when(
+            str_detect(common_info$bits, regex("float_32", ignore_case = TRUE)) ~ 4,
+            str_detect(common_info$bits, regex("int_32", ignore_case = TRUE)) ~ 4,
+            str_detect(common_info$bits, regex("int_16", ignore_case = TRUE)) ~ 2,
+            TRUE ~ NA_real_)
 
-  bin <- readBin(file, what = "double", n = file.info(file)$size, size = samplesize)
+    amps <- readBin(file, what = "double", n = file.info(file)$size, size = samplesize)
+    byrow <- case_when( 
+          str_detect(common_info$orientation, regex("vector", ignore_case = TRUE)) ~ FALSE,
+          str_detect(common_info$orientation, regex("multipl", ignore_case = TRUE)) ~ TRUE,
+          TRUE ~ NA) %>% 
+          { if(is.na(.)) { 
+          stop("Orientiation needs to be vectorized or multiplexed.")
+         } else{
+           .  
+         }}
 
-  byrow <- case_when( 
-  				str_detect(orientation, regex("vector", ignore_case = TRUE)) ~ FALSE,
-  				str_detect(orientation, regex("multipl", ignore_case = TRUE)) ~ TRUE,
-  				TRUE ~ NA) %>% 
-  				{ if(is.na(.)) { 
-					stop("Orientiation needs to be vectorized or multiplexed.")
-				 } else{
-				   . 	
-				 }}
-
-  signals <- matrix(bin, ncol = n_chan, byrow = byrow)  %>% 
+  signals <- matrix(as.matrix(amps), ncol = n_chan, byrow = byrow)  %>% 
                 tibble::as.tibble() 
+  } else if(common_info$format == "ASCII"){
+    signals <- read_delim(file, delim = " ",  
+     col_types= cols( .default = col_double()))
+    # amps <- read_delim(file, delim = " ", skip = common_info$SkipLines, 
+    #  col_types= cols( .default = col_double()), col_names = FALSE)
+  }
+ 
+
+
+ 
 
 
   colnames(signals)  <- chan_info$labels
   chan_info$labels <- as_factor(chan_info$labels)
   # time <- tibble::tibble(sample = 1:dim(signals)[[1]]) %>%
-  #             dplyr::mutate(time = (sample - 1) / srate)
-  # data <- eeg_data(data =   signals, srate = srate,
+  #             dplyr::mutate(time = (sample - 1) / common_info$srate)
+  # data <- eeg_data(data =   signals, srate = common_info$srate,
   #                    chan_info = chan_info,
   #                    events = event_table, timings = timings,
   #                    continuous = TRUE)
@@ -65,7 +76,7 @@ read_dat <- function(file, chan_info = NULL,
   names(eegble$data) <- .id
 
   eegble$chan_info <- chan_info
-  eegble$gral_info <- list(srate = srate, 
+  eegble$gral_info <- list(srate = common_info$srate, 
                		 	   reference = NA)
   eegble$data[[.id]]$signals <- tibble(sample = 1:nrow(signals)) %>%
             bind_cols(signals)
@@ -139,10 +150,12 @@ read_vhdr_metadata <- function(file) {
    return(readr::read_delim(info,
                  delim = "=", comment = ";", col_names=c("type", "value")))
    }
- }  
+ }
+
+
   out <- list()
-  binary_info <- read_metadata("Binary Infos") %>% 
-                 tidyr::spread(type, value) %>% rename(format = BinaryFormat)
+
+ 
   channel_info <- read_metadata("Channel Infos") %>% 
               separate(value, c("labels","ref","res","unit"), sep=",", fill="right")
   coordinates <- read_metadata("Coordinates") %>% 
@@ -162,11 +175,26 @@ read_vhdr_metadata <- function(file) {
                  dplyr::transmute(data_points = DataPoints,
                             # seg_data_points = as.numeric(SegmentDataPoints),
                             orientation = DataOrientation,
+                            format = DataFormat,
                             domain = DataType,
                             srate =  1000000 / SamplingInterval,
                             data_file = DataFile,
-                            vmrk_file = MarkerFile) %>% 
-                dplyr::bind_cols(binary_info)
+                            vmrk_file = MarkerFile) 
+
+  if(common_info$format == "ASCII") {
+   format_info <- read_metadata("ASCII Infos") %>% 
+                   tidyr::spread(type, value)  %>%
+                 readr::type_convert(col_types = readr::cols(
+                  DecimalSymbol = readr::col_character(),
+                  SkipColumns  = readr::col_integer(),
+                  SkipLines = readr::col_integer()))
+  } else if(common_info$format == "BINARY") {
+   format_info <- read_metadata("Binary Infos") %>% 
+                   tidyr::spread(type, value) %>% rename(bits = BinaryFormat)
+  }
+ 
+              
+  common_info  <- dplyr::bind_cols(common_info, format_info)
                         
   if(stringr::str_sub(common_info$domain,1,nchar("time")) %>% 
       stringr::str_to_lower() != "time") {
