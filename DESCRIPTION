@@ -1,0 +1,19 @@
+Package: eegble
+Type: Package
+Title: What the Package Does (Title Case)
+Version: 0.0.0.9000
+Authors@R: person("Bruno", "Nicenboim", email = "bruno.nicenboim@example.com", role = c("aut", "cre"))
+Description: Flexible data manipulation of EEG data.
+License: MIT
+Encoding: UTF-8
+RoxygenNote: 6.0.1
+Depends: 
+     R (>= 3.1.0)
+Imports: 
+     dplyr,
+     tidyr,
+     purrr,
+     stringr,
+     tools,
+     magrittr
+LazyData: true
