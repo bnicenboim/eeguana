@@ -10,6 +10,10 @@
 #' @export
 bind <- function(...){
   eegbles <- list(...)
+  # hack to allow that ... is already a list
+  if(class(eegbles[[1]]) != "eegbl") {
+    eegbles <- list(...)[[1]]
+  }
   new_eegble <- eegbles[[1]]
   
   purrr::walk(eegbles[seq(2,length(eegbles))], 
@@ -23,7 +27,7 @@ bind <- function(...){
   new_eegble$data <- purrr::map(eegbles, "data") %>% 
                   unlist(recursive = FALSE) %>% c()
 
-  new_eegble
+  validate_eegbl(new_eegble)
  }
 
 
@@ -34,12 +38,18 @@ bind <- function(...){
 #' @param .id Name of the column that identifies the data.
 #' @param ... Other arguments passed on to individual methods.
 #' 
+#' `as_data_frame` and `as.tibble` are aliases.
 #' @return A tibble.
 #' 
 #' @importFrom magrittr %>%
 #' 
 #' @export
+as_tibble <- function(x, ...) {
+  UseMethod("as_tibble")
+}
 
+#' @export
+#' @rdname as_tibble
  as_tibble.eegbl <- function(x, ..., chans, .id = "id") {
   chan_rv <- setdiff(chan_names(x),chans)
   
@@ -50,3 +60,11 @@ bind <- function(...){
 
   purrr::map_dfr(.id = .id, ~ .x)
 }
+
+#' @rdname as_tibble
+#' @export
+as_data_frame.eegbl <- as_tibble.eegbl
+
+#' @rdname as_tibble
+#' @export
+as.tibble.eegbl <- as_tibble.eegbl

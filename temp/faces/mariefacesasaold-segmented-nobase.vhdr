@@ -1,0 +1,113 @@
+Brain Vision Data Exchange Header File Version 2.0
+; Data created from history path: mariefacesasaold/Raw Data/Change Sampling Rate n4 hiwi/New Reference/Filters/Raw Data Inspection/Ocular Correction ICA/Segmentation
+
+[Common Infos]
+Codepage=UTF-8
+DataFile=mariefacesasaold-segmented-nobase.dat
+MarkerFile=mariefacesasaold-segmented-nobase.vmrk
+DataFormat=BINARY
+; Data orientation: VECTORIZED=ch1,pt1, ch1,pt2..., MULTIPLEXED=ch1,pt1, ch2,pt1 ...
+DataOrientation=VECTORIZED
+DataType=TIMEDOMAIN
+NumberOfChannels=34
+DataPoints=60000
+; Sampling interval in microseconds if time domain (convert to Hertz:
+; 1000000 / SamplingInterval) or in Hertz if frequency domain:
+SamplingInterval=2000
+SegmentationType=MARKERBASED
+SegmentDataPoints=600
+
+[User Infos]
+; Each entry: Prop<Number>=<Type>,<Name>,<Value>,<Value2>,...,<ValueN>
+; Property number must be unique. Types can be int, single, string, bool, byte, double, uint
+; or arrays of those, indicated int-array etc
+; Array types have more than one value, number of values determines size of array.
+; Fields are delimited by commas, commas in strings are written \1
+
+[Binary Infos]
+BinaryFormat=IEEE_FLOAT_32
+
+[Channel Infos]
+; Each entry: Ch<Channel number>=<Name>,<Reference channel name>,
+; <Resolution in "Unit">,<Unit>, Future extensions...
+; Fields are delimited by commas, some fields might be omitted (empty).
+; Commas in channel names are coded as "\1".
+Ch1=Fp1,avim12,,µV
+Ch2=Fpz,avim12,,µV
+Ch3=Fp2,avim12,,µV
+Ch4=F7,avim12,,µV
+Ch5=F3,avim12,,µV
+Ch6=Fz,avim12,,µV
+Ch7=F4,avim12,,µV
+Ch8=F8,avim12,,µV
+Ch9=FC5,avim12,,µV
+Ch10=FC1,avim12,,µV
+Ch11=FC2,avim12,,µV
+Ch12=FC6,avim12,,µV
+Ch13=M1,avim12,,µV
+Ch14=T7,avim12,,µV
+Ch15=C3,avim12,,µV
+Ch16=Cz,avim12,,µV
+Ch17=C4,avim12,,µV
+Ch18=T8,avim12,,µV
+Ch19=M2,avim12,,µV
+Ch20=CP5,avim12,,µV
+Ch21=CP1,avim12,,µV
+Ch22=CP2,avim12,,µV
+Ch23=CP6,avim12,,µV
+Ch24=P7,avim12,,µV
+Ch25=P3,avim12,,µV
+Ch26=Pz,avim12,,µV
+Ch27=P4,avim12,,µV
+Ch28=P8,avim12,,µV
+Ch29=POz,avim12,,µV
+Ch30=O1,avim12,,µV
+Ch31=Oz,avim12,,µV
+Ch32=O2,avim12,,µV
+Ch33=EOGV,,,µV
+Ch34=EOGH,,,µV
+
+[Channel User Infos]
+; Each entry: Prop<Number>=Ch<ChannelNumber>,<Type>,<Name>,<Value>,<Value2>,...,<ValueN>
+; Property number must be unique. Types can be int, single, string, bool, byte, double, uint
+; or arrays of those, indicated int-array etc
+; Array types have more than one value, number of values determines size of array.
+; Fields are delimited by commas, commas in strings are written \1
+; Properties are assigned to channels using their channel number.
+
+[Coordinates]
+; Each entry: Ch<Channel number>=<Radius>,<Theta>,<Phi>
+Ch1=1,-90,-72
+Ch2=1,90,90
+Ch3=1,90,72
+Ch4=1,-90,-36
+Ch5=1,-60,-51
+Ch6=1,45,90
+Ch7=1,60,51
+Ch8=1,90,36
+Ch9=1,-69,-21
+Ch10=1,-31,-46
+Ch11=1,31,46
+Ch12=1,69,21
+Ch13=0,0,0
+Ch14=1,-90,0
+Ch15=1,-45,0
+Ch16=1,0,0
+Ch17=1,45,0
+Ch18=1,90,0
+Ch19=0,0,0
+Ch20=1,-69,21
+Ch21=1,-31,46
+Ch22=1,31,-46
+Ch23=1,69,-21
+Ch24=1,-90,36
+Ch25=1,-60,51
+Ch26=1,45,-90
+Ch27=1,60,-51
+Ch28=1,90,-36
+Ch29=1,67,-90
+Ch30=1,-90,72
+Ch31=1,90,-90
+Ch32=1,90,-72
+Ch33=0,0,0
+Ch34=0,0,0

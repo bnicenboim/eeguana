@@ -4,7 +4,14 @@
 \alias{print.eegbl}
 \title{Print an eegble object.}
 \usage{
-\method{print}{eegbl}(x, ...)
+\method{print}{eegbl}(x, ..., file = NULL)
+}
+\arguments{
+\item{x}{An eegble object.}
+
+\item{...}{Other options passed to print.tbl.}
+
+\item{file}{If it is specified, prints a summary of a single file.}
 }
 \description{
 Print an eegble object.
