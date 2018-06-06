@@ -54,8 +54,8 @@ srate <- function(x){
 #' @rdname info
 #' @export
 duration <- function(x){
-	map_dbl(x$data, function(f)
-	 map_dbl(f$signals, ~ nrow(.x)) %>% unique()/ srate(x) )
+  purrr::map_dbl(x$data, function(f)
+   purrr::map_dbl(f$signals, ~ nrow(.x)) %>% unique()/ srate(x) )
 
 }
 
@@ -71,18 +71,61 @@ summary.eegbl <- function(object, ...){
   # message(paste0("# Events (markers/triggers): ", 
   #                   paste0(event_names(object),collapse =", "), "."))
   message(paste0("# Size in memory: ", capture.output(pryr::object_size(object)), "."))
-  
-  map_chr(object$data, function(f) names(f))
-
-  map_dfr(object$data, function(f)
-	 map_dfr(f$signals, ~ .x) ) %>% summary() %>%
-  print()
-  
-  map_dfr(object$data, function(f)
-	 f$events) %>% summary() %>%
-  print()
+  message(paste0("# Files: ", names(object$data), collapse = ", "))
   
 
-  # print(eegble$data, ...)
+  message("# Summary of signals")
+  summary_data <- purrr::map_dfr(object$data, function(f)
+   purrr::map_dfr(f$signals, ~ .x) ) %>% summary() %>%
+  print()
+  
+  message("# Summary of events")
+  summary_events <- purrr::map_dfr(object$data, function(f)
+   f$events) %>% summary() %>%
+  print()
+  invisible(list(signals = summary_data, events = summary_events))
+}
+
+#' Print an eegble object.
+#' 
+#' @param x An eegble object.
+#' @param ... Other options passed to print.tbl.
+#' @param file If it is specified, prints a summary of a single file.
+#'
+#' @export
+print.eegbl <- function(x, ..., file = NULL){
+  # to add later as an option, and add ... to the prints
+
+  dots <- rlang::enquos(...)
+  message(paste0("# EEG data (eegble) from ", nchan(x), " channels:"))
+  message(paste0( chan_names(x), collapse = ", "))
+  message(paste0("# Sampling rate: ", srate(x), " Hz."))
+  if(is.null(file)){
+    message(paste0("# Size in memory: ", capture.output(pryr::object_size(x)), "."))
+    message(paste0("# Files: ", paste0(names(x$data), collapse = ", ")))
+    segs <- purrr::map_dbl(x$data, ~ length(.x$signals))
+    if(length(unique(segs)) == 1) {
+        message(paste0("# Number of segments in each file: ",
+         unique(segs) ))
+    } else {
+      message("# Files have different number of segments: ", 
+        paste0(segs, collapse = ", "))
+    }
+    message("# Summary of events for all files")
+    purrr::map_dfr(x$data, ~ .x$events) %>% 
+      dplyr::group_by_at(vars(-size, -channel, -sample)) %>% 
+      dplyr::count() %>%
+    print(., !!!dots)
+  } else  {
+
+    segs <- length(x$data[[file]]$signals)
+    message(paste0("# Number of segments: ",segs ))
+    message("# Summary of events")
+    purrr::map_dfr(x$data, ~ .x$events) %>% 
+      dplyr::group_by_at(vars(-size, -channel, -sample)) %>% 
+      dplyr::count() %>%
+    print(., !!!dots)
+  }
+  invisible(x)
 }
 

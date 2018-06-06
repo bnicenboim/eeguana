@@ -1,4 +1,4 @@
-#' Read a BrainVision file into an eggble object.
+#' Read a BrainVision file into an eegble object.
 #'
 #' @param file A vhdr file in a folder that contains a .vmrk and .dat files
 #' @param ignore_segs Ignore BrainVision segmentation. By default, FALSE.
@@ -30,7 +30,7 @@ read_vhdr <- function(file, ignore_segs = FALSE,
   if(data_ext == "dat" || data_ext == "eeg" ){
     vmrk_file <- header_info$common_info$vmrk_file
     events <- read_vmrk(file = paste0(file_path, vmrk_file))
-    data <- read_dat(file = paste0(file_path, data_file), 
+    x <- read_dat(file = paste0(file_path, data_file), 
                      common_info = header_info$common_info,
                      chan_info = header_info$chan_info, 
                      events = events, 
@@ -42,7 +42,8 @@ read_vhdr <- function(file, ignore_segs = FALSE,
     )
   } else {
     warning(paste0(".",data_ext, " files are unsupported."))
-  }  
+  }
+  x
 }
 
 #' @importFrom magrittr %>%
@@ -65,12 +66,14 @@ read_vhdr <- function(file, ignore_segs = FALSE,
     # It only accepts .dat files (for now)
     if(data_ext == "dat" || data_ext == "eeg" ){
       vmrk_file <- header_info$common_info$vmrk_file
+      id <- stringr::str_replace(vmrk_file, 
+          paste0(".",tools::file_ext(vmrk_file)),"")
       events <- read_vmrk(file = paste0(file_path, vmrk_file))
       data <- read_dat(file = paste0(file_path, data_file), 
                         common_info = header_info$common_info,
                          chan_info = header_info$chan_info, 
                            events = events, 
-                        .id = vmrk_file,
+                        .id = id,
                         ignore_segs = ignore_segs,
                           sep = sep,
                           zero = zero,
@@ -93,16 +96,16 @@ read_dat <- function(file,
   n_chan <- nrow(chan_info)
   
   if(common_info$format == "BINARY") {
-    samplesize <- case_when(
-      str_detect(common_info$bits, regex("float_32", ignore_case = TRUE)) ~ 4,
-      str_detect(common_info$bits, regex("int_32", ignore_case = TRUE)) ~ 4,
-      str_detect(common_info$bits, regex("int_16", ignore_case = TRUE)) ~ 2,
+    samplesize <- dplyr::case_when(
+     stringr::str_detect(common_info$bits,stringr::regex("float_32", ignore_case = TRUE)) ~ 4,
+     stringr::str_detect(common_info$bits,stringr::regex("int_32", ignore_case = TRUE)) ~ 4,
+     stringr::str_detect(common_info$bits,stringr::regex("int_16", ignore_case = TRUE)) ~ 2,
       TRUE ~ NA_real_)
     
     amps <- readBin(file, what = "double", n = file.info(file)$size, size = samplesize)
-    byrow <- case_when( 
-      str_detect(common_info$orientation, regex("vector", ignore_case = TRUE)) ~ FALSE,
-      str_detect(common_info$orientation, regex("multipl", ignore_case = TRUE)) ~ TRUE,
+    byrow <- dplyr::case_when( 
+     stringr::str_detect(common_info$orientation,stringr::regex("vector", ignore_case = TRUE)) ~ FALSE,
+     stringr::str_detect(common_info$orientation,stringr::regex("multipl", ignore_case = TRUE)) ~ TRUE,
       TRUE ~ NA) %>% 
       { if(is.na(.)) { 
         stop("Orientiation needs to be vectorized or multiplexed.")
@@ -113,13 +116,13 @@ read_dat <- function(file,
     signals <- matrix(as.matrix(amps), ncol = n_chan, byrow = byrow)  %>% 
       tibble::as.tibble() 
   } else if(common_info$format == "ASCII"){
-    signals <- read_delim(file, delim = " ",  
-                          col_types= cols( .default = col_double()))
+    signals <- readr::read_delim(file, delim = " ",  
+                          col_types= readr::cols( .default = readr::col_double()))
   }
   
   
   colnames(signals)  <- chan_info$labels
-  chan_info$labels <- as_factor(chan_info$labels)
+  chan_info$labels <- forcats::as_factor(chan_info$labels)
 
   eegble <- list(data = list(list(signals = NULL, events = NULL)), 
                  chan_info = NULL, gral_info = NULL)
@@ -129,47 +132,54 @@ read_dat <- function(file,
   eegble$gral_info <- list(srate = common_info$srate, 
                            reference = NA)
   # name the channels of the corresponding events, using factor  
-  events <- mutate(events, channel = if_else(channel==0,NA_integer_,channel) 
-                   %>%  chan_info$labels[.] %>% as_factor(levels = chan_info$labels ))
+  events <- dplyr::mutate(events, channel = dplyr::if_else(channel==0,NA_integer_,channel) 
+                   %>%  chan_info$labels[.] %>% forcats::as_factor(levels = chan_info$labels ))
   
   eegble$data[[.id]]$events <- events
   
-  raw_signals <- tibble(sample = 1:nrow(signals)) %>%
-    bind_cols(signals)
+  raw_signals <- tibble::tibble(sample = 1:nrow(signals)) %>%
+    dplyr::bind_cols(signals)
   
   if(ignore_segs == FALSE) {
-    t0 <-  events %>% 
-      filter(!!zero) %>% .$sample
     
     # the first event can't be the end of the segment
     # and the last segment ends at the end of the file     
-    end_segs <- events %>% filter(!!sep)  %>% 
-      slice(-1) %>% {.$sample -1} %>% c(., nrow(signals)) 
+    end_segs <- events %>% dplyr::filter(!!sep)  %>% 
+      dplyr::slice(-1) %>% {.$sample -1} %>% c(., nrow(signals)) 
     
-    beg_segs <- events %>% filter(!!sep) %>% .$sample 
+    beg_segs <- events %>% dplyr::filter(!!sep) %>% .$sample 
     # segs <- list(beg = beg_segs, t0 = t0, end = end_segs)
-    
-    eegble$data[[.id]]$signals <- pmap( list(beg_segs,  t0, end_segs), function(b,t,e) raw_signals %>%
+
+    t0 <-  events %>% 
+      dplyr::filter(!!zero) %>% .$sample
+
+    # In case the time zero is not defined  
+    if(length(t0)==0) t0 <- beg_segs
+        
+    eegble$data[[.id]]$signals <- purrr::pmap( list(beg_segs,  t0, end_segs), function(b,t,e) raw_signals %>%
                                           # filter the relevant samples
-                                          filter(sample >= b, 
+                                          dplyr::filter(sample >= b, 
                                                  sample <= e) %>%
                                           # add a time column
-                                          mutate(time = round(sample/srate(eegble) - t /srate(eegble), 
+                                          dplyr::mutate(time = round(sample/srate(eegble) - t /srate(eegble), 
                                                               decimals(1/srate(eegble)))) %>% 
                                           # order the signals df:
-                                          select(sample, time, everything()))
+                                          dplyr::select(sample, time, dplyr::everything()))
     
     
   } else {
     
-    eegble$data[[.id]]$signals <- raw_signals
+    eegble$data[[.id]]$signals <- list(raw_signals)
   } 
   
   
   
   eegble <- unclass(eegble)
   class(eegble) <- "eegbl"
-  if(verbose) print(paste("Object size",capture.output(pryr::object_size(eegble))))
+
+  message(paste0("# Data from ", length(eegble$data[[.id]]$signals), 
+    " segment(s) and ", nchan(eegble), " channels was loaded."))
+  message(say_size(eegble))
   eegble
 }
 
@@ -228,7 +238,7 @@ read_vhdr_metadata <- function(file) {
   read_metadata <- function(tag, vhdr = content_vhdr) {
     info <- vhdr[vhdr[,2] == tag,3]
     if(length(info) == 0){
-      return(tibble::tibble(type=character(), value=character()))
+      return(tibble::tibble(type = character(), value = character()))
     } else {
       return(readr::read_delim(info,
                                delim = "=", comment = ";", col_names=c("type", "value")))
@@ -273,7 +283,8 @@ read_vhdr_metadata <- function(file) {
         SkipLines = readr::col_integer()))
   } else if(common_info$format == "BINARY") {
     format_info <- read_metadata("Binary Infos") %>% 
-      tidyr::spread(type, value) %>% rename(bits = BinaryFormat)
+      tidyr::spread(type, value) %>% 
+        dplyr::rename(bits = BinaryFormat)
   }
   
   

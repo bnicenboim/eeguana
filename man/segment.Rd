@@ -9,7 +9,7 @@ segment(x, ..., lim = c(-1, 1))
 \arguments{
 \item{x}{An \code{eegble} object.}
 
-\item{...}{Description of the problematic event.}
+\item{...}{Description of the event.}
 }
 \value{
 An eegbl.

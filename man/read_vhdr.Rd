@@ -2,7 +2,7 @@
 % Please edit documentation in R/read.R
 \name{read_vhdr}
 \alias{read_vhdr}
-\title{Read a BrainVision file into an eggble object.}
+\title{Read a BrainVision file into an eegble object.}
 \usage{
 read_vhdr(file, ignore_segs = FALSE, sep = type == "New Segment",
   zero = type == "Time 0", verbose = TRUE)
@@ -22,5 +22,5 @@ read_vhdr(file, ignore_segs = FALSE, sep = type == "New Segment",
 An \code{eegble} object with signals and event from file.dat, file.vhdr, and file.vmrk.
 }
 \description{
-Read a BrainVision file into an eggble object.
+Read a BrainVision file into an eegble object.
 }

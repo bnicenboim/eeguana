@@ -1,6 +1,6 @@
 Package: eegble
 Type: Package
-Title: What the Package Does (Title Case)
+Title: A package for flexible manipulation of EEG data
 Version: 0.0.0.9000
 Authors@R: person("Bruno", "Nicenboim", email = "bruno.nicenboim@example.com", role = c("aut", "cre"))
 Description: Flexible data manipulation of EEG data.
@@ -13,7 +13,13 @@ Imports:
      dplyr,
      tidyr,
      purrr,
+     forcats,
      stringr,
      tools,
-     magrittr
+     magrittr,
+     furrr,
+     pryr,
+     future
+Suggests:
+     testthat
 LazyData: true

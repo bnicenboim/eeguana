@@ -4,12 +4,22 @@
 \alias{event_to_NA}
 \title{Remove (transform to NA) problematic events from an eegble.}
 \usage{
-event_to_NA(x, ..., ind_channel = TRUE, entire_seg = FALSE)
+event_to_NA(x, ..., ind_channel = TRUE, entire_seg = FALSE,
+  parallel = TRUE)
 }
 \arguments{
 \item{x}{An \code{eegble} object.}
 
 \item{...}{Description of the problematic event.}
+
+\item{ind_channel}{If set to FALSE, 
+it will remove samples from all channels (Default:  ind_channel = TRUE).}
+
+\item{entire_seg}{If set to TRUE, it will remove the entire segment 
+(Default: entire_seg = FALSE).}
+
+\item{parallel}{If set to TRUE, it will use all cores. 
+(Default: parallel = TRUE).}
 }
 \value{
 An eegbl.
