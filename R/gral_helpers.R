@@ -41,3 +41,26 @@ x
 eegbl <- function(x){
   validate_eegbl(x)
 }
+
+#' Applies a function to all the segments and returns an eegble.
+#'
+#' @param x An eegbl.
+#' @param f_seg Function to apply to the segments.
+#' @param parallel If set to TRUE, it will use all cores. 
+#'    (Default: parallel = FALSE).
+
+segmap_eggbl <- function(x, f_seg, parallel = FALSE){
+  if(parallel){
+    # the progress bar are not very useful
+    modify <- function(...) furrr::future_modify(..., .progress = FALSE)
+  } else {
+    modify <- purrr::modify
+  }
+
+    x$data <- purrr::modify(x$data, function(data_file) {
+                segs <- modify(data_file$signals, f_seg)
+                list(signals = segs, events = data_file$events)
+            })
+  x
+   
+}

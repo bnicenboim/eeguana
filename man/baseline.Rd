@@ -4,7 +4,7 @@
 \alias{baseline}
 \title{Baseline an eegble.}
 \usage{
-baseline(x, t = -Inf, parallel = TRUE)
+baseline(x, t = -Inf, parallel = FALSE)
 }
 \arguments{
 \item{x}{An \code{eegble} object.}
@@ -13,11 +13,25 @@ baseline(x, t = -Inf, parallel = TRUE)
 (TO COMPLETE). The default is to use all the negative times.}
 
 \item{parallel}{If set to TRUE, it will use all cores. 
-(Default: parallel = TRUE).}
+   (Default: parallel = FALSE).
+
+The parallel option runs the process in several cores using \code{furrr} 
+with \code{future} as the backends. To use the parallel option these 
+packages need to be installed, the library \code{future} needs to be 
+attached, and a "plan" needs to be specified (e.g., 
+\code{plan(multiprocess)})}
 }
 \value{
 An eegbl.
 }
 \description{
 Baseline an eegble.
+}
+\examples{
+\dontrun{
+library(future)
+plan(multiprocess)
+segmented_eggble <- segment(clean_eggble, description== "s13", lim = c(-.2,.5)
+segmented_bl_eggble <- baseline(segmented_eggble, parallel = TRUE)
+}
 }

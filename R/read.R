@@ -97,16 +97,22 @@ read_dat <- function(file,
   
   if(common_info$format == "BINARY") {
     samplesize <- dplyr::case_when(
-     stringr::str_detect(common_info$bits,stringr::regex("float_32", ignore_case = TRUE)) ~ 4,
-     stringr::str_detect(common_info$bits,stringr::regex("int_32", ignore_case = TRUE)) ~ 4,
-     stringr::str_detect(common_info$bits,stringr::regex("int_16", ignore_case = TRUE)) ~ 2,
-      TRUE ~ NA_real_)
+     stringr::str_detect(common_info$bits,stringr::regex("float_32", 
+                                                      ignore_case = TRUE)) ~ 4,
+     stringr::str_detect(common_info$bits,stringr::regex("int_32", 
+                                                      ignore_case = TRUE)) ~ 4,
+     stringr::str_detect(common_info$bits,stringr::regex("int_16", 
+                                                      ignore_case = TRUE)) ~ 2,
+                                                                TRUE ~ NA_real_)
     
-    amps <- readBin(file, what = "double", n = file.info(file)$size, size = samplesize)
+    amps <- readBin(file, what = "double", n = file.info(file)$size, 
+                                                              size = samplesize)
     byrow <- dplyr::case_when( 
-     stringr::str_detect(common_info$orientation,stringr::regex("vector", ignore_case = TRUE)) ~ FALSE,
-     stringr::str_detect(common_info$orientation,stringr::regex("multipl", ignore_case = TRUE)) ~ TRUE,
-      TRUE ~ NA) %>% 
+     stringr::str_detect(common_info$orientation,stringr::regex("vector", 
+                                                  ignore_case = TRUE)) ~ FALSE,
+     stringr::str_detect(common_info$orientation,stringr::regex("multipl", 
+                                                  ignore_case = TRUE)) ~ TRUE,
+                                                  TRUE ~ NA) %>% 
       { if(is.na(.)) { 
         stop("Orientiation needs to be vectorized or multiplexed.")
       } else{
@@ -155,21 +161,33 @@ read_dat <- function(file,
 
     # In case the time zero is not defined  
     if(length(t0)==0) t0 <- beg_segs
-        
-    eegble$data[[.id]]$signals <- purrr::pmap( list(beg_segs,  t0, end_segs), function(b,t,e) raw_signals %>%
+    
+    #csts in the loop
+    s_rate <- srate(eegble)
+    dec <- decimals(1/s_rate)
+    
+    eegble$data[[.id]]$signals <- 
+                        purrr::pmap(list(beg_segs,  t0, end_segs), 
+                                    function(b,t,e) raw_signals %>%
                                           # filter the relevant samples
                                           dplyr::filter(sample >= b, 
                                                  sample <= e) %>%
                                           # add a time column
-                                          dplyr::mutate(time = round(sample/srate(eegble) - t /srate(eegble), 
-                                                              decimals(1/srate(eegble)))) %>% 
+                                          dplyr::mutate(time = 
+                                            round(sample/s_rate - t
+                                             / s_rate, 
+                                      dec)) %>% 
                                           # order the signals df:
-                                          dplyr::select(sample, time, dplyr::everything()))
+                                          dplyr::select(sample, time, 
+                                            dplyr::everything()))
     
-    
+    eegble$seg_info <- tibble(id = .id, segment = seq(length(beg_segs)), 
+      type = "initial")
+
   } else {
     
     eegble$data[[.id]]$signals <- list(raw_signals)
+    eegble$seg_info <- tibble(id = .id, segment = 1, type = "initial")
   } 
   
   

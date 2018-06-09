@@ -60,31 +60,42 @@ duration <- function(x){
 }
 
 
-
-#' Summary of an eegble object.
+#' Simple plot an eegble object.
+#' @param x An \code{eegble} object.
+#' @param chans Channel names to be used; all of them by default.
+#' @param thinning Automatic by default, but integers can be used.
+#' 
+#' 
+#' @return A ggplot object 
+#' 
+#' @importFrom magrittr %>%
+#' 
 #' @export
-summary.eegbl <- function(object, ...){
-  message(paste0("# EEG data (eegble) from ", nchan(object), " channels:"))
-  message(paste0( chan_names(object), collapse = ", "))
-  message(paste0("# Sampling rate: ", srate(object), " Hz."))
-  message(paste0("# Duration: ", duration(object), " ms."))
-  # message(paste0("# Events (markers/triggers): ", 
-  #                   paste0(event_names(object),collapse =", "), "."))
-  message(paste0("# Size in memory: ", capture.output(pryr::object_size(object)), "."))
-  message(paste0("# Files: ", names(object$data), collapse = ", "))
-  
+plot.eegbl <- function(x, chans = NULL, thinning = "auto"){
 
-  message("# Summary of signals")
-  summary_data <- purrr::map_dfr(object$data, function(f)
-   purrr::map_dfr(f$signals, ~ .x) ) %>% summary() %>%
-  print()
-  
-  message("# Summary of events")
-  summary_events <- purrr::map_dfr(object$data, function(f)
-   f$events) %>% summary() %>%
-  print()
-  invisible(list(signals = summary_data, events = summary_events))
+  if(is.null(chans)) {chans = chan_names(x)}
+
+  if(thinning=="auto"){ 
+    by <- length(chans) * 2
+  } else if(is.null(thinning)) {
+    by <- 1
+  } else {
+    by <- thinning
+  }
+  df <- as_tibble(x, chans) %>% 
+    dplyr::group_by(id, segment, channel) %>% 
+        dplyr::filter(time %in%  time[seq(1,length(time), by = by)])
+
+  plot <- ggplot2::ggplot(df, 
+      ggplot2::aes(x = time, y = amplitude)) + 
+      ggplot2::geom_line() +
+      ggplot2::facet_wrap(~ channel + id + segment, 
+        labeller = ggplot2::label_wrap_gen(multi_line=FALSE)) + 
+      ggplot2::scale_y_reverse() + 
+      ggplot2::theme_bw()
+  plot
 }
+
 
 #' Print an eegble object.
 #' 
@@ -93,36 +104,42 @@ summary.eegbl <- function(object, ...){
 #' @param file If it is specified, prints a summary of a single file.
 #'
 #' @export
-print.eegbl <- function(x, ..., file = NULL){
+print.eegbl <- function(x, ..., id = NULL){
   # to add later as an option, and add ... to the prints
 
   dots <- rlang::enquos(...)
   message(paste0("# EEG data (eegble) from ", nchan(x), " channels:"))
   message(paste0( chan_names(x), collapse = ", "))
   message(paste0("# Sampling rate: ", srate(x), " Hz."))
-  if(is.null(file)){
+  if(is.null(id)){
     message(paste0("# Size in memory: ", capture.output(pryr::object_size(x)), "."))
-    message(paste0("# Files: ", paste0(names(x$data), collapse = ", ")))
+    message(paste0("# Recording ids: ", paste0(names(x$data), collapse = ", ")))
     segs <- purrr::map_dbl(x$data, ~ length(.x$signals))
     if(length(unique(segs)) == 1) {
-        message(paste0("# Number of segments in each file: ",
+        message(paste0("# Number of segments in each recordings: ",
          unique(segs) ))
     } else {
-      message("# Files have different number of segments: ", 
+      message("# Recordings have different number of segments: ", 
         paste0(segs, collapse = ", "))
     }
-    message("# Summary of events for all files")
+    message("# Summary of events for all recordings")
     purrr::map_dfr(x$data, ~ .x$events) %>% 
-      dplyr::group_by_at(vars(-size, -channel, -sample)) %>% 
+      dplyr::group_by_at(dplyr::vars(-size, -channel, -sample)) %>% 
       dplyr::count() %>%
     print(., !!!dots)
+
+    message("# Segments info: ")
+    print(x$seg_info, !!!dots)
   } else  {
 
-    segs <- length(x$data[[file]]$signals)
+    segs <- length(x$data[[id]]$signals)
     message(paste0("# Number of segments: ",segs ))
+    x$seg_info %>% dplyr::filter(id == id) %>% 
+      print(., !!!dots)
+
     message("# Summary of events")
     purrr::map_dfr(x$data, ~ .x$events) %>% 
-      dplyr::group_by_at(vars(-size, -channel, -sample)) %>% 
+      dplyr::group_by_at(dplyr::vars(-size, -channel, -sample)) %>% 
       dplyr::count() %>%
     print(., !!!dots)
   }

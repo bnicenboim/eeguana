@@ -7,9 +7,9 @@ Description: Flexible data manipulation of EEG data.
 License: MIT
 Encoding: UTF-8
 RoxygenNote: 6.0.1
-Depends: 
+Depends:
      R (>= 3.1.0)
-Imports: 
+Imports:
      dplyr,
      tidyr,
      purrr,
@@ -17,9 +17,14 @@ Imports:
      stringr,
      tools,
      magrittr,
-     furrr,
      pryr,
-     future
+     ggplot2,
+     fastmatch
 Suggests:
-     testthat
+     testthat,
+     furrr,
+     future,
+    knitr,
+    rmarkdown
 LazyData: true
+VignetteBuilder: knitr

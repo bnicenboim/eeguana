@@ -31,10 +31,15 @@ bind <- function(...){
  }
 
 
+as_tibble <-function (x, ...) {
+    UseMethod("as_tibble")
+}
+
+
 #' Convert an eegble to a tibble.
 #'
 #' @param x An \code{eegble} object.
-#' @param chans Channell names to be used.
+#' @param chans Channel names to be used; all of them by default.
 #' @param .id Name of the column that identifies the data.
 #' @param ... Other arguments passed on to individual methods.
 #' 
@@ -43,14 +48,9 @@ bind <- function(...){
 #' 
 #' @importFrom magrittr %>%
 #' 
-#' @export
-as_tibble <- function(x, ...) {
-  UseMethod("as_tibble")
-}
-
-#' @export
-#' @rdname as_tibble
- as_tibble.eegbl <- function(x, ..., chans, .id = "id") {
+#' @export 
+ as_tibble.eegbl <- function(x, ..., chans = NULL, .id = "id") {
+  if(is.null(chans)) {chans = chan_names(x)}
   chan_rv <- setdiff(chan_names(x),chans)
   
   purrr::map(x$data, ~ 
@@ -61,10 +61,29 @@ as_tibble <- function(x, ...) {
   purrr::map_dfr(.id = .id, ~ .x)
 }
 
-#' @rdname as_tibble
+
+#' @rdname as_tibble.eegbl
 #' @export
 as_data_frame.eegbl <- as_tibble.eegbl
 
-#' @rdname as_tibble
+#' @rdname as_tibble.eegbl
 #' @export
 as.tibble.eegbl <- as_tibble.eegbl
+
+
+#' Convert an eegble to a (base) data frame.
+#'
+#' @param x An \code{eegble} object.
+#' @param chans Channel names to be used.
+#' @param .id Name of the column that identifies the data.
+#' @param ... Other arguments passed on to individual methods.
+#' 
+#' `as_data_frame` and `as.tibble` are aliases.
+#' @return A tibble.
+#' 
+#' @importFrom magrittr %>%
+#' 
+#' @export
+as.data.frame.eegbl <- function(x, ..., chans, .id = "id") {
+as_tibble.eegbl(x, ..., chans = chans, .id = .id)
+}

@@ -74,4 +74,22 @@ full_faces$data[[1]]$events %>%
 full_faces$data[[1]]$events %>% 
       dplyr::filter(type == "Stimulus" ) 
 
+x <- full_faces
 sfull_faces <- segment(full_faces, description == "s70",  lim=c(-.2,.5))
+
+
+bvsfull_faces <- read_vhdr(file ="faces/mariefacesasaold-segmented-nobase.vhdr")
+
+sfull_faces$data[[1]]$signals[[1]]
+bvsfull_faces$data[[1]]$signals[[1]]
+bvsfull_faces$data[[1]]$events %>% select(description) %>% unique
+sfull_faces$data[[1]]$events %>% select(description) %>% unique
+sfull_faces$data[[1]]$events %>% filter(description=="Multiple") %>% unique
+
+full_faces$data[[1]]$events %>% filter(type=="Stimulus")
+#-36.16 in segmentation menu
+#-35.73
+sfull_faces$data[[1]]$signals[[1]] %>% filter(time==0) %>% select(Fp1) %>% unlist()
+bvsfull_faces$data[[1]]$signals[[1]] %>% filter(sample==101) %>% select(Fp1) %>% unlist()
+
+full_faces$data[[1]]$signals[[1]] %>% filter(sample == 40885)

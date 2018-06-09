@@ -4,7 +4,7 @@
 \alias{print.eegbl}
 \title{Print an eegble object.}
 \usage{
-\method{print}{eegbl}(x, ..., file = NULL)
+\method{print}{eegbl}(x, ..., id = NULL)
 }
 \arguments{
 \item{x}{An eegble object.}

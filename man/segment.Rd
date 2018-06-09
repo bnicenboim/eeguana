@@ -10,6 +10,8 @@ segment(x, ..., lim = c(-1, 1))
 \item{x}{An \code{eegble} object.}
 
 \item{...}{Description of the event.}
+
+\item{lim}{Vector indicating the time before and after the event.}
 }
 \value{
 An eegbl.
