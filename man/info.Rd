@@ -5,7 +5,7 @@
 \alias{nchan}
 \alias{chan_names}
 \alias{chan_info}
-\alias{gral_info}
+\alias{eeg_info}
 \alias{srate}
 \alias{duration}
 \title{Display information of the eegble object.}
@@ -16,7 +16,7 @@ chan_names(x)
 
 chan_info(x)
 
-gral_info(x)
+eeg_info(x)
 
 srate(x)
 
@@ -30,7 +30,7 @@ duration(x)
 \item \code{nchan()}: Returns the number of channels.
 \item \code{chan_names()}: Returns a vector with the name of the channels.
 \item \code{chan_info()}: Returns a dataframe (tibble) with information about the channels.
-\item \code{gral_info()}: Returns a dataframe (tibble) with information about the EEG recording.
+\item \code{eeg_info()}: Returns a dataframe (tibble) with information about the EEG recording.
 \item \code{srate()}: Returns the sampling rate.
 \item \code{duration()}: Returns the duration of the recording (or segments).
 }

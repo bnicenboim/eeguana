@@ -4,28 +4,21 @@
 \alias{event_to_NA}
 \title{Remove (transform to NA) problematic events from an eegble.}
 \usage{
-event_to_NA(x, ..., ind_channel = TRUE, entire_seg = FALSE,
-  parallel = FALSE)
+event_to_NA(x, ..., all_chans = FALSE, entire_seg = FALSE,
+  drop_events = TRUE)
 }
 \arguments{
 \item{x}{An \code{eegble} object.}
 
 \item{...}{Description of the problematic event.}
 
-\item{ind_channel}{If set to FALSE, 
-it will remove samples from all channels (Default:  ind_channel = TRUE).}
+\item{all_chans}{If set to TRUE, 
+it will remove samples from all channels (Default:  all_chans = FALSE).}
 
 \item{entire_seg}{If set to TRUE, it will remove the entire segment 
 (Default: entire_seg = FALSE).}
 
-\item{parallel}{If set to TRUE, it will use all cores. 
-   (Default: parallel = FALSE). See details.
-
-The parallel option runs the process in several cores using \code{furrr} 
-with \code{future} as the backends. To use the parallel option these 
-packages need to be installed, the library \code{future} needs to be 
-attached, and a "plan" needs to be specified (e.g., 
-\code{plan(multiprocess)})}
+\item{drop_events}{}
 }
 \value{
 An eegbl.
@@ -34,9 +27,5 @@ An eegbl.
 Remove (transform to NA) problematic events from an eegble.
 }
 \examples{
-\dontrun{
-library(future)
-plan(multiprocess)
-clean_eggble <- event_to_NA(eegble, parallel = TRUE)
-}
+
 }

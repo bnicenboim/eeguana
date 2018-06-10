@@ -39,8 +39,8 @@ as_tibble <-function (x, ...) {
 #' Convert an eegble to a tibble.
 #'
 #' @param x An \code{eegble} object.
-#' @param chans Channel names to be used; all of them by default.
-#' @param .id Name of the column that identifies the data.
+#' @param add_seg_info 
+#' @param thinning 
 #' @param ... Other arguments passed on to individual methods.
 #' 
 #' `as_data_frame` and `as.tibble` are aliases.
@@ -49,16 +49,22 @@ as_tibble <-function (x, ...) {
 #' @importFrom magrittr %>%
 #' 
 #' @export 
- as_tibble.eegbl <- function(x, ..., chans = NULL, .id = "id") {
-  if(is.null(chans)) {chans = chan_names(x)}
-  chan_rv <- setdiff(chan_names(x),chans)
+ as_tibble.eegbl <- function(x, ..., thinning = NULL, add_seg_info = TRUE) {
   
-  purrr::map(x$data, ~ 
-    purrr::map_dfr(.x$signals , .id = "segment", ~ .x) %>% 
-    dplyr::select(-dplyr::one_of(chan_rv)) %>%
-    tidyr::gather(key = channel, value = amplitude, dplyr::one_of(chans)) ) %>%
+  if(is.null(thinning)){ 
+    by <- 1
+  } else if(thinning == "auto") {
+    by <- length(chan_names(x)) * 2
+  } else {
+    by <- thinning
+  }
 
-  purrr::map_dfr(.id = .id, ~ .x)
+  x$data <- x$data %>% tidyr::gather(key = channel, value = amplitude, chan_names(x)) %>%
+  {if(add_seg_info) { dplyr::left_join(., x$seg_info, by =".id")} else {.}} %>% 
+    dplyr::group_by(.id, channel) %>% 
+        dplyr::filter(sample %in%  sample[seq(1,length(sample), by = by)]) %>%
+      dplyr::mutate(time = (sample - 1)/ srate(x)) %>% dplyr::select(-sample, time, dplyr::everything())
+ x$data
 }
 
 
@@ -74,8 +80,8 @@ as.tibble.eegbl <- as_tibble.eegbl
 #' Convert an eegble to a (base) data frame.
 #'
 #' @param x An \code{eegble} object.
-#' @param chans Channel names to be used.
-#' @param .id Name of the column that identifies the data.
+#' @param add_seg_info 
+#' @param thinning 
 #' @param ... Other arguments passed on to individual methods.
 #' 
 #' `as_data_frame` and `as.tibble` are aliases.
@@ -84,6 +90,6 @@ as.tibble.eegbl <- as_tibble.eegbl
 #' @importFrom magrittr %>%
 #' 
 #' @export
-as.data.frame.eegbl <- function(x, ..., chans, .id = "id") {
-as_tibble.eegbl(x, ..., chans = chans, .id = .id)
+as.data.frame.eegbl <- function(x, ..., thinning = "auto", add_seg_info = TRUE) {
+as.data.frame(as_tibble.eegbl(x, ..., thinning = "auto", add_seg_info = TRUE))
 }

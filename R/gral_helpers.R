@@ -42,25 +42,24 @@ eegbl <- function(x){
   validate_eegbl(x)
 }
 
-#' Applies a function to all the segments and returns an eegble.
-#'
-#' @param x An eegbl.
-#' @param f_seg Function to apply to the segments.
-#' @param parallel If set to TRUE, it will use all cores. 
-#'    (Default: parallel = FALSE).
 
-segmap_eggbl <- function(x, f_seg, parallel = FALSE){
-  if(parallel){
-    # the progress bar are not very useful
-    modify <- function(...) furrr::future_modify(..., .progress = FALSE)
-  } else {
-    modify <- purrr::modify
+update_chans <- function(x){
+    current_chans <- colnames(x$data)[!colnames(x$data) %in% c(".id","sample")]
+    new_chans <- current_chans[!current_chans %in% x$chan_info$labels]
+    #remove old channels
+    x$chan_info <- dplyr::filter(x$chan_info, labels %in% current_chans) 
+    # add new ones
+    x$chan_info <- x$chan_info %>% dplyr::mutate(labels = as.character(labels)) %>% 
+                    dplyr::bind_rows(tibble::tibble(labels = new_chans)) %>% 
+                    dplyr::mutate(labels = as.factor(labels)) 
+    x
   }
 
-    x$data <- purrr::modify(x$data, function(data_file) {
-                segs <- modify(data_file$signals, f_seg)
-                list(signals = segs, events = data_file$events)
-            })
-  x
-   
+validate_dots <- function(...){
+  dots <- rlang::enquos(...)  
+  if(any(names(dots) %in% c(".id", "sample"))) {
+      stop(".id and samples can't be manipulated")
+    } else {
+      dots
+    }
 }

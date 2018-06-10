@@ -4,17 +4,17 @@
 #' @param ignore_segs Ignore BrainVision segmentation. By default, FALSE.
 #' @param sep Segment separation marker. By default: type == "New Segment"
 #' @param zero Time zero marker. By default: type == "Time 0"
-#' @param verbose Prints message with information.
+#' @param recording Recording name, by default is the file name.
 #' 
-#' @return An \code{eegble} object with signals and event from file.dat, file.vhdr, and file.vmrk.
+#' @return An \code{eegble} object with signals and event from file_name.dat, 
+#' file_name.vhdr, and file_name.vmrk.
 #' 
 #' @importFrom magrittr %>%
 #' 
 #' @export
 
-read_vhdr <- function(file, ignore_segs = FALSE,
-                      sep= type == "New Segment", zero = type == "Time 0",
-                      verbose = TRUE) {
+read_vhdr <- function(file, sep= type == "New Segment", zero = type == "Time 0",
+                      recording = file) {
   sep <- rlang::enquo(sep)
   zero <- rlang::enquo(zero)
   #zero = quo(type == "Time 0")
@@ -34,64 +34,22 @@ read_vhdr <- function(file, ignore_segs = FALSE,
                      common_info = header_info$common_info,
                      chan_info = header_info$chan_info, 
                      events = events, 
-                     .id = vmrk_file,
-                     ignore_segs = ignore_segs,
+                     recording = recording,
                      sep = sep,
-                     zero = zero,
-                     verbose = verbose
-    )
+                     zero = zero)
   } else {
     warning(paste0(".",data_ext, " files are unsupported."))
   }
   x
 }
 
-#' @importFrom magrittr %>%
-
-read_vhdr <- function(file, ignore_segs = FALSE,
-            sep= type == "New Segment", zero = type == "Time 0",
-             verbose = TRUE) {
-   sep <- rlang::enquo(sep)
-   zero <- rlang::enquo(zero)
-   # For manual tests
-   #zero = quo(type == "Time 0")
-   #sep = quo(type == "New Segment")
-
-   # Takes the files from the header:
-    file_path <- stringr::str_match(file,"(.*(/|\\\\)).")[,2] %>%
-                 {if(is.na(.)) NULL else .} 
-    header_info <- read_vhdr_metadata(file)
-    data_file <- header_info$common_info$data_file
-    data_ext <- tools::file_ext(data_file)
-    # It only accepts .dat files (for now)
-    if(data_ext == "dat" || data_ext == "eeg" ){
-      vmrk_file <- header_info$common_info$vmrk_file
-      id <- stringr::str_replace(vmrk_file, 
-          paste0(".",tools::file_ext(vmrk_file)),"")
-      events <- read_vmrk(file = paste0(file_path, vmrk_file))
-      data <- read_dat(file = paste0(file_path, data_file), 
-                        common_info = header_info$common_info,
-                         chan_info = header_info$chan_info, 
-                           events = events, 
-                        .id = id,
-                        ignore_segs = ignore_segs,
-                          sep = sep,
-                          zero = zero,
-                        verbose = verbose
-                        )
-    } else {
-      warning(paste0(".",data_ext, " files are unsupported."))
-    }  
-}
 
 
 #' Helper function to read the dat files directly
 #' @importFrom magrittr %>%
 
-read_dat <- function(file, 
-                     common_info = NULL, chan_info = NULL,
-                     events = NULL, .id = file, 
-                     ignore_segs, sep, zero, verbose = verbose) {
+read_dat <- function(file, common_info = NULL, chan_info = NULL, events = NULL, 
+                      recording, sep, zero) {
   
   n_chan <- nrow(chan_info)
   
@@ -123,30 +81,33 @@ read_dat <- function(file,
       tibble::as.tibble() 
   } else if(common_info$format == "ASCII"){
     signals <- readr::read_delim(file, delim = " ",  
-                          col_types= readr::cols( .default = readr::col_double()))
+                          col_types = 
+                          readr::cols(.default = readr::col_double()))
   }
   
   
   colnames(signals)  <- chan_info$labels
   chan_info$labels <- forcats::as_factor(chan_info$labels)
 
-  eegble <- list(data = list(list(signals = NULL, events = NULL)), 
-                 chan_info = NULL, gral_info = NULL)
-  names(eegble$data) <- .id
+  eegble <- list(data =  NULL, events = NULL, 
+                 chan_info = NULL, eeg_info = NULL)
+  
   
   eegble$chan_info <- chan_info
-  eegble$gral_info <- list(srate = common_info$srate, 
+  eegble$eeg_info <- list(srate = common_info$srate, 
                            reference = NA)
   # name the channels of the corresponding events, using factor  
-  events <- dplyr::mutate(events, channel = dplyr::if_else(channel==0,NA_integer_,channel) 
-                   %>%  chan_info$labels[.] %>% forcats::as_factor(levels = chan_info$labels ))
+  events <- dplyr::mutate(events, channel = 
+                                 dplyr::if_else(channel == 0, NA_integer_, 
+                                                                  channel) %>%  
+                                 chan_info$labels[.] %>% 
+                                  forcats::as_factor(levels = chan_info$labels))
   
-  eegble$data[[.id]]$events <- events
-  
+ 
+
   raw_signals <- tibble::tibble(sample = 1:nrow(signals)) %>%
     dplyr::bind_cols(signals)
   
-  if(ignore_segs == FALSE) {
     
     # the first event can't be the end of the segment
     # and the last segment ends at the end of the file     
@@ -156,46 +117,52 @@ read_dat <- function(file,
     beg_segs <- events %>% dplyr::filter(!!sep) %>% .$sample 
     # segs <- list(beg = beg_segs, t0 = t0, end = end_segs)
 
-    t0 <-  events %>% 
+    s0 <-  events %>% 
       dplyr::filter(!!zero) %>% .$sample
 
     # In case the time zero is not defined  
-    if(length(t0)==0) t0 <- beg_segs
+    if(length(s0)==0) s0 <- beg_segs
     
     #csts in the loop
     s_rate <- srate(eegble)
     dec <- decimals(1/s_rate)
     
-    eegble$data[[.id]]$signals <- 
-                        purrr::pmap(list(beg_segs,  t0, end_segs), 
-                                    function(b,t,e) raw_signals %>%
+    eegble$data <- purrr::pmap_dfr(list(beg_segs,  s0, end_segs), .id = ".id",
+                                    function(b, s0, e) raw_signals %>%
                                           # filter the relevant samples
                                           dplyr::filter(sample >= b, 
-                                                 sample <= e) %>%
+                                                 sample < e) %>%
                                           # add a time column
-                                          dplyr::mutate(time = 
-                                            round(sample/s_rate - t
-                                             / s_rate, 
-                                      dec)) %>% 
+                                          # dplyr::mutate(time = 
+                                          #   round(sample/s_rate - s0
+                                          #    / s_rate, dec)) %>% 
+                                          dplyr::mutate(sample = sample - s0) %>%
                                           # order the signals df:
-                                          dplyr::select(sample, time, 
-                                            dplyr::everything()))
-    
-    eegble$seg_info <- tibble(id = .id, segment = seq(length(beg_segs)), 
-      type = "initial")
+                                          dplyr::select(sample, 
+                                            dplyr::everything())) %>% 
+                                          dplyr::mutate(.id = as.integer(.id))
+    eegble$events <- 
+     purrr::pmap_dfr(list(beg_segs, s0, end_segs), .id = ".id",
+                      function(b, s0, e) events %>%
+                      # filter the relevant events
+                      # started after the segment (b) 
+                      # or span after the segment (b)  
+                      dplyr::filter(sample >= b | sample + size - 1 >= b, 
+                      # start before the end               
+                             sample < e) %>%
+                      dplyr::mutate(size = if_else(sample < b, b - size, size), 
+                                  sample = case_when(sample >= b ~ sample - s0,
+                                                     sample < b ~ b - s0))) %>% 
+                    dplyr::mutate(.id = as.integer(.id))
 
-  } else {
-    
-    eegble$data[[.id]]$signals <- list(raw_signals)
-    eegble$seg_info <- tibble(id = .id, segment = 1, type = "initial")
-  } 
-  
-  
-  
+    eegble$seg_info <- tibble::tibble(.id = seq(length(beg_segs)), 
+                              recording = recording, segment = .id, 
+                              type = "initial")
+
   eegble <- unclass(eegble)
   class(eegble) <- "eegbl"
 
-  message(paste0("# Data from ", length(eegble$data[[.id]]$signals), 
+  message(paste0("# Data from ", nrow(eegble$seg_info), 
     " segment(s) and ", nchan(eegble), " channels was loaded."))
   message(say_size(eegble))
   eegble
@@ -270,7 +237,11 @@ read_vhdr_metadata <- function(file) {
   channel_info <- read_metadata("Channel Infos") %>% 
     tidyr::separate(value, c("labels","ref","res","unit"), sep=",", fill="right")
   coordinates <- read_metadata("Coordinates") %>% 
-    tidyr::separate(value, c("radius","theta","phi"), sep=",", fill="right")
+    tidyr::separate(value, c("radius","theta","phi"), sep=",", fill="right")%>%
+    readr::type_convert(col_types = 
+                      readr::cols(radius = readr::col_integer(),
+                      theta = readr::col_integer(),
+                      phi = readr::col_integer()))
   # this is in case it can't find DataPoints and DataType in the header file
   DataPoints <- NA 
   DataType <- "time"
@@ -314,10 +285,10 @@ read_vhdr_metadata <- function(file) {
   }
   
   chan_info <- dplyr::full_join(channel_info, coordinates, by = "type") %>% 
-    dplyr::mutate(type = "EEG", sph.theta = NA, sph.phi = NA, 
-                  sph.radius = NA, urchan = NA,X=NA,Y=NA,Z=NA) %>%
-    dplyr::select(labels, type, theta, radius, X, Y, Z, sph.theta,
-                  sph.phi, sph.radius, urchan, ref)
+    dplyr::mutate(x = radius * sin(phi*2*pi/360) * cos(theta*2*pi/360),
+            y = radius * sin(phi*2*pi/360) * sin(theta*2*pi/360),
+            z = radius * cos(phi*2*pi/360)) %>%
+    dplyr::select(labels, type, theta, phi, radius,  x, y, z)
   
   out <- list()
   out$chan_info <- chan_info

@@ -4,22 +4,23 @@
 \alias{read_vhdr}
 \title{Read a BrainVision file into an eegble object.}
 \usage{
-read_vhdr(file, ignore_segs = FALSE, sep = type == "New Segment",
-  zero = type == "Time 0", verbose = TRUE)
+read_vhdr(file, sep = type == "New Segment", zero = type == "Time 0",
+  recording = file)
 }
 \arguments{
 \item{file}{A vhdr file in a folder that contains a .vmrk and .dat files}
-
-\item{ignore_segs}{Ignore BrainVision segmentation. By default, FALSE.}
 
 \item{sep}{Segment separation marker. By default: type == "New Segment"}
 
 \item{zero}{Time zero marker. By default: type == "Time 0"}
 
-\item{verbose}{Prints message with information.}
+\item{recording}{Recording name, by default is the file name.}
+
+\item{ignore_segs}{Ignore BrainVision segmentation. By default, FALSE.}
 }
 \value{
-An \code{eegble} object with signals and event from file.dat, file.vhdr, and file.vmrk.
+An \code{eegble} object with signals and event from file_name.dat, 
+file_name.vhdr, and file_name.vmrk.
 }
 \description{
 Read a BrainVision file into an eegble object.

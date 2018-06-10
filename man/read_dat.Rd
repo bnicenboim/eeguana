@@ -5,7 +5,7 @@
 \title{Helper function to read the dat files directly}
 \usage{
 read_dat(file, common_info = NULL, chan_info = NULL, events = NULL,
-  .id = file, ignore_segs, sep, zero, verbose = verbose)
+  recording, sep, zero)
 }
 \description{
 Helper function to read the dat files directly

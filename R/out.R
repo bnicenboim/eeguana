@@ -4,7 +4,7 @@
 #' \item \code{nchan()}: Returns the number of channels.
 #' \item \code{chan_names()}: Returns a vector with the name of the channels.
 #' \item \code{chan_info()}: Returns a dataframe (tibble) with information about the channels.
-#' \item \code{gral_info()}: Returns a dataframe (tibble) with information about the EEG recording.
+#' \item \code{eeg_info()}: Returns a dataframe (tibble) with information about the EEG recording.
 #' \item \code{srate()}: Returns the sampling rate.
 #' \item \code{duration()}: Returns the duration of the recording (or segments).
 #' }
@@ -39,15 +39,15 @@ chan_info <- function(x){
 #' 
 #' @rdname info
 #' @export
-gral_info <- function(x){
-  x$gral_info
+eeg_info <- function(x){
+  x$eeg_info
 }
 
 #' 
 #' @rdname info
 #' @export
 srate <- function(x){
-  x$gral_info$srate
+  x$eeg_info$srate
 }
 
 #' 
@@ -62,7 +62,6 @@ duration <- function(x){
 
 #' Simple plot an eegble object.
 #' @param x An \code{eegble} object.
-#' @param chans Channel names to be used; all of them by default.
 #' @param thinning Automatic by default, but integers can be used.
 #' 
 #' 
@@ -71,78 +70,67 @@ duration <- function(x){
 #' @importFrom magrittr %>%
 #' 
 #' @export
-plot.eegbl <- function(x, chans = NULL, thinning = "auto"){
+plot.eegbl <- function(x, thinning = "auto"){
 
-  if(is.null(chans)) {chans = chan_names(x)}
-
-  if(thinning=="auto"){ 
-    by <- length(chans) * 2
-  } else if(is.null(thinning)) {
-    by <- 1
-  } else {
-    by <- thinning
-  }
-  df <- as_tibble(x, chans) %>% 
-    dplyr::group_by(id, segment, channel) %>% 
-        dplyr::filter(time %in%  time[seq(1,length(time), by = by)])
-
+  df <- as_tibble(x, thinning = "auto") 
   plot <- ggplot2::ggplot(df, 
       ggplot2::aes(x = time, y = amplitude)) + 
       ggplot2::geom_line() +
-      ggplot2::facet_wrap(~ channel + id + segment, 
+      ggplot2::facet_wrap(~ channel + recording + segment, 
         labeller = ggplot2::label_wrap_gen(multi_line=FALSE)) + 
       ggplot2::scale_y_reverse() + 
       ggplot2::theme_bw()
   plot
 }
 
-
-#' Print an eegble object.
+#' ggplot object based on an eegble object.
+#' @param x An \code{eegble} object.
+#' @param thinning Automatic by default, but integers can be used.
 #' 
-#' @param x An eegble object.
-#' @param ... Other options passed to print.tbl.
-#' @param file If it is specified, prints a summary of a single file.
+#' 
+#' @return A ggplot object 
+#' 
+#' @importFrom magrittr %>%
+#' 
+#' @export
+plot_gg <- function(x, ..., thinning = "auto"){
+  dots = rlang::enquos(...) 
+  df <- as_tibble(x, thinning = "auto") 
+  plot <- ggplot2::ggplot(df, 
+      ggplot2::aes(x = time, y = amplitude, !!!dots))
+  plot
+}
+
+
+
+#' Summary of eegble information.
+#' 
+#' @param object An eegble object.
+#' @param ... Other options passed to print.tbl for the display of summaries.
 #'
 #' @export
-print.eegbl <- function(x, ..., id = NULL){
+summary.eegbl <- function(object, ...){
   # to add later as an option, and add ... to the prints
 
   dots <- rlang::enquos(...)
-  message(paste0("# EEG data (eegble) from ", nchan(x), " channels:"))
-  message(paste0( chan_names(x), collapse = ", "))
-  message(paste0("# Sampling rate: ", srate(x), " Hz."))
-  if(is.null(id)){
-    message(paste0("# Size in memory: ", capture.output(pryr::object_size(x)), "."))
-    message(paste0("# Recording ids: ", paste0(names(x$data), collapse = ", ")))
-    segs <- purrr::map_dbl(x$data, ~ length(.x$signals))
-    if(length(unique(segs)) == 1) {
-        message(paste0("# Number of segments in each recordings: ",
-         unique(segs) ))
-    } else {
-      message("# Recordings have different number of segments: ", 
-        paste0(segs, collapse = ", "))
-    }
-    message("# Summary of events for all recordings")
-    purrr::map_dfr(x$data, ~ .x$events) %>% 
-      dplyr::group_by_at(dplyr::vars(-size, -channel, -sample)) %>% 
-      dplyr::count() %>%
-    print(., !!!dots)
+  message(paste0("# EEG data (eegble) from ", nchan(object), " channels:"))
+  message(paste0( chan_names(object), collapse = ", "))
+  message(paste0("# Sampling rate: ", srate(object), " Hz."))
 
-    message("# Segments info: ")
-    print(x$seg_info, !!!dots)
-  } else  {
+  message(paste0("# Size in memory: ", capture.output(pryr::object_size(object)), "."))
+  message(paste0("# Recordings from: ", paste0(object$seg_info$recording, collapse = ", ")))
+  
+  message("# Summary of segments")
+  object$seg_info %>% dplyr::group_by(recording) %>% 
+                      dplyr::count(segment) %>%
+                      print(., !!!dots)
 
-    segs <- length(x$data[[id]]$signals)
-    message(paste0("# Number of segments: ",segs ))
-    x$seg_info %>% dplyr::filter(id == id) %>% 
-      print(., !!!dots)
+  message("# Summary of events")
+    object$events %>% 
+                      dplyr::group_by_at(dplyr::vars(-size, -channel, -sample)) %>% 
+                      dplyr::count() %>%
+                      print(., !!!dots)
 
-    message("# Summary of events")
-    purrr::map_dfr(x$data, ~ .x$events) %>% 
-      dplyr::group_by_at(dplyr::vars(-size, -channel, -sample)) %>% 
-      dplyr::count() %>%
-    print(., !!!dots)
-  }
-  invisible(x)
+  invisible(object)
 }
 
