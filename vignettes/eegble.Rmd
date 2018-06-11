@@ -167,14 +167,9 @@ For more specialized plots or analyses, the data can be extracted in long data
 frame format first. For example, we can visualize independent t-tests (or some
 other statistics) at every electrode and time point. Since we are going to plot
 the data, we can safely thin the samples when we transform them into a long data
-frame .
+frame.
 
 ```{r}
-
-```
-
-```{r, fig.dim = c(10,15), out.width = "100%"}
-
 df <- faces_segs_some %>%  as_tibble(thinning = "auto" ) %>%
         # We can use regular dplyr functions now
         group_by(channel, time) %>% 
@@ -182,10 +177,14 @@ df <- faces_segs_some %>%  as_tibble(thinning = "auto" ) %>%
         `t-value` = t.test(amplitude[condition == "faces"],
           amplitude[condition == "non-faces"])$statistic)
 
+df
+```
+
+Then we just load the data frame into `ggplot`.
+
+```{r, fig.dim = c(10,15), out.width = "100%"}
 ggplot(df, aes(x = time, y = `t-value`)) + geom_line() +
                 facet_wrap(~ channel) 
-
-
 ```
 
 

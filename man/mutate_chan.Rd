@@ -2,18 +2,58 @@
 % Please edit documentation in R/sig_wrangling.R
 \name{mutate_chan}
 \alias{mutate_chan}
-\title{Mutate the signal of an eegble.}
+\alias{transmute_chan}
+\alias{select_chan}
+\alias{rename_chan}
+\alias{mutate_seg}
+\alias{transmute_seg}
+\alias{rename_seg}
+\alias{select_seg}
+\title{Mutate/transmute/select/rename channels or segments.}
 \usage{
 mutate_chan(.data, ...)
+
+transmute_chan(.data, ...)
+
+select_chan(.data, ...)
+
+rename_chan(.data, ...)
+
+mutate_seg(.data, ...)
+
+transmute_seg(.data, ...)
+
+rename_seg(.data, ...)
+
+select_seg(.data, ...)
 }
 \arguments{
 \item{.data}{An eegbl.}
 
-\item{...}{Name-value pairs of expressions, tipically they will include channel names.}
+\item{...}{Name-value pairs of expressions, for `_chan` variations they will include channel names, for `_seg` variations they will include segments descriptors.}
 }
 \value{
-An eegbl.
+An eegble object.
 }
 \description{
-Mutate the signal of an eegble.
+Manipulate the signal and the segments of an eegble.
+}
+\details{
+Wrappers for \link{dplyr}'s commands for eegble objects. These commands always return the entire eegble so that they can be
+piped using \link{magrittr}'s pipe, %>%.
+
+Manipulation type:
+\itemize{
+\item \code{mutate_*()} adds new variables and preserves existing..
+\item \code{transmute_*()} drops existing variables.
+\item \code{select_*()} keeps only the mentioned variables. 
+\item \code{rename_*()}: keeps all variables.
+}
+Manipulation effect:
+\itemize{
+\item \code{*_chan()} affects the channels of the data and adapt the `chan_info` data frame.
+\item \code{*_seg()} affect the segment information of the `seg_info` data frame..
+}
+
+See also \link{dplyr-package}.
 }

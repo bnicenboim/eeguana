@@ -54,7 +54,8 @@ as_tibble <-function (x, ...) {
   if(is.null(thinning)){ 
     by <- 1
   } else if(thinning == "auto") {
-    by <- length(chan_names(x)) * 2
+    by <- round(pmax(length(chan_names(x)) * 2 * max(duration(x)/srate(x)) , 1))
+    message(paste("# Thinning by", by))
   } else {
     by <- thinning
   }

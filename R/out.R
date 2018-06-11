@@ -3,8 +3,8 @@
 #' \itemize{
 #' \item \code{nchan()}: Returns the number of channels.
 #' \item \code{chan_names()}: Returns a vector with the name of the channels.
-#' \item \code{chan_info()}: Returns a dataframe (tibble) with information about the channels.
-#' \item \code{eeg_info()}: Returns a dataframe (tibble) with information about the EEG recording.
+#' \item \code{chan_info()}: Returns a data frame (tibble) with information about the channels.
+#' \item \code{eeg_info()}: Returns a data frame (tibble) with information about the EEG recording.
 #' \item \code{srate()}: Returns the sampling rate.
 #' \item \code{duration()}: Returns the duration of the recording (or segments).
 #' }
