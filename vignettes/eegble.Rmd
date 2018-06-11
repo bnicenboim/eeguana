@@ -1,0 +1,103 @@
+---
+title: "Manipulating a clean EEG file exported from BrainVision 2.0"
+author: "Bruno Nicenboim"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Manipulating a clean EEG file exported from BrainVision 2.0}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+The key problem that eegble solves is manipulating already pre-processed (i.e., filtering, artifact rejects, ICA, etc has already beed done) EEG files. Here, I exemplify this with (preprocessed) EEG data from a simple experiment, where a participant was presented 100 faces and 100 assorted images in random order. The task of the experiment was to mentally count the number of faces.
+
+First we download the data:
+
+```{r downloading, eval = FALSE}
+download.file("www.ling.uni-potsdam.de/~nicenboim/files/faces.vhdr", 
+              "faces.vhdr", mode="wb")
+download.file("www.ling.uni-potsdam.de/~nicenboim/files/faces.vmrk", 
+              "faces.vmrk", mode="wb")
+download.file("www.ling.uni-potsdam.de/~nicenboim/files/faces.dat", 
+              "faces.dat", mode="wb")
+```
+
+BrainVision 2.0 exports three files: `faces.vhdr` contains the metadata and links to the other two files, `faces.vmrk` contains the triggers and other events in the samples, and `faces.vhdr` contains the signals at every sample for every channel recorded.
+
+We are going to use eegble together with tidyverse functions:
+
+```{r libs, message = FALSE}
+library(tidyverse)
+library(ggplot2)
+library(eegble)
+```
+
+We read the data using the `vhdr` file:
+
+```{r}
+faces <- read_vhdr("faces.vhdr")
+```
+
+`eggble` creates a list with dataframes for the signal, events, segments, and channels information, and a list for generic EEG information.
+
+```{r, fig.dim = c(2.5,7), out.width = "100%"}
+faces
+summary(faces)
+plot(faces)
+```
+
+
+<!-- 
+```{r}
+#faces_M1 <- faces %>% mutate_all(funs(. - M1))
+#plot(faces_exp)
+
+```
+ -->
+<!-- I should be able to do something like chans = -EOGH -->
+<!-- Plots don't behave nice to add more stuff -->
+
+Some intervals were marked as "bad" by BrainVision, and so we'll remove them from the data. We'll also segment and baseline the data. In this experiment, the trigger "s70" was used for faces and "s71" for no faces. We'll segment the data using these two triggers.
+
+
+```{r}
+faces_segs <- faces %>% 
+               segment(description %in% c("s70", "s71"), 
+                        lim = c(-.2,.25)) %>%
+               event_to_NA(type == "Bad Interval") %>% 
+               baseline()
+
+```
+
+Now that the data have been reduced, we can select the relevant electrodes and transform the data to a data frame (or tibble) and continue from there with regular function from the tidyverse and ggplot2. (The original file was 149 MB, converting it to a long format entails a lot of repetition and generates an object of 786 MB. In this case, this is still ok, but this becomes prohibitive in a real experiment with several subjects).
+
+With some "regular" ggplot skills, we can create customized plots. We can see here the N170 in the faces condition for the average trial on a single participant.  
+
+```{r, fig.dim = c(2.5,7), out.width = "100%"}
+faces_segs_red <- select(faces_segs, O1, O2, P7, P8) %>% 
+        plot_gg() + 
+        geom_line(alpha = .1, aes(group = .id, color = description)) + 
+        stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1, aes(color = description)) +
+        facet_wrap(~ channel) + 
+        geom_vline(xintercept = .17, linetype = "dotted") + 
+        # Negative is up:  
+         scale_y_reverse() +
+        # Makes it prettier 
+        scale_colour_manual(values = c("red", "blue"))+
+        theme_bw() + 
+        theme(legend.position = "bottom") 
+ 
+```
+
+
+t-test
+
+<!-- https://github.com/hrbrmstr/ggalt/blob/master/R/geom_lollipop.r -->
+
