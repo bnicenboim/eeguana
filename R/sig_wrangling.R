@@ -1,19 +1,4 @@
 
-mutate <-function (.data, ...) {
-    UseMethod("mutate")
-}
-transmute <-function (.data, ...) {
-    UseMethod("transmute")
-}
-rename <-function (.data, ...) {
-    UseMethod("rename")
-}
-
-#' @export
-select <-function (.data, ...) {
-    UseMethod("select")
-}
-
 #' Mutate the signal of an eegble.
 #'
 #' @param .data An eegbl.
@@ -24,46 +9,59 @@ select <-function (.data, ...) {
 #' @importFrom magrittr %>%
 #' 
 #' @export
-mutate.eegbl <- function(.data, ...){
-
+mutate_chan <- function(.data, ...){
   dots <-  validate_dots(...)
-
   .data$data <- dplyr::mutate(.data$data,!!!dots)
-  .data <- update_chans(.data)
+   update_chans(.data)
 }            
 
 #' @export
-transmute.eegbl <- function(.data, ...){
-
+transmute_chan <- function(.data, ...){
   dots <-  validate_dots(...)
-  
-  .data$data <- dplyr::transmute(.data$data,.id, sample, !!!dots)
-  .data <- update_chans(.data)
+  .data$data <- dplyr::transmute(.data$data, sample, !!!dots)
+  update_chans(.data)
 }            
 
 
 #' @export
-select.eegbl <- function(.data, ...){
-
+select_chan <- function(.data, ...){
   dots <-  validate_dots(...)
-  
   .data$data <- dplyr::select(.data$data, .id, sample, !!!dots)
-  
-  .data <- update_chans(.data)
+  update_chans(.data)
 }  
 
 
 #' @export
-rename.eegbl <- function(.data, ...){
-
+rename_chan <- function(.data, ...){
   dots <-  validate_dots(...)
-  
   .data$data <- dplyr::rename(.data$data, !!!dots)
-  
-  .data <- update_chans(.data)
+  update_chans(.data)
 }  
 
 
+#' @export
+mutate_seg <- function(.data, ...){
+   dots <-  validate_dots(...)
+  .data$seg_info <- dplyr::mutate(.data$seg_info,!!!dots)
+  .data
+}   
+transmute_seg <- function(.data, ...){
+   dots <-  validate_dots(...)
+  .data$seg_info <- dplyr::mutate(.data$seg_info, .id, !!!dots)
+  .data
+}   
+#' @export
+rename_seg <- function(.data, ...){
+   dots <-  validate_dots(...)
+  .data$seg_info <- dplyr::rename(.data$seg_info,!!!dots)
+  .data
+}   
+#' @export
+select_seg <- function(.data, ...){
+   dots <-  validate_dots(...)
+  .data$seg_info <- dplyr::select(.data$seg_info, .id, !!!dots)
+  .data
+}   
 
 
 # #' Mutate the signal of an eegble.

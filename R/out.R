@@ -54,8 +54,7 @@ srate <- function(x){
 #' @rdname info
 #' @export
 duration <- function(x){
-  purrr::map_dbl(x$data, function(f)
-   purrr::map_dbl(f$signals, ~ nrow(.x)) %>% unique()/ srate(x) )
+  x$data %>% group_by(.id) %>% summarize(duration = max(sample) / srate(x)) %>% .$duration
 
 }
 

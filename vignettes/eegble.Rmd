@@ -16,7 +16,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-The key problem that eegble solves is manipulating already pre-processed (i.e., filtering, artifact rejects, ICA, etc has already beed done) EEG files. Here, I exemplify this with (preprocessed) EEG data from a simple experiment, where a participant was presented 100 faces and 100 assorted images in random order. The task of the experiment was to mentally count the number of faces.
+The key problem that **eegble** solves is manipulating already pre-processed (i.e.,
+filtering, artifact rejects, ICA, etc has already beed done) EEG files. Here, I
+exemplify this with (preprocessed) EEG data from a simple experiment, where a
+participant was presented 100 faces and 100 assorted images in random order. The
+task of the experiment was to mentally count the number of faces.
 
 First we download the data:
 
@@ -29,42 +33,50 @@ download.file("www.ling.uni-potsdam.de/~nicenboim/files/faces.dat",
               "faces.dat", mode="wb")
 ```
 
-BrainVision 2.0 exports three files: `faces.vhdr` contains the metadata and links to the other two files, `faces.vmrk` contains the triggers and other events in the samples, and `faces.vhdr` contains the signals at every sample for every channel recorded.
+BrainVision 2.0 exports three files: `faces.vhdr`, `faces.vmrk`, and
+`faces.dat`. The file `faces.vhdr` contains the metadata and links to the other
+two files, `faces.vmrk` contains the triggers and other events in the samples,
+and `faces.dat` contains the signals at every sample for every channel recorded.
 
-We are going to use eegble together with tidyverse functions:
+We are going to use `eegble` together with `dplyr` functions:
 
 ```{r libs, message = FALSE}
-library(tidyverse)
+library(dplyr)
 library(ggplot2)
 library(eegble)
 ```
 
-We read the data using the `vhdr` file:
+We first need to read the data:
 
 ```{r}
 faces <- read_vhdr("faces.vhdr")
 ```
 
-`eggble` creates a list with dataframes for the signal, events, segments, and channels information, and a list for generic EEG information.
+`eggble` creates a list with data frames for the signal, events, segments, and
+channels information, and a list for generic EEG information.
 
-```{r, fig.dim = c(2.5,7), out.width = "100%"}
+```{r}
 faces
+```
+
+It provides a summary:
+
+```{r}
 summary(faces)
+```
+
+Furthermore, it allows for quick visualization.
+
+```{r, fig.dim = c(10,15), out.width = "100%"}
 plot(faces)
 ```
 
 
-<!-- 
-```{r}
-#faces_M1 <- faces %>% mutate_all(funs(. - M1))
-#plot(faces_exp)
 
-```
- -->
-<!-- I should be able to do something like chans = -EOGH -->
-<!-- Plots don't behave nice to add more stuff -->
-
-Some intervals were marked as "bad" by BrainVision, and so we'll remove them from the data. We'll also segment and baseline the data. In this experiment, the trigger "s70" was used for faces and "s71" for no faces. We'll segment the data using these two triggers.
+Some intervals were marked as "bad" by BrainVision, and so we'll remove them
+from the data. We'll also segment and baseline the data. In this experiment, the
+trigger "s70" was used for faces and "s71" for no faces. We'll segment the data
+using these two triggers.
 
 
 ```{r}
@@ -76,28 +88,107 @@ faces_segs <- faces %>%
 
 ```
 
-Now that the data have been reduced, we can select the relevant electrodes and transform the data to a data frame (or tibble) and continue from there with regular function from the tidyverse and ggplot2. (The original file was 149 MB, converting it to a long format entails a lot of repetition and generates an object of 786 MB. In this case, this is still ok, but this becomes prohibitive in a real experiment with several subjects).
 
-With some "regular" ggplot skills, we can create customized plots. We can see here the N170 in the faces condition for the average trial on a single participant.  
+We can also edit the segmentation information and add more descriptive labels.
+`eegble` has wrappers for some `dplyr` commands for the EEG data. The variations
+ending in `_chan`, such as `select_chan`,  affect channels of the data and adapt
+the `chan_info` data frame. The variations ending in `_seg`, such as
+`mutate_seg`,  affect the segment information of the `seg_info` data frame.
+These commands always return the entire `eegble` object so that they can be
+piped using `magrittr`'s pipe, `%>%`.
 
-```{r, fig.dim = c(2.5,7), out.width = "100%"}
-faces_segs_red <- select(faces_segs, O1, O2, P7, P8) %>% 
-        plot_gg() + 
-        geom_line(alpha = .1, aes(group = .id, color = description)) + 
-        stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1, aes(color = description)) +
-        facet_wrap(~ channel) + 
-        geom_vline(xintercept = .17, linetype = "dotted") + 
-        # Negative is up:  
-         scale_y_reverse() +
-        # Makes it prettier 
-        scale_colour_manual(values = c("red", "blue"))+
-        theme_bw() + 
-        theme(legend.position = "bottom") 
- 
+```{r}
+
+faces_segs_some <- faces_segs %>%  select_chan(O1, O2, P7, P8) %>% 
+                mutate_seg(condition =
+                 if_else(description == "s70", "faces", "non-faces"))
+
+faces_segs_some
+```
+
+With some "regular" `ggplot` skills, we can create customized plots. `plot_gg`
+thins the signals (by default), converts them to a long-format data frame that is
+feed into `ggplot` object. This object can then be customized. 
+
+
+
+```{r, fig.dim = c(10,15), out.width = "100%"}
+plot_gg(faces_segs_some) + 
+                geom_line(alpha = .1, aes(group = .id, color = condition)) + 
+                stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1, 
+                  aes(color = condition)) +
+                facet_wrap(~ channel) + 
+                geom_vline(xintercept = 0, linetype = "dashed") + 
+                geom_vline(xintercept = .17, linetype = "dotted") + 
+                # Negative is up:  
+                 scale_y_reverse() +
+                # Makes it prettier 
+                scale_colour_manual(values = c("red", "blue"))+
+                theme_bw() + 
+                theme(legend.position = "bottom") 
+```
+
+The motivation for manipulating the data in the `eegble` format and not transforming
+them directly to a data frame has to do with size considerations. In this case,
+the original file was 149 MB, converting it to a long format entails a lot of
+repetition and generates an object of 786 MB. While this is still ok here, a long format
+quickly becomes prohibitive in real settings with longer recordings and with
+several subjects.
+
+
+
+We can see here the N170 component in the faces condition for the average trial
+on a single participant. We can investigate the signal by averaging the channels
+of the occipital and parietal lobes using the capabilities inherited from
+`dplyr`.
+
+```{r, fig.dim = c(10,15), out.width = "100%"}
+
+faces_segs %>%  transmute_chan(Occipital = (O1 + O2 + Oz) / 3, 
+                            Parietal = (P3 + P4 + P7 + P8 + Pz) / 4) %>% 
+                mutate_seg(condition =
+                 if_else(description == "s70", "faces", "non-faces")) %>%
+                plot_gg() + 
+                geom_line(alpha = .1, aes(group = .id, color = condition)) +
+                stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1, 
+                  aes(color = condition)) +
+                facet_wrap(~ channel) + 
+                # Negative is up:  
+                 scale_y_reverse() +
+                # Makes it prettier 
+                scale_colour_manual(values = c("red", "blue"))+
+                theme_bw() + 
+                theme(legend.position = "bottom") 
+
 ```
 
 
-t-test
+For more specialized plots or analyses, the data can be extracted in long data
+frame format first. For example, we can visualize independent t-tests (or some
+other statistics) at every electrode and time point. Since we are going to plot
+the data, we can safely thin the samples when we transform them into a long data
+frame .
+
+```{r}
+
+```
+
+```{r, fig.dim = c(10,15), out.width = "100%"}
+
+df <- faces_segs_some %>%  as_tibble(thinning = "auto" ) %>%
+        # We can use regular dplyr functions now
+        group_by(channel, time) %>% 
+        summarize(
+        `t-value` = t.test(amplitude[condition == "faces"],
+          amplitude[condition == "non-faces"])$statistic)
+
+ggplot(df, aes(x = time, y = `t-value`)) + geom_line() +
+                facet_wrap(~ channel) 
+
+
+```
+
+
 
 <!-- https://github.com/hrbrmstr/ggalt/blob/master/R/geom_lollipop.r -->
 
