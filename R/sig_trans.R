@@ -112,15 +112,10 @@ segment <- function(x, ..., lim = c(-.5,.5)){
                                               }) %>%
                      dplyr::mutate(.id = as.integer(.id)) 
 
-
-
-
   message(paste0("# Total of ", max(x$data$.id)," segments found."))
  
-
- 
   x$seg_info <- dplyr::right_join(dplyr::select(x$seg_info,-type), dplyr::select(times0,-sample), by =".id") %>%
-                dplyr::mutate(.id = 1:n()) %>% 
+                ungroup() %>% dplyr::mutate(.id = 1:n()) %>% 
                 dplyr::group_by(recording) %>% 
                 dplyr::mutate(segment = 1:n())
 

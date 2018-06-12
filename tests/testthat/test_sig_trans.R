@@ -64,6 +64,6 @@ test_that("can clean whole segments in files", {
 
 
 
-warning("segment tests needs to be done")
+warning("segment tests needs to be done - check the ids everywhere when several recordings are there")
 warning("baseline tests needs to be done")
 warning("sig_wrangling tests needs to be done")

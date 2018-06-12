@@ -44,7 +44,8 @@ transmute_chan <- function(.data, ...){
 #' @export
 select_chan <- function(.data, ...){
   dots <-  validate_dots(...)
-  .data$data <- dplyr::select(.data$data, .id, sample, !!!dots)
+  .data$data <- dplyr::group_by(.data$data, .id, sample) %>%
+                 dplyr::select(!!!dots) %>% ungroup()
   update_chans(.data) %>% validate_eegbl 
 }  
 
@@ -85,8 +86,18 @@ rename_seg <- function(.data, ...){
 #' @export
 select_seg <- function(.data, ...){
    dots <-  validate_dots(...)
-  .data$seg_info <- dplyr::select(.data$seg_info, .id, !!!dots)
+  .data$seg_info <- dplyr::group_by(.data$seg_info, .id, sample) %>% 
+                    dplyr::select(!!!dots) %>% ungroup()
   validate_eegbl(.data)
 }   
 
+#' @rdname mutate_chan
+#' @export
+filter_seg <- function(.data, ...){
+   dots <-  rlang::enquos(...)
+  .data$seg_info <- dplyr::filter(.data$seg_info, !!!dots)
+  .data$data <- dplyr::semi_join(.data$data, .data$seg_info, by =".id")
+  .data$events <- dplyr::semi_join(.data$events, .data$seg_info, by =".id")
 
+  validate_eegbl(.data)
+}   

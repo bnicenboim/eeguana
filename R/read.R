@@ -84,7 +84,7 @@ read_dat <- function(file, common_info = NULL, chan_info = NULL, events = NULL,
                           readr::cols(.default = readr::col_double()))
   }
   
-  
+  chan_info$labels <- make.unique(chan_info$labels)
   colnames(signals)  <- chan_info$labels
   chan_info$labels <- forcats::as_factor(chan_info$labels)
 

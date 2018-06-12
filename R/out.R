@@ -120,7 +120,7 @@ summary.eegbl <- function(object, ...){
   message(paste0("# Sampling rate: ", srate(object), " Hz."))
 
   message(paste0("# Size in memory: ", capture.output(pryr::object_size(object)), "."))
-  message(paste0("# Recordings from: ", paste0(object$seg_info$recording, collapse = ", ")))
+  message(paste0("# Recordings from: ", paste0(unique(object$seg_info$recording), collapse = ", ")))
   
   message("# Summary of segments")
   object$seg_info %>% dplyr::group_by(recording) %>% 

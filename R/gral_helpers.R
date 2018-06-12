@@ -64,7 +64,7 @@ update_chans <- function(x){
     # add new ones
     x$chan_info <- x$chan_info %>% dplyr::mutate(labels = as.character(labels)) %>% 
                     dplyr::bind_rows(tibble::tibble(labels = new_chans)) %>% 
-                    dplyr::mutate(labels = as.factor(labels)) 
+                    dplyr::mutate(labels = forcats::as_factor(labels)) 
     x
   }
 
