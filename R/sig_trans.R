@@ -24,10 +24,7 @@ event_to_NA <- function(x, ..., all_chans = FALSE, entire_seg = FALSE,
   # dots <- rlang::quos(type == "Bad Interval")
 
   # Hack for match 2 columns with 2 columns, similar to semi_join but allowing for assignment
-  baddies <- dplyr::filter(x$events, !!!dots) %>%  
-      dplyr::mutate( sample = purrr::map2(sample, sample + size - 1, seq)) %>% 
-       tidyr::unnest() %>% dplyr::mutate(.id, .bid = paste(.id, sample), channel) %>%
-       dplyr::select(-size)
+  baddies <- dplyr::filter(x$events, !!!dots) 
 
   if(all_chans) baddies <- dplyr::mutate(baddies, channel = NA) 
  
@@ -36,17 +33,23 @@ event_to_NA <- function(x, ..., all_chans = FALSE, entire_seg = FALSE,
   for(c in b_chans){
     b <- dplyr::filter(baddies, channel==c & !is.na(channel)) 
     if(!entire_seg){
-      x$data[[as.character(c)]][paste(x$data$.id, x$data$sample) %in% b$.bid] <- NA
+      for(i in seq(1,nrow(b))){
+         x$data[[as.character(c)]][x$data$.id %in% b$.id[i] & dplyr::between(x$data$sample, b$sample[i], b$sample[i] + b$size[i] -1)  ] <- NA
+       }
       #could try with na_if, maybe it's faster?
     } else {
       x$data[[as.character(c)]][x$data$.id %in% b$.id] <- NA
     }
   }
   # For the replacement in the complete of the segments
-  b_all <- dplyr::filter(baddies, is.na(channel)) %>% distinct()
+  b_all <- dplyr::filter(baddies, is.na(channel)) %>% dplyr::distinct()
 
   if(!entire_seg){
-      x$data[, chan_names(x)][paste(x$data$.id, x$data$sample) %in% b_all$.bid, ] <- NA
+      for(i in seq(1,nrow(b_all))){
+       x$data[, chan_names(x)][x$data$.id == b_all$.id[i] & dplyr::between(x$data$sample, b_all$sample[i], b_all$sample[i] + b_all$size[i] -1)  , ] <- NA
+      }
+      # x$data[, chan_names(x)][x$data$.id %in% b_all$.id & x$data$sample >= b_all$sample & x$data$sample <= b_all$sample + b_all$size -1, ] <- NA
+      # x$data[, chan_names(x)][x$data$.id %in% b_all$.id & dplyr::between(x$data$sample, b_all$sample, b_all$sample + b_all$size -1)  , ] <- NA
     } else {
       x$data[, chan_names(x)][x$data$.id %in% b_all$.id, ] <- NA
     }

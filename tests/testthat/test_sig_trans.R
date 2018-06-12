@@ -9,7 +9,7 @@ data <- eegble(data = dplyr::tibble(.id= rep(c(1L,2L), each = 10), sample= rep(s
                                       1L, "Time 0",       NA,           1L,       1L,   NA,
                                       1L, "Bad",          NA,           2L,       2L,   "X",
                                       2L, "New Segment",  NA,          -4L,       1L,   NA,
-                                      1L, "Time 0",       NA,           2L,       1L,   NA,
+                                      2L, "Time 0",       NA,           2L,       1L,   NA,
                                       2L, "Bad",          NA,           2L,       1L,   "Y"),
            chan_info = dplyr::tibble(labels = c("X", "Y"), theta = NA, phi = NA, radius = NA, x = NA, y = NA, z = NA),
            eeg_info = list(srate = 500, reference = NA),

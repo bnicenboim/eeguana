@@ -141,8 +141,8 @@ read_dat <- function(file, common_info = NULL, chan_info = NULL, events = NULL,
                       dplyr::filter(sample >= b | sample + size - 1 >= b, 
                       # start before the end               
                              sample <= e) %>%
-                      dplyr::mutate(size = if_else(sample < b, b - size, size), 
-                                  sample = case_when(sample >= b ~ sample - s0 + 1L,
+                      dplyr::mutate(size = dplyr::if_else(sample < b, b - size, size), 
+                                  sample = dplyr::case_when(sample >= b ~ sample - s0 + 1L,
                                                      sample < b ~ b - s0 + 1L))) %>% 
                     dplyr::mutate(.id = as.integer(.id))
 

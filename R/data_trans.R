@@ -32,14 +32,14 @@ bind <- function(...){
             cumsum() %>% dplyr::lag(default=0) %>% as.integer()
   
   
-  new_eegble$data <- purrr::map2_dfr(eegbles, add_ids, ~ mutate(.x$data, .id = .id + .y) )
-  new_eegble$events <- purrr::map2_dfr(eegbles, add_ids, ~ mutate(.x$events, .id = .id + .y) )
-  new_eegble$seg_info <- purrr::map2_dfr(eegbles, add_ids, ~ mutate(.x$seg_info, .id = .id + .y) )
+  new_eegble$data <- purrr::map2_dfr(eegbles, add_ids, ~ dplyr::mutate(.x$data, .id = .id + .y) )
+  new_eegble$events <- purrr::map2_dfr(eegbles, add_ids, ~ dplyr::mutate(.x$events, .id = .id + .y) )
+  new_eegble$seg_info <- purrr::map2_dfr(eegbles, add_ids, ~ dplyr::mutate(.x$seg_info, .id = .id + .y) )
   
   # If more segments of the same recording are added, these need to be adapted.
   new_eegble$seg_info <- new_eegble$seg_info %>% 
                          dplyr::group_by(recording) %>% 
-                         mutate(segment = 1:n())
+                         dplyr::mutate(segment = 1:n())
   
   validate_eegbl(new_eegble)
  }
@@ -74,12 +74,12 @@ as_tibble <-function (x, ...) {
     by <- thinning
   }
 
-  x$data <- x$data %>% tidyr::gather(key = channel, value = amplitude, chan_names(x)) %>%
+  df <- x$data %>% tidyr::gather(key = channel, value = amplitude, chan_names(x)) %>%
   {if(add_seg_info) { dplyr::left_join(., x$seg_info, by =".id")} else {.}} %>% 
     dplyr::group_by(.id, channel) %>% 
         dplyr::filter(sample %in%  sample[seq(1,length(sample), by = by)]) %>%
       dplyr::mutate(time = (sample - 1)/ srate(x)) %>% dplyr::select(-sample, time, dplyr::everything())
- x$data
+ df
 }
 
 

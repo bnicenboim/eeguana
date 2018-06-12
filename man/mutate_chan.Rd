@@ -9,6 +9,7 @@
 \alias{transmute_seg}
 \alias{rename_seg}
 \alias{select_seg}
+\alias{filter_seg}
 \title{Mutate/transmute/select/rename channels or segments.}
 \usage{
 mutate_chan(.data, ...)
@@ -26,6 +27,8 @@ transmute_seg(.data, ...)
 rename_seg(.data, ...)
 
 select_seg(.data, ...)
+
+filter_seg(.data, ...)
 }
 \arguments{
 \item{.data}{An eegbl.}
