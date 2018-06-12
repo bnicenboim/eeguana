@@ -96,7 +96,10 @@ plot_gg <- function(x, ..., thinning = "auto"){
   dots = rlang::enquos(...) 
   df <- as_tibble(x, thinning = "auto") 
   plot <- ggplot2::ggplot(df, 
-      ggplot2::aes(x = time, y = amplitude, !!!dots))
+      ggplot2::aes(x = time, y = amplitude, !!!dots)) + 
+      ggplot2::scale_y_reverse() + 
+      ggplot2::scale_colour_brewer(type = "qual", palette = "Dark2") +
+      ggplot2::theme_bw()
   plot
 }
 

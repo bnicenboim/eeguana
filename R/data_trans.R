@@ -14,19 +14,33 @@ bind <- function(...){
   if(class(eegbles[[1]]) != "eegbl") {
     eegbles <- list(...)[[1]]
   }
-  new_eegble <- eegbles[[1]]
   
+  # Checks:           
   purrr::walk(eegbles[seq(2,length(eegbles))], 
-        ~ if(!identical(eegbles[[1]]$gral_info, .x$gral_info)) 
-        warning("'gral_info' fields are not identical."))
+        ~ if(!identical(eegbles[[1]]$eeg_info, .x$eeg_info)) 
+        warning("'eeg_info' fields are not identical."))
 
   purrr::walk(eegbles[seq(2,length(eegbles))], 
         ~ if(!identical(eegbles[[1]]$chan_info, .x$chan_info)) 
         warning("'chan_info' fields are not identical."))
   
-  new_eegble$data <- purrr::map(eegbles, "data") %>% 
-                  unlist(recursive = FALSE) %>% c()
+  new_eegble <- new_eegbl(chan_info = eegbles[[1]]$chan_info, eeg_info = eegbles[[1]]$eeg_info)
 
+  # Binding
+  #.id of the new eggbles needs to be adapted
+  add_ids <- purrr::map_int(eegbles, ~ max(.x$data$.id)) %>%
+            cumsum() %>% dplyr::lag(default=0) %>% as.integer()
+  
+  
+  new_eegble$data <- purrr::map2_dfr(eegbles, add_ids, ~ mutate(.x$data, .id = .id + .y) )
+  new_eegble$events <- purrr::map2_dfr(eegbles, add_ids, ~ mutate(.x$events, .id = .id + .y) )
+  new_eegble$seg_info <- purrr::map2_dfr(eegbles, add_ids, ~ mutate(.x$seg_info, .id = .id + .y) )
+  
+  # If more segments of the same recording are added, these need to be adapted.
+  new_eegble$seg_info <- new_eegble$seg_info %>% 
+                         dplyr::group_by(recording) %>% 
+                         mutate(segment = 1:n())
+  
   validate_eegbl(new_eegble)
  }
 
@@ -91,6 +105,6 @@ as.tibble.eegbl <- as_tibble.eegbl
 #' @importFrom magrittr %>%
 #' 
 #' @export
-as.data.frame.eegbl <- function(x, ..., thinning = "auto", add_seg_info = TRUE) {
-as.data.frame(as_tibble.eegbl(x, ..., thinning = "auto", add_seg_info = TRUE))
+as.data.frame.eegbl <- function(...) {
+as.data.frame(as_tibble.eegbl(...))
 }

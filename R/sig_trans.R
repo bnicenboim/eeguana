@@ -25,13 +25,15 @@ event_to_NA <- function(x, ..., all_chans = FALSE, entire_seg = FALSE,
 
   # Hack for match 2 columns with 2 columns, similar to semi_join but allowing for assignment
   baddies <- dplyr::filter(x$events, !!!dots) %>%  
-      dplyr::mutate( sample = purrr::map2(sample, sample + size, seq)) %>% 
-       tidyr::unnest() %>% dplyr::mutate(.id, .bid = paste(.id, sample), channel)
+      dplyr::mutate( sample = purrr::map2(sample, sample + size - 1, seq)) %>% 
+       tidyr::unnest() %>% dplyr::mutate(.id, .bid = paste(.id, sample), channel) %>%
+       dplyr::select(-size)
 
   if(all_chans) baddies <- dplyr::mutate(baddies, channel = NA) 
  
   # For the replacement in parts of the segments
-  for(c in unique(baddies$channel)){
+  b_chans <- dplyr::filter(baddies, !is.na(channel))  %>% .$channel %>% unique()
+  for(c in b_chans){
     b <- dplyr::filter(baddies, channel==c & !is.na(channel)) 
     if(!entire_seg){
       x$data[[as.character(c)]][paste(x$data$.id, x$data$sample) %in% b$.bid] <- NA

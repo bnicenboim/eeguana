@@ -1,18 +1,20 @@
 context("Read dat files")
 library(eegble)
 
-x <- read_vhdr("01_N400_CONG.vhdr")
+eegbl_ascii <- read_vhdr("01_N400_CONG.vhdr")
 
 test_that("can read ascii dat files", {
-expect_equal(length(x$data[[1]]$signals), 56)
-expect_equal(nrow(x$data[[1]]$events), 340)
+expect_equal(max(eegbl_ascii$data$sample), 1000)
+expect_equal(unique(eegbl_ascii$events$sample[eegbl_ascii$events$type == "New Segment"]), -499)
+expect_equal(unique(eegbl_ascii$events$sample[eegbl_ascii$events$type == "Time 0"]), 1)
+expect_equal(sum(eegbl_ascii$events$description == "s7", na.rm = TRUE), nrow(eegbl_ascii$seg_info))
 })
 
-b_av <- read_vhdr("binary-avfaces.vhdr")
+eegbl_av <- read_vhdr("binary-avfaces.vhdr")
 
 test_that("can read binary dat files", {
-expect_equal(length(b_av$data[[1]]$signals), 1)
-expect_equal(nrow(b_av$data[[1]]$signals[[1]]), 600)
-expect_equal(nrow(b_av$data[[1]]$events), 2)
+expect_equal(max(eegbl_av$data$sample), 500)
+expect_equal(eegbl_av$events$sample[eegbl_av$events$type == "New Segment"], -99)
+expect_equal(eegbl_av$events$sample[eegbl_av$events$type == "Time 0"], 1)
 })
 

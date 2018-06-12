@@ -52,8 +52,8 @@ We first need to read the data:
 faces <- read_vhdr("faces.vhdr")
 ```
 
-`eggble` creates a list with data frames for the signal, events, segments, and
-channels information, and a list for generic EEG information.
+The function `read_vhdr` creates a list with data frames for the signal, events,
+segments, and channels information, and a list for generic EEG information.
 
 ```{r}
 faces
@@ -68,9 +68,15 @@ summary(faces)
 Furthermore, it allows for quick visualization.
 
 ```{r, fig.dim = c(10,15), out.width = "100%"}
-plot(faces)
+plot(faces) 
 ```
 
+The standard plots  can be slightly customized using ggplot layers.
+
+
+```{r, fig.dim = c(10,15), out.width = "100%"}
+plot(faces) + coord_cartesian(ylim = c(-500,500))
+```
 
 
 Some intervals were marked as "bad" by BrainVision, and so we'll remove them
@@ -115,16 +121,11 @@ feed into `ggplot` object. This object can then be customized.
 ```{r, fig.dim = c(10,15), out.width = "100%"}
 plot_gg(faces_segs_some) + 
                 geom_line(alpha = .1, aes(group = .id, color = condition)) + 
-                stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1, 
+                stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1.5, 
                   aes(color = condition)) +
                 facet_wrap(~ channel) + 
                 geom_vline(xintercept = 0, linetype = "dashed") + 
                 geom_vline(xintercept = .17, linetype = "dotted") + 
-                # Negative is up:  
-                 scale_y_reverse() +
-                # Makes it prettier 
-                scale_colour_manual(values = c("red", "blue"))+
-                theme_bw() + 
                 theme(legend.position = "bottom") 
 ```
 
@@ -153,11 +154,6 @@ faces_segs %>%  transmute_chan(Occipital = (O1 + O2 + Oz) / 3,
                 stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1, 
                   aes(color = condition)) +
                 facet_wrap(~ channel) + 
-                # Negative is up:  
-                 scale_y_reverse() +
-                # Makes it prettier 
-                scale_colour_manual(values = c("red", "blue"))+
-                theme_bw() + 
                 theme(legend.position = "bottom") 
 
 ```

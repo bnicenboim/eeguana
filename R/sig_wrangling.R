@@ -28,7 +28,7 @@
 mutate_chan <- function(.data, ...){
   dots <-  validate_dots(...)
   .data$data <- dplyr::mutate(.data$data,!!!dots)
-   update_chans(.data)
+   update_chans(.data) %>% validate_eegbl 
 }            
 
 #' @rdname mutate_chan
@@ -36,7 +36,7 @@ mutate_chan <- function(.data, ...){
 transmute_chan <- function(.data, ...){
   dots <-  validate_dots(...)
   .data$data <- dplyr::transmute(.data$data, sample, !!!dots)
-  update_chans(.data)
+  update_chans(.data) %>% validate_eegbl 
 }            
 
 
@@ -45,7 +45,7 @@ transmute_chan <- function(.data, ...){
 select_chan <- function(.data, ...){
   dots <-  validate_dots(...)
   .data$data <- dplyr::select(.data$data, .id, sample, !!!dots)
-  update_chans(.data)
+  update_chans(.data) %>% validate_eegbl 
 }  
 
 #' @rdname mutate_chan
@@ -53,7 +53,7 @@ select_chan <- function(.data, ...){
 rename_chan <- function(.data, ...){
   dots <-  validate_dots(...)
   .data$data <- dplyr::rename(.data$data, !!!dots)
-  update_chans(.data)
+  update_chans(.data) %>% validate_eegbl 
 }  
 
 
@@ -62,7 +62,7 @@ rename_chan <- function(.data, ...){
 mutate_seg <- function(.data, ...){
    dots <-  validate_dots(...)
   .data$seg_info <- dplyr::mutate(.data$seg_info,!!!dots)
-  .data
+  validate_eegbl(.data)
 }   
 
 #' @rdname mutate_chan
@@ -70,7 +70,7 @@ mutate_seg <- function(.data, ...){
 transmute_seg <- function(.data, ...){
    dots <-  validate_dots(...)
   .data$seg_info <- dplyr::mutate(.data$seg_info, .id, !!!dots)
-  .data
+  validate_eegbl(.data)
 }   
 
 #' @rdname mutate_chan
@@ -78,7 +78,7 @@ transmute_seg <- function(.data, ...){
 rename_seg <- function(.data, ...){
    dots <-  validate_dots(...)
   .data$seg_info <- dplyr::rename(.data$seg_info,!!!dots)
-  .data
+  validate_eegbl(.data)
 }   
 
 #' @rdname mutate_chan
@@ -86,7 +86,7 @@ rename_seg <- function(.data, ...){
 select_seg <- function(.data, ...){
    dots <-  validate_dots(...)
   .data$seg_info <- dplyr::select(.data$seg_info, .id, !!!dots)
-  .data
+  validate_eegbl(.data)
 }   
 
 

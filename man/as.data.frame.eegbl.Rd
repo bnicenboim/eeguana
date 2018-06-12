@@ -4,19 +4,18 @@
 \alias{as.data.frame.eegbl}
 \title{Convert an eegble to a (base) data frame.}
 \usage{
-\method{as.data.frame}{eegbl}(x, ..., thinning = "auto",
-  add_seg_info = TRUE)
+\method{as.data.frame}{eegbl}(...)
 }
 \arguments{
-\item{x}{An \code{eegble} object.}
-
 \item{...}{Other arguments passed on to individual methods.
 
 `as_data_frame` and `as.tibble` are aliases.}
 
-\item{thinning}{}
+\item{x}{An \code{eegble} object.}
 
 \item{add_seg_info}{}
+
+\item{thinning}{}
 }
 \value{
 A tibble.

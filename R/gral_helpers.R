@@ -2,45 +2,58 @@ decimals <- function(x) match(TRUE, round(x, 1:20) == x)
 say_size <- function(eegble) paste("# Object size",capture.output(pryr::object_size(eegble)))
 
 
-new_eegbl <- function(x) {
-	stopifnot(is.list(x))
-
+new_eegbl <- function(data = NULL, events = NULL, chan_info = NULL, eeg_info = NULL, seg_info = NULL) {
+  x <- list(data =  data, events = events, 
+                 chan_info = chan_info, eeg_info = eeg_info, seg_info = seg_info)
+  x <- unclass(x)
+   x$chan_info$labels <- forcats::as_factor(x$chan_info$labels, levels = x$chan_info$labels)
   structure(x,
     class = c("eegbl"))
 }
 
 validate_eegbl <- function(x) {
-  if(names(x)[1] != "data"){
-    stop("data is missing or has the wrong type",
+
+   if(!all(names(x) %in% c("data", "events", "chan_info", "eeg_info",  "seg_info"))){
+        stop("Incomplete eegble object.",
       call. = FALSE)
-  }
-  if(names(x)[2] != "chan_info"){
-    stop("chan_info is missing",
-      call. = FALSE)
-  }
-  if(!is.data.frame(x$chan_info)){
-    stop("chan_info is not a data frame",
-      call. = FALSE)
-  }
-  if(names(x)[3] != "gral_info"){
-    stop("gral_info is missing",
-      call. = FALSE)
-  }
-  if(!is.numeric(x$gral_info$srate) | x$gral_info$srate < 0 ){
+   }
+
+  if(!is.numeric(x$eeg_info$srate) | x$eeg_info$srate < 0 ){
     stop("Incorrect sampling rate",
       call. = FALSE)
   }
-  purrr::walk(x, ~ is.list)
-  purrr::walk(x$data, ~ purrr::walk(.x$signal, 
-          ~ if(!is.data.frame(.x)) 
-          stop("some 'signal' doesn't have a data frame",
-          call. = FALSE )))
-x
-}  
+  if(!all(c("sample","size", "channel") %in% names(x$events))){
+    stop("Missing fields in events",
+      call. = FALSE)
+  }
 
-eegbl <- function(x){
-  validate_eegbl(x)
-}
+  if(!all(
+  names(x$data)[1] == ".id",
+  names(x$data)[2] == "sample",
+  names(x$seg_info)[1] == ".id",
+  names(x$events)[1] == ".id")){
+ 
+    stop("Missing .id or sample fields",
+      call. = FALSE)
+  }
+  if(!all(
+   is.integer(x$data$.id),
+   is.integer(x$data$sample),
+   is.integer(x$seg_info$.id),
+   is.integer(x$events$.id))){
+    warning(".id or sample are not integers.")
+   }
+
+   if(!is.factor(x$chan_info$labels)) {
+     stop("Channel labels should be a factor",
+      call. = FALSE)
+  }
+    if(!all(levels(x$chan_info$labels)== colnames(x$data)[c(-1,-2)] )){
+           stop("Mismatch in label names",
+      call. = FALSE)
+    }
+  x
+}  
 
 
 update_chans <- function(x){
