@@ -12,6 +12,7 @@
 #' \item \code{transmute_*()} drops existing variables.
 #' \item \code{select_*()} keeps only the mentioned variables. 
 #' \item \code{rename_*()}: keeps all variables.
+#' \item \code{filter_*()}: find segments/samples where conditions are true. Segments/samples where the condition evaluates to NA are dropped.
 #' }
 #' Manipulation effect:
 #' \itemize{
@@ -101,3 +102,19 @@ filter_seg <- function(.data, ...){
 
   validate_eegbl(.data)
 }   
+
+
+##' @rdname mutate_chan
+# not yet exported
+filter_s <- function(.data, ...){
+   dots <-  rlang::enquos(...)
+   #should edit the dots to transform time to samples
+   #then it filters by $data
+  .data$seg_info <- dplyr::filter(.data$seg_info, !!!dots)
+  .data$data <- dplyr::semi_join(.data$data, .data$seg_info, by =".id")
+  .data$events <- dplyr::semi_join(.data$events, .data$seg_info, by =".id")
+
+  validate_eegbl(.data)
+}   
+
+#it could look for the names and check if they appear in data or seg_info

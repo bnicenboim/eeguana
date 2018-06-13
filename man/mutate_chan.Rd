@@ -10,6 +10,7 @@
 \alias{rename_seg}
 \alias{select_seg}
 \alias{filter_seg}
+\alias{filter_s}
 \title{Mutate/transmute/select/rename channels or segments.}
 \usage{
 mutate_chan(.data, ...)
@@ -29,6 +30,8 @@ rename_seg(.data, ...)
 select_seg(.data, ...)
 
 filter_seg(.data, ...)
+
+filter_s(.data, ...)
 }
 \arguments{
 \item{.data}{An eegbl.}
@@ -51,6 +54,7 @@ Manipulation type:
 \item \code{transmute_*()} drops existing variables.
 \item \code{select_*()} keeps only the mentioned variables. 
 \item \code{rename_*()}: keeps all variables.
+\item \code{filter_*()}: find segments/samples where conditions are true. Segments/samples where the condition evaluates to NA are dropped.
 }
 Manipulation effect:
 \itemize{
