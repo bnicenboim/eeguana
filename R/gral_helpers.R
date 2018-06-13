@@ -49,7 +49,7 @@ validate_eegbl <- function(x) {
       call. = FALSE)
   }
     if(!all(levels(x$chan_info$labels)== colnames(x$data)[c(-1,-2)] )){
-           stop("Mismatch in label names",
+           warning("Mismatch in label names",
       call. = FALSE)
     }
   x
@@ -64,7 +64,7 @@ update_chans <- function(x){
     # add new ones
     x$chan_info <- x$chan_info %>% dplyr::mutate(labels = as.character(labels)) %>% 
                     dplyr::bind_rows(tibble::tibble(labels = new_chans)) %>% 
-                    dplyr::mutate(labels = forcats::as_factor(labels)) 
+                    dplyr::mutate(labels = forcats::as_factor(labels, levels = current_chans )) 
     x
   }
 

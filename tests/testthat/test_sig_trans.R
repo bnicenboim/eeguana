@@ -63,6 +63,7 @@ test_that("can clean whole segments in files", {
 })
 
 
+warning("add to check when there are 0 events of some type")
 
 warning("segment tests needs to be done - check the ids everywhere when several recordings are there, check the lims working")
 warning("baseline tests needs to be done")

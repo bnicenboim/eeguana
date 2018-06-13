@@ -30,11 +30,11 @@ event_to_NA <- function(x, ..., all_chans = FALSE, entire_seg = FALSE,
  
   # For the replacement in parts of the segments
   b_chans <- dplyr::filter(baddies, !is.na(channel))  %>% .$channel %>% unique()
-  for(c in b_chans){
+ for(c in b_chans){
     b <- dplyr::filter(baddies, channel==c & !is.na(channel)) 
     if(!entire_seg){
       for(i in seq(1,nrow(b))){
-         x$data[[as.character(c)]][x$data$.id %in% b$.id[i] & dplyr::between(x$data$sample, b$sample[i], b$sample[i] + b$size[i] -1)  ] <- NA
+         x$data[[as.character(c)]][x$data$.id %in% b$.id[i] & dplyr::between(x$data$sample, b$sample[i], b$sample[i] + b$size[i] - 1)  ] <- NA
        }
       #could try with na_if, maybe it's faster?
     } else {
@@ -44,7 +44,7 @@ event_to_NA <- function(x, ..., all_chans = FALSE, entire_seg = FALSE,
   # For the replacement in the complete of the segments
   b_all <- dplyr::filter(baddies, is.na(channel)) %>% dplyr::distinct()
 
-  if(!entire_seg){
+  if(!entire_seg & nrow(b_all) != 0){
       for(i in seq(1,nrow(b_all))){
        x$data[, chan_names(x)][x$data$.id == b_all$.id[i] & dplyr::between(x$data$sample, b_all$sample[i], b_all$sample[i] + b_all$size[i] -1)  , ] <- NA
       }
