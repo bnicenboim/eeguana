@@ -17,5 +17,5 @@ segment(x, ..., lim = c(-0.5, 0.5))
 An eegbl.
 }
 \description{
-Segments an eegble.
+EXPLAIN WHAT A SEGMENT IS/ DIFFERENCE WITH EPOCH (LINK?) + EXAMPLES OF SEGMENT WITH +Inf
 }

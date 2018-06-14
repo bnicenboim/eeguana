@@ -7,6 +7,9 @@ new_eegbl <- function(data = NULL, events = NULL, chan_info = NULL, eeg_info = N
                  chan_info = chan_info, eeg_info = eeg_info, seg_info = seg_info)
   x <- unclass(x)
    x$chan_info$labels <- forcats::as_factor(x$chan_info$labels, levels = x$chan_info$labels)
+   x$events$channel <- forcats::as_factor(x$events$channel, levels = x$chan_info$labels)
+
+
   structure(x,
     class = c("eegbl"))
 }
@@ -44,7 +47,7 @@ validate_eegbl <- function(x) {
     warning(".id or sample are not integers.")
    }
 
-   if(!is.factor(x$chan_info$labels)) {
+   if(!all(is.factor(x$chan_info$labels), is.factor(x$events$channel) )) {
      stop("Channel labels should be a factor",
       call. = FALSE)
   }
@@ -55,7 +58,6 @@ validate_eegbl <- function(x) {
   x
 }  
 
-
 update_chans <- function(x){
     current_chans <- colnames(x$data)[!colnames(x$data) %in% c(".id","sample")]
     new_chans <- current_chans[!current_chans %in% x$chan_info$labels]
@@ -64,7 +66,8 @@ update_chans <- function(x){
     # add new ones
     x$chan_info <- x$chan_info %>% dplyr::mutate(labels = as.character(labels)) %>% 
                     dplyr::bind_rows(tibble::tibble(labels = new_chans)) %>% 
-                    dplyr::mutate(labels = forcats::as_factor(labels, levels = current_chans )) 
+                    semi_join(tibble(labels = current_chans),by = "labels" ) %>%
+                    dplyr::mutate(labels = forcats::as_factor(labels, levels = current_chans)) 
     x
   }
 

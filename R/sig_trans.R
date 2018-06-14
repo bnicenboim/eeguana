@@ -48,8 +48,6 @@ event_to_NA <- function(x, ..., all_chans = FALSE, entire_seg = FALSE,
       for(i in seq(1,nrow(b_all))){
        x$data[, chan_names(x)][x$data$.id == b_all$.id[i] & dplyr::between(x$data$sample, b_all$sample[i], b_all$sample[i] + b_all$size[i] -1)  , ] <- NA
       }
-      # x$data[, chan_names(x)][x$data$.id %in% b_all$.id & x$data$sample >= b_all$sample & x$data$sample <= b_all$sample + b_all$size -1, ] <- NA
-      # x$data[, chan_names(x)][x$data$.id %in% b_all$.id & dplyr::between(x$data$sample, b_all$sample, b_all$sample + b_all$size -1)  , ] <- NA
     } else {
       x$data[, chan_names(x)][x$data$.id %in% b_all$.id, ] <- NA
     }
@@ -64,6 +62,8 @@ event_to_NA <- function(x, ..., all_chans = FALSE, entire_seg = FALSE,
 
 #' Segments an eegble.
 #'
+#' EXPLAIN WHAT A SEGMENT IS/ DIFFERENCE WITH EPOCH (LINK?) + EXAMPLES OF SEGMENT WITH +Inf
+#' 
 #' @param x An \code{eegble} object.
 #' @param ... Description of the event.
 #' @param lim Vector indicating the time before and after the event.
