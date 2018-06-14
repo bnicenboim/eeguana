@@ -7,7 +7,7 @@ new_eegbl <- function(data = NULL, events = NULL, chan_info = NULL, eeg_info = N
                  chan_info = chan_info, eeg_info = eeg_info, seg_info = seg_info)
   x <- unclass(x)
    x$chan_info$labels <- forcats::as_factor(x$chan_info$labels, levels = x$chan_info$labels)
-   x$events$channel <- forcats::as_factor(x$events$channel, levels = x$chan_info$labels)
+   x$events$channel <- forcats::as_factor(as.character(x$events$channel), levels = x$chan_info$labels)
 
 
   structure(x,
