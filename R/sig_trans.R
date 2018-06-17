@@ -85,7 +85,7 @@ event_to_NA <- function(x, ..., all_chans = FALSE, entire_seg = FALSE,
 #' @importFrom magrittr %>%
 #' 
 #' @export
-segment <- function(x, ..., lim = c(-.5,.5)){
+segment <- function(x, ..., lim = c(-.5,.5), unit = "seconds"){
   
   dots <- rlang::enquos(...)
   #dots <- rlang::quos(description == "s111")
@@ -95,7 +95,23 @@ segment <- function(x, ..., lim = c(-.5,.5)){
  times0 <- dplyr::filter(x$events, !!!dots) %>% 
                   dplyr::select(-channel, -size) 
 
-  slim <- lim * srate(x) + 1 
+  if(stringr::str_to_lower(unit) %in% c("s","sec","second","seconds","secs")) {
+    scaling <- srate(x)
+  } else if(stringr::str_to_lower(unit) %in% c("ms","msec", "millisecond",
+                                               "milli second", "milli-second", 
+                                               "milliseconds", "milli seconds", 
+                                               "msecs")) {
+    scaling <- srate(x)/1000
+  } else if(stringr::str_to_lower(unit) %in% c("sam","sample","samples")){
+    scaling <- 1
+  } else {
+    stop("Incorrect unit. Please use 'ms', 's', or 'sample'")
+  }
+
+  slim <- round(lim * scaling)
+  if(slim[2] <= slim[1]){
+    stop("A segment needs to be of positive length and include at least 1 sample.")
+  }
   x$data <- purrr::pmap_dfr(list(times0$.id,  times0$sample), .id = ".id",
                                     function(i, s0) x$data %>%
                                           # filter the relevant samples
@@ -103,7 +119,7 @@ segment <- function(x, ..., lim = c(-.5,.5)){
                                                          sample < s0 + slim[2],
                                                         .id == i) %>%
                                           # add a time column
-                                          dplyr::mutate(sample = sample - s0) %>%
+                                          dplyr::mutate(sample = sample - s0 + 1L) %>%
                                           # order the signals df:
                                           dplyr::select(-.id)) %>%
                                           dplyr::mutate(.id = as.integer(.id))
@@ -120,17 +136,18 @@ segment <- function(x, ..., lim = c(-.5,.5)){
                                     sample <  s0 + slim[2],
                                     .id == i) %>%
                       dplyr::mutate(size = dplyr::if_else(sample < b, 
-                                                 as.integer(size - (b - sample) + 1), size), 
-                                  sample = dplyr::if_else(sample < b, b - s0,
-                                                             sample - s0)) %>%
+                                                 as.integer(size - (b - sample) + 1L), size), 
+                                  sample = dplyr::if_else(sample < b, b - s0 + 1L,
+                                                             sample - s0 + 1L)) %>%
                                                 dplyr::select(-.id)
                                               }) %>%
                      dplyr::mutate(.id = as.integer(.id)) 
 
   message(paste0("# Total of ", max(x$data$.id)," segments found."))
  
-  x$seg_info <- dplyr::right_join(dplyr::select(x$seg_info,-type), dplyr::select(times0,-sample), by =".id") %>%
-                ungroup() %>% dplyr::mutate(.id = 1:n()) %>% 
+  # x$seg_info <- dplyr::right_join(dplyr::select(x$seg_info,-type), dplyr::select(times0,-sample), by =".id") %>%
+  x$seg_info <- dplyr::right_join(x$seg_info, dplyr::select(times0,-sample), by =".id") %>%
+                dplyr::ungroup() %>% dplyr::mutate(.id = 1:n()) %>% 
                 dplyr::group_by(recording) %>% 
                 dplyr::mutate(segment = 1:n())
 

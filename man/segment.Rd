@@ -4,7 +4,7 @@
 \alias{segment}
 \title{Segments an eegble.}
 \usage{
-segment(x, ..., lim = c(-0.5, 0.5))
+segment(x, ..., lim = c(-0.5, 0.5), unit = "seconds")
 }
 \arguments{
 \item{x}{An \code{eegble} object.}

@@ -147,8 +147,7 @@ read_dat <- function(file, common_info = NULL, chan_info = NULL, events = NULL,
                     dplyr::mutate(.id = as.integer(.id))
 
     seg_info <- tibble::tibble(.id = seq(length(beg_segs)), 
-                              recording = recording, segment = .id, 
-                              type = "initial")
+                              recording = recording, segment = .id)
 
   
   eegble <- new_eegbl(data = data, events = seg_events, chan_info = chan_info, 

@@ -1,48 +1,47 @@
-context("Signal manipulation")
+context("data transformations")
 library(eegble)
 
 
 data <- eegble(data = dplyr::tibble(.id= rep(c(1L,2L), each = 10), sample= rep(seq(-4L,5L), times = 2), X = sin(1:20), Y = cos(1:20)),
            events = dplyr::tribble(~.id, ~type,        ~description, ~sample, ~size, ~channel,
-                                      1L, "New Segment",  NA,          -4L,       1L,   NA,
-                                      1L, "Bad",          NA,          -2L,       3L,   NA,
-                                      1L, "Time 0",       NA,           1L,       1L,   NA,
-                                      1L, "Bad",          NA,           2L,       2L,   "X",
-                                      2L, "New Segment",  NA,          -4L,       1L,   NA,
-                                      2L, "Time 0",       NA,           2L,       1L,   NA,
-                                      2L, "Bad",          NA,           2L,       1L,   "Y"),
+                                      1L, "New Segment",  NA_character_,          -4L,       1L,   NA,
+                                      1L, "Bad",          NA_character_,          -2L,       3L,   NA,
+                                      1L, "Time 0",       NA_character_,           1L,       1L,   NA,
+                                      1L, "Bad",          NA_character_,           2L,       2L,   "X",
+                                      2L, "New Segment",  NA_character_,          -4L,       1L,   NA,
+                                      2L, "Time 0",       NA_character_,           1L,       1L,   NA,
+                                      2L, "Bad",          NA_character_,           2L,       1L,   "Y"),
            chan_info = dplyr::tibble(labels = c("X", "Y"), theta = NA, phi = NA, radius = NA, x = NA, y = NA, z = NA),
            eeg_info = list(srate = 500, reference = NA),
-           seg_info =  dplyr::tibble(.id = 1L, recording = "recording1", segment = 1, type = "initial"))
+           seg_info =  dplyr::tibble(.id = c(1L,2L), recording = "recording1", segment = c(1L,2L)))
 
 
 data_NA <- eegble(data = dplyr::tibble(.id= rep(c(1L,2L), each = 10), sample= rep(seq(-4L,5L), times = 2), X = sin(1:20), Y = cos(1:20)),
            events = dplyr::tribble(~.id, ~type,        ~description, ~sample, ~size, ~channel,
-                                      1L, "New Segment",  NA,          -4L,       1L,   NA_character_,
-                                      1L, "Bad",          NA,          -2L,       3L,   NA,
-                                      1L, "Time 0",       NA,           1L,       1L,   NA,
-                                      1L, "Bad",          NA,           2L,       2L,   NA,
-                                      2L, "New Segment",  NA,          -4L,       1L,   NA,
-                                      2L, "Time 0",       NA,           2L,       1L,   NA,
-                                      2L, "Bad",          NA,           2L,       1L,   NA),
+                                      1L, "New Segment",  NA_character_,          -4L,       1L,   NA_character_,
+                                      1L, "Bad",          NA_character_,          -2L,       3L,   NA,
+                                      1L, "Time 0",       NA_character_,           1L,       1L,   NA,
+                                      1L, "Bad",          NA_character_,           2L,       2L,   NA,
+                                      2L, "New Segment",  NA_character_,          -4L,       1L,   NA,
+                                      2L, "Time 0",       NA_character_,           1L,       1L,   NA,
+                                      2L, "Bad",          NA_character_,           2L,       1L,   NA),
            chan_info = dplyr::tibble(labels = c("X", "Y"), theta = NA, phi = NA, radius = NA, x = NA, y = NA, z = NA),
            eeg_info = list(srate = 500, reference = NA),
-           seg_info =  dplyr::tibble(.id = 1L, recording = "recording1", segment = 1, type = "initial"))
-
+           seg_info =  dplyr::tibble(.id = c(1L,2L), recording = "recording1", segment = c(1L,2L)))
 
 data_XY <- eegble(data = dplyr::tibble(.id= rep(c(1L,2L), each = 10), sample= rep(seq(-4L,5L), times = 2), X = sin(1:20), Y = cos(1:20)),
            events = dplyr::tribble(~.id, ~type,        ~description, ~sample, ~size, ~channel,
-                                      1L, "New Segment",  NA,          -4L,       1L,   NA,
-                                      1L, "Bad",          NA,          -2L,       3L,   "X",
-                                      1L, "Bad",          NA,          -2L,       3L,   "Y",
-                                      1L, "Time 0",       NA,           1L,       1L,   NA,
-                                      1L, "Bad",          NA,           2L,       2L,   "X",
-                                      2L, "New Segment",  NA,          -4L,       1L,   NA,
-                                      2L, "Time 0",       NA,           2L,       1L,   NA,
-                                      2L, "Bad",          NA,           2L,       1L,   "Y"),
+                                      1L, "New Segment",  NA_character_,          -4L,       1L,   NA,
+                                      1L, "Bad",          NA_character_,          -2L,       3L,   "X",
+                                      1L, "Bad",          NA_character_,          -2L,       3L,   "Y",
+                                      1L, "Time 0",       NA_character_,           1L,       1L,   NA,
+                                      1L, "Bad",          NA_character_,           2L,       2L,   "X",
+                                      2L, "New Segment",  NA_character_,          -4L,       1L,   NA,
+                                      2L, "Time 0",       NA_character_,           1L,       1L,   NA,
+                                      2L, "Bad",          NA_character_,           2L,       1L,   "Y"),
            chan_info = dplyr::tibble(labels = c("X", "Y"), theta = NA, phi = NA, radius = NA, x = NA, y = NA, z = NA),
            eeg_info = list(srate = 500, reference = NA),
-           seg_info =  dplyr::tibble(.id = 1L, recording = "recording1", segment = 1, type = "initial"))
+           seg_info =  dplyr::tibble(.id = c(1L,2L), recording = "recording1", segment = c(1L,2L)))
 
 
 
@@ -68,10 +67,11 @@ test_that("can clean files", {
 
 test_that("can clean whole channels in files", {
   clean_data_chan <- event_to_NA(data, type == "Bad", all_chans = TRUE)
-  clean_data_chan <- event_to_NA(data_NA, type == "Bad")
- clean_data_chan2 <- event_to_NA(data_NA, type == "Bad", all_chans = TRUE)
+  clean_data_chan2 <- event_to_NA(data_NA, type == "Bad")
+  clean_data_chan3 <- event_to_NA(data_NA, type == "Bad", all_chans = TRUE)
   clean_data_XY2 <- event_to_NA(data_XY, type == "Bad", all_chans = TRUE)
   expect_equal(clean_data_chan, clean_data_chan2)
+  expect_equal(clean_data_chan, clean_data_chan3)
   expect_equal(clean_data_chan, clean_data_XY2)
   expect_equal(nrow(clean_data_chan$events), 4)
   expect_equal(all(is.na(clean_data_chan$data[clean_data_chan$data$sample %in% seq(-2,-3+3-1) &
@@ -100,9 +100,77 @@ test_that("can clean whole segments in files", {
   expect_equal(all(is.na(clean_data_seg$data[clean_data_seg$data$.id == 2 ,c("X")])), FALSE)
 })
 
+data0 <- eegble(data = dplyr::tibble(.id= rep(c(1L,1L), each = 10), sample= seq(1L,20L), X = sin(1:20), Y = cos(1:20)),
+           events = dplyr::tribble(~.id, ~type,        ~description, ~sample, ~size, ~channel,
+                                      1L, "New Segment",  NA,           1L,       1L,   NA,
+                                      1L, "Bad",          NA,           3L,       3L,   NA,
+                                      1L, "Time 0",       NA,           6L,       1L,   NA,
+                                      1L, "Bad",          NA,           7L,       2L,   "X",
+                                      1L, "New Segment",  NA,           11L,       1L,   NA,
+                                      1L, "Time 0",       NA,           16L,       1L,   NA,
+                                      1L, "Bad",          NA,           17L,       1L,   "Y"),
+           chan_info = dplyr::tibble(labels = c("X", "Y"), theta = NA, phi = NA, radius = NA, x = NA, y = NA, z = NA),
+           eeg_info = list(srate = 500, reference = NA),
+           seg_info =  dplyr::tibble(.id = 1L, recording = "recording1", segment = 1))
 
 
+data1 <- eegble(data = dplyr::tibble(.id= rep(c(1L,2L), each = 10), sample= rep(seq(-4L,5L), times = 2), X = sin(1:20), Y = cos(1:20)),
+           events = dplyr::tribble(~.id, ~type,        ~description, ~sample, ~size, ~channel,
+                                      1L, "New Segment",  NA,          -4L,       1L,   NA,
+                                      1L, "Bad",          NA,          -2L,       3L,   NA,
+                                      1L, "Time 0",       NA,           1L,       1L,   NA),
+           chan_info = dplyr::tibble(labels = c("X", "Y"), theta = NA, phi = NA, radius = NA, x = NA, y = NA, z = NA),
+           eeg_info = list(srate = 500, reference = NA),
+           seg_info =  dplyr::tibble(.id = 1L, recording = "recording1", segment = 1))
+
+
+test_that("can segment", {
+  data_s <- segment(data, type== "Time 0")
+  expect_equal(data$data,   data_s$data)
+  expect_equal(data$events,   data_s$events)
+  expect_equal(data$seg_info,   dplyr::select(data_s$seg_info, -type,-description))
+  d <- segment(data, type== "Time 0")
+  d_rec <- segment(d, type== "Time 0")
+  expect_equal(d$data,   d_rec$data)
+  expect_equal(d$events,   d_rec$events)
+  expect_equal(dplyr::select(d$seg_info,-type,-description),   dplyr::select(d_rec$seg_info, -type.x,-description.x, -type.y,-description.y))
+d_0 <- segment(data, type== "Time 0", lim = c(0,Inf))
+d_0_0 <- segment(d_0, type== "Time 0", lim = c(0,Inf))
+  expect_equal(nrow(d_0$data),  10)
+  expect_equal(d_0$data,   d_0_0$data)
+  expect_equal(d_0$events,   d_0_0$events)
+  expect_equal(dplyr::select(d_0$seg_info,-type,-description),   dplyr::select(d_0_0$seg_info, -type.x,-description.x, -type.y,-description.y))
+  s1 <-  segment(data0, type== "Time 0", lim = c(0,1/500))
+  expect_equal(s1$data$X[1],   data0$data$X[6])
+  expect_equal(nrow(s1$data), 2)
+  expect_equal(nrow(s1$seg_info), 2)
+  s1_u <-  segment(data0, type== "Time 0", lim = c(0,1), unit = "sample")
+  s1_u2 <-  segment(data0, type== "Time 0", lim = c(0,2), unit = "ms")
+  expect_equal(s1, s1_u2)
+})
+
+
+
+
+#need to check what happens with different seg_info, in particular  segment by something else buttype
+
+
+
+segment(data0, type== "Time 0", lim = c(5/500,6/500))
+# segment(data0, type== "Time 0", lim = c(100,100))
+  # dots <- rlang::quos(type== "Time 0")
+
+segment(data, type== "Time 0", lim = c(-1/500,0))
+segment(data0, type== "Time 0", lim = c(-1/500,0))
+data0_s <- segment(data0, type== "Time 0", lim = c(-100,Inf))
+#check the recording
+#check the number of segments
+#check the new events
+#check the length of teh segments under difference conditions
+
+#lim could be 500s,500ms,5000 samples ,or add unit = sample, seconds/s, ms, milliseconds, ms, sec, msec, set the display and default uni with options
 
 warning("segment tests needs to be done - check the ids everywhere when several recordings are there, check the lims working")
 warning("baseline tests needs to be done")
 warning("sig_wrangling tests needs to be done")
+warning("bind seems to stop working")
