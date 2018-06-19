@@ -71,7 +71,16 @@ duration <- function(x){
 #' @export
 plot.eegbl <- function(x, thinning = "auto"){
 
-  df <- as_tibble(x, thinning = "auto") 
+  if(is.null(thinning)){ 
+    by <- 1
+  } else if(thinning == "auto") {
+    by <- round(pmax(length(chan_names(x)) * 2 * max(duration(x)/srate(x)) , 1))
+    message(paste("# Thinning by", by))
+  } else {
+    by <- thinning
+  }  
+  
+  df <- as_tibble(x, thinning = thinning) 
   plot <- ggplot2::ggplot(df, 
       ggplot2::aes(x = time, y = amplitude)) + 
       ggplot2::geom_line() +
@@ -93,8 +102,18 @@ plot.eegbl <- function(x, thinning = "auto"){
 #' 
 #' @export
 plot_gg <- function(x, ..., thinning = "auto"){
+  
+  if(is.null(thinning)){ 
+    by <- 1
+  } else if(thinning == "auto") {
+    by <- round(pmax(length(chan_names(x)) * 2 * max(duration(x)/srate(x)) , 1))
+    message(paste("# Thinning by", by))
+  } else {
+    by <- thinning
+  }
+  
   dots = rlang::enquos(...) 
-  df <- as_tibble(x, thinning = "auto") 
+  df <- as_tibble(x, thinning = thinning) 
   plot <- ggplot2::ggplot(df, 
       ggplot2::aes(x = time, y = amplitude, !!!dots)) + 
       ggplot2::scale_y_reverse() + 
