@@ -71,7 +71,7 @@ duration <- function(x){
 #' @export
 plot.eegbl <- function(x, thinning = "auto"){
 
-  df <- as_tibble(x, thinning = "auto") 
+  df <- as_tibble(x, thinning = thinning) 
   plot <- ggplot2::ggplot(df, 
       ggplot2::aes(x = time, y = amplitude)) + 
       ggplot2::geom_line() +
@@ -93,8 +93,9 @@ plot.eegbl <- function(x, thinning = "auto"){
 #' 
 #' @export
 plot_gg <- function(x, ..., thinning = "auto"){
+
   dots = rlang::enquos(...) 
-  df <- as_tibble(x, thinning = "auto") 
+  df <- as_tibble(x, thinning = thinning) 
   plot <- ggplot2::ggplot(df, 
       ggplot2::aes(x = time, y = amplitude, !!!dots)) + 
       ggplot2::scale_y_reverse() + 
