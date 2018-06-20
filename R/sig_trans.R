@@ -74,11 +74,13 @@ event_to_NA <- function(x, ..., all_chans = FALSE, entire_seg = FALSE,
 
 #' Segments an eegble.
 #'
-#' EXPLAIN WHAT A SEGMENT IS/ DIFFERENCE WITH EPOCH (LINK?) + EXAMPLES OF SEGMENT WITH +Inf
+#' EXPLAIN WHAT A SEGMENT IS/ DIFFERENCE WITH EPOCH (LINK?) + EXAMPLES OF SEGMENT WITH +Inf.
+#' Fieldtrip calls the segment "trials". The limits are inclusive, the event is
+#'  set as happening in the sample 1. If, for example, lim =c(0,0), the segment would contain only one sample.
 #' 
 #' @param x An \code{eegble} object.
 #' @param ... Description of the event.
-#' @param lim Vector indicating the time before and after the event.
+#' @param lim Vector indicating the time before and after the event. Or matrix with two columns, with nrow=total number of segments
 #' 
 #' @return An eegbl. 
 #' 
@@ -88,7 +90,7 @@ event_to_NA <- function(x, ..., all_chans = FALSE, entire_seg = FALSE,
 segment <- function(x, ..., lim = c(-.5,.5), unit = "seconds"){
   
   dots <- rlang::enquos(...)
-  #dots <- rlang::quos(description == "s111")
+  #dots <- rlang::quos(description == "s121")
   #dots <- rlang::quos(description == "s70")
   #dots <- rlang::quos(description %in% c("s70",s71"))
   
@@ -108,36 +110,58 @@ segment <- function(x, ..., lim = c(-.5,.5), unit = "seconds"){
     stop("Incorrect unit. Please use 'ms', 's', or 'sample'")
   }
 
-  slim <- round(lim * scaling)
-  if(slim[2] <= slim[1]){
-    stop("A segment needs to be of positive length and include at least 1 sample.")
+  
+  if(length(lim) == 2) {
+   lim <- rep(list(lim),each=nrow(times0))  
+  } 
+
+  if(is.matrix(lim) && dim(lim)[2]==2 && dim(lim)[1] == nrow(times0)){
+    lim <- purrr::array_branch(lim,1)
+  } else if(is.list(lim) && length(lim) ==nrow(times0) ){
+   #ok format 
+    NULL
+  } else {
+    stop("Wrong dimension of lim")
   }
-  x$data <- purrr::pmap_dfr(list(times0$.id,  times0$sample), .id = ".id",
-                                    function(i, s0) x$data %>%
+  
+  slim <- purrr::modify(lim, function(l) { 
+                            if(l[2] < l[1]){
+                              stop("A segment needs to be of positive length and include at least 1 sample.")
+                            }
+                              round(l * scaling) %>% as_integer } 
+                            )
+
+  x$data <- purrr::pmap_dfr(list(times0$.id,  times0$sample, slim), .id = ".id",
+
+                                    function(i, s0, sl) x$data %>%
                                           # filter the relevant samples
-                                          dplyr::filter(sample >= s0 + slim[1], 
-                                                         sample < s0 + slim[2],
+                                          dplyr::filter(sample >= s0 + sl[1], 
+                                                         sample <= s0 + sl[2],
                                                         .id == i) %>%
-                                          # add a time column
                                           dplyr::mutate(sample = sample - s0 + 1L) %>%
                                           # order the signals df:
                                           dplyr::select(-.id)) %>%
                                           dplyr::mutate(.id = as.integer(.id))
 
- x$events <- purrr::pmap_dfr(list(times0$.id, times0$sample), .id = ".id",
-                    function(i, s0){ 
-                      b <-   as.integer(s0 + slim[1])
+  slim <- purrr::map2(slim, split(x$data, x$data$.id), function(sl,d) { 
+                              sl <- c(min(d$sample) - 1L, max(d$sample) - 1L) 
+                            })
 
+ x$events <- purrr::pmap_dfr(list(times0$.id, times0$sample, slim), .id = ".id",
+                    function(i, s0, sl){ 
+                      #bound according to the segment
                       x$events %>%
                       # filter the relevant events
-                      # started after the segment (b) 
-                      # or span after the segment (b)  
-                      dplyr::filter(sample >=  s0 + slim[1] - size + 1 ,
-                                    sample <  s0 + slim[2],
+                      # started after the segment (s0 + slim[1]) 
+                      # or span after the segment (s0 + slim[1])  
+                      dplyr::filter(sample + size - 1 >=  s0 + sl[1],
+                                    sample <=  s0 + sl[2],
                                     .id == i) %>%
-                      dplyr::mutate(size = dplyr::if_else(sample < b, 
-                                                 as.integer(size - (b - sample) + 1L), size), 
-                                  sample = dplyr::if_else(sample < b, b - s0 + 1L,
+                      dplyr::mutate(size = dplyr::if_else(sample < s0 + sl[1], 
+                                    as.integer(size - (s0 + sl[1] - sample) + 1L), 
+                    # adjust the size so that it doesn't spillover after the segment
+                                    size) %>% pmin(., sl[2] + 1L - sample + s0   ), 
+                                  sample = dplyr::if_else(sample < s0 + sl[1], sl[1] + 1L,
                                                              sample - s0 + 1L)) %>%
                                                 dplyr::select(-.id)
                                               }) %>%
@@ -145,7 +169,6 @@ segment <- function(x, ..., lim = c(-.5,.5), unit = "seconds"){
 
   message(paste0("# Total of ", max(x$data$.id)," segments found."))
  
-  # x$seg_info <- dplyr::right_join(dplyr::select(x$seg_info,-type), dplyr::select(times0,-sample), by =".id") %>%
   x$seg_info <- dplyr::right_join(x$seg_info, dplyr::select(times0,-sample), by =".id") %>%
                 dplyr::ungroup() %>% dplyr::mutate(.id = 1:n()) %>% 
                 dplyr::group_by(recording) %>% 
@@ -156,6 +179,7 @@ segment <- function(x, ..., lim = c(-.5,.5), unit = "seconds"){
   # validate_eegbl(x)
   x
 }
+
 
 
 #' Baseline an eegble.

@@ -11,11 +11,13 @@ segment(x, ..., lim = c(-0.5, 0.5), unit = "seconds")
 
 \item{...}{Description of the event.}
 
-\item{lim}{Vector indicating the time before and after the event.}
+\item{lim}{Vector indicating the time before and after the event. Or matrix with two columns, with nrow=total number of segments}
 }
 \value{
 An eegbl.
 }
 \description{
-EXPLAIN WHAT A SEGMENT IS/ DIFFERENCE WITH EPOCH (LINK?) + EXAMPLES OF SEGMENT WITH +Inf
+EXPLAIN WHAT A SEGMENT IS/ DIFFERENCE WITH EPOCH (LINK?) + EXAMPLES OF SEGMENT WITH +Inf.
+Fieldtrip calls the segment "trials". The limits are inclusive, the event is
+ set as happening in the sample 1. If, for example, lim =c(0,0), the segment would contain only one sample.
 }

@@ -79,3 +79,12 @@ validate_dots <- function(...){
       dots
     }
 }
+
+
+as_integer <- function(x){
+  largest <- 2000000000
+  x[x > largest] <- largest
+  x[x < -largest] <- -largest
+  as.integer(x) 
+}
+

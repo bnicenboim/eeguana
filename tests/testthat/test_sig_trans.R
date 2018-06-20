@@ -43,6 +43,7 @@ data_XY <- eegble(data = dplyr::tibble(.id= rep(c(1L,2L), each = 10), sample= re
            eeg_info = list(srate = 500, reference = NA),
            seg_info =  dplyr::tibble(.id = c(1L,2L), recording = "recording1", segment = c(1L,2L)))
 
+#TEST when the event exceeds the end of the segment
 
 
 test_that("can clean files", {
@@ -123,6 +124,7 @@ data1 <- eegble(data = dplyr::tibble(.id= rep(c(1L,2L), each = 10), sample= rep(
            eeg_info = list(srate = 500, reference = NA),
            seg_info =  dplyr::tibble(.id = 1L, recording = "recording1", segment = 1))
 
+# dots <- rlang::quos( type== "Time 0")
 
 test_that("can segment", {
   data_s <- segment(data, type== "Time 0")
@@ -142,11 +144,19 @@ d_0_0 <- segment(d_0, type== "Time 0", lim = c(0,Inf))
   expect_equal(dplyr::select(d_0$seg_info,-type,-description),   dplyr::select(d_0_0$seg_info, -type.x,-description.x, -type.y,-description.y))
   s1 <-  segment(data0, type== "Time 0", lim = c(0,1/500))
   expect_equal(s1$data$X[1],   data0$data$X[6])
-  expect_equal(nrow(s1$data), 2)
+  expect_equal(nrow(s1$data), 4)
   expect_equal(nrow(s1$seg_info), 2)
   s1_u <-  segment(data0, type== "Time 0", lim = c(0,1), unit = "sample")
   s1_u2 <-  segment(data0, type== "Time 0", lim = c(0,2), unit = "ms")
   expect_equal(s1, s1_u2)
+  double <- segment(data0, type== "Time 0", lim = c(-20,20), unit = "sample")
+  expect_equal(nrow(double$data), 40)
+  d00 <- segment(data0, type== "Time 0", lim = c(0,1),unit="sample")
+  expect_equal(all(d00$events$sample + d00$events$size -1 <= max(d00$data$sample)), TRUE)
+  expect_equal(all(s1$events$sample + s1$events$size -1 <= max(s1$data$sample)), TRUE)
+  expect_equal(all(s1_u$events$sample + s1_u$events$size -1 <= max(s1_u$data$sample)), TRUE)
+  expect_equal(all(s1_u2$events$sample + s1_u2$events$size -1 <= max(s1_u2$data$sample)), TRUE)
+  expect_equal(all(s1_u2$events$sample + s1_u2$events$size -1 <= max(s1_u2$data$sample)), TRUE)
 })
 
 
@@ -156,13 +166,13 @@ d_0_0 <- segment(d_0, type== "Time 0", lim = c(0,Inf))
 
 
 
-segment(data0, type== "Time 0", lim = c(5/500,6/500))
+
 # segment(data0, type== "Time 0", lim = c(100,100))
   # dots <- rlang::quos(type== "Time 0")
 
 segment(data, type== "Time 0", lim = c(-1/500,0))
 segment(data0, type== "Time 0", lim = c(-1/500,0))
-data0_s <- segment(data0, type== "Time 0", lim = c(-100,Inf))
+data0_s <- segment(data0, type== "Time 0", lim = c(-Inf,Inf))
 #check the recording
 #check the number of segments
 #check the new events
