@@ -98,7 +98,8 @@ read_dat <- function(file, common_info = NULL, chan_info = NULL, events = NULL,
                                  dplyr::if_else(channel == 0, NA_integer_, 
                                                                   channel) %>%  
                                  chan_info$labels[.] %>% 
-                                  forcats::as_factor(levels = chan_info$labels))
+                                 forcats::lvls_expand(new_levels = chan_info$labels)
+                                  )
   
  
 

@@ -160,7 +160,9 @@ d_0_0 <- segment(d_0, type== "Time 0", lim = c(0,Inf))
 })
 
 
-
+# time(data)
+# dplyr::filter(data$data, sample/srate(data) > .002)
+# dplyr::filter(data$data, !!time() > .002)
 
 #need to check what happens with different seg_info, in particular  segment by something else buttype
 

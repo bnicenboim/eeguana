@@ -97,20 +97,8 @@ segment <- function(x, ..., lim = c(-.5,.5), unit = "seconds"){
  times0 <- dplyr::filter(x$events, !!!dots) %>% 
                   dplyr::select(-channel, -size) 
 
-  if(stringr::str_to_lower(unit) %in% c("s","sec","second","seconds","secs")) {
-    scaling <- srate(x)
-  } else if(stringr::str_to_lower(unit) %in% c("ms","msec", "millisecond",
-                                               "milli second", "milli-second", 
-                                               "milliseconds", "milli seconds", 
-                                               "msecs")) {
-    scaling <- srate(x)/1000
-  } else if(stringr::str_to_lower(unit) %in% c("sam","sample","samples")){
-    scaling <- 1
-  } else {
-    stop("Incorrect unit. Please use 'ms', 's', or 'sample'")
-  }
+  scaling <- scaling(x, unit)
 
-  
   if(length(lim) == 2) {
    lim <- rep(list(lim),each=nrow(times0))  
   } 
@@ -200,7 +188,23 @@ baseline <- function(x, t = -Inf) {
   x$data <- dplyr::group_by(x$data, .id) %>% 
             dplyr::mutate_at(chan_names(x), 
                     dplyr::funs( . - mean(.[dplyr::between(sample, s, 0  )])))
-
   x
-
 }            
+
+#' Get the time based on the sample.
+#'
+#' @param x An eegble. 
+#' @param unit 
+#' 
+#' @examples
+#' @return A vector of times in the specified unit 
+#' 
+#' @importFrom magrittr %>%
+#' 
+
+
+time.eegbl <- function(x = x, unit = "seconds") {
+  scaling <- scaling(x, unit)
+  rlang::quo(sample/ scaling)
+}
+

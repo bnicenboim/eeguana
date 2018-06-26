@@ -6,9 +6,11 @@ new_eegbl <- function(data = NULL, events = NULL, chan_info = NULL, eeg_info = N
   x <- list(data =  data, events = events, 
                  chan_info = chan_info, eeg_info = eeg_info, seg_info = seg_info)
   x <- unclass(x)
-   x$chan_info$labels <- forcats::as_factor(x$chan_info$labels, levels = x$chan_info$labels)
-   x$events$channel <- forcats::as_factor(as.character(x$events$channel), levels = x$chan_info$labels)
-
+  x$chan_info$labels <- forcats::as_factor(x$chan_info$labels, levels = x$chan_info$labels)
+  
+  # Force the channel to be a character and to have the same levels as there are channels
+  x$events$channel <- as.character(x$events$channel) %>% 
+                              forcats::lvls_expand(new_levels = x$chan_info$labels)
 
   structure(x,
     class = c("eegbl"))
@@ -54,6 +56,10 @@ validate_eegbl <- function(x) {
     if(!all(levels(x$chan_info$labels)== colnames(x$data)[c(-1,-2)] )){
            warning("Mismatch in label names",
       call. = FALSE)
+    } 
+    if(!all(levels(x$chan_info$labels)== levels(x$events$channel))){
+           warning("Mismatch in channel names of events",
+      call. = FALSE)
     }
   x
 }  
@@ -88,3 +94,19 @@ as_integer <- function(x){
   as.integer(x) 
 }
 
+
+
+scaling <- function(x, unit){
+    if(stringr::str_to_lower(unit) %in% c("s","sec","second","seconds","secs")) {
+      scaling <- srate(x)
+    } else if(stringr::str_to_lower(unit) %in% c("ms","msec", "millisecond",
+                                                 "milli second", "milli-second", 
+                                                 "milliseconds", "milli seconds", 
+                                                 "msecs")) {
+      scaling <- srate(x)/1000
+    } else if(stringr::str_to_lower(unit) %in% c("sam","sample","samples")){
+      scaling <- 1
+    } else {
+      stop("Incorrect unit. Please use 'ms', 's', or 'sample'")
+    }
+  }
