@@ -13,11 +13,13 @@
 #' \item \code{select_*()} keeps only the mentioned variables. 
 #' \item \code{rename_*()}: keeps all variables.
 #' \item \code{filter_*()}: find segments/samples where conditions are true. Segments/samples where the condition evaluates to NA are dropped.
+#' \item \code{left_join_*()}: Left-joins an external dataframe to one of the dataframes of the eegble.
 #' }
 #' Manipulation effect:
 #' \itemize{
 #' \item \code{*_chan()} affects the channels of the data and adapt the `chan_info` data frame.
-#' \item \code{*_seg()} affect the segment information of the `seg_info` data frame..
+#' \item \code{*_seg()} affect the segment information of the `seg_info` data frame.
+#' \item \code{*_ev()} affect the event information of the `events` data frame.
 #' }
 #'
 #' See also \link{dplyr-package}.
@@ -103,6 +105,21 @@ filter_seg <- function(.data, ...){
   validate_eegbl(.data)
 }   
 
+#' @rdname mutate_chan
+#' @export
+left_join_seg <- function(x, y, by = NULL, suffix= c(".x", ".y"), ...){
+  if(!is_eegble(x)){stop("x must be an eegble.")}
+  dplyr::left_join(x$seg_info, y, by = NULL, suffix= c(".x", ".y"), ...)
+}
+
+#' @rdname mutate_chan
+#' @export
+left_join_ev <- function(x, y, by = NULL, suffix= c(".x", ".y"), ...){
+  if(!is_eegble(x)){stop("x must be an eegble.")}
+  dplyr::left_join(x$events, y, by = NULL, suffix= c(".x", ".y"), ...)
+}
+
+
 
 ##' @rdname mutate_chan
 # not yet exported
@@ -116,5 +133,6 @@ filter_s <- function(.data, ...){
 
   validate_eegbl(.data)
 }   
+
 
 #it could look for the names and check if they appear in data or seg_info

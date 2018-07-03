@@ -191,20 +191,3 @@ baseline <- function(x, t = -Inf) {
   x
 }            
 
-#' Get the time based on the sample.
-#'
-#' @param x An eegble. 
-#' @param unit 
-#' 
-#' @examples
-#' @return A vector of times in the specified unit 
-#' 
-#' @importFrom magrittr %>%
-#' 
-
-
-time.eegbl <- function(x = x, unit = "seconds") {
-  scaling <- scaling(x, unit)
-  rlang::quo(sample/ scaling)
-}
-

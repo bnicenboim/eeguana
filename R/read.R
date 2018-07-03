@@ -290,7 +290,3 @@ read_vhdr_metadata <- function(file) {
 }
 
 
-#' @export
-eegble  <- function(data, events, chan_info, eeg_info, seg_info) {
-  validate_eegbl(new_eegbl(data, events, chan_info, eeg_info, seg_info))
-}

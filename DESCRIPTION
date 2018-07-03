@@ -1,7 +1,7 @@
 Package: eegble
 Type: Package
 Title: A package for flexible manipulation of EEG data
-Version: 0.0.0.9000
+Version: 0.0.1.9000
 Authors@R: person("Bruno", "Nicenboim", email = "bruno.nicenboim@example.com", role = c("aut", "cre"))
 Description: Flexible data manipulation of EEG data.
 License: MIT
