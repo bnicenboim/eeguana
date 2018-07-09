@@ -19,7 +19,7 @@ read_vhdr(file, sep = type == "New Segment", zero = type == "Time 0",
 \item{ignore_segs}{Ignore BrainVision segmentation. By default, FALSE.}
 }
 \value{
-An \code{eegble} object with signals and event from file_name.dat, 
+An \code{eegble} object with signal and event from file_name.dat, 
 file_name.vhdr, and file_name.vmrk.
 }
 \description{

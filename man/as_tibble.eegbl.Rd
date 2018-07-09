@@ -6,11 +6,11 @@
 \alias{as.tibble.eegbl}
 \title{Convert an eegble to a tibble.}
 \usage{
-\method{as_tibble}{eegbl}(x, ..., thinning = NULL, add_seg_info = TRUE)
+\method{as_tibble}{eegbl}(x, ..., thinning = NULL, add_segments = TRUE)
 
-as_data_frame.eegbl(x, ..., thinning = NULL, add_seg_info = TRUE)
+as_data_frame.eegbl(x, ..., thinning = NULL, add_segments = TRUE)
 
-as.tibble.eegbl(x, ..., thinning = NULL, add_seg_info = TRUE)
+as.tibble.eegbl(x, ..., thinning = NULL, add_segments = TRUE)
 }
 \arguments{
 \item{x}{An \code{eegble} object.}
@@ -21,7 +21,7 @@ as.tibble.eegbl(x, ..., thinning = NULL, add_seg_info = TRUE)
 
 \item{thinning}{}
 
-\item{add_seg_info}{}
+\item{add_segments}{}
 }
 \value{
 A tibble.

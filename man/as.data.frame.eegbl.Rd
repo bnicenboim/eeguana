@@ -13,7 +13,7 @@
 
 \item{x}{An \code{eegble} object.}
 
-\item{add_seg_info}{}
+\item{add_segments}{}
 
 \item{thinning}{}
 }

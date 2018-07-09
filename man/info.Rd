@@ -2,21 +2,21 @@
 % Please edit documentation in R/out.R
 \name{info}
 \alias{info}
-\alias{nchan}
-\alias{chan_names}
-\alias{chan_info}
-\alias{eeg_info}
+\alias{nchannels}
+\alias{channel_names}
+\alias{channels}
+\alias{info}
 \alias{srate}
 \alias{duration}
 \title{Display information of the eegble object.}
 \usage{
-nchan(x)
+nchannels(x)
 
-chan_names(x)
+channel_names(x)
 
-chan_info(x)
+channels(x)
 
-eeg_info(x)
+info(x)
 
 srate(x)
 
@@ -27,10 +27,10 @@ duration(x)
 }
 \description{
 \itemize{
-\item \code{nchan()}: Returns the number of channels.
+\item \code{nchannels()}: Returns the number of channels.
 \item \code{chan_names()}: Returns a vector with the name of the channels.
-\item \code{chan_info()}: Returns a data frame (tibble) with information about the channels.
-\item \code{eeg_info()}: Returns a data frame (tibble) with information about the EEG recording.
+\item \code{channels()}: Returns a data frame (tibble) with information about the channels.
+\item \code{info()}: Returns a data frame (tibble) with information about the EEG recording.
 \item \code{srate()}: Returns the sampling rate.
 \item \code{duration()}: Returns the duration of the recording (or segments).
 }

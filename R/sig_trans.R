@@ -34,13 +34,13 @@ event_to_NA <- function(x, ..., all_chans = FALSE, entire_seg = FALSE,
     b <- dplyr::filter(baddies, channel==c & !is.na(channel)) 
     if(!entire_seg){
       for(i in seq(1,nrow(b))){
-         x$data[[as.character(c)]][x$data$.id %in% b$.id[i] & 
-                                  dplyr::between(x$data$sample, b$sample[i], 
+         x$signal[[as.character(c)]][x$signal$.id %in% b$.id[i] & 
+                                  dplyr::between(x$signal$sample, b$sample[i], 
                                     b$sample[i] + b$size[i] - 1)  ] <- NA
        }
       #could try with na_if, maybe it's faster?
     } else {
-      x$data[[as.character(c)]][x$data$.id %in% b$.id] <- NA
+      x$signal[[as.character(c)]][x$signal$.id %in% b$.id] <- NA
     }
   }
   # For the replacement in the complete of the segments
@@ -48,19 +48,19 @@ event_to_NA <- function(x, ..., all_chans = FALSE, entire_seg = FALSE,
 
   if(!entire_seg & nrow(b_all) != 0){
       for(i in seq(1,nrow(b_all))){
-       x$data[, chan_names(x)][x$data$.id == b_all$.id[i] & 
-                    dplyr::between(x$data$sample, b_all$sample[i], 
+       x$signal[, channel_names(x)][x$signal$.id == b_all$.id[i] & 
+                    dplyr::between(x$signal$sample, b_all$sample[i], 
                       b_all$sample[i] + b_all$size[i] -1)  , ] <- NA
       }
     } else {
-      x$data[, chan_names(x)][x$data$.id %in% b_all$.id, ] <- NA
+      x$signal[, channel_names(x)][x$signal$.id %in% b_all$.id, ] <- NA
     }
  
   if(drop_events) {
     x$events <- suppressMessages(dplyr::anti_join(x$events, 
               dplyr::filter(x$events, !!!dots))) %>%  
               dplyr::mutate(channel = forcats::lvls_expand(channel, 
-                                      new_levels = chan_names(x))) 
+                                      new_levels = channel_names(x))) 
 
 
 
@@ -118,10 +118,10 @@ segment <- function(x, ..., lim = c(-.5,.5), unit = "seconds"){
                             }
                               round(l * scaling) %>% as_integer } 
                             )
+  x$signal <- dplyr::ungroup(x$signal)
+  x$signal <- purrr::pmap_dfr(list(times0$.id,  times0$sample, slim), .id = ".id",
 
-  x$data <- purrr::pmap_dfr(list(times0$.id,  times0$sample, slim), .id = ".id",
-
-                                    function(i, s0, sl) x$data %>%
+                                    function(i, s0, sl) x$signal %>% 
                                           # filter the relevant samples
                                           dplyr::filter(sample >= s0 + sl[1], 
                                                          sample <= s0 + sl[2],
@@ -131,10 +131,10 @@ segment <- function(x, ..., lim = c(-.5,.5), unit = "seconds"){
                                           dplyr::select(-.id)) %>%
                                           dplyr::mutate(.id = as.integer(.id))
 
-  slim <- purrr::map2(slim, split(x$data, x$data$.id), function(sl,d) { 
+  slim <- purrr::map2(slim, split(x$signal, x$signal$.id), function(sl,d) { 
                               sl <- c(min(d$sample) - 1L, max(d$sample) - 1L) 
                             })
-
+ x$events <- dplyr::ungroup(x$events)
  x$events <- purrr::pmap_dfr(list(times0$.id, times0$sample, slim), .id = ".id",
                     function(i, s0, sl){ 
                       #bound according to the segment
@@ -155,14 +155,16 @@ segment <- function(x, ..., lim = c(-.5,.5), unit = "seconds"){
                                               }) %>%
                      dplyr::mutate(.id = as.integer(.id)) 
 
-  message(paste0("# Total of ", max(x$data$.id)," segments found."))
+  message(paste0("# Total of ", max(x$signal$.id)," segments found."))
  
-  x$seg_info <- dplyr::right_join(x$seg_info, dplyr::select(times0,-sample), by =".id") %>%
-                dplyr::ungroup() %>% dplyr::mutate(.id = 1:n()) %>% 
+  x$segments <-  dplyr::right_join(x$segments, dplyr::select(times0,-sample), by =".id") %>%
+    dplyr::ungroup() %>%  dplyr::mutate(.id = 1:n()) %>% 
                 dplyr::group_by(recording) %>% 
                 dplyr::mutate(segment = 1:n())
 
-
+  x$signal <- dplyr::group_by(x$signal, .id)
+  x$events <- dplyr::group_by(x$events, .id)
+  x$segments <- dplyr::group_by(x$segments, .id)
   message(paste0(say_size(x)," after segmentation."))
   # validate_eegbl(x)
   x
@@ -185,8 +187,8 @@ segment <- function(x, ..., lim = c(-.5,.5), unit = "seconds"){
 
 baseline <- function(x, t = -Inf) {
   s <- t * srate(x)
-  x$data <- dplyr::group_by(x$data, .id) %>% 
-            dplyr::mutate_at(chan_names(x), 
+  x$signal <- dplyr::group_by(x$signal, .id) %>% 
+            dplyr::mutate_at(channel_names(x), 
                     dplyr::funs( . - mean(.[dplyr::between(sample, s, 0  )])))
   x
 }            

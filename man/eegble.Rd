@@ -7,7 +7,7 @@
 \alias{eegble-package}
 \title{Builds an eegble.}
 \usage{
-eegble(data, events, chan_info, eeg_info, seg_info)
+eegble(signal, events, channels, info, segments)
 }
 \description{
 Builds an eegble.

@@ -96,17 +96,14 @@ faces_segs <- faces %>%
 
 
 We can also edit the segmentation information and add more descriptive labels.
-`eegble` has wrappers for some `dplyr` commands for the EEG data. The variations
-ending in `_chan`, such as `select_chan`,  affect channels of the data and adapt
-the `chan_info` data frame. The variations ending in `_seg`, such as
-`mutate_seg`,  affect the segment information of the `seg_info` data frame.
-These commands always return the entire `eegble` object so that they can be
-piped using `magrittr`'s pipe, `%>%`.
+`eegble` has wrappers for some `dplyr` commands for the EEG data. Since the `eegble` objects contain different data frames, first one needs to decide on which part of the object the `dplyr` command will `act_on`. These commands always return the entire `eegble` object so that they can be piped using `magrittr`'s pipe, `%>%`.
 
 ```{r}
 
-faces_segs_some <- faces_segs %>%  select_chan(O1, O2, P7, P8) %>% 
-                mutate_seg(condition =
+faces_segs_some <- faces_segs %>% act_on(signal) %>%
+                  select(O1, O2, P7, P8) %>% 
+                  act_on(segments) %>%
+                mutate(condition =
                  if_else(description == "s70", "faces", "non-faces"))
 
 faces_segs_some
@@ -145,9 +142,11 @@ of the occipital and parietal lobes using the capabilities inherited from
 
 ```{r, fig.dim = c(10,15), out.width = "100%"}
 
-faces_segs %>%  transmute_chan(Occipital = (O1 + O2 + Oz) / 3, 
+faces_segs %>%  act_on(signal) %>% 
+                transmute(Occipital = (O1 + O2 + Oz) / 3, 
                             Parietal = (P3 + P4 + P7 + P8 + Pz) / 4) %>% 
-                mutate_seg(condition =
+                act_on(segments) %>%
+                mutate(condition =
                  if_else(description == "s70", "faces", "non-faces")) %>%
                 plot_gg() + 
                 geom_line(alpha = .1, aes(group = .id, color = condition)) +

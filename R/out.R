@@ -1,10 +1,10 @@
 #' Display information of the eegble object.
 #'
 #' \itemize{
-#' \item \code{nchan()}: Returns the number of channels.
+#' \item \code{nchannels()}: Returns the number of channels.
 #' \item \code{chan_names()}: Returns a vector with the name of the channels.
-#' \item \code{chan_info()}: Returns a data frame (tibble) with information about the channels.
-#' \item \code{eeg_info()}: Returns a data frame (tibble) with information about the EEG recording.
+#' \item \code{channels()}: Returns a data frame (tibble) with information about the channels.
+#' \item \code{info()}: Returns a data frame (tibble) with information about the EEG recording.
 #' \item \code{srate()}: Returns the sampling rate.
 #' \item \code{duration()}: Returns the duration of the recording (or segments).
 #' }
@@ -18,43 +18,43 @@ NULL
 #' 
 #' @rdname info
 #' @export
-nchan <- function(x){
-  length(x$chan_info$labels)
+nchannels <- function(x){
+  length(x$channels$labels)
 }
 
 #' 
 #' @rdname info
 #' @export
-chan_names <- function(x){
-  levels(x$chan_info$labels)
+channel_names <- function(x){
+  levels(x$channels$labels)
 }
 
 #' 
 #' @rdname info
 #' @export
-chan_info <- function(x){
-  x$chan_info
+channels <- function(x){
+  x$channels
 }
 
 #' 
 #' @rdname info
 #' @export
-eeg_info <- function(x){
-  x$eeg_info
+info <- function(x){
+  x$info
 }
 
 #' 
 #' @rdname info
 #' @export
 srate <- function(x){
-  x$eeg_info$srate
+  x$info$srate
 }
 
 #' 
 #' @rdname info
 #' @export
 duration <- function(x){
-  x$data %>% group_by(.id) %>% summarize(duration = max(sample) / srate(x)) %>% .$duration
+  x$signal %>% group_by(.id) %>% summarize(duration = max(sample) / srate(x)) %>% .$duration
 
 }
 
@@ -116,15 +116,15 @@ summary.eegbl <- function(object, ...){
   # to add later as an option, and add ... to the prints
 
   dots <- rlang::enquos(...)
-  message(paste0("# EEG data (eegble) from ", nchan(object), " channels:"))
-  message(paste0( chan_names(object), collapse = ", "))
+  message(paste0("# EEG data (eegble) from ", nchannels(object), " channels:"))
+  message(paste0( channel_names(object), collapse = ", "))
   message(paste0("# Sampling rate: ", srate(object), " Hz."))
 
   message(paste0("# Size in memory: ", capture.output(pryr::object_size(object)), "."))
-  message(paste0("# Recordings from: ", paste0(unique(object$seg_info$recording), collapse = ", ")))
+  message(paste0("# Recordings from: ", paste0(unique(object$segments$recording), collapse = ", ")))
   
   message("# Summary of segments")
-  object$seg_info %>% dplyr::group_by(recording) %>% 
+  object$segments %>% dplyr::group_by(recording) %>% 
                       dplyr::count(segment) %>%
                       print(., !!!dots)
 

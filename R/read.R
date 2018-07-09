@@ -6,7 +6,7 @@
 #' @param zero Time zero marker. By default: type == "Time 0"
 #' @param recording Recording name, by default is the file name.
 #' 
-#' @return An \code{eegble} object with signals and event from file_name.dat, 
+#' @return An \code{eegble} object with signal and event from file_name.dat, 
 #' file_name.vhdr, and file_name.vmrk.
 #' 
 #' @importFrom magrittr %>%
@@ -76,16 +76,16 @@ read_dat <- function(file, common_info = NULL, chan_info = NULL, events = NULL,
         .  
       }}
     
-    signals <- matrix(as.matrix(amps), ncol = n_chan, byrow = byrow)  %>% 
+    signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = byrow)  %>% 
       tibble::as.tibble() 
   } else if(common_info$format == "ASCII"){
-    signals <- readr::read_delim(file, delim = " ",  
+    signal <- readr::read_delim(file, delim = " ",  
                           col_types = 
                           readr::cols(.default = readr::col_double()))
   }
   
   chan_info$labels <- make.unique(chan_info$labels)
-  colnames(signals)  <- chan_info$labels
+  colnames(signal)  <- chan_info$labels
   chan_info$labels <- forcats::as_factor(chan_info$labels)
 
 
@@ -103,14 +103,14 @@ read_dat <- function(file, common_info = NULL, chan_info = NULL, events = NULL,
   
  
 
-  raw_signals <- tibble::tibble(sample = 1:nrow(signals)) %>%
-    dplyr::bind_cols(signals)
+  raw_signal <- tibble::tibble(sample = 1:nrow(signal)) %>%
+    dplyr::bind_cols(signal)
   
     
     # the first event can't be the end of the segment
     # and the last segment ends at the end of the file     
     end_segs <- events %>% dplyr::filter(!!sep)  %>% 
-      dplyr::slice(-1) %>% {.$sample - 1} %>% c(., nrow(signals)) 
+      dplyr::slice(-1) %>% {.$sample - 1} %>% c(., nrow(signal)) 
     
     beg_segs <- events %>% dplyr::filter(!!sep) %>% .$sample 
     # segs <- list(beg = beg_segs, t0 = t0, end = end_segs)
@@ -124,13 +124,13 @@ read_dat <- function(file, common_info = NULL, chan_info = NULL, events = NULL,
 
     
     data <- purrr::pmap_dfr(list(beg_segs,  s0, end_segs), .id = ".id",
-                          function(b, s0, e) raw_signals %>%
+                          function(b, s0, e) raw_signal %>%
                                 # filter the relevant samples
                                 dplyr::filter(sample >= b, 
                                        sample <= e) %>%
                                 # the first sample of a segment is 1
                                 dplyr::mutate(sample = sample - s0 + 1L) %>%
-                                # order the signals df:
+                                # order the signal df:
                                 dplyr::select(sample, dplyr::everything())) %>% 
                                 dplyr::mutate(.id = as.integer(.id))
     seg_events <- 
@@ -147,16 +147,18 @@ read_dat <- function(file, common_info = NULL, chan_info = NULL, events = NULL,
                                                      sample < b ~ b - s0 + 1L))) %>% 
                     dplyr::mutate(.id = as.integer(.id))
 
-    seg_info <- tibble::tibble(.id = seq(length(beg_segs)), 
+    segments <- tibble::tibble(.id = seq(length(beg_segs)), 
                               recording = recording, segment = .id)
 
   
-  eegble <- new_eegbl(data = data, events = seg_events, chan_info = chan_info, 
-    eeg_info = eeg_info, seg_info = seg_info)
+  eegble <- new_eegbl(signal = data, events = seg_events, channels = chan_info, 
+    info = eeg_info, segments = segments)
   
 
-  message(paste0("# Data from ", nrow(eegble$seg_info), 
-    " segment(s) and ", nchan(eegble), " channels was loaded."))
+  message(paste0("# Data from ", file, 
+    " was read."))
+  message(paste0("# Data from ", nrow(eegble$segments), 
+    " segment(s) and ", nchannels(eegble), " channels was loaded."))
   message(say_size(eegble))
   eegble
 }
@@ -278,15 +280,26 @@ read_vhdr_metadata <- function(file) {
   }
   
   chan_info <- dplyr::full_join(channel_info, coordinates, by = "type") %>% 
-    dplyr::mutate(x = radius * sin(phi*2*pi/360) * cos(theta*2*pi/360),
-            y = radius * sin(phi*2*pi/360) * sin(theta*2*pi/360),
-            z = radius * cos(phi*2*pi/360)) %>%
-    dplyr::select(labels, theta, phi, radius,  x, y, z)
+     dplyr::bind_cols(purrr::pmap_dfr(list(.$radius, .$theta, .$phi), 
+                                                    brainvision_loc_2_xyz)) %>%
+    dplyr::select(labels, x, y, z)
   
   out <- list()
   out$chan_info <- chan_info
   out$common_info <- common_info
   return(out)
+}
+
+
+besa_loc_2_xyz <- function(azimuth, horiz_angle){
+  brainvision_loc_2_xyz(radius = 1, theta = azimuth, phi = horiz_angle)
+}
+
+brainvision_loc_2_xyz <- function(radius = 1, theta = NULL, phi = NULL){
+    x <-  dplyr::if_else(radius !=0, round(sin(theta*pi/180) * cos(phi*pi/180),2), NA_real_)
+    y <-  dplyr::if_else(radius !=0, round(sin(theta*pi/180) * sin(phi*pi/180),2), NA_real_)
+    z <-  dplyr::if_else(radius !=0, round(cos(theta*pi/180),2), NA_real_)
+    tibble::tibble(x = x, y = y, z = z)
 }
 
 
