@@ -42,6 +42,84 @@ read_vhdr <- function(file, sep= type == "New Segment", zero = type == "Time 0",
   x
 }
 
+#' Read a Fieldtrip file into an eegble object (requires R.matlab).
+#'
+#' @param file A .mat file containing a fieldtrip struct.
+#' @param recording Recording name, by default is the file name.
+#' 
+#' @return An \code{eegble} object with signal and event from a matlab file.
+#' 
+#' @importFrom magrittr %>%
+#' 
+#' @export
+read_ft <- function(file, recording = file){
+  #checks if R.matlab was installed first
+  mat <- R.matlab::readMat(file)  
+
+  channel_names <- mat[[1]][,,1]$label %>% unlist()
+  srate <- mat[[1]][,,1]$fsample[[1]]
+
+  ## signal df:
+
+  #segment lengths, initial, final, offset
+  slengths <- mat[[1]][,,1]$cfg[,,1]$trl %>% apply(., c(1,2), as.integer) %>% dplyr::as_tibble(.) 
+
+  sample <- purrr::pmap(slengths, ~ seq(..3 + 1,..2 - ..1 + 1)) %>% unlist %>% as.integer
+
+  signal <- purrr::map_dfr(mat[[1]][,,1]$trial, 
+    function(lsegment) {
+          lsegment[[1]] %>% t() %>% dplyr::as_tibble()
+              },.id=".id")
+  colnames(signal) <- c(".id", channel_names)
+  signal <- dplyr::mutate(signal, sample = sample) %>% 
+        dplyr::select(.id, sample, dplyr::everything())
+
+
+  as_first_non0 <- function(col) {
+    # creates a function that converts to the class of the first element
+    first_class <- Find(function(x) length(x) == 1, col)[[1]] %>% class
+    if(first_class == "character") {
+      as.character(col)
+    } else if(first_class == "numeric"){
+      as.numeric(col)
+    } else {
+      stop("not numeric or character")
+    }
+  }
+
+  ## events df:       
+  events <- mat[[1]][,,1]$cfg[,,1]$event[,1,] %>% 
+          t()  %>% 
+          dplyr::as_tibble()  %>% 
+          dplyr::select(-offset) %>% 
+          dplyr::mutate_all(as_first_non0) %>%
+          dplyr::rename(size = dplyr::matches("duration")) %>%
+          dplyr::mutate(sample = as.integer(sample), size = as.integer(size)) %>% 
+           add_event_channel(channel_names) %>% 
+           segment_events(events, beg_segs = slengths$V1, s0 = slengths$V3 + slengths$V1, end_segs = slengths$V2 )
+
+   segments <- tibble::tibble(.id = seq(nrow(slengths)), 
+                              recording = recording, segment = .id)
+
+    eeg_info <- list(srate = srate, 
+                           reference = NA)
+
+  channels <- dplyr::tibble(labels = make.unique(labels) %>%  forcats::as_factor(.), x = NA, y = NA, z = NA)
+  
+
+  eegble <- new_eegbl(signal = data, events = events, channels = channels, 
+    info = eeg_info, segments = segments)
+  
+
+  message(paste0("# Data from ", file, 
+    " was read."))
+  message(paste0("# Data from ", nrow(eegble$segments), 
+    " segment(s) and ", nchannels(eegble), " channels was loaded."))
+  message(say_size(eegble))
+  eegble
+}
+
+
 
 
 #' Helper function to read the dat files directly
@@ -93,15 +171,19 @@ read_dat <- function(file, common_info = NULL, chan_info = NULL, events = NULL,
 
   eeg_info <- list(srate = common_info$srate, 
                            reference = NA)
-  # name the channels of the corresponding events, using factor  
-  events <- dplyr::mutate(events, channel = 
-                                 dplyr::if_else(channel == 0, NA_integer_, 
-                                                                  channel) %>%  
-                                 chan_info$labels[.] %>% 
-                                 forcats::lvls_expand(new_levels = chan_info$labels)
-                                  )
+  # name the channels of the corresponding events, using factor
+
   
- 
+
+  # events <- dplyr::mutate(events, channel = 
+  #                                dplyr::if_else(channel == 0, NA_integer_, 
+  #                                                                 channel) %>%  
+  #                                chan_info$labels[.] %>% 
+  #                                forcats::lvls_expand(new_levels = chan_info$labels)
+  #                                 )
+  
+  events <- add_event_channel(events, chan_info$labels)
+
 
   raw_signal <- tibble::tibble(sample = 1:nrow(signal)) %>%
     dplyr::bind_cols(signal)
@@ -133,19 +215,8 @@ read_dat <- function(file, common_info = NULL, chan_info = NULL, events = NULL,
                                 # order the signal df:
                                 dplyr::select(sample, dplyr::everything())) %>% 
                                 dplyr::mutate(.id = as.integer(.id))
-    seg_events <- 
-     purrr::pmap_dfr(list(beg_segs, s0, end_segs), .id = ".id",
-                      function(b, s0, e) events %>%
-                      # filter the relevant events
-                      # started after the segment (b) 
-                      # or span after the segment (b)  
-                      dplyr::filter(sample >= b | sample + size - 1 >= b, 
-                      # start before the end               
-                             sample <= e) %>%
-                      dplyr::mutate(size = dplyr::if_else(sample < b, b - size, size), 
-                                  sample = dplyr::case_when(sample >= b ~ sample - s0 + 1L,
-                                                     sample < b ~ b - s0 + 1L))) %>% 
-                    dplyr::mutate(.id = as.integer(.id))
+
+    seg_events <- segment_events(events, beg_segs, s0, end_segs )
 
     segments <- tibble::tibble(.id = seq(length(beg_segs)), 
                               recording = recording, segment = .id)
@@ -162,6 +233,33 @@ read_dat <- function(file, common_info = NULL, chan_info = NULL, events = NULL,
   message(say_size(eegble))
   eegble
 }
+
+
+add_event_channel <- function(events, labels) {
+    dplyr::mutate(events, channel = if("channel" %in% names(events)) {channel} else {0L}) %>%
+     dplyr::mutate(channel = dplyr::if_else(channel == 0, NA_integer_, 
+                                                                  channel) %>%  
+                                 labels[.] %>% 
+                                 forcats::lvls_expand(new_levels = labels)
+                                  )
+  }
+
+segment_events <- function(events, beg_segs, s0, end_segs ) {
+  purrr::pmap_dfr(list(beg_segs, s0, end_segs), .id = ".id",
+                        function(b, s0, e) events %>%
+                        # filter the relevant events
+                        # started after the segment (b) 
+                        # or span after the segment (b)  
+                        dplyr::filter(sample >= b | sample + size - 1 >= b, 
+                        # start before the end               
+                               sample <= e) %>%
+                        dplyr::mutate(size = dplyr::if_else(sample < b, b - size, size), 
+                                    sample = dplyr::case_when(sample >= b ~ sample - s0 + 1L,
+                                                       sample < b ~ b - s0 + 1L))) %>% 
+                      dplyr::mutate(.id = as.integer(.id))
+  
+}
+
 
 
 

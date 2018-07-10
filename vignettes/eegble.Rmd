@@ -42,6 +42,7 @@ We are going to use `eegble` together with `dplyr` functions:
 
 ```{r libs, message = FALSE}
 library(dplyr)
+library(purrr)
 library(ggplot2)
 library(eegble)
 ```
@@ -138,13 +139,14 @@ several subjects.
 We can see here the N170 component in the faces condition for the average trial
 on a single participant. We can investigate the signal by averaging the channels
 of the occipital and parietal lobes using the capabilities inherited from
-`dplyr`.
+`dplyr` together with `pmap_dbl` from `purrr`. (Here `pmap_dbl` is taking three column and doing the rowwise mean of them taking into account NAs, the first example `pmap_dbl(list(O1,  O2,  Oz), mean , na.rm = TRUE)` would be equivalent to `(O1 + O2 + Oz)/3` if we were sure there are no `NA`s).
 
 ```{r, fig.dim = c(10,15), out.width = "100%"}
 
 faces_segs %>%  act_on(signal) %>% 
-                transmute(Occipital = (O1 + O2 + Oz) / 3, 
-                            Parietal = (P3 + P4 + P7 + P8 + Pz) / 4) %>% 
+                transmute(Occipital = pmap_dbl(list(O1,  O2,  Oz), mean, na.rm = TRUE), 
+                          Parietal = pmap_dbl(list(P3, P4, P7, P8, Pz), 
+                                                              mean, na.rm = TRUE)) %>% 
                 act_on(segments) %>%
                 mutate(condition =
                  if_else(description == "s70", "faces", "non-faces")) %>%

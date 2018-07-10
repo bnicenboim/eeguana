@@ -25,7 +25,8 @@ Suggests:
      testthat,
      furrr,
      future,
-    knitr,
-    rmarkdown
+     knitr,
+     rmarkdown,
+     R.matlab
 LazyData: true
 VignetteBuilder: knitr

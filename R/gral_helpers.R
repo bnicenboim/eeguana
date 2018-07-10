@@ -75,6 +75,10 @@ obligatory_cols <- list(signal = c(".id","sample"),
                          segments = c(".id")
                          )
 
+
+
+
+  
 update_chans <- function(x){
     current_chans <- colnames(x$signal)[!colnames(x$signal) %in% c(".id","sample")]
     added_chans <- current_chans[!current_chans %in% x$channels$labels]
