@@ -10,11 +10,14 @@
 #' The following wrappers have been implemented for \code{eegble} objects: 
 #' \itemize{
 #' \item \code{mutate()} adds new variables and preserves existing ones.
+#' \item \code{mutate_all()} mutates all variables (except reserved ones: .id, samples, etc) .
 #' \item \code{transmute()} drops existing variables.
 #' \item \code{select()} keeps only the mentioned variables. 
 #' \item \code{rename()}: keeps all variables.
-#' \item \code{filter()}: find segments/samples where conditions are true. Segments/samples where the condition evaluates to NA are dropped.
+#' \item \code{filter()}: finds segments/samples where conditions are true. Segments/samples where the condition evaluates to NA are dropped.
 #' \item \code{left_join()}: Left-joins an external dataframe to one of the dataframes of the eegble.
+#' \item  \code{group_by()}: allows that operations would be performed "by group".
+#' \item  \code{ungroup()}: removes the grouping created by group_by.
 #' }
 #'
 #' These commands always return the entire eegble so that
@@ -72,6 +75,40 @@ mutate_.eegbl<- function(.data, ...) {
   .data[[df]] <- dplyr::mutate_(.data[[df]], ...)
   update_chans(.data) %>%   validate_eegbl 
 }
+
+#' @export
+group_by_.eegbl<- function(.data, ..., add = add) {
+  df <-  attr(.data, "act_on")
+  .data[[df]] <- dplyr::group_by_(.data[[df]], ..., add = add)
+  update_chans(.data) %>%   validate_eegbl 
+}
+
+#' @export
+ungroup.eegbl<- function(.data, ..., add = add) {
+  df <-  attr(.data, "act_on")
+  .data[[df]] <- dplyr::ungroup(.data[[df]])
+  update_chans(.data) %>%   validate_eegbl 
+}
+
+#' @export
+mutate_all <- function(.tbl, .funs, ...) {
+  UseMethod("mutate_all")
+}
+
+#' @export
+mutate_all.default <- dplyr::mutate_all
+
+#' @export
+mutate_all.eegbl<- function(.tbl, .funs, ...) {
+  df <-  attr(.tbl, "act_on")
+  
+  # excluding the obligatory_cols
+  .tbl[[df]] <- dplyr::mutate_at(.tbl[[df]], 
+                  .vars = vars(-one_of(c(obligatory_cols[[df]]))), .funs, ...)
+  update_chans(.tbl) %>%   validate_eegbl 
+}
+
+
 
 #' @export
 transmute_.eegbl<- function(.data, ...) {

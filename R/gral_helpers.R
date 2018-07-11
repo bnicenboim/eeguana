@@ -1,5 +1,6 @@
 decimals <- function(x) match(TRUE, round(x, 1:20) == x)
-say_size <- function(eegble) paste("# Object size",capture.output(pryr::object_size(eegble)))
+say_size <- function(eegble) paste("# Object size in memory", 
+                capture.output(pryr::object_size(eegble)))
 
 
 new_eegbl <- function(signal = NULL, events = NULL, channels = NULL, info = NULL, segments = NULL) {
@@ -12,9 +13,9 @@ new_eegbl <- function(signal = NULL, events = NULL, channels = NULL, info = NULL
   x$events$channel <- as.character(x$events$channel) %>% 
                               forcats::lvls_expand(new_levels = x$channels$labels)
 
-  x$signal <- dplyr::group_by(x$signal, .id)
-  x$events <- dplyr::group_by(x$events, .id)
-  x$segments <- dplyr::group_by(x$segments, .id)
+  # x$signal <- dplyr::group_by(x$signal, .id)
+  # x$events <- dplyr::group_by(x$events, .id)
+  # x$segments <- dplyr::group_by(x$segments, .id)
   structure(x,
     class = c("eegbl"))
 }
@@ -75,10 +76,6 @@ obligatory_cols <- list(signal = c(".id","sample"),
                          segments = c(".id")
                          )
 
-
-
-
-  
 update_chans <- function(x){
     current_chans <- colnames(x$signal)[!colnames(x$signal) %in% c(".id","sample")]
     added_chans <- current_chans[!current_chans %in% x$channels$labels]
@@ -116,6 +113,9 @@ as_integer <- function(x){
 }
 
 
+vec_mean <- function(..., na.rm = FALSE){
+  purrr::pmap_dbl(list(...), ~ mean(c(...), na.rm = FALSE))
+}
 
 scaling <- function(x, unit){
     if(stringr::str_to_lower(unit) %in% c("s","sec","second","seconds","secs")) {

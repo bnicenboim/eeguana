@@ -14,7 +14,10 @@
   register_s3_method("dplyr", "transmute_", "eegbl")	
   register_s3_method("dplyr", "rename_", "eegbl")	
   register_s3_method("dplyr", "select", "eegbl")	
-  register_s3_method("dplyr", "filter_", "eegbl")	
+  register_s3_method("dplyr", "filter_", "eegbl") 
+  register_s3_method("dplyr", "mutate_all", "eegbl")  
+  register_s3_method("dplyr", "group_by_", "eegbl")  
+  register_s3_method("dplyr", "ungroup", "eegbl")	
 
   invisible()    
  }

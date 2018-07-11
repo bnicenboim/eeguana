@@ -62,16 +62,20 @@ read_ft <- function(file, recording = file){
   ## signal df:
 
   #segment lengths, initial, final, offset
-  slengths <- mat[[1]][,,1]$cfg[,,1]$trl %>% apply(., c(1,2), as.integer) %>% dplyr::as_tibble(.) 
+  slengths <- mat[[1]][,,1]$cfg[,,1]$trl %>% 
+              apply(., c(1,2), as.integer) %>% dplyr::as_tibble(.) 
 
-  sample <- purrr::pmap(slengths, ~ seq(..3 + 1,..2 - ..1 + 1)) %>% unlist %>% as.integer
+  sample <- purrr::pmap(slengths, ~ 
+                                  seq(..3 + 1, length.out = ..2 - ..1 + 1)) %>%
+            unlist %>% as.integer
 
   signal <- purrr::map_dfr(mat[[1]][,,1]$trial, 
     function(lsegment) {
           lsegment[[1]] %>% t() %>% dplyr::as_tibble()
               },.id=".id")
+
   colnames(signal) <- c(".id", channel_names)
-  signal <- dplyr::mutate(signal, sample = sample) %>% 
+  signal <- dplyr::mutate(signal, sample = sample, .id = as.integer(.id)) %>% 
         dplyr::select(.id, sample, dplyr::everything())
 
 
@@ -96,7 +100,7 @@ read_ft <- function(file, recording = file){
           dplyr::rename(size = dplyr::matches("duration")) %>%
           dplyr::mutate(sample = as.integer(sample), size = as.integer(size)) %>% 
            add_event_channel(channel_names) %>% 
-           segment_events(events, beg_segs = slengths$V1, s0 = slengths$V3 + slengths$V1, end_segs = slengths$V2 )
+           segment_events(beg_segs = slengths$V1, s0 = slengths$V3 + slengths$V1, end_segs = slengths$V2 )
 
    segments <- tibble::tibble(.id = seq(nrow(slengths)), 
                               recording = recording, segment = .id)
@@ -104,10 +108,10 @@ read_ft <- function(file, recording = file){
     eeg_info <- list(srate = srate, 
                            reference = NA)
 
-  channels <- dplyr::tibble(labels = make.unique(labels) %>%  forcats::as_factor(.), x = NA, y = NA, z = NA)
+  channels <- dplyr::tibble(labels = make.unique(channel_names) %>%  forcats::as_factor(.), x = NA, y = NA, z = NA)
   
 
-  eegble <- new_eegbl(signal = data, events = events, channels = channels, 
+  eegble <- new_eegbl(signal = signal, events = events, channels = channels, 
     info = eeg_info, segments = segments)
   
 

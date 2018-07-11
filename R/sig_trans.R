@@ -162,9 +162,9 @@ segment <- function(x, ..., lim = c(-.5,.5), unit = "seconds"){
                 dplyr::group_by(recording) %>% 
                 dplyr::mutate(segment = 1:n())
 
-  x$signal <- dplyr::group_by(x$signal, .id)
-  x$events <- dplyr::group_by(x$events, .id)
-  x$segments <- dplyr::group_by(x$segments, .id)
+  # x$signal <- dplyr::group_by(x$signal, .id)
+  # x$events <- dplyr::group_by(x$events, .id)
+  # x$segments <- dplyr::group_by(x$segments, .id)
   message(paste0(say_size(x)," after segmentation."))
   # validate_eegbl(x)
   x
