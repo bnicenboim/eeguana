@@ -104,6 +104,21 @@ plot_gg <- function(x, ..., thinning = "auto"){
   plot
 }
 
+#' 
+plot_segment_summary <- function(x, .funs = mean, ...){
+  funs_name <- rlang::enquo(.funs)
+  seg_sum <- as_segment_summary(x, .funs = !!funs_name, ...)
+  print(seg_sum)
+  plot_down <- ggplot2::ggplot(seg_sum, aes(x= segment, y = !!funs_name)) + ggplot2::geom_point()
+  plot_right <- ggplot2::ggplot(seg_sum, aes(x= !!funs_name, y = channel)) + ggplot2::geom_point()
+  plot_center <- ggplot2::ggplot(seg_sum, aes(x= segment, y = channel, fill = !!funs_name)) + ggplot2::geom_raster() + 
+      ggplot2::scale_colour_brewer(type = "qual", palette = "Dark2") +
+      ggplot2::theme_bw()
+
+ 
+  plot_center
+  # cowplot::plot_grid(plot_center, plot_right, plot_down,ncol = 3)
+}
 
 
 #' Summary of eegble information.

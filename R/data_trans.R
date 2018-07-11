@@ -89,6 +89,26 @@ as_tibble <-function (x, ...) {
  df
 }
 
+#' Convert a summary long data frame based on a statistics.
+#'
+#' @param x An \code{eegble} object.
+#' @param .funs A statistics to be used on every segment
+#' @param ... Other arguments passed on to \code{.funs}. See \link{dplyr-package} help.
+#' 
+#' @return A long tibble.
+#' 
+#' 
+#' @export 
+as_segment_summary <- function(x, .funs = mean, ...) {
+  funs_name <- rlang::enquo(.funs)
+  x$signal %>% dplyr::group_by(.id) %>% 
+              dplyr::summarize_at(channel_names(x), .funs, ...)  %>%
+              # make it long format:
+              tidyr::gather(key = channel, value = !!funs_name, channel_names(x)) %>%
+              # adds segment info
+              dplyr::left_join(., x$segments, by =".id")
+}
+
 
 #' @rdname as_tibble.eegbl
 #' @export

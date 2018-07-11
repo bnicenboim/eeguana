@@ -20,7 +20,8 @@ Imports:
      pryr,
      ggplot2,
      fastmatch,
-     lazyeval
+     lazyeval,
+     cowplot
 Suggests:
      testthat,
      furrr,
