@@ -104,20 +104,34 @@ plot_gg <- function(x, ..., thinning = "auto"){
   plot
 }
 
+#' Plots a summary based on a statistics.
+#'
+#' @param x An \code{eegble} object.
+#' @param .funs A statistics to be used on every segment
+#' @param ... Other arguments passed on to \code{.funs}. See \link{dplyr-package} help.
+#' 
+#' @return A ggplot.
+#' 
+#' 
+#' @export 
 #' 
 plot_segment_summary <- function(x, .funs = mean, ...){
   funs_name <- rlang::enquo(.funs)
-  seg_sum <- as_segment_summary(x, .funs = !!funs_name, ...)
-  print(seg_sum)
-  plot_down <- ggplot2::ggplot(seg_sum, aes(x= segment, y = !!funs_name)) + ggplot2::geom_point()
-  plot_right <- ggplot2::ggplot(seg_sum, aes(x= !!funs_name, y = channel)) + ggplot2::geom_point()
-  plot_center <- ggplot2::ggplot(seg_sum, aes(x= segment, y = channel, fill = !!funs_name)) + ggplot2::geom_raster() + 
+  seg_sum <- as_segment_summary(x, .funs = .funs, ...)
+
+  # Field triplike plots
+  # plot_down <- ggplot2::ggplot(seg_sum, aes(x= segment, y = .funs)) + ggplot2::geom_point()
+  # plot_right <- ggplot2::ggplot(seg_sum, aes(x= .funs, y = channel)) + ggplot2::geom_point()
+  # plot_center <- ggplot2::ggplot(seg_sum, aes(x= segment, y = channel, fill = .funs)) + ggplot2::geom_raster() + 
+  #     ggplot2::scale_colour_brewer(type = "qual", palette = "Dark2") +
+  #     ggplot2::theme_bw()
+  # # plot_center
+  # cowplot::plot_grid(plot_center, plot_right, plot_down, ncol = 2)
+  ggplot2::ggplot(seg_sum, aes(x= channel, y = .funs, label = segment)) + ggplot2::geom_jitter() + 
+      # ggrepel::geom_text_repel() + 
       ggplot2::scale_colour_brewer(type = "qual", palette = "Dark2") +
       ggplot2::theme_bw()
 
- 
-  plot_center
-  # cowplot::plot_grid(plot_center, plot_right, plot_down,ncol = 3)
 }
 
 

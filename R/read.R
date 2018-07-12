@@ -52,7 +52,7 @@ read_vhdr <- function(file, sep= type == "New Segment", zero = type == "Time 0",
 #' @importFrom magrittr %>%
 #' 
 #' @export
-read_ft <- function(file, recording = file){
+read_ft <- function(file, layout = NULL, recording = file){
   #checks if R.matlab was installed first
   mat <- R.matlab::readMat(file)  
 
@@ -108,8 +108,28 @@ read_ft <- function(file, recording = file){
     eeg_info <- list(srate = srate, 
                            reference = NA)
 
-  channels <- dplyr::tibble(labels = make.unique(channel_names) %>%  forcats::as_factor(.), x = NA, y = NA, z = NA)
+  #channel info:
+
+   
+  channels <- dplyr::tibble(labels = make.unique(channel_names) ,
+                                      x = NA_real_, y = NA_real_, z = NA_real_)
   
+  if(!is.null(layout)){
+
+    chan_layout <- R.matlab::readMat(layout) %>% 
+                  {dplyr::mutate(.$lay[,,1]$pos %>% as.data.frame, 
+                                      labels = unlist(.$lay[,,1]$label))} %>%
+                   dplyr::rename(x_2d = V1, y_2d = V2)
+    not_layout <- setdiff(chan_layout$labels, channels$labels) 
+    not_channel <- setdiff(channels$labels, chan_layout$labels) 
+    warning(paste0( "The following channels are not in the layout file : ",
+                    paste(not_layout, collapse = ", "),"."))
+    warning(paste0( "The following channels are not in the data: ",
+                   paste(not_channel, collapse = ", "),"."))               
+    channels <- dplyr::left_join(channels, dplyr::as_tibble(chan_layout), by = "labels")
+  }
+
+  channels$labels <- forcats::as_factor(channels$labels)
 
   eegble <- new_eegbl(signal = signal, events = events, channels = channels, 
     info = eeg_info, segments = segments)

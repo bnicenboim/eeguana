@@ -21,7 +21,7 @@ Imports:
      ggplot2,
      fastmatch,
      lazyeval,
-     cowplot
+     ggrepel
 Suggests:
      testthat,
      furrr,
