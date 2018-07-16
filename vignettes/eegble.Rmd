@@ -101,11 +101,10 @@ We can also edit the segmentation information and add more descriptive labels.
 
 ```{r}
 
-faces_segs_some <- faces_segs %>% act_on(signal) %>%
-                  select(O1, O2, P7, P8) %>% 
+faces_segs_some <- faces_segs %>%  
                   act_on(segments) %>%
-                mutate(condition =
-                 if_else(description == "s70", "faces", "non-faces"))
+                  mutate(condition =
+                  if_else(description == "s70", "faces", "non-faces"))
 
 faces_segs_some
 ```
@@ -114,15 +113,16 @@ With some "regular" `ggplot` skills, we can create customized plots. `plot_gg`
 thins the signals (by default), converts them to a long-format data frame that is
 feed into `ggplot` object. This object can then be customized. 
 
-
-
 ```{r, fig.dim = c(10,15), out.width = "100%"}
-plot_gg(faces_segs_some) + 
-                geom_line(alpha = .1, aes(group = .id, color = condition)) + 
-                stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1.5, 
+faces_segs_some %>% 
+                  act_on(signal) %>% 
+                  select(O1, O2, P7, P8) %>% 
+                  plot_gg(faces_segs_some) + 
+                  geom_line(alpha = .1, aes(group = .id, color = condition)) + 
+                  stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1.5, 
                   aes(color = condition)) +
-                facet_wrap(~ channel) + 
-                geom_vline(xintercept = 0, linetype = "dashed") + 
+                  facet_wrap(~ channel) + 
+                  geom_vline(xintercept = 0, linetype = "dashed") + 
                 geom_vline(xintercept = .17, linetype = "dotted") + 
                 theme(legend.position = "bottom") 
 ```
@@ -130,11 +130,8 @@ plot_gg(faces_segs_some) +
 The motivation for manipulating the data in the `eegble` format and not transforming
 them directly to a data frame has to do with size considerations. In this case,
 the original file was 149 MB, converting it to a long format entails a lot of
-repetition and generates an object of 786 MB. While this is still ok here, a long format
-quickly becomes prohibitive in real settings with longer recordings and with
+repetition and generates an object of 786 MB. While this is still ok here, a long format quickly becomes prohibitive in real settings with longer recordings and with
 several subjects.
-
-
 
 We can see here the N170 component in the faces condition for the average trial
 on a single participant. We can investigate the signal by averaging the channels
@@ -149,8 +146,7 @@ Occipital = pmap_dbl(list(O1,  O2,  Oz), mean, na.rm = TRUE),
                                                               -->
                                                               
 ```{r, fig.dim = c(10,15), out.width = "100%"}
-
-faces_segs %>%  act_on(signal) %>% 
+faces_segs_some %>%  act_on(signal) %>% 
                 transmute(Occipital = (O1 + O2 + Oz)/3,
                           Parietal = (P3+ P4 + P7 + P8 + Pz)/3 ) %>% 
                 act_on(segments) %>%
@@ -166,6 +162,17 @@ faces_segs %>%  act_on(signal) %>%
 ```
 
 
+Another possibility is to create a topographic plot of the two conditions, by
+first making segments that include only the interval .1--.2 *s* after the onset
+of the stimuli.
+
+```{r, fig.dim = c(10,5), out.width = "100%"}
+faces_segs_some %>% segment(description %in% c("s70", "s71"), lim = c(.1,.2)) %>%
+                    plot_topo()
+```
+
+
+
 For more specialized plots or analyses, the data can be extracted in long data
 frame format first. For example, we can visualize independent t-tests (or some
 other statistics) at every electrode and time point. Since we are going to plot
@@ -173,10 +180,13 @@ the data, we can safely thin the samples when we transform them into a long data
 frame.
 
 ```{r}
-df <- faces_segs_some %>%  as_tibble(thinning = "auto" ) %>%
+df <- faces_segs_some %>% 
+      act_on(signal) %>% 
+      select(O1, O2, P7, P8) %>%
+      as_tibble(thinning = "auto" ) %>%
         # We can use regular dplyr functions now
-        group_by(channel, time) %>% 
-        summarize(
+      group_by(channel, time) %>% 
+      summarize(
         `t-value` = t.test(amplitude[condition == "faces"],
           amplitude[condition == "non-faces"])$statistic)
 
@@ -189,6 +199,7 @@ Then we just load the data frame into `ggplot`.
 ggplot(df, aes(x = time, y = `t-value`)) + geom_line() +
                 facet_wrap(~ channel) 
 ```
+
 
 
 

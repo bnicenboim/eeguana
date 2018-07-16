@@ -81,7 +81,7 @@ update_chans <- function(x){
     added_chans <- current_chans[!current_chans %in% x$channels$labels]
     #remove old channels
     x$channels <- dplyr::filter(x$channels, labels %in% current_chans) 
-    x$events <- dplyr::filter(x$events, channel %in% current_chans)  
+    x$events <- dplyr::filter(x$events, channel %in% current_chans | is.na(channel) )  
     
     # add new ones
     x$channels <- x$channels %>% dplyr::mutate(labels = as.character(labels)) %>% 

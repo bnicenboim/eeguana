@@ -4,7 +4,7 @@
 \alias{plot_gg}
 \title{ggplot object based on an eegble object.}
 \usage{
-plot_gg(x, ..., thinning = "auto")
+plot_gg(x, ...)
 }
 \arguments{
 \item{x}{An \code{eegble} object.}

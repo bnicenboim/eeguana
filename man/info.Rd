@@ -10,17 +10,17 @@
 \alias{duration}
 \title{Display information of the eegble object.}
 \usage{
-nchannels(x)
+nchannels(x, ...)
 
-channel_names(x)
+channel_names(x, ...)
 
-channels(x)
+channels(x, ...)
 
-info(x)
+info(x, ...)
 
-srate(x)
+srate(x, ...)
 
-duration(x)
+duration(x, ...)
 }
 \arguments{
 \item{x}{An eegble object.}

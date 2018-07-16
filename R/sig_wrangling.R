@@ -76,19 +76,19 @@ mutate_.eegbl<- function(.data, ...) {
   update_chans(.data) %>%   validate_eegbl 
 }
 
-#' @export
-group_by_.eegbl<- function(.data, ..., add = add) {
-  df <-  attr(.data, "act_on")
-  .data[[df]] <- dplyr::group_by_(.data[[df]], ..., add = add)
-  update_chans(.data) %>%   validate_eegbl 
-}
+# #' @export
+# group_by_.eegbl<- function(.data, ..., add = add) {
+#   df <-  attr(.data, "act_on")
+#   .data[[df]] <- dplyr::group_by_(.data[[df]], ..., add = add)
+#   update_chans(.data) %>%   validate_eegbl 
+# }
 
-#' @export
-ungroup.eegbl<- function(.data, ..., add = add) {
-  df <-  attr(.data, "act_on")
-  .data[[df]] <- dplyr::ungroup(.data[[df]])
-  update_chans(.data) %>%   validate_eegbl 
-}
+# #' @export
+# ungroup.eegbl<- function(.data, ..., add = add) {
+#   df <-  attr(.data, "act_on")
+#   .data[[df]] <- dplyr::ungroup(.data[[df]])
+#   update_chans(.data) %>%   validate_eegbl 
+# }
 
 #' @export
 mutate_all <- function(.tbl, .funs, ...) {

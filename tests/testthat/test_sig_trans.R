@@ -46,9 +46,9 @@ data_XY <- eegble(signal = dplyr::tibble(.id= rep(c(1L,2L), each = 10), sample= 
 #TEST when the event exceeds the end of the segment
 
 
-test_that("can clean files", {
-  clean_data <- event_to_NA(data, type == "Bad")
-  clean_data_XY <- event_to_NA(data_XY, type == "Bad")
+test_that("can clean files with entire_seg = FALSE", {
+  clean_data <- event_to_NA(data, type == "Bad", entire_seg = FALSE)
+  clean_data_XY <- event_to_NA(data_XY, type == "Bad", entire_seg = FALSE)
   expect_equal(clean_data, clean_data_XY)
   expect_equal(nrow(clean_data$events), 4)
   expect_equal(all(is.na(clean_data$signal[clean_data$signal$sample %in% seq(-2,-3+3-1) &
@@ -67,10 +67,10 @@ test_that("can clean files", {
 })
 
 test_that("can clean whole channels in files", {
-  clean_data_chan <- event_to_NA(data, type == "Bad", all_chans = TRUE)
-  clean_data_chan2 <- event_to_NA(data_NA, type == "Bad")
-  clean_data_chan3 <- event_to_NA(data_NA, type == "Bad", all_chans = TRUE)
-  clean_data_XY2 <- event_to_NA(data_XY, type == "Bad", all_chans = TRUE)
+  clean_data_chan <- event_to_NA(data, type == "Bad", all_chans = TRUE, entire_seg = FALSE)
+  clean_data_chan2 <- event_to_NA(data_NA, type == "Bad", entire_seg = FALSE)
+  clean_data_chan3 <- event_to_NA(data_NA, type == "Bad", all_chans = TRUE, entire_seg = FALSE)
+  clean_data_XY2 <- event_to_NA(data_XY, type == "Bad", all_chans = TRUE, entire_seg = FALSE)
   expect_equal(clean_data_chan, clean_data_chan2)
   expect_equal(clean_data_chan, clean_data_chan3)
   expect_equal(clean_data_chan, clean_data_XY2)

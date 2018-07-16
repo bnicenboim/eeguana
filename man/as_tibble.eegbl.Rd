@@ -8,7 +8,7 @@
 \usage{
 \method{as_tibble}{eegbl}(x, ..., thinning = NULL, add_segments = TRUE)
 
-as_data_frame.eegbl(x, ..., thinning = NULL, add_segments = TRUE)
+\method{as_data_frame}{eegbl}(x, ..., thinning = NULL, add_segments = TRUE)
 
 as.tibble.eegbl(x, ..., thinning = NULL, add_segments = TRUE)
 }

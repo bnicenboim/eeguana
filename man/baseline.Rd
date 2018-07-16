@@ -4,7 +4,7 @@
 \alias{baseline}
 \title{Baseline an eegble.}
 \usage{
-baseline(x, t = -Inf)
+baseline(x, ...)
 }
 \arguments{
 \item{x}{An \code{eegble} object.}

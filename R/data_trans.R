@@ -16,13 +16,13 @@ bind <- function(...){
   }
   
   # Checks:           
-  purrr::walk(eegbles[seq(2,length(eegbles))], 
+  purrr::iwalk(eegbles[seq(2,length(eegbles))], 
         ~ if(!identical(eegbles[[1]]$info, .x$info)) 
-        warning("'info' fields are not identical."))
+        warning("Non identical 'info' field in element ", as.character(as.numeric(.y)+1), "."))
 
-  purrr::walk(eegbles[seq(2,length(eegbles))], 
+  purrr::iwalk(eegbles[seq(2,length(eegbles))], 
         ~ if(!identical(eegbles[[1]]$channels, .x$channels)) 
-        warning("'channels' fields are not identical."))
+        warning("Non identical 'channels' in element ",as.character(as.numeric(.y)+1), "."))
   
 
   # Binding
@@ -52,9 +52,6 @@ bind <- function(...){
  }
 
 
-as_tibble <-function (x, ...) {
-    UseMethod("as_tibble")
-}
 
 
 #' Convert an eegble to a tibble.
@@ -70,7 +67,7 @@ as_tibble <-function (x, ...) {
 #' @importFrom magrittr %>%
 #' 
 #' @export 
- as_tibble.eegbl <- function(x, ..., thinning = NULL, add_segments = TRUE) {
+as_tibble.eegbl <- function(x, ..., thinning = NULL, add_segments = TRUE) {
   
   if(is.null(thinning)){ 
     by <- 1
@@ -89,7 +86,9 @@ as_tibble <-function (x, ...) {
  df
 }
 
-#' Convert a summary long data frame based on a statistics.
+
+
+#' Convert an eegble into a summary long-data frame based on a statistics.
 #'
 #' @param x An \code{eegble} object.
 #' @param .funs A statistics to be used on every segment
@@ -99,14 +98,21 @@ as_tibble <-function (x, ...) {
 #' 
 #' 
 #' @export 
-as_segment_summary <- function(x, .funs = mean, ...) {
+summarize_id_as_tibble <- function(x, ...) {
+UseMethod("summarize_id_as_tibble")
+}
+
+
+#' @export 
+summarize_id_as_tibble.eegbl <- function(x, .funs = mean, ...) {
   funs_name <- rlang::enquo(.funs)
-  x$signal %>% dplyr::group_by(.id) %>% 
+  x$signal %>% dplyr::group_by(.id) %>% #keep grouping for later 
               dplyr::summarize_at(channel_names(x), .funs, ...)  %>%
               # make it long format:
               tidyr::gather(key = channel, value = !!funs_name, channel_names(x)) %>%
               # adds segment info
-              dplyr::left_join(., x$segments, by =".id")
+              dplyr::left_join(., x$segments, by =".id") %>%
+            left_join(x$channels %>% mutate(labels = as.character(labels)), by = c("channel" = "labels"))
 }
 
 

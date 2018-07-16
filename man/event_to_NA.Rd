@@ -4,8 +4,7 @@
 \alias{event_to_NA}
 \title{Remove (transform to NA) problematic events from an eegble.}
 \usage{
-event_to_NA(x, ..., all_chans = FALSE, entire_seg = FALSE,
-  drop_events = TRUE)
+event_to_NA(x, ...)
 }
 \arguments{
 \item{x}{An \code{eegble} object.}
@@ -13,10 +12,10 @@ event_to_NA(x, ..., all_chans = FALSE, entire_seg = FALSE,
 \item{...}{Description of the problematic event.}
 
 \item{all_chans}{If set to TRUE, 
-it will remove samples from all channels (Default:  all_chans = FALSE).}
+it will consider samples from all channels (Default:  all_chans = FALSE).}
 
-\item{entire_seg}{If set to TRUE, it will remove the entire segment 
-(Default: entire_seg = FALSE).}
+\item{entire_seg}{If set to FALSE, it will consider only the marked part of the segment, 
+otherwise it will consider the entire segment (Default: entire_seg = TRUE).}
 
 \item{drop_events}{}
 }

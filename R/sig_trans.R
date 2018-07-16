@@ -3,9 +3,9 @@
 #' @param x An \code{eegble} object.
 #' @param ... Description of the problematic event.
 #' @param all_chans If set to TRUE, 
-#'     it will remove samples from all channels (Default:  all_chans = FALSE).
-#' @param entire_seg If set to TRUE, it will remove the entire segment 
-#'    (Default: entire_seg = FALSE).
+#'     it will consider samples from all channels (Default:  all_chans = FALSE).
+#' @param entire_seg If set to FALSE, it will consider only the marked part of the segment, 
+#'     otherwise it will consider the entire segment (Default: entire_seg = TRUE).
 #' @param drop_events 
 #'
 #' @examples
@@ -16,7 +16,12 @@
 #' @importFrom magrittr %>%
 #' 
 #' @export
-event_to_NA <- function(x, ..., all_chans = FALSE, entire_seg = FALSE, 
+event_to_NA <- function(x, ...) {
+  UseMethod("event_to_NA")
+}
+
+#' @export
+event_to_NA.eegbl <- function(x, ..., all_chans = FALSE, entire_seg = TRUE, 
  drop_events = TRUE) {
   dots <- rlang::enquos(...)
   
@@ -72,6 +77,7 @@ event_to_NA <- function(x, ..., all_chans = FALSE, entire_seg = FALSE,
 
 
 
+
 #' Segments an eegble.
 #'
 #' EXPLAIN WHAT A SEGMENT IS/ DIFFERENCE WITH EPOCH (LINK?) + EXAMPLES OF SEGMENT WITH +Inf.
@@ -87,7 +93,12 @@ event_to_NA <- function(x, ..., all_chans = FALSE, entire_seg = FALSE,
 #' @importFrom magrittr %>%
 #' 
 #' @export
-segment <- function(x, ..., lim = c(-.5,.5), unit = "seconds"){
+segment <- function(x, ...) {
+  UseMethod("segment")
+}
+
+#' @export
+segment.eegbl <- function(x, ..., lim = c(-.5,.5), unit = "seconds"){
   
   dots <- rlang::enquos(...)
   #dots <- rlang::quos(description == "s121")
@@ -184,8 +195,12 @@ segment <- function(x, ..., lim = c(-.5,.5), unit = "seconds"){
 #' @importFrom magrittr %>%
 #' 
 #' @export
+baseline <- function(x, ...) {
+  UseMethod("baseline")
+}
 
-baseline <- function(x, t = -Inf) {
+#' @export
+baseline.eegbl <- function(x, t = -Inf) {
   s <- t * srate(x)
   x$signal <- dplyr::group_by(x$signal, .id) %>% 
             dplyr::mutate_at(channel_names(x), 

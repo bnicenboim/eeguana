@@ -1,51 +1,50 @@
 # #Taken from https://github.com/hadley/dtplyr/blob/7a9223e8888f7d01f8f4e95e503ecfc55ef7ef9e/R/compat-dplyr-0.6.0.R
 
 
-.onLoad <- function(libname, pkgname) {
-  # if (utils::packageVersion("dplyr") > "0.5.0") {
-  #    register_s3_method("dplyr", "mutate", "eegbl")
-  #    register_s3_method("dplyr", "rename", "eegbl")
-  #    register_s3_method("dplyr", "select", "eegbl")
-  #    register_s3_method("dplyr", "filter", "eegbl")
-  # }
+# .onLoad <- function(libname, pkgname) {
+#   # if (utils::packageVersion("dplyr") > "0.5.0") {
+#   #    register_s3_method("dplyr", "mutate", "eegbl")
+#   #    register_s3_method("dplyr", "rename", "eegbl")
+#   #    register_s3_method("dplyr", "select", "eegbl")
+#   #    register_s3_method("dplyr", "filter", "eegbl")
+#   # }
 
-  register_s3_method("dplyr", "left_join", "eegbl")
-  register_s3_method("dplyr", "mutate_", "eegbl")	
-  register_s3_method("dplyr", "transmute_", "eegbl")	
-  register_s3_method("dplyr", "rename_", "eegbl")	
-  register_s3_method("dplyr", "select", "eegbl")	
-  register_s3_method("dplyr", "filter_", "eegbl") 
-  register_s3_method("dplyr", "mutate_all", "eegbl")  
-  register_s3_method("dplyr", "group_by_", "eegbl")  
-  register_s3_method("dplyr", "ungroup", "eegbl")	
+#   register_s3_method("dplyr", "left_join", "eegbl")
+#   register_s3_method("dplyr", "mutate_", "eegbl")	
+#   register_s3_method("dplyr", "transmute_", "eegbl")	
+#   register_s3_method("dplyr", "rename_", "eegbl")	
+#   register_s3_method("dplyr", "select", "eegbl")	
+#   register_s3_method("dplyr", "filter_", "eegbl") 
+#   # register_s3_method("dplyr", "group_by_", "eegbl")  
+#   # register_s3_method("dplyr", "ungroup", "eegbl")	
 
-  invisible()    
- }
+#   invisible()    
+#  }
 
-register_s3_method <- function(pkg, generic, class, fun = NULL) {
-  stopifnot(is.character(pkg), length(pkg) == 1)
-  envir <- asNamespace(pkg)
+# register_s3_method <- function(pkg, generic, class, fun = NULL) {
+#   stopifnot(is.character(pkg), length(pkg) == 1)
+#   envir <- asNamespace(pkg)
 
-  stopifnot(is.character(generic), length(generic) == 1)
-  stopifnot(is.character(class), length(class) == 1)
-  if (is.null(fun)) {
-    fun <- get(paste0(generic, ".", class), envir = parent.frame())
-  }
-  stopifnot(is.function(fun))
+#   stopifnot(is.character(generic), length(generic) == 1)
+#   stopifnot(is.character(class), length(class) == 1)
+#   if (is.null(fun)) {
+#     fun <- get(paste0(generic, ".", class), envir = parent.frame())
+#   }
+#   stopifnot(is.function(fun))
 
 
-  if (pkg %in% loadedNamespaces()) {
-    registerS3method(generic, class, fun, envir = envir)
-  }
+#   if (pkg %in% loadedNamespaces()) {
+#     registerS3method(generic, class, fun, envir = envir)
+#   }
 
-  # Always register hook in case package is later unloaded & reloaded
-  setHook(
-    packageEvent(pkg, "onLoad"),
-    function(...) {
-      registerS3method(generic, class, fun, envir = envir)
-    }
-  )
-}
+#   # Always register hook in case package is later unloaded & reloaded
+#   setHook(
+#     packageEvent(pkg, "onLoad"),
+#     function(...) {
+#       registerS3method(generic, class, fun, envir = envir)
+#     }
+#   )
+# }
 
 
 # # ## I'm repeating code here from dplyr, so that the user doesn't need to load dplyer first
