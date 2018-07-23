@@ -53,7 +53,11 @@ read_vhdr <- function(file, sep= type == "New Segment", zero = type == "Time 0",
 #' 
 #' @export
 read_ft <- function(file, layout = NULL, recording = file){
-  #checks if R.matlab was installed first
+  #TODO: checks if R.matlab was installed first
+
+  # It should be based on this:
+  # http://www.fieldtriptoolbox.org/reference/ft_datatype_raw
+
   mat <- R.matlab::readMat(file)  
 
   channel_names <- mat[[1]][,,1]$label %>% unlist()

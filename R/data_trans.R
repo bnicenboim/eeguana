@@ -46,7 +46,7 @@ bind <- function(...){
                                     dplyr::ungroup(.x$segments) %>% 
                                     dplyr::mutate(.id = .id + .y))
   
-  channels <- purrr::map_dfr(eegbles[-1],~ dplyr::anti_join(channels(.x),channels(eegbles[[1]]))) %>%
+  channels <- purrr::map_dfr(eegbles[-1],~ dplyr::anti_join(channels(.x),channels(eegbles[[1]])), by = "labels") %>%
                                     dplyr::bind_rows(channels(eegbles[[1]]),.)
                                   
 
@@ -82,7 +82,7 @@ as_tibble.eegbl <- function(x, ..., thinning = NULL, add_segments = TRUE) {
   if(is.null(thinning)){ 
     by <- 1
   } else if(thinning == "auto") {
-    by <- round(pmax(length(channel_names(x)) * 2 * max(duration(x)/srate(x)) , 1))
+    by <- round(pmax(max(duration(x)*srate(x))/384 , 1))
     message(paste("# Thinning by", by))
   } else {
     by <- thinning

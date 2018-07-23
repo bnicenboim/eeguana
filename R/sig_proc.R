@@ -1,4 +1,3 @@
-
 #' Rereference channel.
 #' 
 #' This function is meant to be used together with \code{mutate} or \code{mutate_all}. See the example
