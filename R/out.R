@@ -6,6 +6,7 @@
 #' \item \code{channels()}: Returns a data frame (tibble) with information about the channels.
 #' \item \code{info()}: Returns a data frame (tibble) with information about the EEG recording.
 #' \item \code{srate()}: Returns the sampling rate.
+#' \item \code{reference()}: Returns the reference.
 #' \item \code{duration()}: Returns the duration of the recording (or segments).
 #' }
 #' @param x An eegble object.
@@ -54,6 +55,8 @@ channels.eegbl <- function(x){
 }
 
 
+
+
 #' 
 #' @rdname info
 #' @export
@@ -78,6 +81,17 @@ srate <- function(x, ...){
 #' @export
 srate.eegbl <- function(x){
   x$info$srate
+}
+
+#' @rdname info
+#' @export
+reference <- function(x, ...){
+  UseMethod("reference")
+}
+
+#' @export
+reference.eegbl <- function(x){
+  x$info$reference
 }
 
 

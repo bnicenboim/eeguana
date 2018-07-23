@@ -17,11 +17,16 @@ bind <- function(...){
   
   # Checks:           
   purrr::iwalk(eegbles[seq(2,length(eegbles))], 
-        ~ if(!identical(eegbles[[1]]$info, .x$info)) 
-        warning("Non identical 'info' field in element ", as.character(as.numeric(.y)+1), "."))
+        ~ if(!identical(srate(eegbles[[1]]), srate(.x))) 
+        stop("Can't bind eegbles with different sampling rate, non identical 'srate'  in element ", 
+          as.character(as.numeric(.y)+1), "."))
 
   purrr::iwalk(eegbles[seq(2,length(eegbles))], 
-        ~ if(!identical(eegbles[[1]]$channels, .x$channels)) 
+        ~ if(!identical(reference(eegbles[[1]]), reference(.x))) 
+        stop("Non identical 'reference' in element ", as.character(as.numeric(.y)+1), "."))
+
+  purrr::iwalk(eegbles[seq(2,length(eegbles))], 
+        ~ if(!identical(channels(eegbles[[1]]), channels(.x))) 
         warning("Non identical 'channels' in element ",as.character(as.numeric(.y)+1), "."))
   
 
@@ -41,13 +46,18 @@ bind <- function(...){
                                     dplyr::ungroup(.x$segments) %>% 
                                     dplyr::mutate(.id = .id + .y))
   
+  channels <- purrr::map_dfr(eegbles[-1],~ dplyr::anti_join(channels(.x),channels(eegbles[[1]]))) %>%
+                                    dplyr::bind_rows(channels(eegbles[[1]]),.)
+                                  
+
   # If more segments of the same recording are added, these need to be adapted.
   segments <- segments %>% 
                          dplyr::group_by(recording) %>% 
-                         dplyr::mutate(segment = 1:n())
+                         dplyr::mutate(segment = 1:n()) %>%
+                         dplyr::ungroup()
   
   new_eegble <- new_eegbl(signal = signal, events = events, segments = segments, 
-                    channels = eegbles[[1]]$channels, info = eegbles[[1]]$info)
+                    channels = channels, info = list(srate = srate(eegbles[[1]]), reference = reference(eegbles[[1]])))
   validate_eegbl(new_eegble)
  }
 
