@@ -25,11 +25,11 @@ task of the experiment was to mentally count the number of faces.
 First we download the data:
 
 ```{r downloading, eval = FALSE}
-download.file("www.ling.uni-potsdam.de/~nicenboim/files/faces.vhdr", 
+download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.vhdr", 
               "faces.vhdr", mode="wb")
-download.file("www.ling.uni-potsdam.de/~nicenboim/files/faces.vmrk", 
+download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.vmrk", 
               "faces.vmrk", mode="wb")
-download.file("www.ling.uni-potsdam.de/~nicenboim/files/faces.dat", 
+download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.dat", 
               "faces.dat", mode="wb")
 ```
 

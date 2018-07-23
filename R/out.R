@@ -247,7 +247,7 @@ interpolate_xy <- function(.data, x, y, value, method = "MBA",...){
   if(!"MBA" %in% rownames(utils::installed.packages())){
       stop("Package MBA needs to be installed to interpolate using multilevel B-splines ")
     }
-
+   #change to sp = FALSE and adapt, so that I remove the sp package
   interpolation_alg <- function(xyz, ...) MBA::mba.surf(xyz = xyz, 100, 100, sp = TRUE, extend = TRUE, ...)
    
     } else {

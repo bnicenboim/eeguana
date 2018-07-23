@@ -22,7 +22,8 @@ Imports:
      fastmatch,
      lazyeval,
      ggrepel,
-     rlang 
+     rlang,
+     sp
 Suggests:
      testthat,
      furrr,
