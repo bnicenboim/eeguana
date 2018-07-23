@@ -16,6 +16,8 @@
 #' \item \code{rename()}: keeps all variables.
 #' \item \code{filter()}: finds segments/samples where conditions are true. Segments/samples where the condition evaluates to NA are dropped.
 #' \item \code{left_join()}: Left-joins an external dataframe to one of the dataframes of the eegble.
+#' \item \code{semi_join()}: Semi-joins an external dataframe to one of the dataframes of the eegble and updates the remaining dataframes correspondingly.
+#' \item \code{anti_join()}: Anti-joins an external dataframe to one of the dataframes of the eegble and updates the remaining dataframes correspondingly.
 #' \item  \code{group_by()}: allows that operations would be performed "by group".
 #' \item  \code{ungroup()}: removes the grouping created by group_by.
 #' }
@@ -104,7 +106,7 @@ mutate_all.eegbl<- function(.tbl, .funs, ...) {
   
   # excluding the obligatory_cols
   .tbl[[df]] <- dplyr::mutate_at(.tbl[[df]], 
-                  .vars = vars(-one_of(c(obligatory_cols[[df]]))), .funs, ...)
+                                 .vars = vars(-one_of(c(obligatory_cols[[df]]))), .funs, ...)
   update_chans(.tbl) %>%   validate_eegbl 
 }
 
@@ -120,31 +122,31 @@ transmute_.eegbl<- function(.data, ...) {
 
 #' @export
 rename_.eegbl <- function(.data, ...){
-   df <-  attr(.data, "act_on")
+  df <-  attr(.data, "act_on")
   .data[[df]] <- dplyr::rename_(.data[[df]], ...)
   update_chans(.data) %>% validate_eegbl 
 }  
 
 #' @export
 filter_.eegbl <- function(.data, ...){
-   df <-  attr(.data, "act_on")
-   if(df %in% "segments") {
+  df <-  attr(.data, "act_on")
+  if(df %in% "segments") {
     .data[[df]] <- dplyr::filter_(.data[[df]], ...)
     .data$data <- dplyr::semi_join(.data$data, .data$seg_info, by =".id")
     .data$events <- dplyr::semi_join(.data$events, .data$seg_info, by =".id")
-   } else {
+  } else {
     stop("Filter only defined for segments")
-   }
+  }
   update_chans(.data) %>% validate_eegbl 
 }  
 
 #' @export
 select.eegbl <- function(.data, ...){
-   df <-  attr(.data, "act_on")
-    #this is to avoid removing important columns
-   dots <- rlang::enquos(...)
+  df <-  attr(.data, "act_on")
+  #this is to avoid removing important columns
+  dots <- rlang::enquos(...)
   .data[[df]] <- dplyr::group_by_at(.data[[df]], obligatory_cols[[df]]) %>%
-                select(!!!dots) %>% group_by(.id)
+    select(!!!dots) %>% group_by(.id)
   update_chans(.data) %>% validate_eegbl 
 } 
 
@@ -198,13 +200,59 @@ select.eegbl <- function(.data, ...){
 #' @export
 left_join.eegbl <- function(x, y, by = NULL, suffix= c(".x", ".y"), ...){
   if(!is_eegble(x)) stop("x must be an eegble.")
+  df <-  attr(x, "act_on")
   if(!df %in% c("segments","events")) stop("x must be act_on segments or events.")
-  df <-  attr(.data, "act_on")
-
-  df[[df]] <-  dplyr::left_join(df[[df]], y, by = NULL, suffix= c(".x", ".y"), ...)
+  
+  x[[df]] <-  dplyr::left_join(x[[df]], y, by = NULL, suffix= c(".x", ".y"), ...)
+  
+  validate_eegbl(x)
+  
 }
 
 
+
+#' @export
+semi_join.eegbl <- function(x, y, by = NULL, suffix= c(".x", ".y"), ...){
+  if(!is_eegble(x)) stop("x must be an eegble.")
+  df <-  attr(x, "act_on")
+  if(!df %in% c("segments","events")) stop("x must be act_on segments or events.")
+  
+  x[[df]] <-  dplyr::semi_join(x[[df]], y, by = NULL, suffix= c(".x", ".y"), ...)
+  x$signal <- dplyr::semi_join(x$signal, x[[df]], by = ".id")
+  
+  if(df %in% "events"){
+    x$segments <- dplyr::semi_join(x$segments, x[[df]], by = ".id")
+  }
+  
+  if(df %in% "segments"){
+    x$events <- dplyr::semi_join(x$events, x[[df]], by = ".id")
+  }
+  
+  validate_eegbl(x)
+  
+}
+
+
+#' @export
+anti_join.eegbl <- function(x, y, by = NULL, suffix= c(".x", ".y"), ...){
+  if(!is_eegble(x)) stop("x must be an eegble.")
+  df <-  attr(x, "act_on")
+  if(!df %in% c("segments","events")) stop("x must be act_on segments or events.")
+  
+  x[[df]] <-  dplyr::anti_join(x[[df]], y, by = NULL, suffix= c(".x", ".y"), ...)
+  x[["signal"]] <- dplyr::semi_join(x[["signal"]], x[[df]], by = ".id")
+  
+  if(df %in% "events"){
+    x$segments <- dplyr::semi_join(x$segments, x[[df]], by = ".id")
+  }
+  
+  if(df %in% "segments"){
+    x$events <- dplyr::semi_join(x$events, x[[df]], by = ".id")
+  }
+  
+  validate_eegbl(x)
+  
+}
 
 
 #' Mutate/transmute/select/rename channels or segments.
@@ -222,6 +270,10 @@ left_join.eegbl <- function(x, y, by = NULL, suffix= c(".x", ".y"), ...){
 #' \item \code{rename_*()}: keeps all variables.
 #' \item \code{filter_*()}: find segments/samples where conditions are true. Segments/samples where the condition evaluates to NA are dropped.
 #' \item \code{left_join_*()}: Left-joins an external dataframe to one of the dataframes of the eegble.
+#' \item \code{semi_join_*()}: Semi-joins an external dataframe to one of the dataframes of the eegble and updates the remaining dataframes correspondingly.
+#' \item \code{anti_join_*()}: Anti-joins an external dataframe to one of the dataframes of the eegble and updates the remaining dataframes correspondingly.
+
+
 #' }
 #' Manipulation effect:
 #' \itemize{
@@ -253,7 +305,7 @@ transmute_signal <- function(.data, ...){
 select_signal <- function(.data, ...){
   dots <-  validate_dots(...)
   .data$data <- dplyr::group_by(.data$data, .id, sample) %>%
-                 dplyr::select(!!!dots) %>% ungroup()
+    dplyr::select(!!!dots) %>% ungroup()
   update_signals(.data) %>% validate_eegbl 
 }  
 
@@ -267,40 +319,40 @@ rename_signal <- function(.data, ...){
 
 #' @rdname mutate_signal
 mutate_segments <- function(.data, ...){
-   dots <-  validate_dots(...)
+  dots <-  validate_dots(...)
   .data$seg_info <- dplyr::mutate(.data$seg_info,!!!dots)
   validate_eegbl(.data)
 }   
 
 #' @rdname mutate_signal
 transmute_segments <- function(.data, ...){
-   dots <-  validate_dots(...)
+  dots <-  validate_dots(...)
   .data$seg_info <- dplyr::mutate(.data$seg_info, .id, !!!dots)
   validate_eegbl(.data)
 }   
 
 #' @rdname mutate_signal
 rename_segments <- function(.data, ...){
-   dots <-  validate_dots(...)
+  dots <-  validate_dots(...)
   .data$seg_info <- dplyr::rename(.data$seg_info,!!!dots)
   validate_eegbl(.data)
 }   
 
 #' @rdname mutate_signal
 select_segments <- function(.data, ...){
-   dots <-  validate_dots(...)
+  dots <-  validate_dots(...)
   .data$seg_info <- dplyr::group_by(.data$seg_info, .id, sample) %>% 
-                    dplyr::select(!!!dots) %>% ungroup()
+    dplyr::select(!!!dots) %>% ungroup()
   validate_eegbl(.data)
 }   
 
 #' @rdname mutate_signal
 filter_segments <- function(.data, ...){
-   dots <-  rlang::enquos(...)
+  dots <-  rlang::enquos(...)
   .data$seg_info <- dplyr::filter(.data$seg_info, !!!dots)
   .data$data <- dplyr::semi_join(.data$data, .data$seg_info, by =".id")
   .data$events <- dplyr::semi_join(.data$events, .data$seg_info, by =".id")
-
+  
   validate_eegbl(.data)
 }   
 
@@ -316,18 +368,57 @@ left_join_events <- function(x, y, by = NULL, suffix= c(".x", ".y"), ...){
   dplyr::left_join(x$events, y, by = NULL, suffix= c(".x", ".y"), ...)
 }
 
+#' @rdname mutate_signal
+semi_join_segments <- function(x, y, by = NULL, suffix= c(".x", ".y"), ...){
+  if(!is_eegble(x)) stop("x must be an eegble.")
+  x$segments <- dplyr::semi_join(x$segments, y, by = NULL, suffix= c(".x", ".y"), ...)
+  x$signal <- dplyr::semi_join(x$signal, x$segments, by = ".id")
+  x$events <- dplyr::semi_join(x$events, x$segments, by = ".id")
+  
+  validate_eegbl(x)
+}
+
+#' @rdname mutate_signal
+semi_join_events <- function(x, y, by = NULL, suffix= c(".x", ".y"), ...){
+  if(!is_eegble(x)) stop("x must be an eegble.")
+  x$events <- dplyr::semi_join(x$events, y, by = NULL, suffix= c(".x", ".y"), ...)
+  x$signal <- dplyr::semi_join(x$signal, x$events, by = ".id")
+  x$segments <- dplyr::semi_join(x$segments, x$events, by = ".id")
+  
+  validate_eegbl(x)
+}
+
+#' @rdname mutate_signal
+anti_join_segments <- function(x, y, by = NULL, suffix= c(".x", ".y"), ...){
+  if(!is_eegble(x)) stop("x must be an eegble.")
+  x$segments <- dplyr::anti_join(x$segments, y, by = NULL, suffix= c(".x", ".y"), ...)
+  x$signal <- dplyr::semi_join(x$signal, x$segments, by = ".id")
+  x$events <- dplyr::semi_join(x$events, x$segments, by = ".id")
+  
+  validate_eegbl(x)
+}
+
+#' @rdname mutate_signal
+anti_join_events <- function(x, y, by = NULL, suffix= c(".x", ".y"), ...){
+  if(!is_eegble(x)) stop("x must be an eegble.")
+  x$events <- dplyr::anti_join(x$events, y, by = NULL, suffix= c(".x", ".y"), ...)
+  x$signal <- dplyr::semi_join(x$signal, x$events, by = ".id")
+  x$segments <- dplyr::semi_join(x$segments, x$events, by = ".id")
+  
+  validate_eegbl(x)
+}
 
 
 ##' @rdname mutate_signal
 # not yet exported
 filter_s <- function(.data, ...){
-   dots <-  rlang::enquos(...)
-   #should edit the dots to transform time to samples
-   #then it filters by $data
+  dots <-  rlang::enquos(...)
+  #should edit the dots to transform time to samples
+  #then it filters by $data
   .data$seg_info <- dplyr::filter(.data$seg_info, !!!dots)
   .data$data <- dplyr::semi_join(.data$data, .data$seg_info, by =".id")
   .data$events <- dplyr::semi_join(.data$events, .data$seg_info, by =".id")
-
+  
   validate_eegbl(.data)
 }   
 

@@ -10,6 +10,8 @@
 #   # }
 
 #   register_s3_method("dplyr", "left_join", "eegbl")
+#   register_s3_method("dplyr", "semi_join", "eegbl")
+#   register_s3_method("dplyr", "anti_join", "eegbl")
 #   register_s3_method("dplyr", "mutate_", "eegbl")	
 #   register_s3_method("dplyr", "transmute_", "eegbl")	
 #   register_s3_method("dplyr", "rename_", "eegbl")	
@@ -47,7 +49,7 @@
 # }
 
 
-# # ## I'm repeating code here from dplyr, so that the user doesn't need to load dplyer first
+# # ## I'm repeating code here from dplyr, so that the user doesn't need to load dplyr first
 
 # compat_as_lazy <- function(quo) {
 #   structure(class = "lazy", list(
@@ -123,5 +125,15 @@
 # #' @export
 # left_join <- function(.data, ...) {
 #   UseMethod("left_join")
+# }
+
+# #' @export
+# semi_join <- function(.data, ...) {
+#   UseMethod("semi_join")
+# }
+
+# #' @export
+# anti_join <- function(.data, ...) {
+#   UseMethod("anti_join")
 # }
 
