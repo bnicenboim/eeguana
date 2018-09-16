@@ -114,8 +114,8 @@ filter_.eegbl <- function(.data, ...){
   df <-  attr(.data, "act_on")
   if(df %in% "segments") {
     .data[[df]] <- dplyr::filter_(.data[[df]], ...)
-    .data$data <- dplyr::semi_join(.data$data, .data$seg_info, by =".id")
-    .data$events <- dplyr::semi_join(.data$events, .data$seg_info, by =".id")
+    .data$signal <- dplyr::semi_join(.data$signal, .data$segments, by =".id")
+    .data$events <- dplyr::semi_join(.data$events, .data$segments, by =".id")
   } else {
     stop("Filter only defined for segments")
   }
@@ -158,8 +158,8 @@ select.eegbl <- function(.data, ...){
 #    dots <- rlang::enquos(...) 
 #    if(df %in% "segments") {
 #     .data[[df]] <- dplyr::filter(.data[[df]], !!!dots)
-#     .data$data <- dplyr::semi_join(.data$data, .data$seg_info, by =".id")
-#     .data$events <- dplyr::semi_join(.data$events, .data$seg_info, by =".id")
+#     .data$signal <- dplyr::semi_join(.data$signal, .data$segments, by =".id")
+#     .data$events <- dplyr::semi_join(.data$events, .data$segments, by =".id")
 #    } else {
 #     stop("Filter only defined for segments")
 #    }
@@ -244,13 +244,13 @@ anti_join.eegbl <- function(x, y, by = NULL, suffix= c(".x", ".y"), ...){
 filter_s <- function(.data, ...){
   dots <-  rlang::enquos(...)
   #should edit the dots to transform time to samples
-  #then it filters by $data
-  .data$seg_info <- dplyr::filter(.data$seg_info, !!!dots)
-  .data$data <- dplyr::semi_join(.data$data, .data$seg_info, by =".id")
-  .data$events <- dplyr::semi_join(.data$events, .data$seg_info, by =".id")
+  #then it filters by $signal
+  .data$segments <- dplyr::filter(.data$segments, !!!dots)
+  .data$signal <- dplyr::semi_join(.data$signal, .data$segments, by =".id")
+  .data$events <- dplyr::semi_join(.data$events, .data$segments, by =".id")
   
   validate_eegbl(.data)
 }   
 
 
-#it could look for the names and check if they appear in data or seg_info
+#it could look for the names and check if they appear in data or segments
