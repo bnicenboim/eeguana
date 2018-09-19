@@ -58,6 +58,7 @@ bind <- function(...){
   
   new_eegble <- new_eegbl(signal = signal, events = events, segments = segments, 
                     channels = channels, info = list(srate = srate(eegbles[[1]]), reference = reference(eegbles[[1]])))
+  message(say_size(eegble))
   validate_eegbl(new_eegble)
  }
 

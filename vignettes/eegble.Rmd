@@ -100,7 +100,6 @@ We can also edit the segmentation information and add more descriptive labels.
 `eegble` has wrappers for some `dplyr` commands for the EEG data. Since the `eegble` objects contain different data frames, first one needs to decide on which part of the object the `dplyr` command will `act_on`. These commands always return the entire `eegble` object so that they can be piped using `magrittr`'s pipe, `%>%`.
 
 ```{r}
-
 faces_segs_some <- faces_segs %>%  
                   act_on(segments) %>%
                   mutate(condition =
@@ -183,7 +182,7 @@ frame.
 df <- faces_segs_some %>% 
       act_on(signal) %>% 
       select(O1, O2, P7, P8) %>%
-      as_tibble(thinning = "auto" ) %>%
+      as_tibble %>%
         # We can use regular dplyr functions now
       group_by(channel, time) %>% 
       summarize(

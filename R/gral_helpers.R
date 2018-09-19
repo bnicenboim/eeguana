@@ -2,6 +2,16 @@ decimals <- function(x) match(TRUE, round(x, 1:20) == x)
 say_size <- function(eegble) paste("# Object size in memory", 
                 capture.output(pryr::object_size(eegble)))
 
+#' Smallest divisor of x, starting by 2
+mindiv <- function(x, start = 2) {
+  div <- start
+  while(round(x) %% div != 0){
+    div <- div + 1
+  }
+  div
+}
+
+
 
 new_eegbl <- function(signal = NULL, events = NULL, channels = NULL, info = NULL, segments = NULL) {
   x <- list(signal =  signal, events = events, 

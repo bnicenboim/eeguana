@@ -23,7 +23,8 @@ Imports:
      lazyeval,
      ggrepel,
      rlang,
-     sp
+     sp,
+     signal
 Suggests:
      testthat,
      furrr,

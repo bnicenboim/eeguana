@@ -1,6 +1,6 @@
 #' Simple plot an eegble object.
 #' @param x An \code{eegble} object.
-#' @param thinning Automatic by default, but integers can be used.
+#' @param max_sample Downsample to approximately 2000 samples by default.
 #' 
 #' 
 #' @return A ggplot object 
@@ -8,11 +8,17 @@
 #' @importFrom magrittr %>%
 #' 
 #' @export
-plot.eegbl <- function(x, thinning = "auto"){
-
-  df <- as_tibble(x, thinning = thinning) 
+plot.eegbl <- function(x, max_sample = 2000){
+  
+  if(is.numeric(max_sample) & max_sample != 0 & 
+    # it will downsample if the samples are at least twice as large than the max_sample
+    max(duration(x)) * srate(x) * 2 > max_sample ){
+    x <- downsample(x, max_sample = max_sample)
+  } 
+  
+  df <- as_tibble(x) 
   plot <- ggplot2::ggplot(df, 
-      ggplot2::aes(x = time, y = amplitude, group = interaction(recording,segment))) + 
+      ggplot2::aes(x = time, y = amplitude, group = interaction(recording, segment))) + 
       ggplot2::geom_line() +
       ggplot2::facet_grid(channel ~ ., 
         labeller = ggplot2::label_wrap_gen(multi_line=FALSE)) + 
@@ -23,7 +29,7 @@ plot.eegbl <- function(x, thinning = "auto"){
 
 #' ggplot object based on an eegble object.
 #' @param x An \code{eegble} object.
-#' @param thinning Automatic by default, but integers can be used.
+#' @param max_sample Downsample to approximately 2000 samples by default.
 #' 
 #' 
 #' @return A ggplot object 
@@ -36,10 +42,16 @@ plot_gg <- function(x, ...){
 }
 
 #' @export
-plot_gg.eegbl <- function(x, ..., thinning = "auto"){
+plot_gg.eegbl <- function(x, ..., max_sample = 2000){
+  
+  if(is.numeric(max_sample) & max_sample != 0 & 
+    # it will downsample if the samples are at least twice as large than the max_sample
+    max(duration(x)) * srate(x) * 2 > max_sample ){
+    x <- downsample(x, max_sample = max_sample)
+  } 
 
-  dots = rlang::enquos(...) 
-  df <- as_tibble(x, thinning = thinning) 
+  dots <- rlang::enquos(...) 
+  df <-  as_tibble(x) 
   plot <- ggplot2::ggplot(df, 
       ggplot2::aes(x = time, y = amplitude, !!!dots)) + 
       ggplot2::scale_y_reverse() + 
