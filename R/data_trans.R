@@ -117,13 +117,26 @@ UseMethod("summarize_id_as_tibble")
 #' @export 
 summarize_id_as_tibble.eegbl <- function(x, .funs = mean, ...) {
   funs_name <- rlang::enquo(.funs)
+
+  # I need to define a name to unify the columns based on the function applied
+  #  .funs = funs(nas = unique(is.na(.))) 
+  # [[1]]
+  #  [1] "funs"   "nas"    "unique" "is.na" 
+  # .funs = mean
+   # [[1]]
+   # [1] "mean"
+  fname <- rlang::quo_text(funs_name) %>% 
+          stringr::str_extract_all( stringr::boundary("word")) %>%
+          {if(length(.[[1]]) == 1 ) .[[1]] else .[[1]][2] }
+
   x$signal %>% dplyr::group_by(.id) %>% #keep grouping for later 
               dplyr::summarize_at(channel_names(x), .funs, ...)  %>%
               # make it long format:
-              tidyr::gather(key = channel, value = !!funs_name, channel_names(x)) %>%
+              tidyr::gather(key = channel, value = !!rlang::sym(fname), -.id) %>%
               # adds segment info
               dplyr::left_join(., x$segments, by =".id") %>%
-            left_join(x$channels %>% mutate(labels = as.character(labels)), by = c("channel" = "labels"))
+            dplyr::left_join(x$channels %>% 
+            dplyr::mutate(labels = as.character(labels)), by = c("channel" = "labels"))
 }
 
 
