@@ -9,6 +9,7 @@
 \alias{srate}
 \alias{reference}
 \alias{duration}
+\alias{nsamples}
 \title{Display information of the eegble object.}
 \usage{
 nchannels(x, ...)
@@ -24,6 +25,8 @@ srate(x, ...)
 reference(x, ...)
 
 duration(x, ...)
+
+nsamples(x, ...)
 }
 \arguments{
 \item{x}{An eegble object.}
@@ -37,5 +40,6 @@ duration(x, ...)
 \item \code{srate()}: Returns the sampling rate.
 \item \code{reference()}: Returns the reference.
 \item \code{duration()}: Returns the duration of the recording (or segments).
+\item \code{nsamples()}: Returns the number of samples of the recording (or segments).
 }
 }

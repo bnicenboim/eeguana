@@ -19,11 +19,12 @@ rereference <- function(x, ..., na.rm = FALSE) {
 }            
 
 
-#' Downsampling EEG data
+#' Downsample EEG data
 #'
 #' Downsample a signal by a factor \code{q}, using an FIR or IIR filter.
-#' This is a wrapper for \code{decimate} from the
-#' \link{signal} package, see its documentation for details.
+#' This is a wrapper for \link{decimate} from the
+#' \link{signal} package, see its documentation for details. Notice that 
+#' the code of the \link{signal} package might be outdated.
 #'
 #' A factor q larger than 13 can result in NAs. To avoid this,
 #' the downsampling can be done in steps. For example, instead of setting 
@@ -31,7 +32,7 @@ rereference <- function(x, ..., na.rm = FALSE) {
 #' 
 #' @param x An eegble object.
 #' @param q integer factor(s) to downsample by. 
-#' @param max_sample Optionally, the (approximated) maximum sample number can be defined here.
+#' @param max_sample Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total numbe of samples.
 #' @param ... Other arguments passed to decimate.
 #' @export
 #' 
@@ -47,8 +48,6 @@ downsample <- function(x, q = 2, max_sample = NULL, ...) {
 downsample.eegbl <- function(x, q = 2, max_sample = NULL, 
   n = if (ftype == "iir") 8 else 30, 
   ftype = "iir") {
-  
-
 
  # if(stringr::str_to_lower(q) == "min") {
  #   q <- mindiv(srate(x), start = 2) 
@@ -56,16 +55,20 @@ downsample.eegbl <- function(x, q = 2, max_sample = NULL,
  # }
 
   if(any(q < 2)) {
-    stop("The factor q must be 2 or more.")
+    stop("# The factor q must be 2 or more.")
   }
   
   if(any(round(q) != q)) {
     q <- round(q) 
-    warning(paste0("The factor q needs to be round number, using q = ", q))
+    warning(paste0("# The factor q needs to be round number, using q = ", q))
   }
 
   if(!is.null(max_sample)){
-       approx_q <- max(duration(x)) * srate(x) / max_sample
+       len_samples <- max(nsamples(x))
+       if(max_sample > len_samples/2) {
+        stop("The maximum value for max_sample allowed is half the number of samples.")
+       }
+       approx_q <- len_samples / max_sample
        q <- factors(round(approx_q))
   }
 
@@ -80,6 +83,7 @@ downsample.eegbl <- function(x, q = 2, max_sample = NULL,
   q <- as.integer(q)
   factor <- prod(q)
   new_srate <- srate(x) / factor
+  warning("# Use with caution, downsampling is based on decimate from the signal package, which might be outdated")
   message(paste0("# Downsampling from ", srate(x), "Hz to ",
                  new_srate, "Hz."))
 
@@ -114,19 +118,40 @@ downsample.eegbl <- function(x, q = 2, max_sample = NULL,
   validate_eegbl(x)
 }
 
-#' Get integers so that their prod is approx N
-factors <- function(N){
-  out <- c()
-  while(N != 1){
-    for(i in 10:1){
-      if(i == 1) {
-       N <- N - 1
-      } else if(N %% i == 0) {
-        out <- c(out, i) 
-        N <- N/i
-        break
-      }
-    }}
-    out
+
+#' Resample EEG data
+#'
+#' Resample a signal by setting new sampling rate or a maximum number of samples.
+#' This is a wrapper for \link{interp1} from the
+#' \link{signal} package, see its documentation for details. Notice that 
+#' the code of the \link{signal} package might be outdated.
+#'
+#' 
+#' @param x An eegble object.
+#' @param srate New sampling rate. 
+#' @param max_sample Optionally, the (approximated) maximum sample number can be defined here.
+#' @param method Method passed to interp1, "pchip" by default.
+#' @param ... Other arguments passed to interp1.
+#' 
+#' 
+#' 
+#' 
+#' 
+#' 
+resample <- function(x, srate = NULL, max_sample = NULL, method = "pchip", ...) {
+  UseMethod("resample")
 }
 
+#' 
+resample <- function(x, srate = NULL, max_sample = NULL, method = "pchip", ...) {
+
+  nsamples <- 1000
+  1:nsamples
+
+  warning("# Use with caution, downsampling is based on decimate from the signal package, which might be outdated")
+  message(paste0("# Downsampling from ", srate(x), "Hz to ",
+                 new_srate, "Hz."))
+
+
+
+}

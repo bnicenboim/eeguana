@@ -8,6 +8,7 @@
 #' \item \code{srate()}: Returns the sampling rate.
 #' \item \code{reference()}: Returns the reference.
 #' \item \code{duration()}: Returns the duration of the recording (or segments).
+#' \item \code{nsamples()}: Returns the number of samples of the recording (or segments).
 #' }
 #' @param x An eegble object.
 #' 
@@ -106,7 +107,16 @@ duration.eegbl <- function(x){
   x$signal %>% dplyr::group_by(.id) %>% 
               dplyr::summarize(duration = (max(sample) - min(sample)) / srate(x)) %>% 
               .$duration
+}
 
+#' @rdname info
+#' @export
+nsamples <- function(x, ...){
+  UseMethod("nsamples")
+}
+#' @export
+nsamples.eegbl <- function(x){
+  duration(x) * srate(x)
 }
 
 
@@ -118,7 +128,6 @@ duration.eegbl <- function(x){
 #'
 #' @export
 summary.eegbl <- function(object, ...){
-  # to add later as an option, and add ... to the prints
 
   dots <- rlang::enquos(...)
   message(paste0("# EEG data (eegble) from ", nchannels(object), " channels:"))
@@ -126,16 +135,15 @@ summary.eegbl <- function(object, ...){
   message(paste0("# Sampling rate: ", srate(object), " Hz."))
 
   message(paste0("# Size in memory: ", capture.output(pryr::object_size(object)), "."))
-  message(paste0("# Recordings from: ", paste0(unique(object$segments$recording), collapse = ", ")))
-  
+
   message("# Summary of segments")
-  object$segments %>% dplyr::group_by(recording) %>% 
-                      dplyr::count(segment) %>%
+  object$segments %>% dplyr::count(recording) %>% 
+                      dplyr::rename(segment_n = n) %>%
                       print(., !!!dots)
 
   message("# Summary of events")
     object$events %>% 
-                      dplyr::group_by_at(dplyr::vars(-size, -channel, -sample)) %>% 
+                      dplyr::group_by_at(dplyr::vars(-size, -channel, -sample, -.id)) %>% 
                       dplyr::count() %>%
                       print(., !!!dots)
 

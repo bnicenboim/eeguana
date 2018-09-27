@@ -18,7 +18,7 @@ plot.eegbl <- function(x, max_sample = 2000){
   
   df <- as_tibble(x) 
   plot <- ggplot2::ggplot(df, 
-      ggplot2::aes(x = time, y = amplitude, group = interaction(recording, segment))) + 
+      ggplot2::aes(x = time, y = amplitude, group = .id)) + 
       ggplot2::geom_line() +
       ggplot2::facet_grid(channel ~ ., 
         labeller = ggplot2::label_wrap_gen(multi_line=FALSE)) + 

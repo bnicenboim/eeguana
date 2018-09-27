@@ -12,6 +12,23 @@ mindiv <- function(x, start = 2) {
 }
 
 
+#' Get integers so that their prod is approx N
+factors <- function(N){
+  out <- c()
+  while(N != 1){
+    for(i in 10:1){
+      if(i == 1) {
+       N <- N - 1
+      } else if(N %% i == 0) {
+        out <- c(out, i) 
+        N <- N/i
+        break
+      }
+    }}
+    out
+}
+
+
 
 new_eegbl <- function(signal = NULL, events = NULL, channels = NULL, info = NULL, segments = NULL) {
   x <- list(signal =  signal, events = events, 
@@ -83,7 +100,7 @@ validate_eegbl <- function(x) {
 obligatory_cols <- list(signal = c(".id","sample"),
                          events = c(".id", "sample","size","channel"),
                          channels = c("labels","x","y","z"),
-                         segments = c(".id")
+                         segments = c(".id","segment","recording")
                          )
 
 update_chans <- function(x){

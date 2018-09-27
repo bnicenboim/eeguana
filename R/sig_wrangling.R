@@ -60,19 +60,62 @@ mutate_.eegbl<- function(.data, ...) {
   update_chans(.data) %>%   validate_eegbl 
 }
 
-# #' @export
-# group_by_.eegbl<- function(.data, ..., add = add) {
-#   df <-  attr(.data, "act_on")
-#   .data[[df]] <- dplyr::group_by_(.data[[df]], ..., add = add)
-#   update_chans(.data) %>%   validate_eegbl 
-# }
+#' @export
+summarise_.eegbl<- function(.data, ...) {
+  # signal_groups <- dplyr::groups(.data$signal)
+  segments_groups <- dplyr::group_vars(.data$segments)
+  dsegments <- .data$segments
+  d_id <- .data$signal$.id
 
-# #' @export
-# ungroup.eegbl<- function(.data, ..., add = add) {
-#   df <-  attr(.data, "act_on")
-#   .data[[df]] <- dplyr::ungroup(.data[[df]])
-#   update_chans(.data) %>%   validate_eegbl 
-# }
+  # list of groups from segments to create on the fly
+  temp_groups <- purrr::map(segments_groups,
+                              ~ rlang::expr(dsegments[d_id,][[!!.x]])) %>%
+                  purrr::set_names(segments_groups)
+
+  # I need to ungroup first because if not, the other groups need ot be the size of the grouping that were already made and not the size of the entire signal df  
+  .data$signal <- dplyr::ungroup(.data$signal) %>%   
+                  # dplyr::group_by(!!!temp_groups, !!!signal_groups) %>%
+                  dplyr::group_by(!!!temp_groups, sample) %>%
+                  dplyr::summarize_(...) %>%  # after summarizing I add the .id
+                  dplyr::group_by(sample) %>%
+                  dplyr::mutate(.id = seq(dplyr::n())) %>%
+                  dplyr::ungroup() %>%
+                  dplyr::select( -dplyr::one_of(segments_groups) ) %>%
+                  dplyr::select(.id, sample, dplyr::everything())
+
+  .data$segments <- dplyr::summarize(dsegments) %>%
+                    dplyr::ungroup() %>% 
+                    dplyr::mutate(.id = seq(dplyr::n()), 
+                                  recording = if("recording"  %in% tbl_vars(dsegments))
+                                              NA_character_ else recording) %>%
+                    dplyr::select(.id, dplyr::everything()) %>%
+                    dplyr::group_by(recording) %>%
+                    dplyr::mutate(segment = seq(dplyr::n())) %>%
+                    dplyr::group_by_at(dplyr::vars(segments_groups))
+
+  update_chans(.data) %>%   validate_eegbl 
+}
+
+tbl_vars.eegbl <- function(x) {
+  setdiff(tbl_vars(x$signal), c(".id", "sample"))
+}
+
+#' @export
+groups.eegbl <- function(x) {
+  groups(x$segments)
+}
+
+#' @export
+ group_by_.eegbl<- function(.data, ..., add = add) {
+   .data$segments <- dplyr::group_by_(.data$segments, ...)
+   update_chans(.data) %>%   validate_eegbl 
+ }
+
+#' @export
+ungroup.eegbl<- function(.data, ..., add = add) {
+  .data$segments <- dplyr::ungroup(.data$segments)
+  update_chans(.data) %>%   validate_eegbl 
+}
 
 #' @export
 mutate_all <- function(.tbl, .funs, ...) {
@@ -124,11 +167,41 @@ filter_.eegbl <- function(.data, ...){
 
 #' @export
 select.eegbl <- function(.data, ...){
-  df <-  attr(.data, "act_on")
-  #this is to avoid removing important columns
-  dots <- rlang::enquos(...)
-  .data[[df]] <- dplyr::group_by_at(.data[[df]], obligatory_cols[[df]]) %>%
-    select(!!!dots) %>% group_by(.id)
+    
+   dots <- rlang::enquos(...)
+
+   # here this is fine if there are no -, if there are I should treat it differently
+   all_vars <- tidyselect::vars_select(c(names(.data$signal), names(.data$segments)), !!!dots)
+
+
+   # Divide the variables into the relevant columns
+   signal_col <- intersect(all_vars, colnames(.data$signal))  
+                      
+   segments_col <- intersect(all_vars, colnames(.data$segments)) 
+
+   extra <- setdiff(union(signal_col, segments_col), all_vars)
+
+
+   if(length(extra)>0){
+    warning(paste("The following grouping variables were not found: ", 
+      paste(extra, collapse = ", ") ))
+   }
+
+   # select if there is something to select:
+   if(length(signal_col) != 0){
+    .data$signal <- dplyr::select(.data$signal, obligatory_cols$signal,  one_of(signal_col))    
+   }
+
+   if(length(segments_col) != 0){
+     .data$segments <- dplyr::select(.data$segments, obligatory_cols$segments, one_of(segments_col))
+   }  
+
+
+  # df <-  attr(.data, "act_on")
+  # #this is to avoid removing important columns
+  # dots <- rlang::enquos(...)
+  # .data[[df]] <- dplyr::group_by_at(.data[[df]], obligatory_cols[[df]]) %>%
+  #   select(!!!dots) %>% ungroup()
   update_chans(.data) %>% validate_eegbl 
 } 
 
