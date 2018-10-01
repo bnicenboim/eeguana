@@ -66,11 +66,6 @@ event_to_NA.eegbl <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
               dplyr::filter(x$events, !!!dots))) %>%  
               dplyr::mutate(channel = forcats::lvls_expand(channel, 
                                       new_levels = channel_names(x))) 
-
-
-
-
-
   }
   validate_eegbl(x)
 }

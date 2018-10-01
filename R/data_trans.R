@@ -131,6 +131,9 @@ summarize_id_as_tibble.eegbl <- function(x, .funs = mean, ...) {
 
   x$signal %>% dplyr::group_by(.id) %>% #keep grouping for later 
               dplyr::summarize_at(channel_names(x), .funs, ...)  %>%
+              #change the column back to channel names, when funs(?? = fun) 
+              # maybe there is a tidyverse solution
+              {colnames(.) <- c(".id", channel_names(x)); .} %>%
               # make it long format:
               tidyr::gather(key = channel, value = !!rlang::sym(fname), -.id) %>%
               # adds segment info
