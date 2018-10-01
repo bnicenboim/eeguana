@@ -4,7 +4,7 @@ redo_indices <- function(.eegbl){
     orig_groups <- dplyr::groups(df)
     df <- df %>% 
                   dplyr::ungroup() %>% 
-                  dplyr::mutate(.id = dplyr::group_indices(., .id)) %>%
+                  dplyr::mutate(.id = dplyr::group_indices(., .id) %>% as.integer()) %>%
                   dplyr::group_by(!!!orig_groups)
    }
 
@@ -13,6 +13,25 @@ redo_indices <- function(.eegbl){
   .eegbl
 }
 
+ 
+ do_based_on_grps <- function(.df, ext_grouping_df, dplyr_fun, dots){
+  int_groups <- dplyr::groups(.df)
+  ext_group_names <- dplyr::group_vars(ext_grouping_df)
+  id <- .df$.id
+  # list of groups from segments to create on the fly
+  new_groups <- purrr::map(ext_group_names,
+                              ~ rlang::expr(ext_grouping_df[id,][[!!.x]])) %>%
+                  purrr::set_names(ext_group_names)
+
+  # I need to ungroup first because if not, the other groups need ot be the size of the grouping that were already made and not the size of the entire signal df  
+  .df <- dplyr::ungroup(.df) %>%   
+                  dplyr::group_by(!!!new_groups, !!!int_groups,sample) %>%
+                  dplyr_fun(!!!dots) %>%  # after summarizing I add the .id
+                  dplyr::ungroup(.df) %>%
+                  dplyr::select( -dplyr::one_of(ext_group_names) ) %>%
+                  dplyr::select(.id, sample, dplyr::everything())
+
+  }
 
 
 # https://stackoverflow.com/questions/50563895/using-rlang-find-the-data-pronoun-in-a-set-of-quosures

@@ -63,36 +63,29 @@ mutate_.eegbl<- function(.data, ...) {
 #' @export
 summarise_.eegbl<- function(.data, ..., .dots = list()) {
   dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
+  segments_groups <- dplyr::groups(.data$segments)
   signal_groups <- dplyr::groups(.data$signal)
-  segments_groups <- dplyr::group_vars(.data$segments)
-  dsegments <- .data$segments
-  d_id <- .data$signal$.id
 
-  # list of groups from segments to create on the fly
-  temp_groups <- purrr::map(segments_groups,
-                              ~ rlang::expr(dsegments[d_id,][[!!.x]])) %>%
-                  purrr::set_names(segments_groups)
 
   # I need to ungroup first because if not, the other groups need ot be the size of the grouping that were already made and not the size of the entire signal df  
-  .data$signal <- dplyr::ungroup(.data$signal) %>%   
-                  dplyr::group_by(!!!temp_groups, !!!signal_groups, sample) %>%
-                  # dplyr::group_by(!!!temp_groups, sample) %>%
-                  dplyr::summarize(!!!dots) %>%  # after summarizing I add the .id
-                  dplyr::select( -dplyr::one_of(segments_groups) ) %>%
-                  dplyr::select(.id, sample, dplyr::everything()) %>%
+  .data$signal <- do_based_on_grps(.data$signal, 
+                            ext_grouping_df = .data$segments, 
+                            dplyr_fun = dplyr::summarize, dots) %>%
                   dplyr::group_by(sample) %>%
                   dplyr::mutate(.id = seq(dplyr::n()) %>% as.integer) %>%
-                  dplyr::ungroup()
+                  dplyr::group_by(!!!signal_groups)
 
-  .data$segments <- dplyr::summarize(dsegments) %>%
+
+  .data$segments <- dplyr::summarize(.data$segments) %>%
                     dplyr::ungroup() %>% 
                     dplyr::mutate(.id = seq(dplyr::n()) %>% as.integer, 
-                                  recording = if("recording"  %in% tbl_vars(dsegments))
+                                  recording = if("recording"  %in% tbl_vars(.))
                                               NA_character_ else recording) %>%
                     dplyr::select(.id, dplyr::everything()) %>%
                     dplyr::group_by(recording) %>%
                     dplyr::mutate(segment = seq(dplyr::n())) %>%
-                    dplyr::group_by_at(dplyr::vars(segments_groups))
+                    dplyr::group_by(!!!segments_groups)
+                    # dplyr::group_by_at(dplyr::vars(segments_groups)) #for chars
 
   update_chans(.data) %>%   validate_eegbl 
 }
