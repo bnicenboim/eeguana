@@ -61,8 +61,9 @@ mutate_.eegbl<- function(.data, ...) {
 }
 
 #' @export
-summarise_.eegbl<- function(.data, ...) {
-  # signal_groups <- dplyr::groups(.data$signal)
+summarise_.eegbl<- function(.data, ..., .dots = list()) {
+  dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
+  signal_groups <- dplyr::groups(.data$signal)
   segments_groups <- dplyr::group_vars(.data$segments)
   dsegments <- .data$segments
   d_id <- .data$signal$.id
@@ -74,18 +75,18 @@ summarise_.eegbl<- function(.data, ...) {
 
   # I need to ungroup first because if not, the other groups need ot be the size of the grouping that were already made and not the size of the entire signal df  
   .data$signal <- dplyr::ungroup(.data$signal) %>%   
-                  # dplyr::group_by(!!!temp_groups, !!!signal_groups) %>%
-                  dplyr::group_by(!!!temp_groups, sample) %>%
-                  dplyr::summarize_(...) %>%  # after summarizing I add the .id
-                  dplyr::group_by(sample) %>%
-                  dplyr::mutate(.id = seq(dplyr::n())) %>%
-                  dplyr::ungroup() %>%
+                  dplyr::group_by(!!!temp_groups, !!!signal_groups, sample) %>%
+                  # dplyr::group_by(!!!temp_groups, sample) %>%
+                  dplyr::summarize(!!!dots) %>%  # after summarizing I add the .id
                   dplyr::select( -dplyr::one_of(segments_groups) ) %>%
-                  dplyr::select(.id, sample, dplyr::everything())
+                  dplyr::select(.id, sample, dplyr::everything()) %>%
+                  dplyr::group_by(sample) %>%
+                  dplyr::mutate(.id = seq(dplyr::n()) %>% as.integer) %>%
+                  dplyr::ungroup()
 
   .data$segments <- dplyr::summarize(dsegments) %>%
                     dplyr::ungroup() %>% 
-                    dplyr::mutate(.id = seq(dplyr::n()), 
+                    dplyr::mutate(.id = seq(dplyr::n()) %>% as.integer, 
                                   recording = if("recording"  %in% tbl_vars(dsegments))
                                               NA_character_ else recording) %>%
                     dplyr::select(.id, dplyr::everything()) %>%
@@ -153,17 +154,27 @@ rename_.eegbl <- function(.data, ...){
 }  
 
 #' @export
-filter_.eegbl <- function(.data, ...){
-  df <-  attr(.data, "act_on")
-  if(df %in% "segments") {
-    .data[[df]] <- dplyr::filter_(.data[[df]], ...)
-    .data$signal <- dplyr::semi_join(.data$signal, .data$segments, by =".id")
-    .data$events <- dplyr::semi_join(.data$events, .data$segments, by =".id")
-  } else {
-    stop("Filter only defined for segments")
-  }
-  update_chans(.data) %>% validate_eegbl 
+filter_.eegbl <- function(.data, ..., .dots = list()) {
+  dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
+  #dots <- rlang::quo(recording == "0")
+  signal_dots <- guess_if_signal(dots, .data)
+  
+  #filter the signal and update the segments, in case an entire id drops  
+  if(length(dots[signal_dots]) > 0) { 
+    .data$signal <- dplyr::filter(.data$signal, !!!dots[signal_dots] )
+    .data$segments <- dplyr::semi_join(.data$segments, .data$signal, by =".id")
+  } 
+  #filter the segments and update the signal
+    if(length(dots[!signal_dots]) > 0) { 
+      .data$segments <- dplyr::filter(.data$segments, !!!dots[!signal_dots] )
+      .data$signal <- dplyr::semi_join(.data$signal, .data$segments, by =".id")
+   }
+
+  # Fix the indices in case some of them drop out
+  redo_indices(.data) %>% 
+  update_chans %>% validate_eegbl 
 }  
+
 
 #' @export
 select.eegbl <- function(.data, ...){
@@ -206,51 +217,7 @@ select.eegbl <- function(.data, ...){
 } 
 
 
-
-# #' @export
-# mutate.eegbl<- function(.data, ...) {
-#   print("aa")
-#   df <-  attr(.data, "act_on")
-#   dots <- rlang::enquos(...) 
-#   .data[[df]] <- dplyr::mutate(.data[[df]], !!!dots)
-#    update_chans(.data) %>% validate_eegbl 
-# }
-
-
-# #' @export
-# rename.eegbl <- function(.data, ...){
-#    df <-  attr(.data, "act_on")
-#    dots <- rlang::enquos(...) 
-#   .data[[df]] <- dplyr::rename(.data[[df]], !!!dots)
-#   update_chans(.data) %>% validate_eegbl 
-# }  
-
-# #' @export
-# filter.eegbl <- function(.data, ...){
-#    df <-  attr(.data, "act_on")
-#    dots <- rlang::enquos(...) 
-#    if(df %in% "segments") {
-#     .data[[df]] <- dplyr::filter(.data[[df]], !!!dots)
-#     .data$signal <- dplyr::semi_join(.data$signal, .data$segments, by =".id")
-#     .data$events <- dplyr::semi_join(.data$events, .data$segments, by =".id")
-#    } else {
-#     stop("Filter only defined for segments")
-#    }
-#   update_chans(.data) %>% validate_eegbl 
-# }  
-
-# #' @export
-# select.eegbl <- function(.data, ...){
-#    df <-  attr(.data, "act_on")
-#    dots <- rlang::enquos(...) 
-
-#    #this is to avoid removing important columns
-#   .data[[df]] <- dplyr::group_by_at(.data[[df]], obligatory_cols[[df]]) %>%
-#                 select(!!!dots) %>% group_by(.id)
-#   update_chans(.data) %>% validate_eegbl 
-# } 
-
-
+ 
 
 #' @export
 left_join.eegbl <- function(x, y, by = NULL, suffix= c(".x", ".y"), ...){

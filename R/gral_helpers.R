@@ -1,3 +1,37 @@
+redo_indices <- function(.eegbl){
+
+   redo_indices_df <- function(df){
+    orig_groups <- dplyr::groups(df)
+    df <- df %>% 
+                  dplyr::ungroup() %>% 
+                  dplyr::mutate(.id = dplyr::group_indices(., .id)) %>%
+                  dplyr::group_by(!!!orig_groups)
+   }
+
+  .eegbl$signal <- redo_indices_df(.eegbl$signal)
+  .eegbl$segments <- redo_indices_df(.eegbl$segments)
+  .eegbl
+}
+
+
+
+# https://stackoverflow.com/questions/50563895/using-rlang-find-the-data-pronoun-in-a-set-of-quosures
+getAST <- function( ee ) { as.list(ee) %>% purrr::map_if(is.call, getAST) }
+
+guess_if_signal <- function(dots, .eegbl){
+  purrr::map_lgl(dots, function(dot)
+    # get the AST of each call and unlist it
+    getAST(dot) %>% unlist(.) %>% 
+    # make it a vector of strings
+    purrr::map_chr(~ quo_text(.x)) %>% 
+    # check if it's some channel (might be problematic if a channel is named like function)
+    intersect(channel_names(.eegbl)) %>% 
+    {length(.) > 0})
+  #returns a vector of TRUE/FALSE indicating for each call whether it belongs to signals
+}
+
+
+
 decimals <- function(x) match(TRUE, round(x, 1:20) == x)
 say_size <- function(eegble) paste("# Object size in memory", 
                 capture.output(pryr::object_size(eegble)))
