@@ -146,12 +146,6 @@ transmute_.eegbl<- function(.data, ...) {
 }
 
 
-#' @export
-rename_.eegbl <- function(.data, ...){
-  df <-  attr(.data, "act_on")
-  .data[[df]] <- dplyr::rename_(.data[[df]], ...)
-  update_chans(.data) %>% validate_eegbl 
-}  
 
 #' @export
 filter_.eegbl <- function(.data, ..., .dots = list()) {
@@ -181,14 +175,24 @@ filter_.eegbl <- function(.data, ..., .dots = list()) {
 
 
 #' @export
-select.eegbl <- function(.data, ...){
+#' 
+select.eegbl <- function (.data, ...) {
+  select_rename(.data, vars_fun = tidyselect::vars_select,...)
+}
+
+#' @export
+#' 
+rename.eegbl <- function (.data, ...) {
+  select_rename(.data, vars_fun = tidyselect::vars_rename,...)
+}
+
+
+select_rename <- function(.data, vars_fun = tidyselect::vars_select,...){
     
    dots <- rlang::enquos(...)
    # dots <- rlang::quos(xx =Fp1, yy = Cz) 
-   # here this is fine if there are no -, if there are I should treat it differently
-   all_vars <- tidyselect::vars_select(c(names(.data$signal), 
-    names(.data$segments)), !!!dots)
-
+   all_vars <- vars_fun(c(names(.data$signal), 
+               names(.data$segments)), !!!dots)
 
    # Divide the variables into the relevant columns
    vars <- list()
@@ -207,31 +211,6 @@ select.eegbl <- function(.data, ...){
      }
   }
 
-   # segments_col <- intersect(all_vars, colnames(.data$segments)) 
-
-   # extra <- setdiff(union(signal_col, segments_col), all_vars)
-
-
-   # if(length(extra)>0){
-   #  warning(paste("The following grouping variables were not found: ", 
-   #    paste(extra, collapse = ", ") ))
-   # }
-
-   # # select if there is something to select:
-   # if(length(signal_col) != 0){
-   #  .data$signal <- dplyr::select(.data$signal, obligatory_cols$signal,  one_of(signal_col))    
-   # }
-
-   # if(length(segments_col) != 0){
-   #   .data$segments <- dplyr::select(.data$segments, obligatory_cols$segments, one_of(segments_col))
-   # }  
-
-
-  # df <-  attr(.data, "act_on")
-  # #this is to avoid removing important columns
-  # dots <- rlang::enquos(...)
-  # .data[[df]] <- dplyr::group_by_at(.data[[df]], obligatory_cols[[df]]) %>%
-  #   select(!!!dots) %>% ungroup()
   update_chans(.data) %>% validate_eegbl 
 } 
 
@@ -240,11 +219,11 @@ select.eegbl <- function(.data, ...){
 
 #' @export
 left_join.eegbl <- function(x, y, by = NULL, suffix= c(".x", ".y"), ...){
-  if(!is_eegble(x)) stop("x must be an eegble.")
-  df <-  attr(x, "act_on")
-  if(!df %in% c("segments","events")) stop("x must be act_on segments or events.")
+  # if(!is_eegble(x)) stop("x must be an eegble.")
+  # df <-  attr(x, "act_on")
+  # if(!df %in% c("segments","events")) stop("x must be act_on segments or events.")
   
-  x[[df]] <-  dplyr::left_join(x[[df]], y, by = NULL, suffix= c(".x", ".y"), ...)
+  x[["segments"]] <-  dplyr::left_join(x[["segments"]], y, by = NULL, suffix= c(".x", ".y"), ...)
   
   validate_eegbl(x)
   
@@ -254,20 +233,20 @@ left_join.eegbl <- function(x, y, by = NULL, suffix= c(".x", ".y"), ...){
 
 #' @export
 semi_join.eegbl <- function(x, y, by = NULL, suffix= c(".x", ".y"), ...){
-  if(!is_eegble(x)) stop("x must be an eegble.")
-  df <-  attr(x, "act_on")
-  if(!df %in% c("segments","events")) stop("x must be act_on segments or events.")
+  # if(!is_eegble(x)) stop("x must be an eegble.")
+  # df <-  attr(x, "act_on")
+  # if(!df %in% c("segments","events")) stop("x must be act_on segments or events.")
   
-  x[[df]] <-  dplyr::semi_join(x[[df]], y, by = NULL, suffix= c(".x", ".y"), ...)
-  x$signal <- dplyr::semi_join(x$signal, x[[df]], by = ".id")
+  x[["segments"]] <-  dplyr::semi_join(x[["segments"]], y, by = NULL, suffix= c(".x", ".y"), ...)
+  x$signal <- dplyr::semi_join(x$signal, x[["segments"]], by = ".id")
   
-  if(df %in% "events"){
-    x$segments <- dplyr::semi_join(x$segments, x[[df]], by = ".id")
-  }
+  # if(df %in% "events"){
+  #   x$segments <- dplyr::semi_join(x$segments, x[[df]], by = ".id")
+  # }
   
-  if(df %in% "segments"){
-    x$events <- dplyr::semi_join(x$events, x[[df]], by = ".id")
-  }
+  # if(df %in% "segments"){
+    # x$events <- dplyr::semi_join(x$events, x[[df]], by = ".id")
+  # }
   
   validate_eegbl(x)
   
@@ -276,20 +255,20 @@ semi_join.eegbl <- function(x, y, by = NULL, suffix= c(".x", ".y"), ...){
 
 #' @export
 anti_join.eegbl <- function(x, y, by = NULL, suffix= c(".x", ".y"), ...){
-  if(!is_eegble(x)) stop("x must be an eegble.")
-  df <-  attr(x, "act_on")
-  if(!df %in% c("segments","events")) stop("x must be act_on segments or events.")
+  # if(!is_eegble(x)) stop("x must be an eegble.")
+  # df <-  attr(x, "act_on")
+  # if(!df %in% c("segments","events")) stop("x must be act_on segments or events.")
   
-  x[[df]] <-  dplyr::anti_join(x[[df]], y, by = NULL, suffix= c(".x", ".y"), ...)
-  x[["signal"]] <- dplyr::semi_join(x[["signal"]], x[[df]], by = ".id")
+  x[["segments"]] <-  dplyr::anti_join(x[["segments"]], y, by = NULL, suffix= c(".x", ".y"), ...)
+  x[["signal"]] <- dplyr::semi_join(x[["signal"]], x[["segments"]], by = ".id")
   
-  if(df %in% "events"){
-    x$segments <- dplyr::semi_join(x$segments, x[[df]], by = ".id")
-  }
+  # if(df %in% "events"){
+  #   x$segments <- dplyr::semi_join(x$segments, x[[df]], by = ".id")
+  # }
   
-  if(df %in% "segments"){
-    x$events <- dplyr::semi_join(x$events, x[[df]], by = ".id")
-  }
+  # if(df %in% "segments"){
+  #   x$events <- dplyr::semi_join(x$events, x[[df]], by = ".id")
+  # }
   
   validate_eegbl(x)
   
@@ -298,18 +277,18 @@ anti_join.eegbl <- function(x, y, by = NULL, suffix= c(".x", ".y"), ...){
 
 
 
-##' @rdname mutate_signal
-# not yet exported
-filter_s <- function(.data, ...){
-  dots <-  rlang::enquos(...)
-  #should edit the dots to transform time to samples
-  #then it filters by $signal
-  .data$segments <- dplyr::filter(.data$segments, !!!dots)
-  .data$signal <- dplyr::semi_join(.data$signal, .data$segments, by =".id")
-  .data$events <- dplyr::semi_join(.data$events, .data$segments, by =".id")
+# ##' @rdname mutate_signal
+# # not yet exported
+# filter_s <- function(.data, ...){
+#   dots <-  rlang::enquos(...)
+#   #should edit the dots to transform time to samples
+#   #then it filters by $signal
+#   .data$segments <- dplyr::filter(.data$segments, !!!dots)
+#   .data$signal <- dplyr::semi_join(.data$signal, .data$segments, by =".id")
+#   .data$events <- dplyr::semi_join(.data$events, .data$segments, by =".id")
   
-  validate_eegbl(.data)
-}   
+#   validate_eegbl(.data)
+# }   
 
 
 #it could look for the names and check if they appear in data or segments
