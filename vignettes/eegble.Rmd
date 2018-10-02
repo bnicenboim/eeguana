@@ -41,7 +41,6 @@ and `faces.dat` contains the signals at every sample for every channel recorded.
 We are going to use `eegble` together with `dplyr` functions:
 
 ```{r libs, message = FALSE}
-library(dplyr)
 library(purrr)
 library(ggplot2)
 library(eegble)
@@ -97,13 +96,13 @@ faces_segs <- faces %>%
 
 
 We can also edit the segmentation information and add more descriptive labels.
-`eegble` has wrappers for some `dplyr` commands for the EEG data. Since the `eegble` objects contain different data frames, first one needs to decide on which part of the object the `dplyr` command will `act_on`. These commands always return the entire `eegble` object so that they can be piped using `magrittr`'s pipe, `%>%`.
+`eegble` has wrappers for many `dplyr` commands for the EEG data.  These commands always return the entire `eegble` object so that they can be piped using `magrittr`'s pipe, `%>%`.
 
 ```{r}
 faces_segs_some <- faces_segs %>%  
-                  act_on(segments) %>%
                   mutate(condition =
-                  if_else(description == "s70", "faces", "non-faces"))
+                  if_else(description == "s70", "faces", "non-faces")) %>% 
+                  select(-type)
 
 faces_segs_some
 ```
@@ -114,7 +113,6 @@ feed into `ggplot` object. This object can then be customized.
 
 ```{r, fig.dim = c(10,15), out.width = "100%"}
 faces_segs_some %>% 
-                  act_on(signal) %>% 
                   select(O1, O2, P7, P8) %>% 
                   plot_gg(faces_segs_some) + 
                   geom_line(alpha = .1, aes(group = .id, color = condition)) + 
@@ -145,12 +143,9 @@ Occipital = pmap_dbl(list(O1,  O2,  Oz), mean, na.rm = TRUE),
                                                               -->
                                                               
 ```{r, fig.dim = c(10,15), out.width = "100%"}
-faces_segs_some %>%  act_on(signal) %>% 
+faces_segs_some %>%  
                 transmute(Occipital = (O1 + O2 + Oz)/3,
-                          Parietal = (P3+ P4 + P7 + P8 + Pz)/3 ) %>% 
-                act_on(segments) %>%
-                mutate(condition =
-                 if_else(description == "s70", "faces", "non-faces")) %>%
+                          Parietal = (P3+ P4 + P7 + P8 + Pz)/5 ) %>% 
                 plot_gg() + 
                 geom_line(alpha = .1, aes(group = .id, color = condition)) +
                 stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1, 
@@ -180,7 +175,6 @@ frame.
 
 ```{r}
 df <- faces_segs_some %>% 
-      act_on(signal) %>% 
       select(O1, O2, P7, P8) %>%
       as_tibble %>%
         # We can use regular dplyr functions now

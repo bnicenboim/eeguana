@@ -45,7 +45,7 @@ dots_by_df <- function(dots, .eegbl){
     # get the AST of each call and unlist it
     getAST(dot) %>% unlist(.) %>% 
     # make it a vector of strings
-    purrr::map_chr(~ quo_text(.x)) %>% 
+    purrr::map_chr(~ rlang::quo_text(.x)) %>% 
     # check if it's some channel (might be problematic if a channel is named like function)
     intersect(c(channel_names(.eegbl), "sample")) %>% 
     {length(.) > 0})

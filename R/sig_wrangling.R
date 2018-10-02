@@ -37,27 +37,71 @@
 #' faces_segs %>% act_on(signal) %>%
 #'                  select(O1, O2, P7, P8)
 #' }
-act_on <- function(.data, ...){
-  UseMethod("act_on")
+# act_on <- function(.data, ...){
+#   UseMethod("act_on")
+# }
+
+# #' @export
+# act_on <- function(.data, ...) {
+#   dots <- rlang::enexprs(...)
+#   if(length(dots) > 1) {warning("Only the first argument of act_on will be used.")}
+#   based <- as.character(dots[[1]])
+#   dfs <-  c("signal", "events", "segments")
+#   if(!based %in% dfs) {stop(paste("act_on only permits",paste(dfs, collapse =  ", "), "as arguments." ))}
+#   attr(.data, "act_on") <- based
+#   validate_eegbl(.data)
+# }
+
+
+#' @export
+mutate_.eegbl<- function(.data, ..., .dots = list()) {
+  dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
+  mutate_transmute(.data, mutate = TRUE, dots)
 }
 
 #' @export
-act_on <- function(.data, ...) {
-  dots <- rlang::enexprs(...)
-  if(length(dots) > 1) {warning("Only the first argument of act_on will be used.")}
-  based <- as.character(dots[[1]])
-  dfs <-  c("signal", "events", "segments")
-  if(!based %in% dfs) {stop(paste("act_on only permits",paste(dfs, collapse =  ", "), "as arguments." ))}
-  attr(.data, "act_on") <- based
-  validate_eegbl(.data)
+transmute_.eegbl<- function(.data, ..., .dots = list()) {
+  dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
+  mutate_transmute(.data, mutate = FALSE,dots)
 }
 
 
-#' @export
-mutate_.eegbl<- function(.data, ...) {
-  df <-  attr(.data, "act_on")
-  .data[[df]] <- dplyr::mutate_(.data[[df]], ...)
+mutate_transmute <- function(.data, mutate = TRUE, dots){
+  if(mutate) {
+    dplyr_fun <- dplyr::mutate
+  } else {
+    dplyr_fun <- dplyr::transmute
+  }
+  #dots <- rlang::quos(Occipital = (O1 + O2 + Oz)/3)
+  new_dots <- dots_by_df(dots, .data)
+
+
+  if(length(new_dots$signal) > 0) { 
+    
+    # I add the missing variables in case one uses transmute,
+    # it doesn't hurt to mutate. This prevents from deleting sample or .id
+    missing_vars <- dplyr::setdiff(obligatory_cols$signal, 
+                            dplyr::group_vars(.data$signal))
+    dots <- c(rlang::syms(missing_vars), new_dots$signal)    
+    .data$signal <- do_based_on_grps(.df = .data$signal, 
+                            ext_grouping_df = .data$segments, 
+                            dplyr_fun = dplyr_fun, 
+                            dots =   dots)
+
+  } 
+
+    if(length(new_dots$segments) > 0) { 
+
+      missing_vars <- dplyr::setdiff(obligatory_cols$segments, 
+                                dplyr::group_vars(.data$segments)) %>%
+                      rlang::syms(.)
+
+      .data$segments <- dplyr_fun(.data$segments, !!!missing_vars, 
+                                                  !!!new_dots$segments)
+   }
+
   update_chans(.data) %>%   validate_eegbl 
+
 }
 
 #' @export
@@ -118,32 +162,32 @@ ungroup.eegbl<- function(.data, ..., add = add) {
   update_chans(.data) %>%   validate_eegbl 
 }
 
-#' @export
-mutate_all <- function(.tbl, .funs, ...) {
-  UseMethod("mutate_all")
-}
+# #' @export
+# mutate_all <- function(.tbl, .funs, ...) {
+#   UseMethod("mutate_all")
+# }
 
-#' @export
-mutate_all.default <- dplyr::mutate_all
+# #' @export
+# mutate_all.default <- dplyr::mutate_all
 
-#' @export
-mutate_all.eegbl<- function(.tbl, .funs, ...) {
-  df <-  attr(.tbl, "act_on")
+# #' @export
+# mutate_all.eegbl<- function(.tbl, .funs, ...) {
+#   df <-  attr(.tbl, "act_on")
   
-  # excluding the obligatory_cols
-  .tbl[[df]] <- dplyr::mutate_at(.tbl[[df]], 
-                                 .vars = vars(-one_of(c(obligatory_cols[[df]]))), .funs, ...)
-  update_chans(.tbl) %>%   validate_eegbl 
-}
+#   # excluding the obligatory_cols
+#   .tbl[[df]] <- dplyr::mutate_at(.tbl[[df]], 
+#                                  .vars = vars(-one_of(c(obligatory_cols[[df]]))), .funs, ...)
+#   update_chans(.tbl) %>%   validate_eegbl 
+# }
 
 
 
-#' @export
-transmute_.eegbl<- function(.data, ...) {
-  df <-  attr(.data, "act_on")
-  .data[[df]] <- dplyr::transmute_(.data[[df]], obligatory_cols[[df]], ...)
-  update_chans(.data) %>%   validate_eegbl 
-}
+# #' @export
+# transmute_.eegbl<- function(.data, ...) {
+#   df <-  attr(.data, "act_on")
+#   .data[[df]] <- dplyr::transmute_(.data[[df]], obligatory_cols[[df]], ...)
+#   update_chans(.data) %>%   validate_eegbl 
+# }
 
 
 
@@ -177,35 +221,42 @@ filter_.eegbl <- function(.data, ..., .dots = list()) {
 #' @export
 #' 
 select.eegbl <- function (.data, ...) {
-  select_rename(.data, vars_fun = tidyselect::vars_select,...)
+  select_rename(.data, select = TRUE,...)
 }
 
 #' @export
 #' 
 rename.eegbl <- function (.data, ...) {
-  select_rename(.data, vars_fun = tidyselect::vars_rename,...)
+  select_rename(.data, select = FALSE,...)
 }
 
 
-select_rename <- function(.data, vars_fun = tidyselect::vars_select,...){
-    
+select_rename <- function(.data, select = TRUE,...){
+  if(select) {
+    vars_fun <- tidyselect::vars_select
+    dplyr_fun <- dplyr::select
+  } else {
+    vars_fun <- tidyselect::vars_rename
+    dplyr_fun <- dplyr::rename
+  }
    dots <- rlang::enquos(...)
-   # dots <- rlang::quos(xx =Fp1, yy = Cz) 
-   all_vars <- vars_fun(c(names(.data$signal), 
-               names(.data$segments)), !!!dots)
+   #dots <- rlang::quos(xx =Fp1, yy = Cz) 
+   all_vars <- vars_fun(unique(c(names(.data$signal), 
+                  names(.data$segments))), !!!dots)
 
    # Divide the variables into the relevant columns
-   vars <- list()
+   
    for(dfs in c("signal", "segments")) {
-     vars[[dfs]] <- all_vars[all_vars %in% colnames(.data[[dfs]])]
+     vars_dfs <- all_vars[all_vars %in% colnames(.data[[dfs]])]
                   #intersect(all_vars, colnames(.data$signal))  
-     if(length(vars[[dfs]]) > 0){
+     if(length(vars_dfs) > 0){
+
         orig_groups <- dplyr::groups(.data[[dfs]])
         .data[[dfs]] <- .data[[dfs]] %>%
                         # by adding these groups, select won't remove the obligatory columns
                         dplyr::group_by_at(vars(obligatory_cols[[dfs]]), add = TRUE) %>% 
                         # silences the message: Adding missing grouping variables: `.id`, `sample`
-                        dplyr::select(.data[[dfs]], vars[[dfs]]) %>%
+                        dplyr_fun(vars_dfs) %>%
                         dplyr::group_by(!!!orig_groups) 
                                                                   
      }
