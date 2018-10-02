@@ -13,7 +13,7 @@ redo_indices <- function(.eegbl){
   .eegbl
 }
 
- 
+ #this function basically applies a dplyr function (dplyr_fun) to $signal based on groups of segments (ext_grouping_df) 
  do_based_on_grps <- function(.df, ext_grouping_df, dplyr_fun, dots){
   int_groups <- dplyr::groups(.df)
   ext_group_names <- dplyr::group_vars(ext_grouping_df)
@@ -22,13 +22,16 @@ redo_indices <- function(.eegbl){
   new_groups <- purrr::map(ext_group_names,
                               ~ rlang::expr(ext_grouping_df[id,][[!!.x]])) %>%
                   purrr::set_names(ext_group_names)
-
   # I need to ungroup first because if not, the other groups need ot be the size of the grouping that were already made and not the size of the entire signal df  
   .df <- dplyr::ungroup(.df) %>%   
-                  dplyr::group_by(!!!new_groups, !!!int_groups,sample) %>%
+                  dplyr::group_by(!!!new_groups, !!!int_groups) %>%
+                  # dplyr::group_by(!!!new_groups, !!!int_groups,sample) %>%
                   dplyr_fun(!!!dots) %>%  # after summarizing I add the .id
                   dplyr::ungroup(.df) %>%
                   dplyr::select( -dplyr::one_of(ext_group_names) ) %>%
+                  #in case .id was removed :
+                  dplyr::mutate(.id = if(".id"  %in% tbl_vars(.))
+                                              .id else NA_integer_) %>%
                   dplyr::select(.id, sample, dplyr::everything())
 
   }
@@ -37,16 +40,18 @@ redo_indices <- function(.eegbl){
 # https://stackoverflow.com/questions/50563895/using-rlang-find-the-data-pronoun-in-a-set-of-quosures
 getAST <- function( ee ) { as.list(ee) %>% purrr::map_if(is.call, getAST) }
 
-guess_if_signal <- function(dots, .eegbl){
-  purrr::map_lgl(dots, function(dot)
+dots_by_df <- function(dots, .eegbl){
+  signal_dots <- purrr::map_lgl(dots, function(dot)
     # get the AST of each call and unlist it
     getAST(dot) %>% unlist(.) %>% 
     # make it a vector of strings
     purrr::map_chr(~ quo_text(.x)) %>% 
     # check if it's some channel (might be problematic if a channel is named like function)
-    intersect(channel_names(.eegbl)) %>% 
+    intersect(c(channel_names(.eegbl), "sample")) %>% 
     {length(.) > 0})
   #returns a vector of TRUE/FALSE indicating for each call whether it belongs to signals
+  
+ list(signal = dots[signal_dots], segments = dots[!signal_dots])
 }
 
 

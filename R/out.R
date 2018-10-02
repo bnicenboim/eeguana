@@ -120,6 +120,34 @@ nsamples.eegbl <- function(x){
 }
 
 
+#' count number of complete segments of an eegble object.
+#' @param x An \code{eegble} object.
+#' @param ... Variables to group by.
+#' 
+#' 
+#' @return A tbl. 
+#' 
+#' @importFrom magrittr %>%
+#' 
+#' @export
+count_complete_cases <- function(x, ...){
+  UseMethod("count_complete_cases")
+}
+
+#' @export
+count_complete_cases.eegbl <- function(x, ...){
+    dots <- rlang::enquos(...)
+
+  x$signal %>% dplyr::group_by(.id) %>%
+   dplyr::filter_at(dplyr::vars(dplyr::one_of(channel_names(x))), 
+            dplyr::all_vars(all(!is.na(.)))) %>% 
+   dplyr::summarize() %>% 
+   dplyr::semi_join(.data$segments,., by = ".id") %>%  
+   dplyr::select(-.id,-segment) %>%
+   dplyr::count(!!!dots)
+}
+
+
 
 #' Summary of eegble information.
 #' 

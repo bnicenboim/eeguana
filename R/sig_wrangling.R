@@ -67,20 +67,21 @@ summarise_.eegbl<- function(.data, ..., .dots = list()) {
   signal_groups <- dplyr::groups(.data$signal)
 
 
-  # I need to ungroup first because if not, the other groups need ot be the size of the grouping that were already made and not the size of the entire signal df  
   .data$signal <- do_based_on_grps(.data$signal, 
                             ext_grouping_df = .data$segments, 
                             dplyr_fun = dplyr::summarize, dots) %>%
-                  dplyr::group_by(sample) %>%
-                  dplyr::mutate(.id = seq(dplyr::n()) %>% as.integer) %>%
-                  dplyr::group_by(!!!signal_groups)
-
+                    dplyr::ungroup() %>%
+                    dplyr::mutate(sample = if("sample"  %in% tbl_vars(.))
+                                              sample else NA_integer_) %>%
+                    dplyr::group_by(sample) %>%
+                    dplyr::mutate(.id = seq(dplyr::n()) %>% as.integer) %>%
+                    dplyr::group_by(!!!signal_groups)
 
   .data$segments <- dplyr::summarize(.data$segments) %>%
                     dplyr::ungroup() %>% 
-                    dplyr::mutate(.id = seq(dplyr::n()) %>% as.integer, 
-                                  recording = if("recording"  %in% tbl_vars(.))
-                                              NA_character_ else recording) %>%
+                    dplyr::mutate(.id = seq(dplyr::n()) %>% as.integer,
+                                recording = if("recording"  %in% tbl_vars(.))
+                                              recording else NA_character_) %>%
                     dplyr::select(.id, dplyr::everything()) %>%
                     dplyr::group_by(recording) %>%
                     dplyr::mutate(segment = seq(dplyr::n())) %>%
@@ -100,8 +101,14 @@ groups.eegbl <- function(x) {
 }
 
 #' @export
- group_by_.eegbl<- function(.data, ..., add = add) {
-   .data$segments <- dplyr::group_by_(.data$segments, ...)
+ group_by_.eegbl<- function(.data, ..., .dots = list(), add = add) {
+    # dots <- rlang::quos(segment)
+    dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
+    #divide dots according to if they belong to $signal or segments
+    new_dots <- dots_by_df(dots, .data)
+
+   .data$segments <- dplyr::group_by(.data$segments,!!!new_dots$segments, add = add)
+   .data$signal <- dplyr::group_by(.data$signal,!!!new_dots$signal, add = add)
    update_chans(.data) %>%   validate_eegbl 
  }
 
@@ -150,16 +157,20 @@ rename_.eegbl <- function(.data, ...){
 filter_.eegbl <- function(.data, ..., .dots = list()) {
   dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
   #dots <- rlang::quo(recording == "0")
-  signal_dots <- guess_if_signal(dots, .data)
-  
+  new_dots <- dots_by_df(dots, .data)
+
   #filter the signal and update the segments, in case an entire id drops  
-  if(length(dots[signal_dots]) > 0) { 
-    .data$signal <- dplyr::filter(.data$signal, !!!dots[signal_dots] )
+  if(length(new_dots$signal) > 0) { 
+
+    .data$signal <- do_based_on_grps(.data$signal, 
+                            ext_grouping_df = .data$segments, 
+                            dplyr_fun = dplyr::filter, new_dots$signal)
+
     .data$segments <- dplyr::semi_join(.data$segments, .data$signal, by =".id")
   } 
   #filter the segments and update the signal
-    if(length(dots[!signal_dots]) > 0) { 
-      .data$segments <- dplyr::filter(.data$segments, !!!dots[!signal_dots] )
+    if(length(new_dots$segments) > 0) { 
+      .data$segments <- dplyr::filter(.data$segments, !!!new_dots$segments)
       .data$signal <- dplyr::semi_join(.data$signal, .data$segments, by =".id")
    }
 
