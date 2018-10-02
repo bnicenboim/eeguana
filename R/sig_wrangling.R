@@ -102,8 +102,8 @@ groups.eegbl <- function(x) {
 
 #' @export
  group_by_.eegbl<- function(.data, ..., .dots = list(), add = add) {
-    # dots <- rlang::quos(segment)
     dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
+    # dots <- rlang::quos(segment)
     #divide dots according to if they belong to $signal or segments
     new_dots <- dots_by_df(dots, .data)
 
@@ -184,32 +184,47 @@ filter_.eegbl <- function(.data, ..., .dots = list()) {
 select.eegbl <- function(.data, ...){
     
    dots <- rlang::enquos(...)
-
+   # dots <- rlang::quos(xx =Fp1, yy = Cz) 
    # here this is fine if there are no -, if there are I should treat it differently
-   all_vars <- tidyselect::vars_select(c(names(.data$signal), names(.data$segments)), !!!dots)
+   all_vars <- tidyselect::vars_select(c(names(.data$signal), 
+    names(.data$segments)), !!!dots)
 
 
    # Divide the variables into the relevant columns
-   signal_col <- intersect(all_vars, colnames(.data$signal))  
-                      
-   segments_col <- intersect(all_vars, colnames(.data$segments)) 
+   vars <- list()
+   for(dfs in c("signal", "segments")) {
+     vars[[dfs]] <- all_vars[all_vars %in% colnames(.data[[dfs]])]
+                  #intersect(all_vars, colnames(.data$signal))  
+     if(length(vars[[dfs]]) > 0){
+        orig_groups <- dplyr::groups(.data[[dfs]])
+        .data[[dfs]] <- .data[[dfs]] %>%
+                        # by adding these groups, select won't remove the obligatory columns
+                        dplyr::group_by_at(vars(obligatory_cols[[dfs]]), add = TRUE) %>% 
+                        # silences the message: Adding missing grouping variables: `.id`, `sample`
+                        dplyr::select(.data[[dfs]], vars[[dfs]]) %>%
+                        dplyr::group_by(!!!orig_groups) 
+                                                                  
+     }
+  }
 
-   extra <- setdiff(union(signal_col, segments_col), all_vars)
+   # segments_col <- intersect(all_vars, colnames(.data$segments)) 
+
+   # extra <- setdiff(union(signal_col, segments_col), all_vars)
 
 
-   if(length(extra)>0){
-    warning(paste("The following grouping variables were not found: ", 
-      paste(extra, collapse = ", ") ))
-   }
+   # if(length(extra)>0){
+   #  warning(paste("The following grouping variables were not found: ", 
+   #    paste(extra, collapse = ", ") ))
+   # }
 
-   # select if there is something to select:
-   if(length(signal_col) != 0){
-    .data$signal <- dplyr::select(.data$signal, obligatory_cols$signal,  one_of(signal_col))    
-   }
+   # # select if there is something to select:
+   # if(length(signal_col) != 0){
+   #  .data$signal <- dplyr::select(.data$signal, obligatory_cols$signal,  one_of(signal_col))    
+   # }
 
-   if(length(segments_col) != 0){
-     .data$segments <- dplyr::select(.data$segments, obligatory_cols$segments, one_of(segments_col))
-   }  
+   # if(length(segments_col) != 0){
+   #   .data$segments <- dplyr::select(.data$segments, obligatory_cols$segments, one_of(segments_col))
+   # }  
 
 
   # df <-  attr(.data, "act_on")
