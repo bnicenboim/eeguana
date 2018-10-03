@@ -1,23 +1,23 @@
 
-#' Mutate/transmute/select/rename channels with signals, events or segments.
+#' Mutate/transmute/select/rename channels with signals,  segments.
 #' 
 #' Manipulate the signal, events and the segments of an eegble.
 #'
 #' Wrappers for \link{dplyr}'s commands that act on different parts
-#' \code{eggble} objects.  The part of the object that the wrapper should "act on" is set with  
-#' \code{act_on(.data, ...)} where \code{...} should be \code{signal}, \code{events} or \code{segments}.
-#'
+#' \code{eggble} objects.  
 #' The following wrappers have been implemented for \code{eegble} objects: 
 #' \itemize{
+#' \item \code{summarize()} summarizes the channel of the signal dataframe.
+#' \item \code{summarize_all()} summarizes all the channels of the signal dataframe.
 #' \item \code{mutate()} adds new variables and preserves existing ones.
-#' \item \code{mutate_all()} mutates all variables (except reserved ones: .id, samples, etc) .
+#' \item \code{mutate_all()} mutates all the channels of the signal dataframe.
 #' \item \code{transmute()} drops existing variables.
 #' \item \code{select()} keeps only the mentioned variables. 
 #' \item \code{rename()}: keeps all variables.
 #' \item \code{filter()}: finds segments/samples where conditions are true. Segments/samples where the condition evaluates to NA are dropped.
-#' \item \code{left_join()}: Left-joins an external dataframe to one of the dataframes of the eegble.
-#' \item \code{semi_join()}: Semi-joins an external dataframe to one of the dataframes of the eegble and updates the remaining dataframes correspondingly.
-#' \item \code{anti_join()}: Anti-joins an external dataframe to one of the dataframes of the eegble and updates the remaining dataframes correspondingly.
+#' \item \code{left_join()}: left-joins an external dataframe to one of the segments of the eegble.
+#' \item \code{semi_join()}: semi-joins an external dataframe to one of the segments of the eegble.
+#' \item \code{anti_join()}: anti-joins an external dataframe to one of the segments of the eegble.
 #' \item  \code{group_by()}: allows that operations would be performed "by group".
 #' \item  \code{ungroup()}: removes the grouping created by group_by.
 #' }
@@ -34,24 +34,8 @@
 #' @examples
 #' \dontrun{
 #'
-#' faces_segs %>% act_on(signal) %>%
-#'                  select(O1, O2, P7, P8)
+#' faces_segs %>% select(O1, O2, P7, P8)
 #' }
-# act_on <- function(.data, ...){
-#   UseMethod("act_on")
-# }
-
-# #' @export
-# act_on <- function(.data, ...) {
-#   dots <- rlang::enexprs(...)
-#   if(length(dots) > 1) {warning("Only the first argument of act_on will be used.")}
-#   based <- as.character(dots[[1]])
-#   dfs <-  c("signal", "events", "segments")
-#   if(!based %in% dfs) {stop(paste("act_on only permits",paste(dfs, collapse =  ", "), "as arguments." ))}
-#   attr(.data, "act_on") <- based
-#   validate_eegbl(.data)
-# }
-
 
 #' @export
 mutate_.eegbl<- function(.data, ..., .dots = list()) {
@@ -111,9 +95,10 @@ summarise_.eegbl<- function(.data, ..., .dots = list()) {
   signal_groups <- dplyr::groups(.data$signal)
 
 
-  .data$signal <- do_based_on_grps(.data$signal, 
+  .data$signal <- do_based_on_grps(.df = .data$signal, 
                             ext_grouping_df = .data$segments, 
-                            dplyr_fun = dplyr::summarize, dots) %>%
+                            dplyr_fun = dplyr::summarize, 
+                            dots = dots) %>%
                     dplyr::ungroup() %>%
                     dplyr::mutate(sample = if("sample"  %in% tbl_vars(.))
                                               sample else NA_integer_) %>%
@@ -161,33 +146,6 @@ ungroup.eegbl<- function(.data, ..., add = add) {
   .data$segments <- dplyr::ungroup(.data$segments)
   update_chans(.data) %>%   validate_eegbl 
 }
-
-# #' @export
-# mutate_all <- function(.tbl, .funs, ...) {
-#   UseMethod("mutate_all")
-# }
-
-# #' @export
-# mutate_all.default <- dplyr::mutate_all
-
-# #' @export
-# mutate_all.eegbl<- function(.tbl, .funs, ...) {
-#   df <-  attr(.tbl, "act_on")
-  
-#   # excluding the obligatory_cols
-#   .tbl[[df]] <- dplyr::mutate_at(.tbl[[df]], 
-#                                  .vars = vars(-one_of(c(obligatory_cols[[df]]))), .funs, ...)
-#   update_chans(.tbl) %>%   validate_eegbl 
-# }
-
-
-
-# #' @export
-# transmute_.eegbl<- function(.data, ...) {
-#   df <-  attr(.data, "act_on")
-#   .data[[df]] <- dplyr::transmute_(.data[[df]], obligatory_cols[[df]], ...)
-#   update_chans(.data) %>%   validate_eegbl 
-# }
 
 
 
@@ -326,20 +284,3 @@ anti_join.eegbl <- function(x, y, by = NULL, suffix= c(".x", ".y"), ...){
 }
 
 
-
-
-# ##' @rdname mutate_signal
-# # not yet exported
-# filter_s <- function(.data, ...){
-#   dots <-  rlang::enquos(...)
-#   #should edit the dots to transform time to samples
-#   #then it filters by $signal
-#   .data$segments <- dplyr::filter(.data$segments, !!!dots)
-#   .data$signal <- dplyr::semi_join(.data$signal, .data$segments, by =".id")
-#   .data$events <- dplyr::semi_join(.data$events, .data$segments, by =".id")
-  
-#   validate_eegbl(.data)
-# }   
-
-
-#it could look for the names and check if they appear in data or segments

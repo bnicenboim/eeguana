@@ -142,9 +142,25 @@ count_complete_cases.eegbl <- function(x, ...){
    dplyr::filter_at(dplyr::vars(dplyr::one_of(channel_names(x))), 
             dplyr::all_vars(all(!is.na(.)))) %>% 
    dplyr::summarize() %>% 
-   dplyr::semi_join(.data$segments,., by = ".id") %>%  
+   dplyr::semi_join(x$segments,., by = ".id") %>%  
    dplyr::select(-.id,-segment) %>%
    dplyr::count(!!!dots)
+}
+
+#' Convert time to sample number.
+#'
+#' @param x An eegble. 
+#' @param t A vector of times. 
+#' @param unit 
+#' 
+#' @examples
+#' @return A vector of sample numbers.
+#' 
+#' @importFrom magrittr %>%
+#' 
+#' @export
+in_samples <- function(x, t, unit = "seconds"){
+  t * scaling(x, unit)
 }
 
 

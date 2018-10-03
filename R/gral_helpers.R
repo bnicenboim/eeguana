@@ -31,7 +31,9 @@ redo_indices <- function(.eegbl){
                   dplyr::select( -dplyr::one_of(ext_group_names) ) %>%
                   #in case .id was removed :
                   dplyr::mutate(.id = if(".id"  %in% tbl_vars(.))
-                                              .id else NA_integer_) %>%
+                                              .id else NA_integer_,
+                                sample = if("sample"  %in% tbl_vars(.))
+                                              sample else NA_integer_) %>%
                   dplyr::select(.id, sample, dplyr::everything())
 
   }
