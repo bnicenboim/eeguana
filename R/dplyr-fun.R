@@ -131,6 +131,7 @@ summarise_.eegbl<- function(.data, ..., .dots = list()) {
   update_chans(.data) %>%   validate_eegbl 
 }
 
+#' @export
 tbl_vars.eegbl <- function(x) {
   setdiff(tbl_vars(x$signal), c(".id", "sample"))
 }
