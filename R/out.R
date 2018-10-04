@@ -162,6 +162,12 @@ count_complete_cases.eegbl <- function(x, ...){
 #' 
 #' @importFrom magrittr %>%
 #' 
+#' @examples
+#' \dontrun{
+#'
+#' faces_segs_some %>% filter(between(sample, in_samples(., 100, unit = "ms"),
+#'                               in_samples(., 300, unit = "ms")))
+#' }
 #' @export
 in_samples <- function(x, t, unit = "seconds"){
   t * scaling(x, unit)
