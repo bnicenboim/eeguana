@@ -151,9 +151,8 @@ count_complete_cases.eegbl <- function(x, ...){
 #'
 #' @param x An eegble. 
 #' @param t A vector of times. 
-#' @param unit 
+#' @param unit "seconds" (or "s"), "milliseconds" (or "ms")
 #' 
-#' @examples
 #' @return A vector of sample numbers.
 #' 
 #' @importFrom magrittr %>%
