@@ -22,10 +22,12 @@ redo_indices <- function(.eegbl){
   new_groups <- purrr::map(ext_group_names,
                               ~ rlang::expr(ext_grouping_df[id,][[!!.x]])) %>%
                   purrr::set_names(ext_group_names)
+
   # I need to ungroup first because if not, the other groups need ot be the size of the grouping that were already made and not the size of the entire signal df  
   .df <- dplyr::ungroup(.df) %>%   
+                  #TODO: check the following
+                  #maybe doing a left_join and then group would be not slower 
                   dplyr::group_by(!!!new_groups, !!!int_groups) %>%
-                  # dplyr::group_by(!!!new_groups, !!!int_groups,sample) %>%
                   dplyr_fun(!!!dots) %>%  # after summarizing I add the .id
                   dplyr::ungroup(.df) %>%
                   dplyr::select( -dplyr::one_of(ext_group_names) ) %>%
@@ -43,19 +45,46 @@ redo_indices <- function(.eegbl){
 getAST <- function( ee ) { as.list(ee) %>% purrr::map_if(is.call, getAST) }
 
 dots_by_df <- function(dots, .eegbl){
+  signal_cols <- c(channel_names(.eegbl), "sample", "channelMeans")
+
   signal_dots <- purrr::map_lgl(dots, function(dot)
     # get the AST of each call and unlist it
     getAST(dot) %>% unlist(.) %>% 
     # make it a vector of strings
     purrr::map_chr(~ rlang::quo_text(.x)) %>% 
     # check if it's some channel (might be problematic if a channel is named like function)
-    intersect(c(channel_names(.eegbl), "sample")) %>% 
-    {length(.) > 0})
+    {length(dplyr::intersect(., signal_cols)) > 0})
+
   #returns a vector of TRUE/FALSE indicating for each call whether it belongs to signals
+  # if both signal and segments columns are there, it will say that the dots should apply
+  # to a signal dataframe. 
   
  list(signal = dots[signal_dots], segments = dots[!signal_dots])
 }
 
+names_segments_col <- function(.eegbl, dots){
+  segments_cols <- setdiff(colnames(.eegbl$segments), ".id")  #removes .id
+  
+  names_s <- c()
+  for(n in seq_len(length(dots))){
+    # get the AST of each call and unlist it
+    names_s <- c(names_s, getAST(dots[[n]]) %>% unlist(.) %>% 
+    # make it a vector of strings
+    purrr::map_chr(~ rlang::quo_text(.x)) %>%
+    dplyr::intersect(segments_cols))  
+  }
+ unique(names_s)
+  
+}
+
+# add a column to an empty table
+#https://community.rstudio.com/t/cannot-add-column-to-empty-tibble/1903/11
+hd_add_column <- function(data, ..., before = NULL, after = NULL) {
+    if (nrow(data) == 0L) {
+        return(tibble::tibble(...))
+    }
+    return(tibble::add_column(data, ..., before, after))
+}
 
 
 decimals <- function(x) match(TRUE, round(x, 1:20) == x)

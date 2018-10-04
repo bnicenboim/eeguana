@@ -99,7 +99,19 @@ segment.eegbl <- function(x, ..., lim = c(-.5,.5), unit = "seconds"){
   #dots <- rlang::quos(description == "s121")
   #dots <- rlang::quos(description == "s70")
   #dots <- rlang::quos(description %in% c("s70",s71"))
-  
+
+  # the segmentation will ignore the groups:
+  orig_groups <- list()
+  orig_groups$signal <- dplyr::groups(x$signal)
+  orig_groups$events <- dplyr::groups(x$events)
+  orig_groups$segments <- dplyr::groups(x$segments)
+
+  x$signal <- dplyr::ungroup(x$signal)
+  x$events <- dplyr::ungroup(x$events)
+  x$segments <- dplyr::ungroup(x$segments)
+
+
+
  times0 <- dplyr::filter(x$events, !!!dots) %>% 
                   dplyr::select(-channel, -size) 
 
@@ -124,7 +136,6 @@ segment.eegbl <- function(x, ..., lim = c(-.5,.5), unit = "seconds"){
                             }
                               round(l * scaling) %>% as_integer } 
                             )
-  x$signal <- dplyr::ungroup(x$signal)
   x$signal <- purrr::pmap_dfr(list(times0$.id,  times0$sample, slim), .id = ".id",
 
                                     function(i, s0, sl) x$signal %>% 
@@ -140,7 +151,6 @@ segment.eegbl <- function(x, ..., lim = c(-.5,.5), unit = "seconds"){
   slim <- purrr::map2(slim, split(x$signal, x$signal$.id), function(sl,d) { 
                               sl <- c(min(d$sample) - 1L, max(d$sample) - 1L) 
                             })
- x$events <- dplyr::ungroup(x$events)
  x$events <- purrr::pmap_dfr(list(times0$.id, times0$sample, slim), .id = ".id",
                     function(i, s0, sl){ 
                       #bound according to the segment
@@ -164,16 +174,16 @@ segment.eegbl <- function(x, ..., lim = c(-.5,.5), unit = "seconds"){
   message(paste0("# Total of ", max(x$signal$.id)," segments found."))
  
   x$segments <-  dplyr::right_join(x$segments, dplyr::select(times0,-sample), by =".id") %>%
-    dplyr::ungroup() %>%  dplyr::mutate(.id = 1:n()) %>% 
+                dplyr::mutate(.id = 1:n()) %>% 
                 dplyr::group_by(recording) %>% 
                 dplyr::mutate(segment = 1:n())
 
-  # x$signal <- dplyr::group_by(x$signal, .id)
-  # x$events <- dplyr::group_by(x$events, .id)
-  # x$segments <- dplyr::group_by(x$segments, .id)
+  x$signal <- dplyr::group_by(x$signal, !!!orig_groups$signal)
+  x$events <- dplyr::group_by(x$events, !!!orig_groups$events)
+  x$segments <- dplyr::group_by(x$segments, !!!orig_groups$segments)
+
   message(paste0(say_size(x)," after segmentation."))
-  # validate_eegbl(x)
-  x
+  validate_eegbl(x)
 }
 
 
@@ -196,10 +206,13 @@ baseline <- function(x, ...) {
 
 #' @export
 baseline.eegbl <- function(x, t = -Inf) {
+
+  orig_groups <- dplyr::groups(x$signal)
   s <- t * srate(x)
   x$signal <- dplyr::group_by(x$signal, .id) %>% 
             dplyr::mutate_at(channel_names(x), 
                     dplyr::funs( . - mean(.[dplyr::between(sample, s, 0  )])))
+  x$signal <- dplyr::group_by(x$signal, !!!orig_groups$signal)
   x
 }            
 

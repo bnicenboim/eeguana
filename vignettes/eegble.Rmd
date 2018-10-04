@@ -38,11 +38,8 @@ BrainVision 2.0 exports three files: `faces.vhdr`, `faces.vmrk`, and
 two files, `faces.vmrk` contains the triggers and other events in the samples,
 and `faces.dat` contains the signals at every sample for every channel recorded.
 
-We are going to use `eegble` together with `dplyr` functions:
 
 ```{r libs, message = FALSE}
-library(purrr)
-library(ggplot2)
 library(eegble)
 ```
 
@@ -132,7 +129,7 @@ several subjects.
 
 We can see here the N170 component in the faces condition for the average trial
 on a single participant. We can investigate the signal by averaging the channels
-of the occipital and parietal lobes using the capabilities inherited from `dplyr`.
+of the occipital and parietal lobes using the capabilities inherited from `dplyr`, and the special function, `channelMeans`, a wrapper for `rowMeans`, which takes as arguments the eegble object, the channels, and whether missing values should be omitted from the calculations.
 
 <!-- `dplyr` together with `pmap_dbl` from `purrr`. (Here `pmap_dbl` is taking three column and doing the rowwise mean of them taking into account NAs, the first example `pmap_dbl(list(O1,  O2,  Oz), mean , na.rm = TRUE)` would be equivalent to `(O1 + O2 + Oz)/3` if we were sure there are no `NA`s). -->
 
@@ -144,8 +141,8 @@ Occipital = pmap_dbl(list(O1,  O2,  Oz), mean, na.rm = TRUE),
                                                               
 ```{r, fig.dim = c(10,15), out.width = "100%"}
 faces_segs_some %>%  
-                transmute(Occipital = (O1 + O2 + Oz)/3,
-                          Parietal = (P3+ P4 + P7 + P8 + Pz)/5 ) %>% 
+                transmute(Occipital = channelMeans(., O1, O2, Oz, na.rm = TRUE),
+                          Parietal = channelMeans(., P3, P4, P7,  P8, Pz, na.rm = TRUE)) %>% 
                 plot_gg() + 
                 geom_line(alpha = .1, aes(group = .id, color = condition)) +
                 stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1, 
@@ -167,13 +164,13 @@ faces_segs_some %>% segment(description %in% c("s70", "s71"), lim = c(.1,.2)) %>
 
 
 
-For more specialized plots or analyses, the data can be extracted in long data
-frame format first. For example, we can visualize independent t-tests (or some
-other statistics) at every electrode and time point. Since we are going to plot
-the data, we can safely thin the samples when we transform them into a long data
-frame.
+For more specialized plots or analyses, it might be necessary to extract the data  in long data
+frame format first. For example, here, we visualize independent t-tests (or some
+other statistics) at every electrode and time point. 
 
 ```{r}
+
+
 df <- faces_segs_some %>% 
       select(O1, O2, P7, P8) %>%
       as_tibble %>%
@@ -193,8 +190,23 @@ ggplot(df, aes(x = time, y = `t-value`)) + geom_line() +
                 facet_wrap(~ channel) 
 ```
 
+However, this can be also done in the without transforming the `eegble` object:
 
+```{r}
+faces_segs_some_t <- 
+  faces_segs_some %>% 
+      select(O1, O2, P7, P8) %>%
+      group_by(sample) %>% 
+      summarize_all(funs(t = t.test(.[condition == "faces"],
+          .[condition == "non-faces"])$statistic))
 
+  plot_gg(faces_segs_some_t) + 
+                geom_line(alpha = .1, aes(group = .id)) +
+                stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1) +
+                facet_wrap(~ channel) + 
+                theme(legend.position = "bottom") 
+
+```
 
 <!-- https://github.com/hrbrmstr/ggalt/blob/master/R/geom_lollipop.r -->
 

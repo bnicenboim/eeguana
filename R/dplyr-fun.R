@@ -95,21 +95,32 @@ summarise_.eegbl<- function(.data, ..., .dots = list()) {
   signal_groups <- dplyr::groups(.data$signal)
 
 
+  #if there is something conditional on segments (O[condition == "faces"],
+  # I should add them to the signal df temporarily
+  add_cols <- names_segments_col(.data, dots)
+  if(length(add_cols) > 0){
+    .data$signal <- dplyr::left_join(.data$signal,
+                        dplyr::select(dplyr::ungroup(.data$segments), .id, add_cols), 
+                                  by = ".id")
+ }
+
   .data$signal <- do_based_on_grps(.df = .data$signal, 
                             ext_grouping_df = .data$segments, 
                             dplyr_fun = dplyr::summarize, 
                             dots = dots) %>%
-                    dplyr::ungroup() %>%
+                    dplyr::ungroup()  %>% 
                     dplyr::mutate(sample = if("sample"  %in% tbl_vars(.))
                                               sample else NA_integer_) %>%
                     dplyr::group_by(sample) %>%
                     dplyr::mutate(.id = seq(dplyr::n()) %>% as.integer) %>%
                     dplyr::group_by(!!!signal_groups)
 
+  last_id <- max(.data$signal$.id)
+
   .data$segments <- dplyr::summarize(.data$segments) %>%
                     dplyr::ungroup() %>% 
-                    dplyr::mutate(.id = seq(dplyr::n()) %>% as.integer,
-                                recording = if("recording"  %in% tbl_vars(.))
+                    hd_add_column(.id = seq(last_id) %>% as.integer) %>%
+                    dplyr::mutate(recording = if("recording"  %in% tbl_vars(.))
                                               recording else NA_character_) %>%
                     dplyr::select(.id, dplyr::everything()) %>%
                     dplyr::group_by(recording) %>%
