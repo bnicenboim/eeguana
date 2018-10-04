@@ -79,11 +79,11 @@ names_segments_col <- function(.eegbl, dots){
 
 # add a column to an empty table
 #https://community.rstudio.com/t/cannot-add-column-to-empty-tibble/1903/11
-hd_add_column <- function(data, ..., .before = NULL, .after = NULL) {
-    if (nrow(data) == 0L) {
+hd_add_column <- function(.data, ..., .before = NULL, .after = NULL) {
+    if (nrow(.data) == 0L) {
         return(tibble::tibble(...))
     }
-    return(tibble::add_column(data, ..., .before, .after))
+    return(tibble::add_column(.data, ..., .before = .before, .after = .after))
 }
 
 
