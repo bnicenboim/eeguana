@@ -129,6 +129,11 @@ nsamples.eegbl <- function(x){
 #' 
 #' @importFrom magrittr %>%
 #' 
+#' @examples
+#' \dontrun{
+#'
+#' faces_segs_some %>% count_complete_cases(recording, description)
+#' }
 #' @export
 count_complete_cases <- function(x, ...){
   UseMethod("count_complete_cases")
