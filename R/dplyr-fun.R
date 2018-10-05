@@ -204,10 +204,10 @@ rename.eegbl <- function (.data, ...) {
 select_rename <- function(.data, select = TRUE,...){
   if(select) {
     vars_fun <- tidyselect::vars_select
-    dplyr_fun <- dplyr::select
+    # dplyr_fun <- dplyr::select
   } else {
     vars_fun <- tidyselect::vars_rename
-    dplyr_fun <- dplyr::rename
+    # dplyr_fun <- dplyr::rename
   }
    dots <- rlang::enquos(...)
    #dots <- rlang::quos(xx =Fp1, yy = Cz) 
@@ -226,7 +226,7 @@ select_rename <- function(.data, select = TRUE,...){
                         # by adding these groups, select won't remove the obligatory columns
                         dplyr::group_by_at(vars(obligatory_cols[[dfs]]), add = TRUE) %>% 
                         # silences the message: Adding missing grouping variables: `.id`, `sample`
-                        dplyr_fun(vars_dfs) %>%
+                        dplyr::select(vars_dfs) %>%
                         dplyr::group_by(!!!orig_groups) 
                                                                   
      }
@@ -234,7 +234,6 @@ select_rename <- function(.data, select = TRUE,...){
 
   update_chans(.data) %>% validate_eegbl 
 } 
-
 
  
 

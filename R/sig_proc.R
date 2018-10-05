@@ -1,3 +1,70 @@
+#' Butterworth IIR filter
+#'
+#' Apply a Butterworth IIR filter using
+#' \code{signal::filt_filt}, which filters the signal twice to - once forwards,
+#' then again backwards). Based on Matt Craddock's code of \code{eegUtils} \email{matt@@mattcraddock.com}.
+#'
+#' low and high are passband edges. Pass low freq or high freq alone
+#' to perform high-pass or low-pass filtering respectively. For band-pass or
+#' band-stop filters, pass both low and high.
+#'
+#' If low < high, bandpass filtering is performed.
+#'
+#' If low > high, bandstop filtering is performed.
+#'
+#' @author 
+#' @param x A channel.
+#' @param low Low frequency passband edge.
+#' @param high High frequency passband edge.
+#' @param order Filter order.
+#' @param ... Other parameters passed.
+#' 
+#' 
+#'
+#' 
+
+iir_filt <- function(x,
+                                low = NULL,
+                                high = NULL,
+                                order = 4,
+                                srate) {
+  srate <- srate
+  get('sample', envir = parent.frame(), inherit = TRUE)
+
+
+  if(is.null(low) & is.numeric(high)){  # Low pass filter
+    type <- "low"
+    # message(sprintf("Low-pass IIR filter at %.4g Hz", high))
+    W <- high / (srate / 2)
+  } else if (is.null(high) & is.numeric(low)){# High pass filter
+    type <- "high"
+    # message("High-pass IIR filter at ", low," Hz")
+    W <- low / (srate / 2)
+    x <- x - mean(x)
+  } else if(low < high){ # Band-pass filter
+    # message(sprintf("Band-pass IIR filter from %.4g-%.4g Hz",
+              # low, high))
+    type <- "pass"
+    W <- c(low / (srate / 2), high / (srate / 2))
+    x <- x - mean(x)
+  } else if(low > high) { # Band-stop filter
+    # message(sprintf("Band-stop IIR filter from %.4g-%.4g Hz",
+    #           high, low))
+    type <- "stop"
+    W <- c(high / (srate / 2), low / (srate / 2))
+    x <- x - mean(x)
+  } else {
+    stop("Incorrect low/high frequencies")
+  }
+
+        #filtfilt filters twice, so effectively doubles filter_order - we half it here
+      #so that it corresponds to the expectation of the user
+      order <- round(order / 2)
+      filt <- signal::butter(order, W, type = type)
+      signal::filtfilt(filt, x)
+}
+
+
 #' Rereference channel.
 #' 
 #' This function is meant to be used together with \code{mutate} or \code{mutate_all}. See the example
@@ -149,7 +216,7 @@ resample <- function(x, srate = NULL, max_sample = NULL, method = "pchip", ...) 
   1:nsamples
 
   warning("# Use with caution, downsampling is based on decimate from the signal package, which might be outdated")
-  message(paste0("# Downsampling from ", srate(x), "Hz to ",
+  message(paste0("# Resampling from ", srate(x), "Hz to ",
                  new_srate, "Hz."))
 
 
