@@ -238,12 +238,12 @@ select_rename <- function(.data, select = TRUE,...){
  
 
 #' @export
-left_join.eegbl <- function(x, y, by = NULL, suffix= c(".x", ".y"), ...){
+left_join.eegbl <- function(x, y, by = NULL, copy = FALSE, suffix= c(".x", ".y"), ...){
   # if(!is_eegble(x)) stop("x must be an eegble.")
   # df <-  attr(x, "act_on")
   # if(!df %in% c("segments","events")) stop("x must be act_on segments or events.")
   
-  x[["segments"]] <-  dplyr::left_join(x[["segments"]], y, by = NULL, suffix= c(".x", ".y"), ...)
+  x[["segments"]] <-  dplyr::left_join(x[["segments"]], y = y,  by = by, copy = copy, suffix= c(".x", ".y"), ...)
   
   validate_eegbl(x)
   
