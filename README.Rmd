@@ -1,11 +1,8 @@
 ---
-title: "eegble"
-output:
-  html_document:
-    keep_md: true
+output: github_document
 ---
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
@@ -107,7 +104,7 @@ With some "regular" `ggplot` skills, we can create customized plots. `plot_gg`
 thins the signals (by default), converts them to a long-format data frame that is
 feed into `ggplot` object. This object can then be customized. 
 
-```{r, fig.dim = c(10,15), out.width = "100%"}
+```{r plot, fig.dim = c(10,15), out.width = "100%", results = "hide",fig.show = 'hide'}
 faces_segs_some %>% 
                   select(O1, O2, P7, P8) %>% 
                   plot_gg(faces_segs_some) + 
@@ -120,12 +117,16 @@ faces_segs_some %>%
                 theme(legend.position = "bottom") 
 ```
 
+ ![](man/figures/README-plot-1.png)
+
+
 Another possibility is to create a topographic plot of the two conditions, by
 first making segments that include only the interval .1--.2 *s* after the onset
 of the stimuli.
 
-```{r, fig.dim = c(10,5), out.width = "100%"}
+```{r topo, fig.dim = c(10,5), out.width = "100%", results = "hide",fig.show = 'hide'}
 faces_segs_some %>% segment(description %in% c("s70", "s71"), lim = c(.1,.2)) %>%
                     plot_topo()
 ```
 
+![](man/figures/README-topo-1.png)

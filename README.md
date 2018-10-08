@@ -1,43 +1,28 @@
----
-title: "eegble"
-output:
-  html_document:
-    keep_md: true
----
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
-
-# eegble
+eegble
+======
 
 A package for flexible manipulation of EEG data.
 
-## Installation
+Installation
+------------
 
-There is still **no** released version of eegble.  The package is in the early stages of development, and it may be subject to a lot of changes. To install the latest version from bitbucket use:
-
+There is still **no** released version of eegble. The package is in the early stages of development, and it may be subject to a lot of changes. To install the latest version from bitbucket use:
 
 ``` r
 devtools::install_bitbucket("bnicenboim/eegbl", build_vignettes = TRUE, auth_user="user-name",password="password")
-
 ```
 
-## Example
+Example
+-------
 
-The functions of eegble can be used on already pre-processed (i.e.,
-filtering, artifact rejects, ICA, etc has already beed done) EEG files (at least for now).
-The package mainly provides dplyr-like functions to manipulate the EEG data, and ggplot wrapper functions.
+The functions of eegble can be used on already pre-processed (i.e., filtering, artifact rejects, ICA, etc has already beed done) EEG files (at least for now). The package mainly provides dplyr-like functions to manipulate the EEG data, and ggplot wrapper functions.
 
-
-Here, I
-exemplify this with (preprocessed) EEG data from a simple experiment using BrainVision 2.0, where a
-participant was presented 100 faces and 100 assorted images in random order. The
-task of the experiment was to mentally count the number of faces.
+Here, I exemplify this with (preprocessed) EEG data from a simple experiment using BrainVision 2.0, where a participant was presented 100 faces and 100 assorted images in random order. The task of the experiment was to mentally count the number of faces.
 
 First we download the data:
 
-
-```r
+``` r
 download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.vhdr", 
               "faces.vhdr", mode="wb")
 download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.vmrk", 
@@ -46,32 +31,24 @@ download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.dat",
               "faces.dat", mode="wb")
 ```
 
-BrainVision 2.0 exports three files: `faces.vhdr`, `faces.vmrk`, and
-`faces.dat`. The file `faces.vhdr` contains the metadata and links to the other
-two files, `faces.vmrk` contains the triggers and other events in the samples,
-and `faces.dat` contains the signals at every sample for every channel recorded.
+BrainVision 2.0 exports three files: `faces.vhdr`, `faces.vmrk`, and `faces.dat`. The file `faces.vhdr` contains the metadata and links to the other two files, `faces.vmrk` contains the triggers and other events in the samples, and `faces.dat` contains the signals at every sample for every channel recorded.
 
-
-
-```r
+``` r
 library(eegble)
 ```
 
 We first need to read the data:
 
-
-```r
+``` r
 faces <- read_vhdr("faces.vhdr")
 #> # Data from faces.dat was read.
 #> # Data from 1 segment(s) and 34 channels was loaded.
 #> # Object size in memory 147 MB
 ```
 
-The function `read_vhdr` creates a list with data frames for the signal, events,
-segments, and channels information, and a list for generic EEG information.
+The function `read_vhdr` creates a list with data frames for the signal, events, segments, and channels information, and a list for generic EEG information.
 
-
-```r
+``` r
 faces
 #> $signal
 #> # A tibble: 525,207 x 36
@@ -143,14 +120,9 @@ faces
 #> [1] "eegbl"
 ```
 
-Some intervals were marked as "bad" by BrainVision, and so we'll remove them
-from the data. We'll also segment and baseline the data. In this experiment, the
-trigger "s70" was used for faces and "s71" for no faces. We'll segment the data
-using these two triggers.
+Some intervals were marked as "bad" by BrainVision, and so we'll remove them from the data. We'll also segment and baseline the data. In this experiment, the trigger "s70" was used for faces and "s71" for no faces. We'll segment the data using these two triggers.
 
-
-
-```r
+``` r
 faces_segs <- faces %>% 
                segment(description %in% c("s70", "s71"), 
                         lim = c(-.2,.25)) %>%
@@ -160,12 +132,9 @@ faces_segs <- faces %>%
 #> # Object size in memory 12.7 MB after segmentation.
 ```
 
+We can also edit the segmentation information and add more descriptive labels. `eegble` has wrappers for many `dplyr` commands for the EEG data. These commands always return the entire `eegble` object so that they can be piped using `magrittr`'s pipe, `%>%`.
 
-We can also edit the segmentation information and add more descriptive labels.
-`eegble` has wrappers for many `dplyr` commands for the EEG data.  These commands always return the entire `eegble` object so that they can be piped using `magrittr`'s pipe, `%>%`.
-
-
-```r
+``` r
 faces_segs_some <- faces_segs %>%  
                   mutate(condition =
                   if_else(description == "s70", "faces", "non-faces")) %>% 
@@ -252,12 +221,9 @@ faces_segs_some
 #> [1] "eegbl"
 ```
 
-With some "regular" `ggplot` skills, we can create customized plots. `plot_gg`
-thins the signals (by default), converts them to a long-format data frame that is
-feed into `ggplot` object. This object can then be customized. 
+With some "regular" `ggplot` skills, we can create customized plots. `plot_gg` thins the signals (by default), converts them to a long-format data frame that is feed into `ggplot` object. This object can then be customized.
 
-
-```r
+``` r
 faces_segs_some %>% 
                   select(O1, O2, P7, P8) %>% 
                   plot_gg(faces_segs_some) + 
@@ -271,19 +237,15 @@ faces_segs_some %>%
 #> Adding missing grouping variables: `.id`, `sample`
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
+![](man/figures/README-plot-1.png)
 
-Another possibility is to create a topographic plot of the two conditions, by
-first making segments that include only the interval .1--.2 *s* after the onset
-of the stimuli.
+Another possibility is to create a topographic plot of the two conditions, by first making segments that include only the interval .1--.2 *s* after the onset of the stimuli.
 
-
-```r
+``` r
 faces_segs_some %>% segment(description %in% c("s70", "s71"), lim = c(.1,.2)) %>%
                     plot_topo()
 #> # Total of 200 segments found.
 #> # Object size in memory 2.88 MB after segmentation.
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
-
+![](man/figures/README-topo-1.png)
