@@ -130,3 +130,9 @@ faces_segs_some %>% segment(description %in% c("s70", "s71"), lim = c(.1,.2)) %>
 ```
 
 ![](man/figures/README-topo-1.png)
+
+## See also:
+
+* [eegUtils](https://github.com/craddm/eegUtils ) some helper utilities for plotting and processing EEG data in in active development by Matt Craddock.
+* [erpR] (https://cran.r-project.org/web/packages/erpR/index.html)  analysis of event-related potentials (ERPs) by Giorgio Arcara, Anna Petrova. It hasn't been updated since 2014.
+
