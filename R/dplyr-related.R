@@ -1,6 +1,8 @@
 #'  For the by sample (or by row) mean of the specified channels.
 #'
 #' Wrapper of rowMeans
+#' 
+#' @family finance
 #'
 #' @export
 channelMeans <- function(x, ..., na.rm = FALSE) {

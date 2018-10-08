@@ -1,3 +1,4 @@
+#' @noRd
 redo_indices <- function(.eegbl) {
   redo_indices_df <- function(df) {
     orig_groups <- dplyr::groups(df)
@@ -13,6 +14,7 @@ redo_indices <- function(.eegbl) {
 }
 
 # this function basically applies a dplyr function (dplyr_fun) to $signal based on groups of segments (ext_grouping_df)
+#' @noRd
 do_based_on_grps <- function(.df, ext_grouping_df, dplyr_fun, dots) {
   int_groups <- dplyr::groups(.df)
   ext_group_names <- dplyr::group_vars(ext_grouping_df)

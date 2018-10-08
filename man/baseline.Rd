@@ -9,7 +9,7 @@ baseline(x, ...)
 \arguments{
 \item{x}{An \code{eegble} object.}
 
-\item{t}{A negative number indicating from when to baseline 
+\item{t}{A negative number indicating from when to baseline
 (TO COMPLETE). The default is to use all the negative times.}
 }
 \value{

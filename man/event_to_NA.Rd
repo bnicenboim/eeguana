@@ -11,10 +11,10 @@ event_to_NA(x, ...)
 
 \item{...}{Description of the problematic event.}
 
-\item{all_chans}{If set to TRUE, 
+\item{all_chans}{If set to TRUE,
 it will consider samples from all channels (Default:  all_chans = FALSE).}
 
-\item{entire_seg}{If set to FALSE, it will consider only the marked part of the segment, 
+\item{entire_seg}{If set to FALSE, it will consider only the marked part of the segment,
 otherwise it will consider the entire segment (Default: entire_seg = TRUE).}
 
 \item{drop_events}{}
