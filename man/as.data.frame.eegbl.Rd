@@ -12,10 +12,6 @@
 `as_data_frame` and `as.tibble` are aliases.}
 
 \item{x}{An \code{eegble} object.}
-
-\item{add_segments}{}
-
-\item{thinning}{}
 }
 \value{
 A tibble.

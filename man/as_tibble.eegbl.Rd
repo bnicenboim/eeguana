@@ -18,10 +18,6 @@ as.tibble.eegbl(x, ..., thinning = NULL, add_segments = TRUE)
 \item{...}{Other arguments passed on to individual methods.
 
 `as_data_frame` and `as.tibble` are aliases.}
-
-\item{thinning}{}
-
-\item{add_segments}{}
 }
 \value{
 A tibble.

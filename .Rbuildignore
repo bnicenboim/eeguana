@@ -1,4 +1,9 @@
+^LICENSE\.md$
 ^README\.Rmd$
 ^codemeta\.json$
+^CONTRIBUTE\.md$
+experimental
+^faces.*
+^before.*
 ^.*\.Rproj$
 ^\.Rproj\.user$
