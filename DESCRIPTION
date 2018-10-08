@@ -4,6 +4,8 @@ Title: A package for flexible manipulation of EEG data
 Version: 0.0.2.9000
 Authors@R: person("Bruno", "Nicenboim", email = "bruno.nicenboim@example.com", role = c("aut", "cre"))
 Description: Flexible data manipulation of EEG data.
+URL: https://bitbucket.org/bnicenboim/eegbl/src/master/
+BugReports: https://bitbucket.org/bnicenboim/eegbl/issues
 License: MIT
 Encoding: UTF-8
 RoxygenNote: 6.0.1

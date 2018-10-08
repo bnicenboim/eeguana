@@ -6,4 +6,4 @@
 #' @docType package
 #' @name eegble
 NULL
-#> NULL
+# > NULL
