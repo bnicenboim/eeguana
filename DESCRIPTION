@@ -2,7 +2,9 @@ Package: eegble
 Type: Package
 Title: A package for flexible manipulation of EEG data
 Version: 0.0.2.9000
-Authors@R: person("Bruno", "Nicenboim", email = "bruno.nicenboim@example.com", role = c("aut", "cre"))
+Authors@R: c(
+    person("Bruno", "Nicenboim", email = "bruno.nicenboim@uni-potsdam.de", role = c("aut", "cre")),
+    person("Kate", "Stone", email = "kate.stone@uni-potsdam.de", role = "ctb"))
 Description: Flexible data manipulation of EEG data.
 URL: https://bitbucket.org/bnicenboim/eegbl/src/master/
 BugReports: https://bitbucket.org/bnicenboim/eegbl/issues

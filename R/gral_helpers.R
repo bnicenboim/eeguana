@@ -175,10 +175,11 @@ validate_eegbl <- function(x) {
     )
   }
 
+  validate_signal(x$signal)
+
   # USE obligatory_cols to validate
   if (!all(
-    names(x$signal)[1] == ".id",
-    names(x$signal)[2] == "sample",
+
     names(x$segments)[1] == ".id",
     names(x$events)[1] == ".id"
   )) {
@@ -187,8 +188,6 @@ validate_eegbl <- function(x) {
     )
   }
   if (!all(
-    is.integer(x$signal$.id),
-    is.integer(x$signal$sample),
     is.integer(x$segments$.id),
     is.integer(x$events$.id)
   )) {
@@ -213,6 +212,24 @@ validate_eegbl <- function(x) {
   x
 }
 
+validate_signal <- function(signal) {
+
+    if(!".id" %in% names(signal)){
+      stop("Missing .id in signal table",
+      call. = FALSE)
+    }
+    if(!"sample" %in% names(signal)){
+      stop("Missing sample in signal table",
+      call. = FALSE)
+    }  
+  if (!all(
+    is.integer(signal$.id),
+    is.integer(signal$sample)
+  )) {
+    warning(".id or sample are not integers.")
+  }
+  signal
+}
 
 obligatory_cols <- list(
   signal = c(".id", "sample"),
