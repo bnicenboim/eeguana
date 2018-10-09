@@ -1,68 +1,95 @@
-#' Butterworth IIR filter
+#' Butterworth IIR filters.
 #'
-#' Apply a Butterworth IIR filter using
-#' \code{signal::filt_filt}, which filters the signal twice to - once forwards,
-#' then again backwards). Based on Matt Craddock's code of \code{eegUtils} \email{matt@@mattcraddock.com}.
+#' Apply a Butterworth IIR filter using \code{signal::filt_filt}, which
+#' filters the signal twice (once forwards, then again backwards). Based on
+#' Matt Craddock's code of \code{eegUtils} \email{matt@mattcraddock.com}.
 #'
-#' low and high are passband edges. Pass low freq or high freq alone
-#' to perform high-pass or low-pass filtering respectively. For band-pass or
-#' band-stop filters, pass both low and high.
+#' \itemize{
+#' \item \code{filt_low_pass_ch()} Low-pass or high-cut filter.
+#' \item \code{filt_high_pass_ch()} High-pass or low-cut filter.
+#' \item \code{filt_band_pass_ch()} Band-pass filter.
+#' \item \code{filt_stop_pass_ch()} Stop-pass filter.
+#' }
 #'
-#' If low < high, bandpass filtering is performed.
-#'
-#' If low > high, bandstop filtering is performed.
-#'
-#' @author
-#' @param x A channel.
-#' @param low Low frequency passband edge.
-#' @param high High frequency passband edge.
+#' @param channel A channel.
+#' @param band_edge A single cut frequency for \code{filt_low_pass_ch} and \code{filt_high_pass_ch}, two edges for  \code{filt_band_pass_ch} and \code{filt_stop_pass_ch}.
 #' @param order Filter order.
-#' @param ... Other parameters passed.
+#' @param ... The sample rate can be included as \code{srate}, when the function is called outside mutate/summarize. 
+#'
+#' @return A channel.
 #'
 #'
+#' @examples
+#' \dontrun{
 #'
-#'
+#' faces_segs %>% mutate_all(filt_low_pass_ch, band_edge = 5, order = 2)
+#' }
+#' @name filt
+NULL
+#> NULL
 
-iir_filt <- function(x,
-                     low = NULL,
-                     high = NULL,
-                     order = 4,
-                     srate) {
-  srate <- srate
-  get("sample", envir = parent.frame(), inherit = TRUE)
+#' @rdname filt
+#' @export
+filt_low_pass_ch <- function(channel, band_edge = NULL, order = 4, ...) {
+  if(length(band_edge)>1) stop("band_edge should contain only one frequency.")
+  type <- "low"
+  filt_ch(channel = channel, band_edge = band_edge, order = order, type = type,...)
+}
 
+#' @rdname filt
+#' @export
+filt_high_pass_ch <- function(channel, band_edge = NULL, order = 4, ...) {
+  if(length(band_edge)>1) stop("band_edge should contain only one frequency.")
+  type <- "high"
+  centered_channel <- channel - mean(channel)
+  filt_ch(channel = centered_channel, band_edge = band_edge, order = order, type = type,...)
+}
 
-  if (is.null(low) & is.numeric(high)) { # Low pass filter
-    type <- "low"
-    # message(sprintf("Low-pass IIR filter at %.4g Hz", high))
-    W <- high / (srate / 2)
-  } else if (is.null(high) & is.numeric(low)) { # High pass filter
-    type <- "high"
-    # message("High-pass IIR filter at ", low," Hz")
-    W <- low / (srate / 2)
-    x <- x - mean(x)
-  } else if (low < high) { # Band-pass filter
-    # message(sprintf("Band-pass IIR filter from %.4g-%.4g Hz",
-    # low, high))
-    type <- "pass"
-    W <- c(low / (srate / 2), high / (srate / 2))
-    x <- x - mean(x)
-  } else if (low > high) { # Band-stop filter
-    # message(sprintf("Band-stop IIR filter from %.4g-%.4g Hz",
-    #           high, low))
-    type <- "stop"
-    W <- c(high / (srate / 2), low / (srate / 2))
-    x <- x - mean(x)
-  } else {
-    stop("Incorrect low/high frequencies")
+#' @rdname filt
+#' @export
+filt_band_pass_ch <- function(channel, band_edge = NULL, order = 4, ...) {
+  if(length(band_edge) != 2) stop("band_edge should contain two frequency.")
+  if(band_edge[1] >= band_edge[2]) {
+    stop("The first argument of band_edge should be larger than the second one.")
   }
+  type <- "pass"
+  centered_channel <- channel - mean(channel)
+  filt_ch(channel = centered_channel, band_edge = band_edge, order = order, type = type,...)
+}
 
-  # filtfilt filters twice, so effectively doubles filter_order - we half it here
+#' @rdname filt
+#' @export
+filt_stop_pass_ch <- function(channel, band_edge = NULL, order = 4, ...) {
+  if(length(band_edge) != 2) stop("band_edge should contain two frequency.")
+  if(band_edge[1] <= band_edge[2]) {
+    stop("The second argument of band_edge should be larger than the first one.")  }
+  type <- "stop"
+  centered_channel <- channel - mean(channel)
+  filt_ch(channel = centered_channel, band_edge = band_edge, order = order, type = type,...)
+}
+
+
+filt_ch <- function(channel, band_edge = NULL, order = 4, type, ...){
+  args <- list(...)
+  if(!"srate" %in% names(args)){ #if it's empty it will be taken from the attributes of sample
+      #Black magic to extract sample columns and its attribute srate that has the srate of the eegble object:  
+      signal_env <- rlang::env_get(env = parent.frame(2), '.top_env', inherit = TRUE)
+      sample <- rlang::env_get(signal_env, "sample")
+
+      srate <- attributes(sample)$srate
+      print(srate)
+    } else {
+      srate <- args$srate
+    }
+  W <- band_edge / (srate / 2)
+
+  # filtfilt filters twice, so effectively doubles filt_order - we half it here
   # so that it corresponds to the expectation of the user
   order <- round(order / 2)
-  filt <- signal::butter(order, W, type = type)
-  signal::filtfilt(filt, x)
+  filt <- signal::butter(n = order, W = W, type = type)
+  signal::filtfilt(filt, channel)
 }
+
 
 
 #' Rereference channel.
