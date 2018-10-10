@@ -15,8 +15,6 @@ read_vhdr(file, sep = type == "New Segment", zero = type == "Time 0",
 \item{zero}{Time zero marker. By default: type == "Time 0"}
 
 \item{recording}{Recording name, by default is the file name.}
-
-\item{ignore_segs}{Ignore BrainVision segmentation. By default, FALSE.}
 }
 \value{
 An \code{eegble} object with signal and event from file_name.dat,

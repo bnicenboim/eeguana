@@ -16,6 +16,18 @@
 NULL
 # > NULL
 
+#'
+#' @rdname info
+#' @export
+channel_names <- function(x, ...) {
+  UseMethod("channel_names")
+}
+
+#' @export
+channel_names.eegble <- function(x) {
+  setdiff(colnames(x$signal), reserved_cols_signal)
+}
+
 
 #'
 #' @rdname info
@@ -25,35 +37,28 @@ nchannels <- function(x, ...) {
 }
 
 #' @export
-nchannels.eegbl <- function(x) {
-  length(x$channels$labels)
+nchannels.eegble <- function(x) {
+  ncol(x$signal) - length(reserved_cols_signal)
 }
 
 
+## TILL HERE
 
 #'
 #' @rdname info
 #' @export
-channel_names <- function(x, ...) {
-  UseMethod("channel_names")
-}
-
-#' @export
-channel_names.eegbl <- function(x) {
-  levels(x$channels$labels)
-}
-
-#'
-#' @rdname info
-#' @export
-channels <- function(x, ...) {
+channels_tbl <- function(x, ...) {
   UseMethod("channels")
 }
 
 #' @export
-channels.eegbl <- function(x) {
-  x$channels
+channels_tbl.eegble <- function(x) {
+  # x$channels
+  #returns channels, locations and sampling_rate
 }
+
+
+
 
 
 
@@ -61,38 +66,13 @@ channels.eegbl <- function(x) {
 #'
 #' @rdname info
 #' @export
-info <- function(x, ...) {
-  UseMethod("info")
-}
-
-
-#' @export
-info.eegbl <- function(x) {
-  x$info
-}
-
-
-#'
-#' @rdname info
-#' @export
-srate <- function(x, ...) {
-  UseMethod("srate")
+sampling_rate <- function(x, ...) {
+  UseMethod("sampling_rate")
 }
 
 #' @export
-srate.eegbl <- function(x) {
-  x$info$srate
-}
-
-#' @rdname info
-#' @export
-reference <- function(x, ...) {
-  UseMethod("reference")
-}
-
-#' @export
-reference.eegbl <- function(x) {
-  x$info$reference
+sampling_rate.eegble <- function(x) {
+  attributes(x$signal$.sample_n)$sampling_rate
 }
 
 
@@ -102,11 +82,13 @@ reference.eegbl <- function(x) {
 duration <- function(x, ...) {
   UseMethod("duration")
 }
+
 #' @export
-duration.eegbl <- function(x) {
+duration.eegble <- function(x) {
   x$signal %>%
     dplyr::group_by(.id) %>%
-    dplyr::summarize(duration = (max(sample) - min(sample)) / srate(x)) %>%
+    dplyr::summarize(duration = (max(.sample_n) - min(.sample_n)) / 
+      sampling_rate(x)) %>%
     .$duration
 }
 
@@ -116,8 +98,8 @@ nsamples <- function(x, ...) {
   UseMethod("nsamples")
 }
 #' @export
-nsamples.eegbl <- function(x) {
-  duration(x) * srate(x)
+nsamples.eegble <- function(x) {
+  duration(x) * sampling_rate(x)
 }
 
 
@@ -136,12 +118,12 @@ nsamples.eegbl <- function(x) {
 #' faces_segs_some %>% count_complete_cases(recording, description)
 #' }
 #' @export
-count_complete_cases <- function(x, ...) {
+count_complete_cases_tbl <- function(x, ...) {
   UseMethod("count_complete_cases")
 }
 
 #' @export
-count_complete_cases.eegbl <- function(x, ...) {
+count_complete_cases_tbl.eegble <- function(x, ...) {
   dots <- rlang::enquos(...)
 
   x$signal %>%
@@ -156,26 +138,6 @@ count_complete_cases.eegbl <- function(x, ...) {
     dplyr::count(!!!dots)
 }
 
-#' Convert time to sample number.
-#'
-#' @param x An eegble.
-#' @param t A vector of times.
-#' @param unit "seconds" (or "s"), "milliseconds" (or "ms")
-#'
-#' @return A vector of sample numbers.
-#'
-#' @importFrom magrittr %>%
-#'
-#' @examples
-#' \dontrun{
-#'
-#' faces_segs_some %>% filter(between(sample, in_samples(., 100, unit = "ms"),
-#'                               in_samples(., 300, unit = "ms")))
-#' }
-#' @export
-in_samples <- function(x, t, unit = "seconds") {
-  t * scaling(x, unit)
-}
 
 
 
@@ -185,11 +147,11 @@ in_samples <- function(x, t, unit = "seconds") {
 #' @param ... Other options passed to print.tbl for the display of summaries.
 #'
 #' @export
-summary.eegbl <- function(object, ...) {
+summary.eegble <- function(object, ...) {
   dots <- rlang::enquos(...)
   message(paste0("# EEG data (eegble) from ", nchannels(object), " channels:"))
   message(paste0(channel_names(object), collapse = ", "))
-  message(paste0("# Sampling rate: ", srate(object), " Hz."))
+  message(paste0("# Sampling rate: ", sampling_rate(object), " Hz."))
 
   message(paste0("# Size in memory: ", capture.output(pryr::object_size(object)), "."))
 
@@ -201,7 +163,7 @@ summary.eegbl <- function(object, ...) {
 
   message("# Summary of events")
   object$events %>%
-    dplyr::group_by_at(dplyr::vars(-size, -channel, -sample, -.id)) %>%
+    dplyr::group_by_at(dplyr::vars(-.size, -.channel, -.sample_0, -.id)) %>%
     dplyr::count() %>%
     print(., !!!dots)
 
