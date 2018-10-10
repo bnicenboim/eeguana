@@ -18,7 +18,7 @@
 #'                          Parietal = chan_means(P3, P4, P7,  P8, Pz, na.rm = TRUE))
 #' }
 
-mean_by_sample_ch <- function(..., na.rm = FALSE) {
+chan_means <- function(..., na.rm = FALSE) {
 	dots <- rlang::enquos(...)
 
 	# This is the environment where I can find the columns of signal
@@ -28,25 +28,3 @@ mean_by_sample_ch <- function(..., na.rm = FALSE) {
 	rowMeans(dplyr::select(signal, !!!dots), na.rm = na.rm)
 }
 
-
-
-#' Convert time to sample number.
-#'
-#' @param x An eegble.
-#' @param t A vector of times.
-#' @param unit "seconds" (or "s"), "milliseconds" (or "ms")
-#'
-#' @return A vector of sample numbers.
-#'
-#' @importFrom magrittr %>%
-#'
-#' @examples
-#' \dontrun{
-#'
-#' faces_segs_some %>% filter(between(sample, in_samples(., 100, unit = "ms"),
-#'                               in_samples(., 300, unit = "ms")))
-#' }
-#' @export
-in_samples <- function(x, t, unit = "seconds") {
-  t * scaling(x, unit)
-}

@@ -2,27 +2,21 @@
 % Please edit documentation in R/out.R
 \name{info}
 \alias{info}
-\alias{nchannels}
 \alias{channel_names}
-\alias{channels}
-\alias{info}
-\alias{srate}
-\alias{reference}
+\alias{nchannels}
+\alias{channels_tbl}
+\alias{sampling_rate}
 \alias{duration}
 \alias{nsamples}
 \title{Display information of the eegble object.}
 \usage{
-nchannels(x, ...)
-
 channel_names(x, ...)
 
-channels(x, ...)
+nchannels(x, ...)
 
-info(x, ...)
+channels_tbl(x, ...)
 
-srate(x, ...)
-
-reference(x, ...)
+sampling_rate(x, ...)
 
 duration(x, ...)
 
