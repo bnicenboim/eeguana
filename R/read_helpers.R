@@ -52,12 +52,12 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
   colnames(raw_signal) <- header_info$chan_info$labels
 
+  # Adding the channel names to event table
   events <- add_event_channel(events, colnames(raw_signal))
 
-  raw_signal_samples <- tibble::tibble(.sample_n = 
-              1:nrow(raw_signal)) %>%
-    dplyr::bind_cols(raw_signal)
-
+  # Initial samples as in Brainvision
+  max_sample = nrow(raw_signal)
+  sample_id = seq.int(max_sample)
 
   # the first event can't be the end of the segment
   # and the last segment ends at the end of the file
@@ -67,7 +67,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
     {
       .$.sample_0 - 1
     } %>%
-    c(., nrow(raw_signal_samples))
+    c(., max_sample)
 
   beg_segs <- events %>% dplyr::filter(!!sep) %>% .$.sample_0
   # segs <- list(beg = beg_segs, t0 = t0, end = end_segs)
@@ -79,36 +79,21 @@ read_dat <- function(file, header_info = NULL, events = NULL,
   # In case the time zero is not defined
   if (length(s0) == 0) s0 <- beg_segs
 
-# bind_rows looses the attributes
-# https://github.com/tidyverse/dplyr/issues/2457
 
   # TODO, make the following faster,probably in c++?, or try data.table
-  signal <- purrr::pmap_dfr(list(beg_segs, s0, end_segs),
+  sample_id_ided <- purrr::pmap_dfr(list(beg_segs, s0, end_segs),
     .id = ".id",
-    function(b, s0, e) raw_signal_samples %>%
+    function(b, s0, e)  
         # filter the relevant samples
-        dplyr::filter(
-          .sample_n >= b,
-          .sample_n <= e
-        ) %>%
         # the first sample of a segment is 1
-        dplyr::mutate(.sample_n = .sample_n - s0 + 1L) %>%
-        # order the signal df:
-        dplyr::select(.sample_n, dplyr::everything())
-  ) %>%
-    dplyr::mutate(.id = as.integer(.id),
-      #needs to be added only after the bind_row implicit in purrr
-                  .sample_n = new_sample_n(.sample_n, 
-                            sampling_rate =  common_info$sampling_rate))
+        sample_id[dplyr::between(sample_id, b, e)] %>% 
+        {. - s0 + 1L} %>% list( .sample_id=.))
 
-  # I add the channel info now
-  signal[,colnames(raw_signal)] <- purrr::map2_dfc(
-    purrr::transpose(header_info$chan_info), signal[,colnames(raw_signal)], 
-    function(chan_info, sig) {
-      channel = new_channel(value = sig, as.list(chan_info)) }
-  )
-
-
+    signal <- new_signal(signal_matrix = raw_signal, ids = as.integer(sample_id_ided$.id),
+                           sample_ids = new_sample_id(sample_id_ided$.sample_id, 
+                            sampling_rate =  common_info$sampling_rate), 
+                           channel_info = header_info$chan_info )     
+ 
   seg_events <- segment_events(events, beg_segs, s0, end_segs)
 
   segments <- tibble::tibble(

@@ -189,14 +189,14 @@ vec_mean <- function(..., na.rm = FALSE) {
 
 scaling <- function(x, unit) {
   if (stringr::str_to_lower(unit) %in% c("s", "sec", "second", "seconds", "secs")) {
-    scaling <- srate(x)
+    scaling <- sampling_rate(x)
   } else if (stringr::str_to_lower(unit) %in% c(
     "ms", "msec", "millisecond",
     "milli second", "milli-second",
     "milliseconds", "milli seconds",
     "msecs"
   )) {
-    scaling <- srate(x) / 1000
+    scaling <- sampling_rate(x) / 1000
   } else if (stringr::str_to_lower(unit) %in% c("sam", "sample", "samples")) {
     scaling <- 1
   } else {

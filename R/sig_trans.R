@@ -21,28 +21,31 @@ event_to_NA <- function(x, ...) {
 }
 
 #' @export
-event_to_NA.eegbl <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
+event_to_NA.eegble <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
                               drop_events = TRUE) {
   dots <- rlang::enquos(...)
 
 
   # dots <- rlang::quos(type == "Bad Interval")
 
-  # Hack for match 2 columns with 2 columns, similar to semi_join but allowing for assignment
+  # Hack for match 2 columns with 2 columns, similar to semi_join but allowing 
+  #for assignment
   baddies <- dplyr::filter(x$events, !!!dots)
 
-  if (all_chans) baddies <- dplyr::mutate(baddies, channel = NA)
+  if (all_chans) baddies <- dplyr::mutate(baddies, .channel = NA)
 
   # For the replacement in parts of the segments
-  b_chans <- dplyr::filter(baddies, !is.na(channel)) %>% .$channel %>% unique()
+  b_chans <- dplyr::filter(baddies, !is.na(.channel)) %>% 
+              .$.channel %>% 
+              unique()
   for (c in b_chans) {
-    b <- dplyr::filter(baddies, channel == c & !is.na(channel))
+    b <- dplyr::filter(baddies, .channel == c & !is.na(.channel))
     if (!entire_seg) {
       for (i in seq(1, nrow(b))) {
         x$signal[[as.character(c)]][x$signal$.id %in% b$.id[i] &
           dplyr::between(
-            x$signal$sample, b$sample[i],
-            b$sample[i] + b$size[i] - 1
+            x$signal$.sample_id, b$.sample_0[i],
+            b$.sample_0[i] + b$.size[i] - 1
           )  ] <- NA
       }
       # could try with na_if, maybe it's faster?
@@ -51,14 +54,14 @@ event_to_NA.eegbl <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
     }
   }
   # For the replacement in the complete of the segments
-  b_all <- dplyr::filter(baddies, is.na(channel)) %>% dplyr::distinct()
+  b_all <- dplyr::filter(baddies, is.na(.channel)) %>% dplyr::distinct()
 
   if (!entire_seg & nrow(b_all) != 0) {
     for (i in seq(1, nrow(b_all))) {
       x$signal[, channel_names(x)][x$signal$.id == b_all$.id[i] &
         dplyr::between(
-          x$signal$sample, b_all$sample[i],
-          b_all$sample[i] + b_all$size[i] - 1
+          x$signal$.sample_id, b_all$.sample_0[i],
+          b_all$.sample_0[i] + b_all$.size[i] - 1
         ), ] <- NA
     }
   } else {
@@ -70,11 +73,11 @@ event_to_NA.eegbl <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
       x$events,
       dplyr::filter(x$events, !!!dots)
     )) %>%
-      dplyr::mutate(channel = forcats::lvls_expand(channel,
+      dplyr::mutate(.channel = forcats::lvls_expand(.channel,
         new_levels = channel_names(x)
       ))
   }
-  validate_eegbl(x)
+  validate_eegble(x)
 }
 
 
@@ -100,10 +103,11 @@ segment <- function(x, ...) {
 }
 
 #' @export
-segment.eegbl <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
+segment.eegble <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
   dots <- rlang::enquos(...)
   # dots <- rlang::quos(description == "s121")
   # dots <- rlang::quos(description == "s70")
+  # dots <- rlang::quos(description == "s13")
   # dots <- rlang::quos(description %in% c("s70",s71"))
 
   # the segmentation will ignore the groups:
@@ -116,10 +120,8 @@ segment.eegbl <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
   x$events <- dplyr::ungroup(x$events)
   x$segments <- dplyr::ungroup(x$segments)
 
-
-
   times0 <- dplyr::filter(x$events, !!!dots) %>%
-    dplyr::select(-channel, -size)
+    dplyr::select(-.channel, -.size)
 
   scaling <- scaling(x, unit)
 
@@ -142,26 +144,34 @@ segment.eegbl <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
     }
     round(l * scaling) %>% as_integer()
   })
-  x$signal <- purrr::pmap_dfr(list(times0$.id, times0$sample, slim),
-    .id = ".id",
 
+  #TODO: check when this bug is fixed, add the bug number now
+  # bug in bind_rows
+  list_of_attr <- purrr:::map(x$signal, ~ attributes(.x))
+  x$signal <- purrr:::map_dfc(x$signal, ~ unclass(.x))
+
+  x$signal <- purrr::pmap_dfr(list(times0$.id, times0$.sample_0, slim),
+    .id = ".id",
     function(i, s0, sl) x$signal %>%
         # filter the relevant samples
         dplyr::filter(
-          sample >= s0 + sl[1],
-          sample <= s0 + sl[2],
+          .sample_id >= s0 + sl[1],
+          .sample_id <= s0 + sl[2],
           .id == i
         ) %>%
-        dplyr::mutate(sample = sample - s0 + 1L) %>%
+        dplyr::mutate(.sample_id = .sample_id - s0 + 1L) %>%
         # order the signals df:
         dplyr::select(-.id)
   ) %>%
-    dplyr::mutate(.id = as.integer(.id))
+    dplyr::mutate(.id = as.integer(.id)) %>%
+    #add back the attributes
+    purrr:::map2_dfc( list_of_attr, ~ `attributes<-`(.x, .y))
 
   slim <- purrr::map2(slim, split(x$signal, x$signal$.id), function(sl, d) {
-    sl <- c(min(d$sample) - 1L, max(d$sample) - 1L)
+    sl <- c(min(d$.sample_id) - 1L, max(d$.sample_id) - 1L)
   })
-  x$events <- purrr::pmap_dfr(list(times0$.id, times0$sample, slim),
+
+  x$events <- purrr::pmap_dfr(list(times0$.id, times0$.sample_0, slim),
     .id = ".id",
     function(i, s0, sl) {
       # bound according to the segment
@@ -170,20 +180,20 @@ segment.eegbl <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
         # started after the segment (s0 + slim[1])
         # or span after the segment (s0 + slim[1])
         dplyr::filter(
-          sample + size - 1 >= s0 + sl[1],
-          sample <= s0 + sl[2],
+          .sample_0 + .size - 1 >= s0 + sl[1],
+          .sample_0 <= s0 + sl[2],
           .id == i
         ) %>%
         dplyr::mutate(
-          size = dplyr::if_else(
-            sample < s0 + sl[1],
-            as.integer(size - (s0 + sl[1] - sample) + 1L),
+          .size = dplyr::if_else(
+            .sample_0 < s0 + sl[1],
+            as.integer(.size - (s0 + sl[1] - .sample_0) + 1L),
             # adjust the size so that it doesn't spillover after the segment
-            size
-          ) %>% pmin(., sl[2] + 1L - sample + s0),
-          sample = dplyr::if_else(
-            sample < s0 + sl[1], sl[1] + 1L,
-            sample - s0 + 1L
+            .size
+          ) %>% pmin(., sl[2] + 1L - .sample_0 + s0),
+          .sample_0 = dplyr::if_else(
+            .sample_0 < s0 + sl[1], sl[1] + 1L,
+            .sample_0 - s0 + 1L
           )
         ) %>%
         dplyr::select(-.id)
@@ -193,46 +203,19 @@ segment.eegbl <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
 
   message(paste0("# Total of ", max(x$signal$.id), " segments found."))
 
-  x$segments <- dplyr::right_join(x$segments, dplyr::select(times0, -sample), by = ".id") %>%
-    dplyr::mutate(.id = 1:n()) %>%
-    dplyr::group_by(recording) %>%
-    dplyr::mutate(segment = 1:n())
+  x$segments <- dplyr::right_join(x$segments, 
+                        dplyr::select(times0, -.sample_0), by = ".id") %>%
+                dplyr::mutate(.id = 1:n()) %>%
+                dplyr::group_by(recording) %>%
+                dplyr::mutate(segment = 1:n())
 
   x$signal <- dplyr::group_by(x$signal, !!!orig_groups$signal)
   x$events <- dplyr::group_by(x$events, !!!orig_groups$events)
   x$segments <- dplyr::group_by(x$segments, !!!orig_groups$segments)
 
   message(paste0(say_size(x), " after segmentation."))
-  validate_eegbl(x)
+  validate_eegble(x)
 }
 
 
 
-#' Baseline an eegble.
-#'
-#' @param x An \code{eegble} object.
-#' @param t A negative number indicating from when to baseline
-#'    (TO COMPLETE). The default is to use all the negative times.
-#'
-#' @examples
-#' @return An eegbl.
-#'
-#' @importFrom magrittr %>%
-#'
-#' @export
-baseline <- function(x, ...) {
-  UseMethod("baseline")
-}
-
-#' @export
-baseline.eegbl <- function(x, t = -Inf) {
-  orig_groups <- dplyr::groups(x$signal)
-  s <- t * srate(x)
-  x$signal <- dplyr::group_by(x$signal, .id) %>%
-    dplyr::mutate_at(
-      channel_names(x),
-      dplyr::funs(. - mean(.[dplyr::between(sample, s, 0)]))
-    )
-  x$signal <- dplyr::group_by(x$signal, !!!orig_groups$signal)
-  x
-}

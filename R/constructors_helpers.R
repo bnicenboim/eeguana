@@ -1,4 +1,30 @@
-new_sample_n <- function(values, sampling_rate) {
+
+
+declass <- function(signal){
+  # extracting attributes
+  attr <- purrr:::imap(x$signal, ~ attributes(.x))
+
+  class(signal) <- class(signal)[-1]
+  #removes the classes of the sample_id and channels so that the attributes are ignored
+  declassed_signal <- mutate_all(signal, unclass) %>% 
+            purrr:::modify(signal, ~ `attributes<-`(.x, NULL))
+  list(tbl = declassed_signal, attr = attr )          
+}
+
+reclass <- function(tbl, attr) {
+  class(tbl) <- c("signal_tbl", class(tbl))
+  purrr:::imap_dfc(tbl, ~ `attributes<-`(.x,
+                     if(.y == ".id"){
+                        list("class"= NULL)
+                      } else if(.y %in% names(attr)) {
+                       attr[.y]
+                      } else {list("class" = "channel")}))
+
+}
+
+
+
+new_sample_id <- function(values, sampling_rate) {
   if(any(values != round(values))) {
     stop("Values should be round numbers.",
       call. = FALSE
@@ -8,21 +34,21 @@ new_sample_n <- function(values, sampling_rate) {
   }
   values <- unclass(values)
   structure(values,
-    class = "sample_n",
+    class = "sample_id",
     sampling_rate = sampling_rate
   )
 }
 
-validate_sample_n <- function(sample_n){
-  if (!is.integer(sample_n)){
+validate_sample_id <- function(sample_id){
+  if (!is.integer(sample_id)){
     stop("Values should be integers.",
       call. = FALSE)
   }
-  if(attributes(sample_n)$sampling_rate <=0){
+  if(attributes(sample_id)$sampling_rate <=0){
   stop("Attribute sampling_rate should be a positive value.",
       call. = FALSE)
   }
-  sample_n
+  sample_id
 }
 
 
@@ -51,7 +77,23 @@ validate_channel <- function(channel){
   channel
 }
 
+new_signal <- function(signal_matrix = matrix(), ids = c(), sample_ids = c(), channel_info= dplyr::tibble()) {
 
+  raw_signal <- dplyr::as_tibble(signal_matrix)
+
+ # I add the channel info now
+  raw_signal <- purrr::map2_dfc(
+    raw_signal, purrr::transpose(channel_info), 
+    function(sig, chan_info) {
+      channel = new_channel(value = sig, as.list(chan_info)) }
+  )
+
+   signal <-  tibble::tibble(.id = ids, .sample_id = sample_ids)   %>% 
+               dplyr::bind_cols(raw_signal)
+
+  class(signal) <- c("signal_tbl", class(signal))
+  signal
+}
 
 new_eegble <- function(signal = NULL, events = NULL, segments = NULL) {
   x <- list(
@@ -84,11 +126,11 @@ validate_signal <- function(signal) {
       call. = FALSE
     )
   }
-  # Validates sample_n
-  # validate_sample_n(signal$.sample_n)
+  # Validates sample_id
+  validate_sample_id(signal$.sample_id)
 
   # Validates channels
-  dplyr::select(signal, -.id, -.sample_n) %>%
+  dplyr::select(signal, -.id, -.sample_id) %>%
     purrr::walk( ~ validate_channel(.x))
 
   signal
@@ -129,5 +171,5 @@ validate_segments <- function(segments) {
 
 }
 
-reserved_cols_signal <- c(".id",".sample_n")
+reserved_cols_signal <- c(".id",".sample_id")
 

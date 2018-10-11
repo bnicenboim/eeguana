@@ -31,7 +31,7 @@ nsamples(x, ...)
 \item \code{chan_names()}: Returns a vector with the name of the channels.
 \item \code{channels()}: Returns a data frame (tibble) with information about the channels.
 \item \code{info()}: Returns a data frame (tibble) with information about the EEG recording.
-\item \code{srate()}: Returns the sampling rate.
+\item \code{sampling_rate()}: Returns the sampling rate.
 \item \code{reference()}: Returns the reference.
 \item \code{duration()}: Returns the duration of the recording (or segments).
 \item \code{nsamples()}: Returns the number of samples of the recording (or segments).

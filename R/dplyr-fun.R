@@ -29,7 +29,6 @@
 #' @param ... \code{signal}, \code{events} or \code{segments} for \code{act_on}, and see  \link{dplyr-package} for the different dplyr "verbs".
 #' @return An eegble object.
 #'
-#' @export
 #'
 #' @examples
 #' \dontrun{
@@ -60,8 +59,8 @@ mutate_transmute <- function(.data, mutate = TRUE, dots) {
   # dots <- rlang::quos(Occipital = (O1 + O2 + Oz)/3)
   new_dots <- dots_by_df(dots, .data)
 
-  # Adds the srate to a place that's visible inside .data$signal
-  attributes(.data$signal$sample)$srate <- .data$info$srate
+  # Adds the sampling_rate to a place that's visible inside .data$signal
+  attributes(.data$signal$sample)$sampling_rate <- .data$info$sampling_rate
 
   if (length(new_dots$signal) > 0) {
 
