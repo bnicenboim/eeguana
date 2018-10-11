@@ -94,8 +94,7 @@ bind <- function(...) {
 #'
 #' @export
 as_tibble.eegble <- function(x, ..., add_segments = TRUE) {
-  x$signal <- mutate_all(x$signal, unclass)
-  #TODO remove attributes
+  
   df <- x$signal %>%
     tidyr::gather(key = channel, value = amplitude, channel_names(x)) %>%
     {
@@ -110,6 +109,7 @@ as_tibble.eegble <- function(x, ..., add_segments = TRUE) {
     dplyr::select(-.sample_id, time, dplyr::everything())
   df
 }
+
 
 
 #' Convert an eegble into a summary long-data frame based on a statistics.
