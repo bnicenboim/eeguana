@@ -18,16 +18,16 @@ bind <- function(...) {
   # Checks:
   purrr::iwalk(
     eegbles[seq(2, length(eegbles))],
-    ~if (!identical(srate(eegbles[[1]]), srate(.x))) {
+    ~if (!identical(sampling_rate(eegbles[[1]]), sampling_rate(.x))) {
       stop(
-        "Can't bind eegbles with different sampling rate, non identical 'srate'  in element ",
+        "Can't bind eegbles with different sampling rate, non identical 'sampling_rate'  in element ",
         as.character(as.numeric(.y) + 1), "."
       )
     }
   )
 
   purrr::iwalk(
-    eegbles[seq(2, length(eegbles))],
+    eegbles[seq(2, length(eegbles))],sa
     ~if (!identical(reference(eegbles[[1]]), reference(.x))) {
       stop("Non identical 'reference' in element ", as.character(as.numeric(.y) + 1), ".")
     }
@@ -71,7 +71,7 @@ bind <- function(...) {
 
   new_eegble <- new_eegbl(
     signal = signal, events = events, segments = segments,
-    channels = channels, info = list(srate = srate(eegbles[[1]]), reference = reference(eegbles[[1]]))
+    channels = channels, info = list(sampling_rate = sampling_rate(eegbles[[1]]), reference = reference(eegbles[[1]]))
   )
   message(say_size(eegble))
   validate_eegbl(new_eegble)
@@ -93,16 +93,9 @@ bind <- function(...) {
 #' @importFrom magrittr %>%
 #'
 #' @export
-as_tibble.eegbl <- function(x, ..., thinning = NULL, add_segments = TRUE) {
-  if (is.null(thinning)) {
-    by <- 1
-  } else if (thinning == "auto") {
-    by <- round(pmax(max(duration(x) * srate(x)) / 384, 1))
-    message(paste("# Thinning by", by))
-  } else {
-    by <- thinning
-  }
-
+as_tibble.eegble <- function(x, ..., add_segments = TRUE) {
+  x$signal <- mutate_all(x$signal, unclass)
+  #TODO remove attributes
   df <- x$signal %>%
     tidyr::gather(key = channel, value = amplitude, channel_names(x)) %>%
     {
@@ -113,12 +106,10 @@ as_tibble.eegbl <- function(x, ..., thinning = NULL, add_segments = TRUE) {
       }
     } %>%
     dplyr::group_by(.id, channel) %>%
-    dplyr::filter(sample %in% sample[seq(1, length(sample), by = by)]) %>%
-    dplyr::mutate(time = (sample - 1) / srate(x)) %>%
-    dplyr::select(-sample, time, dplyr::everything())
+    dplyr::mutate(time = (.sample_id - 1) / sampling_rate(x)) %>%
+    dplyr::select(-.sample_id, time, dplyr::everything())
   df
 }
-
 
 
 #' Convert an eegble into a summary long-data frame based on a statistics.
@@ -173,11 +164,11 @@ summarize_id_as_tibble.eegbl <- function(x, .funs = mean, ...) {
 
 #' @rdname as_tibble.eegbl
 #' @export
-as_data_frame.eegbl <- as_tibble.eegbl
+as_data_frame.eegble <- as_tibble.eegble
 
 #' @rdname as_tibble.eegbl
 #' @export
-as.tibble.eegbl <- as_tibble.eegbl
+as.tibble.eegble <- as_tibble.eegble
 
 
 #' Convert an eegble to a (base) data frame.

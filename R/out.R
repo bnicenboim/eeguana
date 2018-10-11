@@ -5,7 +5,7 @@
 #' \item \code{chan_names()}: Returns a vector with the name of the channels.
 #' \item \code{channels()}: Returns a data frame (tibble) with information about the channels.
 #' \item \code{info()}: Returns a data frame (tibble) with information about the EEG recording.
-#' \item \code{srate()}: Returns the sampling rate.
+#' \item \code{sampling_rate()}: Returns the sampling rate.
 #' \item \code{reference()}: Returns the reference.
 #' \item \code{duration()}: Returns the duration of the recording (or segments).
 #' \item \code{nsamples()}: Returns the number of samples of the recording (or segments).
@@ -72,7 +72,7 @@ sampling_rate <- function(x, ...) {
 
 #' @export
 sampling_rate.eegble <- function(x) {
-  attributes(x$signal$.sample_n)$sampling_rate
+  attributes(x$signal$.sample_id)$sampling_rate
 }
 
 
@@ -87,7 +87,7 @@ duration <- function(x, ...) {
 duration.eegble <- function(x) {
   x$signal %>%
     dplyr::group_by(.id) %>%
-    dplyr::summarize(duration = (max(.sample_n) - min(.sample_n)) / 
+    dplyr::summarize(duration = (max(.sample_id) - min(.sample_id)) / 
       sampling_rate(x)) %>%
     .$duration
 }

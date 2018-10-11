@@ -112,7 +112,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
     dplyr::select(-offset) %>%
     dplyr::mutate_all(as_first_non0) %>%
     dplyr::rename(.size = dplyr::matches("duration")) %>%
-    dplyr::mutate(.sample_0 = as.integer(.sample_0), size = as.integer(.size)) %>%
+    dplyr::mutate(.sample_0 = as.integer(.sample_0), .size = as.integer(.size)) %>%
     add_event_channel(channel_names) %>%
     segment_events(beg_segs = slengths$V1, s0 = slengths$V3 + slengths$V1, end_segs = slengths$V2)
 
@@ -122,7 +122,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
   )
 
   eeg_info <- list(
-    srate = sampling_rate,
+    sampling_rate = sampling_rate,
     reference = NA
   )
 

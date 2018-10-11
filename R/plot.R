@@ -8,10 +8,10 @@
 #' @importFrom magrittr %>%
 #'
 #' @export
-plot.eegbl <- function(x, max_sample = 2000) {
+plot.eegble <- function(x, max_sample = 2000) {
   if (is.numeric(max_sample) & max_sample != 0 &
     # it will downsample if the samples are at least twice as large than the max_sample
-    max(duration(x)) * srate(x) * 2 > max_sample) {
+    max(duration(x)) * sampling_rate(x) * 2 > max_sample) {
     x <- downsample(x, max_sample = max_sample)
   }
 
@@ -47,7 +47,7 @@ plot_gg <- function(x, ...) {
 plot_gg.eegbl <- function(x, ..., max_sample = 2000) {
   if (is.numeric(max_sample) & max_sample != 0 &
     # it will downsample if the samples are at least twice as large than the max_sample
-    max(duration(x)) * srate(x) * 2 > max_sample) {
+    max(duration(x)) * sampling_rate(x) * 2 > max_sample) {
     x <- downsample(x, max_sample = max_sample)
   }
 

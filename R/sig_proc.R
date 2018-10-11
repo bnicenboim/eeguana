@@ -14,7 +14,7 @@
 #' @param channel A channel.
 #' @param band_edge A single cut frequency for \code{filt_low_pass_ch} and \code{filt_high_pass_ch}, two edges for  \code{filt_band_pass_ch} and \code{filt_stop_pass_ch}.
 #' @param order Filter order.
-#' @param ... The sample rate can be included as \code{srate}, when the function is called outside mutate/summarize. 
+#' @param ... The sample rate can be included as \code{sampling_rate}, when the function is called outside mutate/summarize. 
 #'
 #' @return A channel.
 #'
@@ -30,58 +30,58 @@ NULL
 
 #' @rdname filt
 #' @export
-filt_low_pass_ch <- function(channel, band_edge = NULL, order = 4, ...) {
+ch_filt_low_pass <- function(x, band_edge = NULL, order = 4, ...) {
   if(length(band_edge)>1) stop("band_edge should contain only one frequency.")
   type <- "low"
-  filt_ch(channel = channel, band_edge = band_edge, order = order, type = type,...)
+  ch_filt(channel = x, band_edge = band_edge, order = order, type = type,...)
 }
 
 #' @rdname filt
 #' @export
-filt_high_pass_ch <- function(channel, band_edge = NULL, order = 4, ...) {
+ch_filt_high_pass <- function(x, band_edge = NULL, order = 4, ...) {
   if(length(band_edge)>1) stop("band_edge should contain only one frequency.")
   type <- "high"
-  centered_channel <- channel - mean(channel)
-  filt_ch(channel = centered_channel, band_edge = band_edge, order = order, type = type,...)
+  centered_channel <- x - mean(x)
+  ch_filt(channel = centered_channel, band_edge = band_edge, order = order, type = type,...)
 }
 
 #' @rdname filt
 #' @export
-filt_band_pass_ch <- function(channel, band_edge = NULL, order = 4, ...) {
+ch_filt_band_pass <- function(x, band_edge = NULL, order = 4, ...) {
   if(length(band_edge) != 2) stop("band_edge should contain two frequency.")
   if(band_edge[1] >= band_edge[2]) {
     stop("The first argument of band_edge should be larger than the second one.")
   }
   type <- "pass"
-  centered_channel <- channel - mean(channel)
-  filt_ch(channel = centered_channel, band_edge = band_edge, order = order, type = type,...)
+  centered_channel <- x - mean(x)
+  ch_filt(channel = centered_channel, band_edge = band_edge, order = order, type = type,...)
 }
 
 #' @rdname filt
 #' @export
-filt_stop_pass_ch <- function(channel, band_edge = NULL, order = 4, ...) {
+ch_filt_stop_pass <- function(channel, band_edge = NULL, order = 4, ...) {
   if(length(band_edge) != 2) stop("band_edge should contain two frequency.")
   if(band_edge[1] <= band_edge[2]) {
     stop("The second argument of band_edge should be larger than the first one.")  }
   type <- "stop"
   centered_channel <- channel - mean(channel)
-  filt_ch(channel = centered_channel, band_edge = band_edge, order = order, type = type,...)
+  ch_filt(channel = centered_channel, band_edge = band_edge, order = order, type = type,...)
 }
 
 
-filt_ch <- function(channel, band_edge = NULL, order = 4, type, ...){
+ch_filt <- function(channel, band_edge = NULL, order = 4, type, ...){
   args <- list(...)
-  if(!"srate" %in% names(args)){ #if it's empty it will be taken from the attributes of sample
-      #Black magic to extract sample columns and its attribute srate that has the srate of the eegble object:  
+  if(!"sampling_rate" %in% names(args)){ #if it's empty it will be taken from the attributes of sample
+      #Black magic to extract sample columns and its attribute sampling_rate that has the sampling_rate of the eegble object:  
       signal_env <- rlang::env_get(env = parent.frame(2), '.top_env', inherit = TRUE)
       sample <- rlang::env_get(signal_env, "sample")
 
-      srate <- attributes(sample)$srate
-      print(srate)
+      sampling_rate <- attributes(sample)$sampling_rate
+      print(sampling_rate)
     } else {
-      srate <- args$srate
+      sampling_rate <- args$sampling_rate
     }
-  W <- band_edge / (srate / 2)
+  W <- band_edge / (sampling_rate / 2)
 
   # filtfilt filters twice, so effectively doubles filt_order - we half it here
   # so that it corresponds to the expectation of the user
@@ -139,12 +139,12 @@ downsample <- function(x, q = 2, max_sample = NULL, ...) {
 }
 
 #' @export
-downsample.eegbl <- function(x, q = 2, max_sample = NULL,
+downsample.eegble <- function(x, q = 2L, max_sample = NULL,
                              n = if (ftype == "iir") 8 else 30,
                              ftype = "iir") {
 
   # if(stringr::str_to_lower(q) == "min") {
-  #   q <- mindiv(srate(x), start = 2)
+  #   q <- mindiv(sampling_rate(x), start = 2)
   #  message(paste0("Using q = ", q))
   # }
 
@@ -166,25 +166,18 @@ downsample.eegbl <- function(x, q = 2, max_sample = NULL,
     q <- factors(round(approx_q))
   }
 
-  # if(srate(x) %% q != 0){
-  #     q <- mindiv(srate(x), start = q)
-  #     warning(paste0("The signal rate needs to be divisable by q, using q = ", q))
-  # }
-  # if(q >= srate(x)){
-  #   stop("The factor q is too large.")
-  # }
-
   q <- as.integer(q)
   factor <- prod(q)
-  new_srate <- srate(x) / factor
-  warning("# Use with caution, downsampling is based on decimate from the signal package, which might be outdated")
+  new_sampling_rate <- sampling_rate(x) / factor
   message(paste0(
-    "# Downsampling from ", srate(x), "Hz to ",
-    new_srate, "Hz."
+    "# Downsampling from ", sampling_rate(x), "Hz to ",
+    new_sampling_rate, "Hz."
   ))
 
+  list_of_attr <- purrr:::map(x$signal, ~ attributes(.x))
+
   x$signal <- x$signal %>%
-    dplyr::select(-sample) %>%
+    dplyr::select(-.sample_id) %>%
     split(x$signal$.id) %>%
     purrr::map_dfr(
       function(signal_id) purrr::map_dfc(
@@ -198,18 +191,19 @@ downsample.eegbl <- function(x, q = 2, max_sample = NULL,
     ) %>%
     dplyr::mutate(.id = as.integer(.id)) %>%
     dplyr::group_by(.id) %>%
-    dplyr::mutate(sample = seq.int(1, dplyr::n())) %>%
-    dplyr::select(.id, sample, dplyr::everything()) %>%
-    dplyr::ungroup()
-
-  x$info$srate <- new_srate
+    dplyr::mutate(.sample_id = seq.int(1, dplyr::n() )) %>%
+    dplyr::select(.id, .sample_id, dplyr::everything()) %>%
+    dplyr::ungroup() %>%
+    #add back the attributes
+    purrr:::map2_dfc( list_of_attr, ~ `attributes<-`(.x, .y))
+    #TODO should group back
 
   # even table needs to be adapted, starts from 1,
   # and the size is divided by two with a min of 1
   x$events <- x$events %>%
     dplyr::mutate(
-      sample = as.integer(round(sample / factor)) + 1L,
-      size = round(size / factor) %>%
+      .sample_0 = as.integer(round(.sample_0 / factor)) + 1L,
+      .size = round(.size / factor) %>%
         as.integer() %>%
         purrr::map_int(~max(.x, 1L))
     )
@@ -218,7 +212,7 @@ downsample.eegbl <- function(x, q = 2, max_sample = NULL,
   x$segments <- dplyr::mutate(x$segments, .id = seq.int(1L, dplyr::n()))
 
   message(say_size(x))
-  validate_eegbl(x)
+  validate_eegble(x)
 }
 
 
@@ -231,7 +225,7 @@ downsample.eegbl <- function(x, q = 2, max_sample = NULL,
 #'
 #'
 #' @param x An eegble object.
-#' @param srate New sampling rate.
+#' @param sampling_rate New sampling rate.
 #' @param max_sample Optionally, the (approximated) maximum sample number can be defined here.
 #' @param method Method passed to interp1, "pchip" by default.
 #' @param ... Other arguments passed to interp1.
@@ -241,18 +235,16 @@ downsample.eegbl <- function(x, q = 2, max_sample = NULL,
 #'
 #'
 #'
-resample <- function(x, srate = NULL, max_sample = NULL, method = "pchip", ...) {
+resample <- function(x, sampling_rate = NULL, max_sample = NULL, method = "pchip", ...) {
   UseMethod("resample")
 }
 
 #'
-resample.eegbl <- function(x, srate = NULL, max_sample = NULL, method = "", ...) {
-  nsamples <- 1000
-  1:nsamples
-
+resample.eegble <- function(x, sampling_rate = NULL, max_sample = NULL, method = "", ...) {
+ 
   warning("# Use with caution, resampling is based on decimate from the signal package, which might be outdated")
   message(paste0(
-    "# Resampling from ", srate(x), "Hz to ",
-    new_srate, "Hz."
+    "# Resampling from ", sampling_rate(x), "Hz to ",
+    new_sampling_rate, "Hz."
   ))
 }
