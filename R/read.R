@@ -127,8 +127,6 @@ read_ft <- function(file, layout = NULL, recording = file) {
   )
 
   # channel info:
-
-
   channels <- dplyr::tibble(
     labels = make.unique(channel_names),
     x = NA_real_, y = NA_real_, z = NA_real_

@@ -2,12 +2,12 @@
 
 declass <- function(signal){
   # extracting attributes
-  attr <- purrr:::imap(x$signal, ~ attributes(.x))
+  attr <- purrr:::imap(signal, ~ attributes(.x))
 
   class(signal) <- class(signal)[-1]
   #removes the classes of the sample_id and channels so that the attributes are ignored
   declassed_signal <- mutate_all(signal, unclass) %>% 
-            purrr:::modify(signal, ~ `attributes<-`(.x, NULL))
+            purrr:::modify( ~ `attributes<-`(.x, NULL))
   list(tbl = declassed_signal, attr = attr )          
 }
 
@@ -17,11 +17,10 @@ reclass <- function(tbl, attr) {
                      if(.y == ".id"){
                         list("class"= NULL)
                       } else if(.y %in% names(attr)) {
-                       attr[.y]
+                       attr[[.y]]
                       } else {list("class" = "channel")}))
 
 }
-
 
 
 new_sample_id <- function(values, sampling_rate) {
