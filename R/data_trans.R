@@ -95,8 +95,8 @@ bind <- function(...) {
 #' @export
 as_tibble.eegble <- function(x, ..., add_segments = TRUE) {
   
-  df <- x$signal %>%
-    tidyr::gather(key = channel, value = amplitude, channel_names(x)) %>%
+  df <- declass(x$signal)$tbl %>%
+    tidyr::gather(key = "channel", value = "amplitude", channel_names(x)) %>%
     {
       if (add_segments) {
         dplyr::left_join(., x$segments, by = ".id")
@@ -110,6 +110,14 @@ as_tibble.eegble <- function(x, ..., add_segments = TRUE) {
   df
 }
 
+
+#' @export
+as_tibble.signal_tbl <- function(x, ...) {
+x <- declass(x)$tbl
+NextMethod()
+}
+
+  
 
 
 #' Convert an eegble into a summary long-data frame based on a statistics.
@@ -128,7 +136,7 @@ summarize_id_as_tibble <- function(x, ...) {
 
 
 #' @export
-summarize_id_as_tibble.eegbl <- function(x, .funs = mean, ...) {
+summarize_id_as_tibble.eegble <- function(x, .funs = mean, ...) {
   funs_name <- rlang::enquo(.funs)
 
   # I need to define a name to unify the columns based on the function applied
@@ -144,7 +152,7 @@ summarize_id_as_tibble.eegbl <- function(x, .funs = mean, ...) {
       if (length(.[[1]]) == 1) .[[1]] else .[[1]][2]
     }
 
-  x$signal %>%
+  declass(x$signal)$tbl %>%
     dplyr::group_by(.id) %>% # keep grouping for later
     dplyr::summarize_at(channel_names(x), .funs, ...) %>%
     # change the column back to channel names, when funs(?? = fun)
@@ -157,8 +165,7 @@ summarize_id_as_tibble.eegbl <- function(x, .funs = mean, ...) {
     tidyr::gather(key = channel, value = !!rlang::sym(fname), -.id) %>%
     # adds segment info
     dplyr::left_join(., x$segments, by = ".id") %>%
-    dplyr::left_join(x$channels %>%
-      dplyr::mutate(labels = as.character(labels)), by = c("channel" = "labels"))
+    dplyr::left_join(channels_tbl(x), by = "channel")
 }
 
 

@@ -191,7 +191,7 @@ downsample.eegble <- function(x, q = 2L, max_sample = NULL,
     ) %>%
     dplyr::mutate(.id = as.integer(.id)) %>%
     dplyr::group_by(.id) %>%
-    dplyr::mutate(.sample_id = seq.int(1, dplyr::n() )) %>%
+    dplyr::mutate(.sample_id = seq_len(dplyr::n() )) %>%
     dplyr::select(.id, .sample_id, dplyr::everything()) %>%
     dplyr::ungroup() %>%
     #add back the attributes
@@ -209,7 +209,7 @@ downsample.eegble <- function(x, q = 2L, max_sample = NULL,
     )
 
   # just in case I update the .id from segments table
-  x$segments <- dplyr::mutate(x$segments, .id = seq.int(1L, dplyr::n()))
+  x$segments <- dplyr::mutate(x$segments, .id = seq_len(dplyr::n()))
 
   message(say_size(x))
   validate_eegble(x)

@@ -48,11 +48,16 @@ nchannels.eegble <- function(x) {
 #' @rdname info
 #' @export
 channels_tbl <- function(x, ...) {
-  UseMethod("channels")
+  UseMethod("channels_tbl")
 }
 
 #' @export
 channels_tbl.eegble <- function(x) {
+  dplyr::tibble(channel = channel_names(x)) %>%
+   dplyr::bind_cols(dplyr::select(x$signal, channel_names(x)) %>% 
+      purrr::map_dfr( ~ attributes(.x))) %>% 
+      hd_add_column(sampling_rate = attributes(x$signal$.sample_id)$sampling_rate) %>%
+      select(-class)
   # x$channels
   #returns channels, locations and sampling_rate
 }

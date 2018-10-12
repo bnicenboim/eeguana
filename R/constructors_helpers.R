@@ -4,7 +4,7 @@ declass <- function(signal){
   # extracting attributes
   attr <- purrr:::imap(signal, ~ attributes(.x))
 
-  class(signal) <- class(signal)[-1]
+  class(signal) <- class(signal)[class(signal)!="signal_tbl"]
   #removes the classes of the sample_id and channels so that the attributes are ignored
   declassed_signal <- mutate_all(signal, unclass) %>% 
             purrr:::modify( ~ `attributes<-`(.x, NULL))
@@ -12,19 +12,26 @@ declass <- function(signal){
 }
 
 reclass <- function(tbl, attr) {
-  class(tbl) <- c("signal_tbl", class(tbl))
-  purrr:::imap_dfc(tbl, ~ `attributes<-`(.x,
+  old_attr_tbl <- attributes(tbl)
+  tbl <- purrr:::imap_dfc(tbl, ~ `attributes<-`(.x,
                      if(.y == ".id"){
                         list("class"= NULL)
                       } else if(.y %in% names(attr)) {
                        attr[[.y]]
-                      } else {list("class" = "channel")}))
-
+                      } else {list("class" = "channel", 
+                                  "x" = NA_real_,
+                                  "y" = NA_real_,
+                                  "z" = NA_real_,
+                                  "reference" = NA
+                                  )}))
+  attributes(tbl) <- old_attr_tbl
+  class(tbl) <- c("signal_tbl", class(tbl))
+  tbl
 }
 
 
 new_sample_id <- function(values, sampling_rate) {
-  if(any(values != round(values))) {
+  if(all(!is.na(values)) & any(values != round(values))) {
     stop("Values should be round numbers.",
       call. = FALSE
     )
@@ -43,9 +50,11 @@ validate_sample_id <- function(sample_id){
     stop("Values should be integers.",
       call. = FALSE)
   }
-  if(attributes(sample_id)$sampling_rate <=0){
+  if(length(sample_id)>0) {
+    if(attributes(sample_id)$sampling_rate <=0){
   stop("Attribute sampling_rate should be a positive value.",
       call. = FALSE)
+    }
   }
   sample_id
 }
@@ -81,11 +90,18 @@ new_signal <- function(signal_matrix = matrix(), ids = c(), sample_ids = c(), ch
   raw_signal <- dplyr::as_tibble(signal_matrix)
 
  # I add the channel info now
+  if(nrow(channel_info) == 0) {
+    raw_signal <- purrr::map_dfc(raw_signal,
+    function(sig) {
+      channel = new_channel(value = sig) }
+  )
+  } else {
   raw_signal <- purrr::map2_dfc(
     raw_signal, purrr::transpose(channel_info), 
     function(sig, chan_info) {
       channel = new_channel(value = sig, as.list(chan_info)) }
   )
+  }
 
    signal <-  tibble::tibble(.id = ids, .sample_id = sample_ids)   %>% 
                dplyr::bind_cols(raw_signal)
@@ -120,7 +136,8 @@ validate_eegble <- function(x) {
 
 validate_signal <- function(signal) {
   # Validates .id
-  if(all(unique(signal$.id) != seq.int(max(signal$.id)))) {
+  
+  if(all(unique(signal$.id) != seq_len(max(signal$.id)))) {
     warning("Missing .ids, some functions might fail.",
       call. = FALSE
     )
@@ -129,7 +146,7 @@ validate_signal <- function(signal) {
   validate_sample_id(signal$.sample_id)
 
   # Validates channels
-  dplyr::select(signal, -.id, -.sample_id) %>%
+  ungroup(signal) %>% dplyr::select( -.id, -.sample_id) %>%
     purrr::walk( ~ validate_channel(.x))
 
   signal
@@ -162,7 +179,7 @@ validate_events <- function(events, channels) {
 
 validate_segments <- function(segments) {
   # Validates .id
-  if(all(unique(segments$.id) != seq.int(max(segments$.id)))) {
+  if(all(unique(segments$.id) != seq_len(max(segments$.id)))) {
     warning("Missing .ids, some functions might fail.",
       call. = FALSE
     )

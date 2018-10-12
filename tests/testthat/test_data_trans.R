@@ -2,41 +2,54 @@ context("Binding and transforming")
 library(eegble)
 
 
-cond1 <- new_eegbl(
-  signal = dplyr::tibble(.id = rep(1L, 10), sample = seq(-4L, 5L), X = sin(1:10), Y = cos(1:10)),
+  
+
+cond1 <- eegble(
+signal = signal(signal_matrix = as.matrix(
+                              data.frame(X = sin(1:10), Y = cos(1:10))),
+  ids = rep(1L, 10), 
+  sample_ids = sample_id(seq(-4L, 5L), sampling_rate = 500 ),
+  dplyr::tibble(labels = c("X", "Y"), reference = NA, theta = NA, phi = NA, 
+    radius = NA, x = NA_real_, y = NA_real_, z = NA_real_) ),
   events = dplyr::tribble(
-    ~.id, ~type, ~description, ~sample, ~size, ~channel,
+    ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA, -4L, 1L, NA,
     1L, "Time 0", NA, 1L, 1L, NA
   ),
-  channels = dplyr::tibble(labels = c("X", "Y"), theta = NA, phi = NA, radius = NA, x = NA, y = NA, z = NA),
-  info = list(srate = 500, reference = NA),
   segments = dplyr::tibble(.id = 1L, recording = "recording1", segment = 1, type = "initial")
 )
 
 
 cond2 <- eegble(
-  signal = dplyr::tibble(.id = rep(1L, 10), sample = seq(-4L, 5L), X = sin(1:10) + .1, Y = cos(1:10) + .1),
+  signal = signal(signal_matrix = as.matrix(
+                              data.frame(X = sin(1:10)+.1, Y = cos(1:10)+.1)),
+  ids = rep(1L, 10), 
+  sample_ids = sample_id(seq(-4L, 5L), sampling_rate = 500 ),
+  dplyr::tibble(labels = c("X", "Y"), reference = NA, theta = NA, phi = NA, 
+    radius = NA, x = NA_real_, y = NA_real_, z = NA_real_) ),
+
   events = dplyr::tribble(
-    ~.id, ~type, ~description, ~sample, ~size, ~channel,
+    ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA, -4L, 1L, NA,
     1L, "Time 0", NA, 1L, 1L, NA
   ),
-  channels = dplyr::tibble(labels = c("X", "Y"), theta = NA, phi = NA, radius = NA, x = NA, y = NA, z = NA),
-  info = list(srate = 500, reference = NA),
   segments = dplyr::tibble(.id = 1L, recording = "recording1", segment = 1, type = "initial")
 )
 
 
 cond3 <- eegble(
-  signal = dplyr::tibble(.id = rep(1L, 10), sample = seq(-4L, 5L), X = sin(1:10) + .1, Y = cos(1:10) + .1),
+  signal = signal(signal_matrix = as.matrix(
+                              data.frame(X = sin(1:10)+.1, Y = cos(1:10)+.1)),
+  ids = rep(1L, 10), 
+  sample_ids = sample_id(seq(-4L, 5L), sampling_rate = 500 ),
+  dplyr::tibble(labels = c("X", "Y"), reference = NA, theta = NA, phi = NA, 
+    radius = NA, x = NA_real_, y = NA_real_, z = NA_real_) ),
+
   events = dplyr::tribble(
-    ~.id, ~type, ~description, ~sample, ~size, ~channel,
+    ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA, -4L, 1L, "X",
     1L, "Time 0", NA, 1L, 1L, NA
   ),
-  channels = dplyr::tibble(labels = c("X", "Y"), theta = NA, phi = NA, radius = NA, x = NA, y = NA, z = NA),
-  info = list(srate = 500, reference = NA),
   segments = dplyr::tibble(.id = 1L, recording = "recording1", segment = 1, type = "initial")
 )
 
@@ -76,6 +89,8 @@ test_that("can bind unlisted files of same recording", {
 })
 
 
+sloop::s3_methods_generic("as_tibble")
+as_tibble(cond1)
 
 test_that("can transform to tibble", {
   cond1_2 <- cond2
