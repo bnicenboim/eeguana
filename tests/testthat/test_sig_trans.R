@@ -164,6 +164,12 @@ data0 <- eegble(
 # )
 
 # dots <- rlang::quos( type== "Time 0")
+# file <- "/home/bruno/Documents/Working Papers/eegble/faces.vhdr"
+# faces <- read_vhdr("/home/bruno/Documents/Working Papers/eegble/faces.vhdr")
+# faces_vmrk <- read_vmrk("/home/bruno/Documents/Working Papers/eegble/faces.vmrk")
+
+# segment(faces, type == "New Segment")
+# x <- faces
 
 test_that("can segment", {
   data_s <- segment(data, type == "Time 0")

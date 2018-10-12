@@ -134,7 +134,7 @@ summarise_.eegble <- function(.data, ..., .dots = list()) {
   .data$segments <- dplyr::summarize(.data$segments) %>%
     dplyr::ungroup() %>%
      {if(!".id" %in% dplyr::tbl_vars(.)) {
-            hd_add_column(.id = seq_len(last_id) %>% as.integer())
+            hd_add_column(., .id = seq_len(last_id) %>% as.integer())
       } else { . } }%>%
     # dplyr::mutate(recording = if ("recording" %in% tbl_vars(.)) {
     #   recording
@@ -187,7 +187,7 @@ ungroup.eegble <- function(.data, ..., add = add) {
 
 
 #' @export
-filter_.eegbl <- function(.data, ..., .dots = list()) {
+filter_.eegble <- function(.data, ..., .dots = list()) {
   dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
   # dots <- rlang::quo(recording == "0")
   new_dots <- dots_by_df(dots, .data)

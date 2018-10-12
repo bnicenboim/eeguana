@@ -4,21 +4,12 @@
 \alias{info}
 \alias{channel_names}
 \alias{nchannels}
-\alias{channels_tbl}
-\alias{sampling_rate}
-\alias{duration}
 \alias{nsamples}
 \title{Display information of the eegble object.}
 \usage{
 channel_names(x, ...)
 
 nchannels(x, ...)
-
-channels_tbl(x, ...)
-
-sampling_rate(x, ...)
-
-duration(x, ...)
 
 nsamples(x, ...)
 }

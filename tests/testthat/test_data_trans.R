@@ -100,3 +100,7 @@ test_that("can transform to tibble", {
   expect_equal(nrow(df), nrow(conds$signal) * length(channel_names(conds)))
   expect_equal(max(df$time), max((conds$signal$sample - 1)) / srate(conds))
 })
+
+
+summarize_id_as_tibble(cond1)
+

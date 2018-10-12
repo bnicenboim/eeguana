@@ -42,17 +42,9 @@ nchannels.eegble <- function(x) {
 }
 
 
-## TILL HERE
 
-#'
-#' @rdname info
-#' @export
-channels_tbl <- function(x, ...) {
-  UseMethod("channels_tbl")
-}
 
-#' @export
-channels_tbl.eegble <- function(x) {
+channels_tbl <- function(x) {
   dplyr::tibble(channel = channel_names(x)) %>%
    dplyr::bind_cols(dplyr::select(x$signal, channel_names(x)) %>% 
       purrr::map_dfr( ~ attributes(.x))) %>% 
@@ -62,34 +54,11 @@ channels_tbl.eegble <- function(x) {
   #returns channels, locations and sampling_rate
 }
 
-
-
-
-
-
-
-#'
-#' @rdname info
-#' @export
-sampling_rate <- function(x, ...) {
-  UseMethod("sampling_rate")
-}
-
-#' @export
-sampling_rate.eegble <- function(x) {
+sampling_rate <- function(x) {
   attributes(x$signal$.sample_id)$sampling_rate
 }
 
-
-
-#' @rdname info
-#' @export
-duration <- function(x, ...) {
-  UseMethod("duration")
-}
-
-#' @export
-duration.eegble <- function(x) {
+duration <- function(x) {
   x$signal %>%
     dplyr::group_by(.id) %>%
     dplyr::summarize(duration = (max(.sample_id) - min(.sample_id)) / 
@@ -105,6 +74,49 @@ nsamples <- function(x, ...) {
 #' @export
 nsamples.eegble <- function(x) {
   duration(x) * sampling_rate(x)
+}
+
+
+
+
+
+
+#' Summary of eegble information.
+#'
+#' @param object An eegble object.
+#' @param ... Other options passed to print.tbl for the display of summaries.
+#'
+#' @export
+summary.eegble <- function(object, ...) {
+  dots <- rlang::enquos(...)
+  summ <- list(channels = select(channels_tbl(object), -sampling_rate),
+                  sampling_rate = unique(channels_tbl(object)$sampling_rate),
+                  segments = object$segments %>%
+                              dplyr::count(recording) %>%
+                              dplyr::rename(segment_n = n),
+                  events = object$events %>%
+                          dplyr::group_by_at(dplyr::vars(-.size, -.channel, -.sample_0, -.id)) %>%
+                          dplyr::count(),
+                  size = capture.output(pryr::object_size(object)))
+  
+  
+  message(paste0("# EEG data (eegble) from the following channels:"))
+  summ$channels %>% 
+    print(., !!!dots)
+
+  message(paste0("# Sampling rate: ", summ$sampling_rate, " Hz."))
+
+  message(paste0("# Size in memory: ", summ$size, "."))
+
+  message("# Summary of segments")
+  summ$segments %>% 
+    print(., !!!dots)
+
+  message("# Summary of events")
+  summ$events %>% 
+    print(., !!!dots)
+
+  invisible(summ)
 }
 
 
@@ -141,36 +153,4 @@ count_complete_cases_tbl.eegble <- function(x, ...) {
     dplyr::semi_join(x$segments, ., by = ".id") %>%
     dplyr::select(-.id, -segment) %>%
     dplyr::count(!!!dots)
-}
-
-
-
-
-#' Summary of eegble information.
-#'
-#' @param object An eegble object.
-#' @param ... Other options passed to print.tbl for the display of summaries.
-#'
-#' @export
-summary.eegble <- function(object, ...) {
-  dots <- rlang::enquos(...)
-  message(paste0("# EEG data (eegble) from ", nchannels(object), " channels:"))
-  message(paste0(channel_names(object), collapse = ", "))
-  message(paste0("# Sampling rate: ", sampling_rate(object), " Hz."))
-
-  message(paste0("# Size in memory: ", capture.output(pryr::object_size(object)), "."))
-
-  message("# Summary of segments")
-  object$segments %>%
-    dplyr::count(recording) %>%
-    dplyr::rename(segment_n = n) %>%
-    print(., !!!dots)
-
-  message("# Summary of events")
-  object$events %>%
-    dplyr::group_by_at(dplyr::vars(-.size, -.channel, -.sample_0, -.id)) %>%
-    dplyr::count() %>%
-    print(., !!!dots)
-
-  invisible(object)
 }
