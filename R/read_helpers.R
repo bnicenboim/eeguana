@@ -57,7 +57,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
   # Initial samples as in Brainvision
   max_sample = nrow(raw_signal)
-  sample_id = seq.int(max_sample)
+  sample_id = seq_len(max_sample)
 
   # the first event can't be the end of the segment
   # and the last segment ends at the end of the file
@@ -151,7 +151,7 @@ segment_events <- function(events, beg_segs, s0, end_segs) {
         ) %>%
         dplyr::mutate(
           .size = dplyr::if_else(.sample_0 < b, b - .size, .size),
-          sample = dplyr::case_when(
+          .sample_0 = dplyr::case_when(
             .sample_0 >= b ~ .sample_0 - s0 + 1L,
             .sample_0 < b ~ b - s0 + 1L
           )
@@ -188,9 +188,9 @@ read_vmrk <- function(file) {
     col_types = readr::cols(
       `Mk_number=Type` = readr::col_character(),
       description = readr::col_character(),
-      sample = readr::col_integer(),
-      size = readr::col_integer(),
-      channel = readr::col_integer(),
+      .sample_0 = readr::col_integer(),
+      .size = readr::col_integer(),
+      .channel = readr::col_integer(),
       date = readr::col_double()
     ),
     skip = start, n_max = end,

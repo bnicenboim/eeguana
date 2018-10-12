@@ -96,7 +96,7 @@ plot_topo.eegble <- function(x, method = "MBA", ...) {
     dplyr::group_by_at(grouping_vars) 
 
 
-  grid <- interpolate_xy(s_x, x = x, y = y, value = A, ...)
+  grid <- interpolate_xy(s_x, x = x, y = y, value = A, method = "MBA", ...)
 
   grid %>%
     ggplot(aes(x, y)) + facet_wrap(grouping_vars) +

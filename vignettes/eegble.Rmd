@@ -157,8 +157,9 @@ first making segments that include only the interval .1--.2 *s* after the onset
 of the stimuli.
 
 ```{r, fig.dim = c(10,5), out.width = "100%"}
-faces_segs_some %>% segment(description %in% c("s70", "s71"), lim = c(.1,.2)) %>%
+faces_segs_some %>% filter(between(time_point(.sample_id),.1,.2)) %>%
                     plot_topo()
+
 ```
 
 
@@ -168,8 +169,6 @@ frame format first. For example, here, we visualize independent t-tests (or some
 other statistics) at every electrode and time point. 
 
 ```{r}
-
-
 df <- faces_segs_some %>% 
       select(O1, O2, P7, P8) %>%
       as_tibble %>%
@@ -195,7 +194,7 @@ However, this can be also done in the without transforming the `eegble` object:
 faces_segs_some_t <- 
   faces_segs_some %>% 
       select(O1, O2, P7, P8) %>%
-      group_by(sample) %>% 
+      group_by(.sample_id) %>% 
       summarize_all(funs(t = t.test(.[condition == "faces"],
           .[condition == "non-faces"])$statistic))
 

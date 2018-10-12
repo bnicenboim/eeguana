@@ -27,6 +27,7 @@ segment.eegble <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
   # dots <- rlang::quos(description == "s70")
   # dots <- rlang::quos(description == "s13")
   # dots <- rlang::quos(description %in% c("s70",s71"))
+  # dots <- rlang::quos(type == "New Segment")
 
   # the segmentation will ignore the groups:
   orig_groups <- list()
@@ -146,3 +147,69 @@ segment.eegble <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
   message(paste0(say_size(x), " after segmentation."))
   validate_eegble(x)
 }
+
+
+#' Bind eegble objects.
+#'
+#' This function binds eegbles and throws a warning if there is a mismatch in the metadata.
+#' @param ... Eegble objects to combine.
+#'
+#' @return An \code{eegble} object.
+#'
+#' @importFrom magrittr %>%
+#'
+#' @export
+bind <- function(...) {
+  eegbles <- list(...)
+  # hack to allow that "..." would already be a list
+  if (class(eegbles[[1]]) != "eegbl") {
+    eegbles <- list(...)[[1]]
+  }
+
+  # Checks:
+  purrr::iwalk(
+    eegbles[seq(2, length(eegbles))],
+    ~if (!identical(channels_tbl(eegbles[[1]]), channels_tbl(.x))) {
+      warning(
+        "Objects with different channels information",
+        as.character(as.numeric(.y) + 1), "."
+      )
+    }
+  )
+
+
+  # Binding
+  # .id of the new eggbles needs to be adapted
+  add_ids <- purrr::map_int(eegbles, ~max(.x$signal$.id)) %>%
+    cumsum() %>%
+    dplyr::lag(default = 0) %>%
+    as.integer()
+
+
+  signal <- purrr::map2_dfr(eegbles, add_ids, ~
+  dplyr::ungroup(.x$signal) %>%
+    dplyr::mutate(.id = .id + .y))
+  events <- purrr::map2_dfr(eegbles, add_ids, ~
+  dplyr::ungroup(.x$events) %>%
+    dplyr::mutate(.id = .id + .y))
+  segments <- purrr::map2_dfr(eegbles, add_ids, ~
+  dplyr::ungroup(.x$segments) %>%
+    dplyr::mutate(.id = .id + .y))
+
+
+
+  # If more segments of the same recording are added, these need to be adapted.
+  segments <- segments %>%
+    dplyr::group_by(recording) %>%
+    dplyr::mutate(segment = 1:n()) %>%
+    dplyr::ungroup()
+
+  new_eegble <- new_eegble(
+    signal = signal, events = events, segments = segments) %>% 
+     validate_eegbl()
+  invisible(message(say_size(new_eegble)))
+}
+
+
+
+
