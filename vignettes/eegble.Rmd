@@ -140,8 +140,8 @@ Occipital = pmap_dbl(list(O1,  O2,  Oz), mean, na.rm = TRUE),
                                                               
 ```{r, fig.dim = c(10,15), out.width = "100%"}
 faces_segs_some %>%  
-                transmute(Occipital = mean_by_sample_ch(O1, O2, Oz, na.rm = TRUE),
-                          Parietal = mean_by_sample_ch(P3, P4, P7,  P8, Pz, na.rm = TRUE)) %>% 
+                transmute(Occipital = chs_mean(O1, O2, Oz, na.rm = TRUE),
+                          Parietal = chs_mean(P3, P4, P7,  P8, Pz, na.rm = TRUE)) %>% 
                 plot_gg() + 
                 geom_line(alpha = .1, aes(group = .id, color = condition)) +
                 stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1, 

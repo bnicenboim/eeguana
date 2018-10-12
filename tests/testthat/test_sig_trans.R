@@ -3,9 +3,14 @@ library(eegble)
 
 
 data <- eegble(
-  signal = dplyr::tibble(.id = rep(c(1L, 2L), each = 10), sample = rep(seq(-4L, 5L), times = 2), X = sin(1:20), Y = cos(1:20)),
+  signal = signal(signal_matrix = as.matrix(
+                              data.frame(X = sin(1:20), Y = cos(1:20))),
+  ids = rep(c(1L, 2L), each = 10), 
+  sample_ids = sample_id(rep(seq(-4L, 5L), times = 2), sampling_rate = 500 ),
+  dplyr::tibble(labels = c("X", "Y"), reference = NA, theta = NA, phi = NA, 
+    radius = NA, x = NA_real_, y = NA_real_, z = NA_real_) ),
   events = dplyr::tribble(
-    ~.id, ~type, ~description, ~sample, ~size, ~channel,
+    ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA_character_, -4L, 1L, NA,
     1L, "Bad", NA_character_, -2L, 3L, NA,
     1L, "Time 0", NA_character_, 1L, 1L, NA,
@@ -14,16 +19,19 @@ data <- eegble(
     2L, "Time 0", NA_character_, 1L, 1L, NA,
     2L, "Bad", NA_character_, 2L, 1L, "Y"
   ),
-  channels = dplyr::tibble(labels = c("X", "Y"), theta = NA, phi = NA, radius = NA, x = NA, y = NA, z = NA),
-  info = list(srate = 500, reference = NA),
   segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
 )
 
 
 data_NA <- eegble(
-  signal = dplyr::tibble(.id = rep(c(1L, 2L), each = 10), sample = rep(seq(-4L, 5L), times = 2), X = sin(1:20), Y = cos(1:20)),
+  signal = signal(signal_matrix = as.matrix(
+                              data.frame(X = sin(1:20), Y = cos(1:20))),
+  ids = rep(c(1L, 2L), each = 10), 
+  sample_ids = sample_id(rep(seq(-4L, 5L), times = 2), sampling_rate = 500 ),
+  dplyr::tibble(labels = c("X", "Y"), reference = NA, theta = NA, phi = NA, 
+    radius = NA, x = NA_real_, y = NA_real_, z = NA_real_) ),
   events = dplyr::tribble(
-    ~.id, ~type, ~description, ~sample, ~size, ~channel,
+    ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA_character_, -4L, 1L, NA_character_,
     1L, "Bad", NA_character_, -2L, 3L, NA,
     1L, "Time 0", NA_character_, 1L, 1L, NA,
@@ -32,15 +40,18 @@ data_NA <- eegble(
     2L, "Time 0", NA_character_, 1L, 1L, NA,
     2L, "Bad", NA_character_, 2L, 1L, NA
   ),
-  channels = dplyr::tibble(labels = c("X", "Y"), theta = NA, phi = NA, radius = NA, x = NA, y = NA, z = NA),
-  info = list(srate = 500, reference = NA),
   segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
 )
 
 data_XY <- eegble(
-  signal = dplyr::tibble(.id = rep(c(1L, 2L), each = 10), sample = rep(seq(-4L, 5L), times = 2), X = sin(1:20), Y = cos(1:20)),
+  signal = signal(signal_matrix = as.matrix(
+                              data.frame(X = sin(1:20), Y = cos(1:20))),
+  ids = rep(c(1L, 2L), each = 10), 
+  sample_ids = sample_id(rep(seq(-4L, 5L), times = 2), sampling_rate = 500 ),
+  dplyr::tibble(labels = c("X", "Y"), reference = NA, theta = NA, phi = NA, 
+    radius = NA, x = NA_real_, y = NA_real_, z = NA_real_) ),
   events = dplyr::tribble(
-    ~.id, ~type, ~description, ~sample, ~size, ~channel,
+    ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA_character_, -4L, 1L, NA,
     1L, "Bad", NA_character_, -2L, 3L, "X",
     1L, "Bad", NA_character_, -2L, 3L, "Y",
@@ -50,9 +61,7 @@ data_XY <- eegble(
     2L, "Time 0", NA_character_, 1L, 1L, NA,
     2L, "Bad", NA_character_, 2L, 1L, "Y"
   ),
-  channels = dplyr::tibble(labels = c("X", "Y"), theta = NA, phi = NA, radius = NA, x = NA, y = NA, z = NA),
-  info = list(srate = 500, reference = NA),
-  segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
+   segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
 )
 
 # TEST when the event exceeds the end of the segment
@@ -113,10 +122,16 @@ test_that("can clean whole segments in files", {
   expect_equal(all(is.na(clean_data_seg$signal[clean_data_seg$signal$.id == 2, c("X")])), FALSE)
 })
 
+
 data0 <- eegble(
-  signal = dplyr::tibble(.id = rep(c(1L, 1L), each = 10), sample = seq(1L, 20L), X = sin(1:20), Y = cos(1:20)),
+  signal = signal(signal_matrix = as.matrix(
+                              data.frame(X = sin(1:20), Y = cos(1:20))),
+  ids =  rep(c(1L, 1L), each = 10), 
+  sample_ids = sample_id(seq(1L, 20L), sampling_rate = 500 ),
+  dplyr::tibble(labels = c("X", "Y"), reference = NA, theta = NA, phi = NA, 
+    radius = NA, x = NA_real_, y = NA_real_, z = NA_real_) ),
   events = dplyr::tribble(
-    ~.id, ~type, ~description, ~sample, ~size, ~channel,
+    ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA, 1L, 1L, NA,
     1L, "Bad", NA, 3L, 3L, NA,
     1L, "Time 0", NA, 6L, 1L, NA,
@@ -125,24 +140,28 @@ data0 <- eegble(
     1L, "Time 0", NA, 16L, 1L, NA,
     1L, "Bad", NA, 17L, 1L, "Y"
   ),
-  channels = dplyr::tibble(labels = c("X", "Y"), theta = NA, phi = NA, radius = NA, x = NA, y = NA, z = NA),
-  info = list(srate = 500, reference = NA),
   segments = dplyr::tibble(.id = 1L, recording = "recording1", segment = 1)
 )
 
 
-data1 <- eegble(
-  signal = dplyr::tibble(.id = rep(c(1L, 2L), each = 10), sample = rep(seq(-4L, 5L), times = 2), X = sin(1:20), Y = cos(1:20)),
-  events = dplyr::tribble(
-    ~.id, ~type, ~description, ~sample, ~size, ~channel,
-    1L, "New Segment", NA, -4L, 1L, NA,
-    1L, "Bad", NA, -2L, 3L, NA,
-    1L, "Time 0", NA, 1L, 1L, NA
-  ),
-  channels = dplyr::tibble(labels = c("X", "Y"), theta = NA, phi = NA, radius = NA, x = NA, y = NA, z = NA),
-  info = list(srate = 500, reference = NA),
-  segments = dplyr::tibble(.id = 1L, recording = "recording1", segment = 1)
-)
+  # signal = signal(signal_matrix = as.matrix(
+  #                             data.frame(X = sin(1:20), Y = cos(1:20))),
+  # ids =  rep(c(1L, 2L), each = 10), 
+  # sample_ids = sample_id(rep(seq(-4L, 5L), times = 2), sampling_rate = 500 ),
+
+
+# data1 <- eegble(
+#   signal = dplyr::tibble(.id = rep(c(1L, 2L), each = 10), sample = rep(seq(-4L, 5L), times = 2), X = sin(1:20), Y = cos(1:20)),
+#   events = dplyr::tribble(
+#     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
+#     1L, "New Segment", NA, -4L, 1L, NA,
+#     1L, "Bad", NA, -2L, 3L, NA,
+#     1L, "Time 0", NA, 1L, 1L, NA
+#   ),
+#   channels = dplyr::tibble(labels = c("X", "Y"), theta = NA, phi = NA, radius = NA, x = NA, y = NA, z = NA),
+#   info = list(srate = 500, reference = NA),
+#   segments = dplyr::tibble(.id = 1L, recording = "recording1", segment = 1)
+# )
 
 # dots <- rlang::quos( type== "Time 0")
 
@@ -172,11 +191,11 @@ test_that("can segment", {
   double <- segment(data0, type == "Time 0", lim = c(-20, 20), unit = "sample")
   expect_equal(nrow(double$signal), 40)
   d00 <- segment(data0, type == "Time 0", lim = c(0, 1), unit = "sample")
-  expect_equal(all(d00$events$sample + d00$events$size - 1 <= max(d00$signal$sample)), TRUE)
-  expect_equal(all(s1$events$sample + s1$events$size - 1 <= max(s1$signal$sample)), TRUE)
-  expect_equal(all(s1_u$events$sample + s1_u$events$size - 1 <= max(s1_u$signal$sample)), TRUE)
-  expect_equal(all(s1_u2$events$sample + s1_u2$events$size - 1 <= max(s1_u2$signal$sample)), TRUE)
-  expect_equal(all(s1_u2$events$sample + s1_u2$events$size - 1 <= max(s1_u2$signal$sample)), TRUE)
+  expect_equal(all(d00$events$.sample_0 + d00$events$.size - 1 <= max(d00$signal$.sample_id)), TRUE)
+  expect_equal(all(s1$events$.sample_0 + s1$events$.size - 1 <= max(s1$signal$.sample_id)), TRUE)
+  expect_equal(all(s1_u$events$.sample_0 + s1_u$events$.size - 1 <= max(s1_u$signal$.sample_id)), TRUE)
+  expect_equal(all(s1_u2$events$.sample_0 + s1_u2$events$.size - 1 <= max(s1_u2$signal$.sample_id)), TRUE)
+  expect_equal(all(s1_u2$events$.sample_0 + s1_u2$events$.size - 1 <= max(s1_u2$signal$.sample_id)), TRUE)
 })
 
 
@@ -188,7 +207,18 @@ test_that("can segment", {
 # need to check what happens with different segments, in particular  segment by something else buttype
 
 
+baselines <- dplyr::summarize(dplyr::group_by(
+                              dplyr::filter(eegble:::declass(data$signal)$tbl, .sample_id <=0),
+                              .id),  bX = mean(X), bY = mean(Y))
+signal_with_baselines <- dplyr::left_join(eegble:::declass(data$signal)$tbl, baselines) 
+signal_with_baselines$new_X <- signal_with_baselines$X - signal_with_baselines$bX
+signal_with_baselines$new_Y <- signal_with_baselines$Y - signal_with_baselines$bY
+baselined <- ch_baseline(data)
 
+test_that("baseline works", {
+expect_equal(eegble:::declass(baselined$signal)$tbl$X,  signal_with_baselines$new_X )
+expect_equal(eegble:::declass(baselined$signal)$tbl$Y,  signal_with_baselines$new_Y )
+})
 
 # segment(data0, type== "Time 0", lim = c(100,100))
 # dots <- rlang::quos(type== "Time 0")
@@ -203,6 +233,6 @@ data0_s <- segment(data0, type == "Time 0", lim = c(-Inf, Inf))
 
 # lim could be 500s,500ms,5000 samples ,or add unit = sample, seconds/s, ms, milliseconds, ms, sec, msec, set the display and default uni with options
 
-warning("segment tests needs to be done - check the ids everywhere when several recordings are there, check the lims working")
-warning("baseline tests needs to be done")
-warning("sig_wrangling tests needs to be done")
+# warning("segment tests needs to be done - check the ids everywhere when several recordings are there, check the lims working")
+# warning("baseline tests needs to be done")
+# warning("sig_wrangling tests needs to be done")

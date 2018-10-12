@@ -37,13 +37,13 @@
 #' }
 
 #' @export
-mutate_.eegbl <- function(.data, ..., .dots = list()) {
+mutate_.eegble <- function(.data, ..., .dots = list()) {
   dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
   mutate_transmute(.data, mutate = TRUE, dots)
 }
 
 #' @export
-transmute_.eegbl <- function(.data, ..., .dots = list()) {
+transmute_.eegble <- function(.data, ..., .dots = list()) {
   dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
   mutate_transmute(.data, mutate = FALSE, dots)
 }
@@ -58,9 +58,6 @@ mutate_transmute <- function(.data, mutate = TRUE, dots) {
   # For testing:
   # dots <- rlang::quos(Occipital = (O1 + O2 + Oz)/3)
   new_dots <- dots_by_df(dots, .data)
-
-  # Adds the sampling_rate to a place that's visible inside .data$signal
-  attributes(.data$signal$sample)$sampling_rate <- .data$info$sampling_rate
 
   if (length(new_dots$signal) > 0) {
 
@@ -92,11 +89,11 @@ mutate_transmute <- function(.data, mutate = TRUE, dots) {
     )
   }
 
-  update_chans(.data) %>% validate_eegbl()
+  validate_eegble(.data)
 }
 
 #' @export
-summarise_.eegbl <- function(.data, ..., .dots = list()) {
+summarise_.eegble <- function(.data, ..., .dots = list()) {
   dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
   segments_groups <- dplyr::groups(.data$segments)
   signal_groups <- dplyr::groups(.data$signal)
@@ -118,61 +115,73 @@ summarise_.eegbl <- function(.data, ..., .dots = list()) {
     dplyr_fun = dplyr::summarize,
     dots = dots
   ) %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(sample = if ("sample" %in% tbl_vars(.)) {
-      sample
-    } else {
-      NA_integer_
-    }) %>%
-    dplyr::group_by(sample) %>%
-    dplyr::mutate(.id = seq(dplyr::n()) %>% as.integer()) %>%
+    # dplyr::ungroup() %>%
+    # dplyr::mutate(.sample_id = if (".sample_id" %in% tbl_vars(.)) {
+    #   .sample_id
+    # } else {
+    #   NA_integer_
+    # }) %>%
+    dplyr::group_by(.sample_id) %>%
+    dplyr::mutate(.id = seq_len(dplyr::n()) %>% as.integer()) %>%
     dplyr::group_by(!!!signal_groups)
 
-  last_id <- max(.data$signal$.id)
+    if(nrow(.data$signal) != 0) {
+      last_id <- max(.data$signal$.id)
+    } else {
+      last_id <- integer(0)
+    }
 
   .data$segments <- dplyr::summarize(.data$segments) %>%
     dplyr::ungroup() %>%
-    hd_add_column(.id = seq(last_id) %>% as.integer()) %>%
-    dplyr::mutate(recording = if ("recording" %in% tbl_vars(.)) {
-      recording
-    } else {
-      NA_character_
-    }) %>%
+     {if(!".id" %in% dplyr::tbl_vars(.)) {
+            hd_add_column(.id = seq_len(last_id) %>% as.integer())
+      } else { . } }%>%
+    # dplyr::mutate(recording = if ("recording" %in% tbl_vars(.)) {
+    #   recording
+    # } else {
+    #   NA_character_
+    # }) %>%
     dplyr::select(.id, dplyr::everything()) %>%
-    dplyr::group_by(recording) %>%
-    dplyr::mutate(segment = seq(dplyr::n())) %>%
+    # dplyr::group_by(recording) %>%
+    # dplyr::mutate(segment = seq_len(dplyr::n())) %>%
     dplyr::group_by(!!!segments_groups)
-  # dplyr::group_by_at(dplyr::vars(segments_groups)) #for chars
 
-  update_chans(.data) %>% validate_eegbl()
+
+    validate_eegble(.data)
 }
 
 #' @export
-tbl_vars.eegbl <- function(x) {
-  setdiff(tbl_vars(x$signal), c(".id", "sample"))
+tbl_vars.eegble <- function(x) {
+  setdiff(tbl_vars(x$signal), c(".id", ".sample_id"))
 }
 
 #' @export
-groups.eegbl <- function(x) {
+groups.eegble <- function(x) {
   groups(x$segments)
 }
 
 #' @export
-group_by_.eegbl <- function(.data, ..., .dots = list(), add = add) {
+group_by_.eegble <- function(.data, ..., .dots = list(), add = add) {
   dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
   # dots <- rlang::quos(segment)
+  # dots <- rlang::quos(.sample_id)
   # divide dots according to if they belong to $signal or segments
   new_dots <- dots_by_df(dots, .data)
 
-  .data$segments <- dplyr::group_by(.data$segments, !!!new_dots$segments, add = add)
   .data$signal <- dplyr::group_by(.data$signal, !!!new_dots$signal, add = add)
-  update_chans(.data) %>% validate_eegbl()
+  .data$segments <- dplyr::group_by(.data$segments, !!!new_dots$segments, add = add)
+
+  if(".id" %in% dplyr::group_vars(.data$signal)){
+    .data$segments <- dplyr::group_by(.data$segments, .id, add = TRUE)
+  }
+  
+  validate_eegble(.data)
 }
 
 #' @export
-ungroup.eegbl <- function(.data, ..., add = add) {
+ungroup.eegble <- function(.data, ..., add = add) {
   .data$segments <- dplyr::ungroup(.data$segments)
-  update_chans(.data) %>% validate_eegbl()
+  validate_eegble(.data)
 }
 
 
@@ -200,20 +209,21 @@ filter_.eegbl <- function(.data, ..., .dots = list()) {
 
   # Fix the indices in case some of them drop out
   redo_indices(.data) %>%
-    update_chans() %>%
-    validate_eegbl()
+    validate_eegble()
 }
+
+
 
 
 #' @export
 #'
-select.eegbl <- function(.data, ...) {
+select.eegble <- function(.data, ...) {
   select_rename(.data, select = TRUE, ...)
 }
 
 #' @export
 #'
-rename.eegbl <- function(.data, ...) {
+rename.eegble <- function(.data, ...) {
   select_rename(.data, select = FALSE, ...)
 }
 
@@ -249,26 +259,26 @@ select_rename <- function(.data, select = TRUE, ...) {
     }
   }
 
-  update_chans(.data) %>% validate_eegbl()
+  validate_eegble(.data)
 }
 
 
 
 #' @export
-left_join.eegbl <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
+left_join.eegble <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
   # if(!is_eegble(x)) stop("x must be an eegble.")
   # df <-  attr(x, "act_on")
   # if(!df %in% c("segments","events")) stop("x must be act_on segments or events.")
 
   x[["segments"]] <- dplyr::left_join(x[["segments"]], y = y, by = by, copy = copy, suffix = c(".x", ".y"), ...)
 
-  validate_eegbl(x)
+  validate_eegble(x)
 }
 
 
 
 #' @export
-semi_join.eegbl <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
+semi_join.eegble <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   # if(!is_eegble(x)) stop("x must be an eegble.")
   # df <-  attr(x, "act_on")
   # if(!df %in% c("segments","events")) stop("x must be act_on segments or events.")
@@ -284,12 +294,12 @@ semi_join.eegbl <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   # x$events <- dplyr::semi_join(x$events, x[[df]], by = ".id")
   # }
 
-  validate_eegbl(x)
+  validate_eegble(x)
 }
 
 
 #' @export
-anti_join.eegbl <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
+anti_join.eegble <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   # if(!is_eegble(x)) stop("x must be an eegble.")
   # df <-  attr(x, "act_on")
   # if(!df %in% c("segments","events")) stop("x must be act_on segments or events.")
@@ -305,5 +315,5 @@ anti_join.eegbl <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   #   x$events <- dplyr::semi_join(x$events, x[[df]], by = ".id")
   # }
 
-  validate_eegbl(x)
+  validate_eegble(x)
 }

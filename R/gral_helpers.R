@@ -13,69 +13,8 @@ redo_indices <- function(.eegbl) {
   .eegbl
 }
 
-# this function basically applies a dplyr function (dplyr_fun) to $signal based on groups of segments (ext_grouping_df)
-#' @noRd
-do_based_on_grps <- function(.df, ext_grouping_df, dplyr_fun, dots) {
-  int_groups <- dplyr::groups(.df)
-  ext_group_names <- dplyr::group_vars(ext_grouping_df)
-  id <- .df$.id
-  # list of groups from segments to create on the fly
-  new_groups <- purrr::map(
-    ext_group_names,
-    ~rlang::expr(ext_grouping_df[id, ][[!!.x]])
-  ) %>%
-    purrr::set_names(ext_group_names)
-
-  # I need to ungroup first because if not, the other groups need ot be the size of the grouping that were already made and not the size of the entire signal df
-  .df <- dplyr::ungroup(.df) %>%
-    # TODO: check the following
-    # maybe doing a left_join and then group would be not slower
-    dplyr::group_by(!!!new_groups, !!!int_groups) %>%
-    dplyr_fun(!!!dots) %>% # after summarizing I add the .id
-    dplyr::ungroup(.df) %>%
-    dplyr::select(-dplyr::one_of(ext_group_names)) %>%
-    # in case .id was removed :
-    dplyr::mutate(
-      .id = if (".id" %in% tbl_vars(.)) {
-        .id
-      } else {
-        NA_integer_
-      },
-      sample = if ("sample" %in% tbl_vars(.)) {
-        sample
-      } else {
-        NA_integer_
-      }
-    ) %>%
-    dplyr::select(.id, sample, dplyr::everything())
-}
 
 
-# https://stackoverflow.com/questions/50563895/using-rlang-find-the-data-pronoun-in-a-set-of-quosures
-getAST <- function(ee) {
-  as.list(ee) %>% purrr::map_if(is.call, getAST)
-}
-
-dots_by_df <- function(dots, .eegbl) {
-  signal_cols <- c(channel_names(.eegbl), "sample", "channelMeans")
-
-  signal_dots <- purrr::map_lgl(dots, function(dot)
-  # get the AST of each call and unlist it
-    getAST(dot) %>%
-      unlist(.) %>%
-      # make it a vector of strings
-      purrr::map_chr(~rlang::quo_text(.x)) %>%
-      # check if it's some channel (might be problematic if a channel is named like function)
-      {
-        length(dplyr::intersect(., signal_cols)) > 0
-      })
-
-  # returns a vector of TRUE/FALSE indicating for each call whether it belongs to signals
-  # if both signal and segments columns are there, it will say that the dots should apply
-  # to a signal dataframe.
-
-  list(signal = dots[signal_dots], segments = dots[!signal_dots])
-}
 
 names_segments_col <- function(.eegbl, dots) {
   segments_cols <- setdiff(colnames(.eegbl$segments), ".id") # removes .id
@@ -139,10 +78,9 @@ factors <- function(N) {
 
 
 obligatory_cols <- list(
-  signal = c(".id", "sample"),
-  events = c(".id", "sample", "size", "channel"),
-  channels = c("labels", "x", "y", "z"),
-  segments = c(".id", "segment", "recording")
+  signal = c(".id", ".sample_id"),
+  events = c(".id", ".sample_0", ".size", ".channel"),
+  segments = c(".id")
 )
 
 update_chans <- function(x) {

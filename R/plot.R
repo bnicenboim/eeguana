@@ -44,7 +44,7 @@ plot_gg <- function(x, ...) {
 }
 
 #' @export
-plot_gg.eegbl <- function(x, ..., max_sample = 2000) {
+plot_gg.eegble <- function(x, ..., max_sample = 2000) {
   if (is.numeric(max_sample) & max_sample != 0 &
     # it will downsample if the samples are at least twice as large than the max_sample
     max(duration(x)) * sampling_rate(x) * 2 > max_sample) {
@@ -87,13 +87,13 @@ plot_topo <- function(x, method = "MBA", ...) {
 }
 
 #' @export
-plot_topo.eegbl <- function(x, method = "MBA", ...) {
+plot_topo.eegble <- function(x, method = "MBA", ...) {
   grouping_vars <- colnames(x$segments) %>% setdiff(c(".id", "segment"))
-  chan_vars <- colnames(x$channels) %>% setdiff("labels")
+  chan_vars <- c("x","y")
   s_x <- summarize_id_as_tibble(x, mean, na.rm = TRUE) %>%
-    dplyr::group_by_at(c(grouping_vars, chan_vars, "channel")) %>%
+    dplyr::group_by_at(c(grouping_vars, "channel",chan_vars)) %>%
     dplyr::summarize(A = mean(mean, na.rm = TRUE)) %>%
-    dplyr::group_by_at(grouping_vars)
+    dplyr::group_by_at(grouping_vars) 
 
 
   grid <- interpolate_xy(s_x, x = x, y = y, value = A, ...)

@@ -9,8 +9,8 @@ eegble <- function(signal, events, segments) {
 #' Builds a signal table.
 #' @return A valid signal table.
 #' @export
-signal <- function(signal_matrix, ids, sample_ids) {
-  validate_signal(new_signal(signal_matrix, ids, sample_ids))
+signal <- function(signal_matrix, ids, sample_ids, channel_info) {
+  validate_signal(new_signal(signal_matrix, ids, sample_ids, channel_info))
 }
 
 #' Test if the object is a  signal
