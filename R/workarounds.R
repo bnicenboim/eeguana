@@ -11,3 +11,19 @@ function (.l, .f, ..., .id = NULL) {
     dplyr::bind_rows(res_tbl, .id = .id) %>% 
     reclass(res_attr)
 }
+
+map2_sgr <-
+
+function (.x, .y, .f, ..., .id = NULL) 
+{
+    # if (!is_installed("dplyr")) {
+    #     abort("`map2_dfr()` requires dplyr")
+    # }
+    .f <- purrr::as_mapper(.f, ...)
+    res <- purrr::map2(.x, .y, .f, ...) %>%
+        purrr::map(declass)
+    res_tbl <- purrr::map(res, ~ .x$tbl)
+    res_attr <- purrr::flatten(purrr::map(res, ~ .x$attr))
+    dplyr::bind_rows(res_tbl, .id = .id) %>% 
+    reclass(res_attr)
+}
