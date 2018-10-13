@@ -206,7 +206,7 @@ bind <- function(...) {
 
   new_eegble <- new_eegble(
     signal = signal, events = events, segments = segments) %>% 
-     validate_eegbl()
+     validate_eegble()
   invisible(message(say_size(new_eegble)))
 }
 
