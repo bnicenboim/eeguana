@@ -33,23 +33,55 @@ chs_mean <- function(..., na.rm = FALSE) {
 
 
 
-#' Convert time to sample number.
-#'
-#' @param x An eegble.
-#' @param t A vector of times.
+#' Convert a time point into a sample point.
+#' 
+#' 
+#' @param x A vector of times.
 #' @param unit "seconds" (or "s"), "milliseconds" (or "ms")
+#' @param sampling_rate
 #'
-#' @return A vector of sample numbers.
+#' @return A \code{sample_id} object.
 #'
 #' @importFrom magrittr %>%
 #'
 #' @examples
 #' \dontrun{
 #'
-#' faces_segs_some %>% filter(between(sample, in_samples(., 100, unit = "ms"),
-#'                               in_samples(., 300, unit = "ms")))
+#' faces_segs_some %>% filter(between(.sample_id, as_sample_id(100, unit = "ms", sampling_rate = 500),
+#'                               as_sample_id(300, unit = "ms", sampling_rate = 500)))
 #' }
 #' @export
-in_samples <- function(x, t, unit = "seconds") {
-  t * scaling(x, unit)
+as_sample_id <- function(x, unit = "seconds", sampling_rate) {
+	#TODO I could check if it's been called inside the eegble and extract the sampling rate.
+  x * scaling(sampling_rate, unit)
 }
+
+
+#' Convert a sample point into a time point.
+#'
+#'
+#' @param x A \code{sample_id} object.
+#' @param unit "seconds" (or "s"), "milliseconds" (or "ms")
+#'
+#' @return A vector of times.
+#'
+#' @importFrom magrittr %>%
+#'
+#' @export
+as_time <- function(x, unit = "second") {
+  UseMethod("as_time")
+}
+
+#' @export
+as_time.sample_id <- function(x, unit = "second") {
+  # add unit
+
+  time <- x / scaling(sampling_rate = attributes(x)$sampling_rate, unit)
+
+  attributes(time) <- NULL
+  time
+}
+
+
+
+

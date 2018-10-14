@@ -1,6 +1,8 @@
-  # bind_rows looses the attributes
-  # https://github.com/tidyverse/dplyr/issues/2457
-  # This is a workaround to create signal tables
+
+#' bind_rows looses the attributes
+#' https://github.com/tidyverse/dplyr/issues/2457
+#' This is a workaround to create signal tables
+#' @noRd
 pmap_sgr <- 
 function (.l, .f, ..., .id = NULL) {
     .f <- purrr::as_mapper(.f, ...)
@@ -12,10 +14,8 @@ function (.l, .f, ..., .id = NULL) {
     reclass(res_attr)
 }
 
-map2_sgr <-
-
-function (.x, .y, .f, ..., .id = NULL) 
-{
+#' @noRd
+map2_sgr <- function (.x, .y, .f, ..., .id = NULL) {
     # if (!is_installed("dplyr")) {
     #     abort("`map2_dfr()` requires dplyr")
     # }

@@ -1,23 +1,23 @@
 
 #' Mutate/transmute/select/rename channels with signals,  segments.
 #'
-#' Manipulate the signal, events and the segments of an eegble.
+#' Manipulate the signal and the segments table of an eegble.
 #'
 #' Wrappers for \link{dplyr}'s commands that act on different parts
 #' \code{eggble} objects.
 #' The following wrappers have been implemented for \code{eegble} objects:
 #' \itemize{
-#' \item \code{summarize()} summarizes the channel of the signal dataframe.
-#' \item \code{summarize_all()} summarizes all the channels of the signal dataframe.
-#' \item \code{mutate()} adds new variables and preserves existing ones.
-#' \item \code{mutate_all()} mutates all the channels of the signal dataframe.
-#' \item \code{transmute()} drops existing variables.
-#' \item \code{select()} keeps only the mentioned variables.
+#' \item \code{summarize()} summarizes the channel of the signal table
+#' \item \code{summarize_all()} summarizes all the channels of the signal table.
+#' \item \code{mutate()} adds new variables and preserves existing ones. Variables that are a function of a channel are added to the signal table, and other variables are added to the segments table.
+#' \item \code{mutate_all()} mutates all the channels of the signal table.
+#' \item \code{transmute()} like \code{mutate} but drops non-used variables of the referred table.
+#' \item \code{select()} keeps only the mentioned variables from the refered table, except for the obligatory columns starting with \code{.}.
 #' \item \code{rename()}: keeps all variables.
 #' \item \code{filter()}: finds segments/samples where conditions are true. Segments/samples where the condition evaluates to NA are dropped.
-#' \item \code{left_join()}: left-joins an external dataframe to one of the segments of the eegble.
-#' \item \code{semi_join()}: semi-joins an external dataframe to one of the segments of the eegble.
-#' \item \code{anti_join()}: anti-joins an external dataframe to one of the segments of the eegble.
+#' \item \code{left_join()}: left-joins an external table to one of the segments of the eegble.
+#' \item \code{semi_join()}: semi-joins an external table to one of the segments of the eegble.
+#' \item \code{anti_join()}: anti-joins an external table to one of the segments of the eegble.
 #' \item  \code{group_by()}: allows that operations would be performed "by group".
 #' \item  \code{ungroup()}: removes the grouping created by group_by.
 #' }
@@ -25,8 +25,8 @@
 #' These commands always return the entire eegble so that
 #' they can be ' piped using \link{magrittr}'s pipe, %>%.
 #'
-#' @param .data An eegbl.
-#' @param ... \code{signal}, \code{events} or \code{segments} for \code{act_on}, and see  \link{dplyr-package} for the different dplyr "verbs".
+#' @param .data An eegble.
+#' @param ... Name-value pairs of expressions; see  \link{dplyr-package} for more help.
 #' @return An eegble object.
 #'
 #'
@@ -146,6 +146,8 @@ summarise_.eegble <- function(.data, ..., .dots = list()) {
     # dplyr::mutate(segment = seq_len(dplyr::n())) %>%
     dplyr::group_by(!!!segments_groups)
 
+    #TODO maybe I can do some type of summary of the events table, instead
+    .data$events <- .data$events %>% filter(FALSE)
 
     validate_eegble(.data)
 }
@@ -238,18 +240,26 @@ select_rename <- function(.data, select = TRUE, ...) {
   }
   dots <- rlang::enquos(...)
   # dots <- rlang::quos(xx =Fp1, yy = Cz)
+  # dots <- rlang::quos(O1, O2, P7, P8)
   # dots <- rlang::quos(-Fp1)
   all_vars <- vars_fun(unique(c(
     names(.data$signal),
     names(.data$segments)
   )), !!!dots)
 
-  # Divide the variables into the relevant columns
+  select_in_df <- c("signal", "segments")
+  if(length(intersect(all_vars,names(.data$segments)))==0){
+    select_in_df <- select_in_df[select_in_df != "segments"]
+  }
+  if(length(intersect(all_vars,names(.data$signal)))==0){
+        select_in_df <- select_in_df[select_in_df != "signal"]
+  }
 
-  for (dfs in c("signal", "segments")) {
+  # Divide the variables into the relevant columns
+  for (dfs in select_in_df) {
     vars_dfs <- all_vars[all_vars %in% colnames(.data[[dfs]])]
         # by adding these groups, select won't remove the obligatory columns
-    vars_dfs <- c(vars_dfs, obligatory_cols[[dfs]])
+    vars_dfs <- c(obligatory_cols[[dfs]], vars_dfs)
 
     if (length(vars_dfs) > 0) {
       orig_groups <- dplyr::groups(.data[[dfs]])
@@ -266,10 +276,8 @@ select_rename <- function(.data, select = TRUE, ...) {
 
 #' @export
 left_join.eegble <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
-  # if(!is_eegble(x)) stop("x must be an eegble.")
-  # df <-  attr(x, "act_on")
-  # if(!df %in% c("segments","events")) stop("x must be act_on segments or events.")
-
+  if(!is.data.frame(y)) stop("y must be a data frame or tibble.")
+  
   x[["segments"]] <- dplyr::left_join(x[["segments"]], y = y, by = by, copy = copy, suffix = c(".x", ".y"), ...)
 
   validate_eegble(x)
@@ -279,41 +287,21 @@ left_join.eegble <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y
 
 #' @export
 semi_join.eegble <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
-  # if(!is_eegble(x)) stop("x must be an eegble.")
-  # df <-  attr(x, "act_on")
-  # if(!df %in% c("segments","events")) stop("x must be act_on segments or events.")
-
+  if(!is.data.frame(y)) stop("y must be a data frame or tibble.")
+ 
   x[["segments"]] <- dplyr::semi_join(x[["segments"]], y, by = NULL, suffix = c(".x", ".y"), ...)
   x$signal <- dplyr::semi_join(x$signal, x[["segments"]], by = ".id")
 
-  # if(df %in% "events"){
-  #   x$segments <- dplyr::semi_join(x$segments, x[[df]], by = ".id")
-  # }
-
-  # if(df %in% "segments"){
-  # x$events <- dplyr::semi_join(x$events, x[[df]], by = ".id")
-  # }
-
-  validate_eegble(x)
+   validate_eegble(x)
 }
 
 
 #' @export
 anti_join.eegble <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
-  # if(!is_eegble(x)) stop("x must be an eegble.")
-  # df <-  attr(x, "act_on")
-  # if(!df %in% c("segments","events")) stop("x must be act_on segments or events.")
-
+  if(!is.data.frame(y)) stop("y must be a data frame or tibble.")
+ 
   x[["segments"]] <- dplyr::anti_join(x[["segments"]], y, by = NULL, suffix = c(".x", ".y"), ...)
   x[["signal"]] <- dplyr::semi_join(x[["signal"]], x[["segments"]], by = ".id")
-
-  # if(df %in% "events"){
-  #   x$segments <- dplyr::semi_join(x$segments, x[[df]], by = ".id")
-  # }
-
-  # if(df %in% "segments"){
-  #   x$events <- dplyr::semi_join(x$events, x[[df]], by = ".id")
-  # }
 
   validate_eegble(x)
 }

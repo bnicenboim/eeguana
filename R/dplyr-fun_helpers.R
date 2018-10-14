@@ -1,7 +1,10 @@
 # https://stackoverflow.com/questions/50563895/using-rlang-find-the-data-pronoun-in-a-set-of-quosures
+#' @noRd
 getAST <- function(ee) {
   as.list(ee) %>% purrr::map_if(is.call, getAST)
 }
+
+#' @noRd
 
 #TODO: use str_* to make the signal_cols more general, 
 #it should ignore if there is a function that starts with ch_ (using is.function)
@@ -86,3 +89,64 @@ do_based_on_grps <- function(.df, ext_grouping_df, dplyr_fun, dots) {
     dplyr::select(.df, obligatory_cols$signal, dplyr::everything())
 }
 
+
+#' @noRd
+scaling <- function(sampling_rate, unit) {
+  if (stringr::str_to_lower(unit) %in% c("s", "sec", "second", "seconds", "secs")) {
+    scaling <- sampling_rate
+  } else if (stringr::str_to_lower(unit) %in% c(
+    "ms", "msec", "millisecond",
+    "milli second", "milli-second",
+    "milliseconds", "milli seconds",
+    "msecs"
+  )) {
+    scaling <- sampling_rate / 1000
+  } else if (stringr::str_to_lower(unit) %in% c("sam", "sample", "samples")) {
+    scaling <- 1
+  } else {
+    stop("Incorrect unit. Please use 'ms', 's', or 'sample'")
+  }
+}
+
+
+#' @noRd
+redo_indices <- function(.eegble) {
+  redo_indices_df <- function(df) {
+    orig_groups <- dplyr::groups(df)
+    df <- df %>%
+      dplyr::ungroup() %>%
+      dplyr::mutate(.id = dplyr::group_indices(., .id) %>% as.integer()) %>%
+      dplyr::group_by(!!!orig_groups)
+  }
+
+  .eegble$signal <- redo_indices_df(.eegble$signal)
+  .eegble$segments <- redo_indices_df(.eegble$segments)
+  .eegble
+}
+
+#' @noRd
+names_segments_col <- function(.eegble, dots) {
+  segments_cols <- setdiff(colnames(.eegble$segments), ".id") # removes .id
+
+  names_s <- c()
+  for (n in seq_len(length(dots))) {
+    # get the AST of each call and unlist it
+    names_s <- c(names_s, getAST(dots[[n]]) %>%
+      unlist(.) %>%
+      # make it a vector of strings
+      purrr::map_chr(~rlang::quo_text(.x)) %>%
+      dplyr::intersect(segments_cols))
+  }
+  unique(names_s)
+}
+
+
+#' Add a column to (an empty) table
+#' Taken from https://community.rstudio.com/t/cannot-add-column-to-empty-tibble/1903/11
+#' @noRd
+hd_add_column <- function(.data, ..., .before = NULL, .after = NULL) {
+  if (nrow(.data) == 0L) {
+    return(tibble::tibble(...))
+  }
+  return(tibble::add_column(.data, ..., .before = .before, .after = .after))
+}

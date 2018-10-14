@@ -18,7 +18,7 @@ An \code{eegble}.
 }
 \description{
 Subdivides of the EEG into different segments or epochs. When there is no
-segmentation, ' the \code{eegble} contain one segment. ' (Fieldtrip calls the
+segmentation, the \code{eegble} contain one segment. (Fieldtrip calls the
 segment "trials".) The limits of \code{segment} are inclusive: If, for
 example, lim =c(0,0), the segment would contain only sample 1.
 }

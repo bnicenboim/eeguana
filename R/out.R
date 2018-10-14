@@ -2,13 +2,11 @@
 #'
 #' \itemize{
 #' \item \code{nchannels()}: Returns the number of channels.
-#' \item \code{chan_names()}: Returns a vector with the name of the channels.
-#' \item \code{channels()}: Returns a data frame (tibble) with information about the channels.
-#' \item \code{info()}: Returns a data frame (tibble) with information about the EEG recording.
-#' \item \code{sampling_rate()}: Returns the sampling rate.
-#' \item \code{reference()}: Returns the reference.
-#' \item \code{duration()}: Returns the duration of the recording (or segments).
+#' \item \code{channel_names()}: Returns a vector with the name of the channels.
+#' \item \code{nchannels()}: Returns the number of channels.
 #' \item \code{nsamples()}: Returns the number of samples of the recording (or segments).
+#' \item \code{summary()}: Prints a summary of the eegble object. (It also returns a list.)
+#' \item \code{count_complete_cases_tbl()}: Returns a table with the number of complete segments by specified groups.
 #' }
 #' @param x An eegble object.
 #'
@@ -25,7 +23,7 @@ channel_names <- function(x, ...) {
 
 #' @export
 channel_names.eegble <- function(x) {
-  setdiff(colnames(x$signal), reserved_cols_signal)
+  setdiff(colnames(x$signal), obligatory_cols[["signal"]])
 }
 
 
@@ -38,7 +36,7 @@ nchannels <- function(x, ...) {
 
 #' @export
 nchannels.eegble <- function(x) {
-  ncol(x$signal) - length(reserved_cols_signal)
+  ncol(x$signal) - length(obligatory_cols[["signal"]])
 }
 
 
@@ -77,10 +75,6 @@ nsamples.eegble <- function(x) {
 }
 
 
-
-
-
-
 #' Summary of eegble information.
 #'
 #' @param object An eegble object.
@@ -100,19 +94,19 @@ summary.eegble <- function(object, ...) {
                   size = capture.output(pryr::object_size(object)))
   
   
-  message(paste0("# EEG data (eegble) from the following channels:"))
+  print(paste0("# EEG data (eegble) from the following channels:"))
   summ$channels %>% 
     print(., !!!dots)
 
-  message(paste0("# Sampling rate: ", summ$sampling_rate, " Hz."))
+  print(paste0("# Sampling rate: ", summ$sampling_rate, " Hz."))
 
-  message(paste0("# Size in memory: ", summ$size, "."))
+  print(paste0("# Size in memory: ", summ$size, "."))
 
-  message("# Summary of segments")
+  print("# Summary of segments")
   summ$segments %>% 
     print(., !!!dots)
 
-  message("# Summary of events")
+  print("# Summary of events")
   summ$events %>% 
     print(., !!!dots)
 
@@ -120,7 +114,8 @@ summary.eegble <- function(object, ...) {
 }
 
 
-#' count number of complete segments of an eegble object.
+#' Count number of complete segments of an eegble object.
+#' 
 #' @param x An \code{eegble} object.
 #' @param ... Variables to group by.
 #'
@@ -136,7 +131,7 @@ summary.eegble <- function(object, ...) {
 #' }
 #' @export
 count_complete_cases_tbl <- function(x, ...) {
-  UseMethod("count_complete_cases")
+  UseMethod("count_complete_cases_tbl")
 }
 
 #' @export

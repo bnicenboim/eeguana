@@ -216,35 +216,3 @@ downsample.eegble <- function(x, q = 2L, max_sample = NULL,
 }
 
 
-#' Resample EEG data
-#'
-#' Resample a signal by setting new sampling rate or a maximum number of samples.
-#' This is a wrapper for \link{interp1} from the
-#' \link{signal} package, see its documentation for details. Notice that
-#' the code of the \link{signal} package might be outdated.
-#'
-#'
-#' @param x An eegble object.
-#' @param sampling_rate New sampling rate.
-#' @param max_sample Optionally, the (approximated) maximum sample number can be defined here.
-#' @param method Method passed to interp1, "pchip" by default.
-#' @param ... Other arguments passed to interp1.
-#'
-#'
-#'
-#'
-#'
-#'
-resample <- function(x, sampling_rate = NULL, max_sample = NULL, method = "pchip", ...) {
-  UseMethod("resample")
-}
-
-#'
-resample.eegble <- function(x, sampling_rate = NULL, max_sample = NULL, method = "", ...) {
- 
-  warning("# Use with caution, resampling is based on decimate from the signal package, which might be outdated")
-  message(paste0(
-    "# Resampling from ", sampling_rate(x), "Hz to ",
-    new_sampling_rate, "Hz."
-  ))
-}

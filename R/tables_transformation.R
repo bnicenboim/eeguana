@@ -1,7 +1,7 @@
 #' Segments an eegble.
 #'
 #' Subdivides of the EEG into different segments or epochs. When there is no
-#' segmentation, ' the \code{eegble} contain one segment. ' (Fieldtrip calls the
+#' segmentation, the \code{eegble} contain one segment. (Fieldtrip calls the
 #' segment "trials".) The limits of \code{segment} are inclusive: If, for
 #' example, lim =c(0,0), the segment would contain only sample 1.
 #'
@@ -41,7 +41,7 @@ segment.eegble <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
   times0 <- dplyr::filter(x$events, !!!dots) %>%
     dplyr::select(-.channel, -.size)
 
-  scaling <- scaling(x, unit)
+  scaling <- scaling(sampling_rate(x), unit)
 
   if (length(lim) == 2) {
     lim <- rep(list(lim), each = nrow(times0))
@@ -134,7 +134,8 @@ segment.eegble <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
 
 #' Bind eegble objects.
 #'
-#' This function binds eegbles and throws a warning if there is a mismatch in the channel information.
+#' Binds eegble and throws a warning if there is a mismatch in the channel information.
+#' 
 #' @param ... Eegble objects to combine.
 #'
 #' @return An \code{eegble} object.

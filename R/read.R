@@ -79,7 +79,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
   sample <- purrr::pmap(slengths, ~
   seq(..3 + 1, length.out = ..2 - ..1 + 1)) %>%
     unlist() %>%
-    as.integer()
+    new_sample_id(sampling_rate = sampling_rate)
 
   signal <- purrr::map_dfr(mat[[1]][, , 1]$trial,
     function(lsegment) {
@@ -88,9 +88,39 @@ read_ft <- function(file, layout = NULL, recording = file) {
     .id = ".id"
   )
 
-  colnames(signal) <- c(".id", channel_names)
-  signal <- dplyr::mutate(signal, .sample = sample, .id = as.integer(.id)) %>%
-    dplyr::select(.id, .sample, dplyr::everything())
+  # channel info:
+  channels <- dplyr::tibble(
+    labels = make.unique(channel_names),
+    x = NA_real_, y = NA_real_, z = NA_real_, reference = NA
+  )
+
+  if (!is.null(layout)) {
+    chan_layout <- R.matlab::readMat(layout) %>%
+      {
+        dplyr::mutate(.$lay[, , 1]$pos %>% as.data.frame(),
+          labels = unlist(.$lay[, , 1]$label)
+        )
+      } %>%
+      dplyr::rename(x_2d = V1, y_2d = V2)
+    not_layout <- setdiff(chan_layout$labels, channels$labels)
+    not_channel <- setdiff(channels$labels, chan_layout$labels)
+    warning(paste0(
+      "The following channels are not in the layout file : ",
+      paste(not_layout, collapse = ", "), "."
+    ))
+    warning(paste0(
+      "The following channels are not in the data: ",
+      paste(not_channel, collapse = ", "), "."
+    ))
+    channels <- dplyr::left_join(channels, dplyr::as_tibble(chan_layout), by = "labels")
+  }
+
+
+  # colnames(signal) <- c(".id", channel_names)
+  # signal <- dplyr::mutate(signal, .sample = sample, .id = as.integer(.id)) %>%
+  #   dplyr::select(.id, .sample, dplyr::everything())
+  signal <- new_signal(select(signal,-.id), 
+          ids = select(signal,.id), sample_ids= sample, channel_info = channels)
 
 
   as_first_non0 <- function(col) {
@@ -121,43 +151,8 @@ read_ft <- function(file, layout = NULL, recording = file) {
     recording = recording, segment = .id
   )
 
-  eeg_info <- list(
-    sampling_rate = sampling_rate,
-    reference = NA
-  )
-
-  # channel info:
-  channels <- dplyr::tibble(
-    labels = make.unique(channel_names),
-    x = NA_real_, y = NA_real_, z = NA_real_
-  )
-
-  if (!is.null(layout)) {
-    chan_layout <- R.matlab::readMat(layout) %>%
-      {
-        dplyr::mutate(.$lay[, , 1]$pos %>% as.data.frame(),
-          labels = unlist(.$lay[, , 1]$label)
-        )
-      } %>%
-      dplyr::rename(x_2d = V1, y_2d = V2)
-    not_layout <- setdiff(chan_layout$labels, channels$labels)
-    not_channel <- setdiff(channels$labels, chan_layout$labels)
-    warning(paste0(
-      "The following channels are not in the layout file : ",
-      paste(not_layout, collapse = ", "), "."
-    ))
-    warning(paste0(
-      "The following channels are not in the data: ",
-      paste(not_channel, collapse = ", "), "."
-    ))
-    channels <- dplyr::left_join(channels, dplyr::as_tibble(chan_layout), by = "labels")
-  }
-
-  channels$labels <- forcats::as_factor(channels$labels)
-
-  eegble <- new_eegbl(
-    signal = signal, events = events, channels = channels,
-    info = eeg_info, segments = segments
+  eegble <- new_eegble(
+    signal = signal, events = events, segments = segments
   )
 
 
