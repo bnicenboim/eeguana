@@ -146,7 +146,7 @@ segment.eegble <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
 bind <- function(...) {
   eegbles <- list(...)
   # hack to allow that "..." would already be a list
-  if (class(eegbles[[1]]) != "eegbl") {
+  if (class(eegbles[[1]]) != "eegble") {
     eegbles <- list(...)[[1]]
   }
 
