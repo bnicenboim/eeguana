@@ -3,8 +3,7 @@
 #' https://github.com/tidyverse/dplyr/issues/2457
 #' This is a workaround to create signal tables
 #' @noRd
-pmap_sgr <- 
-function (.l, .f, ..., .id = NULL) {
+pmap_sgr <- function (.l, .f, ..., .id = NULL) {
     .f <- purrr::as_mapper(.f, ...)
     res <- purrr::pmap(.l, .f, ...) %>% 
     purrr::map(declass)
@@ -26,4 +25,13 @@ map2_sgr <- function (.x, .y, .f, ..., .id = NULL) {
     res_attr <- purrr::flatten(purrr::map(res, ~ .x$attr))
     dplyr::bind_rows(res_tbl, .id = .id) %>% 
     reclass(res_attr)
+}
+
+
+#' @noRd
+
+between <- function (x, left, right) {
+    attributes(x) <- NULL
+    .Call(dplyr:::`_dplyr_between`, x, left, right)
+
 }

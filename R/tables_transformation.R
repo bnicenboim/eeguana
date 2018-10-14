@@ -239,7 +239,7 @@ event_to_ch_NA.eegble <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
     if (!entire_seg) {
       for (i in seq(1, nrow(b))) {
         x$signal[[as.character(c)]][x$signal$.id %in% b$.id[i] &
-          dplyr::between(
+          between(
             x$signal$.sample_id, b$.sample_0[i],
             b$.sample_0[i] + b$.size[i] - 1
           )  ] <- NA
@@ -255,7 +255,7 @@ event_to_ch_NA.eegble <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
   if (!entire_seg & nrow(b_all) != 0) {
     for (i in seq(1, nrow(b_all))) {
       x$signal[, channel_names(x)][x$signal$.id == b_all$.id[i] &
-        dplyr::between(
+        between(
           x$signal$.sample_id, b_all$.sample_0[i],
           b_all$.sample_0[i] + b_all$.size[i] - 1
         ), ] <- NA

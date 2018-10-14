@@ -89,7 +89,7 @@ mutate_transmute <- function(.data, mutate = TRUE, dots) {
     )
   }
 
-  validate_eegble(.data)
+  update_events_channels(.data) %>% validate_eegble()
 }
 
 #' @export
@@ -149,7 +149,7 @@ summarise_.eegble <- function(.data, ..., .dots = list()) {
     #TODO maybe I can do some type of summary of the events table, instead
     .data$events <- .data$events %>% filter(FALSE)
 
-    validate_eegble(.data)
+  update_events_channels(.data) %>% validate_eegble()
 }
 
 #' @export
@@ -210,8 +210,7 @@ filter_.eegble <- function(.data, ..., .dots = list()) {
   }
 
   # Fix the indices in case some of them drop out
-  redo_indices(.data) %>%
-    validate_eegble()
+  redo_indices(.data) %>% update_events_channels() %>%   validate_eegble()
 }
 
 
@@ -269,7 +268,7 @@ select_rename <- function(.data, select = TRUE, ...) {
     }
   }
 
-  validate_eegble(.data)
+  update_events_channels(.data) %>% validate_eegble()
 }
 
 

@@ -86,7 +86,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
     function(b, s0, e)  
         # filter the relevant samples
         # the first sample of a segment is 1
-        sample_id[dplyr::between(sample_id, b, e)] %>% 
+        sample_id[between(sample_id, b, e)] %>% 
         {. - s0 + 1L} %>% list( .sample_id=.))
 
     signal <- new_signal(signal_matrix = raw_signal, ids = as.integer(sample_id_ided$.id),
