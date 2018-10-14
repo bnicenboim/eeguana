@@ -238,6 +238,7 @@ select_rename <- function(.data, select = TRUE, ...) {
   }
   dots <- rlang::enquos(...)
   # dots <- rlang::quos(xx =Fp1, yy = Cz)
+  # dots <- rlang::quos(-Fp1)
   all_vars <- vars_fun(unique(c(
     names(.data$signal),
     names(.data$segments)
@@ -247,13 +248,12 @@ select_rename <- function(.data, select = TRUE, ...) {
 
   for (dfs in c("signal", "segments")) {
     vars_dfs <- all_vars[all_vars %in% colnames(.data[[dfs]])]
-    # intersect(all_vars, colnames(.data$signal))
+        # by adding these groups, select won't remove the obligatory columns
+    vars_dfs <- c(vars_dfs, obligatory_cols[[dfs]])
+
     if (length(vars_dfs) > 0) {
       orig_groups <- dplyr::groups(.data[[dfs]])
       .data[[dfs]] <- .data[[dfs]] %>%
-        # by adding these groups, select won't remove the obligatory columns
-        dplyr::group_by_at(vars(obligatory_cols[[dfs]]), add = TRUE) %>%
-        # silences the message: Adding missing grouping variables: `.id`, `sample`
         dplyr::select(vars_dfs) %>%
         dplyr::group_by(!!!orig_groups)
     }
