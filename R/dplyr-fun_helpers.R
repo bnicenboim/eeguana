@@ -1,3 +1,10 @@
+#' @noRd
+update_events_channels <- function(x) {
+  x$events <- dplyr::filter(x$events, is.na(.channel) | .channel %in% channel_names(x))
+  x  
+}
+
+
 # https://stackoverflow.com/questions/50563895/using-rlang-find-the-data-pronoun-in-a-set-of-quosures
 #' @noRd
 getAST <- function(ee) {
@@ -149,4 +156,16 @@ hd_add_column <- function(.data, ..., .before = NULL, .after = NULL) {
     return(tibble::tibble(...))
   }
   return(tibble::add_column(.data, ..., .before = .before, .after = .after))
+}
+
+
+#' @noRd
+validate_segments <- function(segments) {
+  # Validates .id
+  if(all(unique(segments$.id) != seq_len(max(segments$.id)))) {
+    warning("Missing .ids, some functions might fail.",
+      call. = FALSE
+    )
+  }
+
 }

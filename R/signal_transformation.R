@@ -39,7 +39,7 @@ ch_baseline.eegble <- function(x, time = -Inf, sample_id = NULL) {
   x$signal <- dplyr::group_by(x$signal, .id) %>%
      dplyr::mutate_at(
       channel_names(x),
-      dplyr::funs(. - mean(.[dplyr::between(.sample_id, sample_id, 0)]))
+      dplyr::funs(. - mean(.[between(.sample_id, sample_id, 0)]))
     )
   x
 }
@@ -49,6 +49,6 @@ ch_baseline.channel <- function(x, time = -Inf, sample_id = NULL) {
 #TODO
   # sample <- get("sample", envir = parent.frame(), inherit = TRUE)
   # sample <- rlang::env(parent.frame())$sample
-  # x - mean(x[dplyr::between(sample, from_sample, 0)])
+  # x - mean(x[between(sample, from_sample, 0)])
 }
 
