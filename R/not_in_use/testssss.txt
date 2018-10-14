@@ -1,0 +1,46 @@
+I want to use env_get to evaluate a variable in the parent environment of the mutate call, but I didn't manage
+
+Given a data frame like the following
+	library(dplyr)
+	
+	l <- list(X = 10,
+			df = tibble(n = seq(-10,10), y = rnorm(21), z = runif(21)))
+
+And custom mutate for these lists.
+
+	mutate_.list <- function(.data, ...){
+		mutate_(.data$df, ...)
+	}
+
+
+I want a function that can be run inside the mutate and can use the value of
+X. Something like the following which doesn't work
+
+	addX <- function(x) {
+		X <-  rlang::env_get(env = parent.frame(2), 'X', inherit = TRUE)
+		x + X
+	}
+
+
+This works as expected.
+
+	mutate(l, n + 1)
+
+And I would like to do this:
+
+	mutate(l, addX(n))
+
+And this doesn't work. I guess I should go up parents somehow and be able to
+refer to the list, but I couldn't manage.
+
+	addX_test <- function(x) {
+		print(rlang::env_names(parent.frame(1)))  
+		x 
+	}
+
+	mutate(l, addX_test(n))
+
+I tried to see if I could find something using "env_names" but I get stuff like
+[1] "~"                        ".top_env"                
+[3] ".__tidyeval_data_mask__." ".env"
+

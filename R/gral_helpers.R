@@ -78,9 +78,9 @@ factors <- function(N) {
 
 
 obligatory_cols <- list(
-  signal = c(".id", ".sample_id"),
-  events = c(".id", ".sample_0", ".size", ".channel"),
-  segments = c(".id")
+  signal = c(.id=".id", .sample_id = ".sample_id"),
+  events = c(.id =".id", .sample_0= ".sample_0", .size = ".size", .channel =".channel"),
+  segments = c(.id = ".id")
 )
 
 update_chans <- function(x) {

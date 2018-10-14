@@ -13,5 +13,5 @@ bind(...)
 An \code{eegble} object.
 }
 \description{
-This function binds eegbles and throws a warning if there is a mismatch in the metadata.
+This function binds eegbles and throws a warning if there is a mismatch in the channel information.
 }
