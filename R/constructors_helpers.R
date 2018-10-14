@@ -1,5 +1,5 @@
 
-
+#' @noRd
 declass <- function(signal){
   # extracting attributes
   attr <- purrr:::imap(signal, ~ attributes(.x))
@@ -11,6 +11,7 @@ declass <- function(signal){
   list(tbl = declassed_signal, attr = attr )          
 }
 
+#' @noRd
 reclass <- function(tbl, attr) {
   old_attr_tbl <- attributes(tbl)
   tbl <- purrr:::imap_dfc(tbl, ~ `attributes<-`(.x,
@@ -29,7 +30,7 @@ reclass <- function(tbl, attr) {
   tbl
 }
 
-
+#' @noRd
 new_sample_id <- function(values, sampling_rate) {
   if(all(!is.na(values)) & any(values != round(values))) {
     stop("Values should be round numbers.",
@@ -45,6 +46,7 @@ new_sample_id <- function(values, sampling_rate) {
   )
 }
 
+#' @noRd
 validate_sample_id <- function(sample_id){
   if (!is.integer(sample_id)){
     stop("Values should be integers.",
@@ -59,7 +61,7 @@ validate_sample_id <- function(sample_id){
   sample_id
 }
 
-
+#' @noRd
 new_channel <- function(values, channel_info = list()) {
   values <- unclass(values)
   attributes(values) <- c(class = "channel",
@@ -67,7 +69,7 @@ new_channel <- function(values, channel_info = list()) {
   values
 }
 
-
+#' @noRd
 validate_channel <- function(channel){
   if (!is.numeric(channel)){
     stop("Values should be numeric.",
@@ -85,6 +87,7 @@ validate_channel <- function(channel){
   channel
 }
 
+#' @noRd
 new_signal <- function(signal_matrix = matrix(), ids = c(), sample_ids = c(), channel_info= dplyr::tibble()) {
 
   raw_signal <- dplyr::as_tibble(signal_matrix)
@@ -110,6 +113,7 @@ new_signal <- function(signal_matrix = matrix(), ids = c(), sample_ids = c(), ch
   signal
 }
 
+#' @noRd
 new_eegble <- function(signal = NULL, events = NULL, segments = NULL) {
   x <- list(
     signal = signal, events = events,
@@ -121,12 +125,12 @@ new_eegble <- function(signal = NULL, events = NULL, segments = NULL) {
   )
 }
 
+#' @noRd
 validate_eegble <- function(x) {
   validate_signal(x$signal)
   validate_events(x$events, channel_names(x))
   validate_segments(x$segments)
-  if(any(unique(x$signal$.id) != unique(x$segments$.id)) | 
-    any(unique(x$signal$.id) != unique(x$events$.id))){
+  if(any(unique(x$signal$.id) != unique(x$segments$.id))){
     warning("The values of .ids mismatch between tables.",
       call. = FALSE
     )
@@ -134,6 +138,7 @@ validate_eegble <- function(x) {
   x
 }
 
+#' @noRd
 validate_signal <- function(signal) {
   # Validates .id
   
@@ -152,7 +157,7 @@ validate_signal <- function(signal) {
   signal
 }
 
-
+#' @noRd
 validate_events <- function(events, channels) {
 
   if(!is.integer(events$.sample_0)){
@@ -177,6 +182,7 @@ validate_events <- function(events, channels) {
   events
 }
 
+#' @noRd
 validate_segments <- function(segments) {
   # Validates .id
   if(all(unique(segments$.id) != seq_len(max(segments$.id)))) {
@@ -187,5 +193,10 @@ validate_segments <- function(segments) {
 
 }
 
-reserved_cols_signal <- c(".id",".sample_id")
+obligatory_cols <- list(
+  signal = c(.id=".id", .sample_id = ".sample_id"),
+  events = c(.id =".id", .sample_0= ".sample_0", .size = ".size", .channel =".channel"),
+  segments = c(.id = ".id")
+)
+
 

@@ -1,4 +1,3 @@
-#' @export
 interpolate_xy <- function(.df, x, y, value, method = "MBA", ...) {
   # x <- rlang::quo(x)
   # y <- rlang::quo(y)

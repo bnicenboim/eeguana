@@ -1,9 +1,9 @@
 #' Convert an eegble to a tibble.
+#' 
+#' Convert the signal table from wide to long format, and optionally \code{left_join}s the segment table
 #'
 #' @param x An \code{eegble} object.
-#' @param add_segments
-#' @param thinning
-#' @param ... Other arguments passed on to individual methods.
+#' @param add_segments Whether the segments table
 #'
 #' `as_data_frame` and `as.tibble` are aliases.
 #' @return A tibble.
@@ -11,7 +11,7 @@
 #' @importFrom magrittr %>%
 #'
 #' @export
-as_tibble.eegble <- function(x, ..., add_segments = TRUE) {
+as_tibble.eegble <- function(x, add_segments = TRUE) {
   
   df <- declass(x$signal)$tbl %>%
     tidyr::gather(key = "channel", value = "amplitude", channel_names(x)) %>%
@@ -30,7 +30,7 @@ as_tibble.eegble <- function(x, ..., add_segments = TRUE) {
 
 
 #' @export
-as_tibble.signal_tbl <- function(x, ...) {
+as_tibble.signal_tbl <- function(x) {
 x <- declass(x)$tbl
 NextMethod()
 }
@@ -100,10 +100,8 @@ as.tibble.eegble <- as_tibble.eegble
 #'
 #' @param x An \code{eegble} object.
 #' @param add_segments
-#' @param thinning
 #' @param ... Other arguments passed on to individual methods.
 #'
-#' `as_data_frame` and `as.tibble` are aliases.
 #' @return A tibble.
 #'
 #' @importFrom magrittr %>%

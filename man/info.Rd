@@ -19,12 +19,10 @@ nsamples(x, ...)
 \description{
 \itemize{
 \item \code{nchannels()}: Returns the number of channels.
-\item \code{chan_names()}: Returns a vector with the name of the channels.
-\item \code{channels()}: Returns a data frame (tibble) with information about the channels.
-\item \code{info()}: Returns a data frame (tibble) with information about the EEG recording.
-\item \code{sampling_rate()}: Returns the sampling rate.
-\item \code{reference()}: Returns the reference.
-\item \code{duration()}: Returns the duration of the recording (or segments).
+\item \code{channel_names()}: Returns a vector with the name of the channels.
+\item \code{nchannels()}: Returns the number of channels.
 \item \code{nsamples()}: Returns the number of samples of the recording (or segments).
+\item \code{summary()}: Prints a summary of the eegble object. (It also returns a list.)
+\item \code{count_complete_cases_tbl()}: Returns a table with the number of complete segments by specified groups.
 }
 }

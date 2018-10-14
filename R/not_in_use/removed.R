@@ -226,3 +226,45 @@ anti_join_events <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
 
   validate_eegbl(x)
 }
+
+
+# Smallest divisor of x, starting by 2
+mindiv <- function(x, start = 2) {
+  div <- start
+  while (round(x) %% div != 0) {
+    div <- div + 1
+  }
+  div
+}
+
+
+
+update_chans <- function(x) {
+  current_chans <- colnames(x$signal)[!colnames(x$signal) %in% c(".id", "sample")]
+  added_chans <- current_chans[!current_chans %in% x$channels$labels]
+  # remove old channels
+  x$channels <- dplyr::filter(x$channels, labels %in% current_chans)
+  x$events <- dplyr::filter(x$events, channel %in% current_chans | is.na(channel))
+
+  # add new ones
+  x$channels <- x$channels %>%
+    dplyr::mutate(labels = as.character(labels)) %>%
+    dplyr::bind_rows(tibble::tibble(labels = added_chans)) %>%
+    dplyr::semi_join(tibble::tibble(labels = current_chans), by = "labels") %>%
+    dplyr::right_join(dplyr::tibble(labels = current_chans), by = "labels") %>%
+    dplyr::mutate(labels = forcats::as_factor(labels))
+
+  x$events <- x$events %>% mutate(channel = forcats::fct_drop(channel) %>%
+    forcats::lvls_expand(new_levels = current_chans))
+  x
+}
+
+
+validate_dots <- function(...) {
+  dots <- rlang::enquos(...)
+  if (any(names(dots) %in% c(".id", "sample"))) {
+    stop(".id and samples can't be manipulated")
+  } else {
+    dots
+  }
+}

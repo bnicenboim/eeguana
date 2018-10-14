@@ -3,8 +3,7 @@
 #' Subtract the average or baseline of the points in a defined interval from all points in the segment.
 #'
 #' @param x An \code{eegble} object.
-#' @param time A negative number indicating from when to baseline
-#'    . The default is to use all the negative times.
+#' @param time A negative number indicating from when to baseline; the interval is defined as [time,0]. The default is to use all the negative times.
 #' @param sample_id A negative number indicating from when to baseline
 #'    (TO COMPLETE). The default is to use all the negative times.
 #'

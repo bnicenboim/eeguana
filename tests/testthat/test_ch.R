@@ -22,4 +22,4 @@ data <- eegble(
   segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
 )
 
-mutate(data, chs_mean(X,Y))
+transmute(data, chs_mean(X,Y))

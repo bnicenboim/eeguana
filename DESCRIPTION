@@ -27,8 +27,8 @@ Imports:
     lazyeval,
     ggrepel (>= 0.7.3),
     rlang,
-    sp,
     signal,
+    MBA,
     tibble
 Suggests:
      testthat,
@@ -36,7 +36,6 @@ Suggests:
      future,
      knitr,
      rmarkdown,
-     MBA,
      R.matlab
 LazyData: true
 VignetteBuilder: knitr
