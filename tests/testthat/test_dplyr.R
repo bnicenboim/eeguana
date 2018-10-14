@@ -48,8 +48,8 @@ summarize_at_g_signal_tbl <- dplyr::summarize_at(group_by_eegbl, channel_names(d
 
 summarize2_g_signal_tbl <- dplyr::summarize(group2_by_eegbl, mean(X))
 
-validate_channel(mutate_signal_tbl$signal$Y)
-validate_signal(mutate_signal_tbl$signal)
+# validate_channel(mutate_signal_tbl$signal$Y)
+# validate_signal(mutate_signal_tbl$signal)
 
 
 # just to check if something break, but this should be done with test_that
