@@ -23,7 +23,7 @@ data <- eegble(
 )
 
 
-validate_signal(dplyr::group_by(data$signal,.sample_id))
+# validate_signal(dplyr::group_by(data$signal,.sample_id))
 
 
 group_by_eegbl <- dplyr::group_by(data, .sample_id)
