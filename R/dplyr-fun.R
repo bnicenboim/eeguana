@@ -88,9 +88,9 @@ mutate_transmute <- function(.data, mutate = TRUE, dots) {
       !!!new_dots$segments
     )
   }
-
   update_events_channels(.data) %>% validate_eegble()
 }
+
 
 #' @export
 summarise_.eegble <- function(.data, ..., .dots = list()) {
@@ -186,7 +186,10 @@ ungroup.eegble <- function(.data, ..., add = add) {
   validate_eegble(.data)
 }
 
-
+#' @export
+group_vars.eegble <- function(x) {
+  c(group_vars(x$signal), group_vars(x$segments))
+}
 
 #' @export
 filter_.eegble <- function(.data, ..., .dots = list()) {

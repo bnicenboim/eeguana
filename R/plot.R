@@ -88,7 +88,8 @@ plot_topo <- function(x, method = "MBA", ...) {
 
 #' @export
 plot_topo.eegble <- function(x, method = "MBA", ...) {
-  grouping_vars <- colnames(x$segments) %>% setdiff(c(".id", "segment"))
+  # grouping_vars <- colnames(x$segments) %>% setdiff(c(".id", "segment"))
+  grouping_vars <- group_vars(x$segments) 
   chan_vars <- c("x","y")
   s_x <- summarize_id_as_tibble(x, mean, na.rm = TRUE) %>%
     dplyr::group_by_at(c(grouping_vars, "channel",chan_vars)) %>%

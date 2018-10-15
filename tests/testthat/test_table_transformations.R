@@ -144,33 +144,6 @@ data0 <- eegble(
 )
 
 
-  # signal = signal(signal_matrix = as.matrix(
-  #                             data.frame(X = sin(1:20), Y = cos(1:20))),
-  # ids =  rep(c(1L, 2L), each = 10), 
-  # sample_ids = sample_id(rep(seq(-4L, 5L), times = 2), sampling_rate = 500 ),
-
-
-# data1 <- eegble(
-#   signal = dplyr::tibble(.id = rep(c(1L, 2L), each = 10), sample = rep(seq(-4L, 5L), times = 2), X = sin(1:20), Y = cos(1:20)),
-#   events = dplyr::tribble(
-#     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
-#     1L, "New Segment", NA, -4L, 1L, NA,
-#     1L, "Bad", NA, -2L, 3L, NA,
-#     1L, "Time 0", NA, 1L, 1L, NA
-#   ),
-#   channels = dplyr::tibble(labels = c("X", "Y"), theta = NA, phi = NA, radius = NA, x = NA, y = NA, z = NA),
-#   info = list(srate = 500, reference = NA),
-#   segments = dplyr::tibble(.id = 1L, recording = "recording1", segment = 1)
-# )
-
-# dots <- rlang::quos( type== "Time 0")
-# file <- "/home/bruno/Documents/Working Papers/eegble/faces.vhdr"
-# faces <- read_vhdr("/home/bruno/Documents/Working Papers/eegble/faces.vhdr")
-# faces_vmrk <- read_vmrk("/home/bruno/Documents/Working Papers/eegble/faces.vmrk")
-
-# segment(faces, type == "New Segment")
-# x <- faces
-
 test_that("can segment", {
   data_s <- segment(data, type == "Time 0")
   expect_equal(data$signal, data_s$signal)
@@ -205,14 +178,6 @@ test_that("can segment", {
 })
 
 
-# # time(data)
-# dplyr::filter(data$signal, sample/srate(data) > .002)
-# dplyr::filter(data$signal, !!time(data) > .002)
-# dplyr::filter(data$signal, time(data) > .002)
-
-# need to check what happens with different segments, in particular  segment by something else buttype
-
-
 baselines <- dplyr::summarize(dplyr::group_by(
                               dplyr::filter(eegble:::declass(data$signal)$tbl, .sample_id <=0),
                               .id),  bX = mean(X), bY = mean(Y))
@@ -221,24 +186,14 @@ signal_with_baselines$new_X <- signal_with_baselines$X - signal_with_baselines$b
 signal_with_baselines$new_Y <- signal_with_baselines$Y - signal_with_baselines$bY
 baselined <- ch_baseline(data)
 
+
 test_that("baseline works", {
 expect_equal(eegble:::declass(baselined$signal)$tbl$X,  signal_with_baselines$new_X )
 expect_equal(eegble:::declass(baselined$signal)$tbl$Y,  signal_with_baselines$new_Y )
 })
 
-# segment(data0, type== "Time 0", lim = c(100,100))
-# dots <- rlang::quos(type== "Time 0")
+
 
 segment(data, type == "Time 0", lim = c(-1 / 500, 0))
 segment(data0, type == "Time 0", lim = c(-1 / 500, 0))
 data0_s <- segment(data0, type == "Time 0", lim = c(-Inf, Inf))
-# check the recording
-# check the number of segments
-# check the new events
-# check the length of teh segments under difference conditions
-
-# lim could be 500s,500ms,5000 samples ,or add unit = sample, seconds/s, ms, milliseconds, ms, sec, msec, set the display and default uni with options
-
-# warning("segment tests needs to be done - check the ids everywhere when several recordings are there, check the lims working")
-# warning("baseline tests needs to be done")
-# warning("sig_wrangling tests needs to be done")

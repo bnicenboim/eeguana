@@ -1,7 +1,6 @@
 #'  The by-sample (or by-row) mean of the specified channels.
 #'
 #' Wrapper of \code{rowMeans} that performs a by-sample mean of the specified channels. 
-#' It works only inside mutate* and summarize*
 #' 
 #' @param ... A channel or a group of channels
 
@@ -15,21 +14,35 @@
 #' \dontrun{
 #'
 #' faces_segs_some %>%  
-#'                transmute(Occipital = chan_means(O1, O2, Oz, na.rm = TRUE),
-#'                          Parietal = chan_means(P3, P4, P7,  P8, Pz, na.rm = TRUE))
+#'                transmute(Occipital = chs_mean(O1, O2, Oz, na.rm = TRUE),
+#'                          Parietal = chs_mean(P3, P4, P7,  P8, Pz, na.rm = TRUE))
+#' 
+#' 
 #' }
+# chs_mean <- function(x, ...) {
+#   UseMethod("chs_mean")
+# }
 
+
+## ' @export
 chs_mean <- function(..., na.rm = FALSE) {
+
 	dots <- rlang::enquos(...)
 
+	#signal <- signal_from_parent_frame(env = parent.frame())	
 	# This is the environment where I can find the columns of signal
 	signal_env <- rlang::env_get(env = parent.frame(), '.top_env', inherit = TRUE)
 	signal <- dplyr::as_tibble(rlang::env_get_list(signal_env, rlang::env_names(signal_env)))
-	 # %>%
-			  # validate_signal()
+	
+	
 	rowMeans(dplyr::select(signal, !!!dots), na.rm = na.rm)
 }
 
+# #' @export
+# chs_mean.eegble <- function(x, na.rm = FALSE) {
+# 	all_channels <- rlang::syms(channel_names(x))
+# 	dplyr::transmute(x, MEAN = chs_mean.default(x = NULL,!!!all_channels, na.rm = na.rm) )
+# }
 
 
 

@@ -33,5 +33,4 @@ map2_sgr <- function (.x, .y, .f, ..., .id = NULL) {
 between <- function (x, left, right) {
     attributes(x) <- NULL
     .Call(dplyr:::`_dplyr_between`, x, left, right)
-
 }

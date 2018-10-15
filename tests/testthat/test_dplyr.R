@@ -23,7 +23,6 @@ data <- eegble(
 )
 
 
-# validate_signal(dplyr::group_by(data$signal,.sample_id))
 
 
 group_by_eegbl <- dplyr::group_by(data, .sample_id)
@@ -36,8 +35,7 @@ summarize_eegbl <- dplyr::summarize(data)
 summarizeX_eegbl <- dplyr::summarize(data, mean(X))
 summarize_at_eegbl <- dplyr::summarize_at(data, channel_names(data), mean)
 group2_by_eegbl <- dplyr::group_by(data, .id)
-# dots <- rlang::quos(mean(X))
-# .data <- data 
+
 mutate_g_signal_tbl <- dplyr::mutate(group_by_eegbl, X = X + 1)
 mutate2_g_signal_tbl <- dplyr::mutate(group_by_eegbl, ZZ = X + 1)
 transmute_g_signal_tbl <- dplyr::transmute(group_by_eegbl, X = X + 1)
@@ -48,13 +46,3 @@ summarize_at_g_signal_tbl <- dplyr::summarize_at(group_by_eegbl, channel_names(d
 
 summarize2_g_signal_tbl <- dplyr::summarize(group2_by_eegbl, mean(X))
 
-# validate_channel(mutate_signal_tbl$signal$Y)
-# validate_signal(mutate_signal_tbl$signal)
-
-
-# just to check if something break, but this should be done with test_that
-# group_by(eegbl_av, sample) %>% summarize_all(mean)
-# group_by(eegbl_av, segment) %>% summarize_all(mean)
-
-
-# comment test

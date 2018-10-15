@@ -9,6 +9,6 @@ channel_names(eegbl_av)
 nchannels(eegbl_av)
 nsamples(eegbl_av)
 count_complete_cases_tbl(eegbl_av)
-summary(eegbl_av)
+#summary(eegbl_av)
 
-# comment test
+

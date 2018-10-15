@@ -169,3 +169,35 @@ validate_segments <- function(segments) {
   }
 
 }
+
+
+#' @noRd
+group_vars_int <- function(eegble) {
+  list(signal = group_vars(eegble$signal), segments = group_vars(eegble$segments))
+}
+
+#' @noRd
+groups_int <- function(eegble) {
+  list(signal = groups(eegble$signal), segments = groups(eegble$segments))
+}
+
+
+#' @noRd
+group_by_id <- function(eegble) {
+  orig_groups <- dplyr::group_vars(eegble)
+   #if there are many groupings
+  if(length(orig_groups) > 1 | 
+    #or if the only one is not .id
+     (length(orig_groups) == 1 & orig_groups[1] != ".id")) { 
+    message("# Grouping by .id.")
+  } 
+
+  dplyr::group_by(eegble, .id) 
+}  
+
+#' @noRd
+signal_from_parent_frame <- function(env = parent.frame()){
+  # This is the environment where I can find the columns of signal
+  signal_env <- rlang::env_get(env = env, '.top_env', inherit = TRUE)
+  signal <- dplyr::as_tibble(rlang::env_get_list(signal_env, rlang::env_names(signal_env)))
+}

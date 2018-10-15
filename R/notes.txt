@@ -1,5 +1,0 @@
-# bind_rows looses the attributes
-# https://github.com/tidyverse/dplyr/issues/2457
-
-
-replace seq.int() for seq_len
