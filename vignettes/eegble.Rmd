@@ -130,16 +130,9 @@ We can see here the N170 component in the faces condition for the average trial
 on a single participant. We can investigate the signal by averaging the channels
 of the occipital and parietal lobes using the capabilities inherited from `dplyr`, and the special function, `channelMeans`, a wrapper for `rowMeans`, which takes as arguments the eegble object, the channels, and whether missing values should be omitted from the calculations.
 
-<!-- `dplyr` together with `pmap_dbl` from `purrr`. (Here `pmap_dbl` is taking three column and doing the rowwise mean of them taking into account NAs, the first example `pmap_dbl(list(O1,  O2,  Oz), mean , na.rm = TRUE)` would be equivalent to `(O1 + O2 + Oz)/3` if we were sure there are no `NA`s). -->
-
-<!--
-Occipital = pmap_dbl(list(O1,  O2,  Oz), mean, na.rm = TRUE), 
-                          Parietal = pmap_dbl(list(P3, P4, P7, P8, Pz), 
-                                                              mean, na.rm = TRUE)
-                                                              -->
                                                               
 ```{r, fig.dim = c(10,15), out.width = "100%"}
-faces_segs_some %>%  
+faces_segs_some %>% ungroup(faces_segs_some) %>%
                 transmute(Occipital = chs_mean(O1, O2, Oz, na.rm = TRUE),
                           Parietal = chs_mean(P3, P4, P7,  P8, Pz, na.rm = TRUE)) %>% 
                 plot_gg() + 
@@ -157,7 +150,8 @@ first making segments that include only the interval .1--.2 *s* after the onset
 of the stimuli.
 
 ```{r, fig.dim = c(10,5), out.width = "100%"}
-faces_segs_some %>% filter(between(as_time(.sample_id),.1,.2)) %>%
+faces_segs_some %>% filter(between(as_time(.sample_id),.1,.2)) %>% 
+                    group_by(condition) %>%
                     plot_topo()
 
 ```

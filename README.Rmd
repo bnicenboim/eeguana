@@ -18,7 +18,7 @@ A package for flexible manipulation of EEG data.
 
 ## Installation
 
-There is still **no** released version of eegble.  The package is in the early stages of development, and it may be subject to a lot of changes. To install the latest version from bitbucket use:
+There is still **no** released version of eegble.  The package is in the early stages of development, and it **will** be subject to a lot of changes. To install the latest version from bitbucket use:
 
 
 ``` r
@@ -77,14 +77,12 @@ from the data. We'll also segment and baseline the data. In this experiment, the
 trigger "s70" was used for faces and "s71" for no faces. We'll segment the data
 using these two triggers.
 
-
 ```{r}
 faces_segs <- faces %>% 
                segment(description %in% c("s70", "s71"), 
                         lim = c(-.2,.25)) %>%
-               event_to_NA(type == "Bad Interval") %>% 
-               baseline()
-
+               event_to_ch_NA(type == "Bad Interval") %>% 
+               ch_baseline()
 ```
 
 
@@ -125,7 +123,8 @@ first making segments that include only the interval .1--.2 *s* after the onset
 of the stimuli.
 
 ```{r topo, fig.dim = c(10,5), out.width = "100%", results = "hide",fig.show = 'hide'}
-faces_segs_some %>% segment(description %in% c("s70", "s71"), lim = c(.1,.2)) %>%
+faces_segs_some %>% filter(between(as_time(.sample_id),.1,.2)) %>% 
+                    group_by(condition) %>%
                     plot_topo()
 ```
 
@@ -134,5 +133,5 @@ faces_segs_some %>% segment(description %in% c("s70", "s71"), lim = c(.1,.2)) %>
 ## See also: 
 
 * [eegUtils](https://github.com/craddm/eegUtils ) some helper utilities for plotting and processing EEG data in in active development by Matt Craddock.
-* [erpR] (https://cran.r-project.org/web/packages/erpR/index.html)  analysis of event-related potentials (ERPs) by Giorgio Arcara, Anna Petrova. It hasn't been updated since 2014.
+* [erpR](https://cran.r-project.org/web/packages/erpR/index.html)  analysis of event-related potentials (ERPs) by Giorgio Arcara, Anna Petrova. It hasn't been updated since 2014.
 

@@ -22,4 +22,9 @@ data <- eegble(
   segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
 )
 
-transmute(data, chs_mean(X,Y))
+# test_that("can clean whole channels in files", {
+
+# expect_equal(transmute(data, MEAN = chs_mean(X,Y)), chs_mean(data))
+# })
+
+

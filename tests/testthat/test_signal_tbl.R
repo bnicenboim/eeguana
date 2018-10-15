@@ -24,11 +24,6 @@ data <- eegble(
 
 
 
-# devtools::load_all("/home/bruno/Documents/Working Papers/eegble")
-#library(dplyr)
-# sloop::s3_methods_generic("group_by")
-
-
 group_by_signal_tbl <- dplyr::group_by(data$signal, .sample_id)
 mutate_signal_tbl <- dplyr::mutate(data$signal, X = X + 1)
 mutate2_signal_tbl <- dplyr::mutate(data$signal, ZZ = X + 1)
