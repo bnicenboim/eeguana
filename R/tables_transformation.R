@@ -1,15 +1,15 @@
-#' Segments an eegble.
+#' Segments an eeg_lst.
 #'
 #' Subdivides of the EEG into different segments or epochs. When there is no
-#' segmentation, the \code{eegble} contain one segment. (Fieldtrip calls the
+#' segmentation, the \code{eeg_lst} contain one segment. (Fieldtrip calls the
 #' segment "trials".) The limits of \code{segment} are inclusive: If, for
 #' example, lim =c(0,0), the segment would contain only sample 1.
 #'
-#' @param x An \code{eegble} object.
+#' @param x An \code{eeg_lst} object.
 #' @param ... Description of the event.
 #' @param lim Vector indicating the time before and after the event. Or matrix with two columns, with nrow=total number of segments
 #'
-#' @return An \code{eegble}.
+#' @return An \code{eeg_lst}.
 #'
 #' @importFrom magrittr %>%
 #'
@@ -20,7 +20,7 @@ segment <- function(x, ...) {
 
 
 #' @export
-segment.eegble <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
+segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
   dots <- rlang::enquos(...)
   # dots <- rlang::quos(description == "s121")
   # dots <- rlang::quos(description == "s70")
@@ -128,40 +128,40 @@ segment.eegble <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
   x$segments <- dplyr::group_by(x$segments, !!!orig_groups$segments)
 
   message(paste0(say_size(x), " after segmentation."))
-  validate_eegble(x)
+  validate_eeg_lst(x)
 }
 
 
-#' Bind eegble objects.
+#' Bind eeg_lst objects.
 #'
-#' Binds eegble and throws a warning if there is a mismatch in the channel information.
+#' Binds eeg_lst and throws a warning if there is a mismatch in the channel information.
 #' 
-#' @param ... Eegble objects to combine.
+#' @param ... eeg_lst objects to combine.
 #'
-#' @return An \code{eegble} object.
+#' @return An \code{eeg_lst} object.
 #'
 #' @importFrom magrittr %>%
 #'
 #' @export
 bind <- function(...) {
-  eegbles <- list(...)
+  eeg_lsts <- list(...)
   # hack to allow that "..." would already be a list
-  if (class(eegbles[[1]]) != "eegble") {
-    eegbles <- list(...)[[1]]
+  if (class(eeg_lsts[[1]]) != "eeg_lst") {
+    eeg_lsts <- list(...)[[1]]
   }
 
   # Checks:
   purrr::iwalk(
-    eegbles[seq(2, length(eegbles))],
-    ~if (!identical(channels_tbl(eegbles[[1]]), channels_tbl(.x))) {
+    eeg_lsts[seq(2, length(eeg_lsts))],
+    ~if (!identical(channels_tbl(eeg_lsts[[1]]), channels_tbl(.x))) {
     warning("Objects with different channels information, see below\n\n", "File ", 
       as.character(as.numeric(.y) + 1)," ... \n",
     paste0(
-      capture.output(setdiff(channels_tbl(eegbles[[1]]), channels_tbl(.x))),
+      capture.output(setdiff(channels_tbl(eeg_lsts[[1]]), channels_tbl(.x))),
        collapse = "\n"),
     "\n\n ... in comparison with file 1 ...\n\n",
     paste0(
-    capture.output(setdiff(channels_tbl(.x), channels_tbl(eegbles[[1]]))),
+    capture.output(setdiff(channels_tbl(.x), channels_tbl(eeg_lsts[[1]]))),
            collapse = "\n")
       , call. = FALSE)
     }
@@ -169,21 +169,21 @@ bind <- function(...) {
 
   # Binding
   # .id of the new eggbles needs to be adapted
-  add_ids <- purrr::map_int(eegbles, ~max(.x$signal$.id)) %>%
+  add_ids <- purrr::map_int(eeg_lsts, ~max(.x$signal$.id)) %>%
     cumsum() %>%
     dplyr::lag(default = 0) %>%
     as.integer()
 
 
-  signal <- map2_sgr(eegbles, add_ids, ~
+  signal <- map2_sgr(eeg_lsts, add_ids, ~
   dplyr::ungroup(.x$signal) %>%
     dplyr::mutate(.id = .id + .y))
 
-  events <- purrr::map2_dfr(eegbles, add_ids, ~
+  events <- purrr::map2_dfr(eeg_lsts, add_ids, ~
   dplyr::ungroup(.x$events) %>%
     dplyr::mutate(.id = .id + .y))
 
-  segments <- purrr::map2_dfr(eegbles, add_ids, ~
+  segments <- purrr::map2_dfr(eeg_lsts, add_ids, ~
   dplyr::ungroup(.x$segments) %>%
     dplyr::mutate(.id = .id + .y))
 
@@ -193,17 +193,17 @@ bind <- function(...) {
     dplyr::mutate(segment = 1:n()) %>%
     dplyr::ungroup()
 
-  new_eegble <- new_eegble(
+  new_eeg_lst <- new_eeg_lst(
     signal = signal, events = events, segments = segments) %>% 
-     validate_eegble()
-  message(say_size(new_eegble))
-  new_eegble
+     validate_eeg_lst()
+  message(say_size(new_eeg_lst))
+  new_eeg_lst
 }
 
 
-#' Remove (transform to NA) problematic events from an eegble.
+#' Remove (transform to NA) problematic events from an eeg_lst.
 #'
-#' @param x An \code{eegble} object.
+#' @param x An \code{eeg_lst} object.
 #' @param ... Description of the problematic event.
 #' @param all_chans If set to TRUE,
 #'     it will consider samples from all channels (Default:  all_chans = FALSE).
@@ -213,7 +213,7 @@ bind <- function(...) {
 #'
 #' @examples
 #'
-#' @return An eegble.
+#' @return An eeg_lst.
 #'
 #' @importFrom fastmatch %fin%
 #' @importFrom magrittr %>%
@@ -224,7 +224,7 @@ event_to_ch_NA <- function(x, ...) {
 }
 
 #' @export
-event_to_ch_NA.eegble <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
+event_to_ch_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
                               drop_events = TRUE) {
   dots <- rlang::enquos(...)
 
@@ -276,9 +276,8 @@ event_to_ch_NA.eegble <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
       x$events,
       dplyr::filter(x$events, !!!dots)
     )) 
-
   }
-  validate_eegble(x)
+  validate_eeg_lst(x)
 }
 
 

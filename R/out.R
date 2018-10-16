@@ -1,14 +1,14 @@
-#' Display information of the eegble object.
+#' Display information of the eeg_lst object.
 #'
 #' \itemize{
 #' \item \code{nchannels()}: Returns the number of channels.
 #' \item \code{channel_names()}: Returns a vector with the name of the channels.
 #' \item \code{nchannels()}: Returns the number of channels.
 #' \item \code{nsamples()}: Returns the number of samples of the recording (or segments).
-#' \item \code{summary()}: Prints a summary of the eegble object. (It also returns a list.)
+#' \item \code{summary()}: Prints a summary of the eeg_lst object. (It also returns a list.)
 #' \item \code{count_complete_cases_tbl()}: Returns a table with the number of complete segments by specified groups.
 #' }
-#' @param x An eegble object.
+#' @param x An eeg_lst object.
 #'
 #' @name info
 NULL
@@ -22,7 +22,7 @@ channel_names <- function(x, ...) {
 }
 
 #' @export
-channel_names.eegble <- function(x) {
+channel_names.eeg_lst <- function(x) {
   setdiff(colnames(x$signal), obligatory_cols[["signal"]])
 }
 
@@ -35,7 +35,7 @@ nchannels <- function(x, ...) {
 }
 
 #' @export
-nchannels.eegble <- function(x) {
+nchannels.eeg_lst <- function(x) {
   ncol(x$signal) - length(obligatory_cols[["signal"]])
 }
 
@@ -70,18 +70,18 @@ nsamples <- function(x, ...) {
   UseMethod("nsamples")
 }
 #' @export
-nsamples.eegble <- function(x) {
+nsamples.eeg_lst <- function(x) {
   duration(x) * sampling_rate(x)
 }
 
 
-#' Summary of eegble information.
+#' Summary of eeg_lst information.
 #'
-#' @param object An eegble object.
+#' @param object An eeg_lst object.
 #' @param ... Other options passed to print.tbl for the display of summaries.
 #'
 #' @export
-summary.eegble <- function(object, ...) {
+summary.eeg_lst <- function(object, ...) {
   dots <- rlang::enquos(...)
   summ <- list(channels = select(channels_tbl(object), -sampling_rate),
                   sampling_rate = unique(channels_tbl(object)$sampling_rate),
@@ -94,7 +94,7 @@ summary.eegble <- function(object, ...) {
                   size = capture.output(pryr::object_size(object)))
   
   
-  print(paste0("# EEG data (eegble) from the following channels:"))
+  print(paste0("# EEG data (eeg_lst) from the following channels:"))
   summ$channels %>% 
     print(., !!!dots)
 
@@ -114,9 +114,9 @@ summary.eegble <- function(object, ...) {
 }
 
 
-#' Count number of complete segments of an eegble object.
+#' Count number of complete segments of an eeg_lst object.
 #' 
-#' @param x An \code{eegble} object.
+#' @param x An \code{eeg_lst} object.
 #' @param ... Variables to group by.
 #'
 #'
@@ -135,7 +135,7 @@ count_complete_cases_tbl <- function(x, ...) {
 }
 
 #' @export
-count_complete_cases_tbl.eegble <- function(x, ...) {
+count_complete_cases_tbl.eeg_lst <- function(x, ...) {
   dots <- rlang::enquos(...)
 
   x$signal %>%

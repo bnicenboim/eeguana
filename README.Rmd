@@ -12,23 +12,23 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 ```
-# eegble
+# eeguana
 
 A package for flexible manipulation of EEG data.
 
 ## Installation
 
-There is still **no** released version of eegble.  The package is in the early stages of development, and it **will** be subject to a lot of changes. To install the latest version from bitbucket use:
+There is still **no** released version of `eeguana`.  The package is in the early stages of development, and it **will** be subject to a lot of changes. To install the latest version from bitbucket use:
 
 
 ``` r
-devtools::install_bitbucket("bnicenboim/eegbl", build_vignettes = TRUE, auth_user="user-name",password="password")
+devtools::install_github("bnicenboim/eeguana", build_vignettes = TRUE)
 
 ```
 
 ## Example
 
-The functions of eegble can be used on already pre-processed (i.e.,
+The functions of eeguana can be used on already pre-processed (i.e.,
 filtering, artifact rejects, ICA, etc has already beed done) EEG files (at least for now).
 The package mainly provides dplyr-like functions to manipulate the EEG data, and ggplot wrapper functions.
 
@@ -56,7 +56,7 @@ and `faces.dat` contains the signals at every sample for every channel recorded.
 
 
 ```{r libs, message = FALSE}
-library(eegble)
+library(eeguana)
 ```
 
 We first need to read the data:
@@ -87,7 +87,7 @@ faces_segs <- faces %>%
 
 
 We can also edit the segmentation information and add more descriptive labels.
-`eegble` has wrappers for many `dplyr` commands for the EEG data.  These commands always return the entire `eegble` object so that they can be piped using `magrittr`'s pipe, `%>%`.
+`eeguana` has wrappers for many `dplyr` commands for the EEG data.  These commands always return an entire `eeg_lst` object so that they can be piped using `magrittr`'s pipe, `%>%`.
 
 ```{r}
 faces_segs_some <- faces_segs %>%  
@@ -102,7 +102,7 @@ With some "regular" `ggplot` skills, we can create customized plots. `plot_gg`
 thins the signals (by default), converts them to a long-format data frame that is
 feed into `ggplot` object. This object can then be customized. 
 
-```{r plot, fig.dim = c(10,15), out.width = "100%", results = "hide",fig.show = 'hide'}
+```{r plot, fig.dim = c(10,15), out.width = "100%", results = "hide"}
 faces_segs_some %>% 
                   select(O1, O2, P7, P8) %>% 
                   plot_gg(faces_segs_some) + 
@@ -115,20 +115,19 @@ faces_segs_some %>%
                 theme(legend.position = "bottom") 
 ```
 
- ![](man/figures/README-plot-1.png)
 
 
 Another possibility is to create a topographic plot of the two conditions, by
 first making segments that include only the interval .1--.2 *s* after the onset
 of the stimuli.
 
-```{r topo, fig.dim = c(10,5), out.width = "100%", results = "hide",fig.show = 'hide'}
-faces_segs_some %>% filter(between(as_time(.sample_id),.1,.2)) %>% 
+```{r topo, fig.dim = c(10,5), out.width = "100%", results = "hide"}
+faces_segs_some %>% ungroup() %>%  
+                    filter(between(as_time(.sample_id),.1,.2)) %>% 
                     group_by(condition) %>%
                     plot_topo()
 ```
 
-![](man/figures/README-topo-1.png)
 
 ## See also: 
 

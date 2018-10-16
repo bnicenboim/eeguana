@@ -1,22 +1,22 @@
 
-eegble
-======
+eeguana
+=======
 
 A package for flexible manipulation of EEG data.
 
 Installation
 ------------
 
-There is still **no** released version of eegble. The package is in the early stages of development, and it **will** be subject to a lot of changes. To install the latest version from bitbucket use:
+There is still **no** released version of `eeguana`. The package is in the early stages of development, and it **will** be subject to a lot of changes. To install the latest version from bitbucket use:
 
 ``` r
-devtools::install_bitbucket("bnicenboim/eegbl", build_vignettes = TRUE, auth_user="user-name",password="password")
+devtools::install_github("bnicenboim/eeguana", build_vignettes = TRUE)
 ```
 
 Example
 -------
 
-The functions of eegble can be used on already pre-processed (i.e., filtering, artifact rejects, ICA, etc has already beed done) EEG files (at least for now). The package mainly provides dplyr-like functions to manipulate the EEG data, and ggplot wrapper functions.
+The functions of eeguana can be used on already pre-processed (i.e., filtering, artifact rejects, ICA, etc has already beed done) EEG files (at least for now). The package mainly provides dplyr-like functions to manipulate the EEG data, and ggplot wrapper functions.
 
 Here, I exemplify this with (preprocessed) EEG data from a simple experiment using BrainVision 2.0, where a participant was presented 100 faces and 100 assorted images in random order. The task of the experiment was to mentally count the number of faces.
 
@@ -34,7 +34,7 @@ download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.dat",
 BrainVision 2.0 exports three files: `faces.vhdr`, `faces.vmrk`, and `faces.dat`. The file `faces.vhdr` contains the metadata and links to the other two files, `faces.vmrk` contains the triggers and other events in the samples, and `faces.dat` contains the signals at every sample for every channel recorded.
 
 ``` r
-library(eegble)
+library(eeguana)
 ```
 
 We first need to read the data:
@@ -73,7 +73,7 @@ faces
 #> $events
 #> # A tibble: 4,276 x 6
 #>      .id type         description .sample_0 .size .channel
-#>    <int> <chr>        <chr>           <int> <int> <fct>   
+#>    <int> <chr>        <chr>           <int> <int> <chr>   
 #>  1     1 New Segment  <NA>                1     1 <NA>    
 #>  2     1 Bad Interval Bad Min-Max      2158   738 Fp1     
 #>  3     1 Bad Interval Bad Min-Max      2161   731 Fp2     
@@ -93,7 +93,7 @@ faces
 #> 1     1 faces.vhdr       1
 #> 
 #> attr(,"class")
-#> [1] "eegble"
+#> [1] "eeg_lst"
 ```
 
 Some intervals were marked as "bad" by BrainVision, and so we'll remove them from the data. We'll also segment and baseline the data. In this experiment, the trigger "s70" was used for faces and "s71" for no faces. We'll segment the data using these two triggers.
@@ -108,7 +108,7 @@ faces_segs <- faces %>%
 #> # Object size in memory 12.7 MB after segmentation.
 ```
 
-We can also edit the segmentation information and add more descriptive labels. `eegble` has wrappers for many `dplyr` commands for the EEG data. These commands always return the entire `eegble` object so that they can be piped using `magrittr`'s pipe, `%>%`.
+We can also edit the segmentation information and add more descriptive labels. `eeguana` has wrappers for many `dplyr` commands for the EEG data. These commands always return an entire `eeg_lst` object so that they can be piped using `magrittr`'s pipe, `%>%`.
 
 ``` r
 faces_segs_some <- faces_segs %>%  
@@ -141,7 +141,7 @@ faces_segs_some
 #> $events
 #> # A tibble: 200 x 6
 #>      .id type     description .sample_0 .size .channel
-#>    <int> <chr>    <chr>           <int> <int> <fct>   
+#>    <int> <chr>    <chr>           <int> <int> <chr>   
 #>  1     1 Stimulus s70                 1     1 <NA>    
 #>  2     2 Stimulus s71                 1     1 <NA>    
 #>  3     3 Stimulus s71                 1     1 <NA>    
@@ -172,7 +172,7 @@ faces_segs_some
 #> # ... with 190 more rows
 #> 
 #> attr(,"class")
-#> [1] "eegble"
+#> [1] "eeg_lst"
 ```
 
 With some "regular" `ggplot` skills, we can create customized plots. `plot_gg` thins the signals (by default), converts them to a long-format data frame that is feed into `ggplot` object. This object can then be customized.
@@ -190,25 +190,18 @@ faces_segs_some %>%
                 theme(legend.position = "bottom") 
 ```
 
-![](man/figures/README-plot-1.png)
+<img src="man/figures/README-plot-1.png" width="100%" />
 
 Another possibility is to create a topographic plot of the two conditions, by first making segments that include only the interval .1--.2 *s* after the onset of the stimuli.
 
 ``` r
-faces_segs_some %>% filter(between(as_time(.sample_id),.1,.2)) %>% 
+faces_segs_some %>% ungroup() %>%  
+                    filter(between(as_time(.sample_id),.1,.2)) %>% 
                     group_by(condition) %>%
                     plot_topo()
-#> Warning in max(segments$.id): no non-missing arguments to max; returning -
-#> Inf
-#> Warning in seq_len(max(segments$.id)): length.out is -Inf, using 0 instead.
-#> Warning: Missing .ids, some functions might fail.
-#> Warning in max(segments$.id): no non-missing arguments to max; returning -
-#> Inf
-#> Warning in seq_len(max(segments$.id)): length.out is -Inf, using 0 instead.
-#> Warning: Missing .ids, some functions might fail.
 ```
 
-![](man/figures/README-topo-1.png)
+<img src="man/figures/README-topo-1.png" width="100%" />
 
 See also:
 ---------

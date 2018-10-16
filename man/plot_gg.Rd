@@ -2,12 +2,12 @@
 % Please edit documentation in R/plot.R
 \name{plot_gg}
 \alias{plot_gg}
-\title{ggplot object based on an eegble object.}
+\title{ggplot object based on an eeg_lst object.}
 \usage{
 plot_gg(x, ...)
 }
 \arguments{
-\item{x}{An \code{eegble} object.}
+\item{x}{An \code{eeg_lst} object.}
 
 \item{max_sample}{Downsample to approximately 2000 samples by default.}
 }
@@ -15,5 +15,5 @@ plot_gg(x, ...)
 A ggplot object
 }
 \description{
-ggplot object based on an eegble object.
+ggplot object based on an eeg_lst object.
 }

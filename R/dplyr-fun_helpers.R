@@ -117,7 +117,7 @@ scaling <- function(sampling_rate, unit) {
 
 
 #' @noRd
-redo_indices <- function(.eegble) {
+redo_indices <- function(.eeg_lst) {
   redo_indices_df <- function(df) {
     orig_groups <- dplyr::groups(df)
     df <- df %>%
@@ -126,14 +126,14 @@ redo_indices <- function(.eegble) {
       dplyr::group_by(!!!orig_groups)
   }
 
-  .eegble$signal <- redo_indices_df(.eegble$signal)
-  .eegble$segments <- redo_indices_df(.eegble$segments)
-  .eegble
+  .eeg_lst$signal <- redo_indices_df(.eeg_lst$signal)
+  .eeg_lst$segments <- redo_indices_df(.eeg_lst$segments)
+  .eeg_lst
 }
 
 #' @noRd
-names_segments_col <- function(.eegble, dots) {
-  segments_cols <- setdiff(colnames(.eegble$segments), ".id") # removes .id
+names_segments_col <- function(.eeg_lst, dots) {
+  segments_cols <- setdiff(colnames(.eeg_lst$segments), ".id") # removes .id
 
   names_s <- c()
   for (n in seq_len(length(dots))) {
@@ -172,19 +172,19 @@ validate_segments <- function(segments) {
 
 
 #' @noRd
-group_vars_int <- function(eegble) {
-  list(signal = group_vars(eegble$signal), segments = group_vars(eegble$segments))
+group_vars_int <- function(eeg_lst) {
+  list(signal = group_vars(eeg_lst$signal), segments = group_vars(eeg_lst$segments))
 }
 
 #' @noRd
-groups_int <- function(eegble) {
-  list(signal = groups(eegble$signal), segments = groups(eegble$segments))
+groups_int <- function(eeg_lst) {
+  list(signal = groups(eeg_lst$signal), segments = groups(eeg_lst$segments))
 }
 
 
 #' @noRd
-group_by_id <- function(eegble) {
-  orig_groups <- dplyr::group_vars(eegble)
+group_by_id <- function(eeg_lst) {
+  orig_groups <- dplyr::group_vars(eeg_lst)
    #if there are many groupings
   if(length(orig_groups) > 1 | 
     #or if the only one is not .id
@@ -192,7 +192,7 @@ group_by_id <- function(eegble) {
     message("# Grouping by .id.")
   } 
 
-  dplyr::group_by(eegble, .id) 
+  dplyr::group_by(eeg_lst, .id) 
 }  
 
 #' @noRd

@@ -11,9 +11,9 @@ seq_len <- function(length.out){
 }
 
 #' @noRd
-say_size <- function(eegble) paste(
+say_size <- function(eeg_lst) paste(
     "# Object size in memory",
-    capture.output(pryr::object_size(eegble))
+    capture.output(pryr::object_size(eeg_lst))
   )
 
 #' Get integers so that their prod is approx N

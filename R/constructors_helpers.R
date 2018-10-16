@@ -114,19 +114,19 @@ new_signal <- function(signal_matrix = matrix(), ids = c(), sample_ids = c(), ch
 }
 
 #' @noRd
-new_eegble <- function(signal = NULL, events = NULL, segments = NULL) {
+new_eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
   x <- list(
     signal = signal, events = events,
  segments = segments
   )
   x <- unclass(x)
   structure(x,
-    class = c("eegble")
+    class = c("eeg_lst")
   )
 }
 
 #' @noRd
-validate_eegble <- function(x) {
+validate_eeg_lst <- function(x) {
   validate_signal(x$signal)
   validate_events(x$events, channel_names(x))
   validate_segments(x$segments)

@@ -1,5 +1,5 @@
 context("test out functions")
-library(eegble)
+library(eeguana)
 
 
 eegbl_av <- read_vhdr("binary-avfaces.vhdr")

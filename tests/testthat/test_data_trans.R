@@ -1,10 +1,10 @@
 context("Binding and transforming")
-library(eegble)
+library(eeguana)
 
 
   
 
-cond1 <- eegble(
+cond1 <- eeg_lst(
 signal = signal(signal_matrix = as.matrix(
                               data.frame(X = sin(1:10), Y = cos(1:10))),
   ids = rep(1L, 10), 
@@ -20,7 +20,7 @@ signal = signal(signal_matrix = as.matrix(
 )
 
 
-cond2 <- eegble(
+cond2 <- eeg_lst(
   signal = signal(signal_matrix = as.matrix(
                               data.frame(X = sin(1:10)+.1, Y = cos(1:10)+.1)),
   ids = rep(1L, 10), 
@@ -37,7 +37,7 @@ cond2 <- eegble(
 )
 
 
-cond3 <- eegble(
+cond3 <- eeg_lst(
   signal = signal(signal_matrix = as.matrix(
                               data.frame(X = sin(1:10)+.1, Y = cos(1:10)+.1)),
   ids = rep(1L, 10), 
@@ -98,7 +98,7 @@ test_that("can transform to tibble", {
   conds <- bind(cond1, cond1_2)
   df <- as_tibble(conds)
   expect_equal(nrow(df), nrow(conds$signal) * length(channel_names(conds)))
-  expect_equal(max(df$time), max((conds$signal$.sample_id - 1)) / eegble:::sampling_rate(conds))
+  expect_equal(max(df$time), max((conds$signal$.sample_id - 1)) / eeguana:::sampling_rate(conds))
 })
 
 

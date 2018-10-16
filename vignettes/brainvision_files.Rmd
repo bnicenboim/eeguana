@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-The key problem that **eegble** solves is manipulating already pre-processed (i.e.,
+The key problem that **eeguana** solves is manipulating already pre-processed (i.e.,
 filtering, artifact rejects, ICA, etc has already beed done) EEG files. Here, I
 exemplify this with (preprocessed) EEG data from a simple experiment, where a
 participant was presented 100 faces and 100 assorted images in random order. The
@@ -40,7 +40,7 @@ and `faces.dat` contains the signals at every sample for every channel recorded.
 
 
 ```{r libs, message = FALSE}
-library(eegble)
+library(eeguana)
 ```
 
 We first need to read the data:
@@ -92,7 +92,7 @@ faces_segs <- faces %>%
 
 
 We can also edit the segmentation information and add more descriptive labels.
-`eegble` has wrappers for many `dplyr` commands for the EEG data.  These commands always return the entire `eegble` object so that they can be piped using `magrittr`'s pipe, `%>%`.
+`eeguana` has wrappers for many `dplyr` commands for the EEG data.  These commands always return an entire `eeg_lst` object so that they can be piped using `magrittr`'s pipe, `%>%`.
 
 ```{r}
 faces_segs_some <- faces_segs %>%  
@@ -120,7 +120,7 @@ faces_segs_some %>%
                 theme(legend.position = "bottom") 
 ```
 
-The motivation for manipulating the data in the `eegble` format and not transforming
+The motivation for manipulating the data in the `eeg_lst` format and not transforming
 them directly to a data frame has to do with size considerations. In this case,
 the original file was 149 MB, converting it to a long format entails a lot of
 repetition and generates an object of 786 MB. While this is still ok here, a long format quickly becomes prohibitive in real settings with longer recordings and with
@@ -128,7 +128,7 @@ several subjects.
 
 We can see here the N170 component in the faces condition for the average trial
 on a single participant. We can investigate the signal by averaging the channels
-of the occipital and parietal lobes using the capabilities inherited from `dplyr`, and the special function, `channelMeans`, a wrapper for `rowMeans`, which takes as arguments the eegble object, the channels, and whether missing values should be omitted from the calculations.
+of the occipital and parietal lobes using the capabilities inherited from `dplyr`, and the special function, `channelMeans`, a wrapper for `rowMeans`, which takes as arguments the `eeg_lst` object, the channels, and whether missing values should be omitted from the calculations.
 
                                                               
 ```{r, fig.dim = c(10,15), out.width = "100%"}
@@ -150,10 +150,12 @@ first making segments that include only the interval .1--.2 *s* after the onset
 of the stimuli.
 
 ```{r, fig.dim = c(10,5), out.width = "100%"}
-faces_segs_some %>% filter(between(as_time(.sample_id),.1,.2)) %>% 
+faces_segs_some %>% ungroup() %>%
+                    filter(between(.sample_id,20,50)) %>% 
                     group_by(condition) %>%
                     plot_topo()
 
+    
 ```
 
 
@@ -182,7 +184,7 @@ ggplot(df, aes(x = time, y = `t-value`)) + geom_line() +
                 facet_wrap(~ channel) 
 ```
 
-However, this can be also done in the without transforming the `eegble` object:
+However, this can be also done in the without transforming the `eeg_lst` object:
 
 ```{r, fig.dim = c(10,15), out.width = "100%"}
 faces_segs_some_t <- 
