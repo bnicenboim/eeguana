@@ -39,5 +39,4 @@ Suggests:
      R.matlab
 LazyData: true
 VignetteBuilder: knitr
-Remotes:  
-    slowkow/ggrepel
+
