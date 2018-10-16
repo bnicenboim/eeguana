@@ -154,13 +154,18 @@ bind <- function(...) {
   purrr::iwalk(
     eegbles[seq(2, length(eegbles))],
     ~if (!identical(channels_tbl(eegbles[[1]]), channels_tbl(.x))) {
-      warning(
-        "Objects with different channels information",
-        as.character(as.numeric(.y) + 1), "."
-      )
+    warning("Objects with different channels information, see below\n\n", "File ", 
+      as.character(as.numeric(.y) + 1)," ... \n",
+    paste0(
+      capture.output(setdiff(channels_tbl(eegbles[[1]]), channels_tbl(.x))),
+       collapse = "\n"),
+    "\n\n ... in comparison with file 1 ...\n\n",
+    paste0(
+    capture.output(setdiff(channels_tbl(.x), channels_tbl(eegbles[[1]]))),
+           collapse = "\n")
+      , call. = FALSE)
     }
   )
-
 
   # Binding
   # .id of the new eggbles needs to be adapted
@@ -173,9 +178,11 @@ bind <- function(...) {
   signal <- map2_sgr(eegbles, add_ids, ~
   dplyr::ungroup(.x$signal) %>%
     dplyr::mutate(.id = .id + .y))
+
   events <- purrr::map2_dfr(eegbles, add_ids, ~
   dplyr::ungroup(.x$events) %>%
     dplyr::mutate(.id = .id + .y))
+
   segments <- purrr::map2_dfr(eegbles, add_ids, ~
   dplyr::ungroup(.x$segments) %>%
     dplyr::mutate(.id = .id + .y))
@@ -268,10 +275,8 @@ event_to_ch_NA.eegble <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
     x$events <- suppressMessages(dplyr::anti_join(
       x$events,
       dplyr::filter(x$events, !!!dots)
-    )) %>%
-      dplyr::mutate(.channel = forcats::lvls_expand(.channel,
-        new_levels = channel_names(x)
-      ))
+    )) 
+
   }
   validate_eegble(x)
 }
