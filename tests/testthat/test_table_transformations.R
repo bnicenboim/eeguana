@@ -1,8 +1,8 @@
 context("table transformations")
-library(eegble)
+library(eeguana)
 
 
-data <- eegble(
+data <- eeg_lst(
   signal = signal(signal_matrix = as.matrix(
                               data.frame(X = sin(1:20), Y = cos(1:20))),
   ids = rep(c(1L, 2L), each = 10), 
@@ -23,7 +23,7 @@ data <- eegble(
 )
 
 
-data_NA <- eegble(
+data_NA <- eeg_lst(
   signal = signal(signal_matrix = as.matrix(
                               data.frame(X = sin(1:20), Y = cos(1:20))),
   ids = rep(c(1L, 2L), each = 10), 
@@ -43,7 +43,7 @@ data_NA <- eegble(
   segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
 )
 
-data_XY <- eegble(
+data_XY <- eeg_lst(
   signal = signal(signal_matrix = as.matrix(
                               data.frame(X = sin(1:20), Y = cos(1:20))),
   ids = rep(c(1L, 2L), each = 10), 
@@ -123,7 +123,7 @@ test_that("can clean whole segments in files", {
 })
 
 
-data0 <- eegble(
+data0 <- eeg_lst(
   signal = signal(signal_matrix = as.matrix(
                               data.frame(X = sin(1:20), Y = cos(1:20))),
   ids =  rep(c(1L, 1L), each = 10), 
@@ -179,17 +179,17 @@ test_that("can segment", {
 
 
 baselines <- dplyr::summarize(dplyr::group_by(
-                              dplyr::filter(eegble:::declass(data$signal)$tbl, .sample_id <=0),
+                              dplyr::filter(eeguana:::declass(data$signal)$tbl, .sample_id <=0),
                               .id),  bX = mean(X), bY = mean(Y))
-signal_with_baselines <- dplyr::left_join(eegble:::declass(data$signal)$tbl, baselines) 
+signal_with_baselines <- dplyr::left_join(eeguana:::declass(data$signal)$tbl, baselines) 
 signal_with_baselines$new_X <- signal_with_baselines$X - signal_with_baselines$bX
 signal_with_baselines$new_Y <- signal_with_baselines$Y - signal_with_baselines$bY
 baselined <- ch_baseline(data)
 
 
 test_that("baseline works", {
-expect_equal(eegble:::declass(baselined$signal)$tbl$X,  signal_with_baselines$new_X )
-expect_equal(eegble:::declass(baselined$signal)$tbl$Y,  signal_with_baselines$new_Y )
+expect_equal(eeguana:::declass(baselined$signal)$tbl$X,  signal_with_baselines$new_X )
+expect_equal(eeguana:::declass(baselined$signal)$tbl$Y,  signal_with_baselines$new_Y )
 })
 
 

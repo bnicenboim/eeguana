@@ -1,5 +1,5 @@
-#' Simple plot an eegble object.
-#' @param x An \code{eegble} object.
+#' Simple plot an eeg_lst object.
+#' @param x An \code{eeg_lst} object.
 #' @param max_sample Downsample to approximately 2000 samples by default.
 #'
 #'
@@ -8,7 +8,7 @@
 #' @importFrom magrittr %>%
 #'
 #' @export
-plot.eegble <- function(x, max_sample = 2000) {
+plot.eeg_lst <- function(x, max_sample = 2000) {
   if (is.numeric(max_sample) & max_sample != 0 &
     # it will downsample if the samples are at least twice as large than the max_sample
     max(duration(x)) * sampling_rate(x) * 2 > max_sample) {
@@ -29,8 +29,8 @@ plot.eegble <- function(x, max_sample = 2000) {
   plot
 }
 
-#' ggplot object based on an eegble object.
-#' @param x An \code{eegble} object.
+#' ggplot object based on an eeg_lst object.
+#' @param x An \code{eeg_lst} object.
 #' @param max_sample Downsample to approximately 2000 samples by default.
 #'
 #'
@@ -44,7 +44,7 @@ plot_gg <- function(x, ...) {
 }
 
 #' @export
-plot_gg.eegble <- function(x, ..., max_sample = 2000) {
+plot_gg.eeg_lst <- function(x, ..., max_sample = 2000) {
   if (is.numeric(max_sample) & max_sample != 0 &
     # it will downsample if the samples are at least twice as large than the max_sample
     max(duration(x)) * sampling_rate(x) * 2 > max_sample) {
@@ -64,16 +64,16 @@ plot_gg.eegble <- function(x, ..., max_sample = 2000) {
 }
 
 
-#' A topographic plot of an eegble object.
+#' A topographic plot of an eeg_lst object.
 #'
-#' Create a default topographic plot based on the segments of the \code{eegble} object.
+#' Create a default topographic plot based on the segments of the \code{eeg_lst} object.
 #'
 #' The following methods of interpolation are available :
 #' \itemize{
 #' \item \code{"MBA"} (Default) Multilevel B-splines using the function \code{mba.surf}; requires the package \code{MBA}.
 #' }
 #'
-#' @param x An \code{eegble} object.
+#' @param x An \code{eeg_lst} object.
 #' @param method Method of interpolation.
 #' @param ... Various arguments passed to the interpolation method.
 #'
@@ -87,7 +87,7 @@ plot_topo <- function(x, method = "MBA", ...) {
 }
 
 #' @export
-plot_topo.eegble <- function(x, method = "MBA", ...) {
+plot_topo.eeg_lst <- function(x, method = "MBA", ...) {
   # grouping_vars <- colnames(x$segments) %>% setdiff(c(".id", "segment"))
   grouping_vars <- group_vars(x$segments) 
   chan_vars <- c("x","y")

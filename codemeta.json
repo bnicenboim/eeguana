@@ -1,9 +1,9 @@
 {
   "@context": ["https://doi.org/10.5063/schema/codemeta-2.0", "http://schema.org"],
   "@type": "SoftwareSourceCode",
-  "identifier": "eegble",
+  "identifier": "eeguana",
   "description": "Flexible data manipulation of EEG data.",
-  "name": "eegble: A package for flexible manipulation of EEG data",
+  "name": "eeguana: A package for flexible manipulation of EEG data",
   "codeRepository": "https://bitbucket.org/bnicenboim/eegbl/src/master/",
   "issueTracker": "https://bitbucket.org/bnicenboim/eegbl/issues",
   "license": "https://spdx.org/licenses/MIT",
@@ -302,8 +302,8 @@
           "email": "bruno.nicenboim@example.com"
         }
       ],
-      "name": "eegble: A package for flexible manipulation of EEG data",
-      "url": "https://bitbucket.org/bnicenboim/eegbl/src/master/",
+      "name": "eeguana: A package for flexible manipulation of EEG data",
+      "url": "https://github.org/bnicenboim/eeguana/",
       "description": "R package version 0.0.2.9000"
     }
   ]

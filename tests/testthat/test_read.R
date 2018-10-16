@@ -1,5 +1,5 @@
 context("Read dat files")
-library(eegble)
+library(eeguana)
 
 # eegbl_ascii <- read_vhdr("01_N400_CONG.vhdr")
 

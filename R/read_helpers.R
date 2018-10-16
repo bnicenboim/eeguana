@@ -101,11 +101,11 @@ read_dat <- function(file, header_info = NULL, events = NULL,
     recording = recording, segment = .id
   )
 
-  eegble <- new_eegble(
+  eeg_lst <- new_eeg_lst(
     signal = signal, 
     events =   seg_events, 
    segments = segments
-  ) %>% validate_eegble()
+  ) %>% validate_eeg_lst()
 
 
   message(paste0(
@@ -113,11 +113,11 @@ read_dat <- function(file, header_info = NULL, events = NULL,
     " was read."
   ))
   message(paste0(
-    "# Data from ", nrow(eegble$segments),
-    " segment(s) and ", nchannels(eegble), " channels was loaded."
+    "# Data from ", nrow(eeg_lst$segments),
+    " segment(s) and ", nchannels(eeg_lst), " channels was loaded."
   ))
-  message(say_size(eegble))
-  eegble
+  message(say_size(eeg_lst))
+  eeg_lst
 
 }
 

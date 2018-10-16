@@ -1,11 +1,11 @@
 
 #' Mutate/transmute/select/rename channels with signals,  segments.
 #'
-#' Manipulate the signal and the segments table of an eegble.
+#' Manipulate the signal and the segments table of an eeg_lst.
 #'
 #' Wrappers for \link{dplyr}'s commands that act on different parts
 #' \code{eggble} objects.
-#' The following wrappers have been implemented for \code{eegble} objects:
+#' The following wrappers have been implemented for \code{eeg_lst} objects:
 #' \itemize{
 #' \item \code{summarize()} summarizes the channel of the signal table
 #' \item \code{summarize_all()} summarizes all the channels of the signal table.
@@ -15,19 +15,19 @@
 #' \item \code{select()} keeps only the mentioned variables from the refered table, except for the obligatory columns starting with \code{.}.
 #' \item \code{rename()}: keeps all variables.
 #' \item \code{filter()}: finds segments/samples where conditions are true. Segments/samples where the condition evaluates to NA are dropped.
-#' \item \code{left_join()}: left-joins an external table to one of the segments of the eegble.
-#' \item \code{semi_join()}: semi-joins an external table to one of the segments of the eegble.
-#' \item \code{anti_join()}: anti-joins an external table to one of the segments of the eegble.
+#' \item \code{left_join()}: left-joins an external table to one of the segments of the eeg_lst.
+#' \item \code{semi_join()}: semi-joins an external table to one of the segments of the eeg_lst.
+#' \item \code{anti_join()}: anti-joins an external table to one of the segments of the eeg_lst.
 #' \item  \code{group_by()}: allows that operations would be performed "by group".
 #' \item  \code{ungroup()}: removes the grouping created by group_by.
 #' }
 #'
-#' These commands always return the entire eegble so that
+#' These commands always return the entire eeg_lst so that
 #' they can be ' piped using \link{magrittr}'s pipe, %>%.
 #'
-#' @param .data An eegble.
+#' @param .data An eeg_lst.
 #' @param ... Name-value pairs of expressions; see  \link{dplyr-package} for more help.
-#' @return An eegble object.
+#' @return An eeg_lst object.
 #'
 #'
 #' @examples
@@ -37,13 +37,13 @@
 #' }
 
 #' @export
-mutate_.eegble <- function(.data, ..., .dots = list()) {
+mutate_.eeg_lst <- function(.data, ..., .dots = list()) {
   dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
   mutate_transmute(.data, mutate = TRUE, dots)
 }
 
 #' @export
-transmute_.eegble <- function(.data, ..., .dots = list()) {
+transmute_.eeg_lst <- function(.data, ..., .dots = list()) {
   dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
   mutate_transmute(.data, mutate = FALSE, dots)
 }
@@ -88,12 +88,12 @@ mutate_transmute <- function(.data, mutate = TRUE, dots) {
       !!!new_dots$segments
     )
   }
-  update_events_channels(.data) %>% validate_eegble()
+  update_events_channels(.data) %>% validate_eeg_lst()
 }
 
 
 #' @export
-summarise_.eegble <- function(.data, ..., .dots = list()) {
+summarise_.eeg_lst <- function(.data, ..., .dots = list()) {
   dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
   segments_groups <- dplyr::groups(.data$segments)
   signal_groups <- dplyr::groups(.data$signal)
@@ -149,21 +149,21 @@ summarise_.eegble <- function(.data, ..., .dots = list()) {
     #TODO maybe I can do some type of summary of the events table, instead
     .data$events <- .data$events %>% filter(FALSE)
 
-  update_events_channels(.data) %>% validate_eegble()
+  update_events_channels(.data) %>% validate_eeg_lst()
 }
 
 #' @export
-tbl_vars.eegble <- function(x) {
+tbl_vars.eeg_lst <- function(x) {
   setdiff(tbl_vars(x$signal), c(".id", ".sample_id"))
 }
 
 #' @export
-groups.eegble <- function(x) {
+groups.eeg_lst <- function(x) {
   groups(x$segments)
 }
 
 #' @export
-group_by_.eegble <- function(.data, ..., .dots = list(), add = add) {
+group_by_.eeg_lst <- function(.data, ..., .dots = list(), add = add) {
   dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
   # dots <- rlang::quos(segment)
   # dots <- rlang::quos(.sample_id)
@@ -177,22 +177,22 @@ group_by_.eegble <- function(.data, ..., .dots = list(), add = add) {
     .data$segments <- dplyr::group_by(.data$segments, .id, add = TRUE)
   }
   
-  validate_eegble(.data)
+  validate_eeg_lst(.data)
 }
 
 #' @export
-ungroup.eegble <- function(.data, ..., add = add) {
+ungroup.eeg_lst <- function(.data, ..., add = add) {
   .data$segments <- dplyr::ungroup(.data$segments)
-  validate_eegble(.data)
+  validate_eeg_lst(.data)
 }
 
 #' @export
-group_vars.eegble <- function(x) {
+group_vars.eeg_lst <- function(x) {
   c(group_vars(x$signal), group_vars(x$segments))
 }
 
 #' @export
-filter_.eegble <- function(.data, ..., .dots = list()) {
+filter_.eeg_lst <- function(.data, ..., .dots = list()) {
   dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
   # dots <- rlang::quo(recording == "0")
   new_dots <- dots_by_df(dots, .data)
@@ -213,7 +213,7 @@ filter_.eegble <- function(.data, ..., .dots = list()) {
   }
 
   # Fix the indices in case some of them drop out
-  redo_indices(.data) %>% update_events_channels() %>%   validate_eegble()
+  redo_indices(.data) %>% update_events_channels() %>%   validate_eeg_lst()
 }
 
 
@@ -221,13 +221,13 @@ filter_.eegble <- function(.data, ..., .dots = list()) {
 
 #' @export
 #'
-select.eegble <- function(.data, ...) {
+select.eeg_lst <- function(.data, ...) {
   select_rename(.data, select = TRUE, ...)
 }
 
 #' @export
 #'
-rename.eegble <- function(.data, ...) {
+rename.eeg_lst <- function(.data, ...) {
   select_rename(.data, select = FALSE, ...)
 }
 
@@ -271,39 +271,39 @@ select_rename <- function(.data, select = TRUE, ...) {
     }
   }
 
-  update_events_channels(.data) %>% validate_eegble()
+  update_events_channels(.data) %>% validate_eeg_lst()
 }
 
 
 
 #' @export
-left_join.eegble <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
+left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
   if(!is.data.frame(y)) stop("y must be a data frame or tibble.")
   
   x[["segments"]] <- dplyr::left_join(x[["segments"]], y = y, by = by, copy = copy, suffix = c(".x", ".y"), ...)
 
-  validate_eegble(x)
+  validate_eeg_lst(x)
 }
 
 
 
 #' @export
-semi_join.eegble <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
+semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   if(!is.data.frame(y)) stop("y must be a data frame or tibble.")
  
   x[["segments"]] <- dplyr::semi_join(x[["segments"]], y, by = NULL, suffix = c(".x", ".y"), ...)
   x$signal <- dplyr::semi_join(x$signal, x[["segments"]], by = ".id")
 
-   validate_eegble(x)
+   validate_eeg_lst(x)
 }
 
 
 #' @export
-anti_join.eegble <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
+anti_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   if(!is.data.frame(y)) stop("y must be a data frame or tibble.")
  
   x[["segments"]] <- dplyr::anti_join(x[["segments"]], y, by = NULL, suffix = c(".x", ".y"), ...)
   x[["signal"]] <- dplyr::semi_join(x[["signal"]], x[["segments"]], by = ".id")
 
-  validate_eegble(x)
+  validate_eeg_lst(x)
 }

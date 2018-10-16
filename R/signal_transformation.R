@@ -1,13 +1,13 @@
-#' Baseline an eegble
+#' Baseline an eeg_lst
 #' 
 #' Subtract the average or baseline of the points in a defined interval from all points in the segment.
 #'
-#' @param x An \code{eegble} object.
+#' @param x An \code{eeg_lst} object.
 #' @param time A negative number indicating from when to baseline; the interval is defined as [time,0]. The default is to use all the negative times.
 #' @param sample_id A negative number indicating from when to baseline. The default is to use all the negative times.
 #'
 #' @examples
-#' @return An eegble.
+#' @return An eeg_lst.
 #'
 #' @importFrom magrittr %>%
 #'
@@ -17,9 +17,9 @@ ch_baseline <- function(x, ...) {
 }
 
 #' @export
-ch_baseline.eegble <- function(x, time = -Inf, sample_id = NULL) {
+ch_baseline.eeg_lst <- function(x, time = -Inf, sample_id = NULL) {
 
-  # ch_baseline.eegble uses grouping by .id by default, more flexible baseline
+  # ch_baseline.eeg_lst uses grouping by .id by default, more flexible baseline
   x <- group_by_id(x)
 
 

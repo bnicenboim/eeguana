@@ -2,16 +2,16 @@
 % Please edit documentation in R/tables_transformation.R
 \name{bind}
 \alias{bind}
-\title{Bind eegble objects.}
+\title{Bind eeg_lst objects.}
 \usage{
 bind(...)
 }
 \arguments{
-\item{...}{Eegble objects to combine.}
+\item{...}{eeg_lst objects to combine.}
 }
 \value{
-An \code{eegble} object.
+An \code{eeg_lst} object.
 }
 \description{
-Binds eegble and throws a warning if there is a mismatch in the channel information.
+Binds eeg_lst and throws a warning if there is a mismatch in the channel information.
 }

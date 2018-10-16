@@ -1,8 +1,8 @@
 context("test signal_tbl functions")
-library(eegble)
+library(eeguana)
 
 
-data <- eegble(
+data <- eeg_lst(
   signal = signal(signal_matrix = as.matrix(
                               data.frame(X = sin(1:20), Y = cos(1:20))),
   ids = rep(c(1L, 2L), each = 10), 
@@ -41,14 +41,14 @@ mutate_at_g_signal_tbl <- dplyr::mutate_at(group_by_signal_tbl,channel_names(dat
 summarize_g_signal_tbl <- dplyr::summarize(group_by_signal_tbl)
 summarize_at_g_signal_tbl <- dplyr::summarize_at(group_by_signal_tbl, channel_names(data), mean)
 
-group_by_declassed <- dplyr::group_by(eegble:::declass(data$signal)$tbl, .sample_id)
-mutate_declassed <- dplyr::mutate(eegble:::declass(data$signal)$tbl, X = X + 1)
-mutate2_declassed <- dplyr::mutate(eegble:::declass(data$signal)$tbl, ZZ = X + 1)
-transmute_declassed <- dplyr::transmute(eegble:::declass(data$signal)$tbl, X = X + 1)
-mutate_all_declassed <- dplyr::mutate_all(eegble:::declass(data$signal)$tbl, mean)
-mutate_at_declassed <- dplyr::mutate_at(eegble:::declass(data$signal)$tbl,channel_names(data), mean)
-summarize_declassed <- dplyr::summarize(eegble:::declass(data$signal)$tbl)
-summarize_at_declassed <- dplyr::summarize_at(eegble:::declass(data$signal)$tbl, channel_names(data), mean)
+group_by_declassed <- dplyr::group_by(eeguana:::declass(data$signal)$tbl, .sample_id)
+mutate_declassed <- dplyr::mutate(eeguana:::declass(data$signal)$tbl, X = X + 1)
+mutate2_declassed <- dplyr::mutate(eeguana:::declass(data$signal)$tbl, ZZ = X + 1)
+transmute_declassed <- dplyr::transmute(eeguana:::declass(data$signal)$tbl, X = X + 1)
+mutate_all_declassed <- dplyr::mutate_all(eeguana:::declass(data$signal)$tbl, mean)
+mutate_at_declassed <- dplyr::mutate_at(eeguana:::declass(data$signal)$tbl,channel_names(data), mean)
+summarize_declassed <- dplyr::summarize(eeguana:::declass(data$signal)$tbl)
+summarize_at_declassed <- dplyr::summarize_at(eeguana:::declass(data$signal)$tbl, channel_names(data), mean)
 
 mutate_g_declassed <- dplyr::mutate(group_by_declassed, X = X + 1)
 mutate2_g_declassed <- dplyr::mutate(group_by_declassed, ZZ = X + 1)
@@ -61,24 +61,24 @@ summarize_at_g_declassed <- dplyr::summarize_at(group_by_declassed, channel_name
 
 
 test_that("dplyr func work on signal_tbl",{
-expect_equal(eegble:::declass(group_by_signal_tbl)$tbl, group_by_declassed)
-expect_equal(eegble:::declass(mutate_signal_tbl)$tbl, mutate_declassed)
-expect_equal(eegble:::declass(mutate2_signal_tbl)$tbl, mutate2_declassed)
-expect_equal(eegble:::declass(transmute_signal_tbl)$tbl, transmute_declassed)
-expect_equal(eegble:::declass(mutate_all_signal_tbl)$tbl, mutate_all_declassed)
-expect_equal(eegble:::declass(mutate_at_signal_tbl)$tbl, mutate_at_declassed)
-expect_equal(eegble:::declass(summarize_signal_tbl)$tbl, summarize_declassed)
-expect_equal(eegble:::declass(summarize_at_signal_tbl)$tbl, summarize_at_declassed)
+expect_equal(eeguana:::declass(group_by_signal_tbl)$tbl, group_by_declassed)
+expect_equal(eeguana:::declass(mutate_signal_tbl)$tbl, mutate_declassed)
+expect_equal(eeguana:::declass(mutate2_signal_tbl)$tbl, mutate2_declassed)
+expect_equal(eeguana:::declass(transmute_signal_tbl)$tbl, transmute_declassed)
+expect_equal(eeguana:::declass(mutate_all_signal_tbl)$tbl, mutate_all_declassed)
+expect_equal(eeguana:::declass(mutate_at_signal_tbl)$tbl, mutate_at_declassed)
+expect_equal(eeguana:::declass(summarize_signal_tbl)$tbl, summarize_declassed)
+expect_equal(eeguana:::declass(summarize_at_signal_tbl)$tbl, summarize_at_declassed)
 })
 
 test_that("dplyr func work on groupped signal_tbl",{
-expect_equal(eegble:::declass(mutate_g_signal_tbl)$tbl, mutate_g_declassed)
-expect_equal(eegble:::declass(mutate2_g_signal_tbl)$tbl, mutate2_g_declassed)
-expect_equal(eegble:::declass(transmute_g_signal_tbl)$tbl, transmute_g_declassed)
-expect_equal(eegble:::declass(mutate_all_g_signal_tbl)$tbl, mutate_all_g_declassed)
-expect_equal(eegble:::declass(mutate_at_g_signal_tbl)$tbl, mutate_at_g_declassed)
-expect_equal(eegble:::declass(summarize_g_signal_tbl)$tbl, summarize_g_declassed)
-expect_equal(eegble:::declass(summarize_at_g_signal_tbl)$tbl, summarize_at_g_declassed)
+expect_equal(eeguana:::declass(mutate_g_signal_tbl)$tbl, mutate_g_declassed)
+expect_equal(eeguana:::declass(mutate2_g_signal_tbl)$tbl, mutate2_g_declassed)
+expect_equal(eeguana:::declass(transmute_g_signal_tbl)$tbl, transmute_g_declassed)
+expect_equal(eeguana:::declass(mutate_all_g_signal_tbl)$tbl, mutate_all_g_declassed)
+expect_equal(eeguana:::declass(mutate_at_g_signal_tbl)$tbl, mutate_at_g_declassed)
+expect_equal(eeguana:::declass(summarize_g_signal_tbl)$tbl, summarize_g_declassed)
+expect_equal(eeguana:::declass(summarize_at_g_signal_tbl)$tbl, summarize_at_g_declassed)
 })
 
 

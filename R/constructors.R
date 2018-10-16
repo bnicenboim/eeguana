@@ -1,8 +1,8 @@
-#' Builds an eegble.
+#' Builds an eeg_lst.
 #' @return A valid eggble.
 #' @export
-eegble <- function(signal, events, segments) {
-  validate_eegble(new_eegble(signal, events, segments))
+eeg_lst <- function(signal, events, segments) {
+  validate_eeg_lst(new_eeg_lst(signal, events, segments))
 }
 
 
@@ -24,14 +24,14 @@ is_signal <- function(x) {
 }
 
 
-#' Test if the object is an eegble.
-#' This function returns  TRUE for eegbles.
+#' Test if the object is an eeg_lst.
+#' This function returns  TRUE for eeg_lsts.
 #'
 #' @param x An object.
-#' @return `TRUE` if the object inherits from the `eegble` class.
+#' @return `TRUE` if the object inherits from the `eeg_lst` class.
 #' @export
-is_eegble <- function(x) {
-  class(x) == "eegble"
+is_eeg_lst <- function(x) {
+  class(x) == "eeg_lst"
 }
 
 

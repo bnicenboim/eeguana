@@ -30,7 +30,7 @@ rereference <- function(x, ..., na.rm = FALSE) {
 #' the downsampling can be done in steps. For example, instead of setting
 #' \code{q = 20}, it is possible to set \code{q = c(2,10)}.
 #'
-#' @param x An eegble object.
+#' @param x An eeg_lst object.
 #' @param q integer factor(s) to downsample by.
 #' @param max_sample Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total numbe of samples.
 #' @param ... Other arguments passed to decimate.
@@ -45,7 +45,7 @@ downsample <- function(x, q = 2, max_sample = NULL, ...) {
 }
 
 #' @export
-downsample.eegble <- function(x, q = 2L, max_sample = NULL,
+downsample.eeg_lst <- function(x, q = 2L, max_sample = NULL,
                              n = if (ftype == "iir") 8 else 30,
                              ftype = "iir") {
 
@@ -118,6 +118,6 @@ downsample.eegble <- function(x, q = 2L, max_sample = NULL,
   x$segments <- dplyr::mutate(x$segments, .id = seq_len(dplyr::n()))
 
   message(say_size(x))
-  validate_eegble(x)
+  validate_eeg_lst(x)
 }
 

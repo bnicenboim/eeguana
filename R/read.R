@@ -1,11 +1,11 @@
-#' Read a BrainVision file into an eegble object.
+#' Read a BrainVision file into an eeg_lst object.
 #'
 #' @param file A vhdr file in a folder that contains a .vmrk and .dat files
 #' @param sep Segment separation marker. By default: type == "New Segment"
 #' @param zero Time zero marker. By default: type == "Time 0"
 #' @param recording Recording name, by default is the file name.
 #'
-#' @return An \code{eegble} object with signal and event from file_name.dat,
+#' @return An \code{eeg_lst} object with signal and event from file_name.dat,
 #' file_name.vhdr, and file_name.vmrk.
 #'
 #' @importFrom magrittr %>%
@@ -48,12 +48,12 @@ read_vhdr <- function(file, sep = type == "New Segment", zero = type == "Time 0"
 
 
 
-#' Read a Fieldtrip file into an eegble object (requires R.matlab).
+#' Read a Fieldtrip file into an eeg_lst object (requires R.matlab).
 #'
 #' @param file A .mat file containing a fieldtrip struct.
 #' @param recording Recording name, by default is the file name.
 #'
-#' @return An \code{eegble} object with signal and event from a matlab file.
+#' @return An \code{eeg_lst} object with signal and event from a matlab file.
 #'
 #' @importFrom magrittr %>%
 #'
@@ -151,7 +151,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
     recording = recording, segment = .id
   )
 
-  eegble <- new_eegble(
+  eeg_lst <- new_eeg_lst(
     signal = signal, events = events, segments = segments
   )
 
@@ -161,11 +161,11 @@ read_ft <- function(file, layout = NULL, recording = file) {
     " was read."
   ))
   message(paste0(
-    "# Data from ", nrow(eegble$segments),
-    " segment(s) and ", nchannels(eegble), " channels was loaded."
+    "# Data from ", nrow(eeg_lst$segments),
+    " segment(s) and ", nchannels(eeg_lst), " channels was loaded."
   ))
-  message(say_size(eegble))
-  eegble
+  message(say_size(eeg_lst))
+  eeg_lst
 }
 
 

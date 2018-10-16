@@ -39,7 +39,7 @@ chs_mean <- function(..., na.rm = FALSE) {
 }
 
 # #' @export
-# chs_mean.eegble <- function(x, na.rm = FALSE) {
+# chs_mean.eeg_lst <- function(x, na.rm = FALSE) {
 # 	all_channels <- rlang::syms(channel_names(x))
 # 	dplyr::transmute(x, MEAN = chs_mean.default(x = NULL,!!!all_channels, na.rm = na.rm) )
 # }
@@ -65,7 +65,7 @@ chs_mean <- function(..., na.rm = FALSE) {
 #' }
 #' @export
 as_sample_id <- function(x, unit = "seconds", sampling_rate) {
-	#TODO I could check if it's been called inside the eegble and extract the sampling rate.
+	#TODO I could check if it's been called inside the eeg_lst and extract the sampling rate.
   x * scaling(sampling_rate, unit)
 }
 
@@ -87,11 +87,7 @@ as_time <- function(x, unit = "second") {
 
 #' @export
 as_time.sample_id <- function(x, unit = "second") {
-  # add unit
-
   time <- x / scaling(sampling_rate = attributes(x)$sampling_rate, unit)
-
-  attributes(time) <- NULL
   time
 }
 

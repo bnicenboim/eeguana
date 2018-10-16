@@ -1,4 +1,4 @@
-Package: eegble
+Package: eeguana
 Type: Package
 Title: A package for flexible manipulation of EEG data
 Version: 0.0.2.9000
@@ -6,8 +6,8 @@ Authors@R: c(
     person("Bruno", "Nicenboim", email = "bruno.nicenboim@uni-potsdam.de", role = c("aut", "cre")),
     person("Kate", "Stone", email = "kate.stone@uni-potsdam.de", role = "ctb"))
 Description: Flexible data manipulation of EEG data.
-URL: https://bitbucket.org/bnicenboim/eegbl/src/master/
-BugReports: https://bitbucket.org/bnicenboim/eegbl/issues
+URL: https://github.com/bnicenboim/
+BugReports: https://github.com/bnicenboim/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 6.0.1

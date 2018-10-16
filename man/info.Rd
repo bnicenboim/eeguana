@@ -5,7 +5,7 @@
 \alias{channel_names}
 \alias{nchannels}
 \alias{nsamples}
-\title{Display information of the eegble object.}
+\title{Display information of the eeg_lst object.}
 \usage{
 channel_names(x, ...)
 
@@ -14,7 +14,7 @@ nchannels(x, ...)
 nsamples(x, ...)
 }
 \arguments{
-\item{x}{An eegble object.}
+\item{x}{An eeg_lst object.}
 }
 \description{
 \itemize{
@@ -22,7 +22,7 @@ nsamples(x, ...)
 \item \code{channel_names()}: Returns a vector with the name of the channels.
 \item \code{nchannels()}: Returns the number of channels.
 \item \code{nsamples()}: Returns the number of samples of the recording (or segments).
-\item \code{summary()}: Prints a summary of the eegble object. (It also returns a list.)
+\item \code{summary()}: Prints a summary of the eeg_lst object. (It also returns a list.)
 \item \code{count_complete_cases_tbl()}: Returns a table with the number of complete segments by specified groups.
 }
 }

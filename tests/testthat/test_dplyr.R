@@ -1,8 +1,8 @@
 context("test dplyr functions")
-library(eegble)
+library(eeguana)
 
 
-data <- eegble(
+data <- eeg_lst(
   signal = signal(signal_matrix = as.matrix(
                               data.frame(X = sin(1:20), Y = cos(1:20))),
   ids = rep(c(1L, 2L), each = 10), 
