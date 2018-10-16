@@ -133,8 +133,9 @@ add_event_channel <- function(events, labels) {
       .channel
     ) %>%
       labels[.] 
-      %>%
-      forcats::lvls_expand(new_levels = labels))
+      # %>%
+      # forcats::lvls_expand(new_levels = labels)
+      )
 }
 
 segment_events <- function(events, beg_segs, s0, end_segs) {
