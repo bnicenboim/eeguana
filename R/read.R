@@ -90,20 +90,20 @@ read_ft <- function(file, layout = NULL, recording = file) {
 
   # channel info:
   channels <- dplyr::tibble(
-    labels = make.unique(channel_names),
-    x = NA_real_, y = NA_real_, z = NA_real_, reference = NA
+    .name = make.unique(channel_names),
+    .x = NA_real_, .y = NA_real_, .z = NA_real_, .reference = NA
   )
 
   if (!is.null(layout)) {
     chan_layout <- R.matlab::readMat(layout) %>%
       {
         dplyr::mutate(.$lay[, , 1]$pos %>% as.data.frame(),
-          labels = unlist(.$lay[, , 1]$label)
+          .name = unlist(.$lay[, , 1]$label)
         )
       } %>%
       dplyr::rename(x_2d = V1, y_2d = V2)
-    not_layout <- setdiff(chan_layout$labels, channels$labels)
-    not_channel <- setdiff(channels$labels, chan_layout$labels)
+    not_layout <- setdiff(chan_layout$.name, channels$.name)
+    not_channel <- setdiff(channels$.name, chan_layout$.name)
     warning(paste0(
       "The following channels are not in the layout file : ",
       paste(not_layout, collapse = ", "), "."
@@ -112,7 +112,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
       "The following channels are not in the data: ",
       paste(not_channel, collapse = ", "), "."
     ))
-    channels <- dplyr::left_join(channels, dplyr::as_tibble(chan_layout), by = "labels")
+    channels <- dplyr::left_join(channels, dplyr::as_tibble(chan_layout), by = ".name")
   }
 
 

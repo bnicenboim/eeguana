@@ -9,8 +9,8 @@ signal = signal(signal_matrix = as.matrix(
                               data.frame(X = sin(1:10), Y = cos(1:10))),
   ids = rep(1L, 10), 
   sample_ids = sample_id(seq(-4L, 5L), sampling_rate = 500 ),
-  dplyr::tibble(labels = c("X", "Y"), reference = NA, theta = NA, phi = NA, 
-    radius = NA, x = NA_real_, y = NA_real_, z = NA_real_) ),
+  dplyr::tibble(.name = c("X", "Y"), .reference = NA, theta = NA, phi = NA, 
+    radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_) ),
   events = dplyr::tribble(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA, -4L, 1L, NA,
@@ -25,8 +25,8 @@ cond2 <- eeg_lst(
                               data.frame(X = sin(1:10)+.1, Y = cos(1:10)+.1)),
   ids = rep(1L, 10), 
   sample_ids = sample_id(seq(-4L, 5L), sampling_rate = 500 ),
-  dplyr::tibble(labels = c("X", "Y"), reference = NA, theta = NA, phi = NA, 
-    radius = NA, x = NA_real_, y = NA_real_, z = NA_real_) ),
+  dplyr::tibble(.name = c("X", "Y"), .reference = NA, theta = NA, phi = NA, 
+    radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_) ),
 
   events = dplyr::tribble(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
@@ -42,8 +42,8 @@ cond3 <- eeg_lst(
                               data.frame(X = sin(1:10)+.1, Y = cos(1:10)+.1)),
   ids = rep(1L, 10), 
   sample_ids = sample_id(seq(-4L, 5L), sampling_rate = 500 ),
-  dplyr::tibble(labels = c("X", "Y"), reference = NA, theta = NA, phi = NA, 
-    radius = NA, x = NA_real_, y = NA_real_, z = NA_real_) ),
+  dplyr::tibble(.name = c("X", "Y"), .reference = NA, theta = NA, phi = NA, 
+    radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_) ),
 
   events = dplyr::tribble(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,

@@ -7,8 +7,8 @@ data <- eeg_lst(
                               data.frame(X = sin(1:20), Y = cos(1:20))),
   ids = rep(c(1L, 2L), each = 10), 
   sample_ids = sample_id(rep(seq(-4L, 5L), times = 2), sampling_rate = 500 ),
-  dplyr::tibble(labels = c("X", "Y"), reference = NA, theta = NA, phi = NA, 
-    radius = NA, x = NA_real_, y = NA_real_, z = NA_real_) ),
+  dplyr::tibble(.name = c("X", "Y"), .reference = NA, theta = NA, phi = NA, 
+    radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_) ),
   events = dplyr::tribble(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA_character_, -4L, 1L, NA,
@@ -28,8 +28,8 @@ data_NA <- eeg_lst(
                               data.frame(X = sin(1:20), Y = cos(1:20))),
   ids = rep(c(1L, 2L), each = 10), 
   sample_ids = sample_id(rep(seq(-4L, 5L), times = 2), sampling_rate = 500 ),
-  dplyr::tibble(labels = c("X", "Y"), reference = NA, theta = NA, phi = NA, 
-    radius = NA, x = NA_real_, y = NA_real_, z = NA_real_) ),
+  dplyr::tibble(.name = c("X", "Y"), .reference = NA, theta = NA, phi = NA, 
+    radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_) ),
   events = dplyr::tribble(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA_character_, -4L, 1L, NA_character_,
@@ -48,8 +48,8 @@ data_XY <- eeg_lst(
                               data.frame(X = sin(1:20), Y = cos(1:20))),
   ids = rep(c(1L, 2L), each = 10), 
   sample_ids = sample_id(rep(seq(-4L, 5L), times = 2), sampling_rate = 500 ),
-  dplyr::tibble(labels = c("X", "Y"), reference = NA, theta = NA, phi = NA, 
-    radius = NA, x = NA_real_, y = NA_real_, z = NA_real_) ),
+  dplyr::tibble(.name = c("X", "Y"), .reference = NA, theta = NA, phi = NA, 
+    radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_) ),
   events = dplyr::tribble(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA_character_, -4L, 1L, NA,
@@ -128,8 +128,8 @@ data0 <- eeg_lst(
                               data.frame(X = sin(1:20), Y = cos(1:20))),
   ids =  rep(c(1L, 1L), each = 10), 
   sample_ids = sample_id(seq(1L, 20L), sampling_rate = 500 ),
-  dplyr::tibble(labels = c("X", "Y"), reference = NA, theta = NA, phi = NA, 
-    radius = NA, x = NA_real_, y = NA_real_, z = NA_real_) ),
+  dplyr::tibble(.name = c("X", "Y"), .reference = NA, theta = NA, phi = NA, 
+    radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_) ),
   events = dplyr::tribble(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA, 1L, 1L, NA,
