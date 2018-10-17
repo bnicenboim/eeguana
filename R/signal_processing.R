@@ -14,7 +14,7 @@
 #' faces_segs %>% act_on(signal) %>%
 #'                  mutate_all(funs(rereference(., M1, M2)))
 #' }#'
-rereference <- function(x, ..., na.rm = FALSE) {
+ch_rereference <- function(x, ..., na.rm = FALSE) {
   x - vec_mean(..., na.rm = na.rm)
 }
 
