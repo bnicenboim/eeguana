@@ -50,10 +50,10 @@ read_dat <- function(file, header_info = NULL, events = NULL,
     )
   }
 
-  colnames(raw_signal) <- header_info$chan_info$labels
+  # colnames(raw_signal) <- header_info$chan_info$.name
 
   # Adding the channel names to event table
-  events <- add_event_channel(events, colnames(raw_signal))
+  events <- add_event_channel(events, header_info$chan_info$.name)
 
   # Initial samples as in Brainvision
   max_sample = nrow(raw_signal)
@@ -238,7 +238,7 @@ read_vhdr_metadata <- function(file) {
 
 
   channel_info <- read_metadata("Channel Infos") %>%
-    tidyr::separate(value, c("labels", "reference", "resolution", "unit"), sep = ",", fill = "right")
+    tidyr::separate(value, c(".name", ".reference", "resolution", "unit"), sep = ",", fill = "right")
   coordinates <- read_metadata("Coordinates") %>%
     tidyr::separate(value, c("radius", "theta", "phi"), sep = ",", fill = "right") %>%
     readr::type_convert(
@@ -316,5 +316,5 @@ brainvision_loc_2_xyz <- function(radius = 1, theta = NULL, phi = NULL) {
   x <- dplyr::if_else(radius != 0, round(sin(theta * pi / 180) * cos(phi * pi / 180), 2), NA_real_)
   y <- dplyr::if_else(radius != 0, round(sin(theta * pi / 180) * sin(phi * pi / 180), 2), NA_real_)
   z <- dplyr::if_else(radius != 0, round(cos(theta * pi / 180), 2), NA_real_)
-  tibble::tibble(x = x, y = y, z = z)
+  tibble::tibble(.x = x, .y = y, .z = z)
 }

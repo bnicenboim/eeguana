@@ -90,11 +90,12 @@ plot_topo <- function(x, method = "MBA", ...) {
 plot_topo.eeg_lst <- function(x, method = "MBA", ...) {
   # grouping_vars <- colnames(x$segments) %>% setdiff(c(".id", "segment"))
   grouping_vars <- group_vars(x$segments) 
-  chan_vars <- c("x","y")
+  chan_vars <- c(".x",".y")
   s_x <- summarize_id_as_tibble(x, mean, na.rm = TRUE) %>%
     dplyr::group_by_at(c(grouping_vars, "channel",chan_vars)) %>%
     dplyr::summarize(A = mean(mean, na.rm = TRUE)) %>%
-    dplyr::group_by_at(grouping_vars) 
+    dplyr::group_by_at(grouping_vars)  %>%
+    dplyr::rename(x = .x, y =.y)
 
 
   grid <- interpolate_xy(s_x, x = x, y = y, value = A, method = "MBA", ...)

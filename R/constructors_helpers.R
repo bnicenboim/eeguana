@@ -20,10 +20,10 @@ reclass <- function(tbl, attr) {
                       } else if(.y %in% names(attr)) {
                        attr[[.y]]
                       } else {list("class" = "channel", 
-                                  "x" = NA_real_,
-                                  "y" = NA_real_,
-                                  "z" = NA_real_,
-                                  "reference" = NA
+                                  ".x" = NA_real_,
+                                  ".y" = NA_real_,
+                                  ".z" = NA_real_,
+                                  ".reference" = NA
                                   )}))
   attributes(tbl) <- old_attr_tbl
   class(tbl) <- c("signal_tbl", class(tbl))
@@ -75,13 +75,13 @@ validate_channel <- function(channel){
     stop("Values should be numeric.",
       call. = FALSE)
   }
-  purrr::walk(c("x","y","z"), ~ 
+  purrr::walk(c(".x",".y",".z"), ~ 
     if(!is.numeric(attr(channel, .))) 
       warning(sprintf("Attribute %s should be a number.",.),
       call. = FALSE))
 
-  if(is.null(attributes(channel)$reference)){
-  warning("Attribute reference is missing.",
+  if(is.null(attributes(channel)$.reference)){
+  warning("Attribute .reference is missing.",
       call. = FALSE)
   }
   channel
@@ -100,7 +100,7 @@ new_signal <- function(signal_matrix = matrix(), ids = c(), sample_ids = c(), ch
   )
   } else {
   raw_signal <- purrr::map2_dfc(
-    raw_signal, purrr::transpose(channel_info), 
+    raw_signal %>% setNames(channel_info$.name), purrr::transpose(channel_info), 
     function(sig, chan_info) {
       channel = new_channel(value = sig, as.list(chan_info)) }
   )
