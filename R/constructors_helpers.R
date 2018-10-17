@@ -46,6 +46,9 @@ new_sample_id <- function(values, sampling_rate) {
   )
 }
 
+
+
+
 #' @noRd
 validate_sample_id <- function(sample_id){
   if (!is.integer(sample_id)){
@@ -198,5 +201,7 @@ obligatory_cols <- list(
   events = c(.id =".id", .sample_0= ".sample_0", .size = ".size", .channel =".channel"),
   segments = c(.id = ".id")
 )
+
+
 
 

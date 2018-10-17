@@ -90,8 +90,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
 
   # channel info:
   channels <- dplyr::tibble(
-    .name = make.unique(channel_names),
-    .x = NA_real_, .y = NA_real_, .z = NA_real_, .reference = NA
+    .name = make.unique(channel_names)
   )
 
   if (!is.null(layout)) {
@@ -101,26 +100,30 @@ read_ft <- function(file, layout = NULL, recording = file) {
           .name = unlist(.$lay[, , 1]$label)
         )
       } %>%
-      dplyr::rename(x_2d = V1, y_2d = V2)
+      dplyr::rename(.x = V1, .y = V2)
     not_layout <- setdiff(chan_layout$.name, channels$.name)
     not_channel <- setdiff(channels$.name, chan_layout$.name)
     warning(paste0(
-      "The following channels are not in the layout file : ",
+      "The following channels are not in the layout file: ",
       paste(not_layout, collapse = ", "), "."
     ))
     warning(paste0(
       "The following channels are not in the data: ",
       paste(not_channel, collapse = ", "), "."
     ))
-    channels <- dplyr::left_join(channels, dplyr::as_tibble(chan_layout), by = ".name")
+    channels <- dplyr::left_join(channels, dplyr::as_tibble(chan_layout), by = ".name") %>%
+                dplyr::mutate(.z = NA_real_, .reference = NA)
+  } else {
+    channels <- channels %>%
+                dplyr::mutate(.x = NA_real_, .y = NA_real_, .z = NA_real_, .reference = NA)
   }
-
-
+    
+    
   # colnames(signal) <- c(".id", channel_names)
   # signal <- dplyr::mutate(signal, .sample = sample, .id = as.integer(.id)) %>%
   #   dplyr::select(.id, .sample, dplyr::everything())
   signal <- new_signal(select(signal,-.id), 
-          ids = select(signal,.id), sample_ids= sample, channel_info = channels)
+          ids = signal[[".id"]], sample_ids= sample, channel_info = channels)
 
 
   as_first_non0 <- function(col) {
@@ -141,7 +144,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
     dplyr::as_tibble() %>%
     dplyr::select(-offset) %>%
     dplyr::mutate_all(as_first_non0) %>%
-    dplyr::rename(.size = dplyr::matches("duration")) %>%
+    dplyr::rename(.size = dplyr::matches("duration"), .sample_0 = sample ) %>%
     dplyr::mutate(.sample_0 = as.integer(.sample_0), .size = as.integer(.size)) %>%
     add_event_channel(channel_names) %>%
     segment_events(beg_segs = slengths$V1, s0 = slengths$V3 + slengths$V1, end_segs = slengths$V2)

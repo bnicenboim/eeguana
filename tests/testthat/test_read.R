@@ -18,3 +18,7 @@ test_that("can read binary dat files", {
   expect_equal(eegbl_av$events$.sample_0[eegbl_av$events$type == "New Segment"], -99)
   expect_equal(eegbl_av$events$.sample_0[eegbl_av$events$type == "Time 0"], 1)
 })
+
+
+ft_eeg <- read_ft("../../data/data_h.mat", layout = "../../data/easycapM23.mat")
+
