@@ -282,7 +282,7 @@ left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".
   
   x[["segments"]] <- dplyr::left_join(x[["segments"]], y = y, by = by, copy = copy, suffix = c(".x", ".y"), ...)
 
-  validate_eeg_lst(x)
+  redo_indices(x) %>%    validate_eeg_lst()
 }
 
 
@@ -294,7 +294,7 @@ semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   x[["segments"]] <- dplyr::semi_join(x[["segments"]], y, by = NULL, suffix = c(".x", ".y"), ...)
   x$signal <- dplyr::semi_join(x$signal, x[["segments"]], by = ".id")
 
-   validate_eeg_lst(x)
+  redo_indices(x) %>%    validate_eeg_lst()
 }
 
 
@@ -305,5 +305,5 @@ anti_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   x[["segments"]] <- dplyr::anti_join(x[["segments"]], y, by = NULL, suffix = c(".x", ".y"), ...)
   x[["signal"]] <- dplyr::semi_join(x[["signal"]], x[["segments"]], by = ".id")
 
-  validate_eeg_lst(x)
+  redo_indices(x) %>%    validate_eeg_lst()
 }

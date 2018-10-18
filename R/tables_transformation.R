@@ -180,6 +180,10 @@ bind <- function(...) {
   dplyr::ungroup(.x$signal) %>%
     dplyr::mutate(.id = .id + .y))
 
+  # signal <- purrr::map(eeg_lsts)
+
+
+
   events <- purrr::map2_dfr(eeg_lsts, add_ids, ~
   dplyr::ungroup(.x$events) %>%
     dplyr::mutate(.id = .id + .y))
