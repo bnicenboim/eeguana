@@ -83,7 +83,7 @@ summarize_by_id_tbl.eeg_lst <- function(x, .funs = mean, ...) {
     tidyr::gather(key = channel, value = !!rlang::sym(fname), -.id) %>%
     # adds segment info
     dplyr::left_join(., x$segments, by = ".id") %>%
-    dplyr::left_join(channels_tbl(x), by = "channel")
+    dplyr::left_join(rename(channels_tbl(x), channel = .name), by = "channel")
 }
 
 
