@@ -169,6 +169,7 @@ bind <- function(...) {
 
   # Binding
   # .id of the new eggbles needs to be adapted
+  
   add_ids <- purrr::map_int(eeg_lsts, ~max(.x$signal$.id)) %>%
     cumsum() %>%
     dplyr::lag(default = 0) %>%
@@ -187,11 +188,7 @@ bind <- function(...) {
   dplyr::ungroup(.x$segments) %>%
     dplyr::mutate(.id = .id + .y))
 
-  # If more segments of the same recording are added, these need to be adapted.
-  segments <- segments %>%
-    dplyr::group_by(recording) %>%
-    dplyr::mutate(segment = 1:n()) %>%
-    dplyr::ungroup()
+
 
   new_eeg_lst <- new_eeg_lst(
     signal = signal, events = events, segments = segments) %>% 

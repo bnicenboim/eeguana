@@ -33,7 +33,7 @@ cond2 <- eeg_lst(
     1L, "New Segment", NA, -4L, 1L, NA,
     1L, "Time 0", NA, 1L, 1L, NA
   ),
-  segments = dplyr::tibble(.id = 1L, recording = "recording1", segment = 1, type = "initial")
+  segments = dplyr::tibble(.id = 1L, recording = "recording2", segment = 1, type = "initial")
 )
 
 
@@ -50,23 +50,24 @@ cond3 <- eeg_lst(
     1L, "New Segment", NA, -4L, 1L, "X",
     1L, "Time 0", NA, 1L, 1L, NA
   ),
-  segments = dplyr::tibble(.id = 1L, recording = "recording1", segment = 1, type = "initial")
+  segments = dplyr::tibble(.id = 1L, recording = "recording3", segment = 1, type = "initial")
 )
 
 
+# eeg_lsts <- list(cond1, cond2)
 
-test_that("can bind unlisted files of same recording", {
+test_that("can bind unlisted files", {
   conds <- bind(cond1, cond2)
   expect_equal(nrow(conds$signal), nrow(cond1$signal) + nrow(cond2$signal))
   expect_equal(max(conds$signal$.id), max(cond1$signal$.id) + max(cond2$signal$.id))
-  expect_equal(max(conds$segments$segment), max(cond1$segments$segment) + max(cond2$segments$segment))
+  # expect_equal(max(conds$segments$segment), max(cond1$segments$segment) + max(cond2$segments$segment))
 })
 
-test_that("can bind listed files of same recording", {
+test_that("can bind listed files", {
   conds <- bind(list(cond1, cond2))
   expect_equal(nrow(conds$signal), nrow(cond1$signal) + nrow(cond2$signal))
   expect_equal(max(conds$signal$.id), max(cond1$signal$.id) + max(cond2$signal$.id))
-  expect_equal(max(conds$segments$segment), max(cond1$segments$segment) + max(cond2$segments$segment))
+  # expect_equal(max(conds$segments$segment), max(cond1$segments$segment) + max(cond2$segments$segment))
 })
 
 
@@ -74,18 +75,18 @@ test_that("can bind listed files that show and do not show channels on the event
   conds <- bind(list(cond1, cond3))
   expect_equal(nrow(conds$signal), nrow(cond1$signal) + nrow(cond3$signal))
   expect_equal(max(conds$signal$.id), max(cond1$signal$.id) + max(cond3$signal$.id))
-  expect_equal(max(conds$segments$segment), max(cond1$segments$segment) + max(cond3$segments$segment))
+  # expect_equal(max(conds$segments$segment), max(cond1$segments$segment) + max(cond3$segments$segment))
 })
 
 
 
-test_that("can bind unlisted files of same recording", {
+test_that("can bind unlisted files", {
   cond1_2 <- cond2
   cond1_2$segments$recording <- "recording2"
   conds <- bind(cond1, cond1_2)
   expect_equal(nrow(conds$signal), nrow(cond1$signal) + nrow(cond2$signal))
   expect_equal(max(conds$signal$.id), max(cond1$signal$.id) + max(cond2$signal$.id))
-  expect_equal(max(conds$segments$segment), max(cond1$segments$segment, cond2$segments$segment))
+  # expect_equal(max(conds$segments$segment), max(cond1$segments$segment, cond2$segments$segment))
 })
 
 
