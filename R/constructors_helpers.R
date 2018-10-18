@@ -158,9 +158,9 @@ validate_signal <- function(signal) {
   # Validates sample_id
   validate_sample_id(signal$.sample_id)
 
-  # Validates channels
-  ungroup(signal) %>% dplyr::select( -.id, -.sample_id) %>%
-    purrr::walk( ~ validate_channel(.x))
+  # Validates channels (first row is enough, and takes less memory)
+  dplyr::slice(signal, 1)  %>%
+    purrr::walk( ~ if(is_channel(.x)) validate_channel(.x))
 
   signal
 }
@@ -198,7 +198,7 @@ validate_segments <- function(segments) {
       call. = FALSE
     )
   }
-
+  segments
 }
 
 obligatory_cols <- list(
