@@ -61,11 +61,17 @@ channels_tbl.eeg_lst <- function(x, ...) {
 
 #' @export
 `channels_tbl<-.eeg_lst` <- function(x, value) {
-  channels <- dplyr::select(x$signal, channel_names(x))
+  orig_names <- channel_names(x)
+  channels <- dplyr::select(x$signal, orig_names)
   nochannels <- dplyr::select(x$signal, -dplyr::one_of(channel_names(x)))
   x$signal<- dplyr::bind_cols(nochannels, update_channel_meta_data(channels, value))
+  new_names <- channel_names(x)
 
-  x            
+  for(i in eeguana:::seq_len(nchannels(x))){
+    x$events <- mutate(x$events, .channel = dplyr::if_else(.channel == orig_names[i],new_names[i], .channel))    
+  }
+
+  validate_eeg_lst(x)
 }
 
 sampling_rate <- function(x) {
