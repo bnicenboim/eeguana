@@ -2,12 +2,83 @@
 eeguana
 =======
 
-A package for flexible manipulation of EEG data.
+A package for flexible manipulation of EEG data. *eeguana* provides a framework for manipulating EEG data with *dplyr*-based function (e.g., `mutate`, `filter`, `summarize`) extended to a new class `eeg_lst`. In addition, it provides other EEG-specialized functions, and `ggplot` wrapper functions. The new class is inspired by tidyverse principles but it's not really "tidy" (due to space considerations), it's a list of (i) a wide table (`signal_tbl`) that contains the signal amplitudes at every sample point of the EEG, (ii) an events table with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant (`recording`), conditions, etc.
+
+*eeguana* **cannot** pre-process data for now, but I plan to incorporate pre-processing functions with time, and thus it is meant to be used on EEG files where filtering, artifact rejection, ICA, etc have already been done.
+
+Functions
+---------
+
+There are four classes of functions:
+
+### `read` functions
+
+-   `read_dat`
+-   `read_ft`
+
+These functions read external files (BrainVision and mat files from Fieldtrip) and return an `eeg_lst`. (Upcoming: eeglab and edf files).
+
+### Tidyverse `dplyr` functions
+
+-   `mutate*`
+-   `transmute*`
+-   `summarize*`
+-   `*_join`
+-   `select*`
+-   `rename*`
+-   `filter*`
+-   `group_by`
+-   `ungroup`
+-   `bind` ★
+
+These functions always return an `eeg_lst` and they should be straightforward to use. This is, if one is already used to `dplyr`, and if not, I would recommend to start from, for example, [R for Data Science](http://r4ds.had.co.nz/). (★: `bind` is not in `dplyr`, but its inspired by `bind_*`).
+
+### Specialized summarizing functions
+
+-   `summarize_by_id_tbl`
+-   `count_complete_cases_tbl`
+
+These functions apply a series of `dplyr` functions to return useful summaries.
+
+### Channel functions
+
+-   `ch_baseline`
+-   `ch_rereference`
+-   `chs_mean`
+
+These functions act on the channels of the signal table. They have a default version that acts on all the channels, and can be used inside a `mutate` call for more control. (Not all of them support both actions right now, but they will be implemented in the near future).
+
+### Other EEG-specialized functions
+
+-   `downsample`
+-   `segment`
+
+-   `event_to_ch_NA`
+
+These functions perform specialized actions on the signals table or `eeg_lst`. (I may add a prefix to the functions when I see that I can group them).
+
+### Plot functions
+
+-   `plot`
+-   `plot_gg`
+-   `plot_topo`
+
+These functions do some data wrangling after summarizing or downsampling the signal to create a long table, and then wrap `ggplot` functions.
+
+### Base-inspired functions
+
+-   `as_*`
+-   `*_names`
+-   `is_*`
+-   `n*`
+-   `summary`
+
+These functions should be straightforward to use, if one knows the parallel `base` function.
 
 Installation
 ------------
 
-There is still **no** released version of `eeguana`. The package is in the early stages of development, and it **will** be subject to a lot of changes. To install the latest version from bitbucket use:
+There is still **no** released version of *eeguana*. The package is in the early stages of development, and it **will** be subject to a lot of changes. To install the latest version from github use:
 
 ``` r
 devtools::install_github("bnicenboim/eeguana", build_vignettes = TRUE)
@@ -16,9 +87,7 @@ devtools::install_github("bnicenboim/eeguana", build_vignettes = TRUE)
 Example
 -------
 
-The functions of eeguana can be used on already pre-processed (i.e., filtering, artifact rejects, ICA, etc has already beed done) EEG files (at least for now). The package mainly provides dplyr-like functions to manipulate the EEG data, and ggplot wrapper functions.
-
-Here, I exemplify this with (preprocessed) EEG data from a simple experiment using BrainVision 2.0, where a participant was presented 100 faces and 100 assorted images in random order. The task of the experiment was to mentally count the number of faces.
+Here, I exemplify the use of *eeguana* with (pre-processed) EEG data from BrainVision 2.0. The data belong to a simple experiment where a participant was presented 100 faces and 100 assorted images in random order. The task of the experiment was to mentally count the number of faces.
 
 First we download the data:
 
@@ -46,7 +115,7 @@ faces <- read_vhdr("faces.vhdr")
 #> # Object size in memory 147 MB
 ```
 
-The function `read_vhdr` creates a list with data frames for the signal, events, segments, and channels information, and a list for generic EEG information.
+The function `read_vhdr` creates a list with data frames for the signal, events, segments information, and incorporates in its attributes generic EEG information.
 
 ``` r
 faces
@@ -108,7 +177,7 @@ faces_segs <- faces %>%
 #> # Object size in memory 12.7 MB after segmentation.
 ```
 
-We can also edit the segmentation information and add more descriptive labels. `eeguana` has wrappers for many `dplyr` commands for the EEG data. These commands always return an entire `eeg_lst` object so that they can be piped using `magrittr`'s pipe, `%>%`.
+We can also edit the segmentation information and add more descriptive labels. *eeguana* has wrappers for many `dplyr` commands for the EEG data. These commands always return an entire `eeg_lst` object so that they can be piped using `magrittr`'s pipe, `%>%`.
 
 ``` r
 faces_segs_some <- faces_segs %>%  
@@ -175,7 +244,7 @@ faces_segs_some
 #> [1] "eeg_lst"
 ```
 
-With some "regular" `ggplot` skills, we can create customized plots. `plot_gg` thins the signals (by default), converts them to a long-format data frame that is feed into `ggplot` object. This object can then be customized.
+With some "regular" `ggplot` skills, we can create customized plots. `plot_gg` downsamples the signals (by default), and converts them to a long-format data frame that is feed into `ggplot` object. This object can then be customized.
 
 ``` r
 faces_segs_some %>% 
@@ -192,7 +261,7 @@ faces_segs_some %>%
 
 <img src="man/figures/README-plot-1.png" width="100%" />
 
-Another possibility is to create a topographic plot of the two conditions, by first making segments that include only the interval .1--.2 *s* after the onset of the stimuli.
+Another possibility is to create a topographic plot of the two conditions, by first making segments that include only the interval .1-.2 *s* after the onset of the stimuli.
 
 ``` r
 faces_segs_some %>% ungroup() %>%  
@@ -203,8 +272,10 @@ faces_segs_some %>% ungroup() %>%
 
 <img src="man/figures/README-topo-1.png" width="100%" />
 
-See also:
----------
+See also
+--------
+
+Other packages for EEG/ERP data:
 
 -   [eegUtils](https://github.com/craddm/eegUtils) some helper utilities for plotting and processing EEG data in in active development by Matt Craddock.
 -   [erpR](https://cran.r-project.org/web/packages/erpR/index.html) analysis of event-related potentials (ERPs) by Giorgio Arcara, Anna Petrova. It hasn't been updated since 2014.

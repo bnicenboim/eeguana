@@ -1,4 +1,4 @@
 library(testthat)
-library(eegble)
+library(eeguana)
 
-test_check("eegble")
+test_check("eeguana")

@@ -7,3 +7,6 @@ experimental
 ^before.*
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^eeguana\.sublime-project
+^eeguana.sublime-workspace
+^temp_exp.*

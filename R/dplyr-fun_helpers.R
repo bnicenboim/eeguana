@@ -15,8 +15,8 @@ getAST <- function(ee) {
 
 #TODO: use str_* to make the signal_cols more general, 
 #it should ignore if there is a function that starts with ch_ (using is.function)
-dots_by_df <- function(dots, .eegbl) {
-  signal_cols <- c(channel_names(.eegbl),".id", ".sample_id","chs_mean")
+dots_by_df <- function(dots, .eeg_lst) {
+  signal_cols <- c(channel_names(.eeg_lst),".id", ".sample_id","chs_mean")
 
   signal_dots <- purrr::map_lgl(dots, function(dot)
   # get the AST of each call and unlist it
