@@ -6,10 +6,19 @@ A package for flexible manipulation of EEG data. *eeguana* provides a framework 
 
 *eeguana* **cannot** pre-process data for now, but I plan to incorporate pre-processing functions with time, and thus it is meant to be used on EEG files where filtering, artifact rejection, ICA, etc have already been done.
 
-Functions
----------
+Installation
+------------
 
-There are four classes of functions:
+There is still **no** released version of *eeguana*. The package is in the early stages of development, and it **will** be subject to a lot of changes. To install the latest version from github use:
+
+``` r
+devtools::install_github("bnicenboim/eeguana", build_vignettes = TRUE)
+```
+
+Overview
+--------
+
+The functions of *eeguana* can be roughly divided in the following groups:
 
 ### `read` functions
 
@@ -74,15 +83,6 @@ These functions do some data wrangling after summarizing or downsampling the sig
 -   `summary`
 
 These functions should be straightforward to use, if one knows the parallel `base` function.
-
-Installation
-------------
-
-There is still **no** released version of *eeguana*. The package is in the early stages of development, and it **will** be subject to a lot of changes. To install the latest version from github use:
-
-``` r
-devtools::install_github("bnicenboim/eeguana", build_vignettes = TRUE)
-```
 
 Example
 -------
