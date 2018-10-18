@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 ```
 # eeguana
 
-A package for flexible manipulation of EEG data. *eeguana* provides a framework for manipulating EEG data with *dplyr*-based function (e.g., `mutate`, `filter`, `summarize`) extended to a new class `eeg_lst`. In addition, it provides other EEG-specialized functions, and `ggplot` wrapper functions.  The new class is inspired by tidyverse principles but it's not really "tidy" (due to space considerations), it's a list of (i) a wide table (`signal_tbl`) that contains the signal amplitudes at every sample point of the EEG,  (ii) an events table with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant (`recording`), conditions, etc.  
+A package for flexible manipulation of EEG data. *eeguana* provides a framework for manipulating EEG data with *dplyr*-based functions (e.g., `mutate`, `filter`, `summarize`) extended to a new class `eeg_lst`. In addition, it provides other EEG-specialized functions, and `ggplot` wrapper functions.  The new class is inspired by tidyverse principles but it's not really "tidy" (due to space considerations), it's a list of (i) a wide table (`signal_tbl`) that contains the signal amplitudes at every sample point of the EEG,  (ii) an events table with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant number (`recording`), conditions, etc.  
 
 *eeguana* **cannot** pre-process data for now, but I plan to incorporate pre-processing functions with time, and thus it is meant to be used on EEG files where filtering, artifact rejection, ICA, etc have already been done.
 
@@ -54,7 +54,7 @@ These functions read external files (BrainVision and mat files from Fieldtrip) a
 * `ungroup`
 * `bind` &#9733;
 
-These functions always return an `eeg_lst` and they should be straightforward to use. This is, if one is already used to `dplyr`, and if not, I would recommend to start from, for example, [R for Data Science](http://r4ds.had.co.nz/). (&#9733;: `bind` is not in `dplyr`, but its inspired by `bind_*`).
+These functions always return an `eeg_lst` and they should be straightforward to use. This is, if one is already used to `dplyr`, and if not, I would recommend to start from, for example, [R for Data Science](http://r4ds.had.co.nz/). (&#9733;: `bind` is not in `dplyr`, but it's inspired by `bind_*`).
 
 ### Specialized summarizing functions
 
@@ -206,6 +206,6 @@ faces_segs_some %>% ungroup() %>%
 
 Other packages for EEG/ERP data:
 
-* [eegUtils](https://github.com/craddm/eegUtils ) some helper utilities for plotting and processing EEG data in in active development by Matt Craddock.
+* [eegUtils](https://github.com/craddm/eegUtils ) some helper utilities for plotting and processing EEG data in active development by Matt Craddock.
 * [erpR](https://cran.r-project.org/web/packages/erpR/index.html)  analysis of event-related potentials (ERPs) by Giorgio Arcara, Anna Petrova. It hasn't been updated since 2014.
 
