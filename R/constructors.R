@@ -61,7 +61,7 @@ is_sample_id <- function(x) {
 #' 
 #' Cz <- channel(runif(100,-5,5))
 channel <- function(values, x = NA_real_ ,y = NA_real_,z = NA_real_,reference = NA, ...) {
-  validate_channel(new_channel(values,x,y,z,reference, ...))
+  validate_channel(new_channel(values, channel_info = list(.x =x ,.y= y ,.z =z,.reference =reference, ...)))
 }
 
 #' Test if the object is a channel

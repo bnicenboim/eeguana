@@ -48,13 +48,13 @@ NextMethod()
 #'
 #'
 #' @export
-summarize_id_as_tibble <- function(x, ...) {
-  UseMethod("summarize_id_as_tibble")
+summarize_by_id_tbl <- function(x, ...) {
+  UseMethod("summarize_by_id_tbl")
 }
 
 
 #' @export
-summarize_id_as_tibble.eeg_lst <- function(x, .funs = mean, ...) {
+summarize_by_id_tbl.eeg_lst <- function(x, .funs = mean, ...) {
   funs_name <- rlang::enquo(.funs)
 
   # I need to define a name to unify the columns based on the function applied
@@ -87,11 +87,11 @@ summarize_id_as_tibble.eeg_lst <- function(x, .funs = mean, ...) {
 }
 
 
-#' @rdname as_tibble.eegbl
+#' @rdname as_tibble.eeg_lst
 #' @export
 as_data_frame.eeg_lst <- as_tibble.eeg_lst
 
-#' @rdname as_tibble.eegbl
+#' @rdname as_tibble.eeg_lst
 #' @export
 as.tibble.eeg_lst <- as_tibble.eeg_lst
 

@@ -80,7 +80,7 @@ downsample.eeg_lst <- function(x, q = 2L, max_sample = NULL,
     new_sampling_rate, "Hz."
   ))
 
-  list_of_attr <- purrr:::map(x$signal, ~ attributes(.x))
+  list_of_attr <- purrr::map(x$signal, ~ attributes(.x))
 
   x$signal <- x$signal %>%
     dplyr::select(-.sample_id) %>%
@@ -101,7 +101,7 @@ downsample.eeg_lst <- function(x, q = 2L, max_sample = NULL,
     dplyr::select(.id, .sample_id, dplyr::everything()) %>%
     dplyr::ungroup() %>%
     #add back the attributes
-    purrr:::map2_dfc( list_of_attr, ~ `attributes<-`(.x, .y))
+    purrr::map2_dfc( list_of_attr, ~ `attributes<-`(.x, .y))
     #TODO should group back
 
   # even table needs to be adapted, starts from 1,

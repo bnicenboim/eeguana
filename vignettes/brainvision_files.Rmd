@@ -16,11 +16,17 @@ knitr::opts_chunk$set(
 )
 ```
 
-The key problem that **eeguana** solves is manipulating already pre-processed (i.e.,
-filtering, artifact rejects, ICA, etc has already beed done) EEG files. Here, I
-exemplify this with (preprocessed) EEG data from a simple experiment, where a
+*eeguana* provides a framework for manipulating EEG data with *dplyr*-based function (e.g., `mutate`, `filter`, `summarize`) extended to a new class `eeg_lst`. In addition, it provides other EEG-specialized functions, and `ggplot` wrapper functions.  The new class is inspired by tidyverse principles but it's not really "tidy" (due to space considerations), it's a list of (i) a wide table (`signal_tbl`) that contains the signal amplitudes at every sample point of the EEG,  (ii) an events table with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant (`recording`), conditions, etc.  
+
+
+
+Here, I
+exemplify the use of *eeguana* with (pre-processed) EEG data from BrainVision 2.0. The data belong to 
+a simple experiment  where a
 participant was presented 100 faces and 100 assorted images in random order. The
 task of the experiment was to mentally count the number of faces.
+
+
 
 First we download the data:
 
@@ -50,7 +56,7 @@ faces <- read_vhdr("faces.vhdr")
 ```
 
 The function `read_vhdr` creates a list with data frames for the signal, events,
-segments, and channels information, and a list for generic EEG information.
+segments information, and incorporates in its attributes generic EEG information.
 
 ```{r}
 faces
@@ -68,7 +74,7 @@ Furthermore, it allows for quick visualization.
 plot(faces)
 ```
 
-The standard plots  can be slightly customized using ggplot layers.
+The standard plots  can be slightly customized using `ggplot` layers.
 
 
 ```{r, fig.dim = c(10,15), out.width = "100%"}
@@ -92,7 +98,7 @@ faces_segs <- faces %>%
 
 
 We can also edit the segmentation information and add more descriptive labels.
-`eeguana` has wrappers for many `dplyr` commands for the EEG data.  These commands always return an entire `eeg_lst` object so that they can be piped using `magrittr`'s pipe, `%>%`.
+*eeguana* has wrappers for many `dplyr` commands for the EEG data.  These commands always return an entire `eeg_lst` object so that they can be piped using `magrittr`'s pipe, `%>%`.
 
 ```{r}
 faces_segs_some <- faces_segs %>%  
@@ -104,8 +110,9 @@ faces_segs_some
 ```
 
 With some "regular" `ggplot` skills, we can create customized plots. `plot_gg`
-thins the signals (by default), converts them to a long-format data frame that is
+downsamples the signals (by default), and converts them to a long-format data frame that is
 feed into `ggplot` object. This object can then be customized. 
+
 
 ```{r, fig.dim = c(10,15), out.width = "100%"}
 faces_segs_some %>% 
@@ -128,7 +135,7 @@ several subjects.
 
 We can see here the N170 component in the faces condition for the average trial
 on a single participant. We can investigate the signal by averaging the channels
-of the occipital and parietal lobes using the capabilities inherited from `dplyr`, and the special function, `channelMeans`, a wrapper for `rowMeans`, which takes as arguments the `eeg_lst` object, the channels, and whether missing values should be omitted from the calculations.
+of the occipital and parietal lobes using the capabilities inherited from `dplyr`, and the special function, `chs_mean`, a wrapper for `rowMeans`, which takes as arguments the relevant channels and whether missing values should be omitted from the calculations.
 
                                                               
 ```{r, fig.dim = c(10,15), out.width = "100%"}
@@ -146,7 +153,7 @@ faces_segs_some %>% ungroup(faces_segs_some) %>%
 
 
 Another possibility is to create a topographic plot of the two conditions, by
-first making segments that include only the interval .1--.2 *s* after the onset
+first making segments that include only the interval .1-.2 *s* after the onset
 of the stimuli.
 
 ```{r, fig.dim = c(10,5), out.width = "100%"}
@@ -202,5 +209,4 @@ faces_segs_some_t <-
 
 ```
 
-<!-- https://github.com/hrbrmstr/ggalt/blob/master/R/geom_lollipop.r -->
 

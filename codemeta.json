@@ -4,8 +4,8 @@
   "identifier": "eeguana",
   "description": "Flexible data manipulation of EEG data.",
   "name": "eeguana: A package for flexible manipulation of EEG data",
-  "codeRepository": "https://bitbucket.org/bnicenboim/eegbl/src/master/",
-  "issueTracker": "https://bitbucket.org/bnicenboim/eegbl/issues",
+  "codeRepository": "https://github.com/bnicenboim/eeguana",
+  "issueTracker": "https://github.com/bnicenboim/eeguana/issues",
   "license": "https://spdx.org/licenses/MIT",
   "version": "0.0.2.9000",
   "programmingLanguage": {
@@ -20,7 +20,15 @@
       "@type": "Person",
       "givenName": "Bruno",
       "familyName": "Nicenboim",
-      "email": "bruno.nicenboim@example.com"
+      "email": "bruno.nicenboim@uni-potsdam.de"
+    }
+  ],
+  "contributor": [
+    {
+      "@type": "Person",
+      "givenName": "Kate",
+      "familyName": "Stone",
+      "email": "kate.stone@uni-potsdam.de"
     }
   ],
   "maintainer": [
@@ -28,7 +36,7 @@
       "@type": "Person",
       "givenName": "Bruno",
       "familyName": "Nicenboim",
-      "email": "bruno.nicenboim@example.com"
+      "email": "bruno.nicenboim@uni-potsdam.de"
     }
   ],
   "softwareSuggestions": [
@@ -246,6 +254,7 @@
       "@type": "SoftwareApplication",
       "identifier": "ggrepel",
       "name": "ggrepel",
+      "version": ">=\n        0.7.3",
       "provider": {
         "@id": "https://cran.r-project.org",
         "@type": "Organization",
@@ -268,18 +277,6 @@
     },
     {
       "@type": "SoftwareApplication",
-      "identifier": "sp",
-      "name": "sp",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=sp"
-    },
-    {
-      "@type": "SoftwareApplication",
       "identifier": "signal",
       "name": "signal",
       "provider": {
@@ -289,8 +286,33 @@
         "url": "https://cran.r-project.org"
       },
       "sameAs": "https://CRAN.R-project.org/package=signal"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "MBA",
+      "name": "MBA",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=MBA"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "tibble",
+      "name": "tibble",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=tibble"
     }
   ],
+  "keywords": ["eeg", "eeg-signals", "eeg-analysis", "eeg-data", "r", "tidyverse", "dplyr"],
   "citation": [
     {
       "@type": "SoftwareSourceCode",
@@ -299,11 +321,11 @@
           "@type": "Person",
           "givenName": "Bruno",
           "familyName": "Nicenboim",
-          "email": "bruno.nicenboim@example.com"
+          "email": "bruno.nicenboim@uni-potsdam.de"
         }
       ],
       "name": "eeguana: A package for flexible manipulation of EEG data",
-      "url": "https://github.org/bnicenboim/eeguana/",
+      "url": "https://github.com/bnicenboim/eeguana",
       "description": "R package version 0.0.2.9000"
     }
   ]
