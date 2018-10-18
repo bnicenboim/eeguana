@@ -205,11 +205,14 @@ filter_.eeg_lst <- function(.data, ..., .dots = list()) {
     )
 
     .data$segments <- dplyr::semi_join(.data$segments, .data$signal, by = ".id")
+    .data$events <- dplyr::semi_join(.data$events, .data$segments, by = ".id")
+
   }
   # filter the segments and update the signal
   if (length(new_dots$segments) > 0) {
     .data$segments <- dplyr::filter(.data$segments, !!!new_dots$segments)
     .data$signal <- dplyr::semi_join(.data$signal, .data$segments, by = ".id")
+    .data$events <- dplyr::semi_join(.data$events, .data$segments, by = ".id")
   }
 
   # Fix the indices in case some of them drop out
@@ -293,6 +296,7 @@ semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
  
   x[["segments"]] <- dplyr::semi_join(x[["segments"]], y, by = NULL, suffix = c(".x", ".y"), ...)
   x$signal <- dplyr::semi_join(x$signal, x[["segments"]], by = ".id")
+  x$events <- dplyr::semi_join(x$events, x[["segments"]], by = ".id")
 
   redo_indices(x) %>%    validate_eeg_lst()
 }
@@ -303,7 +307,8 @@ anti_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   if(!is.data.frame(y)) stop("y must be a data frame or tibble.")
  
   x[["segments"]] <- dplyr::anti_join(x[["segments"]], y, by = NULL, suffix = c(".x", ".y"), ...)
-  x[["signal"]] <- dplyr::semi_join(x[["signal"]], x[["segments"]], by = ".id")
+  x[["signal"]] <- dplyr::semi_join(x[["signal"]], x$segments, by = ".id")
+  x$events <- dplyr::semi_join(x$events, x$segments, by = ".id")
 
   redo_indices(x) %>%    validate_eeg_lst()
 }
