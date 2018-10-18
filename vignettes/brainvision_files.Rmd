@@ -162,7 +162,6 @@ faces_segs_some %>% ungroup() %>%
                     group_by(condition) %>%
                     plot_topo()
 
-    
 ```
 
 

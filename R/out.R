@@ -40,16 +40,31 @@ nchannels.eeg_lst <- function(x) {
 }
 
 
+#' @export
+channels_tbl <- function(x, ...) {
+  UseMethod("channels_tbl")
+}
 
-
-channels_tbl <- function(x) {
+#' @export
+channels_tbl.eeg_lst <- function(x, ...) {
   dplyr::tibble(channel = channel_names(x)) %>%
    dplyr::bind_cols(dplyr::select(x$signal, channel_names(x)) %>% 
-      purrr::map_dfr( ~ attributes(.x))) %>% 
-      hd_add_column(sampling_rate = attributes(x$signal$.sample_id)$sampling_rate) %>%
-      select(-class)
-  # x$channels
-  #returns channels, locations and sampling_rate
+      purrr::map_dfr( ~ attributes(.x)))  %>%
+      select(-class, -channel)
+}
+
+#' @export
+`channels_tbl<-` <- function(x, value) {
+  UseMethod("channels_tbl<-")
+}
+
+#' @export
+`channels_tbl<-.eeg_lst` <- function(x, value) {
+  channels <- dplyr::select(x$signal, channel_names(x))
+  nochannels <- dplyr::select(x$signal, -dplyr::one_of(channel_names(x)))
+  x$signal<- dplyr::bind_cols(nochannels, update_channel_meta_data(channels, value))
+
+  x            
 }
 
 sampling_rate <- function(x) {
@@ -78,13 +93,12 @@ nsamples.eeg_lst <- function(x) {
 #' Summary of eeg_lst information.
 #'
 #' @param object An eeg_lst object.
-#' @param ... Other options passed to print.tbl for the display of summaries.
 #'
 #' @export
-summary.eeg_lst <- function(object, ...) {
-  dots <- rlang::enquos(...)
-  summ <- list(channels = select(channels_tbl(object), -sampling_rate),
-                  sampling_rate = unique(channels_tbl(object)$sampling_rate),
+summary.eeg_lst <- function(object) {
+
+  summ <- list(channels = channels_tbl(object),
+                  sampling_rate = sampling_rate(object),
                   segments = object$segments %>%
                               dplyr::count(recording) %>%
                               dplyr::rename(segment_n = n),
@@ -92,27 +106,33 @@ summary.eeg_lst <- function(object, ...) {
                           dplyr::group_by_at(dplyr::vars(-.size, -.channel, -.sample_0, -.id)) %>%
                           dplyr::count(),
                   size = capture.output(pryr::object_size(object)))
-  
-  
-  print(paste0("# EEG data (eeg_lst) from the following channels:"))
-  summ$channels %>% 
-    print(., !!!dots)
-
-  print(paste0("# Sampling rate: ", summ$sampling_rate, " Hz."))
-
-  print(paste0("# Size in memory: ", summ$size, "."))
-
-  print("# Summary of segments")
-  summ$segments %>% 
-    print(., !!!dots)
-
-  print("# Summary of events")
-  summ$events %>% 
-    print(., !!!dots)
-
-  invisible(summ)
+  class(summ) <- c("eeg_summary", class(summ)) 
+  summ
 }
 
+#' @export
+
+print.eeg_summary <- function(x, ...){
+  cat(paste0("# EEG data (eeg_lst) from the following channels:\n"))
+
+  x$channels %>% 
+    print(., ...)
+
+  cat(paste0("# Sampling rate: ", x$sampling_rate, " Hz.\n"))
+
+  cat(paste0("# Size in memory: ", x$size, ".\n"))
+
+  cat("# Summary of segments\n")
+  x$segments %>% 
+    print(., ...)
+
+  cat("# Summary of events\n")
+
+  x$events %>% 
+    print(., ...)
+
+  invisible(x)
+}
 
 #' Count number of complete segments of an eeg_lst object.
 #' 

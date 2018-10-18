@@ -95,25 +95,30 @@ new_signal <- function(signal_matrix = matrix(), ids = c(), sample_ids = c(), ch
 
   raw_signal <- dplyr::as_tibble(signal_matrix)
 
- # I add the channel info now
-  if(nrow(channel_info) == 0) {
-    raw_signal <- purrr::map_dfc(raw_signal,
-    function(sig) {
-      channel = new_channel(value = sig) }
-  )
-  } else {
-  raw_signal <- purrr::map2_dfc(
-    raw_signal %>% setNames(channel_info$.name), purrr::transpose(channel_info), 
-    function(sig, chan_info) {
-      channel = new_channel(value = sig, as.list(chan_info)) }
-  )
-  }
+  raw_signal <- update_channel_meta_data(raw_signal, channel_info)
 
    signal <-  tibble::tibble(.id = ids, .sample_id = sample_ids)   %>% 
                dplyr::bind_cols(raw_signal)
 
   class(signal) <- c("signal_tbl", class(signal))
   signal
+}
+
+#' @noRd
+update_channel_meta_data <- function(channels, channel_info){
+    if(nrow(channel_info) == 0 | is.null(channel_info) ) {
+      channels <- purrr::map_dfc(channels,
+      function(sig) {
+        channel = new_channel(value = sig) }
+    )
+    } else {
+    channels <- purrr::map2_dfc(
+      channels %>% setNames(channel_info$.name), purrr::transpose(channel_info), 
+      function(sig, chan_info) {
+        channel = new_channel(value = sig, as.list(chan_info)) }
+    )
+    }
+  channels
 }
 
 #' @noRd
