@@ -128,6 +128,7 @@ redo_indices <- function(.eeg_lst) {
 
   .eeg_lst$signal <- redo_indices_df(.eeg_lst$signal)
   .eeg_lst$segments <- redo_indices_df(.eeg_lst$segments)
+  .eeg_lst$events <- redo_indices_df(.eeg_lst$events)
   .eeg_lst
 }
 
