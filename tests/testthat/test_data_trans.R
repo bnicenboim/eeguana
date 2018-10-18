@@ -86,7 +86,6 @@ test_that("can bind unlisted files", {
   conds <- bind(cond1, cond1_2)
   expect_equal(nrow(conds$signal), nrow(cond1$signal) + nrow(cond2$signal))
   expect_equal(max(conds$signal$.id), max(cond1$signal$.id) + max(cond2$signal$.id))
-  # expect_equal(max(conds$segments$segment), max(cond1$segments$segment, cond2$segments$segment))
 })
 
 
