@@ -46,23 +46,41 @@ do_based_on_grps <- function(.df, ext_grouping_df, dplyr_fun, dots) {
   sampling_rate <- attributes(.df$.sample_id)$sampling_rate
 
   id <- .df$.id
-  # list of groups from segments to create on the fly
-  new_groups <- purrr::map(
-    ext_group_names,
-    ~rlang::expr(ext_grouping_df[id, ][[!!.x]])
-  ) %>%
-    purrr::set_names(ext_group_names)
+  # # list of groups from segments to create on the fly
+  # new_groups <- purrr::map(
+  #   ext_group_names,
+  #   ~rlang::expr(ext_grouping_df[id, ][[!!.x]])
+  # ) %>%
+  #   purrr::set_names(ext_group_names)
 
-  # I need to ungroup first because if not, the other groups need ot be the size of the grouping that were already made and not the size of the entire signal df
-  .df <- dplyr::ungroup(.df) %>%
-    # TODO: check the following
-    # maybe doing a left_join and then group would be not slower
-    dplyr::group_by(!!!new_groups, !!!int_groups) %>%
-    dplyr_fun(!!!dots) %>% # after summarizing I add the .id
-    dplyr::ungroup(.df) %>%
-    dplyr::select(-dplyr::one_of(ext_group_names))
+  # # I need to ungroup first because if not, the other groups need ot be the size of the grouping that were already made and not the size of the entire signal df
+  # .df <- dplyr::ungroup(.df) %>%
+  #   # TODO: check the following
+  #   # maybe doing a left_join and then group would be not slower
+  #   dplyr::group_by(!!!new_groups, !!!int_groups) %>%
+  #   dplyr_fun(!!!dots) %>% # after summarizing I add the .id
+  #   dplyr::ungroup(.df) %>%
+  #   dplyr::select(-dplyr::one_of(ext_group_names))
 
+# group by elements of segments
+  use_seg_groups <- length(ext_group_names) != 0 &  any(ext_group_names != ".id")
+if(use_seg_groups){
+  .df <- ext_grouping_df %>% 
+         tidyr::unite("grouped", ext_group_names) %>%
+         dplyr::select(.id, grouped) %>%
+         dplyr::left_join(.df, ., by = ".id")  %>%
+         dplyr::group_by(grouped, !!!int_groups)
+} 
 
+  .df <- .df %>%
+         dplyr_fun(!!!dots) %>% # after summarizing I add the .id
+         dplyr::ungroup(.df) %>%
+         {if(use_seg_groups) {
+            dplyr::select(., -grouped)
+           } else {
+            .
+           } 
+          }
 
     # in case obligatory cols are gone was removed :
     if(nrow(.df)>0){
@@ -86,12 +104,6 @@ do_based_on_grps <- function(.df, ext_grouping_df, dplyr_fun, dots) {
         .df$.sample_id = new_sample_id(integer(0), sampling_rate = sampling_rate)
       }
     }
-
-    # for(col in obligatory_cols$signal){
-    #   if(!col %in% dplyr::tbl_vars(.df)){
-    #     .df <- dplyr::mutate(.df, !!rlang::sym(col) := NA_integer_)
-    #   }
-    # }
 
     dplyr::select(.df, obligatory_cols$signal, dplyr::everything())
 }
@@ -119,11 +131,13 @@ scaling <- function(sampling_rate, unit) {
 #' @noRd
 redo_indices <- function(.eeg_lst) {
   redo_indices_df <- function(df) {
-    orig_groups <- dplyr::groups(df)
-    df <- df %>%
-      dplyr::ungroup() %>%
-      dplyr::mutate(.id = dplyr::group_indices(., .id) %>% as.integer()) %>%
-      dplyr::group_by(!!!orig_groups)
+    df$.id <- as.factor(df$.id) %>% as.numeric(.)
+    df
+    # orig_groups <- dplyr::groups(df)
+    # df <- df %>%
+    #   dplyr::ungroup() %>%
+    #   dplyr::mutate(.id = dplyr::group_indices(., .id) %>% as.integer()) %>%
+    #   dplyr::group_by(!!!orig_groups)
   }
 
   .eeg_lst$signal <- redo_indices_df(.eeg_lst$signal)

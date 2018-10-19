@@ -14,6 +14,14 @@ filter_.signal_tbl <- function(.data, ..., .dots = list()) {
 }
 
 #' @export
+filter.signal_tbl <- function(.data, ...) {
+  declassed <- declass(.data)
+ .data <- declassed$tbl
+  reclass(NextMethod(), declassed$attr)  
+}
+
+
+#' @export
 mutate_.signal_tbl <- function(.data, ..., .dots = list()) {
   declassed <- declass(.data)
  .data <- declassed$tbl

@@ -49,7 +49,7 @@ channels_tbl <- function(x, ...) {
 channels_tbl.eeg_lst <- function(x, ...) {
   dplyr::tibble(channel = channel_names(x)) %>%
    #first row is enough and it makes it faster
-   dplyr::bind_cols( dplyr::slice(x$signal, 1) %>% dplyr::select(channel_names(x)) %>% 
+   dplyr::bind_cols( dplyr::slice(ungroup(x$signal), 1) %>% dplyr::select(channel_names(x)) %>% 
       purrr::map_dfr( ~ attributes(.x)))  %>%
       select(-class, -channel)
 }

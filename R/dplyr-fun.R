@@ -182,6 +182,7 @@ group_by_.eeg_lst <- function(.data, ..., .dots = list(), add = add) {
 
 #' @export
 ungroup.eeg_lst <- function(.data, ..., add = add) {
+  .data$signal <- dplyr::ungroup(.data$signal)
   .data$segments <- dplyr::ungroup(.data$segments)
   validate_eeg_lst(.data)
 }
@@ -194,7 +195,7 @@ group_vars.eeg_lst <- function(x) {
 #' @export
 filter_.eeg_lst <- function(.data, ..., .dots = list()) {
   dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
-  # dots <- rlang::quo(recording == "0")
+  # dots <- rlang::quos(recording == "0")
   new_dots <- dots_by_df(dots, .data)
 
   # filter the signal and update the segments, in case an entire id drops
@@ -285,7 +286,7 @@ left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".
   
   x[["segments"]] <- dplyr::left_join(x[["segments"]], y = y, by = by, copy = copy, suffix = c(".x", ".y"), ...)
 
-  redo_indices(x) %>%    validate_eeg_lst()
+  validate_eeg_lst(x)
 }
 
 
