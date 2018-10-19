@@ -41,7 +41,7 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
   times0 <- dplyr::filter(x$events, !!!dots) %>%
     dplyr::select(-.channel, -.size)
 
-  scaling <- scaling(sampling_rate(x), unit)
+  scaling <- scaling(sampling_rate(x), unit = unit)
 
   if (length(lim) == 2) {
     lim <- rep(list(lim), each = nrow(times0))

@@ -159,7 +159,7 @@ validate_signal <- function(signal) {
   validate_sample_id(signal$.sample_id)
 
   # Validates channels (first row is enough, and takes less memory)
-  dplyr::slice(signal, 1)  %>%
+  dplyr::slice(ungroup(signal), 1)  %>%
     purrr::walk( ~ if(is_channel(.x)) validate_channel(.x))
 
   signal
