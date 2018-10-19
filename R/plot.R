@@ -100,8 +100,9 @@ plot_topo.eeg_lst <- function(x, method = "MBA", ...) {
 
   grid <- interpolate_xy(s_x, x = x, y = y, value = A, method = "MBA", ...)
 
-  grid %>%
-    ggplot(aes(x, y)) + facet_wrap(grouping_vars) +
+  plot <- grid %>%
+    ggplot(aes(x, y)) + 
+
     geom_raster(aes(fill = A), interpolate = F, hjust = 0.5, vjust = 0.5) +
     geom_contour(aes(z = A)) +
     geom_text(data = filter(s_x, !is.na(x), !is.na(y)), aes(x = x, y = y, label = channel), colour = "black") +
@@ -110,7 +111,13 @@ plot_topo.eeg_lst <- function(x, method = "MBA", ...) {
       colours = c("darkred", "yellow", "green", "darkblue"),
       values = c(1.0, 0.75, 0.5, 0.25, 0)
     ) +
+    ggplot2::theme_bw() 
+
+    if(length(grouping_vars)>0) {
+      plot <- plot + facet_wrap(grouping_vars)
+    }
+
+plot
     # scale_fill_distiller(palette = "RdBu", guide = "colourbar") + #, oob = scales::squish
-    ggplot2::theme_bw()
   # scale_fill_viridis_c(option="B") +
 }
