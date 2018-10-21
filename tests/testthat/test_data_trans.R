@@ -89,6 +89,17 @@ test_that("can bind unlisted files", {
 })
 
 
+test_that("can bind unlisted files that were filtered", {
+  cond1_2 <- cond2
+  cond1_2$segments$recording <- "recording2"
+  cond1_2 <- filter(cond1_2, .id >0)
+  conds <- bind(cond1, cond1_2)
+  expect_equal(nrow(conds$signal), nrow(cond1$signal) + nrow(cond2$signal))
+  expect_equal(max(conds$signal$.id), max(cond1$signal$.id) + max(cond2$signal$.id))
+})
+
+
+
 sloop::s3_methods_generic("as_tibble")
 as_tibble(cond1)
 
