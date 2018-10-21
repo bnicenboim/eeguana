@@ -131,7 +131,7 @@ scaling <- function(sampling_rate, unit) {
 #' @noRd
 redo_indices <- function(.eeg_lst) {
   redo_indices_df <- function(df) {
-    df$.id <- as.factor(df$.id) %>% as.numeric(.)
+    df$.id <- as.factor(df$.id) %>% as.integer(.)
     df
     # orig_groups <- dplyr::groups(df)
     # df <- df %>%
