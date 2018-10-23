@@ -17,7 +17,7 @@ read_vhdr(file, sep = type == "New Segment", zero = type == "Time 0",
 \item{recording}{Recording name, by default is the file name.}
 }
 \value{
-An \code{eeg_lst} object with signal and event from file_name.dat,
+An \code{eeg_lst} object with signal_tbl and event from file_name.dat,
 file_name.vhdr, and file_name.vmrk.
 }
 \description{

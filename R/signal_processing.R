@@ -13,7 +13,7 @@
 #' \dontrun{
 #' # Rereference all channels used the linked mastoids (average of the two mastoids)
 #'
-#' faces_segs %>% act_on(signal) %>%
+#' faces_segs %>% act_on(signal_tbl) %>%
 #'                  mutate_all(funs(rereference(., M1, M2)))
 #' }#'
 ch_rereference <- function(x, ..., na.rm = FALSE) {
@@ -23,10 +23,10 @@ ch_rereference <- function(x, ..., na.rm = FALSE) {
 
 #' Downsample EEG data
 #'
-#' Downsample a signal by a factor `q`, using an FIR or IIR filter.
+#' Downsample a signal_tbl by a factor `q`, using an FIR or IIR filter.
 #' This is a wrapper for \link{decimate} from the
-#' \link{signal} package, see its documentation for details. Notice that
-#' the code of the \link{signal} package might be outdated.
+#' \link{signal_tbl} package, see its documentation for details. Notice that
+#' the code of the \link{signal_tbl} package might be outdated.
 #'
 #' A factor q larger than 13 can result in NAs. To avoid this,
 #' the downsampling can be done in steps. For example, instead of setting
@@ -80,11 +80,11 @@ downsample.eeg_lst <- function(x, q = 2L, max_sample = NULL,
     new_sampling_rate, "Hz."
   ))
 
-  list_of_attr <- purrr::map(x$signal, ~attributes(.x))
+  list_of_attr <- purrr::map(x$signal_tbl, ~attributes(.x))
 
-  x$signal <- x$signal %>%
+  x$signal_tbl <- x$signal_tbl %>%
     dplyr::select(-.sample_id) %>%
-    split(x$signal$.id) %>%
+    split(x$signal_tbl$.id) %>%
     purrr::map_dfr(
       function(signal_id) purrr::map_dfc(
           signal_id[-1],

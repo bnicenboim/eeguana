@@ -26,13 +26,13 @@
 chs_mean <- function(..., na.rm = FALSE) {
   dots <- rlang::enquos(...)
 
-  # signal <- signal_from_parent_frame(env = parent.frame())
-  # This is the environment where I can find the columns of signal
+  # signal_tbl <- signal_from_parent_frame(env = parent.frame())
+  # This is the environment where I can find the columns of signal_tbl
   signal_env <- rlang::env_get(env = parent.frame(), ".top_env", inherit = TRUE)
-  signal <- dplyr::as_tibble(rlang::env_get_list(signal_env, rlang::env_names(signal_env)))
+  signal_tbl <- dplyr::as_tibble(rlang::env_get_list(signal_env, rlang::env_names(signal_env)))
 
 
-  rowMeans(dplyr::select(signal, !!!dots), na.rm = na.rm)
+  rowMeans(dplyr::select(signal_tbl, !!!dots), na.rm = na.rm)
 }
 
 # #' @export

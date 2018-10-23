@@ -1,6 +1,6 @@
 #' Builds an eeg_lst.
 #'
-#' @param signal 
+#' @param signal_tbl 
 #' @param events 
 #' @param segments 
 #' 
@@ -8,12 +8,12 @@
 #'
 #' @return A valid eggble.
 #' @export
-eeg_lst <- function(signal, events, segments) {
-  validate_eeg_lst(new_eeg_lst(signal, events, segments))
+eeg_lst <- function(signal_tbl, events, segments) {
+  validate_eeg_lst(new_eeg_lst(signal_tbl, events, segments))
 }
 
 
-#' Builds a signal table.
+#' Builds a signal_tbl table.
 #'
 #' @param signal_matrix 
 #' @param ids 
@@ -22,13 +22,13 @@ eeg_lst <- function(signal, events, segments) {
 #' 
 #' @family signal_tbl
 #' 
-#' @return A valid signal table.
+#' @return A valid signal_tbl table.
 #' @export
-signal <- function(signal_matrix, ids, sample_ids, channel_info) {
-  validate_signal(new_signal(signal_matrix, ids, sample_ids, channel_info))
+signal_tbl <- function(signal_matrix, ids, sample_ids, channel_info) {
+  validate_signal_tbl(new_signal_tbl(signal_matrix, ids, sample_ids, channel_info))
 }
 
-#' Test if the object is a  signal
+#' Test if the object is a  signal_tbl
 #' This function returns  TRUE for signals.
 #'
 #' @param x An object.
@@ -37,7 +37,7 @@ signal <- function(signal_matrix, ids, sample_ids, channel_info) {
 #'
 #' @return `TRUE` if the object inherits from the `signal_tbl` class.
 #' @export
-is_signal <- function(x) {
+is_signal_tbl <- function(x) {
   class(x) == "signal_tbl"
 }
 
@@ -61,14 +61,14 @@ is_eeg_lst <- function(x) {
 #' @param values 
 #' @param sampling_rate 
 #'
-#' @family sample_id
+#' @family sample_int
 #' 
 #' @export
 #' @examples
 #'
-#' sample_id(1:100, sampling_rate = 500)
-sample_id <- function(values, sampling_rate) {
-  validate_sample_id(new_sample_id(values, sampling_rate))
+#' sample_int(1:100, sampling_rate = 500)
+sample_int <- function(values, sampling_rate) {
+  validate_sample_int(new_sample_int(values, sampling_rate))
 }
 
 #' Test if the object is a sample
@@ -76,12 +76,16 @@ sample_id <- function(values, sampling_rate) {
 #'
 #' @param x An object.
 #' 
-#' @family sample_id
+#' @family sample_int
 #' 
 #' @return `TRUE` if the object inherits from the `sample` class.
 #' @export
-is_sample_id <- function(x) {
-  class(x) == "sample_id"
+is_sample_int <- function(x) {
+  if(class(x) == "sample_int") {
+  	message("sample_id class is deprecated")
+  	return(TRUE)
+  }
+  class(x) == "sample_int"
 }
 
 

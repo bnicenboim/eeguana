@@ -5,7 +5,7 @@
 #' @param zero Time zero marker. By default: type == "Time 0"
 #' @param recording Recording name, by default is the file name.
 #'
-#' @return An `eeg_lst` object with signal and event from file_name.dat,
+#' @return An `eeg_lst` object with signal_tbl and event from file_name.dat,
 #' file_name.vhdr, and file_name.vmrk.
 #' @family read
 #' @importFrom magrittr %>%
@@ -53,7 +53,7 @@ read_vhdr <- function(file, sep = type == "New Segment", zero = type == "Time 0"
 #' @param file A .mat file containing a fieldtrip struct.
 #' @param recording Recording name, by default is the file name.
 #'
-#' @return An `eeg_lst` object with signal and event from a matlab file.
+#' @return An `eeg_lst` object with signal_tbl and event from a matlab file.
 #'
 #' @family read
 #' 
@@ -71,7 +71,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
   channel_names <- mat[[1]][, , 1]$label %>% unlist()
   sampling_rate <- mat[[1]][, , 1]$fsample[[1]]
 
-  ## signal df:
+  ## signal_tbl df:
 
   # segment lengths, initial, final, offset
   slengths <- mat[[1]][, , 1]$cfg[, , 1]$trl %>%
@@ -81,9 +81,9 @@ read_ft <- function(file, layout = NULL, recording = file) {
   sample <- purrr::pmap(slengths, ~
   seq(..3 + 1, length.out = ..2 - ..1 + 1)) %>%
     unlist() %>%
-    new_sample_id(sampling_rate = sampling_rate)
+    new_sample_int(sampling_rate = sampling_rate)
 
-  signal <- purrr::map_dfr(mat[[1]][, , 1]$trial,
+  signal_tbl <- purrr::map_dfr(mat[[1]][, , 1]$trial,
     function(lsegment) {
       lsegment[[1]] %>% t() %>% dplyr::as_tibble()
     },
@@ -121,11 +121,11 @@ read_ft <- function(file, layout = NULL, recording = file) {
   }
 
 
-  # colnames(signal) <- c(".id", channel_names)
-  # signal <- dplyr::mutate(signal, .sample = sample, .id = as.integer(.id)) %>%
+  # colnames(signal_tbl) <- c(".id", channel_names)
+  # signal_tbl <- dplyr::mutate(signal_tbl, .sample = sample, .id = as.integer(.id)) %>%
   #   dplyr::select(.id, .sample, dplyr::everything())
-  signal <- new_signal(select(signal, -.id),
-    ids = signal[[".id"]], sample_ids = sample, channel_info = channels
+  signal_tbl <- new_signal_tbl(select(signal_tbl, -.id),
+    ids = signal_tbl[[".id"]], sample_ids = sample, channel_info = channels
   )
 
 
@@ -158,7 +158,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
   )
 
   eeg_lst <- new_eeg_lst(
-    signal = signal, events = events, segments = segments
+    signal_tbl = signal_tbl, events = events, segments = segments
   )
 
 

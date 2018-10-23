@@ -1,7 +1,7 @@
 
 #' bind_rows looses the attributes
 #' https://github.com/tidyverse/dplyr/issues/2457
-#' This is a workaround to create signal tables
+#' This is a workaround to create signal_tbl tables
 #' @noRd
 pmap_sgr <- function(.l, .f, ..., .id = NULL) {
   .f <- purrr::as_mapper(.f, ...)

@@ -3,12 +3,12 @@ library(eeguana)
 
 
 data <- eeg_lst(
-  signal = signal(
+  signal_tbl = signal_tbl(
     signal_matrix = as.matrix(
       data.frame(X = sin(1:20), Y = cos(1:20))
     ),
     ids = rep(c(1L, 2L), each = 10),
-    sample_ids = sample_id(rep(seq(-4L, 5L), times = 2), sampling_rate = 500),
+    sample_ids = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500),
     dplyr::tibble(
       .name = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
@@ -29,14 +29,14 @@ data <- eeg_lst(
 
 
 
-group_by_signal_tbl <- dplyr::group_by(data$signal, .sample_id)
-mutate_signal_tbl <- dplyr::mutate(data$signal, X = X + 1)
-mutate2_signal_tbl <- dplyr::mutate(data$signal, ZZ = X + 1)
-transmute_signal_tbl <- dplyr::transmute(data$signal, X = X + 1)
-mutate_all_signal_tbl <- dplyr::mutate_all(data$signal, mean)
-mutate_at_signal_tbl <- dplyr::mutate_at(data$signal, channel_names(data), mean)
-summarize_signal_tbl <- dplyr::summarize(data$signal)
-summarize_at_signal_tbl <- dplyr::summarize_at(data$signal, channel_names(data), mean)
+group_by_signal_tbl <- dplyr::group_by(data$signal_tbl, .sample_id)
+mutate_signal_tbl <- dplyr::mutate(data$signal_tbl, X = X + 1)
+mutate2_signal_tbl <- dplyr::mutate(data$signal_tbl, ZZ = X + 1)
+transmute_signal_tbl <- dplyr::transmute(data$signal_tbl, X = X + 1)
+mutate_all_signal_tbl <- dplyr::mutate_all(data$signal_tbl, mean)
+mutate_at_signal_tbl <- dplyr::mutate_at(data$signal_tbl, channel_names(data), mean)
+summarize_signal_tbl <- dplyr::summarize(data$signal_tbl)
+summarize_at_signal_tbl <- dplyr::summarize_at(data$signal_tbl, channel_names(data), mean)
 
 mutate_g_signal_tbl <- dplyr::mutate(group_by_signal_tbl, X = X + 1)
 mutate2_g_signal_tbl <- dplyr::mutate(group_by_signal_tbl, ZZ = X + 1)
@@ -46,14 +46,14 @@ mutate_at_g_signal_tbl <- dplyr::mutate_at(group_by_signal_tbl, channel_names(da
 summarize_g_signal_tbl <- dplyr::summarize(group_by_signal_tbl)
 summarize_at_g_signal_tbl <- dplyr::summarize_at(group_by_signal_tbl, channel_names(data), mean)
 
-group_by_declassed <- dplyr::group_by(eeguana:::declass(data$signal)$tbl, .sample_id)
-mutate_declassed <- dplyr::mutate(eeguana:::declass(data$signal)$tbl, X = X + 1)
-mutate2_declassed <- dplyr::mutate(eeguana:::declass(data$signal)$tbl, ZZ = X + 1)
-transmute_declassed <- dplyr::transmute(eeguana:::declass(data$signal)$tbl, X = X + 1)
-mutate_all_declassed <- dplyr::mutate_all(eeguana:::declass(data$signal)$tbl, mean)
-mutate_at_declassed <- dplyr::mutate_at(eeguana:::declass(data$signal)$tbl, channel_names(data), mean)
-summarize_declassed <- dplyr::summarize(eeguana:::declass(data$signal)$tbl)
-summarize_at_declassed <- dplyr::summarize_at(eeguana:::declass(data$signal)$tbl, channel_names(data), mean)
+group_by_declassed <- dplyr::group_by(eeguana:::declass(data$signal_tbl)$tbl, .sample_id)
+mutate_declassed <- dplyr::mutate(eeguana:::declass(data$signal_tbl)$tbl, X = X + 1)
+mutate2_declassed <- dplyr::mutate(eeguana:::declass(data$signal_tbl)$tbl, ZZ = X + 1)
+transmute_declassed <- dplyr::transmute(eeguana:::declass(data$signal_tbl)$tbl, X = X + 1)
+mutate_all_declassed <- dplyr::mutate_all(eeguana:::declass(data$signal_tbl)$tbl, mean)
+mutate_at_declassed <- dplyr::mutate_at(eeguana:::declass(data$signal_tbl)$tbl, channel_names(data), mean)
+summarize_declassed <- dplyr::summarize(eeguana:::declass(data$signal_tbl)$tbl)
+summarize_at_declassed <- dplyr::summarize_at(eeguana:::declass(data$signal_tbl)$tbl, channel_names(data), mean)
 
 mutate_g_declassed <- dplyr::mutate(group_by_declassed, X = X + 1)
 mutate2_g_declassed <- dplyr::mutate(group_by_declassed, ZZ = X + 1)

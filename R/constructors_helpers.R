@@ -1,12 +1,12 @@
 
 #' @noRd
-declass <- function(signal) {
+declass <- function(signal_tbl) {
   # extracting attributes
-  attr <- purrr::imap(signal, ~attributes(.x))
+  attr <- purrr::imap(signal_tbl, ~attributes(.x))
 
-  class(signal) <- class(signal)[class(signal) != "signal_tbl"]
+  class(signal_tbl) <- class(signal_tbl)[!is_signal_tbl(signal_tbl)]
   # removes the classes of the sample_id and channels so that the attributes are ignored
-  declassed_signal <- mutate_all(signal, unclass) %>%
+  declassed_signal <- mutate_all(signal_tbl, unclass) %>%
     purrr::modify(~`attributes<-`(.x, NULL))
   list(tbl = declassed_signal, attr = attr)
 }
@@ -44,7 +44,7 @@ reclass <- function(tbl, attr) {
 #' @param sampling_rate 
 #'
 #' @noRd
-new_sample_id <- function(values, sampling_rate) {
+new_sample_int <- function(values, sampling_rate) {
   if (all(!is.na(values)) & any(values != round(values))) {
     stop("Values should be round numbers.",
       call. = FALSE
@@ -54,7 +54,7 @@ new_sample_id <- function(values, sampling_rate) {
   }
   values <- unclass(values)
   structure(values,
-    class = "sample_id",
+    class = "sample_int",
     sampling_rate = sampling_rate
   )
 }
@@ -65,7 +65,7 @@ new_sample_id <- function(values, sampling_rate) {
 #' @param sample_id 
 #'
 #' @noRd
-validate_sample_id <- function(sample_id) {
+validate_sample_int <- function(sample_id) {
   if (!is.integer(sample_id)) {
     stop("Values should be integers.",
       call. = FALSE
@@ -122,16 +122,16 @@ validate_channel <- function(channel) {
 #' @param channel_info 
 #'
 #' @noRd
-new_signal <- function(signal_matrix = matrix(), ids = c(), sample_ids = c(), channel_info = dplyr::tibble()) {
+new_signal_tbl <- function(signal_matrix = matrix(), ids = c(), sample_ids = c(), channel_info = dplyr::tibble()) {
   raw_signal <- dplyr::as_tibble(signal_matrix)
 
   raw_signal <- update_channel_meta_data(raw_signal, channel_info)
 
-  signal <- tibble::tibble(.id = ids, .sample_id = sample_ids) %>%
+  signal_tbl <- tibble::tibble(.id = ids, .sample_id = sample_ids) %>%
     dplyr::bind_cols(raw_signal)
 
-  class(signal) <- c("signal_tbl", class(signal))
-  signal
+  class(signal_tbl) <- c("signal_tbl", class(signal_tbl))
+  signal_tbl
 }
 
 #' @param channels 
@@ -158,15 +158,15 @@ update_channel_meta_data <- function(channels, channel_info) {
   channels
 }
 
-#' @param signal 
+#' @param signal_tbl 
 #'
 #' @param events 
 #' @param segments 
 #'
 #' @noRd
-new_eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
+new_eeg_lst <- function(signal_tbl = NULL, events = NULL, segments = NULL) {
   x <- list(
-    signal = signal, events = events,
+    signal_tbl = signal_tbl, events = events,
     segments = segments
   )
   x <- unclass(x)
@@ -179,10 +179,10 @@ new_eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
 #'
 #' @noRd
 validate_eeg_lst <- function(x) {
-  validate_signal(x$signal)
+  validate_signal_tbl(x$signal_tbl)
   validate_events(x$events, channel_names(x))
   validate_segments(x$segments)
-  if (any(unique(x$signal$.id) != unique(x$segments$.id))) {
+  if (any(unique(x$signal_tbl$.id) != unique(x$segments$.id))) {
     warning("The values of .ids mismatch between tables.",
       call. = FALSE
     )
@@ -190,30 +190,30 @@ validate_eeg_lst <- function(x) {
   x
 }
 
-#' @param signal 
+#' @param signal_tbl 
 #'
 #' @noRd
-validate_signal <- function(signal) {
+validate_signal_tbl <- function(signal_tbl) {
   # Validates .id
-  if (!is.integer(signal$.id)) {
+  if (!is.integer(signal_tbl$.id)) {
     warning(".id should be an integer.",
       call. = FALSE
     )
   }
 
-  if (all(unique(signal$.id) != seq_len(max(signal$.id)))) {
+  if (all(unique(signal_tbl$.id) != seq_len(max(signal_tbl$.id)))) {
     warning("Missing .ids, some functions might fail.",
       call. = FALSE
     )
   }
   # Validates sample_id
-  validate_sample_id(signal$.sample_id)
+  validate_sample_int(signal_tbl$.sample_id)
 
   # Validates channels (first row is enough, and takes less memory)
-  dplyr::slice(ungroup(signal), 1) %>%
+  dplyr::slice(ungroup(signal_tbl), 1) %>%
     purrr::walk(~if (is_channel(.x)) validate_channel(.x))
 
-  signal
+  signal_tbl
 }
 
 #' @param events 
@@ -258,7 +258,7 @@ validate_segments <- function(segments) {
 }
 
 obligatory_cols <- list(
-  signal = c(.id = ".id", .sample_id = ".sample_id"),
+  signal_tbl = c(.id = ".id", .sample_id = ".sample_id"),
   events = c(.id = ".id", .sample_0 = ".sample_0", .size = ".size", .channel = ".channel"),
   segments = c(.id = ".id")
 )
