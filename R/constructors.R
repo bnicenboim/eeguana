@@ -38,9 +38,9 @@ is_eeg_lst <- function(x) {
 #' Builds a serie of sample numbers.
 #' @export
 #' @examples
-#' 
+#'
 #' sample_id(1:100, sampling_rate = 500)
-sample_id <- function(values, sampling_rate ) {
+sample_id <- function(values, sampling_rate) {
   validate_sample_id(new_sample_id(values, sampling_rate))
 }
 
@@ -58,10 +58,10 @@ is_sample_id <- function(x) {
 #' Builds a channel.
 #' @export
 #' @examples
-#' 
+#'
 #' Cz <- channel(runif(100,-5,5))
-channel <- function(values, x = NA_real_ ,y = NA_real_,z = NA_real_,reference = NA, ...) {
-  validate_channel(new_channel(values, channel_info = list(.x =x ,.y= y ,.z =z,.reference =reference, ...)))
+channel <- function(values, x = NA_real_, y = NA_real_, z = NA_real_, reference = NA, ...) {
+  validate_channel(new_channel(values, channel_info = list(.x = x, .y = y, .z = z, .reference = reference, ...)))
 }
 
 #' Test if the object is a channel
@@ -73,4 +73,3 @@ channel <- function(values, x = NA_real_ ,y = NA_real_,z = NA_real_,reference = 
 is_channel <- function(x) {
   class(x) == "channel"
 }
-

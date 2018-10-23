@@ -46,8 +46,8 @@ downsample <- function(x, q = 2, max_sample = NULL, ...) {
 
 #' @export
 downsample.eeg_lst <- function(x, q = 2L, max_sample = NULL,
-                             n = if (ftype == "iir") 8 else 30,
-                             ftype = "iir") {
+                               n = if (ftype == "iir") 8 else 30,
+                               ftype = "iir") {
 
   # if(stringr::str_to_lower(q) == "min") {
   #   q <- mindiv(sampling_rate(x), start = 2)
@@ -80,7 +80,7 @@ downsample.eeg_lst <- function(x, q = 2L, max_sample = NULL,
     new_sampling_rate, "Hz."
   ))
 
-  list_of_attr <- purrr::map(x$signal, ~ attributes(.x))
+  list_of_attr <- purrr::map(x$signal, ~attributes(.x))
 
   x$signal <- x$signal %>%
     dplyr::select(-.sample_id) %>%
@@ -97,12 +97,12 @@ downsample.eeg_lst <- function(x, q = 2L, max_sample = NULL,
     ) %>%
     dplyr::mutate(.id = as.integer(.id)) %>%
     dplyr::group_by(.id) %>%
-    dplyr::mutate(.sample_id = seq_len(dplyr::n() )) %>%
+    dplyr::mutate(.sample_id = seq_len(dplyr::n())) %>%
     dplyr::select(.id, .sample_id, dplyr::everything()) %>%
     dplyr::ungroup() %>%
-    #add back the attributes
-    purrr::map2_dfc( list_of_attr, ~ `attributes<-`(.x, .y))
-    #TODO should group back
+    # add back the attributes
+    purrr::map2_dfc(list_of_attr, ~`attributes<-`(.x, .y))
+  # TODO should group back
 
   # even table needs to be adapted, starts from 1,
   # and the size is divided by two with a min of 1
@@ -120,4 +120,3 @@ downsample.eeg_lst <- function(x, q = 2L, max_sample = NULL,
   message(say_size(x))
   validate_eeg_lst(x)
 }
-

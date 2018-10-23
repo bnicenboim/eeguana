@@ -3,12 +3,17 @@ library(eeguana)
 
 
 data <- eeg_lst(
-  signal = signal(signal_matrix = as.matrix(
-                              data.frame(X = sin(1:20), Y = cos(1:20))),
-  ids = rep(c(1L, 2L), each = 10), 
-  sample_ids = sample_id(rep(seq(-4L, 5L), times = 2), sampling_rate = 500 ),
-  dplyr::tibble(.name = c("X", "Y"), .reference = NA, theta = NA, phi = NA, 
-    radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_) ),
+  signal = signal(
+    signal_matrix = as.matrix(
+      data.frame(X = sin(1:20), Y = cos(1:20))
+    ),
+    ids = rep(c(1L, 2L), each = 10),
+    sample_ids = sample_id(rep(seq(-4L, 5L), times = 2), sampling_rate = 500),
+    dplyr::tibble(
+      .name = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+      radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
+    )
+  ),
   events = dplyr::tribble(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA_character_, -4L, 1L, NA,
@@ -24,12 +29,17 @@ data <- eeg_lst(
 
 
 data_NA <- eeg_lst(
-  signal = signal(signal_matrix = as.matrix(
-                              data.frame(X = sin(1:20), Y = cos(1:20))),
-  ids = rep(c(1L, 2L), each = 10), 
-  sample_ids = sample_id(rep(seq(-4L, 5L), times = 2), sampling_rate = 500 ),
-  dplyr::tibble(.name = c("X", "Y"), .reference = NA, theta = NA, phi = NA, 
-    radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_) ),
+  signal = signal(
+    signal_matrix = as.matrix(
+      data.frame(X = sin(1:20), Y = cos(1:20))
+    ),
+    ids = rep(c(1L, 2L), each = 10),
+    sample_ids = sample_id(rep(seq(-4L, 5L), times = 2), sampling_rate = 500),
+    dplyr::tibble(
+      .name = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+      radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
+    )
+  ),
   events = dplyr::tribble(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA_character_, -4L, 1L, NA_character_,
@@ -44,12 +54,17 @@ data_NA <- eeg_lst(
 )
 
 data_XY <- eeg_lst(
-  signal = signal(signal_matrix = as.matrix(
-                              data.frame(X = sin(1:20), Y = cos(1:20))),
-  ids = rep(c(1L, 2L), each = 10), 
-  sample_ids = sample_id(rep(seq(-4L, 5L), times = 2), sampling_rate = 500 ),
-  dplyr::tibble(.name = c("X", "Y"), .reference = NA, theta = NA, phi = NA, 
-    radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_) ),
+  signal = signal(
+    signal_matrix = as.matrix(
+      data.frame(X = sin(1:20), Y = cos(1:20))
+    ),
+    ids = rep(c(1L, 2L), each = 10),
+    sample_ids = sample_id(rep(seq(-4L, 5L), times = 2), sampling_rate = 500),
+    dplyr::tibble(
+      .name = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+      radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
+    )
+  ),
   events = dplyr::tribble(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA_character_, -4L, 1L, NA,
@@ -61,7 +76,7 @@ data_XY <- eeg_lst(
     2L, "Time 0", NA_character_, 1L, 1L, NA,
     2L, "Bad", NA_character_, 2L, 1L, "Y"
   ),
-   segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
+  segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
 )
 
 # TEST when the event exceeds the end of the segment
@@ -124,12 +139,17 @@ test_that("can clean whole segments in files", {
 
 
 data0 <- eeg_lst(
-  signal = signal(signal_matrix = as.matrix(
-                              data.frame(X = sin(1:20), Y = cos(1:20))),
-  ids =  rep(c(1L, 1L), each = 10), 
-  sample_ids = sample_id(seq(1L, 20L), sampling_rate = 500 ),
-  dplyr::tibble(.name = c("X", "Y"), .reference = NA, theta = NA, phi = NA, 
-    radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_) ),
+  signal = signal(
+    signal_matrix = as.matrix(
+      data.frame(X = sin(1:20), Y = cos(1:20))
+    ),
+    ids = rep(c(1L, 1L), each = 10),
+    sample_ids = sample_id(seq(1L, 20L), sampling_rate = 500),
+    dplyr::tibble(
+      .name = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+      radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
+    )
+  ),
   events = dplyr::tribble(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA, 1L, 1L, NA,
@@ -179,17 +199,18 @@ test_that("can segment", {
 
 
 baselines <- dplyr::summarize(dplyr::group_by(
-                              dplyr::filter(eeguana:::declass(data$signal)$tbl, .sample_id <=0),
-                              .id),  bX = mean(X), bY = mean(Y))
-signal_with_baselines <- dplyr::left_join(eeguana:::declass(data$signal)$tbl, baselines) 
+  dplyr::filter(eeguana:::declass(data$signal)$tbl, .sample_id <= 0),
+  .id
+), bX = mean(X), bY = mean(Y))
+signal_with_baselines <- dplyr::left_join(eeguana:::declass(data$signal)$tbl, baselines)
 signal_with_baselines$new_X <- signal_with_baselines$X - signal_with_baselines$bX
 signal_with_baselines$new_Y <- signal_with_baselines$Y - signal_with_baselines$bY
 baselined <- ch_baseline(data)
 
 
 test_that("baseline works", {
-expect_equal(eeguana:::declass(baselined$signal)$tbl$X,  signal_with_baselines$new_X )
-expect_equal(eeguana:::declass(baselined$signal)$tbl$Y,  signal_with_baselines$new_Y )
+  expect_equal(eeguana:::declass(baselined$signal)$tbl$X, signal_with_baselines$new_X)
+  expect_equal(eeguana:::declass(baselined$signal)$tbl$Y, signal_with_baselines$new_Y)
 })
 
 

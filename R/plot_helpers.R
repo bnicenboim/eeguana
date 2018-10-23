@@ -25,7 +25,13 @@ interpolate_xy <- function(.df, x, y, value, method = "MBA", ...) {
   }
 
   # if there are no groups, it will just create a list with the entire df
-  grid <- {if(ncol(l)==0) {list(.df)} else {split(.df, l)}} %>%
+  grid <- {
+    if (ncol(l) == 0) {
+      list(.df)
+    } else {
+      split(.df, l)
+    }
+  } %>%
     purrr::discard(~nrow(.x) == 0) %>%
     purrr::map_dfr(function(.d) {
       common <- .d %>%
@@ -33,9 +39,9 @@ interpolate_xy <- function(.df, x, y, value, method = "MBA", ...) {
         dplyr::select(-channel, -!!x, -!!y, -!!value) %>%
         distinct()
 
-      if (nrow(common) > 1 
-        #when there is no common columns, distintict returns anyway a number of columns, distinct bug?? TODO: report
-        & ncol(common) > 0) {
+      if (nrow(common) > 1
+      # when there is no common columns, distintict returns anyway a number of columns, distinct bug?? TODO: report
+      & ncol(common) > 0) {
         stop("Bad grouping.")
       }
 

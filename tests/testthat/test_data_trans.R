@@ -2,15 +2,20 @@ context("Binding and transforming")
 library(eeguana)
 
 
-  
+
 
 cond1 <- eeg_lst(
-signal = signal(signal_matrix = as.matrix(
-                              data.frame(X = sin(1:10), Y = cos(1:10))),
-  ids = rep(1L, 10), 
-  sample_ids = sample_id(seq(-4L, 5L), sampling_rate = 500 ),
-  dplyr::tibble(.name = c("X", "Y"), .reference = NA, theta = NA, phi = NA, 
-    radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_) ),
+  signal = signal(
+    signal_matrix = as.matrix(
+      data.frame(X = sin(1:10), Y = cos(1:10))
+    ),
+    ids = rep(1L, 10),
+    sample_ids = sample_id(seq(-4L, 5L), sampling_rate = 500),
+    dplyr::tibble(
+      .name = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+      radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
+    )
+  ),
   events = dplyr::tribble(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA, -4L, 1L, NA,
@@ -21,12 +26,17 @@ signal = signal(signal_matrix = as.matrix(
 
 
 cond2 <- eeg_lst(
-  signal = signal(signal_matrix = as.matrix(
-                              data.frame(X = sin(1:10)+.1, Y = cos(1:10)+.1)),
-  ids = rep(1L, 10), 
-  sample_ids = sample_id(seq(-4L, 5L), sampling_rate = 500 ),
-  dplyr::tibble(.name = c("X", "Y"), .reference = NA, theta = NA, phi = NA, 
-    radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_) ),
+  signal = signal(
+    signal_matrix = as.matrix(
+      data.frame(X = sin(1:10) + .1, Y = cos(1:10) + .1)
+    ),
+    ids = rep(1L, 10),
+    sample_ids = sample_id(seq(-4L, 5L), sampling_rate = 500),
+    dplyr::tibble(
+      .name = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+      radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
+    )
+  ),
 
   events = dplyr::tribble(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
@@ -38,12 +48,17 @@ cond2 <- eeg_lst(
 
 
 cond3 <- eeg_lst(
-  signal = signal(signal_matrix = as.matrix(
-                              data.frame(X = sin(1:10)+.1, Y = cos(1:10)+.1)),
-  ids = rep(1L, 10), 
-  sample_ids = sample_id(seq(-4L, 5L), sampling_rate = 500 ),
-  dplyr::tibble(.name = c("X", "Y"), .reference = NA, theta = NA, phi = NA, 
-    radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_) ),
+  signal = signal(
+    signal_matrix = as.matrix(
+      data.frame(X = sin(1:10) + .1, Y = cos(1:10) + .1)
+    ),
+    ids = rep(1L, 10),
+    sample_ids = sample_id(seq(-4L, 5L), sampling_rate = 500),
+    dplyr::tibble(
+      .name = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+      radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
+    )
+  ),
 
   events = dplyr::tribble(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
@@ -92,7 +107,7 @@ test_that("can bind unlisted files", {
 test_that("can bind unlisted files that were filtered", {
   cond1_2 <- cond2
   cond1_2$segments$recording <- "recording2"
-  cond1_2 <- filter(cond1_2, .id >0)
+  cond1_2 <- filter(cond1_2, .id > 0)
   conds <- bind(cond1, cond1_2)
   expect_equal(nrow(conds$signal), nrow(cond1$signal) + nrow(cond2$signal))
   expect_equal(max(conds$signal$.id), max(cond1$signal$.id) + max(cond2$signal$.id))
@@ -113,5 +128,4 @@ test_that("can transform to tibble", {
 })
 
 
-#summarize_by_id_tbl(cond1)
-
+# summarize_by_id_tbl(cond1)

@@ -21,4 +21,3 @@ test_that("can read binary dat files", {
 
 
 ft_eeg <- read_ft("../../inst/extdata/data_h.mat", layout = "../../inst/extdata/easycapM23.mat")
-

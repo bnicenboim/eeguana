@@ -48,10 +48,11 @@ channels_tbl <- function(x, ...) {
 #' @export
 channels_tbl.eeg_lst <- function(x, ...) {
   dplyr::tibble(channel = channel_names(x)) %>%
-   #first row is enough and it makes it faster
-   dplyr::bind_cols( dplyr::slice(ungroup(x$signal), 1) %>% dplyr::select(channel_names(x)) %>% 
-      purrr::map_dfr( ~ attributes(.x)))  %>%
-      select(-class, -channel)
+    # first row is enough and it makes it faster
+    dplyr::bind_cols(dplyr::slice(ungroup(x$signal), 1) %>%
+      dplyr::select(channel_names(x)) %>%
+      purrr::map_dfr(~attributes(.x))) %>%
+    select(-class, -channel)
 }
 
 #' @export
@@ -64,11 +65,11 @@ channels_tbl.eeg_lst <- function(x, ...) {
   orig_names <- channel_names(x)
   channels <- dplyr::select(x$signal, orig_names)
   nochannels <- dplyr::select(x$signal, -dplyr::one_of(channel_names(x)))
-  x$signal<- dplyr::bind_cols(nochannels, update_channel_meta_data(channels, value))
+  x$signal <- dplyr::bind_cols(nochannels, update_channel_meta_data(channels, value))
   new_names <- channel_names(x)
 
-  for(i in eeguana:::seq_len(nchannels(x))){
-    x$events <- mutate(x$events, .channel = dplyr::if_else(.channel == orig_names[i],new_names[i], .channel))    
+  for (i in eeguana:::seq_len(nchannels(x))) {
+    x$events <- mutate(x$events, .channel = dplyr::if_else(.channel == orig_names[i], new_names[i], .channel))
   }
 
   validate_eeg_lst(x)
@@ -81,7 +82,7 @@ sampling_rate <- function(x) {
 duration <- function(x) {
   x$signal %>%
     dplyr::group_by(.id) %>%
-    dplyr::summarize(duration = (max(.sample_id) - min(.sample_id)) / 
+    dplyr::summarize(duration = (max(.sample_id) - min(.sample_id)) /
       sampling_rate(x)) %>%
     .$duration
 }
@@ -103,26 +104,27 @@ nsamples.eeg_lst <- function(x) {
 #'
 #' @export
 summary.eeg_lst <- function(object) {
-
-  summ <- list(channels = channels_tbl(object),
-                  sampling_rate = sampling_rate(object),
-                  segments = object$segments %>%
-                              dplyr::count(recording) %>%
-                              dplyr::rename(segment_n = n),
-                  events = object$events %>%
-                          dplyr::group_by_at(dplyr::vars(-.size, -.channel, -.sample_0, -.id)) %>%
-                          dplyr::count(),
-                  size = capture.output(pryr::object_size(object)))
-  class(summ) <- c("eeg_summary", class(summ)) 
+  summ <- list(
+    channels = channels_tbl(object),
+    sampling_rate = sampling_rate(object),
+    segments = object$segments %>%
+      dplyr::count(recording) %>%
+      dplyr::rename(segment_n = n),
+    events = object$events %>%
+      dplyr::group_by_at(dplyr::vars(-.size, -.channel, -.sample_0, -.id)) %>%
+      dplyr::count(),
+    size = capture.output(pryr::object_size(object))
+  )
+  class(summ) <- c("eeg_summary", class(summ))
   summ
 }
 
 #' @export
 
-print.eeg_summary <- function(x, ...){
+print.eeg_summary <- function(x, ...) {
   cat(paste0("# EEG data (eeg_lst) from the following channels:\n"))
 
-  x$channels %>% 
+  x$channels %>%
     print(., ...)
 
   cat(paste0("# Sampling rate: ", x$sampling_rate, " Hz.\n"))
@@ -130,19 +132,19 @@ print.eeg_summary <- function(x, ...){
   cat(paste0("# Size in memory: ", x$size, ".\n"))
 
   cat("# Summary of segments\n")
-  x$segments %>% 
+  x$segments %>%
     print(., ...)
 
   cat("# Summary of events\n")
 
-  x$events %>% 
+  x$events %>%
     print(., ...)
 
   invisible(x)
 }
 
 #' Count number of complete segments of an eeg_lst object.
-#' 
+#'
 #' @param x An \code{eeg_lst} object.
 #' @param ... Variables to group by.
 #'
