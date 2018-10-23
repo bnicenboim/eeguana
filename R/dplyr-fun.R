@@ -125,17 +125,21 @@ summarise_.eeg_lst <- function(.data, ..., .dots = list()) {
     dplyr::mutate(.id = seq_len(dplyr::n()) %>% as.integer()) %>%
     dplyr::group_by(!!!signal_groups)
 
-    if(nrow(.data$signal) != 0) {
-      last_id <- max(.data$signal$.id)
-    } else {
-      last_id <- integer(0)
-    }
+  if (nrow(.data$signal) != 0) {
+    last_id <- max(.data$signal$.id)
+  } else {
+    last_id <- integer(0)
+  }
 
   .data$segments <- dplyr::summarize(.data$segments) %>%
     dplyr::ungroup() %>%
-     {if(!".id" %in% dplyr::tbl_vars(.)) {
-            hd_add_column(., .id = seq_len(last_id) %>% as.integer())
-      } else { . } }%>%
+    {
+      if (!".id" %in% dplyr::tbl_vars(.)) {
+        hd_add_column(., .id = seq_len(last_id) %>% as.integer())
+      } else {
+        .
+      }
+    } %>%
     # dplyr::mutate(recording = if ("recording" %in% tbl_vars(.)) {
     #   recording
     # } else {
@@ -146,8 +150,8 @@ summarise_.eeg_lst <- function(.data, ..., .dots = list()) {
     # dplyr::mutate(segment = seq_len(dplyr::n())) %>%
     dplyr::group_by(!!!segments_groups)
 
-    #TODO maybe I can do some type of summary of the events table, instead
-    .data$events <- .data$events %>% filter(FALSE)
+  # TODO maybe I can do some type of summary of the events table, instead
+  .data$events <- .data$events %>% filter(FALSE)
 
   update_events_channels(.data) %>% validate_eeg_lst()
 }
@@ -173,10 +177,10 @@ group_by_.eeg_lst <- function(.data, ..., .dots = list(), add = add) {
   .data$signal <- dplyr::group_by(.data$signal, !!!new_dots$signal, add = add)
   .data$segments <- dplyr::group_by(.data$segments, !!!new_dots$segments, add = add)
 
-  if(".id" %in% dplyr::group_vars(.data$signal)){
+  if (".id" %in% dplyr::group_vars(.data$signal)) {
     .data$segments <- dplyr::group_by(.data$segments, .id, add = TRUE)
   }
-  
+
   validate_eeg_lst(.data)
 }
 
@@ -207,7 +211,6 @@ filter_.eeg_lst <- function(.data, ..., .dots = list()) {
 
     .data$segments <- dplyr::semi_join(.data$segments, .data$signal, by = ".id")
     .data$events <- dplyr::semi_join(.data$events, .data$segments, by = ".id")
-
   }
   # filter the segments and update the signal
   if (length(new_dots$segments) > 0) {
@@ -217,7 +220,7 @@ filter_.eeg_lst <- function(.data, ..., .dots = list()) {
   }
 
   # Fix the indices in case some of them drop out
-  redo_indices(.data) %>% update_events_channels() %>%   validate_eeg_lst()
+  redo_indices(.data) %>% update_events_channels() %>% validate_eeg_lst()
 }
 
 
@@ -254,17 +257,17 @@ select_rename <- function(.data, select = TRUE, ...) {
   )), !!!dots)
 
   select_in_df <- c("signal", "segments")
-  if(length(intersect(all_vars,names(.data$segments)))==0){
+  if (length(intersect(all_vars, names(.data$segments))) == 0) {
     select_in_df <- select_in_df[select_in_df != "segments"]
   }
-  if(length(intersect(all_vars,names(.data$signal)))==0){
-        select_in_df <- select_in_df[select_in_df != "signal"]
+  if (length(intersect(all_vars, names(.data$signal))) == 0) {
+    select_in_df <- select_in_df[select_in_df != "signal"]
   }
 
   # Divide the variables into the relevant columns
   for (dfs in select_in_df) {
     vars_dfs <- all_vars[all_vars %in% colnames(.data[[dfs]])]
-        # by adding these groups, select won't remove the obligatory columns
+    # by adding these groups, select won't remove the obligatory columns
     vars_dfs <- c(obligatory_cols[[dfs]], vars_dfs)
 
     if (length(vars_dfs) > 0) {
@@ -282,8 +285,8 @@ select_rename <- function(.data, select = TRUE, ...) {
 
 #' @export
 left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
-  if(!is.data.frame(y)) stop("y must be a data frame or tibble.")
-  
+  if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
+
   x[["segments"]] <- dplyr::left_join(x[["segments"]], y = y, by = by, copy = copy, suffix = c(".x", ".y"), ...)
 
   validate_eeg_lst(x)
@@ -293,23 +296,23 @@ left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".
 
 #' @export
 semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
-  if(!is.data.frame(y)) stop("y must be a data frame or tibble.")
- 
+  if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
+
   x[["segments"]] <- dplyr::semi_join(x[["segments"]], y, by = NULL, suffix = c(".x", ".y"), ...)
   x$signal <- dplyr::semi_join(x$signal, x[["segments"]], by = ".id")
   x$events <- dplyr::semi_join(x$events, x[["segments"]], by = ".id")
 
-  redo_indices(x) %>%    validate_eeg_lst()
+  redo_indices(x) %>% validate_eeg_lst()
 }
 
 
 #' @export
 anti_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
-  if(!is.data.frame(y)) stop("y must be a data frame or tibble.")
- 
+  if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
+
   x[["segments"]] <- dplyr::anti_join(x[["segments"]], y, by = NULL, suffix = c(".x", ".y"), ...)
   x[["signal"]] <- dplyr::semi_join(x[["signal"]], x$segments, by = ".id")
   x$events <- dplyr::semi_join(x$events, x$segments, by = ".id")
 
-  redo_indices(x) %>%    validate_eeg_lst()
+  redo_indices(x) %>% validate_eeg_lst()
 }

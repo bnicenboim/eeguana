@@ -1,5 +1,5 @@
 #' Convert an eeg_lst to a tibble.
-#' 
+#'
 #' Convert the signal table from wide to long format, and optionally \code{left_join}s the segment table
 #'
 #' @param x An \code{eeg_lst} object.
@@ -12,7 +12,6 @@
 #'
 #' @export
 as_tibble.eeg_lst <- function(x, add_segments = TRUE) {
-  
   df <- declass(x$signal)$tbl %>%
     tidyr::gather(key = "channel", value = "amplitude", channel_names(x)) %>%
     {
@@ -31,11 +30,11 @@ as_tibble.eeg_lst <- function(x, add_segments = TRUE) {
 
 #' @export
 as_tibble.signal_tbl <- function(x) {
-x <- declass(x)$tbl
-NextMethod()
+  x <- declass(x)$tbl
+  NextMethod()
 }
 
-  
+
 
 
 #' Convert an eeg_lst into a summary long-data frame based on a statistics.

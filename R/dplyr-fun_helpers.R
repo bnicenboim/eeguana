@@ -1,7 +1,7 @@
 #' @noRd
 update_events_channels <- function(x) {
   x$events <- dplyr::filter(x$events, is.na(.channel) | .channel %in% channel_names(x))
-  x  
+  x
 }
 
 
@@ -13,10 +13,10 @@ getAST <- function(ee) {
 
 #' @noRd
 
-#TODO: use str_* to make the signal_cols more general, 
-#it should ignore if there is a function that starts with ch_ (using is.function)
+# TODO: use str_* to make the signal_cols more general,
+# it should ignore if there is a function that starts with ch_ (using is.function)
 dots_by_df <- function(dots, .eeg_lst) {
-  signal_cols <- c(channel_names(.eeg_lst),".id", ".sample_id","chs_mean")
+  signal_cols <- c(channel_names(.eeg_lst), ".id", ".sample_id", "chs_mean")
 
   signal_dots <- purrr::map_lgl(dots, function(dot)
   # get the AST of each call and unlist it
@@ -62,50 +62,51 @@ do_based_on_grps <- function(.df, ext_grouping_df, dplyr_fun, dots) {
   #   dplyr::ungroup(.df) %>%
   #   dplyr::select(-dplyr::one_of(ext_group_names))
 
-# group by elements of segments
-  use_seg_groups <- length(ext_group_names) != 0 &  any(ext_group_names != ".id")
-if(use_seg_groups){
-  .df <- ext_grouping_df %>% 
-         tidyr::unite("grouped", ext_group_names) %>%
-         dplyr::select(.id, grouped) %>%
-         dplyr::left_join(.df, ., by = ".id")  %>%
-         dplyr::group_by(grouped, !!!int_groups)
-} 
+  # group by elements of segments
+  use_seg_groups <- length(ext_group_names) != 0 & any(ext_group_names != ".id")
+  if (use_seg_groups) {
+    .df <- ext_grouping_df %>%
+      tidyr::unite("grouped", ext_group_names) %>%
+      dplyr::select(.id, grouped) %>%
+      dplyr::left_join(.df, ., by = ".id") %>%
+      dplyr::group_by(grouped, !!!int_groups)
+  }
 
   .df <- .df %>%
-         dplyr_fun(!!!dots) %>% # after summarizing I add the .id
-         dplyr::ungroup(.df) %>%
-         {if(use_seg_groups) {
-            dplyr::select(., -grouped)
-           } else {
-            .
-           } 
-          }
-
-    # in case obligatory cols are gone was removed :
-    if(nrow(.df)>0){
-      if(!".id" %in% dplyr::tbl_vars(.df)){
-        .df <- dplyr::mutate(.df, .id = NA_integer_)
-      }
-      if(!".sample_id" %in% dplyr::tbl_vars(.df)){
-        # This just creates a channel, because of the reclass
-        # .df <- dplyr::mutate(.df, .sample_id = new_sample_id(NA_integer_, 
-        #   sampling_rate = sampling_rate) )
-        .df$.sample_id <- new_sample_id(rep(NA_integer_,nrow(.df)), sampling_rate = sampling_rate)
-      }
-    }
-      if(nrow(.df)==0){
-      if(!".id" %in% dplyr::tbl_vars(.df)){
-        .df <- dplyr::mutate(.df, .id = integer(0))
-      }
-      if(!".sample_id" %in% dplyr::tbl_vars(.df)){
-        # .df <- dplyr::mutate(.df, .sample_id = sample_id(integer(0), 
-        #   sampling_rate = sampling_rate) )
-        .df$.sample_id = new_sample_id(integer(0), sampling_rate = sampling_rate)
+    dplyr_fun(!!!dots) %>% # after summarizing I add the .id
+    dplyr::ungroup(.df) %>%
+    {
+      if (use_seg_groups) {
+        dplyr::select(., -grouped)
+      } else {
+        .
       }
     }
 
-    dplyr::select(.df, obligatory_cols$signal, dplyr::everything())
+  # in case obligatory cols are gone was removed :
+  if (nrow(.df) > 0) {
+    if (!".id" %in% dplyr::tbl_vars(.df)) {
+      .df <- dplyr::mutate(.df, .id = NA_integer_)
+    }
+    if (!".sample_id" %in% dplyr::tbl_vars(.df)) {
+      # This just creates a channel, because of the reclass
+      # .df <- dplyr::mutate(.df, .sample_id = new_sample_id(NA_integer_,
+      #   sampling_rate = sampling_rate) )
+      .df$.sample_id <- new_sample_id(rep(NA_integer_, nrow(.df)), sampling_rate = sampling_rate)
+    }
+  }
+  if (nrow(.df) == 0) {
+    if (!".id" %in% dplyr::tbl_vars(.df)) {
+      .df <- dplyr::mutate(.df, .id = integer(0))
+    }
+    if (!".sample_id" %in% dplyr::tbl_vars(.df)) {
+      # .df <- dplyr::mutate(.df, .sample_id = sample_id(integer(0),
+      #   sampling_rate = sampling_rate) )
+      .df$.sample_id <- new_sample_id(integer(0), sampling_rate = sampling_rate)
+    }
+  }
+
+  dplyr::select(.df, obligatory_cols$signal, dplyr::everything())
 }
 
 
@@ -177,12 +178,11 @@ hd_add_column <- function(.data, ..., .before = NULL, .after = NULL) {
 #' @noRd
 validate_segments <- function(segments) {
   # Validates .id
-  if(all(unique(segments$.id) != seq_len(max(segments$.id)))) {
+  if (all(unique(segments$.id) != seq_len(max(segments$.id)))) {
     warning("Missing .ids, some functions might fail.",
       call. = FALSE
     )
   }
-
 }
 
 
@@ -200,19 +200,19 @@ groups_int <- function(eeg_lst) {
 #' @noRd
 group_by_id <- function(eeg_lst) {
   orig_groups <- dplyr::group_vars(eeg_lst)
-   #if there are many groupings
-  if(length(orig_groups) > 1 | 
-    #or if the only one is not .id
-     (length(orig_groups) == 1 & orig_groups[1] != ".id")) { 
+  # if there are many groupings
+  if (length(orig_groups) > 1 |
+    # or if the only one is not .id
+    (length(orig_groups) == 1 & orig_groups[1] != ".id")) {
     message("# Grouping by .id.")
-  } 
+  }
 
-  dplyr::group_by(eeg_lst, .id) 
-}  
+  dplyr::group_by(eeg_lst, .id)
+}
 
 #' @noRd
-signal_from_parent_frame <- function(env = parent.frame()){
+signal_from_parent_frame <- function(env = parent.frame()) {
   # This is the environment where I can find the columns of signal
-  signal_env <- rlang::env_get(env = env, '.top_env', inherit = TRUE)
+  signal_env <- rlang::env_get(env = env, ".top_env", inherit = TRUE)
   signal <- dplyr::as_tibble(rlang::env_get_list(signal_env, rlang::env_names(signal_env)))
 }

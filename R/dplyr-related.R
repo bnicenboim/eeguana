@@ -1,23 +1,23 @@
 #'  The by-sample (or by-row) mean of the specified channels.
 #'
-#' Wrapper of \code{rowMeans} that performs a by-sample mean of the specified channels. 
-#' 
+#' Wrapper of \code{rowMeans} that performs a by-sample mean of the specified channels.
+#'
 #' @param ... A channel or a group of channels
 
 #' @return A new channel.
 
-#' @family 
+#' @family
 #'
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #'
-#' faces_segs_some %>%  
+#' faces_segs_some %>%
 #'                transmute(Occipital = chs_mean(O1, O2, Oz, na.rm = TRUE),
 #'                          Parietal = chs_mean(P3, P4, P7,  P8, Pz, na.rm = TRUE))
-#' 
-#' 
+#'
+#'
 #' }
 # chs_mean <- function(x, ...) {
 #   UseMethod("chs_mean")
@@ -26,16 +26,15 @@
 
 ## ' @export
 chs_mean <- function(..., na.rm = FALSE) {
+  dots <- rlang::enquos(...)
 
-	dots <- rlang::enquos(...)
+  # signal <- signal_from_parent_frame(env = parent.frame())
+  # This is the environment where I can find the columns of signal
+  signal_env <- rlang::env_get(env = parent.frame(), ".top_env", inherit = TRUE)
+  signal <- dplyr::as_tibble(rlang::env_get_list(signal_env, rlang::env_names(signal_env)))
 
-	#signal <- signal_from_parent_frame(env = parent.frame())	
-	# This is the environment where I can find the columns of signal
-	signal_env <- rlang::env_get(env = parent.frame(), '.top_env', inherit = TRUE)
-	signal <- dplyr::as_tibble(rlang::env_get_list(signal_env, rlang::env_names(signal_env)))
-	
-	
-	rowMeans(dplyr::select(signal, !!!dots), na.rm = na.rm)
+
+  rowMeans(dplyr::select(signal, !!!dots), na.rm = na.rm)
 }
 
 # #' @export
@@ -47,8 +46,8 @@ chs_mean <- function(..., na.rm = FALSE) {
 
 
 #' Convert a time point into a sample point.
-#' 
-#' 
+#'
+#'
 #' @param x A vector of times.
 #' @param unit "seconds" (or "s"), "milliseconds" (or "ms")
 #' @param sampling_rate
@@ -65,7 +64,7 @@ chs_mean <- function(..., na.rm = FALSE) {
 #' }
 #' @export
 as_sample_id <- function(x, unit = "seconds", sampling_rate) {
-	#TODO I could check if it's been called inside the eeg_lst and extract the sampling rate.
+  # TODO I could check if it's been called inside the eeg_lst and extract the sampling rate.
   x * scaling(sampling_rate, unit)
 }
 
@@ -90,7 +89,3 @@ as_time.sample_id <- function(x, unit = "second") {
   time <- x / scaling(sampling_rate = attributes(x)$sampling_rate, unit)
   time
 }
-
-
-
-

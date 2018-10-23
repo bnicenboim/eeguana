@@ -41,7 +41,6 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
     raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = byrow) %>%
       tibble::as.tibble()
-
   } else if (common_info$format == "ASCII") {
     raw_signal <- readr::read_delim(file,
       delim = " ",
@@ -56,8 +55,8 @@ read_dat <- function(file, header_info = NULL, events = NULL,
   events <- add_event_channel(events, header_info$chan_info$.name)
 
   # Initial samples as in Brainvision
-  max_sample = nrow(raw_signal)
-  sample_id = seq_len(max_sample)
+  max_sample <- nrow(raw_signal)
+  sample_id <- seq_len(max_sample)
 
   # the first event can't be the end of the segment
   # and the last segment ends at the end of the file
@@ -83,17 +82,22 @@ read_dat <- function(file, header_info = NULL, events = NULL,
   # TODO, make the following faster,probably in c++?, or try data.table
   sample_id_ided <- purrr::pmap_dfr(list(beg_segs, s0, end_segs),
     .id = ".id",
-    function(b, s0, e)  
-        # filter the relevant samples
-        # the first sample of a segment is 1
-        sample_id[between(sample_id, b, e)] %>% 
-        {. - s0 + 1L} %>% list( .sample_id=.))
+    function(b, s0, e)
+                 # filter the relevant samples
+    # the first sample of a segment is 1
+      sample_id[between(sample_id, b, e)] %>% {
+        . - s0 + 1L
+      } %>% list(.sample_id = .)
+  )
 
-    signal <- new_signal(signal_matrix = raw_signal, ids = as.integer(sample_id_ided$.id),
-                           sample_ids = new_sample_id(sample_id_ided$.sample_id, 
-                            sampling_rate =  common_info$sampling_rate), 
-                           channel_info = header_info$chan_info )     
- 
+  signal <- new_signal(
+    signal_matrix = raw_signal, ids = as.integer(sample_id_ided$.id),
+    sample_ids = new_sample_id(sample_id_ided$.sample_id,
+      sampling_rate = common_info$sampling_rate
+    ),
+    channel_info = header_info$chan_info
+  )
+
   seg_events <- segment_events(events, beg_segs, s0, end_segs)
 
   segments <- tibble::tibble(
@@ -102,9 +106,9 @@ read_dat <- function(file, header_info = NULL, events = NULL,
   )
 
   eeg_lst <- new_eeg_lst(
-    signal = signal, 
-    events =   seg_events, 
-   segments = segments
+    signal = signal,
+    events = seg_events,
+    segments = segments
   ) %>% validate_eeg_lst()
 
 
@@ -118,7 +122,6 @@ read_dat <- function(file, header_info = NULL, events = NULL,
   ))
   message(say_size(eeg_lst))
   eeg_lst
-
 }
 
 
@@ -128,14 +131,15 @@ add_event_channel <- function(events, labels) {
   } else {
     0L
   }) %>%
-    dplyr::mutate(.channel = dplyr::if_else(
-      .channel == 0, NA_integer_,
-      .channel
-    ) %>%
-      labels[.] 
+    dplyr::mutate(
+      .channel = dplyr::if_else(
+        .channel == 0, NA_integer_,
+        .channel
+      ) %>%
+        labels[.]
       # %>%
       # forcats::lvls_expand(new_levels = labels)
-      )
+    )
 }
 
 segment_events <- function(events, beg_segs, s0, end_segs) {
@@ -299,7 +303,7 @@ read_vhdr_metadata <- function(file) {
     dplyr::bind_cols(purrr::pmap_dfr(
       list(.$radius, .$theta, .$phi),
       brainvision_loc_2_xyz
-    )) 
+    ))
 
   out <- list()
   out$chan_info <- chan_info

@@ -112,18 +112,19 @@ read_ft <- function(file, layout = NULL, recording = file) {
       paste(not_channel, collapse = ", "), "."
     ))
     channels <- dplyr::left_join(channels, dplyr::as_tibble(chan_layout), by = ".name") %>%
-                dplyr::mutate(.z = NA_real_, .reference = NA)
+      dplyr::mutate(.z = NA_real_, .reference = NA)
   } else {
     channels <- channels %>%
-                dplyr::mutate(.x = NA_real_, .y = NA_real_, .z = NA_real_, .reference = NA)
+      dplyr::mutate(.x = NA_real_, .y = NA_real_, .z = NA_real_, .reference = NA)
   }
-    
-    
+
+
   # colnames(signal) <- c(".id", channel_names)
   # signal <- dplyr::mutate(signal, .sample = sample, .id = as.integer(.id)) %>%
   #   dplyr::select(.id, .sample, dplyr::everything())
-  signal <- new_signal(select(signal,-.id), 
-          ids = signal[[".id"]], sample_ids= sample, channel_info = channels)
+  signal <- new_signal(select(signal, -.id),
+    ids = signal[[".id"]], sample_ids = sample, channel_info = channels
+  )
 
 
   as_first_non0 <- function(col) {
@@ -144,7 +145,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
     dplyr::as_tibble() %>%
     dplyr::select(-offset) %>%
     dplyr::mutate_all(as_first_non0) %>%
-    dplyr::rename(.size = dplyr::matches("duration"), .sample_0 = sample ) %>%
+    dplyr::rename(.size = dplyr::matches("duration"), .sample_0 = sample) %>%
     dplyr::mutate(.sample_0 = as.integer(.sample_0), .size = as.integer(.size)) %>%
     add_event_channel(channel_names) %>%
     segment_events(beg_segs = slengths$V1, s0 = slengths$V3 + slengths$V1, end_segs = slengths$V2)
@@ -170,5 +171,3 @@ read_ft <- function(file, layout = NULL, recording = file) {
   message(say_size(eeg_lst))
   eeg_lst
 }
-
-

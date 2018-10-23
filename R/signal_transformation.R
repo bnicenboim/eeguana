@@ -1,5 +1,5 @@
 #' Baseline an eeg_lst
-#' 
+#'
 #' Subtract the average or baseline of the points in a defined interval from all points in the segment.
 #'
 #' @param x An \code{eeg_lst} object.
@@ -23,17 +23,17 @@ ch_baseline.eeg_lst <- function(x, time = -Inf, sample_id = NULL) {
   x <- group_by_id(x)
 
 
-  if(is.null(sample_id) & is.numeric(time)){
-   sample_id <- time * sampling_rate(x)
-  } else if( is.numeric(sample_id) & is.numeric(time)) {
+  if (is.null(sample_id) & is.numeric(time)) {
+    sample_id <- time * sampling_rate(x)
+  } else if (is.numeric(sample_id) & is.numeric(time)) {
     message("# Ignoring time parameter.")
   }
 
-  x$signal <- 
-     dplyr::mutate_at(x$signal,
+  x$signal <-
+    dplyr::mutate_at(
+      x$signal,
       channel_names(x),
       dplyr::funs(. - mean(.[between(.sample_id, sample_id, 0)]))
     )
   x
 }
-

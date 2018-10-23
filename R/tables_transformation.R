@@ -66,6 +66,8 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
   # bind_rows looses the attributes
   # https://github.com/tidyverse/dplyr/issues/2457
   # pmap_sgr is pmap_dfr for signal_table
+  # TODO benchmark other way: first work only with the samples (and .id maybe), make NA the irrelevant ones,
+  # then filter the bad samples
   x$signal <- pmap_sgr(list(times0$.id, times0$.sample_0, slim),
     function(i, s0, sl) x$signal %>%
         # filter the relevant samples
@@ -77,8 +79,10 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
         dplyr::mutate(.sample_id = .sample_id - s0 + 1L) %>%
         # order the signals df:
         dplyr::select(-.id)
-  ,.id = ".id") %>%
-    dplyr::mutate(.id = as.integer(.id)) 
+    ,
+    .id = ".id"
+  ) %>%
+    dplyr::mutate(.id = as.integer(.id))
 
 
   slim <- purrr::map2(slim, split(x$signal, x$signal$.id), function(sl, d) {
@@ -117,11 +121,13 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
 
   message(paste0("# Total of ", max(x$signal$.id), " segments found."))
 
-  x$segments <- dplyr::right_join(x$segments, 
-                        dplyr::select(times0, -.sample_0), by = ".id") %>%
-                dplyr::mutate(.id = 1:n()) %>%
-                dplyr::group_by(recording) %>%
-                dplyr::mutate(segment = 1:n())
+  x$segments <- dplyr::right_join(x$segments,
+    dplyr::select(times0, -.sample_0),
+    by = ".id"
+  ) %>%
+    dplyr::mutate(.id = 1:n()) %>%
+    dplyr::group_by(recording) %>%
+    dplyr::mutate(segment = 1:n())
 
   x$signal <- dplyr::group_by(x$signal, !!!orig_groups$signal)
   x$events <- dplyr::group_by(x$events, !!!orig_groups$events)
@@ -135,7 +141,7 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
 #' Bind eeg_lst objects.
 #'
 #' Binds eeg_lst and throws a warning if there is a mismatch in the channel information.
-#' 
+#'
 #' @param ... eeg_lst objects to combine.
 #'
 #' @return An \code{eeg_lst} object.
@@ -154,22 +160,26 @@ bind <- function(...) {
   purrr::iwalk(
     eeg_lsts[seq(2, length(eeg_lsts))],
     ~if (!identical(channels_tbl(eeg_lsts[[1]]), channels_tbl(.x))) {
-    warning("Objects with different channels information, see below\n\n", "File ", 
-      as.character(as.numeric(.y) + 1)," ... \n",
-    paste0(
-      capture.output(setdiff(channels_tbl(eeg_lsts[[1]]), channels_tbl(.x))),
-       collapse = "\n"),
-    "\n\n ... in comparison with file 1 ...\n\n",
-    paste0(
-    capture.output(setdiff(channels_tbl(.x), channels_tbl(eeg_lsts[[1]]))),
-           collapse = "\n")
-      , call. = FALSE)
+      warning("Objects with different channels information, see below\n\n", "File ",
+        as.character(as.numeric(.y) + 1), " ... \n",
+        paste0(
+          capture.output(setdiff(channels_tbl(eeg_lsts[[1]]), channels_tbl(.x))),
+          collapse = "\n"
+        ),
+        "\n\n ... in comparison with file 1 ...\n\n",
+        paste0(
+          capture.output(setdiff(channels_tbl(.x), channels_tbl(eeg_lsts[[1]]))),
+          collapse = "\n"
+        )
+        ,
+        call. = FALSE
+      )
     }
   )
 
   # Binding
   # .id of the new eggbles needs to be adapted
-  
+
   add_ids <- purrr::map_int(eeg_lsts, ~max(.x$signal$.id)) %>%
     cumsum() %>%
     dplyr::lag(default = 0) %>%
@@ -195,8 +205,9 @@ bind <- function(...) {
 
 
   new_eeg_lst <- new_eeg_lst(
-    signal = signal, events = events, segments = segments) %>% 
-     validate_eeg_lst()
+    signal = signal, events = events, segments = segments
+  ) %>%
+    validate_eeg_lst()
   message(say_size(new_eeg_lst))
   new_eeg_lst
 }
@@ -226,22 +237,22 @@ event_to_ch_NA <- function(x, ...) {
 
 #' @export
 event_to_ch_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
-                              drop_events = TRUE) {
+                                   drop_events = TRUE) {
   dots <- rlang::enquos(...)
 
 
   # dots <- rlang::quos(type == "Bad Interval")
 
-  # Hack for match 2 columns with 2 columns, similar to semi_join but allowing 
-  #for assignment
+  # Hack for match 2 columns with 2 columns, similar to semi_join but allowing
+  # for assignment
   baddies <- dplyr::filter(x$events, !!!dots)
 
   if (all_chans) baddies <- dplyr::mutate(baddies, .channel = NA)
 
   # For the replacement in parts of the segments
-  b_chans <- dplyr::filter(baddies, !is.na(.channel)) %>% 
-              .$.channel %>% 
-              unique()
+  b_chans <- dplyr::filter(baddies, !is.na(.channel)) %>%
+    .$.channel %>%
+    unique()
   for (c in b_chans) {
     b <- dplyr::filter(baddies, .channel == c & !is.na(.channel))
     if (!entire_seg) {
@@ -276,9 +287,7 @@ event_to_ch_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
     x$events <- suppressMessages(dplyr::anti_join(
       x$events,
       dplyr::filter(x$events, !!!dots)
-    )) 
+    ))
   }
   validate_eeg_lst(x)
 }
-
-

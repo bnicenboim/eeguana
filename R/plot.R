@@ -89,19 +89,19 @@ plot_topo <- function(x, method = "MBA", ...) {
 #' @export
 plot_topo.eeg_lst <- function(x, method = "MBA", ...) {
   # grouping_vars <- colnames(x$segments) %>% setdiff(c(".id", "segment"))
-  grouping_vars <- group_vars(x$segments) 
-  chan_vars <- c(".x",".y")
+  grouping_vars <- group_vars(x$segments)
+  chan_vars <- c(".x", ".y")
   s_x <- summarize_by_id_tbl(x, mean, na.rm = TRUE) %>%
-    dplyr::group_by_at(c(grouping_vars, "channel",chan_vars)) %>%
+    dplyr::group_by_at(c(grouping_vars, "channel", chan_vars)) %>%
     dplyr::summarize(A = mean(mean, na.rm = TRUE)) %>%
-    dplyr::group_by_at(grouping_vars)  %>%
-    dplyr::rename(x = .x, y =.y)
+    dplyr::group_by_at(grouping_vars) %>%
+    dplyr::rename(x = .x, y = .y)
 
 
   grid <- interpolate_xy(s_x, x = x, y = y, value = A, method = "MBA", ...)
 
   plot <- grid %>%
-    ggplot(aes(x, y)) + 
+    ggplot(aes(x, y)) +
 
     geom_raster(aes(fill = A), interpolate = F, hjust = 0.5, vjust = 0.5) +
     geom_contour(aes(z = A)) +
@@ -111,13 +111,13 @@ plot_topo.eeg_lst <- function(x, method = "MBA", ...) {
       colours = c("darkred", "yellow", "green", "darkblue"),
       values = c(1.0, 0.75, 0.5, 0.25, 0)
     ) +
-    ggplot2::theme_bw() 
+    ggplot2::theme_bw()
 
-    if(length(grouping_vars)>0) {
-      plot <- plot + facet_wrap(grouping_vars)
-    }
+  if (length(grouping_vars) > 0) {
+    plot <- plot + facet_wrap(grouping_vars)
+  }
 
-plot
-    # scale_fill_distiller(palette = "RdBu", guide = "colourbar") + #, oob = scales::squish
+  plot
+  # scale_fill_distiller(palette = "RdBu", guide = "colourbar") + #, oob = scales::squish
   # scale_fill_viridis_c(option="B") +
 }
