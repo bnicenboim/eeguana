@@ -56,6 +56,9 @@
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">Changelog</a>
+</li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
@@ -151,7 +154,7 @@
 <span class="co">#&gt; attr(,"class")</span>
 <span class="co">#&gt; [1] "eeg_lst"</span></code></pre></div>
 <p>It provides a summary:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(faces)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/summary">summary</a></span>(faces)
 <span class="co">#&gt; # EEG data (eeg_lst) from the following channels:</span>
 <span class="co">#&gt; # A tibble: 34 x 11</span>
 <span class="co">#&gt;    type  .name .reference resolution unit  radius theta   phi    .x    .y</span>
@@ -204,9 +207,9 @@
 <p><img src="brainvision_files_files/figure-html/unnamed-chunk-5-1.png" width="100%"></p>
 <p>Some intervals were marked as “bad” by BrainVision, and so we’ll remove them from the data. We’ll also segment and baseline the data. In this experiment, the trigger “s70” was used for faces and “s71” for no faces. We’ll segment the data using these two triggers.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces_segs &lt;-<span class="st"> </span>faces <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">               </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/segment">segment</a></span>(description <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">"s70"</span>, <span class="st">"s71"</span>), 
+<span class="st">               </span><span class="kw">segment</span>(description <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">"s70"</span>, <span class="st">"s71"</span>), 
                         <span class="dt">lim =</span> <span class="kw">c</span>(<span class="op">-</span>.<span class="dv">2</span>,.<span class="dv">25</span>)) <span class="op">%&gt;%</span>
-<span class="st">               </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/event_to_ch_NA">event_to_ch_NA</a></span>(type <span class="op">==</span><span class="st"> "Bad Interval"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">               </span><span class="kw">event_to_ch_NA</span>(type <span class="op">==</span><span class="st"> "Bad Interval"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">               </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/ch_baseline">ch_baseline</a></span>()
 <span class="co">#&gt; # Total of 200 segments found.</span>
 <span class="co">#&gt; # Object size in memory 12.7 MB after segmentation.</span></code></pre></div>

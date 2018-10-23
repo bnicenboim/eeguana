@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Display information of the eeg_lst object. — info • eeguana</title>
+<title>Segments an eeg_lst. — segment.eeg_lst • eeguana</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -30,16 +30,12 @@
 
 
 
-<meta property="og:title" content="Display information of the eeg_lst object. — info" />
+<meta property="og:title" content="Segments an eeg_lst. — segment.eeg_lst" />
 
-<meta property="og:description" content="
-nchannels(): Returns the number of channels.
-channel_names(): Returns a vector with the name of the channels.
-nchannels(): Returns the number of channels.
-nsamples(): Returns the number of samples of the recording (or segments).
-summary(): Prints a summary of the eeg_lst object. (It also returns a list.)
-count_complete_cases_tbl(): Returns a table with the number of complete segments by specified groups.
-" />
+<meta property="og:description" content="Subdivides of the EEG into different segments or epochs. When there is no
+segmentation, the eeg_lst contain one segment. (Fieldtrip calls the
+segment &quot;trials&quot;.) The limits of segment are inclusive: If, for
+example, lim =c(0,0), the segment would contain only sample 1." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -95,6 +91,9 @@ count_complete_cases_tbl(): Returns a table with the number of complete segments
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">Changelog</a>
+</li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
@@ -116,38 +115,47 @@ count_complete_cases_tbl(): Returns a table with the number of complete segments
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Display information of the eeg_lst object.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/out.R'><code>R/out.R</code></a></small>
-    <div class="hidden name"><code>info.Rd</code></div>
+    <h1>Segments an eeg_lst.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/tables_transformation.R'><code>R/tables_transformation.R</code></a></small>
+    <div class="hidden name"><code>segment.eeg_lst.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <ul>
-<li><p><code>nchannels()</code>: Returns the number of channels.</p></li>
-<li><p><code>channel_names()</code>: Returns a vector with the name of the channels.</p></li>
-<li><p><code>nchannels()</code>: Returns the number of channels.</p></li>
-<li><p><code>nsamples()</code>: Returns the number of samples of the recording (or segments).</p></li>
-<li><p><code>summary()</code>: Prints a summary of the eeg_lst object. (It also returns a list.)</p></li>
-<li><p><code>count_complete_cases_tbl()</code>: Returns a table with the number of complete segments by specified groups.</p></li>
-</ul>
+    <p>Subdivides of the EEG into different segments or epochs. When there is no
+segmentation, the <code>eeg_lst</code> contain one segment. (Fieldtrip calls the
+segment "trials".) The limits of <code>segment</code> are inclusive: If, for
+example, lim =c(0,0), the segment would contain only sample 1.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>channel_names</span>(<span class='no'>x</span>, <span class='no'>...</span>)
-
-<span class='fu'>nchannels</span>(<span class='no'>x</span>, <span class='no'>...</span>)
-
-<span class='fu'>nsamples</span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='co'># S3 method for eeg_lst</span>
+<span class='fu'>segment</span>(<span class='no'>x</span>, <span class='no'>...</span>, <span class='kw'>lim</span> <span class='kw'>=</span> <span class='fu'>c</span>(-<span class='fl'>0.5</span>, <span class='fl'>0.5</span>), <span class='kw'>unit</span> <span class='kw'>=</span> <span class='st'>"seconds"</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>An eeg_lst object.</p></td>
+      <td><p>An <code>eeg_lst</code> object.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Description of the event.</p></td>
+    </tr>
+    <tr>
+      <th>lim</th>
+      <td><p>Vector indicating the time before and after the event. Or matrix with two columns, with nrow=total number of segments</p></td>
+    </tr>
+    <tr>
+      <th>unit</th>
+      <td><p>Unit</p></td>
     </tr>
     </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>An <code>eeg_lst</code>.</p>
     
 
   </div>
@@ -155,7 +163,9 @@ count_complete_cases_tbl(): Returns a table with the number of complete segments
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+      
+      <li><a href="#value">Value</a></li>
+          </ul>
 
   </div>
 </div>

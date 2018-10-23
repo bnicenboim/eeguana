@@ -1,14 +1,16 @@
 #' Convert an eeg_lst to a tibble.
 #'
-#' Convert the signal table from wide to long format, and optionally \code{left_join}s the segment table
+#' Convert the signal table from wide to long format, and optionally `left_join`s the segment table
 #'
-#' @param x An \code{eeg_lst} object.
+#' @param x An `eeg_lst` object.
 #' @param add_segments Whether the segments table
 #'
 #' `as_data_frame` and `as.tibble` are aliases.
 #' @return A tibble.
 #'
 #' @importFrom magrittr %>%
+#'
+#' @family tibble
 #'
 #' @export
 as_tibble.eeg_lst <- function(x, add_segments = TRUE) {
@@ -28,6 +30,7 @@ as_tibble.eeg_lst <- function(x, add_segments = TRUE) {
 }
 
 
+
 #' @export
 as_tibble.signal_tbl <- function(x) {
   x <- declass(x)$tbl
@@ -37,22 +40,18 @@ as_tibble.signal_tbl <- function(x) {
 
 
 
-#' Convert an eeg_lst into a summary long-data frame based on a statistics.
-#'
-#' @param x An \code{eeg_lst} object.
-#' @param .funs A statistics to be used on every segment
-#' @param ... Other arguments passed on to \code{.funs}. See \link{dplyr-package} help.
-#'
-#' @return A long tibble.
-#'
-#'
 #' @export
 summarize_by_id_tbl <- function(x, ...) {
   UseMethod("summarize_by_id_tbl")
 }
 
-
-#' @export
+#' Convert an eeg_lst into a summary long-data frame based on a statistics.
+#' @param x An `eeg_lst` object.
+#' @param ... Other arguments passed on to `.funs`. See \link{dplyr-package} help.
+#'
+#' @return A long tibble.
+#'
+#' @family summarize
 summarize_by_id_tbl.eeg_lst <- function(x, .funs = mean, ...) {
   funs_name <- rlang::enquo(.funs)
 
@@ -97,14 +96,13 @@ as.tibble.eeg_lst <- as_tibble.eeg_lst
 
 #' Convert an eeg_lst to a (base) data frame.
 #'
-#' @param x An \code{eeg_lst} object.
-#' @param add_segments
 #' @param ... Other arguments passed on to individual methods.
 #'
 #' @return A tibble.
 #'
 #' @importFrom magrittr %>%
 #'
+#' @family tibble
 #' @export
 as.data.frame.eeg_lst <- function(...) {
   as.data.frame(as_tibble.eeg_lst(...))

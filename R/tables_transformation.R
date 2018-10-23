@@ -1,25 +1,26 @@
-#' Segments an eeg_lst.
-#'
-#' Subdivides of the EEG into different segments or epochs. When there is no
-#' segmentation, the \code{eeg_lst} contain one segment. (Fieldtrip calls the
-#' segment "trials".) The limits of \code{segment} are inclusive: If, for
-#' example, lim =c(0,0), the segment would contain only sample 1.
-#'
-#' @param x An \code{eeg_lst} object.
-#' @param ... Description of the event.
-#' @param lim Vector indicating the time before and after the event. Or matrix with two columns, with nrow=total number of segments
-#'
-#' @return An \code{eeg_lst}.
-#'
-#' @importFrom magrittr %>%
-#'
 #' @export
 segment <- function(x, ...) {
   UseMethod("segment")
 }
 
-
+#' Segments an eeg_lst.
+#'
+#' Subdivides of the EEG into different segments or epochs. When there is no
+#' segmentation, the `eeg_lst` contain one segment. (Fieldtrip calls the
+#' segment "trials".) The limits of `segment` are inclusive: If, for
+#' example, lim =c(0,0), the segment would contain only sample 1.
+#'
+#' @param x An `eeg_lst` object.
+#' @param ... Description of the event.
+#' @param lim Vector indicating the time before and after the event. Or matrix with two columns, with nrow=total number of segments
+#' @param unit Unit
+#'
+#' @return An `eeg_lst`.
+#'
+#' @importFrom magrittr %>%
+#'
 #' @export
+#' 
 segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
   dots <- rlang::enquos(...)
   # dots <- rlang::quos(description == "s121")
@@ -144,7 +145,7 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
 #'
 #' @param ... eeg_lst objects to combine.
 #'
-#' @return An \code{eeg_lst} object.
+#' @return An `eeg_lst` object.
 #'
 #' @importFrom magrittr %>%
 #'
@@ -213,28 +214,27 @@ bind <- function(...) {
 }
 
 
+#' @export
+event_to_ch_NA <- function(x, ...) {
+  UseMethod("event_to_ch_NA")
+}
+
 #' Remove (transform to NA) problematic events from an eeg_lst.
 #'
-#' @param x An \code{eeg_lst} object.
+#' @param x An `eeg_lst` object.
 #' @param ... Description of the problematic event.
-#' @param all_chans If set to TRUE,
-#'     it will consider samples from all channels (Default:  all_chans = FALSE).
-#' @param entire_seg If set to FALSE, it will consider only the marked part of the segment,
+#' @param all_chans If set to `TRUE`,
+#'     it will consider samples from all channels (Default:  `all_chans = FALSE`).
+#' @param entire_seg If set to `FALSE`, it will consider only the marked part of the segment,
 #'     otherwise it will consider the entire segment (Default: entire_seg = TRUE). Setting it to FALSE can make the function very slow.
 #' @param drop_events
 #'
-#' @examples
 #'
 #' @return An eeg_lst.
 #'
 #' @importFrom fastmatch %fin%
 #' @importFrom magrittr %>%
 #'
-#' @export
-event_to_ch_NA <- function(x, ...) {
-  UseMethod("event_to_ch_NA")
-}
-
 #' @export
 event_to_ch_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
                                    drop_events = TRUE) {

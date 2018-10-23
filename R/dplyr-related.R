@@ -1,12 +1,10 @@
 #'  The by-sample (or by-row) mean of the specified channels.
 #'
-#' Wrapper of \code{rowMeans} that performs a by-sample mean of the specified channels.
+#' Wrapper of `rowMeans` that performs a by-sample mean of the specified channels.
 #'
 #' @param ... A channel or a group of channels
-
 #' @return A new channel.
-
-#' @family
+#' @family channel
 #'
 #' @export
 #'
@@ -52,7 +50,7 @@ chs_mean <- function(..., na.rm = FALSE) {
 #' @param unit "seconds" (or "s"), "milliseconds" (or "ms")
 #' @param sampling_rate
 #'
-#' @return A \code{sample_id} object.
+#' @return A `sample_id` object.
 #'
 #' @importFrom magrittr %>%
 #'
@@ -72,7 +70,7 @@ as_sample_id <- function(x, unit = "seconds", sampling_rate) {
 #' Convert a sample point into a time point.
 #'
 #'
-#' @param x A \code{sample_id} object.
+#' @param x A `sample_id` object.
 #' @param unit "seconds" (or "s"), "milliseconds" (or "ms")
 #'
 #' @return A vector of times.

@@ -5,9 +5,9 @@
 #' @param zero Time zero marker. By default: type == "Time 0"
 #' @param recording Recording name, by default is the file name.
 #'
-#' @return An \code{eeg_lst} object with signal and event from file_name.dat,
+#' @return An `eeg_lst` object with signal and event from file_name.dat,
 #' file_name.vhdr, and file_name.vmrk.
-#'
+#' @family read
 #' @importFrom magrittr %>%
 #'
 #' @export
@@ -53,8 +53,10 @@ read_vhdr <- function(file, sep = type == "New Segment", zero = type == "Time 0"
 #' @param file A .mat file containing a fieldtrip struct.
 #' @param recording Recording name, by default is the file name.
 #'
-#' @return An \code{eeg_lst} object with signal and event from a matlab file.
+#' @return An `eeg_lst` object with signal and event from a matlab file.
 #'
+#' @family read
+#' 
 #' @importFrom magrittr %>%
 #'
 #' @export

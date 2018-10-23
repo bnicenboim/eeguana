@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Summary of eeg_lst information. — summary.eeg_lst • eeguana</title>
+<title>Count number of complete segments of an eeg_lst object. — count_complete_cases_tbl.eeg_lst • eeguana</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Summary of eeg_lst information. — summary.eeg_lst" />
+<meta property="og:title" content="Count number of complete segments of an eeg_lst object. — count_complete_cases_tbl.eeg_lst" />
 
-<meta property="og:description" content="Summary of eeg_lst information." />
+<meta property="og:description" content="Count number of complete segments of an eeg_lst object." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -88,6 +88,9 @@
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">Changelog</a>
+</li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
@@ -109,36 +112,61 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Summary of eeg_lst information.</h1>
+    <h1>Count number of complete segments of an eeg_lst object.</h1>
     <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/out.R'><code>R/out.R</code></a></small>
-    <div class="hidden name"><code>summary.eeg_lst.Rd</code></div>
+    <div class="hidden name"><code>count_complete_cases_tbl.eeg_lst.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Summary of eeg_lst information.</p>
+    <p>Count number of complete segments of an eeg_lst object.</p>
     
     </div>
 
     <pre class="usage"><span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>summary</span>(<span class='no'>object</span>)</pre>
+<span class='fu'>count_complete_cases_tbl</span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>object</th>
-      <td><p>An eeg_lst object.</p></td>
+      <th>x</th>
+      <td><p>An <code>eeg_lst</code> object.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Variables to group by.</p></td>
     </tr>
     </table>
     
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
+    <p>A tbl.</p>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p>Other summarize: <code>summarize_by_id_tbl.eeg_lst</code>,
+  <code>summary</code></p>
+<p>Other summarize: <code>summarize_by_id_tbl.eeg_lst</code>,
+  <code>summary</code></p></div>
+    
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='no'>faces_segs_some</span> <span class='kw'>%&gt;%</span> <span class='fu'>count_complete_cases</span>(<span class='no'>recording</span>, <span class='no'>description</span>)
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+      
+      <li><a href="#value">Value</a></li>
+
+      <li><a href="#see-also">See also</a></li>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>
