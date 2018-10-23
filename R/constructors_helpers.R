@@ -11,6 +11,10 @@ declass <- function(signal) {
   list(tbl = declassed_signal, attr = attr)
 }
 
+#' @param tbl 
+#'
+#' @param attr 
+#'
 #' @noRd
 reclass <- function(tbl, attr) {
   old_attr_tbl <- attributes(tbl)
@@ -35,6 +39,10 @@ reclass <- function(tbl, attr) {
   tbl
 }
 
+#' @param values 
+#'
+#' @param sampling_rate 
+#'
 #' @noRd
 new_sample_id <- function(values, sampling_rate) {
   if (all(!is.na(values)) & any(values != round(values))) {
@@ -54,6 +62,8 @@ new_sample_id <- function(values, sampling_rate) {
 
 
 
+#' @param sample_id 
+#'
 #' @noRd
 validate_sample_id <- function(sample_id) {
   if (!is.integer(sample_id)) {
@@ -81,6 +91,8 @@ new_channel <- function(values, channel_info = list()) {
   values
 }
 
+#' @param channel 
+#'
 #' @noRd
 validate_channel <- function(channel) {
   if (!is.numeric(channel)) {
@@ -103,6 +115,12 @@ validate_channel <- function(channel) {
   channel
 }
 
+#' @param signal_matrix 
+#'
+#' @param ids 
+#' @param sample_ids 
+#' @param channel_info 
+#'
 #' @noRd
 new_signal <- function(signal_matrix = matrix(), ids = c(), sample_ids = c(), channel_info = dplyr::tibble()) {
   raw_signal <- dplyr::as_tibble(signal_matrix)
@@ -116,6 +134,10 @@ new_signal <- function(signal_matrix = matrix(), ids = c(), sample_ids = c(), ch
   signal
 }
 
+#' @param channels 
+#'
+#' @param channel_info 
+#'
 #' @noRd
 update_channel_meta_data <- function(channels, channel_info) {
   if (nrow(channel_info) == 0 | is.null(channel_info)) {
@@ -136,6 +158,11 @@ update_channel_meta_data <- function(channels, channel_info) {
   channels
 }
 
+#' @param signal 
+#'
+#' @param events 
+#' @param segments 
+#'
 #' @noRd
 new_eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
   x <- list(
@@ -148,6 +175,8 @@ new_eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
   )
 }
 
+#' @param x 
+#'
 #' @noRd
 validate_eeg_lst <- function(x) {
   validate_signal(x$signal)
@@ -161,6 +190,8 @@ validate_eeg_lst <- function(x) {
   x
 }
 
+#' @param signal 
+#'
 #' @noRd
 validate_signal <- function(signal) {
   # Validates .id
@@ -185,6 +216,10 @@ validate_signal <- function(signal) {
   signal
 }
 
+#' @param events 
+#'
+#' @param channels 
+#'
 #' @noRd
 validate_events <- function(events, channels) {
   if (!is.integer(events$.sample_0)) {
@@ -209,6 +244,8 @@ validate_events <- function(events, channels) {
   events
 }
 
+#' @param segments 
+#'
 #' @noRd
 validate_segments <- function(segments) {
   # Validates .id

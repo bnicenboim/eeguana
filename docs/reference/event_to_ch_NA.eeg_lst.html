@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Convert an eeg_lst into a summary long-data frame based on a statistics. — summarize_by_id_tbl • eeguana</title>
+<title>Remove (transform to NA) problematic events from an eeg_lst. — event_to_ch_NA.eeg_lst • eeguana</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Convert an eeg_lst into a summary long-data frame based on a statistics. — summarize_by_id_tbl" />
+<meta property="og:title" content="Remove (transform to NA) problematic events from an eeg_lst. — event_to_ch_NA.eeg_lst" />
 
-<meta property="og:description" content="Convert an eeg_lst into a summary long-data frame based on a statistics." />
+<meta property="og:description" content="Remove (transform to NA) problematic events from an eeg_lst." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -88,6 +88,9 @@
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">Changelog</a>
+</li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
@@ -109,18 +112,20 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Convert an eeg_lst into a summary long-data frame based on a statistics.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/to_tbl.R'><code>R/to_tbl.R</code></a></small>
-    <div class="hidden name"><code>summarize_by_id_tbl.Rd</code></div>
+    <h1>Remove (transform to NA) problematic events from an eeg_lst.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/tables_transformation.R'><code>R/tables_transformation.R</code></a></small>
+    <div class="hidden name"><code>event_to_ch_NA.eeg_lst.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Convert an eeg_lst into a summary long-data frame based on a statistics.</p>
+    <p>Remove (transform to NA) problematic events from an eeg_lst.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>summarize_by_id_tbl</span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='co'># S3 method for eeg_lst</span>
+<span class='fu'>event_to_ch_NA</span>(<span class='no'>x</span>, <span class='no'>...</span>, <span class='kw'>all_chans</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>entire_seg</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>drop_events</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -131,17 +136,27 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Other arguments passed on to <code>.funs</code>. See dplyr-package help.</p></td>
+      <td><p>Description of the problematic event.</p></td>
     </tr>
     <tr>
-      <th>.funs</th>
-      <td><p>A statistics to be used on every segment</p></td>
+      <th>all_chans</th>
+      <td><p>If set to <code>TRUE</code>,
+it will consider samples from all channels (Default:  <code>all_chans = FALSE</code>).</p></td>
+    </tr>
+    <tr>
+      <th>entire_seg</th>
+      <td><p>If set to <code>FALSE</code>, it will consider only the marked part of the segment,
+otherwise it will consider the entire segment (Default: entire_seg = TRUE). Setting it to FALSE can make the function very slow.</p></td>
+    </tr>
+    <tr>
+      <th>drop_events</th>
+      <td></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A long tibble.</p>
+    <p>An eeg_lst.</p>
     
 
   </div>

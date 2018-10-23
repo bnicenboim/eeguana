@@ -85,6 +85,9 @@
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">Changelog</a>
+</li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
@@ -181,7 +184,7 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="count_complete_cases_tbl.html">count_complete_cases_tbl()</a></code> </p>
+          <p><code><a href="count_complete_cases_tbl.eeg_lst.html">count_complete_cases_tbl(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
         </td>
         <td><p>Count number of complete segments of an eeg_lst object.</p></td>
       </tr><tr>
@@ -190,6 +193,12 @@
           <p><code><a href="downsample.html">downsample()</a></code> </p>
         </td>
         <td><p>Downsample EEG data</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="dplyr.html">mutate(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">mutate_(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">transmute(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">transmute_(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">summarise_(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">summarise(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">groups(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">group_by_(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">group_by(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">ungroup(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">group_vars(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">filter_(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">filter(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">select(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">rename(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">left_join(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">semi_join(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">anti_join(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Mutate/transmute/select/rename channels with signals,  segments.</p></td>
       </tr><tr>
         
         <td>
@@ -205,15 +214,9 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="event_to_ch_NA.html">event_to_ch_NA()</a></code> </p>
+          <p><code><a href="event_to_ch_NA.eeg_lst.html">event_to_ch_NA(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
         </td>
         <td><p>Remove (transform to NA) problematic events from an eeg_lst.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="info.html">channel_names()</a></code> <code><a href="info.html">nchannels()</a></code> <code><a href="info.html">nsamples()</a></code> </p>
-        </td>
-        <td><p>Display information of the eeg_lst object.</p></td>
       </tr><tr>
         
         <td>
@@ -242,12 +245,6 @@ This function returns  TRUE for samples.</p></td>
         </td>
         <td><p>Test if the object is a  signal
 This function returns  TRUE for signals.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="mutate_.eeg_lst.html">mutate_(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Mutate/transmute/select/rename channels with signals,  segments.</p></td>
       </tr><tr>
         
         <td>
@@ -293,7 +290,7 @@ This function returns  TRUE for signals.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="segment.html">segment()</a></code> </p>
+          <p><code><a href="segment.eeg_lst.html">segment(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
         </td>
         <td><p>Segments an eeg_lst.</p></td>
       </tr><tr>
@@ -305,15 +302,15 @@ This function returns  TRUE for signals.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="summarize_by_id_tbl.html">summarize_by_id_tbl()</a></code> </p>
+          <p><code><a href="summarize_by_id_tbl.eeg_lst.html">summarize_by_id_tbl(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
         </td>
         <td><p>Convert an eeg_lst into a summary long-data frame based on a statistics.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="summary.eeg_lst.html">summary(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
+          <p><code><a href="summary.html">channel_names(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">nchannels(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">channels_tbl(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">`channels_tbl<-`(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">nsamples(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">summary(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">print(<i>&lt;eeg_summary&gt;</i>)</a></code> </p>
         </td>
-        <td><p>Summary of eeg_lst information.</p></td>
+        <td><p>Display information of the eeg_lst object.</p></td>
       </tr>
     </tbody>
     </table>

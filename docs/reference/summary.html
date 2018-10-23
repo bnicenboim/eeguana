@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Mutate/transmute/select/rename channels with signals,  segments. — mutate_.eeg_lst • eeguana</title>
+<title>Display information of the eeg_lst object. — summary • eeguana</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -30,9 +30,17 @@
 
 
 
-<meta property="og:title" content="Mutate/transmute/select/rename channels with signals,  segments. — mutate_.eeg_lst" />
+<meta property="og:title" content="Display information of the eeg_lst object. — summary" />
 
-<meta property="og:description" content="Manipulate the signal and the segments table of an eeg_lst." />
+<meta property="og:description" content="
+nchannels(): Returns the number of channels.
+channel_names(): Returns a vector with the name of the channels.
+nchannels(): Returns the number of channels.
+nsamples(): Returns the number of samples of the recording (or segments).
+summary(): Prints a summary of the eeg_lst object. (It also returns a list.)
+" />
+
+<meta property="og:description" content="Summary of eeg_lst information." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -88,6 +96,9 @@
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">Changelog</a>
+</li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
@@ -109,76 +120,73 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Mutate/transmute/select/rename channels with signals,  segments.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/dplyr-fun.R'><code>R/dplyr-fun.R</code></a></small>
-    <div class="hidden name"><code>mutate_.eeg_lst.Rd</code></div>
+    <h1>Display information of the eeg_lst object.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/out.R'><code>R/out.R</code></a></small>
+    <div class="hidden name"><code>summary.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Manipulate the signal and the segments table of an eeg_lst.</p>
+    <ul>
+<li><p><code>nchannels()</code>: Returns the number of channels.</p></li>
+<li><p><code>channel_names()</code>: Returns a vector with the name of the channels.</p></li>
+<li><p><code>nchannels()</code>: Returns the number of channels.</p></li>
+<li><p><code>nsamples()</code>: Returns the number of samples of the recording (or segments).</p></li>
+<li><p><code>summary()</code>: Prints a summary of the eeg_lst object. (It also returns a list.)</p></li>
+</ul>
+
+    <p>Summary of eeg_lst information.</p>
     
     </div>
 
     <pre class="usage"><span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>mutate_</span>(<span class='no'>.data</span>, <span class='no'>...</span>, <span class='kw'>.dots</span> <span class='kw'>=</span> <span class='fu'>list</span>())</pre>
+<span class='fu'>channel_names</span>(<span class='no'>x</span>)
+
+<span class='co'># S3 method for eeg_lst</span>
+<span class='fu'>nchannels</span>(<span class='no'>x</span>)
+
+<span class='co'># S3 method for eeg_lst</span>
+<span class='fu'>channels_tbl</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for eeg_lst</span>
+<span class='fu'>channels_tbl</span>(<span class='no'>x</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
+
+<span class='co'># S3 method for eeg_lst</span>
+<span class='fu'>nsamples</span>(<span class='no'>x</span>)
+
+<span class='co'># S3 method for eeg_lst</span>
+<span class='fu'>summary</span>(<span class='no'>object</span>)
+
+<span class='co'># S3 method for eeg_summary</span>
+<span class='fu'>print</span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>.data</th>
-      <td><p>An eeg_lst.</p></td>
+      <th>x</th>
+      <td><p>An eeg_lst object.</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>Name-value pairs of expressions; see  dplyr-package for more help.</p></td>
+      <th>object</th>
+      <td><p>An eeg_lst object.</p></td>
     </tr>
     </table>
     
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <p>An eeg_lst object.</p>
-    
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>Wrappers for dplyr's commands that act on different parts
-<code>eggble</code> objects.
-The following wrappers have been implemented for <code>eeg_lst</code> objects:</p><ul>
-<li><p><code>summarize()</code> summarizes the channel of the signal table</p></li>
-<li><p><code>summarize_all()</code> summarizes all the channels of the signal table.</p></li>
-<li><p><code>mutate()</code> adds new variables and preserves existing ones. Variables that are a function of a channel are added to the signal table, and other variables are added to the segments table.</p></li>
-<li><p><code>mutate_all()</code> mutates all the channels of the signal table.</p></li>
-<li><p><code>transmute()</code> like <code>mutate</code> but drops non-used variables of the referred table.</p></li>
-<li><p><code>select()</code> keeps only the mentioned variables from the refered table, except for the obligatory columns starting with <code>.</code>.</p></li>
-<li><p><code>rename()</code>: keeps all variables.</p></li>
-<li><p><code>filter()</code>: finds segments/samples where conditions are true. Segments/samples where the condition evaluates to NA are dropped.</p></li>
-<li><p><code>left_join()</code>: left-joins an external table to one of the segments of the eeg_lst.</p></li>
-<li><p><code>semi_join()</code>: semi-joins an external table to one of the segments of the eeg_lst.</p></li>
-<li><p><code>anti_join()</code>: anti-joins an external table to one of the segments of the eeg_lst.</p></li>
-<li><p><code>group_by()</code>: allows that operations would be performed "by group".</p></li>
-<li><p><code>ungroup()</code>: removes the grouping created by group_by.</p></li>
-</ul>
-    <p>These commands always return the entire eeg_lst so that
-they can be ' piped using magrittr's pipe, <!-- %&gt;%. --></p>
+    <div class='dont-index'><p>Other summarize: <code>count_complete_cases_tbl.eeg_lst</code>,
+  <code>summarize_by_id_tbl.eeg_lst</code></p></div>
     
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='co'># NOT RUN {</span>
-<span class='no'>faces_segs</span> <span class='kw'>%&gt;%</span> <span class='fu'>select</span>(<span class='no'>O1</span>, <span class='no'>O2</span>, <span class='no'>P7</span>, <span class='no'>P8</span>)
-<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#value">Value</a></li>
-
-      <li><a href="#details">Details</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
+      <li><a href="#see-also">See also</a></li>
+          </ul>
 
   </div>
 </div>

@@ -1,8 +1,9 @@
 #' Simple plot an eeg_lst object.
-#' @param x An \code{eeg_lst} object.
+#' @param x An `eeg_lst` object.
 #' @param max_sample Downsample to approximately 2000 samples by default.
 #'
-#'
+#' @family plot
+#' 
 #' @return A ggplot object
 #'
 #' @importFrom magrittr %>%
@@ -30,10 +31,10 @@ plot.eeg_lst <- function(x, max_sample = 2000) {
 }
 
 #' ggplot object based on an eeg_lst object.
-#' @param x An \code{eeg_lst} object.
+#' @param x An `eeg_lst` object.
 #' @param max_sample Downsample to approximately 2000 samples by default.
 #'
-#'
+#' @family plot
 #' @return A ggplot object
 #'
 #' @importFrom magrittr %>%
@@ -66,17 +67,18 @@ plot_gg.eeg_lst <- function(x, ..., max_sample = 2000) {
 
 #' A topographic plot of an eeg_lst object.
 #'
-#' Create a default topographic plot based on the segments of the \code{eeg_lst} object.
+#' Create a default topographic plot based on the segments of the `eeg_lst` object.
 #'
 #' The following methods of interpolation are available :
-#' \itemize{
-#' \item \code{"MBA"} (Default) Multilevel B-splines using the function \code{mba.surf}; requires the package \code{MBA}.
-#' }
 #'
-#' @param x An \code{eeg_lst} object.
+#' * `"MBA"` (Default) Multilevel B-splines using the function `mba.surf`; requires the package `MBA`.
+
+#'
+#' @param x An `eeg_lst` object.
 #' @param method Method of interpolation.
 #' @param ... Various arguments passed to the interpolation method.
 #'
+#' @family plot
 #'
 #' @return A ggplot object
 #'

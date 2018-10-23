@@ -1,4 +1,11 @@
 #' Builds an eeg_lst.
+#'
+#' @param signal 
+#' @param events 
+#' @param segments 
+#' 
+#' @family eeg_lst
+#'
 #' @return A valid eggble.
 #' @export
 eeg_lst <- function(signal, events, segments) {
@@ -7,6 +14,14 @@ eeg_lst <- function(signal, events, segments) {
 
 
 #' Builds a signal table.
+#'
+#' @param signal_matrix 
+#' @param ids 
+#' @param sample_ids 
+#' @param channel_info 
+#' 
+#' @family signal_tbl
+#' 
 #' @return A valid signal table.
 #' @export
 signal <- function(signal_matrix, ids, sample_ids, channel_info) {
@@ -17,6 +32,9 @@ signal <- function(signal_matrix, ids, sample_ids, channel_info) {
 #' This function returns  TRUE for signals.
 #'
 #' @param x An object.
+#' 
+#' @family signal_tbl
+#'
 #' @return `TRUE` if the object inherits from the `signal_tbl` class.
 #' @export
 is_signal <- function(x) {
@@ -28,7 +46,10 @@ is_signal <- function(x) {
 #' This function returns  TRUE for eeg_lsts.
 #'
 #' @param x An object.
+#'
 #' @return `TRUE` if the object inherits from the `eeg_lst` class.
+#' 
+#' @family eeg_lst
 #' @export
 is_eeg_lst <- function(x) {
   class(x) == "eeg_lst"
@@ -36,6 +57,12 @@ is_eeg_lst <- function(x) {
 
 
 #' Builds a serie of sample numbers.
+#'
+#' @param values 
+#' @param sampling_rate 
+#'
+#' @family sample_id
+#' 
 #' @export
 #' @examples
 #'
@@ -48,6 +75,9 @@ sample_id <- function(values, sampling_rate) {
 #' This function returns  TRUE for samples.
 #'
 #' @param x An object.
+#' 
+#' @family sample_id
+#' 
 #' @return `TRUE` if the object inherits from the `sample` class.
 #' @export
 is_sample_id <- function(x) {
@@ -56,6 +86,16 @@ is_sample_id <- function(x) {
 
 
 #' Builds a channel.
+#'
+#' @param values 
+#' @param x 
+#' @param y 
+#' @param z 
+#' @param reference 
+#' @param ... 
+#'
+#' @family channel
+#'
 #' @export
 #' @examples
 #'
@@ -68,6 +108,9 @@ channel <- function(values, x = NA_real_, y = NA_real_, z = NA_real_, reference 
 #' This function returns  TRUE for channels.
 #'
 #' @param x An object.
+#'
+#' @family channel
+#' 
 #' @return `TRUE` if the object inherits from the `sampl` class.
 #' @export
 is_channel <- function(x) {

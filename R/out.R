@@ -1,39 +1,37 @@
 #' Display information of the eeg_lst object.
 #'
-#' \itemize{
-#' \item \code{nchannels()}: Returns the number of channels.
-#' \item \code{channel_names()}: Returns a vector with the name of the channels.
-#' \item \code{nchannels()}: Returns the number of channels.
-#' \item \code{nsamples()}: Returns the number of samples of the recording (or segments).
-#' \item \code{summary()}: Prints a summary of the eeg_lst object. (It also returns a list.)
-#' \item \code{count_complete_cases_tbl()}: Returns a table with the number of complete segments by specified groups.
-#' }
-#' @param x An eeg_lst object.
+#' * `nchannels()`: Returns the number of channels.
+#' * `channel_names()`: Returns a vector with the name of the channels.
+#' * `nchannels()`: Returns the number of channels.
+#' * `nsamples()`: Returns the number of samples of the recording (or segments).
+#' * `summary()`: Prints a summary of the eeg_lst object. (It also returns a list.)
 #'
-#' @name info
+#' @param x An eeg_lst object.
+#' 
+#' @family summarize
+#' 
+#' @name summary
 NULL
 # > NULL
 
-#'
-#' @rdname info
 #' @export
 channel_names <- function(x, ...) {
   UseMethod("channel_names")
 }
 
+#' @rdname summary
 #' @export
 channel_names.eeg_lst <- function(x) {
   setdiff(colnames(x$signal), obligatory_cols[["signal"]])
 }
 
 
-#'
-#' @rdname info
 #' @export
 nchannels <- function(x, ...) {
   UseMethod("nchannels")
 }
 
+#' @rdname summary
 #' @export
 nchannels.eeg_lst <- function(x) {
   ncol(x$signal) - length(obligatory_cols[["signal"]])
@@ -45,6 +43,8 @@ channels_tbl <- function(x, ...) {
   UseMethod("channels_tbl")
 }
 
+
+#' @rdname summary
 #' @export
 channels_tbl.eeg_lst <- function(x, ...) {
   dplyr::tibble(channel = channel_names(x)) %>%
@@ -60,6 +60,7 @@ channels_tbl.eeg_lst <- function(x, ...) {
   UseMethod("channels_tbl<-")
 }
 
+#' @rdname summary
 #' @export
 `channels_tbl<-.eeg_lst` <- function(x, value) {
   orig_names <- channel_names(x)
@@ -87,11 +88,12 @@ duration <- function(x) {
     .$duration
 }
 
-#' @rdname info
 #' @export
 nsamples <- function(x, ...) {
   UseMethod("nsamples")
 }
+
+#' @rdname summary
 #' @export
 nsamples.eeg_lst <- function(x) {
   duration(x) * sampling_rate(x)
@@ -101,6 +103,7 @@ nsamples.eeg_lst <- function(x) {
 #' Summary of eeg_lst information.
 #'
 #' @param object An eeg_lst object.
+#' @rdname summary
 #'
 #' @export
 summary.eeg_lst <- function(object) {
@@ -119,8 +122,8 @@ summary.eeg_lst <- function(object) {
   summ
 }
 
+#' @rdname summary
 #' @export
-
 print.eeg_summary <- function(x, ...) {
   cat(paste0("# EEG data (eeg_lst) from the following channels:\n"))
 
@@ -143,26 +146,28 @@ print.eeg_summary <- function(x, ...) {
   invisible(x)
 }
 
+
+#' @export
+count_complete_cases_tbl <- function(x, ...) {
+  UseMethod("count_complete_cases_tbl")
+}
 #' Count number of complete segments of an eeg_lst object.
 #'
-#' @param x An \code{eeg_lst} object.
+#' @param x An `eeg_lst` object.
 #' @param ... Variables to group by.
 #'
 #'
 #' @return A tbl.
 #'
 #' @importFrom magrittr %>%
+#' @family summarize
 #'
 #' @examples
 #' \dontrun{
 #'
 #' faces_segs_some %>% count_complete_cases(recording, description)
 #' }
-#' @export
-count_complete_cases_tbl <- function(x, ...) {
-  UseMethod("count_complete_cases_tbl")
-}
-
+#' @family summarize
 #' @export
 count_complete_cases_tbl.eeg_lst <- function(x, ...) {
   dots <- rlang::enquos(...)

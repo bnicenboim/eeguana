@@ -1,11 +1,13 @@
 #' Rereference channel.
 #'
-#' This function is meant to be used together with \code{mutate} or \code{mutate_all}. See the example
+#' This function is meant to be used together with `mutate` or `mutate_all`. See the example
 #'
 #' @param x A channel.
 #' @param ... Channels that will be averaged as the reference.
 #' @return A rereferenced channel.
 #' @export
+#'
+#' @family channel
 #'
 #' @examples
 #' \dontrun{
@@ -21,25 +23,23 @@ ch_rereference <- function(x, ..., na.rm = FALSE) {
 
 #' Downsample EEG data
 #'
-#' Downsample a signal by a factor \code{q}, using an FIR or IIR filter.
+#' Downsample a signal by a factor `q`, using an FIR or IIR filter.
 #' This is a wrapper for \link{decimate} from the
 #' \link{signal} package, see its documentation for details. Notice that
 #' the code of the \link{signal} package might be outdated.
 #'
 #' A factor q larger than 13 can result in NAs. To avoid this,
 #' the downsampling can be done in steps. For example, instead of setting
-#' \code{q = 20}, it is possible to set \code{q = c(2,10)}.
+#' `q = 20`, it is possible to set `q = c(2,10)`.
 #'
 #' @param x An eeg_lst object.
 #' @param q integer factor(s) to downsample by.
 #' @param max_sample Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total numbe of samples.
 #' @param ... Other arguments passed to decimate.
+#' 
+#' @family eeg
+#' 
 #' @export
-#'
-#'
-#'
-#'
-#'
 downsample <- function(x, q = 2, max_sample = NULL, ...) {
   UseMethod("downsample")
 }
