@@ -29,9 +29,9 @@ ch_baseline.eeg_lst <- function(x, time = -Inf, sample_id = NULL) {
     message("# Ignoring time parameter.")
   }
 
-  x$signal <-
+  x$signal_tbl <-
     dplyr::mutate_at(
-      x$signal,
+      x$signal_tbl,
       channel_names(x),
       dplyr::funs(. - mean(.[between(.sample_id, sample_id, 0)]))
     )

@@ -1,15 +1,15 @@
 
 #' Dplyr functions for eeg_lst objects.
 #'
-#' Manipulate the signal and the segments table of an eeg_lst.
+#' Manipulate the signal_tbl and the segments table of an eeg_lst.
 #'
 #' Wrappers for \link{dplyr}'s commands that act on different parts
 #' `eggble` objects.
 #' The following wrappers have been implemented for `eeg_lst` objects:
-#' * `summarize()` summarizes the channel of the signal table
-#' * `summarize_all()` summarizes all the channels of the signal table.
-#' * `mutate()` adds new variables and preserves existing ones. Variables that are a function of a channel are added to the signal table, and other variables are added to the segments table.
-#' * `mutate_all()` mutates all the channels of the signal table.
+#' * `summarize()` summarizes the channel of the signal_tbl table
+#' * `summarize_all()` summarizes all the channels of the signal_tbl table.
+#' * `mutate()` adds new variables and preserves existing ones. Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.
+#' * `mutate_all()` mutates all the channels of the signal_tbl table.
 #' * `transmute()` like `mutate` but drops non-used variables of the referred table.
 #' * `select()` keeps only the mentioned variables from the refered table, except for the obligatory columns starting with `.`.
 #' * `rename()`: keeps all variables.
@@ -75,7 +75,7 @@ summarise.eeg_lst <- function(.data, ...) {
 #' @rdname dplyr
 #' @export
 tbl_vars.eeg_lst <- function(x) {
-  setdiff(tbl_vars(x$signal), c(".id", ".sample_id"))
+  setdiff(tbl_vars(x$signal_tbl), c(".id", ".sample_id"))
 }
 #' @rdname dplyr
 #' @export
@@ -96,14 +96,14 @@ group_by.eeg_lst <- function(.data, ..., add = FALSE) {
 #' @rdname dplyr
 #' @export
 ungroup.eeg_lst <- function(.data, ..., add = add) {
-  .data$signal <- dplyr::ungroup(.data$signal)
+  .data$signal_tbl <- dplyr::ungroup(.data$signal_tbl)
   .data$segments <- dplyr::ungroup(.data$segments)
   validate_eeg_lst(.data)
 }
 #' @rdname dplyr
 #' @export
 group_vars.eeg_lst <- function(x) {
-  c(group_vars(x$signal), group_vars(x$segments))
+  c(group_vars(x$signal_tbl), group_vars(x$segments))
 }
 #' @export
 filter_.eeg_lst <- function(.data, ..., .dots = list()) {
@@ -142,7 +142,7 @@ semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
 
   x[["segments"]] <- dplyr::semi_join(x[["segments"]], y, by = NULL, suffix = c(".x", ".y"), ...)
-  x$signal <- dplyr::semi_join(x$signal, x[["segments"]], by = ".id")
+  x$signal_tbl <- dplyr::semi_join(x$signal_tbl, x[["segments"]], by = ".id")
   x$events <- dplyr::semi_join(x$events, x[["segments"]], by = ".id")
 
   redo_indices(x) %>% validate_eeg_lst()
@@ -153,7 +153,7 @@ anti_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
 
   x[["segments"]] <- dplyr::anti_join(x[["segments"]], y, by = NULL, suffix = c(".x", ".y"), ...)
-  x[["signal"]] <- dplyr::semi_join(x[["signal"]], x$segments, by = ".id")
+  x[["signal_tbl"]] <- dplyr::semi_join(x[["signal_tbl"]], x$segments, by = ".id")
   x$events <- dplyr::semi_join(x$events, x$segments, by = ".id")
 
   redo_indices(x) %>% validate_eeg_lst()

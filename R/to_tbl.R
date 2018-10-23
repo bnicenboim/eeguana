@@ -1,6 +1,6 @@
 #' Convert an eeg_lst to a tibble.
 #'
-#' Convert the signal table from wide to long format, and optionally `left_join`s the segment table
+#' Convert the signal_tbl table from wide to long format, and optionally `left_join`s the segment table
 #'
 #' @param x An `eeg_lst` object.
 #' @param add_segments Whether the segments table
@@ -14,7 +14,7 @@
 #'
 #' @export
 as_tibble.eeg_lst <- function(x, add_segments = TRUE) {
-  df <- declass(x$signal)$tbl %>%
+  df <- declass(x$signal_tbl)$tbl %>%
     tidyr::gather(key = "channel", value = "amplitude", channel_names(x)) %>%
     {
       if (add_segments) {
@@ -67,7 +67,7 @@ summarize_by_id_tbl.eeg_lst <- function(x, .funs = mean, ...) {
       if (length(.[[1]]) == 1) .[[1]] else .[[1]][2]
     }
 
-  declass(x$signal)$tbl %>%
+  declass(x$signal_tbl)$tbl %>%
     dplyr::group_by(.id) %>% # keep grouping for later
     dplyr::summarize_at(channel_names(x), .funs, ...) %>%
     # change the column back to channel names, when funs(?? = fun)

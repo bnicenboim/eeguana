@@ -19,11 +19,11 @@ test_that("can change channels metadata", {
   channels_info$.x[1] <- 100
   channels_info$.x[2] <- 100
   channels_tbl(eeg_lst_av) <- channels_info
-  expect_equal(names(eeg_lst_av$signal[, 3]), "NEW_CHANNEL")
-  expect_equal(attributes(eeg_lst_av$signal[[4]])$.x, 100)
+  expect_equal(names(eeg_lst_av$signal_tbl[, 3]), "NEW_CHANNEL")
+  expect_equal(attributes(eeg_lst_av$signal_tbl[[4]])$.x, 100)
 })
 
-# eeguana:::update_channel_meta_data(select(eeg_lst_av$signal, channel_names(eeg_lst_av)), channels_info)
-# eeg_lst_av$signal[[3]]
+# eeguana:::update_channel_meta_data(select(eeg_lst_av$signal_tbl, channel_names(eeg_lst_av)), channels_info)
+# eeg_lst_av$signal_tbl[[3]]
 
-# select(eeg_lst_av$signal, -one_of(channel_names(eeg_lst_av)))
+# select(eeg_lst_av$signal_tbl, -one_of(channel_names(eeg_lst_av)))

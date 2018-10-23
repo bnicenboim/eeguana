@@ -90,9 +90,9 @@ read_dat <- function(file, header_info = NULL, events = NULL,
       } %>% list(.sample_id = .)
   )
 
-  signal <- new_signal(
+  signal_tbl <- new_signal_tbl(
     signal_matrix = raw_signal, ids = as.integer(sample_id_ided$.id),
-    sample_ids = new_sample_id(sample_id_ided$.sample_id,
+    sample_ids = new_sample_int(sample_id_ided$.sample_id,
       sampling_rate = common_info$sampling_rate
     ),
     channel_info = header_info$chan_info
@@ -106,7 +106,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
   )
 
   eeg_lst <- new_eeg_lst(
-    signal = signal,
+    signal_tbl = signal_tbl,
     events = seg_events,
     segments = segments
   ) %>% validate_eeg_lst()
