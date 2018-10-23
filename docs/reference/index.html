@@ -123,17 +123,163 @@
     <tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
+          <h2 id="section-about" class="hasAnchor"><a href="#section-about" class="anchor"></a>About</h2>
           <p class="section-desc"></p>
         </th>
       </tr>
       <tr>
         
         <td>
-          <p><code><a href="as.data.frame.eeg_lst.html">as.data.frame(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
+          <p><code><a href="eeguana.html">eeguana</a></code> </p>
         </td>
-        <td><p>Convert an eeg_lst to a (base) data frame.</p></td>
+        <td><p>eeguana: A package for flexible manipulation of EEG data.</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-reading-functions" class="hasAnchor"><a href="#section-reading-functions" class="anchor"></a>Reading functions</h2>
+          <p class="section-desc"><p>Functions for reading external files (BrainVision and mat files from Fieldtrip) and return an <code>eeg_lst</code>. (Upcoming: eeglab and edf files).</p></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="read_ft.html">read_ft()</a></code> </p>
+        </td>
+        <td><p>Read a Fieldtrip file into an eeg_lst object (requires R.matlab).</p></td>
       </tr><tr>
+        
+        <td>
+          <p><code><a href="read_vhdr.html">read_vhdr()</a></code> </p>
+        </td>
+        <td><p>Read a BrainVision file into an eeg_lst object.</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-tidyverse-dplyr-like-functions" class="hasAnchor"><a href="#section-tidyverse-dplyr-like-functions" class="anchor"></a>Tidyverse 'dplyr'(-like) functions</h2>
+          <p class="section-desc"><p>Functions that overload some <code>dplyr</code> functions and always return an <code>eeg_lst</code>.</p></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="dplyr.html">mutate(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">transmute(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">summarise(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">tbl_vars(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">groups(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">group_by(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">ungroup(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">group_vars(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">filter(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">select(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">rename(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">left_join(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">semi_join(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">anti_join(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Dplyr functions for eeg_lst objects.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="bind.html">bind()</a></code> </p>
+        </td>
+        <td><p>Bind eeg_lst objects.</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-specialized-summarizing-functions" class="hasAnchor"><a href="#section-specialized-summarizing-functions" class="anchor"></a>Specialized summarizing functions</h2>
+          <p class="section-desc"><p>Functions that apply a series of <code>dplyr</code> functions to return useful summaries.</p></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="summarize_by_id_tbl.html">summarize_by_id_tbl()</a></code> </p>
+        </td>
+        <td><p>Convert an eeg_lst into a summary long-data frame based on a statistics.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="count_complete_cases_tbl.html">count_complete_cases_tbl()</a></code> </p>
+        </td>
+        <td><p>Count number of complete segments of an eeg_lst object.</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-channel-functions" class="hasAnchor"><a href="#section-channel-functions" class="anchor"></a>Channel functions</h2>
+          <p class="section-desc"><p>Functions that act on the channels of the signal table. They have a default version that acts on all the channels, and can be used inside a <code>mutate</code> call for more control. (Not all of them support both actions right now, but they will be implemented in the near future).</p></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="ch_baseline.html">ch_baseline()</a></code> </p>
+        </td>
+        <td><p>Baseline an eeg_lst</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="ch_rereference.html">ch_rereference()</a></code> </p>
+        </td>
+        <td><p>Rereference channel.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="chs_mean.html">chs_mean()</a></code> </p>
+        </td>
+        <td><p>Get the by-sample (or by-row) mean of the specified channels.</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-eeg-specialized-functions" class="hasAnchor"><a href="#section-eeg-specialized-functions" class="anchor"></a>EEG-specialized functions</h2>
+          <p class="section-desc"><p>Functions for applying specialized actions on specific channels of the signal table or the entire <code>eeg_lst</code>. (I may add a prefix to the functions when I see that I can group them).</p></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="downsample.html">downsample()</a></code> </p>
+        </td>
+        <td><p>Downsample EEG data</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="segment.html">segment()</a></code> </p>
+        </td>
+        <td><p>Segment an eeg_lst.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="event_to_ch_NA.html">event_to_ch_NA()</a></code> </p>
+        </td>
+        <td><p>Remove (transform to NA) problematic events from an eeg_lst.</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-plot-functions" class="hasAnchor"><a href="#section-plot-functions" class="anchor"></a>Plot functions</h2>
+          <p class="section-desc"><p>Functions for doing data wrangling after summarizing or downsampling the signal to create a long table, and then wrap <code>ggplot</code> functions.</p></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="plot.eeg_lst.html">plot(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Simple plot an eeg_lst object.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_gg.html">plot_gg()</a></code> </p>
+        </td>
+        <td><p>ggplot object based on an eeg_lst object.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_topo.html">plot_topo()</a></code> </p>
+        </td>
+        <td><p>A topographic plot of an eeg_lst object.</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section--base-inspired-functions" class="hasAnchor"><a href="#section--base-inspired-functions" class="anchor"></a>'base'-inspired functions</h2>
+          <p class="section-desc"><p>Functions for doing data wrangling after summarizing or downsampling the signal to create a long table, and then wrap <code>ggplot</code> functions.</p></p>
+        </th>
+      </tr>
+      <tr>
         
         <td>
           <p><code><a href="as_sample_id.html">as_sample_id()</a></code> </p>
@@ -154,69 +300,9 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="bind.html">bind()</a></code> </p>
+          <p><code><a href="as.data.frame.eeg_lst.html">as.data.frame(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
         </td>
-        <td><p>Bind eeg_lst objects.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="ch_baseline.html">ch_baseline()</a></code> </p>
-        </td>
-        <td><p>Baseline an eeg_lst</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="ch_rereference.html">ch_rereference()</a></code> </p>
-        </td>
-        <td><p>Rereference channel.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="channel.html">channel()</a></code> </p>
-        </td>
-        <td><p>Builds a channel.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="chs_mean.html">chs_mean()</a></code> </p>
-        </td>
-        <td><p>The by-sample (or by-row) mean of the specified channels.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="count_complete_cases_tbl.eeg_lst.html">count_complete_cases_tbl(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Count number of complete segments of an eeg_lst object.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="downsample.html">downsample()</a></code> </p>
-        </td>
-        <td><p>Downsample EEG data</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="dplyr.html">mutate(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">mutate_(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">transmute(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">transmute_(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">summarise_(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">summarise(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">groups(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">group_by_(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">group_by(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">ungroup(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">group_vars(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">filter_(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">filter(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">select(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">rename(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">left_join(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">semi_join(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">anti_join(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Mutate/transmute/select/rename channels with signals,  segments.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="eeg_lst.html">eeg_lst()</a></code> </p>
-        </td>
-        <td><p>Builds an eeg_lst.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="eeguana.html">eeguana</a></code> </p>
-        </td>
-        <td><p>eeguana: A package for flexible manipulation of EEG data.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="event_to_ch_NA.eeg_lst.html">event_to_ch_NA(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Remove (transform to NA) problematic events from an eeg_lst.</p></td>
+        <td><p>Convert an eeg_lst to a (base) data frame.</p></td>
       </tr><tr>
         
         <td>
@@ -248,39 +334,29 @@ This function returns  TRUE for signals.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="plot.eeg_lst.html">plot(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
+          <p><code><a href="summary.html">channel_names(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">nchannels(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">channels_tbl(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">`channels_tbl<-`(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">nsamples(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">summary(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">print(<i>&lt;eeg_summary&gt;</i>)</a></code> </p>
         </td>
-        <td><p>Simple plot an eeg_lst object.</p></td>
+        <td><p>Display information of the eeg_lst object.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="plot_gg.html">plot_gg()</a></code> </p>
+          <p><code><a href="event_to_ch_NA.html">event_to_ch_NA()</a></code> </p>
         </td>
-        <td><p>ggplot object based on an eeg_lst object.</p></td>
-      </tr><tr>
+        <td><p>Remove (transform to NA) problematic events from an eeg_lst.</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-constructor-functions" class="hasAnchor"><a href="#section-constructor-functions" class="anchor"></a>Constructor functions</h2>
+          <p class="section-desc"><p>Internal functions for creating objects.</p></p>
+        </th>
+      </tr>
+      <tr>
         
         <td>
-          <p><code><a href="plot_topo.html">plot_topo()</a></code> </p>
+          <p><code><a href="eeg_lst.html">eeg_lst()</a></code> </p>
         </td>
-        <td><p>A topographic plot of an eeg_lst object.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="read_dat.html">read_dat()</a></code> </p>
-        </td>
-        <td><p>Helper function to read the dat files directly</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="read_ft.html">read_ft()</a></code> </p>
-        </td>
-        <td><p>Read a Fieldtrip file into an eeg_lst object (requires R.matlab).</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="read_vhdr.html">read_vhdr()</a></code> </p>
-        </td>
-        <td><p>Read a BrainVision file into an eeg_lst object.</p></td>
+        <td><p>Builds an eeg_lst.</p></td>
       </tr><tr>
         
         <td>
@@ -290,27 +366,9 @@ This function returns  TRUE for signals.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="segment.eeg_lst.html">segment(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
+          <p><code><a href="channel.html">channel()</a></code> </p>
         </td>
-        <td><p>Segments an eeg_lst.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="signal.html">signal()</a></code> </p>
-        </td>
-        <td><p>Builds a signal table.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="summarize_by_id_tbl.eeg_lst.html">summarize_by_id_tbl(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Convert an eeg_lst into a summary long-data frame based on a statistics.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="summary.html">channel_names(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">nchannels(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">channels_tbl(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">`channels_tbl<-`(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">nsamples(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">summary(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">print(<i>&lt;eeg_summary&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Display information of the eeg_lst object.</p></td>
+        <td><p>Builds a channel.</p></td>
       </tr>
     </tbody>
     </table>
@@ -319,7 +377,15 @@ This function returns  TRUE for signals.</p></td>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-all-functions">All functions</a></li>
+      <li><a href="#section-about">About</a></li>
+      <li><a href="#section-reading-functions">Reading functions</a></li>
+      <li><a href="#section-tidyverse-dplyr-like-functions">Tidyverse 'dplyr'(-like) functions</a></li>
+      <li><a href="#section-specialized-summarizing-functions">Specialized summarizing functions</a></li>
+      <li><a href="#section-channel-functions">Channel functions</a></li>
+      <li><a href="#section-eeg-specialized-functions">EEG-specialized functions</a></li>
+      <li><a href="#section-plot-functions">Plot functions</a></li>
+      <li><a href="#section--base-inspired-functions">'base'-inspired functions</a></li>
+      <li><a href="#section-constructor-functions">Constructor functions</a></li>
     </ul>
   </div>
 </div>

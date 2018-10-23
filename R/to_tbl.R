@@ -39,12 +39,6 @@ as_tibble.signal_tbl <- function(x) {
 
 
 
-
-#' @export
-summarize_by_id_tbl <- function(x, ...) {
-  UseMethod("summarize_by_id_tbl")
-}
-
 #' Convert an eeg_lst into a summary long-data frame based on a statistics.
 #' @param x An `eeg_lst` object.
 #' @param ... Other arguments passed on to `.funs`. See \link{dplyr-package} help.
@@ -52,6 +46,11 @@ summarize_by_id_tbl <- function(x, ...) {
 #' @return A long tibble.
 #'
 #' @family summarize
+#' @export
+summarize_by_id_tbl <- function(x, ...) {
+  UseMethod("summarize_by_id_tbl")
+}
+#' @export
 summarize_by_id_tbl.eeg_lst <- function(x, .funs = mean, ...) {
   funs_name <- rlang::enquo(.funs)
 

@@ -1,6 +1,6 @@
 #' Helper function to read the dat files directly
 #' @importFrom magrittr %>%
-
+#' @noRd
 read_dat <- function(file, header_info = NULL, events = NULL,
                      recording, sep, zero) {
   n_chan <- nrow(header_info$chan_info)

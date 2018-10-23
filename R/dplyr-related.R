@@ -1,4 +1,4 @@
-#'  The by-sample (or by-row) mean of the specified channels.
+#' Get the by-sample (or by-row) mean of the specified channels.
 #'
 #' Wrapper of `rowMeans` that performs a by-sample mean of the specified channels.
 #'
