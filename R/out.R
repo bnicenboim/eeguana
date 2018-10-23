@@ -146,11 +146,6 @@ print.eeg_summary <- function(x, ...) {
   invisible(x)
 }
 
-
-#' @export
-count_complete_cases_tbl <- function(x, ...) {
-  UseMethod("count_complete_cases_tbl")
-}
 #' Count number of complete segments of an eeg_lst object.
 #'
 #' @param x An `eeg_lst` object.
@@ -168,6 +163,10 @@ count_complete_cases_tbl <- function(x, ...) {
 #' faces_segs_some %>% count_complete_cases(recording, description)
 #' }
 #' @family summarize
+#' @export
+count_complete_cases_tbl <- function(x, ...) {
+  UseMethod("count_complete_cases_tbl")
+}
 #' @export
 count_complete_cases_tbl.eeg_lst <- function(x, ...) {
   dots <- rlang::enquos(...)

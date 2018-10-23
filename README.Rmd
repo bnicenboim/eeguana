@@ -75,7 +75,6 @@ These functions act on the channels of the signal table. They have a default ver
 
 * `downsample`
 * `segment`
-
 * `event_to_ch_NA`
 
 These functions perform specialized actions on the signals table or `eeg_lst`. (I may add a prefix to the functions when I see that I can group them).
