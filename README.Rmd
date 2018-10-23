@@ -195,8 +195,8 @@ first making segments that include only the interval .1-.2 *s* after the onset
 of the stimuli.
 
 ```{r topo, fig.dim = c(10,5), out.width = "100%", results = "hide"}
-faces_segs_some %>% ungroup() %>%  
-                    filter(between(as_time(.sample_id),.1,.2)) %>% 
+faces_segs_some %>% ungroup() %>% 
+                    filter(between(.sample_id,20,50)) %>% 
                     group_by(condition) %>%
                     plot_topo()
 ```
