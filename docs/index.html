@@ -85,96 +85,18 @@
 <div id="eeguana" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#eeguana" class="anchor"></a>eeguana</h1></div>
+<div id="overview" class="section level2">
+<h2 class="hasAnchor">
+<a href="#overview" class="anchor"></a>Overview</h2>
 <p>A package for flexible manipulation of EEG data. <em>eeguana</em> provides a framework for manipulating EEG data with <em>dplyr</em>-based functions (e.g., <code>mutate</code>, <code>filter</code>, <code>summarize</code>) extended to a new class <code>eeg_lst</code>. In addition, it provides other EEG-specialized functions, and <code>ggplot</code> wrapper functions. The new class is inspired by tidyverse principles but it’s not really “tidy” (due to space considerations), it’s a list of (i) a wide table (<code>signal_tbl</code>) that contains the signal amplitudes at every sample point of the EEG, (ii) an events table with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant number (<code>recording</code>), conditions, etc.</p>
 <p><em>eeguana</em> <strong>cannot</strong> pre-process data for now, but I plan to incorporate pre-processing functions with time, and thus it is meant to be used on EEG files where filtering, artifact rejection, ICA, etc have already been done.</p>
+<p>See <a href="https://bnicenboim.github.io/eeguana/reference/index.html">Reference</a> for more information about the functions of <em>eeguana</em>.</p>
+</div>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
 <p>There is still <strong>no</strong> released version of <em>eeguana</em>. The package is in the early stages of development, and it <strong>will</strong> be subject to a lot of changes. To install the latest version from github use:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"bnicenboim/eeguana"</span>, <span class="dt">build_vignettes =</span> <span class="ot">TRUE</span>)</code></pre></div>
-</div>
-<div id="overview" class="section level2">
-<h2 class="hasAnchor">
-<a href="#overview" class="anchor"></a>Overview</h2>
-<p>The functions of <em>eeguana</em> can be roughly divided in the following groups:</p>
-<div id="read-functions" class="section level3">
-<h3 class="hasAnchor">
-<a href="#read-functions" class="anchor"></a><code>read</code> functions</h3>
-<ul>
-<li><code>read_dat</code></li>
-<li><code>read_ft</code></li>
-</ul>
-<p>These functions read external files (BrainVision and mat files from Fieldtrip) and return an <code>eeg_lst</code>. (Upcoming: eeglab and edf files).</p>
-</div>
-<div id="tidyverse-dplyr-functions" class="section level3">
-<h3 class="hasAnchor">
-<a href="#tidyverse-dplyr-functions" class="anchor"></a>Tidyverse <code>dplyr</code> functions</h3>
-<ul>
-<li><code>mutate*</code></li>
-<li><code>transmute*</code></li>
-<li><code>summarize*</code></li>
-<li><code>*_join</code></li>
-<li><code>select*</code></li>
-<li><code>rename*</code></li>
-<li><code>filter*</code></li>
-<li><code>group_by</code></li>
-<li><code>ungroup</code></li>
-<li>
-<code>bind</code> ★</li>
-</ul>
-<p>These functions always return an <code>eeg_lst</code> and they should be straightforward to use. This is, if one is already used to <code>dplyr</code>, and if not, I would recommend to start from, for example, <a href="http://r4ds.had.co.nz/">R for Data Science</a>. (★: <code>bind</code> is not in <code>dplyr</code>, but it’s inspired by <code>bind_*</code>).</p>
-</div>
-<div id="specialized-summarizing-functions" class="section level3">
-<h3 class="hasAnchor">
-<a href="#specialized-summarizing-functions" class="anchor"></a>Specialized summarizing functions</h3>
-<ul>
-<li><code>summarize_by_id_tbl</code></li>
-<li><code>count_complete_cases_tbl</code></li>
-</ul>
-<p>These functions apply a series of <code>dplyr</code> functions to return useful summaries.</p>
-</div>
-<div id="channel-functions" class="section level3">
-<h3 class="hasAnchor">
-<a href="#channel-functions" class="anchor"></a>Channel functions</h3>
-<ul>
-<li><code>ch_baseline</code></li>
-<li><code>ch_rereference</code></li>
-<li><code>chs_mean</code></li>
-</ul>
-<p>These functions act on the channels of the signal table. They have a default version that acts on all the channels, and can be used inside a <code>mutate</code> call for more control. (Not all of them support both actions right now, but they will be implemented in the near future).</p>
-</div>
-<div id="other-eeg-specialized-functions" class="section level3">
-<h3 class="hasAnchor">
-<a href="#other-eeg-specialized-functions" class="anchor"></a>Other EEG-specialized functions</h3>
-<ul>
-<li><code>downsample</code></li>
-<li><p><code>segment</code></p></li>
-<li><p><code>event_to_ch_NA</code></p></li>
-</ul>
-<p>These functions perform specialized actions on the signals table or <code>eeg_lst</code>. (I may add a prefix to the functions when I see that I can group them).</p>
-</div>
-<div id="plot-functions" class="section level3">
-<h3 class="hasAnchor">
-<a href="#plot-functions" class="anchor"></a>Plot functions</h3>
-<ul>
-<li><code>plot</code></li>
-<li><code>plot_gg</code></li>
-<li><code>plot_topo</code></li>
-</ul>
-<p>These functions do some data wrangling after summarizing or downsampling the signal to create a long table, and then wrap <code>ggplot</code> functions.</p>
-</div>
-<div id="base-inspired-functions" class="section level3">
-<h3 class="hasAnchor">
-<a href="#base-inspired-functions" class="anchor"></a>Base-inspired functions</h3>
-<ul>
-<li><code>as_*</code></li>
-<li><code>*_names</code></li>
-<li><code>is_*</code></li>
-<li><code>n*</code></li>
-<li><code>summary</code></li>
-</ul>
-<p>These functions should be straightforward to use, if one knows the parallel <code>base</code> function.</p>
-</div>
 </div>
 <div id="example" class="section level2">
 <h2 class="hasAnchor">
@@ -196,7 +118,7 @@
 <span class="co">#&gt; # Object size in memory 147 MB</span></code></pre></div>
 <p>The function <code>read_vhdr</code> creates a list with data frames for the signal, events, segments information, and incorporates in its attributes generic EEG information.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces
-<span class="co">#&gt; $signal</span>
+<span class="co">#&gt; $signal_tbl</span>
 <span class="co">#&gt; # A tibble: 525,207 x 36</span>
 <span class="co">#&gt;      .id .sample_id   Fp1      Fpz    Fp2    F7     F3     Fz    F4     F8</span>
 <span class="co">#&gt;    &lt;int&gt;      &lt;int&gt; &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;</span>
@@ -255,7 +177,7 @@
 <span class="st">                  </span><span class="kw">select</span>(<span class="op">-</span>type)
 
 faces_segs_some
-<span class="co">#&gt; $signal</span>
+<span class="co">#&gt; $signal_tbl</span>
 <span class="co">#&gt; # A tibble: 45,200 x 36</span>
 <span class="co">#&gt; # Groups:   .id [200]</span>
 <span class="co">#&gt;      .id .sample_id    Fp1   Fpz   Fp2     F7    F3    Fz    F4     F8</span>

@@ -82,7 +82,7 @@
       <h1>Manipulating a clean EEG file exported from BrainVision 2.0</h1>
                         <h4 class="author">Bruno Nicenboim</h4>
             
-            <h4 class="date">2018-10-23</h4>
+            <h4 class="date">2018-10-24</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bnicenboim/eeguana/blob/master/vignettes/brainvision_files.Rmd"><code>vignettes/brainvision_files.Rmd</code></a></small>
       <div class="hidden name"><code>brainvision_files.Rmd</code></div>
@@ -109,7 +109,7 @@
 <span class="co">#&gt; # Object size in memory 147 MB</span></code></pre></div>
 <p>The function <code>read_vhdr</code> creates a list with data frames for the signal, events, segments information, and incorporates in its attributes generic EEG information.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces
-<span class="co">#&gt; $signal</span>
+<span class="co">#&gt; $signal_tbl</span>
 <span class="co">#&gt; # A tibble: 525,207 x 36</span>
 <span class="co">#&gt;      .id .sample_id   Fp1      Fpz    Fp2    F7     F3     Fz    F4     F8</span>
 <span class="co">#&gt;    &lt;int&gt;      &lt;int&gt; &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;</span>
@@ -207,9 +207,9 @@
 <p><img src="brainvision_files_files/figure-html/unnamed-chunk-5-1.png" width="100%"></p>
 <p>Some intervals were marked as “bad” by BrainVision, and so we’ll remove them from the data. We’ll also segment and baseline the data. In this experiment, the trigger “s70” was used for faces and “s71” for no faces. We’ll segment the data using these two triggers.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces_segs &lt;-<span class="st"> </span>faces <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">               </span><span class="kw">segment</span>(description <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">"s70"</span>, <span class="st">"s71"</span>), 
+<span class="st">               </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/segment">segment</a></span>(description <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">"s70"</span>, <span class="st">"s71"</span>), 
                         <span class="dt">lim =</span> <span class="kw">c</span>(<span class="op">-</span>.<span class="dv">2</span>,.<span class="dv">25</span>)) <span class="op">%&gt;%</span>
-<span class="st">               </span><span class="kw">event_to_ch_NA</span>(type <span class="op">==</span><span class="st"> "Bad Interval"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">               </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/event_to_ch_NA">event_to_ch_NA</a></span>(type <span class="op">==</span><span class="st"> "Bad Interval"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">               </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/ch_baseline">ch_baseline</a></span>()
 <span class="co">#&gt; # Total of 200 segments found.</span>
 <span class="co">#&gt; # Object size in memory 12.7 MB after segmentation.</span></code></pre></div>
@@ -220,7 +220,7 @@
 <span class="st">                  </span><span class="kw">select</span>(<span class="op">-</span>type)
 
 faces_segs_some
-<span class="co">#&gt; $signal</span>
+<span class="co">#&gt; $signal_tbl</span>
 <span class="co">#&gt; # A tibble: 45,200 x 36</span>
 <span class="co">#&gt; # Groups:   .id [200]</span>
 <span class="co">#&gt;      .id .sample_id    Fp1   Fpz   Fp2     F7    F3    Fz    F4     F8</span>

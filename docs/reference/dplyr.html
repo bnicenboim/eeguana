@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Mutate/transmute/select/rename channels with signals,  segments. — dplyr • eeguana</title>
+<title>Dplyr functions for eeg_lst objects. — dplyr • eeguana</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Mutate/transmute/select/rename channels with signals,  segments. — dplyr" />
+<meta property="og:title" content="Dplyr functions for eeg_lst objects. — dplyr" />
 
-<meta property="og:description" content="Manipulate the signal and the segments table of an eeg_lst." />
+<meta property="og:description" content="Manipulate the signal_tbl and the segments table of an eeg_lst." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -112,14 +112,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Mutate/transmute/select/rename channels with signals,  segments.</h1>
+    <h1>Dplyr functions for eeg_lst objects.</h1>
     <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/dplyr-fun.R'><code>R/dplyr-fun.R</code></a></small>
     <div class="hidden name"><code>dplyr.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Manipulate the signal and the segments table of an eeg_lst.</p>
+    <p>Manipulate the signal_tbl and the segments table of an eeg_lst.</p>
     
     </div>
 
@@ -127,25 +127,16 @@
 <span class='fu'>mutate</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>mutate_</span>(<span class='no'>.data</span>, <span class='no'>...</span>, <span class='kw'>.dots</span> <span class='kw'>=</span> <span class='fu'>list</span>())
-
-<span class='co'># S3 method for eeg_lst</span>
 <span class='fu'>transmute</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>transmute_</span>(<span class='no'>.data</span>, <span class='no'>...</span>, <span class='kw'>.dots</span> <span class='kw'>=</span> <span class='fu'>list</span>())
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>summarise_</span>(<span class='no'>.data</span>, <span class='no'>...</span>, <span class='kw'>.dots</span> <span class='kw'>=</span> <span class='fu'>list</span>())
 
 <span class='co'># S3 method for eeg_lst</span>
 <span class='fu'>summarise</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>groups</span>(<span class='no'>x</span>)
+<span class='fu'>tbl_vars</span>(<span class='no'>x</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>group_by_</span>(<span class='no'>.data</span>, <span class='no'>...</span>, <span class='kw'>.dots</span> <span class='kw'>=</span> <span class='fu'>list</span>(), <span class='kw'>add</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='fu'>groups</span>(<span class='no'>x</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
 <span class='fu'>group_by</span>(<span class='no'>.data</span>, <span class='no'>...</span>, <span class='kw'>add</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
@@ -155,9 +146,6 @@
 
 <span class='co'># S3 method for eeg_lst</span>
 <span class='fu'>group_vars</span>(<span class='no'>x</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>filter_</span>(<span class='no'>.data</span>, <span class='no'>...</span>, <span class='kw'>.dots</span> <span class='kw'>=</span> <span class='fu'>list</span>())
 
 <span class='co'># S3 method for eeg_lst</span>
 <span class='fu'>filter</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
@@ -200,10 +188,10 @@
     <p>Wrappers for dplyr's commands that act on different parts
 <code>eggble</code> objects.
 The following wrappers have been implemented for <code>eeg_lst</code> objects:</p><ul>
-<li><p><code>summarize()</code> summarizes the channel of the signal table</p></li>
-<li><p><code>summarize_all()</code> summarizes all the channels of the signal table.</p></li>
-<li><p><code>mutate()</code> adds new variables and preserves existing ones. Variables that are a function of a channel are added to the signal table, and other variables are added to the segments table.</p></li>
-<li><p><code>mutate_all()</code> mutates all the channels of the signal table.</p></li>
+<li><p><code>summarize()</code> summarizes the channel of the signal_tbl table</p></li>
+<li><p><code>summarize_all()</code> summarizes all the channels of the signal_tbl table.</p></li>
+<li><p><code>mutate()</code> adds new variables and preserves existing ones. Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.</p></li>
+<li><p><code>mutate_all()</code> mutates all the channels of the signal_tbl table.</p></li>
 <li><p><code>transmute()</code> like <code>mutate</code> but drops non-used variables of the referred table.</p></li>
 <li><p><code>select()</code> keeps only the mentioned variables from the refered table, except for the obligatory columns starting with <code>.</code>.</p></li>
 <li><p><code>rename()</code>: keeps all variables.</p></li>

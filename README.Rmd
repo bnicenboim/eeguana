@@ -14,10 +14,13 @@ knitr::opts_chunk$set(
 ```
 # eeguana
 
+## Overview
+
 A package for flexible manipulation of EEG data. *eeguana* provides a framework for manipulating EEG data with *dplyr*-based functions (e.g., `mutate`, `filter`, `summarize`) extended to a new class `eeg_lst`. In addition, it provides other EEG-specialized functions, and `ggplot` wrapper functions.  The new class is inspired by tidyverse principles but it's not really "tidy" (due to space considerations), it's a list of (i) a wide table (`signal_tbl`) that contains the signal amplitudes at every sample point of the EEG,  (ii) an events table with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant number (`recording`), conditions, etc.  
 
 *eeguana* **cannot** pre-process data for now, but I plan to incorporate pre-processing functions with time, and thus it is meant to be used on EEG files where filtering, artifact rejection, ICA, etc have already been done.
 
+See [Reference](https://bnicenboim.github.io/eeguana/reference/index.html) for more information about the functions of *eeguana*.
 
 
 ## Installation
@@ -30,73 +33,6 @@ devtools::install_github("bnicenboim/eeguana", build_vignettes = TRUE)
 
 ```
 
-## Overview
-
-The functions of *eeguana* can be roughly divided in the following groups:
-
-### `read` functions
-
-* `read_dat`
-* `read_ft`
-
-These functions read external files (BrainVision and mat files from Fieldtrip) and return an `eeg_lst`. (Upcoming: eeglab and edf files).
-
-### Tidyverse `dplyr` functions
-
-* `mutate*`
-* `transmute*`
-* `summarize*`
-* `*_join`
-* `select*`
-* `rename*`
-* `filter*`
-* `group_by`
-* `ungroup`
-* `bind` &#9733;
-
-These functions always return an `eeg_lst` and they should be straightforward to use. This is, if one is already used to `dplyr`, and if not, I would recommend to start from, for example, [R for Data Science](http://r4ds.had.co.nz/). (&#9733;: `bind` is not in `dplyr`, but it's inspired by `bind_*`).
-
-### Specialized summarizing functions
-
-* `summarize_by_id_tbl`
-* `count_complete_cases_tbl`
-
-These functions apply a series of `dplyr` functions to return useful summaries.
-
-### Channel functions
-
-* `ch_baseline`
-* `ch_rereference`
-* `chs_mean`
-
-These functions act on the channels of the signal table. They have a default version that acts on all the channels, and can be used inside a `mutate` call for more control. (Not all of them support both actions right now, but they will be implemented in the near future).
-
-### Other EEG-specialized functions
-
-* `downsample`
-* `segment`
-* `event_to_ch_NA`
-
-These functions perform specialized actions on the signals table or `eeg_lst`. (I may add a prefix to the functions when I see that I can group them).
-
-### Plot functions
-
-* `plot`
-* `plot_gg`
-* `plot_topo`
-
-These functions do some data wrangling after summarizing or downsampling the signal to create a long table, and then wrap
-`ggplot` functions.
-
-### Base-inspired functions
-
-* `as_*`
-* `*_names`
-* `is_*`
-* `n*`
-* `summary`
-
-These functions should be straightforward to use, if one knows the parallel `base` function.
 
 
 
