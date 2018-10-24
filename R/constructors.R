@@ -103,9 +103,9 @@ is_sample_int <- function(x) {
 #' @export
 #' @examples
 #'
-#' Cz <- channel(runif(100,-5,5))
-channel <- function(values, x = NA_real_, y = NA_real_, z = NA_real_, reference = NA, ...) {
-  validate_channel(new_channel(values, channel_info = list(.x = x, .y = y, .z = z, .reference = reference, ...)))
+#' Cz <- channel_dbl(runif(100,-5,5))
+channel_dbl <- function(values, x = NA_real_, y = NA_real_, z = NA_real_, reference = NA, ...) {
+  validate_channel_dbl(new_channel_dbl(values, channel_info = list(.x = x, .y = y, .z = z, .reference = reference, ...)))
 }
 
 #' Test if the object is a channel
@@ -117,6 +117,6 @@ channel <- function(values, x = NA_real_, y = NA_real_, z = NA_real_, reference 
 #' 
 #' @return `TRUE` if the object inherits from the `sampl` class.
 #' @export
-is_channel <- function(x) {
+is_channel_dbl <- function(x) {
   class(x) == "channel"
 }

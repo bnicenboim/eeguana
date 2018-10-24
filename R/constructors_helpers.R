@@ -82,7 +82,7 @@ validate_sample_int <- function(sample_id) {
 }
 
 #' @noRd
-new_channel <- function(values, channel_info = list()) {
+new_channel_dbl <- function(values, channel_info = list()) {
   values <- unclass(values)
   attributes(values) <- c(
     class = "channel",
@@ -94,7 +94,7 @@ new_channel <- function(values, channel_info = list()) {
 #' @param channel 
 #'
 #' @noRd
-validate_channel <- function(channel) {
+validate_channel_dbl <- function(channel) {
   if (!is.numeric(channel)) {
     stop("Values should be numeric.",
       call. = FALSE
@@ -144,14 +144,14 @@ update_channel_meta_data <- function(channels, channel_info) {
     channels <- purrr::map_dfc(
       channels,
       function(sig) {
-        channel <- new_channel(value = sig)
+        channel <- new_channel_dbl(value = sig)
       }
     )
   } else {
     channels <- purrr::map2_dfc(
       channels %>% setNames(channel_info$.name), purrr::transpose(channel_info),
       function(sig, chan_info) {
-        channel <- new_channel(value = sig, as.list(chan_info))
+        channel <- new_channel_dbl(value = sig, as.list(chan_info))
       }
     )
   }
@@ -211,7 +211,7 @@ validate_signal_tbl <- function(signal_tbl) {
 
   # Validates channels (first row is enough, and takes less memory)
   dplyr::slice(ungroup(signal_tbl), 1) %>%
-    purrr::walk(~if (is_channel(.x)) validate_channel(.x))
+    purrr::walk(~if (is_channel_dbl(.x)) validate_channel_dbl(.x))
 
   signal_tbl
 }
