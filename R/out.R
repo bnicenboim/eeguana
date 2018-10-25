@@ -22,7 +22,7 @@ channel_names <- function(x, ...) {
 #' @rdname summary
 #' @export
 channel_names.eeg_lst <- function(x) {
-  setdiff(colnames(x$signal_tbl), obligatory_cols[["signal_tbl"]])
+  setdiff(colnames(x$signal), obligatory_cols$signal)
 }
 
 
@@ -34,7 +34,7 @@ nchannels <- function(x, ...) {
 #' @rdname summary
 #' @export
 nchannels.eeg_lst <- function(x) {
-  ncol(x$signal_tbl) - length(obligatory_cols[["signal_tbl"]])
+  ncol(x$signal) - length(obligatory_cols$signal)
 }
 
 
@@ -49,7 +49,7 @@ channels_tbl <- function(x, ...) {
 channels_tbl.eeg_lst <- function(x, ...) {
   dplyr::tibble(channel = channel_names(x)) %>%
     # first row is enough and it makes it faster
-    dplyr::bind_cols(dplyr::slice(ungroup(x$signal_tbl), 1) %>%
+    dplyr::bind_cols(dplyr::slice(ungroup(x$signal), 1) %>%
       dplyr::select(channel_names(x)) %>%
       purrr::map_dfr(~attributes(.x))) %>%
     select(-class, -channel)
@@ -64,9 +64,9 @@ channels_tbl.eeg_lst <- function(x, ...) {
 #' @export
 `channels_tbl<-.eeg_lst` <- function(x, value) {
   orig_names <- channel_names(x)
-  channels <- dplyr::select(x$signal_tbl, orig_names)
-  nochannels <- dplyr::select(x$signal_tbl, -dplyr::one_of(channel_names(x)))
-  x$signal_tbl <- dplyr::bind_cols(nochannels, update_channel_meta_data(channels, value))
+  channels <- dplyr::select(x$signal, orig_names)
+  nochannels <- dplyr::select(x$signal, -dplyr::one_of(channel_names(x)))
+  x$signal <- dplyr::bind_cols(nochannels, update_channel_meta_data(channels, value))
   new_names <- channel_names(x)
 
   for (i in eeguana:::seq_len(nchannels(x))) {
@@ -77,11 +77,11 @@ channels_tbl.eeg_lst <- function(x, ...) {
 }
 
 sampling_rate <- function(x) {
-  attributes(x$signal_tbl$.sample_id)$sampling_rate
+  attributes(x$signal$.sample_id)$sampling_rate
 }
 
 duration <- function(x) {
-  x$signal_tbl %>%
+  x$signal %>%
     dplyr::group_by(.id) %>%
     dplyr::summarize(duration = (max(.sample_id) - min(.sample_id)) /
       sampling_rate(x)) %>%
@@ -171,7 +171,7 @@ count_complete_cases_tbl <- function(x, ...) {
 count_complete_cases_tbl.eeg_lst <- function(x, ...) {
   dots <- rlang::enquos(...)
 
-  x$signal_tbl %>%
+  x$signal %>%
     dplyr::group_by(.id) %>%
     dplyr::filter_at(
       dplyr::vars(dplyr::one_of(channel_names(x))),
