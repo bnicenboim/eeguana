@@ -80,11 +80,11 @@ downsample.eeg_lst <- function(x, q = 2L, max_sample = NULL,
     new_sampling_rate, "Hz."
   ))
 
-  list_of_attr <- purrr::map(x$signal_tbl, ~attributes(.x))
+  list_of_attr <- purrr::map(x$signal, ~attributes(.x))
 
-  x$signal_tbl <- x$signal_tbl %>%
+  x$signal <- x$signal %>%
     dplyr::select(-.sample_id) %>%
-    split(x$signal_tbl$.id) %>%
+    split(x$signal$.id) %>%
     purrr::map_dfr(
       function(signal_id) purrr::map_dfc(
           signal_id[-1],

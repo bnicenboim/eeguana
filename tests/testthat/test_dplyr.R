@@ -41,6 +41,21 @@ summarizeX_eeg_lst <- dplyr::summarize(data, mean(X))
 summarize_at_eeg_lst <- dplyr::summarize_at(data, channel_names(data), mean)
 group2_by_eeg_lst <- dplyr::group_by(data, .id)
 
+# purrr::map(mutate_at_eeg_lst$signal, ~ attributes(.x))
+# purrr::map_chr(mutate_at_eeg_lst$signal, class)
+# purrr::map(mutate_at_eeg_lst$events, class)
+
+test_that("the classes of channels of signal_tbl remain in non-grouped eeg_lst", {
+expect_equal(is_channel_dbl(mutate_eeg_lst$signal$X), TRUE)
+expect_equal(is_channel_dbl(mutate2_eeg_lst$signal$X), TRUE)
+expect_equal(is_channel_dbl(mutate2_eeg_lst$signal$ZZ), TRUE)
+expect_equal(is_channel_dbl(transmute_eeg_lst$signal$X), TRUE)
+expect_equal(is_channel_dbl(mutate_all_eeg_lst$signal$X), TRUE)
+expect_equal(is_channel_dbl(mutate_at_eeg_lst$signal$X), TRUE)
+expect_equal(is_channel_dbl(summarizeX_eeg_lst$signal$`mean(X)`), TRUE)
+expect_equal(is_channel_dbl(summarize_at_eeg_lst$signal$X), TRUE)
+})
+
 mutate_g_signal_tbl <- dplyr::mutate(group_by_eeg_lst, X = X + 1)
 mutate2_g_signal_tbl <- dplyr::mutate(group_by_eeg_lst, ZZ = X + 1)
 transmute_g_signal_tbl <- dplyr::transmute(group_by_eeg_lst, X = X + 1)
@@ -48,5 +63,21 @@ mutate_all_g_signal_tbl <- dplyr::mutate_all(group_by_eeg_lst, mean)
 mutate_at_g_signal_tbl <- dplyr::mutate_at(group_by_eeg_lst, channel_names(data), mean)
 summarize_g_signal_tbl <- dplyr::summarize(group_by_eeg_lst, mean(X))
 summarize_at_g_signal_tbl <- dplyr::summarize_at(group_by_eeg_lst, channel_names(data), mean)
-
 summarize2_g_signal_tbl <- dplyr::summarize(group2_by_eeg_lst, mean(X))
+
+
+test_that("the classes of channels of signal_tbl remain in non-grouped eeg_lst", {
+expect_equal(is_channel_dbl(group_by_eeg_lst$signal$X), TRUE)
+expect_equal(is_channel_dbl(group2_by_eeg_lst$signal$X), TRUE)
+
+expect_equal(is_channel_dbl(mutate_g_signal_tbl$signal$X), TRUE)
+expect_equal(is_channel_dbl(mutate2_g_signal_tbl$signal$X), TRUE)
+expect_equal(is_channel_dbl(mutate2_g_signal_tbl$signal$ZZ), TRUE)
+expect_equal(is_channel_dbl(transmute_g_signal_tbl$signal$X), TRUE)
+expect_equal(is_channel_dbl(mutate_all_g_signal_tbl$signal$X), TRUE)
+expect_equal(is_channel_dbl(mutate_at_g_signal_tbl$signal$X), TRUE)
+expect_equal(is_channel_dbl(summarize_g_signal_tbl$signal$`mean(X)`), TRUE)
+expect_equal(is_channel_dbl(summarize_at_g_signal_tbl$signal$X), TRUE)
+expect_equal(is_channel_dbl(summarize2_g_signal_tbl$signal$`mean(X)`), TRUE)
+})
+

@@ -94,21 +94,24 @@ rename.signal_tbl <- function(.data, ...) {
 
 #' @export
 left_join.signal_tbl <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
-  declassed <- declass(x)
-  x <- declassed$tbl
-  reclass(NextMethod(), declassed$attr)
+  # declassed <- declass(x)
+  # x <- declassed$tbl
+  # reclass(NextMethod(), declassed$attr)
+  NextMethod()
 }
 
 #' @export
 semi_join.signal_tbl <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
-  declassed <- declass(x)
-  x <- declassed$tbl
-  reclass(NextMethod(), declassed$attr)
+  # declassed <- declass(x)
+  # x <- declassed$tbl
+  # reclass(NextMethod(), declassed$attr)
+  NextMethod()
 }
 
 #' @export
 anti_join.signal_tbl <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
-  declassed <- declass(x)
-  x <- declassed$tbl
-  reclass(NextMethod(), declassed$attr)
+  # declassed <- declass(x)
+  # x <- declassed$tbl
+  # reclass(NextMethod(), declassed$attr)
+  NextMethod()
 }

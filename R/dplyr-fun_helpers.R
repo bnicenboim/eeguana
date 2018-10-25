@@ -9,17 +9,17 @@ mutate_transmute <- function(.eeg_lst, mutate = TRUE, .dots) {
   # .dots <- rlang::quos(Occipital = (O1 + O2 + Oz)/3)
   new_dots <- dots_by_df(.dots, .eeg_lst)
 
-  if (length(new_dots$signal_tbl) > 0) {
+  if (length(new_dots$signal) > 0) {
 
     # I add the missing variables in case one uses transmute,
     # it doesn't hurt to mutate. This prevents from deleting sample or .id
     missing_vars <- dplyr::setdiff(
-      obligatory_cols$signal_tbl,
-      dplyr::group_vars(.eeg_lst$signal_tbl)
+      obligatory_cols$signal,
+      dplyr::group_vars(.eeg_lst$signal)
     )
-    .dots <- c(rlang::syms(missing_vars), new_dots$signal_tbl)
-    .eeg_lst$signal_tbl <- do_based_on_grps(
-      .df = .eeg_lst$signal_tbl,
+    .dots <- c(rlang::syms(missing_vars), new_dots$signal)
+    .eeg_lst$signal <- do_based_on_grps(
+      .df = .eeg_lst$signal,
       ext_grouping_df = .eeg_lst$segments,
       dplyr_fun = dplyr_fun,
       dots = .dots
@@ -43,22 +43,22 @@ mutate_transmute <- function(.eeg_lst, mutate = TRUE, .dots) {
 
 #' @noRd
 summarize_eeg_lst <- function(.eeg_lst, .dots){
-    segments_groups <- dplyr::groups(.eeg_lst$segments)
-  signal_groups <- dplyr::groups(.eeg_lst$signal_tbl)
+  segments_groups <- dplyr::groups(.eeg_lst$segments)
+  signal_groups <- dplyr::groups(.eeg_lst$signal)
 
 
   # if there is something conditional on segments (O[condition == "faces"],
   # I should add them to the signal_tbl df temporarily
   add_cols <- names_segments_col(.eeg_lst, .dots)
   if (length(add_cols) > 0) {
-    .eeg_lst$signal_tbl <- dplyr::left_join(.eeg_lst$signal_tbl,
+    .eeg_lst$signal <- dplyr::left_join(.eeg_lst$signal,
       dplyr::select(dplyr::ungroup(.eeg_lst$segments), .id, add_cols),
       by = ".id"
     )
   }
 
-  .eeg_lst$signal_tbl <- do_based_on_grps(
-    .df = .eeg_lst$signal_tbl,
+  .eeg_lst$signal <- do_based_on_grps(
+    .df = .eeg_lst$signal,
     ext_grouping_df = .eeg_lst$segments,
     dplyr_fun = dplyr::summarize,
     dots = .dots
@@ -73,8 +73,8 @@ summarize_eeg_lst <- function(.eeg_lst, .dots){
     dplyr::mutate(.id = seq_len(dplyr::n()) %>% as.integer()) %>%
     dplyr::group_by(!!!signal_groups)
 
-  if (nrow(.eeg_lst$signal_tbl) != 0) {
-    last_id <- max(.eeg_lst$signal_tbl$.id)
+  if (nrow(.eeg_lst$signal) != 0) {
+    last_id <- max(.eeg_lst$signal$.id)
   } else {
     last_id <- integer(0)
   }
@@ -109,13 +109,13 @@ group_by_eeg_lst <- function(.eeg_lst, .dots, .add = FALSE){
 
   # dots <- rlang::quos(segment)
   # dots <- rlang::quos(.sample_id)
-  # divide dots according to if they belong to $signal_tbl or segments
+  # divide dots according to if they belong to $signal or segments
   new_dots <- dots_by_df(.dots, .eeg_lst)
 
-  .eeg_lst$signal_tbl <- dplyr::group_by(.eeg_lst$signal_tbl, !!!new_dots$signal_tbl, add = .add)
+  .eeg_lst$signal <- dplyr::group_by(.eeg_lst$signal, !!!new_dots$signal, add = .add)
   .eeg_lst$segments <- dplyr::group_by(.eeg_lst$segments, !!!new_dots$segments, add = .add)
 
-  if (".id" %in% dplyr::group_vars(.eeg_lst$signal_tbl)) {
+  if (".id" %in% dplyr::group_vars(.eeg_lst$signal)) {
     .eeg_lst$segments <- dplyr::group_by(.eeg_lst$segments, .id, add = TRUE)
   }
 
@@ -129,19 +129,19 @@ filter_eeg_lst <- function(.eeg_lst, .dots){
     new_dots <- dots_by_df(.dots, .eeg_lst)
   
     # filter the signal_tbl and update the segments, in case an entire id drops
-    if (length(new_dots$signal_tbl) > 0) {
-      .eeg_lst$signal_tbl <- do_based_on_grps(.eeg_lst$signal_tbl,
+    if (length(new_dots$signal) > 0) {
+      .eeg_lst$signal <- do_based_on_grps(.eeg_lst$signal,
         ext_grouping_df = .eeg_lst$segments,
-        dplyr_fun = dplyr::filter, new_dots$signal_tbl
+        dplyr_fun = dplyr::filter, new_dots$signal
       )
   
-      .eeg_lst$segments <- dplyr::semi_join(.eeg_lst$segments, .eeg_lst$signal_tbl, by = ".id")
+      .eeg_lst$segments <- dplyr::semi_join(.eeg_lst$segments, .eeg_lst$signal, by = ".id")
       .eeg_lst$events <- dplyr::semi_join(.eeg_lst$events, .eeg_lst$segments, by = ".id")
     }
     # filter the segments and update the signal_tbl
     if (length(new_dots$segments) > 0) {
       .eeg_lst$segments <- dplyr::filter(.eeg_lst$segments, !!!new_.dots$segments)
-      .eeg_lst$signal_tbl <- dplyr::semi_join(.eeg_lst$signal_tbl, .eeg_lst$segments, by = ".id")
+      .eeg_lst$signal <- dplyr::semi_join(.eeg_lst$signal, .eeg_lst$segments, by = ".id")
       .eeg_lst$events <- dplyr::semi_join(.eeg_lst$events, .eeg_lst$segments, by = ".id")
     }
   
@@ -164,7 +164,7 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
   # dots <- rlang::quos(O1, O2, P7, P8)
   # dots <- rlang::quos(-Fp1)
   all_vars <- vars_fun(unique(c(
-    names(.eeg_lst$signal_tbl),
+    names(.eeg_lst$signal),
     names(.eeg_lst$segments)
   )), !!!dots)
 
@@ -172,7 +172,7 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
   if (length(intersect(all_vars, names(.eeg_lst$segments))) == 0) {
     select_in_df <- select_in_df[select_in_df != "segments"]
   }
-  if (length(intersect(all_vars, names(.eeg_lst$signal_tbl))) == 0) {
+  if (length(intersect(all_vars, names(.eeg_lst$signal))) == 0) {
     select_in_df <- select_in_df[select_in_df != "signal_tbl"]
   }
 
@@ -232,7 +232,7 @@ dots_by_df <- function(dots, .eeg_lst) {
 
 
 #' @importFrom rlang :=
-# this function basically applies a dplyr function (dplyr_fun) to $signal_tbl based on groups of segments (ext_grouping_df)
+# this function basically applies a dplyr function (dplyr_fun) to $signal based on groups of segments (ext_grouping_df)
 #' @noRd
 do_based_on_grps <- function(.df, ext_grouping_df, dplyr_fun, dots) {
   int_groups <- dplyr::groups(.df)
@@ -300,7 +300,7 @@ do_based_on_grps <- function(.df, ext_grouping_df, dplyr_fun, dots) {
     }
   }
 
-  dplyr::select(.df, obligatory_cols$signal_tbl, dplyr::everything())
+  dplyr::select(.df, obligatory_cols$signal, dplyr::everything())
 }
 
 
@@ -335,7 +335,7 @@ redo_indices <- function(.eeg_lst) {
     #   dplyr::group_by(!!!orig_groups)
   }
 
-  .eeg_lst$signal_tbl <- redo_indices_df(.eeg_lst$signal_tbl)
+  .eeg_lst$signal <- redo_indices_df(.eeg_lst$signal)
   .eeg_lst$segments <- redo_indices_df(.eeg_lst$segments)
   .eeg_lst$events <- redo_indices_df(.eeg_lst$events)
   .eeg_lst
@@ -382,12 +382,12 @@ validate_segments <- function(segments) {
 
 #' @noRd
 group_vars_int <- function(eeg_lst) {
-  list(signal_tbl = group_vars(eeg_lst$signal_tbl), segments = group_vars(eeg_lst$segments))
+  list(signal_tbl = group_vars(eeg_lst$signal), segments = group_vars(eeg_lst$segments))
 }
 
 #' @noRd
 groups_int <- function(eeg_lst) {
-  list(signal_tbl = groups(eeg_lst$signal_tbl), segments = groups(eeg_lst$segments))
+  list(signal_tbl = groups(eeg_lst$signal), segments = groups(eeg_lst$segments))
 }
 
 

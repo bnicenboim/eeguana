@@ -5,10 +5,10 @@ declass <- function(signal_tbl) {
   attr <- purrr::imap(signal_tbl, ~attributes(.x))
 
   class(signal_tbl) <- class(signal_tbl)[!is_signal_tbl(signal_tbl)]
-  # removes the classes of the sample_id and channels so that the attributes are ignored
-  declassed_signal <- mutate_all(signal_tbl, unclass) %>%
-    purrr::modify(~`attributes<-`(.x, NULL))
-  list(tbl = declassed_signal, attr = attr)
+  # # removes the classes of the sample_id and channels so that the attributes are ignored
+  # declassed_signal <- mutate_all(signal_tbl, unclass) %>%
+  #   purrr::modify(~`attributes<-`(.x, NULL))
+  list(tbl = signal_tbl, attr = attr)
 }
 
 #' @param tbl 
@@ -17,24 +17,30 @@ declass <- function(signal_tbl) {
 #'
 #' @noRd
 reclass <- function(tbl, attr) {
-  old_attr_tbl <- attributes(tbl)
-  tbl <- purrr::imap_dfc(tbl, ~`attributes<-`(
-    .x,
-    if (.y == ".id") {
-      list("class" = NULL)
-    } else if (.y %in% names(attr)) {
-      attr[[.y]]
-    } else {
-      list(
-        "class" = "channel",
-        ".x" = NA_real_,
-        ".y" = NA_real_,
-        ".z" = NA_real_,
-        ".reference" = NA
-      )
-    }
-  ))
-  attributes(tbl) <- old_attr_tbl
+  
+  # TODO can be completely ommitted when the following bug is taken cared
+  # related to #https://github.com/tidyverse/dplyr/issues/3923
+    old_attr_tbl <- attributes(tbl)
+    tbl <- purrr::imap_dfc(tbl, ~`attributes<-`(
+      .x,
+      if (.y == ".id") {
+        list("class" = NULL)
+      } else if (!is.null(attributes(.y))) {
+        attributes(.x)
+      } else if (.y %in% names(attr)) {
+        attr[[.y]]
+      } else if (is.double(.x)){
+        list(
+          "class" = "channel",
+          ".x" = NA_real_,
+          ".y" = NA_real_,
+          ".z" = NA_real_,
+          ".reference" = NA
+        )
+      }
+    ))
+    attributes(tbl) <- old_attr_tbl
+    
   class(tbl) <- c("signal_tbl", class(tbl))
   tbl
 }
@@ -179,10 +185,10 @@ new_eeg_lst <- function(signal_tbl = NULL, events = NULL, segments = NULL) {
 #'
 #' @noRd
 validate_eeg_lst <- function(x) {
-  validate_signal_tbl(x$signal_tbl)
+  validate_signal_tbl(x$signal)
   validate_events(x$events, channel_names(x))
   validate_segments(x$segments)
-  if (any(unique(x$signal_tbl$.id) != unique(x$segments$.id))) {
+  if (any(unique(x$signal$.id) != unique(x$segments$.id))) {
     warning("The values of .ids mismatch between tables.",
       call. = FALSE
     )

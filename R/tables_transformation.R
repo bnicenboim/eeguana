@@ -30,11 +30,11 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
 
   # the segmentation will ignore the groups:
   orig_groups <- list()
-  orig_groups$signal_tbl <- dplyr::groups(x$signal_tbl)
+  orig_groups$signal <- dplyr::groups(x$signal)
   orig_groups$events <- dplyr::groups(x$events)
   orig_groups$segments <- dplyr::groups(x$segments)
 
-  x$signal_tbl <- dplyr::ungroup(x$signal_tbl)
+  x$signal <- dplyr::ungroup(x$signal)
   x$events <- dplyr::ungroup(x$events)
   x$segments <- dplyr::ungroup(x$segments)
 
@@ -68,8 +68,8 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
   # pmap_sgr is pmap_dfr for signal_table
   # TODO benchmark other way: first work only with the samples (and .id maybe), make NA the irrelevant ones,
   # then filter the bad samples
-  x$signal_tbl <- pmap_sgr(list(times0$.id, times0$.sample_0, slim),
-    function(i, s0, sl) x$signal_tbl %>%
+  x$signal <- pmap_sgr(list(times0$.id, times0$.sample_0, slim),
+    function(i, s0, sl) x$signal %>%
         # filter the relevant samples
         dplyr::filter(
           .sample_id >= s0 + sl[1],
@@ -85,7 +85,7 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
     dplyr::mutate(.id = as.integer(.id))
 
 
-  slim <- purrr::map2(slim, split(x$signal_tbl, x$signal_tbl$.id), function(sl, d) {
+  slim <- purrr::map2(slim, split(x$signal, x$signal$.id), function(sl, d) {
     sl <- c(min(d$.sample_id) - 1L, max(d$.sample_id) - 1L)
   })
 
@@ -119,7 +119,7 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
   ) %>%
     dplyr::mutate(.id = as.integer(.id))
 
-  message(paste0("# Total of ", max(x$signal_tbl$.id), " segments found."))
+  message(paste0("# Total of ", max(x$signal$.id), " segments found."))
 
   x$segments <- dplyr::right_join(x$segments,
     dplyr::select(times0, -.sample_0),
@@ -129,7 +129,7 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
     dplyr::group_by(recording) %>%
     dplyr::mutate(segment = 1:n())
 
-  x$signal_tbl <- dplyr::group_by(x$signal_tbl, !!!orig_groups$signal_tbl)
+  x$signal <- dplyr::group_by(x$signal, !!!orig_groups$signal)
   x$events <- dplyr::group_by(x$events, !!!orig_groups$events)
   x$segments <- dplyr::group_by(x$segments, !!!orig_groups$segments)
 
@@ -180,14 +180,14 @@ bind <- function(...) {
   # Binding
   # .id of the new eggbles needs to be adapted
 
-  add_ids <- purrr::map_int(eeg_lsts, ~max(.x$signal_tbl$.id)) %>%
+  add_ids <- purrr::map_int(eeg_lsts, ~max(.x$signal$.id)) %>%
     cumsum() %>%
     dplyr::lag(default = 0) %>%
     as.integer()
 
 
   signal_tbl <- map2_sgr(eeg_lsts, add_ids, ~
-  dplyr::ungroup(.x$signal_tbl) %>%
+  dplyr::ungroup(.x$signal) %>%
     dplyr::mutate(.id = .id + .y))
 
   # signal_tbl <- purrr::map(eeg_lsts)
@@ -257,15 +257,15 @@ event_to_ch_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
     b <- dplyr::filter(baddies, .channel == c & !is.na(.channel))
     if (!entire_seg) {
       for (i in seq(1, nrow(b))) {
-        x$signal_tbl[[as.character(c)]][x$signal_tbl$.id %in% b$.id[i] &
+        x$signal[[as.character(c)]][x$signal$.id %in% b$.id[i] &
           between(
-            x$signal_tbl$.sample_id, b$.sample_0[i],
+            x$signal$.sample_id, b$.sample_0[i],
             b$.sample_0[i] + b$.size[i] - 1
           )  ] <- NA
       }
       # could try with na_if, maybe it's faster?
     } else {
-      x$signal_tbl[[as.character(c)]][x$signal_tbl$.id %in% b$.id] <- NA
+      x$signal[[as.character(c)]][x$signal$.id %in% b$.id] <- NA
     }
   }
   # For the replacement in the complete of the segments
@@ -273,14 +273,14 @@ event_to_ch_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
 
   if (!entire_seg & nrow(b_all) != 0) {
     for (i in seq(1, nrow(b_all))) {
-      x$signal_tbl[, channel_names(x)][x$signal_tbl$.id == b_all$.id[i] &
+      x$signal[, channel_names(x)][x$signal$.id == b_all$.id[i] &
         between(
-          x$signal_tbl$.sample_id, b_all$.sample_0[i],
+          x$signal$.sample_id, b_all$.sample_0[i],
           b_all$.sample_0[i] + b_all$.size[i] - 1
         ), ] <- NA
     }
   } else {
-    x$signal_tbl[, channel_names(x)][x$signal_tbl$.id %in% b_all$.id, ] <- NA
+    x$signal[, channel_names(x)][x$signal$.id %in% b_all$.id, ] <- NA
   }
 
   if (drop_events) {
