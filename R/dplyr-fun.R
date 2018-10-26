@@ -132,7 +132,7 @@ rename.eeg_lst <- function(.data, ...) {
 left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
   if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
 
-  x$segment <- dplyr::left_join(x$segment, y = y, by = by, copy = copy, suffix = c(".x", ".y"), ...)
+  x$segments <- dplyr::left_join(x$segments, y = y, by = by, copy = copy, suffix = c(".x", ".y"), ...)
 
   validate_eeg_lst(x)
 }
@@ -141,9 +141,9 @@ left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".
 semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
 
-  x$segment <- dplyr::semi_join(x$segment, y, by = NULL, suffix = c(".x", ".y"), ...)
-  x$signal <- dplyr::semi_join(x$signal, x$segment, by = ".id")
-  x$events <- dplyr::semi_join(x$events, x$segment, by = ".id")
+  x$segments <- dplyr::semi_join(x$segments, y, by = NULL, suffix = c(".x", ".y"), ...)
+  x$signal <- dplyr::semi_join(x$signal, x$segments, by = ".id")
+  x$events <- dplyr::semi_join(x$events, x$segments, by = ".id")
 
   redo_indices(x) %>% validate_eeg_lst()
 }
@@ -152,7 +152,7 @@ semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
 anti_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
 
-  x$segment <- dplyr::anti_join(x$segment, y, by = NULL, suffix = c(".x", ".y"), ...)
+  x$segments <- dplyr::anti_join(x$segments, y, by = NULL, suffix = c(".x", ".y"), ...)
   x$signal <- dplyr::semi_join(x$signal, x$segments, by = ".id")
   x$events <- dplyr::semi_join(x$events, x$segments, by = ".id")
 

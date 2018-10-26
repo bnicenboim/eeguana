@@ -8,8 +8,8 @@
 #'
 #' @return A valid eggble.
 #' @export
-eeg_lst <- function(signal_tbl, events, segments) {
-  validate_eeg_lst(new_eeg_lst(signal_tbl, events, segments))
+eeg_lst <- function(signal, events, segments) {
+  validate_eeg_lst(new_eeg_lst(signal, events, segments))
 }
 
 

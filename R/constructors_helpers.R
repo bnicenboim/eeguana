@@ -170,9 +170,9 @@ update_channel_meta_data <- function(channels, channel_info) {
 #' @param segments 
 #'
 #' @noRd
-new_eeg_lst <- function(signal_tbl = NULL, events = NULL, segments = NULL) {
+new_eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
   x <- list(
-    signal_tbl = signal_tbl, events = events,
+    signal = signal, events = events,
     segments = segments
   )
   x <- unclass(x)
@@ -264,7 +264,7 @@ validate_segments <- function(segments) {
 }
 
 obligatory_cols <- list(
-  signal_tbl = c(.id = ".id", .sample_id = ".sample_id"),
+  signal = c(.id = ".id", .sample_id = ".sample_id"),
   events = c(.id = ".id", .sample_0 = ".sample_0", .size = ".size", .channel = ".channel"),
   segments = c(.id = ".id")
 )

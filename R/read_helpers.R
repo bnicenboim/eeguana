@@ -5,6 +5,21 @@ read_dat <- function(file, header_info = NULL, events = NULL,
                      recording, sep, zero) {
   n_chan <- nrow(header_info$chan_info)
   common_info <- header_info$common_info
+
+  multiplexed <- dplyr::case_when(
+                stringr::str_detect(common_info$orientation, stringr::regex("vector",
+                  ignore_case = TRUE)) ~ FALSE,
+                stringr::str_detect(common_info$orientation, stringr::regex("multipl",
+                  ignore_case = TRUE)) ~ TRUE,
+                                  TRUE ~ NA) %>% {
+                 if (is.na(.)) {
+                  stop("Orientiation needs to be vectorized or multiplexed.")
+                 } else {
+                  .
+                 }
+                }
+
+
   if (common_info$format == "BINARY") {
     samplesize <- dplyr::case_when(
       stringr::str_detect(common_info$bits, stringr::regex("float_32",
@@ -23,31 +38,22 @@ read_dat <- function(file, header_info = NULL, events = NULL,
       what = "double", n = file.info(file)$size,
       size = samplesize
     )
-    byrow <- dplyr::case_when(
-      stringr::str_detect(common_info$orientation, stringr::regex("vector",
-        ignore_case = TRUE
-      )) ~ FALSE,
-      stringr::str_detect(common_info$orientation, stringr::regex("multipl",
-        ignore_case = TRUE
-      )) ~ TRUE,
-      TRUE ~ NA
-    ) %>% {
-      if (is.na(.)) {
-        stop("Orientiation needs to be vectorized or multiplexed.")
-      } else {
-        .
-      }
-    }
 
-    raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = byrow) %>%
+    raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = multiplexed) %>%
       tibble::as.tibble()
   } else if (common_info$format == "ASCII") {
-    raw_signal <- readr::read_delim(file,
-      delim = " ",
-      col_types =
-        readr::cols(.default = readr::col_double())
-    )
+
+    if(multiplexed){
+          raw_signal <- data.table::fread(file)  %>%
+            dplyr::as_tibble()
+      } else {
+          raw_signal <- data.table::fread(file)  %>%
+            dplyr::select_if(is.double) %>% data.table::transpose() %>%
+            dplyr::as_tibble()
+      }
   }
+
+
 
   # colnames(raw_signal) <- header_info$chan_info$.name
 
@@ -106,7 +112,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
   )
 
   eeg_lst <- new_eeg_lst(
-    signal_tbl = signal_tbl,
+    signal = signal_tbl,
     events = seg_events,
     segments = segments
   ) %>% validate_eeg_lst()

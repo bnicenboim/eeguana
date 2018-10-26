@@ -5,7 +5,7 @@ library(eeguana)
 
 
 cond1 <- eeg_lst(
-  signal_tbl = signal_tbl(
+  signal = signal_tbl(
     signal_matrix = as.matrix(
       data.frame(X = sin(1:10), Y = cos(1:10))
     ),
@@ -26,7 +26,7 @@ cond1 <- eeg_lst(
 
 
 cond2 <- eeg_lst(
-  signal_tbl = signal_tbl(
+  signal = signal_tbl(
     signal_matrix = as.matrix(
       data.frame(X = sin(1:10) + .1, Y = cos(1:10) + .1)
     ),
@@ -48,7 +48,7 @@ cond2 <- eeg_lst(
 
 
 cond3 <- eeg_lst(
-  signal_tbl = signal_tbl(
+  signal = signal_tbl(
     signal_matrix = as.matrix(
       data.frame(X = sin(1:10) + .1, Y = cos(1:10) + .1)
     ),

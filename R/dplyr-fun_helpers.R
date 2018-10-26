@@ -140,7 +140,7 @@ filter_eeg_lst <- function(.eeg_lst, .dots){
     }
     # filter the segments and update the signal_tbl
     if (length(new_dots$segments) > 0) {
-      .eeg_lst$segments <- dplyr::filter(.eeg_lst$segments, !!!new_.dots$segments)
+      .eeg_lst$segments <- dplyr::filter(.eeg_lst$segments, !!!new_dots$segments)
       .eeg_lst$signal <- dplyr::semi_join(.eeg_lst$signal, .eeg_lst$segments, by = ".id")
       .eeg_lst$events <- dplyr::semi_join(.eeg_lst$events, .eeg_lst$segments, by = ".id")
     }
@@ -168,12 +168,13 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
     names(.eeg_lst$segments)
   )), !!!dots)
 
-  select_in_df <- c("signal_tbl", "segments")
+  #TODO in a more elegant way:
+  select_in_df <- c("signal", "segments")
   if (length(intersect(all_vars, names(.eeg_lst$segments))) == 0) {
     select_in_df <- select_in_df[select_in_df != "segments"]
   }
   if (length(intersect(all_vars, names(.eeg_lst$signal))) == 0) {
-    select_in_df <- select_in_df[select_in_df != "signal_tbl"]
+    select_in_df <- select_in_df[select_in_df != "signal"]
   }
 
   # Divide the variables into the relevant columns
@@ -227,7 +228,7 @@ dots_by_df <- function(dots, .eeg_lst) {
   # if both signal_tbl and segments columns are there, it will say that the dots should apply
   # to a signal_tbl dataframe.
 
-  list(signal_tbl = dots[signal_dots], segments = dots[!signal_dots])
+  list(signal = dots[signal_dots], segments = dots[!signal_dots])
 }
 
 

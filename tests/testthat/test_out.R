@@ -2,7 +2,7 @@ context("test out functions")
 library(eeguana)
 
 
-eeg_lst_av <- read_vhdr("binary-avfaces.vhdr")
+eeg_lst_av <- read_vhdr("../../inst/extdata/binary-avfaces.vhdr")
 
 # just to check if something break, but this should be done with test_that
 channel_names(eeg_lst_av)

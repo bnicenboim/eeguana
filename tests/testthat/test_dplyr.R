@@ -3,7 +3,7 @@ library(eeguana)
 
 
 data <- eeg_lst(
-  signal_tbl = signal_tbl(
+  signal = signal_tbl(
     signal_matrix = as.matrix(
       data.frame(X = sin(1:20), Y = cos(1:20))
     ),
@@ -81,3 +81,7 @@ expect_equal(is_channel_dbl(summarize_at_g_signal_tbl$signal$X), TRUE)
 expect_equal(is_channel_dbl(summarize2_g_signal_tbl$signal$`mean(X)`), TRUE)
 })
 
+
+
+# add tests 
+# for filtering accoring to segments, grouped and ungrouped
