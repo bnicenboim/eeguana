@@ -205,7 +205,7 @@ bind <- function(...) {
 
 
   new_eeg_lst <- new_eeg_lst(
-    signal_tbl = signal_tbl, events = events, segments = segments
+    signal = signal_tbl, events = events, segments = segments
   ) %>%
     validate_eeg_lst()
   message(say_size(new_eeg_lst))

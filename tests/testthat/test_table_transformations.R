@@ -3,7 +3,7 @@ library(eeguana)
 
 
 data <- eeg_lst(
-  signal_tbl = signal_tbl(
+  signal = signal_tbl(
     signal_matrix = as.matrix(
       data.frame(X = sin(1:20), Y = cos(1:20))
     ),
@@ -29,7 +29,7 @@ data <- eeg_lst(
 
 
 data_NA <- eeg_lst(
-  signal_tbl = signal_tbl(
+  signal = signal_tbl(
     signal_matrix = as.matrix(
       data.frame(X = sin(1:20), Y = cos(1:20))
     ),
@@ -54,7 +54,7 @@ data_NA <- eeg_lst(
 )
 
 data_XY <- eeg_lst(
-  signal_tbl = signal_tbl(
+  signal = signal_tbl(
     signal_matrix = as.matrix(
       data.frame(X = sin(1:20), Y = cos(1:20))
     ),
@@ -139,7 +139,7 @@ test_that("can clean whole segments in files", {
 
 
 data0 <- eeg_lst(
-  signal_tbl = signal_tbl(
+  signal = signal_tbl(
     signal_matrix = as.matrix(
       data.frame(X = sin(1:20), Y = cos(1:20))
     ),

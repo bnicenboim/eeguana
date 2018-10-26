@@ -3,7 +3,7 @@ library(eeguana)
 
 
 data <- eeg_lst(
-  signal_tbl = signal_tbl(
+  signal = signal_tbl(
     signal_matrix = as.matrix(
       data.frame(X = sin(1:20), Y = cos(1:20))
     ),
