@@ -22,11 +22,6 @@ segment <- function(x, ...) {
 #' @export
 segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
   dots <- rlang::enquos(...)
-  # dots <- rlang::quos(description == "s121")
-  # dots <- rlang::quos(description == "s70")
-  # dots <- rlang::quos(description == "s13")
-  # dots <- rlang::quos(description %in% c("s70",s71"))
-  # dots <- rlang::quos(type == "New Segment")
 
   # the segmentation will ignore the groups:
   orig_groups <- list()
@@ -68,12 +63,11 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
   # pmap_sgr is pmap_dfr for signal_table
   # TODO benchmark other way: first work only with the samples (and .id maybe), make NA the irrelevant ones,
   # then filter the bad samples
-  x$signal <- pmap_sgr(list(times0$.id, times0$.sample_0, slim),
+  x$signal <- 
+  pmap_sgr(list(times0$.id, times0$.sample_0, slim),
     function(i, s0, sl) x$signal %>%
         # filter the relevant samples
-        dplyr::filter(
-          .sample_id >= s0 + sl[1],
-          .sample_id <= s0 + sl[2],
+        dplyr::filter(between(.sample_id, s0 + sl[1], s0 + sl[2]),
           .id == i
         ) %>%
         dplyr::mutate(.sample_id = .sample_id - s0 + 1L) %>%
@@ -83,7 +77,6 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
     .id = ".id"
   ) %>%
     dplyr::mutate(.id = as.integer(.id))
-
 
   slim <- purrr::map2(slim, split(x$signal, x$signal$.id), function(sl, d) {
     sl <- c(min(d$.sample_id) - 1L, max(d$.sample_id) - 1L)
