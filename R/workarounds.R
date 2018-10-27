@@ -1,16 +1,11 @@
-
-#' bind_rows looses the attributes
+#' bind_rows looses the attributes, TODO: look for solutions
 #' https://github.com/tidyverse/dplyr/issues/2457
 #' This is a workaround to create signal_tbl tables
 #' @noRd
 pmap_sgr <- function(.l, .f, ..., .id = NULL) {
   .f <- purrr::as_mapper(.f, ...)
-  res <- purrr::pmap(.l, .f, ...) %>%
-    purrr::map(declass)
-  res_tbl <- purrr::map(res, ~.x$tbl)
-  res_attr <- purrr::flatten(purrr::map(res, ~.x$attr))
-  dplyr::bind_rows(res_tbl, .id = .id) %>%
-    reclass(res_attr)
+  res <- purrr::pmap(.l, .f, ...)
+  tibble::as_tibble(data.table::rbindlist(res, idcol=.id))
 }
 
 #' @noRd
@@ -19,14 +14,9 @@ map2_sgr <- function(.x, .y, .f, ..., .id = NULL) {
   #     abort("`map2_dfr()` requires dplyr")
   # }
   .f <- purrr::as_mapper(.f, ...)
-  res <- purrr::map2(.x, .y, .f, ...) %>%
-    purrr::map(declass)
-  res_tbl <- purrr::map(res, ~.x$tbl)
-  res_attr <- purrr::flatten(purrr::map(res, ~.x$attr))
-  dplyr::bind_rows(res_tbl, .id = .id) %>%
-    reclass(res_attr)
+  res <- purrr::map2(.x, .y, .f, ...) 
+  tibble::as_tibble(data.table::rbindlist(res, idcol=.id))
 }
-
 
 #' @export
 between <- function(x, left, right) {
