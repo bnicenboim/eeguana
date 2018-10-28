@@ -14,7 +14,7 @@
 #'
 #' @export
 as_tibble.eeg_lst <- function(x, add_segments = TRUE) {
-  df <- declass(x$signal)$tbl %>%
+  df <- declass(x$signal, remove_attributes = TRUE)$tbl %>%
     tidyr::gather(key = "channel", value = "amplitude", channel_names(x)) %>%
     {
       if (add_segments) {
@@ -33,7 +33,7 @@ as_tibble.eeg_lst <- function(x, add_segments = TRUE) {
 
 #' @export
 as_tibble.signal_tbl <- function(x) {
-  x <- declass(x)$tbl
+  x <- declass(x, remove_attributes = TRUE)$tbl
   NextMethod()
 }
 
@@ -67,7 +67,7 @@ summarize_by_id_tbl.eeg_lst <- function(x, .funs = mean, ...) {
       if (length(.[[1]]) == 1) .[[1]] else .[[1]][2]
     }
 
-  declass(x$signal)$tbl %>%
+  declass(x$signal, remove_attributes = TRUE)$tbl %>%
     dplyr::group_by(.id) %>% # keep grouping for later
     dplyr::summarize_at(channel_names(x), .funs, ...) %>%
     # change the column back to channel names, when funs(?? = fun)
