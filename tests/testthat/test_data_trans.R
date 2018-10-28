@@ -1,9 +1,6 @@
 context("Binding and transforming")
 library(eeguana)
 
-
-
-
 cond1 <- eeg_lst(
   signal = signal_tbl(
     signal_matrix = as.matrix(

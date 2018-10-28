@@ -1,13 +1,16 @@
 
 #' @noRd
-declass <- function(signal_tbl) {
+declass <- function(signal_tbl, remove_attributes = FALSE) {
   # extracting attributes
   attr <- purrr::imap(signal_tbl, ~attributes(.x))
 
   class(signal_tbl) <- class(signal_tbl)[!is_signal_tbl(signal_tbl)]
   # # removes the classes of the sample_id and channels so that the attributes are ignored
-  # declassed_signal <- mutate_all(signal_tbl, unclass) %>%
-  #   purrr::modify(~`attributes<-`(.x, NULL))
+  if(remove_attributes){
+    signal_tbl <- mutate_all(signal_tbl, unclass) %>%
+      purrr::modify(~`attributes<-`(.x, NULL)) 
+  }
+   
   list(tbl = signal_tbl, attr = attr)
 }
 
