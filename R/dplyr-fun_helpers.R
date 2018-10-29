@@ -115,9 +115,15 @@ group_by_eeg_lst <- function(.eeg_lst, .dots, .add = FALSE){
   .eeg_lst$signal <- dplyr::group_by(.eeg_lst$signal, !!!new_dots$signal, add = .add)
   .eeg_lst$segments <- dplyr::group_by(.eeg_lst$segments, !!!new_dots$segments, add = .add)
 
-  if (".id" %in% dplyr::group_vars(.eeg_lst$signal)) {
-    .eeg_lst$segments <- dplyr::group_by(.eeg_lst$segments, .id, add = TRUE)
-  }
+
+  # if (".id" %in% dplyr::group_vars(.eeg_lst$signal)) {
+  #   .eeg_lst$segments <- dplyr::group_by(.eeg_lst$segments, .id, add = TRUE)
+  # }
+
+  #TODO add .id to segments when relevant
+  attributes(.eeg_lst)$vars <- list(
+                          signal = purrr::map_chr(new_dots$signal, rlang::quo_text),
+                          segments = purrr::map_chr(new_dots$segments, rlang::quo_text))
 
   validate_eeg_lst(.eeg_lst)
 }
@@ -227,12 +233,11 @@ dots_by_df <- function(dots, .eeg_lst) {
   # signal_dots is a vector of TRUE/FALSE indicating for each call whether it belongs to signals
   # if both signal_tbl and segments columns are there, it will say that the dots should apply
   # to a signal_tbl dataframe.
-
-  list(signal = dots[signal_dots], segments = dots[!signal_dots])
+  segments <- c(dots[!signal_dots], dots[signal_dots][rlang::quos(.id) %in% dots[signal_dots]])
+  list(signal = dots[signal_dots], segments = segments)
 }
 
 
-#' @importFrom rlang :=
 # this function basically applies a dplyr function (dplyr_fun) to $signal based on groups of segments (ext_grouping_df)
 #' @noRd
 do_based_on_grps <- function(.df, ext_grouping_df, dplyr_fun, dots) {
@@ -396,7 +401,7 @@ groups_int <- function(eeg_lst) {
 group_by_id <- function(eeg_lst) {
   orig_groups <- dplyr::group_vars(eeg_lst)
   # if there are many groupings
-  if (length(orig_groups) > 1 |
+  if (length(orig_groups) == 0 | length(orig_groups) > 1 |
     # or if the only one is not .id
     (length(orig_groups) == 1 & orig_groups[1] != ".id")) {
     message("# Grouping by .id.")
