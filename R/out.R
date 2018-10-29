@@ -52,7 +52,7 @@ channels_tbl.eeg_lst <- function(x, ...) {
     dplyr::bind_cols(dplyr::slice(ungroup(x$signal), 1) %>%
       dplyr::select(channel_names(x)) %>%
       purrr::map_dfr(~attributes(.x))) %>%
-    select(-class, -channel)
+    select(-channel)
 }
 
 #' @export

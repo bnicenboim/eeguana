@@ -83,19 +83,19 @@ groups.eeg_lst <- function(x) {
   groups(x$segments)
 }
 #' @export
-group_by_.eeg_lst <- function(.data, ..., .dots = list(), add = FALSE) {
+group_by_.eeg_lst <- function(.data, ..., .dots = list()) {
   dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
-  group_by_eeg_lst(.eeg_lst = .data, .dots = dots, .add = add)
+  group_by_eeg_lst(.eeg_lst = .data, .dots = dots, .add = FALSE)
 }
 #' @rdname dplyr
 #' @export
-group_by.eeg_lst <- function(.data, ..., add = FALSE) {
+group_by.eeg_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
-  group_by_eeg_lst(.eeg_lst = .data, .dots = dots, .add = add)
+  group_by_eeg_lst(.eeg_lst = .data, .dots = dots, .add = FALSE)
 }
 #' @rdname dplyr
 #' @export
-ungroup.eeg_lst <- function(.data, ..., add = add) {
+ungroup.eeg_lst <- function(.data, ...) {
   .data$signal <- dplyr::ungroup(.data$signal)
   .data$segments <- dplyr::ungroup(.data$segments)
   validate_eeg_lst(.data)

@@ -30,7 +30,7 @@ Imports:
     signal,
     MBA,
     tibble,
-    data.table
+    data.table (>= 1.9.8)
 Suggests:
     testthat,
     roxygen2,
