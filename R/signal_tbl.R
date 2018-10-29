@@ -6,6 +6,13 @@
 #   NextMethod()
 # }
 
+#' @export 
+as_signal_tbl <- function(x,...){
+  x <- tibble::as_tibble(x)
+  class(x) <- c("signal_tbl",class(x))
+  validate_signal_tbl(x)
+}
+
 #' @export
 filter_.signal_tbl <- function(.data, ..., .dots = list()) {
   declassed <- declass(.data)

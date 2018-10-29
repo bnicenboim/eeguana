@@ -1,3 +1,5 @@
+  .datatable.aware = TRUE
+  
 #' @noRd
 seq_len <- function(length.out) {
   if (length(length.out) == 0) {

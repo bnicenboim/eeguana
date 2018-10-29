@@ -20,14 +20,13 @@ ch_baseline <- function(x, ...) {
 #' @export
 ch_baseline.eeg_lst <- function(x, time = -Inf, sample_id = NULL) {
 
-
   if (is.null(sample_id) & is.numeric(time)) {
     sample_id <- time * sampling_rate(x)
   } else if (is.numeric(sample_id) & is.numeric(time)) {
     message("# Ignoring time parameter.")
   }
- #TODO use data.table
-
+ 
+ # dplyr code
   # ch_baseline.eeg_lst uses grouping by .id by default, more flexible baseline
   # x <- group_by_id(x)
   # x$signal <-
@@ -37,15 +36,35 @@ ch_baseline.eeg_lst <- function(x, time = -Inf, sample_id = NULL) {
   #     dplyr::funs(. - mean(.[between(.sample_id, sample_id, 0)], na.rm = TRUE))
   #   )
 
-  .datatable.aware = TRUE 
+ 
   temp_tbl <- data.table::as.data.table(x$signal)
-  fun_baseline <- function(x,.sample_id, lower) {
-    x - mean(x[between(.sample_id, lower, 0)],na.rm=TRUE)
-  }
-  temp_tbl[,  (channel_names(x)) := lapply(.SD, fun_baseline,.sample_id, sample_id) , .SDcols = (channel_names(x)), by = .id ]
+  temp_tbl[, (channel_names(x)) := lapply(.SD, fun_baseline, .sample_id, sample_id) ,
+             .SDcols = (channel_names(x)),
+              by = .id ]
   
-  x$signal <- as_tibble(temp_tbl)
+  x$signal <- as_signal_tbl(temp_tbl)
 
 
   x
 }
+
+#' @export
+ch_baseline.channel <- function(x, time = -Inf, sample_id = NULL) {
+
+  signal <- signal_from_parent_frame(env = parent.frame(1))
+
+  if(is.null(sample_id) & is.numeric(time)){
+   sample_id <- time * attributes(signal$.sample_id)$sampling_rate
+  } else if( is.numeric(sample_id) & is.numeric(time)) {
+    message("# Ignoring time parameter.")
+  }
+
+  print(signal$.sample_id)
+  fun_baseline(x, signal[[".sample_id"]], sample_id)  
+}
+
+
+fun_baseline <- function(x,.sample_id, lower) {
+  x - mean(x[between(.sample_id, lower, 0)],na.rm=TRUE)
+}
+
