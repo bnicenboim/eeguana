@@ -7,7 +7,7 @@
 #'
 #' @param x An `eeg_lst` object.
 #' @param ... Description of the event.
-#' @param lim Vector indicating the time before and after the event. Or matrix with two columns, with nrow=total number of segments
+#' @param lim Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments
 #' @param unit Unit
 #'
 #' @return An `eeg_lst`.
@@ -33,84 +33,127 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
   x$events <- dplyr::ungroup(x$events)
   x$segments <- dplyr::ungroup(x$segments)
 
+
   times0 <- dplyr::filter(x$events, !!!dots) %>%
-    dplyr::select(-.channel, -.size)
+    dplyr::select(-.channel, -.size) %>%
+    dplyr::select(dplyr::starts_with("."))
 
-  scaling <- scaling(sampling_rate(x), unit = unit)
-
-  if (length(lim) == 2) {
-    lim <- rep(list(lim), each = nrow(times0))
+  if (any(lim[[2]] < lim[[1]])) {
+    stop("A segment needs to be of positive length and include at least 1 sample.")
   }
-
-  if (is.matrix(lim) && dim(lim)[2] == 2 && dim(lim)[1] == nrow(times0)) {
-    lim <- purrr::array_branch(lim, 1)
-  } else if (is.list(lim) && length(lim) == nrow(times0)) {
-    # ok format
-    NULL
+  
+  
+  if ((length(lim) == 2) || ## two values or a dataframe
+    (!is.null(nrow(lim)) && nrow(lim) == nrow(times0)) ) {
+    scaling <- scaling(sampling_rate(x), unit = unit)
+    sample_lim <- round(lim * scaling) 
+    segmentation_info <- times0 %>% dplyr::mutate(.lower =.sample_0+ sample_lim[[1]] %>% as_integer(), 
+                                                  .upper = .sample_0+ sample_lim[[2]] %>% as_integer(),
+                                                  .new_id = seq.int(dplyr::n()))
   } else {
     stop("Wrong dimension of lim")
   }
 
-  slim <- purrr::modify(lim, function(l) {
-    if (l[2] < l[1]) {
-      stop("A segment needs to be of positive length and include at least 1 sample.")
-    }
-    round(l * scaling) %>% as_integer()
-  })
+
+
 
   # bind_rows looses the attributes
   # https://github.com/tidyverse/dplyr/issues/2457
   # pmap_sgr is pmap_dfr for signal_table
   # TODO benchmark other way: first work only with the samples (and .id maybe), make NA the irrelevant ones,
   # then filter the bad samples
-  x$signal <- 
-  pmap_sgr(list(times0$.id, times0$.sample_0, slim),
-    function(i, s0, sl) x$signal %>%
-        # filter the relevant samples
-        dplyr::filter(between(.sample_id, s0 + sl[1], s0 + sl[2]),
-          .id == i
-        ) %>%
-        dplyr::mutate(.sample_id = .sample_id - s0 + 1L) %>%
-        # order the signals df:
-        dplyr::select(-.id)
-    ,
-    .id = ".id"
-  ) %>%
-    dplyr::mutate(.id = as.integer(.id))
 
-  slim <- purrr::map2(slim, split(x$signal, x$signal$.id), function(sl, d) {
-    sl <- c(min(d$.sample_id) - 1L, max(d$.sample_id) - 1L)
-  })
+  # x$signal <- 
+  # pmap_sgr(list(segmentation_info$.id, segmentation_info$.sample_0, segmentation_info$.lower,segmentation_info$.upper),
+  #   function(i, s0, l,u) x$signal %>%
+  #       # filter the relevant samples
+  #       dplyr::filter(between(.sample_id, l, u),
+  #         .id == i
+  #       ) %>%
+  #       dplyr::mutate(.sample_id = .sample_id - s0 + 1L) %>%
+  #       # order the signals df:
+  #       dplyr::select(-.id)
+  #   ,
+  #   .id = ".id"
+  # ) %>%
+  #   dplyr::mutate(.id = as.integer(.id))
 
-  x$events <- purrr::pmap_dfr(list(times0$.id, times0$.sample_0, slim),
-    .id = ".id",
-    function(i, s0, sl) {
-      # bound according to the segment
-      x$events %>%
-        # filter the relevant events
-        # started after the segment (s0 + slim[1])
-        # or span after the segment (s0 + slim[1])
-        dplyr::filter(
-          .sample_0 + .size - 1 >= s0 + sl[1],
-          .sample_0 <= s0 + sl[2],
-          .id == i
-        ) %>%
-        dplyr::mutate(
-          .size = dplyr::if_else(
-            .sample_0 < s0 + sl[1],
-            as.integer(.size - (s0 + sl[1] - .sample_0) + 1L),
-            # adjust the size so that it doesn't spillover after the segment
-            .size
-          ) %>% pmin(., sl[2] + 1L - .sample_0 + s0),
-          .sample_0 = dplyr::if_else(
-            .sample_0 < s0 + sl[1], sl[1] + 1L,
-            .sample_0 - s0 + 1L
-          )
-        ) %>%
-        dplyr::select(-.id)
-    }
-  ) %>%
-    dplyr::mutate(.id = as.integer(.id))
+  # slim <- purrr::map2(slim, split(x$signal, x$signal$.id), function(sl, d) {
+  #   sl <- c(min(d$.sample_id) - 1L, max(d$.sample_id) - 1L)
+  # })
+
+  # x$events <- purrr::pmap_dfr(list(times0$.id, times0$.sample_0, slim),
+  #   .id = ".id",
+  #   function(i, s0, sl) {
+  #     # bound according to the segment
+  #     x$events %>%
+  #       # filter the relevant events
+  #       # started after the segment (s0 + slim[1])
+  #       # or span after the segment (s0 + slim[1])
+  #       dplyr::filter(
+  #         .sample_0 + .size - 1 >= s0 + sl[1],
+  #         .sample_0 <= s0 + sl[2],
+  #         .id == i
+  #       ) %>%
+  #       dplyr::mutate(
+  #         .size = dplyr::if_else(
+  #           .sample_0 < s0 + sl[1],
+  #           as.integer(.size - (s0 + sl[1] - .sample_0) + 1L),
+  #           # adjust the size so that it doesn't spillover after the segment
+  #           .size
+  #         ) %>% pmin(., sl[2] + 1L - .sample_0 + s0),
+  #         .sample_0 = dplyr::if_else(
+  #           .sample_0 < s0 + sl[1], sl[1] + 1L,
+  #           .sample_0 - s0 + 1L
+  #         )
+  #       ) %>%
+  #       dplyr::select(-.id)
+  #   }
+  # ) %>%
+  #   dplyr::mutate(.id = as.integer(.id))
+
+
+  segmentation <- data.table::as.data.table(segmentation_info)
+
+  # update the signal tbl:
+  signal <- data.table::as.data.table(x$signal)
+  
+  cols_signal <- colnames(signal)
+  cols_signal_temp <- c(".new_id",".sample_0","x..sample_id",cols_signal[cols_signal!=".id"])
+
+  new_signal <- signal[segmentation, on = .(.id, .sample_id >= .lower, .sample_id <= .upper), allow.cartesian=TRUE,
+  ..cols_signal_temp]
+
+  
+  #.sample_id is now the lower bound
+  #x..sample_id is the original columns
+  new_signal[, .sample_id := x..sample_id - .sample_0 + 1L][,.sample_0 := NULL][, x..sample_id:=NULL ]
+  data.table::setnames(new_signal, ".new_id",".id")
+  attributes(new_signal$.sample_id) <- attributes(signal$.sample_id)
+  x$signal <-   as_signal_tbl(new_signal)
+
+  #update events table
+  cols_events <- colnames(x$events)
+  cols_events_temp <- unique(c(cols_events, colnames(segmentation_info),"i..sample_0"))
+  #i..sample_0 is the sample_0 of events
+  events <- data.table::as.data.table(x$events)
+  new_events <- segmentation[events, on = .(.id), ..cols_events_temp, allow.cartesian=TRUE][
+                                data.table::between(i..sample_0,.lower - .size + 1 , .upper)]
+
+  
+
+  new_events[,.size := dplyr::if_else(i..sample_0 < .lower,
+                                      as.integer(.size - (.lower - i..sample_0) + 1L),
+                                      # adjust the size so that it doesn't spillover after the segment
+                                      .size) %>% 
+                        pmin(., .upper + 1L - i..sample_0 )][,
+               .sample_0 := dplyr::if_else(i..sample_0 < .lower, 
+                                           .lower - .sample_0 + 1L,
+                                           i..sample_0 - .sample_0 + 1L)  ][, 
+               .id := .new_id]
+
+  x$events <- new_events[,..cols_events] %>% dplyr::as_tibble()
+
 
   message(paste0("# Total of ", max(x$signal$.id), " segments found."))
 

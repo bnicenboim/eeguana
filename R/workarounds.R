@@ -5,7 +5,7 @@
 pmap_sgr <- function(.l, .f, ..., .id = NULL) {
   .f <- purrr::as_mapper(.f, ...)
   res <- purrr::pmap(.l, .f, ...)
-  tibble::as_tibble(data.table::rbindlist(res, idcol=.id))
+  as_signal_tbl(data.table::rbindlist(res, idcol=.id)) 
 }
 
 #' @noRd
@@ -15,7 +15,7 @@ map2_sgr <- function(.x, .y, .f, ..., .id = NULL) {
   # }
   .f <- purrr::as_mapper(.f, ...)
   res <- purrr::map2(.x, .y, .f, ...) 
-  tibble::as_tibble(data.table::rbindlist(res, idcol=.id))
+  as_signal_tbl(data.table::rbindlist(res, idcol=.id))
 }
 
 #' @export

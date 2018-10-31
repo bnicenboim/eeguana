@@ -118,5 +118,9 @@ channel_dbl <- function(values, x = NA_real_, y = NA_real_, z = NA_real_, refere
 #' @return `TRUE` if the object inherits from the `sampl` class.
 #' @export
 is_channel_dbl <- function(x) {
-  class(x) == "channel"
+   if(class(x) == "channel") {
+    message("channel class is deprecated")
+    return(TRUE)
+  }
+  class(x) == "channel_dbl"
 }
