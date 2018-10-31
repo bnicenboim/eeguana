@@ -35,9 +35,9 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
 
 
   times0 <- dplyr::filter(x$events, !!!dots) %>%
-    dplyr::select(-.channel, -.size) %>%
-    dplyr::select(dplyr::starts_with("."))
+    dplyr::select(-.channel, -.size) 
 
+    
   if (any(lim[[2]] < lim[[1]])) {
     stop("A segment needs to be of positive length and include at least 1 sample.")
   }
@@ -47,9 +47,11 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
     (!is.null(nrow(lim)) && nrow(lim) == nrow(times0)) ) {
     scaling <- scaling(sampling_rate(x), unit = unit)
     sample_lim <- round(lim * scaling) 
+    seg_names <- colnames(times0)[!startsWith(colnames(times0),".")]
     segmentation_info <- times0 %>% dplyr::mutate(.lower =.sample_0+ sample_lim[[1]] %>% as_integer(), 
                                                   .upper = .sample_0+ sample_lim[[2]] %>% as_integer(),
-                                                  .new_id = seq.int(dplyr::n()))
+                                                  .new_id = seq.int(dplyr::n())) %>%
+                                    dplyr::select(-dplyr::one_of(seg_names))
   } else {
     stop("Wrong dimension of lim")
   }
