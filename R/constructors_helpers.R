@@ -1,52 +1,52 @@
 
-#' @noRd
-declass <- function(signal_tbl, remove_attributes = FALSE) {
-  # extracting attributes
-  attr <- purrr::imap(signal_tbl, ~attributes(.x))
+# #' @noRd
+# declass <- function(signal_tbl, remove_attributes = FALSE) {
+#   # extracting attributes
+#   attr <- purrr::imap(signal_tbl, ~attributes(.x))
 
-  class(signal_tbl) <- class(signal_tbl)[!is_signal_tbl(signal_tbl)]
-  # # removes the classes of the sample_id and channels so that the attributes are ignored
-  if(remove_attributes){
-    signal_tbl <- mutate_all(signal_tbl, unclass) %>%
-      purrr::modify(~`attributes<-`(.x, NULL)) 
-  }
+#   class(signal_tbl) <- class(signal_tbl)[!is_signal_tbl(signal_tbl)]
+#   # # removes the classes of the sample_id and channels so that the attributes are ignored
+#   if(remove_attributes){
+#     signal_tbl <- mutate_all(signal_tbl, unclass) %>%
+#       purrr::modify(~`attributes<-`(.x, NULL)) 
+#   }
    
-  list(tbl = signal_tbl, attr = attr)
-}
+#   list(tbl = signal_tbl, attr = attr)
+# }
 
-#' @param tbl 
-#'
-#' @param attr 
-#'
-#' @noRd
-reclass <- function(tbl, attr) {
+# #' @param tbl 
+# #'
+# #' @param attr 
+# #'
+# #' @noRd
+# reclass <- function(tbl, attr) {
   
-  # TODO can be completely ommitted when the following bug is taken cared
-  # related to #https://github.com/tidyverse/dplyr/issues/3923
-    old_attr_tbl <- attributes(tbl)
-    tbl <- purrr::imap_dfc(tbl, ~`attributes<-`(
-      .x,
-      if (.y == ".id") {
-        list("class" = NULL)
-      } else if (!is.null(attributes(.y))) {
-        attributes(.x)
-      } else if (.y %in% names(attr)) {
-        attr[[.y]]
-      } else if (is.double(.x)){
-        list(
-          "class" = "channel_dbl",
-          ".x" = NA_real_,
-          ".y" = NA_real_,
-          ".z" = NA_real_,
-          ".reference" = NA
-        )
-      }
-    ))
-    attributes(tbl) <- old_attr_tbl
+#   # TODO can be completely ommitted when the following bug is taken cared
+#   # related to #https://github.com/tidyverse/dplyr/issues/3923
+#     old_attr_tbl <- attributes(tbl)
+#     tbl <- purrr::imap_dfc(tbl, ~`attributes<-`(
+#       .x,
+#       if (.y == ".id") {
+#         list("class" = NULL)
+#       } else if (!is.null(attributes(.y))) {
+#         attributes(.x)
+#       } else if (.y %in% names(attr)) {
+#         attr[[.y]]
+#       } else if (is.double(.x)){
+#         list(
+#           "class" = "channel_dbl",
+#           ".x" = NA_real_,
+#           ".y" = NA_real_,
+#           ".z" = NA_real_,
+#           ".reference" = NA
+#         )
+#       }
+#     ))
+#     attributes(tbl) <- old_attr_tbl
     
-  class(tbl) <- c("signal_tbl", class(tbl))
-  tbl
-}
+#   class(tbl) <- c("signal_tbl", class(tbl))
+#   tbl
+# }
 
 #' @param values 
 #'
@@ -134,14 +134,16 @@ validate_channel_dbl <- function(channel) {
 #'
 #' @noRd
 new_signal_tbl <- function(signal_matrix = matrix(), ids = c(), sample_ids = c(), channel_info = dplyr::tibble()) {
-  raw_signal <- dplyr::as_tibble(signal_matrix)
+  
+  signal_tbl <- lapply(seq_len(ncol(signal_matrix)), function(i) signal_matrix[, i]) %>% 
+                update_channel_meta_data( channel_info) %>%
+                data.table::as.data.table()
 
-  raw_signal <- update_channel_meta_data(raw_signal, channel_info)
 
-  signal_tbl <- tibble::tibble(.id = ids, .sample_id = sample_ids) %>%
-    dplyr::bind_cols(raw_signal)
-
-  class(signal_tbl) <- c("signal_tbl", class(signal_tbl))
+  signal_tbl[, .id := ids][, .sample_id := sample_ids]
+  data.table::setcolorder(signal_tbl, c(".id", ".sample_id"))
+  data.table::setattr(signal_tbl, "class",c("signal_tbl",class(signal_tbl)))
+  data.table::setkey(signal_tbl, .id, .sample_id)
   signal_tbl
 }
 
@@ -152,14 +154,14 @@ new_signal_tbl <- function(signal_matrix = matrix(), ids = c(), sample_ids = c()
 #' @noRd
 update_channel_meta_data <- function(channels, channel_info) {
   if (nrow(channel_info) == 0 | is.null(channel_info)) {
-    channels <- purrr::map_dfc(
+    channels <- purrr::map(
       channels,
       function(sig) {
         channel <- new_channel_dbl(value = sig)
       }
     )
   } else {
-    channels <- purrr::map2_dfc(
+    channels <- purrr::map2(
       channels %>% setNames(channel_info$.name), purrr::transpose(channel_info),
       function(sig, chan_info) {
         channel <- new_channel_dbl(value = sig, as.list(chan_info))
@@ -220,9 +222,8 @@ validate_signal_tbl <- function(signal_tbl) {
   # Validates sample_id
   validate_sample_int(signal_tbl$.sample_id)
 
-  # Validates channels (first row is enough, and takes less memory)
-  dplyr::slice(ungroup(signal_tbl), 1) %>%
-    purrr::walk(~if (is_channel_dbl(.x)) validate_channel_dbl(.x))
+  # Validates channels 
+  signal_tbl[, lapply(.SD,validate_channel_dbl), .SDcols= sapply(signal_tbl, is_channel_dbl)] 
 
   signal_tbl
 }
