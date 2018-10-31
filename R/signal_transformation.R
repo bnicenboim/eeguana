@@ -37,12 +37,12 @@ ch_baseline.eeg_lst <- function(x, time = -Inf, sample_id = NULL) {
   #   )
 
  
-  temp_tbl <- data.table::as.data.table(x$signal)
-  temp_tbl[, (channel_names(x)) := lapply(.SD, fun_baseline, .sample_id, sample_id) ,
+  new_signal <- data.table::copy(x$signal)
+  new_signal[, (channel_names(x)) := lapply(.SD, fun_baseline, .sample_id, sample_id) ,
              .SDcols = (channel_names(x)),
               by = .id ]
   
-  x$signal <- as_signal_tbl(temp_tbl)
+  x$signal <- new_signal
 
 
   x
