@@ -48,8 +48,9 @@ ch_baseline.eeg_lst <- function(x, time = -Inf, sample_id = NULL) {
   x
 }
 
+# TODO: it doesn't work with grouped data because of a bug of dplyr
 #' @export
-ch_baseline.channel <- function(x, time = -Inf, sample_id = NULL) {
+ch_baseline.channel_dbl <- function(x, time = -Inf, sample_id = NULL) {
 
   signal <- signal_from_parent_frame(env = parent.frame(1))
 

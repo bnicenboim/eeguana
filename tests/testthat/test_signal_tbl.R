@@ -126,5 +126,5 @@ test_that("test that attributes of columns of signal_tbl are preserved", {
 })
 
 test_that("New channel get the channel class", {
-  expect_equal(class(mutate2_g_signal_tbl$X), "channel")
+  expect_equal(class(mutate2_g_signal_tbl$X), "channel_dbl")
 })

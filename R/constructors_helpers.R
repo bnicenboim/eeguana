@@ -34,7 +34,7 @@ reclass <- function(tbl, attr) {
         attr[[.y]]
       } else if (is.double(.x)){
         list(
-          "class" = "channel",
+          "class" = "channel_dbl",
           ".x" = NA_real_,
           ".y" = NA_real_,
           ".z" = NA_real_,
@@ -94,11 +94,13 @@ validate_sample_int <- function(sample_id) {
 new_channel_dbl <- function(values, channel_info = list()) {
   values <- unclass(values)
   attributes(values) <- c(
-    class = "channel",
+    class = "channel_dbl",
     channel_info
   )
   values
 }
+
+
 
 #' @param channel 
 #'
