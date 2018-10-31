@@ -190,10 +190,8 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
     vars_dfs <- c(obligatory_cols[[dfs]], vars_dfs)
 
     if (length(vars_dfs) > 0) {
-      orig_groups <- dplyr::groups(.eeg_lst[[dfs]])
       .eeg_lst[[dfs]] <- .eeg_lst[[dfs]] %>%
-        dplyr::select(vars_dfs) %>%
-        dplyr::group_by(!!!orig_groups)
+        dplyr::select(vars_dfs) 
     }
   }
 
@@ -202,7 +200,8 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
 
 #' @noRd
 update_events_channels <- function(x) {
-  x$events <- dplyr::filter(x$events, is.na(.channel) | .channel %in% channel_names(x))
+  # x$events <- dplyr::filter(x$events, is.na(.channel) | .channel %in% channel_names(x))
+  x$events <- x$events[is.na(.channel) | .channel %in% channel_names(x),]
   x
 }
 

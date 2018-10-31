@@ -87,9 +87,10 @@ ungroup.signal_tbl <- function(.data, ..., add = add) {
 
 #' @export
 select.signal_tbl <- function(.data, ...) {
-  declassed <- declass(.data)
-  .data <- declassed$tbl
-  reclass(NextMethod(), declassed$attr)
+  # declassed <- declass(.data)
+  # .data <- declassed$tbl
+  # reclass(NextMethod(), declassed$attr)
+  NextMethod()
 }
 
 #' @export
