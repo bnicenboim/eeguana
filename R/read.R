@@ -22,12 +22,36 @@ read_vhdr <- function(file, sep = type == "New Segment", zero = type == "Time 0"
   file_path <- stringr::str_match(file, "(.*(/|\\\\)).")[, 2] %>% {
     if (is.na(.)) NULL else .
   }
-  header_info <- read_vhdr_metadata(file)
+  header_info <- tryCatch(read_vhdr_metadata(file),
+        error=function(cond) {
+            message(paste("Error in the metadata of:", file))
+            message(paste(cond,"\n"))
+            return(NA)
+        },
+        warning=function(cond) {
+            message(paste("Warning in the metadata of:", file))
+            message(paste(cond,"\n"))
+            return(NULL)
+        })
+
   data_file <- header_info$common_info$data_file
   data_ext <- tools::file_ext(data_file)
   # It only accepts .dat files (for now)
   vmrk_file <- header_info$common_info$vmrk_file
-  events <- read_vmrk(file = paste0(file_path, vmrk_file))
+
+  events <- 
+   tryCatch(read_vmrk(file = paste0(file_path, vmrk_file)),
+        error=function(cond) {
+            message(paste("Error in the events of:", paste0(file_path, vmrk_file)))
+            message(paste(cond,"\n"))
+            return(NA)
+        },
+        warning=function(cond) {
+            message(paste("Warning in the events of:", paste0(file_path, vmrk_file)))
+            message(paste(cond,"\n"))
+            return(NULL)
+        })
+
   if (data_ext == "dat" || data_ext == "eeg") {
     x <- read_dat(
       file = paste0(file_path, data_file),
