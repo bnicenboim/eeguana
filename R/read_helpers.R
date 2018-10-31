@@ -66,7 +66,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
   # the first event can't be the end of the segment
   # and the last segment ends at the end of the file
-  end_segs <- events %>%
+  .upper <- events %>%
     dplyr::filter(!!sep) %>%
     dplyr::slice(-1) %>%
     {
@@ -74,40 +74,51 @@ read_dat <- function(file, header_info = NULL, events = NULL,
     } %>%
     c(., max_sample)
 
-  beg_segs <- events %>% dplyr::filter(!!sep) %>% .$.sample_0
-  # segs <- list(beg = beg_segs, t0 = t0, end = end_segs)
+  .lower <- events %>% dplyr::filter(!!sep) %>% .$.sample_0
 
-  s0 <- events %>%
+  .sample_0 <- events %>%
     dplyr::filter(!!zero) %>%
     .$.sample_0
 
   # In case the time zero is not defined
-  if (length(s0) == 0) s0 <- beg_segs
+  if (length(.sample_0) == 0) .sample_0 <- .lower
 
 
-  # TODO, make the following faster,probably in c++?, or try data.table
-  sample_id_ided <- purrr::pmap_dfr(list(beg_segs, s0, end_segs),
-    .id = ".id",
-    function(b, s0, e)
-                 # filter the relevant samples
-    # the first sample of a segment is 1
-      sample_id[between(sample_id, b, e)] %>% {
-        . - s0 + 1L
-      } %>% list(.sample_id = .)
-  )
+  # seg_sample_id <- purrr::pmap_dfr(list(.lower, .sample_0, .upper),
+  #   .id = ".id",
+  #   function(b, .sample_0, e)
+  #                # filter the relevant samples
+  #   # the first sample of a segment is 1
+  #     sample_id[between(sample_id, b, e)] %>% {
+  #       . - .sample_0 + 1L
+  #     } %>% list(.sample_id = .)
+  # )
+
+  # segmented id info and sample
+  segmentation <- data.table::data.table(.lower, .sample_0, .upper)
+  segmentation[,.id := seq.int(.N)]
+  seg_sample_id <- data.table::data.table(.sample_id = sample_id) %>%
+               .[segmentation, on = .(.sample_id >= .lower, .sample_id <= .upper ), 
+                              .(.id, .sample_id=x..sample_id, .sample_0)]
+
+  seg_sample_id[,.sample_id :=  .sample_id - .sample_0 +1L]
+
 
   signal_tbl <- new_signal_tbl(
-    signal_matrix = raw_signal, ids = as.integer(sample_id_ided$.id),
-    sample_ids = new_sample_int(sample_id_ided$.sample_id,
+    signal_matrix = raw_signal, ids = as.integer(seg_sample_id$.id),
+    sample_ids = new_sample_int(seg_sample_id$.sample_id,
       sampling_rate = common_info$sampling_rate
     ),
     channel_info = header_info$chan_info
   )
 
-  seg_events <- segment_events(events, beg_segs, s0, end_segs)
+  seg_events <- segment_events(events, .lower, .sample_0, .upper)
+
+
+          
 
   segments <- tibble::tibble(
-    .id = seq(length(beg_segs)),
+    .id = seq(length(.lower)),
     recording = recording, segment = .id
   )
 
@@ -148,30 +159,53 @@ add_event_channel <- function(events, labels) {
     )
 }
 
-segment_events <- function(events, beg_segs, s0, end_segs) {
-  purrr::pmap_dfr(list(beg_segs, s0, end_segs),
-    .id = ".id",
-    function(b, s0, e) events %>%
-        # filter the relevant events
-        # started after the segment (b)
-        # or span after the segment (b)
-        dplyr::filter(
-          .sample_0 >= b | .sample_0 + .size - 1 >= b,
-          # start before the end
-          .sample_0 <= e
-        ) %>%
-        dplyr::mutate(
-          .size = dplyr::if_else(.sample_0 < b, b - .size, .size),
-          .sample_0 = dplyr::case_when(
-            .sample_0 >= b ~ .sample_0 - s0 + 1L,
-            .sample_0 < b ~ b - s0 + 1L
-          )
-        )
-  ) %>%
-    dplyr::mutate(.id = as.integer(.id))
+segment_events <- function(events, .lower, .sample_0, .upper) {
+  segmentation <- data.table::data.table(.lower, .sample_0, .upper)
+  segmentation[,.id := seq.int(.N)]
+
+cols_events_temp <- unique(c(colnames(events), colnames(segmentation),"i..sample_0","i..size","x..lower"))
+  col_events <- c(".id",colnames(events))
+  new_events <- data.table::as.data.table(events)
+  new_events[, lowerb :=.sample_0 + .size - 1L]
+
+  # We want to capture events that span after the .lower bound ,that is .sample_0 + .size - 1L
+  # and events and that start before the .upper bound:
+  new_events <- segmentation[new_events, on = .(.lower<= lowerb, .upper >= .sample_0), 
+                              ..cols_events_temp, allow.cartesian=TRUE]
+
+  #i..sample_0 are the original sample_0 from the events file  
+  #.sample_0 is the first sample of each segment   
+  #x..lower is the original .lower of segmentation                           
+  new_events[,.size := dplyr::if_else(i..sample_0 < x..lower, as.integer(x..lower - i..size),
+                                        # adjust the size so that it doesn't spillover after the segment
+                                        as.integer(i..size))][,
+                .sample_0 := dplyr::if_else(i..sample_0 < x..lower, 
+                                             as.integer(x..lower - i..sample_0 + 1L),
+                                             as.integer(i..sample_0 - .sample_0 + 1L))  ]
+  new_events[,..col_events] %>% dplyr::as_tibble()
+
+  # purrr::pmap_dfr(list(.lower, .sample_0, .upper),
+  #   .id = ".id",
+  #   function(b, .sample_0, e) events %>%
+  #       # filter the relevant events
+  #       # started after the segment (b)
+  #       # or span after the segment (b)
+  #       dplyr::filter(
+  #         .sample_0 >= b | .sample_0 + .size - 1 >= b,
+  #         # start before the end
+  #         .sample_0 <= e
+  #       ) %>%
+  #       dplyr::mutate(
+  #         .size = dplyr::if_else(.sample_0 < b, b - .size, .size),
+  #         .sample_0 = dplyr::case_when(
+  #           .sample_0 >= b ~ .sample_0 - .sample_0 + 1L,
+  #           .sample_0 < b ~ b - .sample_0 + 1L
+  #         )
+  #       )
+  # ) %>%
+  #   dplyr::mutate(.id = as.integer(.id))
+
 }
-
-
 
 
 #' @importFrom magrittr %>%

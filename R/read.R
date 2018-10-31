@@ -31,8 +31,6 @@ read_vhdr <- function(file, sep = type == "New Segment", zero = type == "Time 0"
   if (data_ext == "dat" || data_ext == "eeg") {
     x <- read_dat(
       file = paste0(file_path, data_file),
-      # common_info = header_info$common_info,
-      # chan_info = header_info$chan_info,
       header_info = header_info,
       events = events,
       recording = recording,
@@ -150,7 +148,9 @@ read_ft <- function(file, layout = NULL, recording = file) {
     dplyr::rename(.size = dplyr::matches("duration"), .sample_0 = sample) %>%
     dplyr::mutate(.sample_0 = as.integer(.sample_0), .size = as.integer(.size)) %>%
     add_event_channel(channel_names) %>%
-    segment_events(beg_segs = slengths$V1, s0 = slengths$V3 + slengths$V1, end_segs = slengths$V2)
+    segment_events(.lower = slengths$V1, .sample_0 = slengths$V3 + slengths$V1, .upper= slengths$V2)
+
+
 
   segments <- tibble::tibble(
     .id = seq(nrow(slengths)),
