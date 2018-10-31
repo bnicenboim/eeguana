@@ -23,20 +23,8 @@ segment <- function(x, ...) {
 segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
   dots <- rlang::enquos(...)
 
-  # the segmentation will ignore the groups:
-  orig_groups <- list()
-  orig_groups$signal <- dplyr::groups(x$signal)
-  orig_groups$events <- dplyr::groups(x$events)
-  orig_groups$segments <- dplyr::groups(x$segments)
-
-  x$signal <- dplyr::ungroup(x$signal)
-  x$events <- dplyr::ungroup(x$events)
-  x$segments <- dplyr::ungroup(x$segments)
-
-
   times0 <- dplyr::filter(x$events, !!!dots) %>%
     dplyr::select(-.channel, -.size) 
-
     
   if (any(lim[[2]] < lim[[1]])) {
     stop("A segment needs to be of positive length and include at least 1 sample.")
@@ -56,74 +44,13 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
     stop("Wrong dimension of lim")
   }
 
-
-
-
-  # bind_rows looses the attributes
-  # https://github.com/tidyverse/dplyr/issues/2457
-  # pmap_sgr is pmap_dfr for signal_table
-  # TODO benchmark other way: first work only with the samples (and .id maybe), make NA the irrelevant ones,
-  # then filter the bad samples
-
-  # x$signal <- 
-  # pmap_sgr(list(segmentation_info$.id, segmentation_info$.sample_0, segmentation_info$.lower,segmentation_info$.upper),
-  #   function(i, s0, l,u) x$signal %>%
-  #       # filter the relevant samples
-  #       dplyr::filter(between(.sample_id, l, u),
-  #         .id == i
-  #       ) %>%
-  #       dplyr::mutate(.sample_id = .sample_id - s0 + 1L) %>%
-  #       # order the signals df:
-  #       dplyr::select(-.id)
-  #   ,
-  #   .id = ".id"
-  # ) %>%
-  #   dplyr::mutate(.id = as.integer(.id))
-
-  # slim <- purrr::map2(slim, split(x$signal, x$signal$.id), function(sl, d) {
-  #   sl <- c(min(d$.sample_id) - 1L, max(d$.sample_id) - 1L)
-  # })
-
-  # x$events <- purrr::pmap_dfr(list(times0$.id, times0$.sample_0, slim),
-  #   .id = ".id",
-  #   function(i, s0, sl) {
-  #     # bound according to the segment
-  #     x$events %>%
-  #       # filter the relevant events
-  #       # started after the segment (s0 + slim[1])
-  #       # or span after the segment (s0 + slim[1])
-  #       dplyr::filter(
-  #         .sample_0 + .size - 1 >= s0 + sl[1],
-  #         .sample_0 <= s0 + sl[2],
-  #         .id == i
-  #       ) %>%
-  #       dplyr::mutate(
-  #         .size = dplyr::if_else(
-  #           .sample_0 < s0 + sl[1],
-  #           as.integer(.size - (s0 + sl[1] - .sample_0) + 1L),
-  #           # adjust the size so that it doesn't spillover after the segment
-  #           .size
-  #         ) %>% pmin(., sl[2] + 1L - .sample_0 + s0),
-  #         .sample_0 = dplyr::if_else(
-  #           .sample_0 < s0 + sl[1], sl[1] + 1L,
-  #           .sample_0 - s0 + 1L
-  #         )
-  #       ) %>%
-  #       dplyr::select(-.id)
-  #   }
-  # ) %>%
-  #   dplyr::mutate(.id = as.integer(.id))
-
-
   segmentation <- data.table::as.data.table(segmentation_info)
 
   # update the signal tbl:
-  signal <- data.table::as.data.table(x$signal)
-  
-  cols_signal <- colnames(signal)
+  cols_signal <- colnames(x$signal)
   cols_signal_temp <- c(".new_id",".sample_0","x..sample_id",cols_signal[cols_signal!=".id"])
 
-  new_signal <- signal[segmentation, on = .(.id, .sample_id >= .lower, .sample_id <= .upper), allow.cartesian=TRUE,
+  new_signal <- x$signal[segmentation, on = .(.id, .sample_id >= .lower, .sample_id <= .upper), allow.cartesian=TRUE,
   ..cols_signal_temp]
 
   
@@ -131,18 +58,15 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
   #x..sample_id is the original columns
   new_signal[, .sample_id := x..sample_id - .sample_0 + 1L][,.sample_0 := NULL][, x..sample_id:=NULL ]
   data.table::setnames(new_signal, ".new_id",".id")
-  attributes(new_signal$.sample_id) <- attributes(signal$.sample_id)
-  x$signal <-   as_signal_tbl(new_signal)
+  attributes(new_signal$.sample_id) <- attributes(x$signal$.sample_id)
+  x$signal <- new_signal
 
   #update events table
   cols_events <- colnames(x$events)
   cols_events_temp <- unique(c(cols_events, colnames(segmentation_info),"i..sample_0"))
   #i..sample_0 is the sample_0 of events
-  events <- data.table::as.data.table(x$events)
-  new_events <- segmentation[events, on = .(.id), ..cols_events_temp, allow.cartesian=TRUE][
+  new_events <- segmentation[x$events, on = .(.id), ..cols_events_temp, allow.cartesian=TRUE][
                                 data.table::between(i..sample_0,.lower - .size + 1 , .upper)]
-
-  
 
   new_events[,.size := dplyr::if_else(i..sample_0 < .lower,
                                       as.integer(.size - (.lower - i..sample_0) + 1L),
@@ -154,7 +78,7 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
                                            i..sample_0 - .sample_0 + 1L)  ][, 
                .id := .new_id]
 
-  x$events <- new_events[,..cols_events] %>% dplyr::as_tibble()
+  x$events <- new_events[,..cols_events] 
 
 
   message(paste0("# Total of ", max(x$signal$.id), " segments found."))
@@ -166,10 +90,6 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
     dplyr::mutate(.id = 1:n()) %>%
     dplyr::group_by(recording) %>%
     dplyr::mutate(segment = 1:n())
-
-  x$signal <- dplyr::group_by(x$signal, !!!orig_groups$signal)
-  x$events <- dplyr::group_by(x$events, !!!orig_groups$events)
-  x$segments <- dplyr::group_by(x$segments, !!!orig_groups$segments)
 
   message(paste0(say_size(x), " after segmentation."))
   validate_eeg_lst(x)
@@ -278,6 +198,9 @@ event_to_ch_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
                                    drop_events = TRUE) {
   dots <- rlang::enquos(...)
 
+  #TODO in data.table
+  x$signal <- as.data.frame(x$signal)
+  x$events <- dplyr::as_tibble(x$events)
 
   # dots <- rlang::quos(type == "Bad Interval")
 
@@ -291,6 +214,7 @@ event_to_ch_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
   b_chans <- dplyr::filter(baddies, !is.na(.channel)) %>%
     .$.channel %>%
     unique()
+
   for (c in b_chans) {
     b <- dplyr::filter(baddies, .channel == c & !is.na(.channel))
     if (!entire_seg) {
@@ -327,5 +251,11 @@ event_to_ch_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
       dplyr::filter(x$events, !!!dots)
     ))
   }
+
+  #TODO fix this:
+  x$signal <- data.table::data.table(x$signal)
+  data.table::setattr(x$signal, "class", c("signal_tbl", class(x$signal))) 
+  data.table::setkey(x$signal,.id,.sample_id)
+  x$events <- data.table::data.table(x$events)
   validate_eeg_lst(x)
 }
