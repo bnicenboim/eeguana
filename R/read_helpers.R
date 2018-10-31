@@ -39,30 +39,24 @@ read_dat <- function(file, header_info = NULL, events = NULL,
       size = samplesize
     )
 
-    raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = multiplexed) %>%
-      tibble::as.tibble()
+    raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = multiplexed) 
   } else if (common_info$format == "ASCII") {
 
     if(multiplexed){
-          raw_signal <- data.table::fread(file)  %>%
-            dplyr::as_tibble()
+          raw_signal <- data.table::fread(file)  
       } else {
           raw_signal <- data.table::fread(file)  %>%
-            dplyr::select_if(is.double) %>% data.table::transpose() %>%
-            dplyr::as_tibble()
+            dplyr::select_if(is.double) %>% data.table::transpose() 
       }
   }
 
-
-
-  # colnames(raw_signal) <- header_info$chan_info$.name
-
+  #TODO maybe convert to data.table directly
   # Adding the channel names to event table
-  events <- add_event_channel(events, header_info$chan_info$.name)
+  events <- add_event_channel(events, header_info$chan_info$.name) %>% data.table::as.data.table()
 
   # Initial samples as in Brainvision
   max_sample <- nrow(raw_signal)
-  sample_id <- seq_len(max_sample)
+  sample_id <- seq.int(max_sample)
 
   # the first event can't be the end of the segment
   # and the last segment ends at the end of the file
@@ -83,17 +77,6 @@ read_dat <- function(file, header_info = NULL, events = NULL,
   # In case the time zero is not defined
   if (length(.sample_0) == 0) .sample_0 <- .lower
 
-
-  # seg_sample_id <- purrr::pmap_dfr(list(.lower, .sample_0, .upper),
-  #   .id = ".id",
-  #   function(b, .sample_0, e)
-  #                # filter the relevant samples
-  #   # the first sample of a segment is 1
-  #     sample_id[between(sample_id, b, e)] %>% {
-  #       . - .sample_0 + 1L
-  #     } %>% list(.sample_id = .)
-  # )
-
   # segmented id info and sample
   segmentation <- data.table::data.table(.lower, .sample_0, .upper)
   segmentation[,.id := seq.int(.N)]
@@ -103,19 +86,16 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
   seg_sample_id[,.sample_id :=  .sample_id - .sample_0 +1L]
 
-
+  #TODO -> it could be faster
   signal_tbl <- new_signal_tbl(
-    signal_matrix = raw_signal, ids = as.integer(seg_sample_id$.id),
-    sample_ids = new_sample_int(seg_sample_id$.sample_id,
-      sampling_rate = common_info$sampling_rate
-    ),
+    signal_matrix = raw_signal,
+     ids = as.integer(seg_sample_id$.id),
+    sample_ids = new_sample_int(seg_sample_id$.sample_id, sampling_rate = common_info$sampling_rate),
     channel_info = header_info$chan_info
   )
 
   seg_events <- segment_events(events, .lower, .sample_0, .upper)
-
-
-          
+         
 
   segments <- tibble::tibble(
     .id = seq(length(.lower)),
@@ -154,8 +134,6 @@ add_event_channel <- function(events, labels) {
         .channel
       ) %>%
         labels[.]
-      # %>%
-      # forcats::lvls_expand(new_levels = labels)
     )
 }
 
@@ -182,7 +160,7 @@ cols_events_temp <- unique(c(colnames(events), colnames(segmentation),"i..sample
                 .sample_0 := dplyr::if_else(i..sample_0 < x..lower, 
                                              as.integer(x..lower - i..sample_0 + 1L),
                                              as.integer(i..sample_0 - .sample_0 + 1L))  ]
-  new_events[,..col_events] %>% dplyr::as_tibble()
+  new_events[,..col_events] 
 
   # purrr::pmap_dfr(list(.lower, .sample_0, .upper),
   #   .id = ".id",
@@ -248,7 +226,7 @@ read_vmrk <- function(file) {
     dplyr::mutate(mk = as.numeric(stringr::str_remove(mk, "Mk"))) %>%
     dplyr::select(-mk, -date)
 
-
+  events <- data.table::as.data.table(events)
   # segs <- tibble_vmrk %>%  dplyr::transmute(
   #                           bounds = ifelse(type == "Stimulus", NA, type), sample) %>%
   #                 dplyr::filter(!is.na(bounds))
