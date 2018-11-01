@@ -33,7 +33,6 @@ as_tibble.eeg_lst <- function(x, add_segments = TRUE) {
 
 #' @export
 as_tibble.signal_tbl <- function(x) {
-  x <- declass(x, remove_attributes = TRUE)$tbl
   NextMethod()
 }
 
