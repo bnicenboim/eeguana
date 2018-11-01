@@ -61,18 +61,27 @@ summarize_eeg_lst <- function(.eeg_lst, .dots){
   
   unique_segments_groups <- segments_groups[segments_groups!=".id"]
   
-  col_expr <- rlang::get_expr(.dots)
 
   # https://community.rstudio.com/t/clarifying-question-when-is-manual-data-mask-needed-in-rlang-eval-tidy/11186
   #left joins then evaluates the summary by groups:
-  new_signal <- rlang::quo(.eeg_lst$signal[segments, ..all_cols][
-                  ,.(!!!col_expr), by = c(signal_groups, unique_segments_groups)]) %>% 
-    rlang::eval_tidy(data = .eeg_lst$signal)
+  # The following is very slow when grouping by ".sample_id"    "segment" 
+  # col_expr <- rlang::get_expr(.dots)
+  # new_signal <- rlang::quo(.eeg_lst$signal[segments, ..all_cols][
+  #                 ,.(!!!col_expr), by = c(signal_groups, unique_segments_groups)]) %>% 
+  #   rlang::eval_tidy(data = .eeg_lst$signal)
+   chr_dots <- purrr::imap(.dots, ~ if(.y!="") paste(.y, "=", rlang::quo_text(.x)) else rlang::quo_text(.x)) %>%
+     paste0(., collapse = ", ")
+   eval <- sprintf(".eeg_lst$signal[segments, ..all_cols][,.(%s), by = c(signal_groups, unique_segments_groups)]", chr_dots)
+
+   new_signal <- eval(parse(text= eval))
 
   #Add obligatory cols (.id, .sample_id) in case they are missing  :
    if(!".sample_id" %in% colnames(new_signal)) {
     new_signal[,.sample_id := sample_int(NA_integer_, sampling_rate(.eeg_lst))]
+   } else {
+    attributes(new_signal$.sample_id) <- attributes(.eeg_lst$signal$.sample_id)
    }
+
    if(!".id" %in% colnames(new_signal)) {
     new_signal[,.id := seq.int(.N), by =  .sample_id]
    }
