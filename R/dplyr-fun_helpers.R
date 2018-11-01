@@ -43,43 +43,59 @@ mutate_transmute <- function(.eeg_lst, mutate = TRUE, .dots) {
 
 #' @noRd
 summarize_eeg_lst <- function(.eeg_lst, .dots){
-  segments_groups <- dplyr::groups(.eeg_lst$segments)
-  signal_groups <- dplyr::groups(.eeg_lst$signal)
+  segments_groups <- attributes(.eeg_lst)$vars$segments
+  signal_groups <- attributes(.eeg_lst)$vars$signal
 
 
   # if there is something conditional on segments (O[condition == "faces"],
   # I should add them to the signal_tbl df temporarily
   add_cols <- names_segments_col(.eeg_lst, .dots)
-  if (length(add_cols) > 0) {
-    .eeg_lst$signal <- dplyr::left_join(.eeg_lst$signal,
-      dplyr::select(dplyr::ungroup(.eeg_lst$segments), .id, add_cols),
-      by = ".id"
-    )
+
+
+
+  .dots_expr <- rlang::get_expr(.dots)
+
+  segments <- data.table::data.table(.eeg_lst$segments)
+  data.table::setkey(segments,.id)
+  all_cols <- c(colnames(.eeg_lst$signal),segments_groups, add_cols) %>% unique()
+  
+  unique_segments_groups <- segments_groups[segments_groups!=".id"]
+  
+  col_expr <- rlang::get_expr(.dots)
+
+  # https://community.rstudio.com/t/clarifying-question-when-is-manual-data-mask-needed-in-rlang-eval-tidy/11186
+  #left joins then evaluates the summary by groups:
+  new_signal <- rlang::quo(.eeg_lst$signal[segments, ..all_cols][
+                  ,.(!!!col_expr), by = c(signal_groups, unique_segments_groups)]) %>% 
+    rlang::eval_tidy(data = .eeg_lst$signal)
+
+  #Add obligatory cols (.id, .sample_id) in case they are missing  :
+   if(!".sample_id" %in% colnames(new_signal)) {
+    new_signal[,.sample_id := sample_int(NA_integer_, sampling_rate(.eeg_lst))]
+   }
+   if(!".id" %in% colnames(new_signal)) {
+    new_signal[,.id := seq.int(.N), by =  .sample_id]
+   }
+   
+   #remove unnecesary columns
+  if(length(unique_segments_groups)!=0){
+    new_signal[, (unique_segments_groups) := NULL]
   }
 
-  .eeg_lst$signal <- do_based_on_grps(
-    .df = .eeg_lst$signal,
-    ext_grouping_df = .eeg_lst$segments,
-    dplyr_fun = dplyr::summarize,
-    dots = .dots
-  ) %>%
-    # dplyr::ungroup() %>%
-    # dplyr::mutate(.sample_id = if (".sample_id" %in% tbl_vars(.)) {
-    #   .sample_id
-    # } else {
-    #   NA_integer_
-    # }) %>%
-    dplyr::group_by(.sample_id) %>%
-    dplyr::mutate(.id = seq_len(dplyr::n()) %>% as.integer()) %>%
-    dplyr::group_by(!!!signal_groups)
+  data.table::setkey(new_signal,.id,.sample_id)
+  data.table::setcolorder(new_signal,c(".id",".sample_id"))
+  .eeg_lst$signal <- new_signal
 
-  if (nrow(.eeg_lst$signal) != 0) {
-    last_id <- max(.eeg_lst$signal$.id)
+  
+  if (nrow(new_signal) != 0) {
+    last_id <- max(new_signal$.id)
   } else {
     last_id <- integer(0)
   }
 
-  .eeg_lst$segments <- dplyr::summarize(.eeg_lst$segments) %>%
+  .eeg_lst$segments <- .eeg_lst$segments %>% 
+                        dplyr::group_by_at(vars(segments_groups)) %>%
+                        dplyr::summarize() %>%
     dplyr::ungroup() %>%
     {
       if (!".id" %in% dplyr::tbl_vars(.)) {
@@ -88,15 +104,8 @@ summarize_eeg_lst <- function(.eeg_lst, .dots){
         .
       }
     } %>%
-    # dplyr::mutate(recording = if ("recording" %in% tbl_vars(.)) {
-    #   recording
-    # } else {
-    #   NA_character_
-    # }) %>%
-    dplyr::select(.id, dplyr::everything()) %>%
-    # dplyr::group_by(recording) %>%
-    # dplyr::mutate(segment = seq_len(dplyr::n())) %>%
-    dplyr::group_by(!!!segments_groups)
+
+    dplyr::select(.id, dplyr::everything())
 
   # TODO maybe I can do some type of summary of the events table, instead
   .eeg_lst$events <- .eeg_lst$events %>% filter(FALSE)
@@ -107,25 +116,21 @@ summarize_eeg_lst <- function(.eeg_lst, .dots){
 #' @noRd
 group_by_eeg_lst <- function(.eeg_lst, .dots, .add = FALSE){
 
-  # dots <- rlang::quos(segment)
-  # dots <- rlang::quos(.sample_id)
+  # .dots <- rlang::quos(segment,.id,.sample_id)
+  # .dots <- rlang::quos(.sample_id)
   # divide dots according to if they belong to $signal or segments
   new_dots <- dots_by_df(.dots, .eeg_lst)
-
-  .eeg_lst$signal <- dplyr::group_by(.eeg_lst$signal, !!!new_dots$signal, add = .add)
-  .eeg_lst$segments <- dplyr::group_by(.eeg_lst$segments, !!!new_dots$segments, add = .add)
-
-
-  # if (".id" %in% dplyr::group_vars(.eeg_lst$signal)) {
-  #   .eeg_lst$segments <- dplyr::group_by(.eeg_lst$segments, .id, add = TRUE)
-  # }
-
-  #TODO add .id to segments when relevant
+  signal_groups <- purrr::map_chr(new_dots$signal, rlang::quo_text)
+  segments_groups <- purrr::map_chr(new_dots$segments, rlang::quo_text)
+ 
+  if(any(!segments_groups %in% colnames(.eeg_lst$segments))){
+    stop("Incorrect grouping.",call. = FALSE)
+  }
+  
   attributes(.eeg_lst)$vars <- list(
-                          signal = purrr::map_chr(new_dots$signal, rlang::quo_text),
-                          segments = purrr::map_chr(new_dots$segments, rlang::quo_text))
-
-  validate_eeg_lst(.eeg_lst)
+                          signal = signal_groups,
+                          segments = segments_groups)
+  .eeg_lst
 }
 
 #' @noRd
@@ -194,14 +199,16 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
         dplyr::select(vars_dfs) 
     }
   }
-
+  
+  data.table::setkey(.eeg_lst$signal, .id, .sample_id)
   update_events_channels(.eeg_lst) %>% validate_eeg_lst()
 }
 
 #' @noRd
 update_events_channels <- function(x) {
-  # x$events <- dplyr::filter(x$events, is.na(.channel) | .channel %in% channel_names(x))
-  x$events <- x$events[is.na(.channel) | .channel %in% channel_names(x),]
+  if(nrow(x$events)>0) {
+    x$events <- x$events[is.na(.channel) | .channel %in% channel_names(x),]
+  }
   x
 }
 
