@@ -59,6 +59,7 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
   new_signal[, .sample_id := x..sample_id - .sample_0 + 1L][,.sample_0 := NULL][, x..sample_id:=NULL ]
   data.table::setnames(new_signal, ".new_id",".id")
   attributes(new_signal$.sample_id) <- attributes(x$signal$.sample_id)
+  data.table::setkey(new_signal, .id, .sample_id)
   x$signal <- new_signal
 
   #update events table
@@ -138,11 +139,11 @@ bind <- function(...) {
   # Binding
   # .id of the new eggbles needs to be adapted
 
-  signal <- purrr::map(eeg_lsts, ~.x$signal) %>% rbindlist(idcol=".sid")
+  signal <- purrr::map(eeg_lsts, ~.x$signal) %>% data.table::rbindlist(idcol=".sid")
   signal[, .id := .GRP, by = .(.sid,.id)][,.sid := NULL]
   data.table::setkey(signal,.id,.sample_id)
 
-  events <- purrr::map(eeg_lsts, ~.x$events) %>% rbindlist(idcol=".sid")
+  events <- purrr::map(eeg_lsts, ~.x$events) %>% data.table::rbindlist(idcol=".sid")
   events[, .id := .GRP, by = .(.sid,.id)][,.sid := NULL]
 
 

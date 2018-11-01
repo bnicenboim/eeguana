@@ -82,7 +82,7 @@ validate_sample_int <- function(sample_id) {
   }
   if (length(sample_id) > 0) {
     if (attributes(sample_id)$sampling_rate <= 0) {
-      stop("Attribute sampling_rate should be a positive value.",
+      warning("Attribute sampling_rate should be a positive value.",
         call. = FALSE
       )
     }
@@ -184,8 +184,11 @@ new_eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
   )
   x <- unclass(x)
   structure(x,
-    class = c("eeg_lst")
+    class = c("eeg_lst"),
+    vars = list(signal = character(0),
+                 segments = character(0))
   )
+   
 }
 
 #' @param x 
@@ -197,6 +200,12 @@ validate_eeg_lst <- function(x) {
   validate_segments(x$segments)
   if (any(unique(x$signal$.id) != unique(x$segments$.id))) {
     warning("The values of .ids mismatch between tables.",
+      call. = FALSE
+    )
+  }
+  
+  if(!identical(names(attributes(x)$vars),c("signal","segments"))){
+      warning("Grouping variables are missing.",
       call. = FALSE
     )
   }
@@ -219,6 +228,13 @@ validate_signal_tbl <- function(signal_tbl) {
       call. = FALSE
     )
   }
+
+  if(!identical(data.table::key(signal_tbl), c(".id",".sample_id"))) {
+    warning("`keys` of signal table are missing.",
+      call. = FALSE
+    )
+  }
+
   # Validates sample_id
   validate_sample_int(signal_tbl$.sample_id)
 
