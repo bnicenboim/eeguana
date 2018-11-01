@@ -138,32 +138,23 @@ bind <- function(...) {
   # Binding
   # .id of the new eggbles needs to be adapted
 
-  add_ids <- purrr::map_int(eeg_lsts, ~max(.x$signal$.id)) %>%
-    cumsum() %>%
-    dplyr::lag(default = 0) %>%
-    as.integer()
+  signal <- purrr::map(eeg_lsts, ~.x$signal) %>% rbindlist(idcol=".sid")
+  signal[, .id := .GRP, by = .(.sid,.id)][,.sid := NULL]
+  data.table::setkey(signal,.id,.sample_id)
+
+  events <- purrr::map(eeg_lsts, ~.x$events) %>% rbindlist(idcol=".sid")
+  events[, .id := .GRP, by = .(.sid,.id)][,.sid := NULL]
 
 
-  signal_tbl <- map2_sgr(eeg_lsts, add_ids, ~
-  dplyr::ungroup(.x$signal) %>%
-    dplyr::mutate(.id = .id + .y))
-
-  # signal_tbl <- purrr::map(eeg_lsts)
-
-
-
-  events <- purrr::map2_dfr(eeg_lsts, add_ids, ~
-  dplyr::ungroup(.x$events) %>%
-    dplyr::mutate(.id = .id + .y))
-
-  segments <- purrr::map2_dfr(eeg_lsts, add_ids, ~
-  dplyr::ungroup(.x$segments) %>%
-    dplyr::mutate(.id = .id + .y))
+  segments <- purrr::map_dfr(eeg_lsts, ~
+  dplyr::ungroup(.x$segments), .id = ".sid") %>%
+    dplyr::mutate(.id = dplyr::group_indices(., .sid,.id)) %>%
+    dplyr::select(-.sid)
 
 
 
   new_eeg_lst <- new_eeg_lst(
-    signal = signal_tbl, events = events, segments = segments
+    signal = signal, events = events, segments = segments
   ) %>%
     validate_eeg_lst()
   message(say_size(new_eeg_lst))
