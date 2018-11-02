@@ -7,7 +7,7 @@
 #' `eggble` objects.
 #' The following wrappers have been implemented for `eeg_lst` objects:
 #' * `summarize()` summarizes the channel of the signal_tbl table
-#' * `summarize_all()` summarizes all the channels of the signal_tbl table.
+#' * `summarize_chs()` summarizes all the channels of the signal_tbl table.
 #' * `mutate()` adds new variables and preserves existing ones. Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.
 #' * `mutate_all()` mutates all the channels of the signal_tbl table.
 #' * `transmute()` like `mutate` but drops non-used variables of the referred table.
@@ -70,8 +70,46 @@ summarise_.eeg_lst <- function(.data, ..., .dots = list()) {
 #' @export
 summarise.eeg_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
-  summarize_eeg_lst(.data, dots)
+
+ summarize_eeg_lst(.data, eval = summarize_eval(dots), cond_cols = names_segments_col(.data, dots))
 }
+
+#' @export
+summarize_at_ch <- function(x, ...) {
+  UseMethod("summarize_at_ch")
+}
+
+#' @export
+summarize_all_ch <- function(x, ...) {
+  UseMethod("summarize_all_ch")
+}
+
+#' @rdname dplyr
+#' @export
+summarize_at_ch.eeg_lst <- function(.tbl,.vars,  .funs, ...) {
+  #TODO look for a rlang alternative for dplyr:::as_fun_list and dplyr:::tbl_at_syms
+  funs <- dplyr:::as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env(),...) # fun_list class, contains a quosure such as ^mean(.)
+  vars <- dplyr:::tbl_at_syms(.tbl, .vars) #list of chars
+  summarize_eeg_lst(.tbl, summarize_at_eval(vars, funs), cond_cols = names_segments_col(.tbl, funs[[1]])) 
+}
+  
+#' @rdname dplyr
+#' @export
+summarise_at_ch.eeg_lst <- summarize_at_ch.eeg_lst
+
+#' @rdname dplyr
+#' @export
+summarize_all_ch.eeg_lst <- function(.tbl, .funs, ...) {
+  funs <- dplyr:::as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env(),...) # fun_list class, contains a quosure such as ^mean(.)
+  vars <- as.list(channel_names(.tbl))
+  summarize_eeg_lst(.tbl, summarize_at_eval(vars, funs), cond_cols = names_segments_col(.tbl, funs[[1]])) 
+}
+  
+#' @rdname dplyr
+#' @export
+summarise_all_ch.eeg_lst <- summarize_all_ch.eeg_lst
+
+
 #' @rdname dplyr
 #' @export
 tbl_vars.eeg_lst <- function(x) {
@@ -103,7 +141,7 @@ ungroup.eeg_lst <- function(.data, ...) {
 #' @rdname dplyr
 #' @export
 group_vars.eeg_lst <- function(x) {
-  c(group_vars(x$signal), group_vars(x$segments))
+  
 }
 #' @export
 filter_.eeg_lst <- function(.data, ..., .dots = list()) {

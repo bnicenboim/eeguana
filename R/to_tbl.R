@@ -14,7 +14,7 @@
 #'
 #' @export
 as_tibble.eeg_lst <- function(x, add_segments = TRUE) {
-  df <- declass(x$signal, remove_attributes = TRUE)$tbl %>%
+  x$signal %>%
     tidyr::gather(key = "channel", value = "amplitude", channel_names(x)) %>%
     {
       if (add_segments) {
@@ -24,9 +24,9 @@ as_tibble.eeg_lst <- function(x, add_segments = TRUE) {
       }
     } %>%
     dplyr::group_by(.id, channel) %>%
-    dplyr::mutate(time = (.sample_id - 1) / sampling_rate(x)) %>%
+    dplyr::mutate(time = (unclass(.sample_id) - 1) / sampling_rate(x)) %>%
     dplyr::select(-.sample_id, time, dplyr::everything())
-  df
+ 
 }
 
 
