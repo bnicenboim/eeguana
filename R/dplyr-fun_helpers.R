@@ -128,6 +128,7 @@ summarize_at_eeg_lst <- function(.eeg_lst, vars, funs, cond_cols){
 }
 
 summarize_eval_eeg_lst <- function(.eeg_lst, eval, cond_cols){
+    channels_info <- channels_tbl(.eeg_lst)
     extended_signal <- extended_signal(signal = .eeg_lst$signal, 
                                        segments = .eeg_lst$segments, 
                                       groups_list = attributes(.eeg_lst)$vars, 
@@ -141,6 +142,9 @@ summarize_eval_eeg_lst <- function(.eeg_lst, eval, cond_cols){
                                       #because the attributes of sample_id get lost
                                       attr_sample_id = attributes(.eeg_lst$signal$.sample_id),
                                       unique_segments_groups= attributes(.eeg_lst)$vars$segments[attributes(.eeg_lst)$vars$segments != ".id"])
+   #putting the attributes back
+    # maybe use reg ex to look inside?
+
     if (nrow(.eeg_lst$signal) != 0) {
       last_id <- max(.eeg_lst$signal$.id)
     } else {
@@ -151,7 +155,15 @@ summarize_eval_eeg_lst <- function(.eeg_lst, eval, cond_cols){
    # TODO maybe I can do some type of summary of the events table, instead
     .eeg_lst$events <- .eeg_lst$events %>% filter(FALSE)
 
-    update_events_channels(.eeg_lst) %>% validate_eeg_lst()
+    .eeg_lst <- update_events_channels(.eeg_lst) 
+    
+    new_channels_names <- dplyr::tibble(.name = setdiff(channel_names(.eeg_lst), channels_info$.name), class = "channel_dbl")
+    old_channels_tbl <- dplyr::filter(channels_info, .name %in% channel_names(.eeg_lst))
+    new_channels_tbl <- dplyr::bind_rows(new_channels_names, old_channels_tbl) %>% 
+                      left_join(dplyr::tibble(.name=channel_names(.eeg_lst)),.,by=".name")
+
+     channels_tbl(.eeg_lst) <- new_channels_tbl
+    .eeg_lst
  }
 
 
