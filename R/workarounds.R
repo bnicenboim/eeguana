@@ -19,7 +19,4 @@ map2_sgr <- function(.x, .y, .f, ..., .id = NULL) {
 }
 
 #' @export
-between <- function(x, left, right) {
-  class(x) <- NULL
-  .Call(dplyr:::`_dplyr_between`, x, left, right)
-}
+between <- data.table::between

@@ -50,3 +50,13 @@ as_integer <- function(x) {
 vec_mean <- function(..., na.rm = FALSE) {
   purrr::pmap_dbl(list(...), ~mean(c(...), na.rm = FALSE))
 }
+
+#' @noRd
+# https://github.com/mllg/batchtools/blob/master/R/Joins.R
+semi_join_dt <- function(x, y, by = NULL) {
+  x <- data.table::as.data.table(x)
+  y <- data.table::as.data.table(y)
+
+  w <- unique(x[y, on = by, nomatch = 0L, which = TRUE, allow.cartesian = TRUE])
+  x[w]
+}

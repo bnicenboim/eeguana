@@ -64,14 +64,13 @@ transmute_.eeg_lst <- function(.data, ..., .dots = list()) {
 #' @export
 summarise_.eeg_lst <- function(.data, ..., .dots = list()) {
   dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
-  summarize_eeg_lst(.data, dots)
+ summarize_eeg_lst(.data, dots, cond_cols = names_segments_col(.data, dots))
 }
 #' @rdname dplyr
 #' @export
 summarise.eeg_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
-
- summarize_eeg_lst(.data, eval = summarize_eval(dots), cond_cols = names_segments_col(.data, dots))
+ summarize_eeg_lst(.data, dots, cond_cols = names_segments_col(.data, dots))
 }
 
 #' @export
@@ -90,7 +89,7 @@ summarize_at_ch.eeg_lst <- function(.tbl,.vars,  .funs, ...) {
   #TODO look for a rlang alternative for dplyr:::as_fun_list and dplyr:::tbl_at_syms
   funs <- dplyr:::as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env(),...) # fun_list class, contains a quosure such as ^mean(.)
   vars <- dplyr:::tbl_at_syms(.tbl, .vars) #list of chars
-  summarize_eeg_lst(.tbl, summarize_at_eval(vars, funs), cond_cols = names_segments_col(.tbl, funs[[1]])) 
+  summarize_at_eeg_lst(.tbl, vars, funs , cond_cols = names_segments_col(.tbl, funs[[1]])) 
 }
   
 #' @rdname dplyr
@@ -102,7 +101,7 @@ summarise_at_ch.eeg_lst <- summarize_at_ch.eeg_lst
 summarize_all_ch.eeg_lst <- function(.tbl, .funs, ...) {
   funs <- dplyr:::as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env(),...) # fun_list class, contains a quosure such as ^mean(.)
   vars <- as.list(channel_names(.tbl))
-  summarize_eeg_lst(.tbl, summarize_at_eval(vars, funs), cond_cols = names_segments_col(.tbl, funs[[1]])) 
+  summarize_at_eeg_lst(.tbl, vars, funs , cond_cols = names_segments_col(.tbl, funs[[1]])) 
 }
   
 #' @rdname dplyr
@@ -141,19 +140,19 @@ ungroup.eeg_lst <- function(.data, ...) {
 #' @rdname dplyr
 #' @export
 group_vars.eeg_lst <- function(x) {
-  
+  unlist(attributes(x)$vars) %>% unique()
 }
+
 #' @export
 filter_.eeg_lst <- function(.data, ..., .dots = list()) {
   dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
-
-  filter_eeg_lst(.data,dots)
+  filter_eeg_lst(.data, dots = dots, cond_cols = names_segments_col(.data, dots))
 }
 #' @rdname dplyr
 #' @export
 filter.eeg_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
-  filter_eeg_lst(.data,dots)
+  filter_eeg_lst(.data, dots = dots, cond_cols = names_segments_col(.data, dots))
 }
 #' @rdname dplyr
 #' @export
