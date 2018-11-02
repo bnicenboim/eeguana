@@ -53,7 +53,7 @@ plot_gg.eeg_lst <- function(x, ..., max_sample = 2000) {
   }
 
   dots <- rlang::enquos(...)
-  df <- as_tibble(x)
+  df <- dplyr::as_tibble(x)
   plot <- ggplot2::ggplot(
     df,
     ggplot2::aes(x = time, y = amplitude, !!!dots)
