@@ -43,28 +43,6 @@ chs_mean <- function(..., na.rm = FALSE) {
 
 
 
-#' Convert a time point into a sample point.
-#'
-#'
-#' @param x A vector of times.
-#' @param unit "seconds" (or "s"), "milliseconds" (or "ms")
-#' @param sampling_rate
-#'
-#' @return A `sample_id` object.
-#'
-#' @importFrom magrittr %>%
-#'
-#' @examples
-#' \dontrun{
-#'
-#' faces_segs_some %>% filter(between(.sample_id, as_sample_id(100, unit = "ms", sampling_rate = 500),
-#'                               as_sample_id(300, unit = "ms", sampling_rate = 500)))
-#' }
-#' @export
-as_sample_id <- function(x, unit = "seconds", sampling_rate) {
-  # TODO I could check if it's been called inside the eeg_lst and extract the sampling rate.
-  x * scaling(sampling_rate, unit)
-}
 
 
 #' Convert a sample point into a time point.

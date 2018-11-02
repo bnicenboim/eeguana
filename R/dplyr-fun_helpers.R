@@ -76,7 +76,7 @@ extended_signal <- function(signal, segments, groups_list, cond_cols){
 }
 
 #' @noRd
-summarize_signal <- function(new_signal, eval, by, attr_sample_id, unique_segments_groups){
+eval_dt_signal <- function(new_signal, eval, by = "", attr_sample_id, unique_segments_groups, orig_cols = ""){
    
    new_signal <- eval(parse(text= eval)) #uses `new_signal`  and `by` in the evaluation
 
@@ -87,6 +87,7 @@ summarize_signal <- function(new_signal, eval, by, attr_sample_id, unique_segmen
     attributes(new_signal$.sample_id) <- attr_sample_id 
    }
 
+   # Add .id in case it was removed by a summary
    if(!".id" %in% colnames(new_signal)) {
     new_signal[,.id := seq.int(.N), by =  .sample_id]
    }
@@ -118,39 +119,44 @@ summarize_segments <-  function(segments, segments_groups, last_id){
     dplyr::select(.id, dplyr::everything())
 }
 
-summarize_eeg_lst <- function(.data, eval, cond_cols){
-    extended_signal <- extended_signal(signal = .data$signal, 
-                                       segments = .data$segments, 
-                                      groups_list = attributes(.data)$vars, 
+summarize_eeg_lst <- function(.eeg_lst, dots, cond_cols){
+  summarize_eval_eeg_lst(.eeg_lst, eval = summarize_eval(dots), cond_cols)
+}
+
+summarize_at_eeg_lst <- function(.eeg_lst, vars, funs, cond_cols){
+  summarize_eval_eeg_lst(.eeg_lst, eval = summarize_at_eval(vars, funs), cond_cols)
+}
+
+summarize_eval_eeg_lst <- function(.eeg_lst, eval, cond_cols){
+    extended_signal <- extended_signal(signal = .eeg_lst$signal, 
+                                       segments = .eeg_lst$segments, 
+                                      groups_list = attributes(.eeg_lst)$vars, 
     # # if there is something conditional on segments (O[condition == "faces"],
     # # I should add them to the signal_tbl df temporarily
                                       cond_cols = cond_cols)
 
-    .data$signal <- summarize_signal( new_signal= extended_signal, 
+    .eeg_lst$signal <- eval_dt_signal( new_signal= extended_signal, 
                                       eval = eval,
-                                      by = attributes(.data)$vars %>% unlist %>% unique,
+                                      by = attributes(.eeg_lst)$vars %>% unlist %>% unique,
                                       #because the attributes of sample_id get lost
-                                      attr_sample_id = attributes(.data$signal$.sample_id),
-                                      unique_segments_groups= attributes(.data)$vars$segments[attributes(.data)$vars$segments != ".id"])
-    if (nrow(.data$signal) != 0) {
-      last_id <- max(.data$signal$.id)
+                                      attr_sample_id = attributes(.eeg_lst$signal$.sample_id),
+                                      unique_segments_groups= attributes(.eeg_lst)$vars$segments[attributes(.eeg_lst)$vars$segments != ".id"])
+    if (nrow(.eeg_lst$signal) != 0) {
+      last_id <- max(.eeg_lst$signal$.id)
     } else {
       last_id <- integer(0)
     }
-   .data$segments <- summarize_segments(.data$segments, segments_groups = attributes(.data)$vars$segments, last_id= last_id ) 
+   .eeg_lst$segments <- summarize_segments(.eeg_lst$segments, segments_groups = attributes(.eeg_lst)$vars$segments, last_id= last_id ) 
 
    # TODO maybe I can do some type of summary of the events table, instead
-    .data$events <- .data$events %>% filter(FALSE)
+    .eeg_lst$events <- .eeg_lst$events %>% filter(FALSE)
 
-    update_events_channels(.data) %>% validate_eeg_lst()
+    update_events_channels(.eeg_lst) %>% validate_eeg_lst()
  }
 
 
 #' @noRd
 group_by_eeg_lst <- function(.eeg_lst, .dots, .add = FALSE){
-
-  # .dots <- rlang::quos(segment,.id,.sample_id)
-  # .dots <- rlang::quos(.sample_id)
   # divide dots according to if they belong to $signal or segments
   new_dots <- dots_by_df(.dots, .eeg_lst)
   signal_groups <- purrr::map_chr(new_dots$signal, rlang::quo_text)
@@ -167,31 +173,53 @@ group_by_eeg_lst <- function(.eeg_lst, .dots, .add = FALSE){
 }
 
 #' @noRd
-filter_eeg_lst <- function(.eeg_lst, .dots){  
+filter_eeg_lst <- function(.eeg_lst, dots, cond_cols){  
 
   # .dots <- rlang::quos(recording == "0")
-    new_dots <- dots_by_df(.dots, .eeg_lst)
-  
-    # filter the signal_tbl and update the segments, in case an entire id drops
+    new_dots <- dots_by_df(dots, .eeg_lst)
+    
     if (length(new_dots$signal) > 0) {
-      .eeg_lst$signal <- do_based_on_grps(.eeg_lst$signal,
-        ext_grouping_df = .eeg_lst$segments,
-        dplyr_fun = dplyr::filter, new_dots$signal
-      )
-  
+    eval <- filter_eval(new_dots$signal)
+    extended_signal <- extended_signal(signal = .eeg_lst$signal, 
+                                       segments = .eeg_lst$segments, 
+                                      groups_list = attributes(.eeg_lst)$vars, 
+    # # if there is something conditional on segments (O[condition == "faces"],
+    # # I should add them to the signal_tbl df temporarily
+                                      cond_cols = cond_cols)
+
+    .eeg_lst$signal <- eval_dt_signal( new_signal= extended_signal, 
+                                      eval = eval,
+                                      by = attributes(.eeg_lst)$vars %>% unlist %>% unique,
+                                      #because the attributes of sample_id get lost
+                                      attr_sample_id = attributes(.eeg_lst$signal$.sample_id),
+                                      unique_segments_groups = attributes(.eeg_lst)$vars$segments[attributes(.eeg_lst)$vars$segments != ".id"],
+                                      orig_cols = colnames(.eeg_lst$signal))
+
       .eeg_lst$segments <- dplyr::semi_join(.eeg_lst$segments, .eeg_lst$signal, by = ".id")
-      .eeg_lst$events <- dplyr::semi_join(.eeg_lst$events, .eeg_lst$segments, by = ".id")
-    }
+     }
+    
     # filter the segments and update the signal_tbl
     if (length(new_dots$segments) > 0) {
       .eeg_lst$segments <- dplyr::filter(.eeg_lst$segments, !!!new_dots$segments)
-      .eeg_lst$signal <- dplyr::semi_join(.eeg_lst$signal, .eeg_lst$segments, by = ".id")
-      .eeg_lst$events <- dplyr::semi_join(.eeg_lst$events, .eeg_lst$segments, by = ".id")
+      .eeg_lst$signal <- semi_join_dt(.eeg_lst$signal, .eeg_lst$segments, by = ".id")
     }
+      .eeg_lst$events <- semi_join_dt(.eeg_lst$events, .eeg_lst$segments, by = ".id")
   
     # Fix the indices in case some of them drop out
-    redo_indices(.eeg_lst) %>% update_events_channels() %>% validate_eeg_lst()
+    .eeg_lst <- redo_indices(.eeg_lst) %>% update_events_channels() 
+    data.table::setkey(.eeg_lst$signal,.id,.sample_id)
+    .eeg_lst %>% validate_eeg_lst()
   }  
+
+#' @noRd
+filter_eval <- function(.dots){
+# https://stackoverflow.com/questions/16573995/subset-by-group-with-data-table
+  dots_txt <- purrr::map(.dots, ~  rlang::quo_text(.x)) %>%
+     paste0(., collapse = " & ")
+  # sprintf("new_signal[new_signal[,.I[%s], by = c(by)]$V1,..orig_cols]", dots_txt)
+  sprintf("new_signal[new_signal[,.I[%s], by = c(by)]$V1]", dots_txt)
+} 
+
 
 
 #' @noRd
