@@ -13,8 +13,8 @@
 #' @family tibble
 #'
 #' @export
-as_tibble.eeg_lst <- function(x, add_segments = TRUE) {
-  x$signal %>%
+as_tibble.eeg_lst <- function(x, add_segments = TRUE, add_channels_info = TRUE) {
+   x$signal %>% 
     tidyr::gather(key = "channel", value = "amplitude", channel_names(x)) %>%
     {
       if (add_segments) {
@@ -22,10 +22,19 @@ as_tibble.eeg_lst <- function(x, add_segments = TRUE) {
       } else {
         .
       }
-    } %>%
+    } %>% 
+     {
+      if (add_channels_info) {
+        dplyr::left_join(., dplyr::select(channels_tbl(x),-class), by = c("channel"=".name"))
+      } else {
+        .
+      }
+    } %>% 
     dplyr::group_by(.id, channel) %>%
     dplyr::mutate(time = (unclass(.sample_id) - 1) / sampling_rate(x)) %>%
-    dplyr::select(-.sample_id, time, dplyr::everything())
+    dplyr::ungroup() %>%
+    dplyr::select(time, dplyr::everything()) %>%
+    dplyr::select(-.sample_id) 
  
 }
 
