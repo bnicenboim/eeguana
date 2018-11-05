@@ -56,7 +56,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
   # Initial samples as in Brainvision
   max_sample <- nrow(raw_signal)
-  sample_id <- seq.int(max_sample)
+  sample_id <- seq_len(max_sample)
 
   # the first event can't be the end of the segment
   # and the last segment ends at the end of the file
@@ -79,7 +79,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
   # segmented id info and sample
   segmentation <- data.table::data.table(.lower, .sample_0, .upper)
-  segmentation[,.id := seq.int(.N)]
+  segmentation[,.id := seq_len(.N)]
   seg_sample_id <- data.table::data.table(.sample_id = sample_id) %>%
                .[segmentation, on = .(.sample_id >= .lower, .sample_id <= .upper ), 
                               .(.id, .sample_id=x..sample_id, .sample_0)]
@@ -139,7 +139,7 @@ add_event_channel <- function(events, labels) {
 
 segment_events <- function(events, .lower, .sample_0, .upper) {
   segmentation <- data.table::data.table(.lower, .sample_0, .upper)
-  segmentation[,.id := seq.int(.N)]
+  segmentation[,.id := seq_len(.N)]
 
 cols_events_temp <- unique(c(colnames(events), colnames(segmentation),"i..sample_0","i..size","x..lower"))
   col_events <- c(".id",colnames(events))

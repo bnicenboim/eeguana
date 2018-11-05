@@ -38,7 +38,7 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
     seg_names <- colnames(times0)[!startsWith(colnames(times0),".")]
     segmentation_info <- times0 %>% dplyr::mutate(.lower =.sample_0+ sample_lim[[1]] %>% as_integer(), 
                                                   .upper = .sample_0+ sample_lim[[2]] %>% as_integer(),
-                                                  .new_id = seq.int(dplyr::n())) %>%
+                                                  .new_id = seq_len(dplyr::n())) %>%
                                     dplyr::select(-dplyr::one_of(seg_names))
   } else {
     stop("Wrong dimension of lim")

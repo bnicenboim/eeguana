@@ -1,212 +1,93 @@
-#' @noRd
-mutate_transmute <- function(.eeg_lst, mutate = TRUE, .dots) {
-  if (mutate) {
-    dplyr_fun <- dplyr::mutate
-  } else {
-    dplyr_fun <- dplyr::transmute
-  }
-  # For testing:
-  # .dots <- rlang::quos(Occipital = (O1 + O2 + Oz)/3)
-  new_dots <- dots_by_df(.dots, .eeg_lst)
+# #' @noRd
+# mutate_transmute <- function(.eeg_lst, mutate = TRUE, .dots) {
+#   if (mutate) {
+#     dplyr_fun <- dplyr::mutate
+#   } else {
+#     dplyr_fun <- dplyr::transmute
+#   }
+#   # For testing:
+#   # .dots <- rlang::quos(Occipital = (O1 + O2 + Oz)/3)
+#   new_dots <- dots_by_tbl_quos(.dots, .eeg_lst)
 
-  if (length(new_dots$signal) > 0) {
+#   if (length(new_dots$signal) > 0) {
 
-    # I add the missing variables in case one uses transmute,
-    # it doesn't hurt to mutate. This prevents from deleting sample or .id
-    missing_vars <- dplyr::setdiff(
-      obligatory_cols$signal,
-      dplyr::group_vars(.eeg_lst$signal)
-    )
-    .dots <- c(rlang::syms(missing_vars), new_dots$signal)
-    .eeg_lst$signal <- do_based_on_grps(
-      .df = .eeg_lst$signal,
-      ext_grouping_df = .eeg_lst$segments,
-      dplyr_fun = dplyr_fun,
-      dots = .dots
-    )
-  }
+#     # I add the missing variables in case one uses transmute,
+#     # it doesn't hurt to mutate. This prevents from deleting sample or .id
+#     missing_vars <- dplyr::setdiff(
+#       obligatory_cols$signal,
+#       dplyr::group_vars(.eeg_lst$signal)
+#     )
+#     .dots <- c(rlang::syms(missing_vars), new_dots$signal)
+#     .eeg_lst$signal <- do_based_on_grps(
+#       .df = .eeg_lst$signal,
+#       ext_grouping_df = .eeg_lst$segments,
+#       dplyr_fun = dplyr_fun,
+#       dots = .dots
+#     )
+#   }
 
-  if (length(new_dots$segments) > 0) {
-    missing_vars <- dplyr::setdiff(
-      obligatory_cols$segments,
-      dplyr::group_vars(.eeg_lst$segments)
-    ) %>%
-      rlang::syms(.)
+#   if (length(new_dots$segments) > 0) {
+#     missing_vars <- dplyr::setdiff(
+#       obligatory_cols$segments,
+#       dplyr::group_vars(.eeg_lst$segments)
+#     ) %>%
+#       rlang::syms(.)
 
-    .eeg_lst$segments <- dplyr_fun(
-      .eeg_lst$segments, !!!missing_vars,
-      !!!new_dots$segments
-    )
-  }
-  update_events_channels(.eeg_lst) %>% validate_eeg_lst()
-}
+#     .eeg_lst$segments <- dplyr_fun(
+#       .eeg_lst$segments, !!!missing_vars,
+#       !!!new_dots$segments
+#     )
+#   }
+#   update_events_channels(.eeg_lst) %>% validate_eeg_lst()
+# }
 
-#' @noRd
-summarize_eval <- function(.dots){
-  # https://community.rstudio.com/t/clarifying-question-when-is-manual-data-mask-needed-in-rlang-eval-tidy/11186
-  #left joins then evaluates the summary by groups:
-  # The following is very slow when grouping by ".sample_id"    "segment" 
-  # col_expr <- rlang::get_expr(.dots)
-  # new_signal <- rlang::quo(.eeg_lst$signal[segments, ..all_cols][
-  #                 ,.(!!!col_expr), by = c(by)]) %>% 
-  #   rlang::eval_tidy(data = .eeg_lst$signal)
-  # .dots_expr <- rlang::get_expr(.dots)
-  dots_txt <- purrr::imap(.dots, ~ if(.y!="") paste(.y, "=", rlang::quo_text(.x)) else rlang::quo_text(.x)) %>%
-     paste0(., collapse = ", ")
-  sprintf("new_signal[,.(%s), by = c(by)]", dots_txt)
-} 
-
-#' @noRd
-summarize_at_eval <- function(.vars, .fun ){
-  
-  fun_txt <- rlang::quo_text(.fun[[1]])
-  vars_txt <- paste0("'",.vars,"'",collapse =", ")
- 
-  sprintf("new_signal[,purrr::map(.SD,~ %s),.SDcols = c(%s) , by = c(by)]", fun_txt, vars_txt)
-} 
-
-#' @noRd
-extended_signal <- function(signal, segments, groups_list, cond_cols){
-  segments_groups <- groups_list$segments
-  signal_groups <- groups_list$signal
-  segments <- data.table::data.table(segments)
-  data.table::setkey(segments,.id)
-  all_cols <- c(colnames(signal),segments_groups, cond_cols) %>% unique()
-  signal[segments, ..all_cols]
-}
-
-#' @noRd
-eval_dt_signal <- function(new_signal, eval, by = "", attr_sample_id, unique_segments_groups, orig_cols = ""){
-   
-   new_signal <- eval(parse(text= eval)) #uses `new_signal`  and `by` in the evaluation
-
-  #Add obligatory cols (.id, .sample_id) in case they are missing  :
-   if(!".sample_id" %in% colnames(new_signal)) {
-    new_signal[,.sample_id := sample_int(NA_integer_, attr_sample_id$sampling_rate)]
-   } else {
-    attributes(new_signal$.sample_id) <- attr_sample_id 
-   }
-
-   # Add .id in case it was removed by a summary
-   if(!".id" %in% colnames(new_signal)) {
-    new_signal[,.id := seq.int(.N), by =  .sample_id]
-   }
-   
-   #remove unnecesary columns
-  if(length(unique_segments_groups)!=0){
-    new_signal[, (unique_segments_groups) := NULL]
-  }
-
-  data.table::setkey(new_signal,.id,.sample_id)
-  data.table::setcolorder(new_signal,c(".id",".sample_id"))
-
-  new_signal[]
-}
-
-#' @noRd
-summarize_segments <-  function(segments, segments_groups, last_id){
-    segments %>% 
-          dplyr::group_by_at(vars(segments_groups)) %>%
-          dplyr::summarize() %>%
-          dplyr::ungroup() %>%
-      {
-       if (!".id" %in% dplyr::tbl_vars(.)) {
-         hd_add_column(., .id = seq_len(last_id) %>% as.integer())
-       } else {
-         .
-       }
-      } %>%
-    dplyr::select(.id, dplyr::everything())
-}
-
-summarize_eeg_lst <- function(.eeg_lst, dots, cond_cols){
-  summarize_eval_eeg_lst(.eeg_lst, eval = summarize_eval(dots), cond_cols)
-}
-
-summarize_at_eeg_lst <- function(.eeg_lst, vars, funs, cond_cols){
-  summarize_eval_eeg_lst(.eeg_lst, eval = summarize_at_eval(vars, funs), cond_cols)
-}
-
-summarize_eval_eeg_lst <- function(.eeg_lst, eval, cond_cols){
-    channels_info <- channels_tbl(.eeg_lst)
-    extended_signal <- extended_signal(signal = .eeg_lst$signal, 
-                                       segments = .eeg_lst$segments, 
-                                      groups_list = attributes(.eeg_lst)$vars, 
-    # # if there is something conditional on segments (O[condition == "faces"],
-    # # I should add them to the signal_tbl df temporarily
-                                      cond_cols = cond_cols)
-
-    .eeg_lst$signal <- eval_dt_signal( new_signal= extended_signal, 
-                                      eval = eval,
-                                      by = attributes(.eeg_lst)$vars %>% unlist %>% unique,
-                                      #because the attributes of sample_id get lost
-                                      attr_sample_id = attributes(.eeg_lst$signal$.sample_id),
-                                      unique_segments_groups= attributes(.eeg_lst)$vars$segments[attributes(.eeg_lst)$vars$segments != ".id"])
-   #putting the attributes back
-    # maybe use reg ex to look inside?
-
-    if (nrow(.eeg_lst$signal) != 0) {
-      last_id <- max(.eeg_lst$signal$.id)
-    } else {
-      last_id <- integer(0)
-    }
-   .eeg_lst$segments <- summarize_segments(.eeg_lst$segments, segments_groups = attributes(.eeg_lst)$vars$segments, last_id= last_id ) 
-
-   # TODO maybe I can do some type of summary of the events table, instead
-    .eeg_lst$events <- .eeg_lst$events %>% filter(FALSE)
-
-    .eeg_lst <- update_events_channels(.eeg_lst) 
-    
-    new_channels_names <- dplyr::tibble(.name = setdiff(channel_names(.eeg_lst), channels_info$.name), class = "channel_dbl")
-    old_channels_tbl <- dplyr::filter(channels_info, .name %in% channel_names(.eeg_lst))
-    new_channels_tbl <- dplyr::bind_rows(new_channels_names, old_channels_tbl) %>% 
-                      left_join(dplyr::tibble(.name=channel_names(.eeg_lst)),.,by=".name")
-
-     channels_tbl(.eeg_lst) <- new_channels_tbl
-    .eeg_lst
- }
 
 
 #' @noRd
 group_by_eeg_lst <- function(.eeg_lst, .dots, .add = FALSE){
   # divide dots according to if they belong to $signal or segments
-  new_dots <- dots_by_df(.dots, .eeg_lst)
-  signal_groups <- purrr::map_chr(new_dots$signal, rlang::quo_text)
-  segments_groups <- purrr::map_chr(new_dots$segments, rlang::quo_text)
+  # new_dots <- dots_by_tbl_quos(.dots, .eeg_lst)
+  # signal_groups <- purrr::map_chr(new_dots$signal, rlang::quo_text)
+  # segments_groups <- purrr::map_chr(new_dots$segments, rlang::quo_text)
  
-  if(any(!segments_groups %in% colnames(.eeg_lst$segments))){
+  # if(any(!segments_groups %in% colnames(.eeg_lst$segments))){
+  #   stop("Incorrect grouping.",call. = FALSE)
+  # }
+  
+  attributes(.eeg_lst)$vars <- purrr::map_chr(.dots, rlang::quo_text)
+  allcols <- c(colnames(.eeg_lst$signal), colnames(.eeg_lst$segments))
+  if(length(setdiff(attributes(.eeg_lst)$vars, allcols))>0) {
     stop("Incorrect grouping.",call. = FALSE)
   }
-  
-  attributes(.eeg_lst)$vars <- list(
-                          signal = signal_groups,
-                          segments = segments_groups)
+
   .eeg_lst
 }
+
+#' @noRd
+filter_eval <- function(.dots){
+# https://stackoverflow.com/questions/16573995/subset-by-group-with-data-table
+  dots_txt <- purrr::map(.dots, ~  rlang::quo_text(.x)) %>%
+     paste0(., collapse = " & ")
+  # sprintf("new_signal[new_signal[,.I[%s], by = c(by)]$V1,..orig_cols]", dots_txt)
+  sprintf("new_signal[new_signal[,.I[%s], by = c(by)]$V1][,..signal_cols]", dots_txt)
+} 
+
 
 #' @noRd
 filter_eeg_lst <- function(.eeg_lst, dots, cond_cols){  
 
   # .dots <- rlang::quos(recording == "0")
-    new_dots <- dots_by_df(dots, .eeg_lst)
+    new_dots <- dots_by_tbl_quos(dots, .eeg_lst)
     
     if (length(new_dots$signal) > 0) {
-    eval <- filter_eval(new_dots$signal)
-    extended_signal <- extended_signal(signal = .eeg_lst$signal, 
-                                       segments = .eeg_lst$segments, 
-                                      groups_list = attributes(.eeg_lst)$vars, 
-    # # if there is something conditional on segments (O[condition == "faces"],
-    # # I should add them to the signal_tbl df temporarily
-                                      cond_cols = cond_cols)
+      eval <- filter_eval(new_dots$signal)
+      extended_signal <- extended_signal(signal = .eeg_lst$signal, 
+                                         segments = .eeg_lst$segments, 
+                                         all_cols = c(dplyr::group_vars(.eeg_lst),cond_cols) %>% unique())
 
-    .eeg_lst$signal <- eval_dt_signal( new_signal= extended_signal, 
-                                      eval = eval,
-                                      by = attributes(.eeg_lst)$vars %>% unlist %>% unique,
-                                      #because the attributes of sample_id get lost
-                                      attr_sample_id = attributes(.eeg_lst$signal$.sample_id),
-                                      unique_segments_groups = attributes(.eeg_lst)$vars$segments[attributes(.eeg_lst)$vars$segments != ".id"],
-                                      orig_cols = colnames(.eeg_lst$signal))
-
+      by <- dplyr::group_vars(.eeg_lst)
+      signal_cols <- colnames(.eeg_lst$signal)
+      new_signal <- eval(parse(text= eval)) #uses `new_signal`  and `by` in the evaluation
       .eeg_lst$segments <- dplyr::semi_join(.eeg_lst$segments, .eeg_lst$signal, by = ".id")
      }
     
@@ -223,14 +104,6 @@ filter_eeg_lst <- function(.eeg_lst, dots, cond_cols){
     .eeg_lst %>% validate_eeg_lst()
   }  
 
-#' @noRd
-filter_eval <- function(.dots){
-# https://stackoverflow.com/questions/16573995/subset-by-group-with-data-table
-  dots_txt <- purrr::map(.dots, ~  rlang::quo_text(.x)) %>%
-     paste0(., collapse = " & ")
-  # sprintf("new_signal[new_signal[,.I[%s], by = c(by)]$V1,..orig_cols]", dots_txt)
-  sprintf("new_signal[new_signal[,.I[%s], by = c(by)]$V1]", dots_txt)
-} 
 
 
 
@@ -293,7 +166,7 @@ getAST <- function(ee) {
 }
 
 #' @noRd
-dots_by_df <- function(dots, .eeg_lst) {
+dots_by_tbl_quos <- function(dots, .eeg_lst) {
 # TODO: use str_* to make the signal_cols more general,
 # it should ignore if there is a function that starts with ch_ (using is.function)
   signal_cols <- c(channel_names(.eeg_lst), ".id", ".sample_id", "chs_mean")
@@ -317,76 +190,76 @@ dots_by_df <- function(dots, .eeg_lst) {
 }
 
 
-# this function basically applies a dplyr function (dplyr_fun) to $signal based on groups of segments (ext_grouping_df)
-#' @noRd
-do_based_on_grps <- function(.df, ext_grouping_df, dplyr_fun, dots) {
-  int_groups <- dplyr::groups(.df)
-  ext_group_names <- dplyr::group_vars(ext_grouping_df)
-  sampling_rate <- attributes(.df$.sample_id)$sampling_rate
+# # this function basically applies a dplyr function (dplyr_fun) to $signal based on groups of segments (ext_grouping_df)
+# #' @noRd
+# do_based_on_grps <- function(.df, ext_grouping_df, dplyr_fun, dots) {
+#   int_groups <- dplyr::groups(.df)
+#   ext_group_names <- dplyr::group_vars(ext_grouping_df)
+#   sampling_rate <- attributes(.df$.sample_id)$sampling_rate
 
-  id <- .df$.id
-  # # list of groups from segments to create on the fly
-  # new_groups <- purrr::map(
-  #   ext_group_names,
-  #   ~rlang::expr(ext_grouping_df[id, ][[!!.x]])
-  # ) %>%
-  #   purrr::set_names(ext_group_names)
+#   id <- .df$.id
+#   # # list of groups from segments to create on the fly
+#   # new_groups <- purrr::map(
+#   #   ext_group_names,
+#   #   ~rlang::expr(ext_grouping_df[id, ][[!!.x]])
+#   # ) %>%
+#   #   purrr::set_names(ext_group_names)
 
-  # # I need to ungroup first because if not, the other groups need ot be the size of the grouping that were already made and not the size of the entire signal_tbl df
-  # .df <- dplyr::ungroup(.df) %>%
-  #   # TODO: check the following
-  #   # maybe doing a left_join and then group would be not slower
-  #   dplyr::group_by(!!!new_groups, !!!int_groups) %>%
-  #   dplyr_fun(!!!dots) %>% # after summarizing I add the .id
-  #   dplyr::ungroup(.df) %>%
-  #   dplyr::select(-dplyr::one_of(ext_group_names))
+#   # # I need to ungroup first because if not, the other groups need ot be the size of the grouping that were already made and not the size of the entire signal_tbl df
+#   # .df <- dplyr::ungroup(.df) %>%
+#   #   # TODO: check the following
+#   #   # maybe doing a left_join and then group would be not slower
+#   #   dplyr::group_by(!!!new_groups, !!!int_groups) %>%
+#   #   dplyr_fun(!!!dots) %>% # after summarizing I add the .id
+#   #   dplyr::ungroup(.df) %>%
+#   #   dplyr::select(-dplyr::one_of(ext_group_names))
 
-  # group by elements of segments
-  use_seg_groups <- length(ext_group_names) != 0 & any(ext_group_names != ".id")
-  if (use_seg_groups) {
-    .df <- ext_grouping_df %>%
-      tidyr::unite("grouped", ext_group_names) %>%
-      dplyr::select(.id, grouped) %>%
-      dplyr::left_join(.df, ., by = ".id") %>%
-      dplyr::group_by(grouped, !!!int_groups)
-  }
+#   # group by elements of segments
+#   use_seg_groups <- length(ext_group_names) != 0 & any(ext_group_names != ".id")
+#   if (use_seg_groups) {
+#     .df <- ext_grouping_df %>%
+#       tidyr::unite("grouped", ext_group_names) %>%
+#       dplyr::select(.id, grouped) %>%
+#       dplyr::left_join(.df, ., by = ".id") %>%
+#       dplyr::group_by(grouped, !!!int_groups)
+#   }
 
-  .df <- .df %>%
-    dplyr_fun(!!!dots) %>% # after summarizing I add the .id
-    dplyr::ungroup(.df) %>%
-    {
-      if (use_seg_groups) {
-        dplyr::select(., -grouped)
-      } else {
-        .
-      }
-    }
+#   .df <- .df %>%
+#     dplyr_fun(!!!dots) %>% # after summarizing I add the .id
+#     dplyr::ungroup(.df) %>%
+#     {
+#       if (use_seg_groups) {
+#         dplyr::select(., -grouped)
+#       } else {
+#         .
+#       }
+#     }
 
-  # in case obligatory cols are gone was removed :
-  if (nrow(.df) > 0) {
-    if (!".id" %in% dplyr::tbl_vars(.df)) {
-      .df <- dplyr::mutate(.df, .id = NA_integer_)
-    }
-    if (!".sample_id" %in% dplyr::tbl_vars(.df)) {
-      # This just creates a channel, because of the reclass
-      # .df <- dplyr::mutate(.df, .sample_id = new_sample_int(NA_integer_,
-      #   sampling_rate = sampling_rate) )
-      .df$.sample_id <- new_sample_int(rep(NA_integer_, nrow(.df)), sampling_rate = sampling_rate)
-    }
-  }
-  if (nrow(.df) == 0) {
-    if (!".id" %in% dplyr::tbl_vars(.df)) {
-      .df <- dplyr::mutate(.df, .id = integer(0))
-    }
-    if (!".sample_id" %in% dplyr::tbl_vars(.df)) {
-      # .df <- dplyr::mutate(.df, .sample_id = sample_int(integer(0),
-      #   sampling_rate = sampling_rate) )
-      .df$.sample_id <- new_sample_int(integer(0), sampling_rate = sampling_rate)
-    }
-  }
+#   # in case obligatory cols are gone was removed :
+#   if (nrow(.df) > 0) {
+#     if (!".id" %in% dplyr::tbl_vars(.df)) {
+#       .df <- dplyr::mutate(.df, .id = NA_integer_)
+#     }
+#     if (!".sample_id" %in% dplyr::tbl_vars(.df)) {
+#       # This just creates a channel, because of the reclass
+#       # .df <- dplyr::mutate(.df, .sample_id = new_sample_int(NA_integer_,
+#       #   sampling_rate = sampling_rate) )
+#       .df$.sample_id <- new_sample_int(rep(NA_integer_, nrow(.df)), sampling_rate = sampling_rate)
+#     }
+#   }
+#   if (nrow(.df) == 0) {
+#     if (!".id" %in% dplyr::tbl_vars(.df)) {
+#       .df <- dplyr::mutate(.df, .id = integer(0))
+#     }
+#     if (!".sample_id" %in% dplyr::tbl_vars(.df)) {
+#       # .df <- dplyr::mutate(.df, .sample_id = sample_int(integer(0),
+#       #   sampling_rate = sampling_rate) )
+#       .df$.sample_id <- new_sample_int(integer(0), sampling_rate = sampling_rate)
+#     }
+#   }
 
-  dplyr::select(.df, obligatory_cols$signal, dplyr::everything())
-}
+#   dplyr::select(.df, obligatory_cols$signal, dplyr::everything())
+# }
 
 
 #' @noRd
@@ -465,33 +338,61 @@ validate_segments <- function(segments) {
 }
 
 
-#' @noRd
-group_vars_int <- function(eeg_lst) {
-  list(signal_tbl = group_vars(eeg_lst$signal), segments = group_vars(eeg_lst$segments))
-}
+# #' @noRd
+# group_vars_int <- function(eeg_lst) {
+#   list(signal_tbl = group_vars(eeg_lst$signal), segments = group_vars(eeg_lst$segments))
+# }
 
-#' @noRd
-groups_int <- function(eeg_lst) {
-  list(signal_tbl = groups(eeg_lst$signal), segments = groups(eeg_lst$segments))
-}
+# #' @noRd
+# groups_int <- function(eeg_lst) {
+#   list(signal_tbl = groups(eeg_lst$signal), segments = groups(eeg_lst$segments))
+# }
 
 
-#' @noRd
-group_by_id <- function(eeg_lst) {
-  orig_groups <- dplyr::group_vars(eeg_lst)
-  # if there are many groupings
-  if (length(orig_groups) == 0 | length(orig_groups) > 1 |
-    # or if the only one is not .id
-    (length(orig_groups) == 1 & orig_groups[1] != ".id")) {
-    message("# Grouping by .id.")
-  }
+# #' @noRd
+# group_by_id <- function(eeg_lst) {
+#   orig_groups <- dplyr::group_vars(eeg_lst)
+#   # if there are many groupings
+#   if (length(orig_groups) == 0 | length(orig_groups) > 1 |
+#     # or if the only one is not .id
+#     (length(orig_groups) == 1 & orig_groups[1] != ".id")) {
+#     message("# Grouping by .id.")
+#   }
 
-  dplyr::group_by(eeg_lst, .id)
-}
+#   dplyr::group_by(eeg_lst, .id)
+# }
 
 #' @noRd
 signal_from_parent_frame <- function(env = parent.frame()) {
   # This is the environment where I can find the columns of signal_tbl
   signal_env <- rlang::env_get(env = env, ".top_env", inherit = TRUE)
   signal_tbl <- dplyr::as_tibble(rlang::env_get_list(signal_env, rlang::env_names(signal_env)))
+}
+
+
+update_channels_tbl <- function(.eeg_lst, channels_info){
+  new_channels_names <- dplyr::tibble(.name = setdiff(channel_names(.eeg_lst), channels_info$.name), class = "channel_dbl")
+  old_channels_tbl <- dplyr::filter(channels_info, .name %in% channel_names(.eeg_lst))
+  new_channels_tbl <- dplyr::bind_rows(new_channels_names, old_channels_tbl) %>% 
+                    left_join(dplyr::tibble(.name=channel_names(.eeg_lst)),.,by=".name")
+
+   channels_tbl(.eeg_lst) <- new_channels_tbl
+  .eeg_lst
+}
+
+level_to_grouping <- function(level){
+  if(is.character(level)){
+    final_groups <- levels
+    grouping <- {!dplyr::group_vars(.eeg_lst) %in% level} %>% purrr::map_chr(as.integer) %>% 
+                                                paste0(collapse = "") %>%
+                                                strtoi( base = 2)
+  } else {
+    stop("Invalid level")
+  }
+  # grouping <-    case_when(level %in% c("last","ultimate") ~ "max(grouping)",
+  #             level %in% c("penultimate") ~ "max(grouping[grouping!=max(grouping)])",
+  #             level %in% c("first") ~ 0,
+  #             is.numeric(level) ~ as.character(round(level,0)),
+  #             TRUE ~ stop("Incorrect level for the rollup"))
+ grouping    
 }
