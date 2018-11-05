@@ -26,13 +26,21 @@
 chs_mean <- function(..., na.rm = FALSE) {
   dots <- rlang::enquos(...)
 
-  # signal_tbl <- signal_from_parent_frame(env = parent.frame())
-  # This is the environment where I can find the columns of signal_tbl
-  signal_env <- rlang::env_get(env = parent.frame(), ".top_env", inherit = TRUE)
-  signal_tbl <- dplyr::as_tibble(rlang::env_get_list(signal_env, rlang::env_names(signal_env)))
+  # # signal_tbl <- signal_from_parent_frame(env = parent.frame())
+  # # This is the environment where I can find the columns of signal_tbl
+  # signal_env <- rlang::env_get(env = parent.frame(), ".top_env", inherit = TRUE)
+  # signal_tbl <- dplyr::as_tibble(rlang::env_get_list(signal_env, rlang::env_names(signal_env)))
+ # https://stackoverflow.com/questions/17133522/invalid-internal-selfref-in-data-table
+ # { # shallow copy here...
+ #        data.table:::settruelength(tt, 0)
+ #        invisible(alloc.col(tt))
+ #    }
+    
+	 rowMeans(data.table(...), na.rm = na.rm)  # throws a warning
+	 # rowMeans(copy(data.table::data.table(...)), na.rm = na.rm)  # throws a warning
+  # rowMeans(.SD, na.rm = na.rm), .SDcols = cols # should be the way, but it's hard to implement it in my template
 
-
-  rowMeans(dplyr::select(signal_tbl, !!!dots), na.rm = na.rm)
+  # rowMeans(dplyr::select(signal_tbl, !!!dots), na.rm = na.rm)
 }
 
 # #' @export
@@ -41,6 +49,21 @@ chs_mean <- function(..., na.rm = FALSE) {
 # 	dplyr::transmute(x, MEAN = chs_mean.default(x = NULL,!!!all_channels, na.rm = na.rm) )
 # }
 
+#' @noRd
+mutate_cols_eval <- function(.dots){
+  
+ 
+  dots_txt <- purrr::imap(.dots, ~ 
+          {if(.y!="") {
+                         paste(.y, ":=", rlang::quo_text(.x)) 
+                       } else {
+                         paste0("`",rlang::quo_text(.x),"`" , " := ", rlang::quo_text(.x)) 
+                       }} %>%
+                       paste0("[, ",.,", by = c(by)]")) %>% paste0(collapse = "")
+
+  sprintf("new_signal%s[,..signal_cols][]", dots_txt)
+   
+} 
 
 
 

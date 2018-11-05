@@ -171,6 +171,13 @@ update_channel_meta_data <- function(channels, channel_info) {
   channels
 }
 
+# purrr::map2(
+#       channels , purrr::transpose(channel_info),
+#       function(sig, chan_info) {
+#         channel <- new_channel_dbl(value = sig, as.list(chan_info))
+#       }
+# )
+
 #' @param signal_tbl 
 #'
 #' @param events 
@@ -209,6 +216,7 @@ validate_eeg_lst <- function(x) {
       call. = FALSE
     )
   }
+
   x
 }
 
@@ -237,6 +245,11 @@ validate_signal_tbl <- function(signal_tbl) {
 
   # Validates sample_id
   validate_sample_int(signal_tbl$.sample_id)
+
+  #checks if there are channels
+  if(all(!sapply(signal_tbl, is_channel_dbl))){
+    warning("No channels found.")
+  }
 
   # Validates channels 
   signal_tbl[, lapply(.SD,validate_channel_dbl), .SDcols= sapply(signal_tbl, is_channel_dbl)] 
