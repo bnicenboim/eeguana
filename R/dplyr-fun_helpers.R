@@ -23,7 +23,8 @@ filter_eeg_lst <- function(.eeg_lst, dots){
     new_dots <- dots_by_tbl_quos(.eeg_lst, dots)
 
     if (length(new_dots$signal) > 0) {
-      .eeg_lst$signal <- eval_signal(.eeg_lst, eval_txt = filter_eval(new_dots$signal), cond_cols = names_segments_col(.eeg_lst, dots))
+      .eeg_lst$signal <- eval_signal(.eeg_lst, eval_txt = filter_eval(new_dots$signal), 
+                          cond_cols = names_segments_col(.eeg_lst, dots))
       .eeg_lst$segments <- dplyr::semi_join(.eeg_lst$segments, .eeg_lst$signal, by = ".id")
      }
     
@@ -61,7 +62,9 @@ mutate_eeg_lst <- function(.eeg_lst, dots, keep_cols = TRUE){
                              }}  %>% c(.,new_cols) %>%
                        unique()
 
-      .eeg_lst$signal <- eval_signal(.eeg_lst, eval_txt = mutate_eval(new_dots$signal), cond_cols = names_segments_col(.eeg_lst, dots),out_cols = signal_cols) 
+      .eeg_lst$signal <- eval_signal(.eeg_lst, eval_txt = mutate_eval(new_dots$signal), 
+                                            cond_cols = names_segments_col(.eeg_lst, dots),
+                                            out_cols = signal_cols) 
 
       #updates the events and the channels
       .eeg_lst <- .eeg_lst %>% update_events_channels()  %>% update_channels_tbl(channels_info)

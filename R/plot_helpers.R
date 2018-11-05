@@ -1,13 +1,16 @@
+#' @export
 interpolate_tbl <- function(.data, ...) {
   UseMethod("interpolate_tbl")
 }
 
+#' @export
 interpolate_tbl.eeg_lst <- function(.data, x = .x, y = .y, method = "MBA", ...) {
-grouping <- group_vars(.data)
-.data <- dplyr::as_tibble(.data) %>% dplyr::group_by(grouping)
-NextMethod()
+  grouping <- group_vars(.data)
+  .data <- dplyr::as_tibble(.data) %>% dplyr::group_by(grouping)
+  NextMethod()
 }
 
+#' @export
 interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, label = channel, method = "MBA", ...) {
   # x <- rlang::quo(.x)
   # y <- rlang::quo(.y)
@@ -103,5 +106,5 @@ interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, lab
         }
     })
 
-  grid
+  dplyr::bind_rows(grid,.data)
 }
