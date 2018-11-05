@@ -1,10 +1,16 @@
-interpolate_tbl <- function(x, ...) {
+interpolate_tbl <- function(.data, ...) {
   UseMethod("interpolate_tbl")
 }
 
+interpolate_tbl.eeg_lst <- function(.data, x = .x, y = .y, method = "MBA", ...) {
+grouping <- group_vars(.data)
+.data <- dplyr::as_tibble(.data) %>% dplyr::group_by(grouping)
+NextMethod()
+}
+
 interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, label = channel, method = "MBA", ...) {
-  # x <- rlang::quo(x)
-  # y <- rlang::quo(y)
+  # x <- rlang::quo(.x)
+  # y <- rlang::quo(.y)
   # value <- rlang::quo(amplitude)
   # label <- rlang::quo(channel)
   x <- rlang::enquo(x)
@@ -42,7 +48,7 @@ interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, lab
     l <- .data %>% dplyr::ungroup() %>% dplyr::select(dplyr::one_of(group_vars)) %>%
     # in case it should group by some NA
     
-    dplyr::mutate_all(tidyr::replace_na, "NA")
+    dplyr::mutate_all(tidyr::replace_na, "NA") %>% distinct()
 
   if (method == "MBA") {
     if (!"MBA" %in% rownames(utils::installed.packages())) {
@@ -67,7 +73,7 @@ interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, lab
       common <- .d %>%
         dplyr::ungroup() %>%
         dplyr::select(-!!label, -!!x, -!!y, -!!value) %>%
-        distinct()
+        dplyr::distinct()
 
       if (nrow(common) > 1
       # when there is no common columns, distintict returns anyway a number of columns, distinct bug?? TODO: report
@@ -78,15 +84,15 @@ interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, lab
       interpolate_from <- .d %>%
         dplyr::ungroup() %>%
         dplyr::select(!!x, !!y, !!value) %>%
-        dplyr::filter(!is.na(x) | !is.na(y))
+        dplyr::filter(!is.na(!!x) | !is.na(!!y))
 
       if (nrow(interpolate_from) == 1) stop("Interpolation is not possible from only one point.")
       mba_interp <- interpolation_alg(interpolate_from)
 
       dplyr::tibble(
-        !!quo_name(x) := rep(mba_interp$xyz$x, times = mba_interp$noY),
+        !!quo_name(x) := rep(mba_interp$xyz$x, times = mba_interp$no.Y),
         # eq to mba_interp$xyz.est@coords[,1] with sp = TRUE, which requires an extra package
-        !!quo_name(y) := rep(mba_interp$xyz$y, each = mba_interp$nox),
+        !!quo_name(y) := rep(mba_interp$xyz$y, each = mba_interp$no.X),
         # eq to mba_interp$xyz.est@coords[,2]
         !!quo_name(value) := c(mba_interp$xyz$z)
       ) %>%

@@ -26,17 +26,6 @@ ch_baseline.eeg_lst <- function(x, time = -Inf, sample_id = NULL) {
     message("# Ignoring time parameter.")
   }
  
- # dplyr code
-  # ch_baseline.eeg_lst uses grouping by .id by default, more flexible baseline
-  # x <- group_by_id(x)
-  # x$signal <-
-  #   dplyr::mutate_at(
-  #     x$signal,
-  #     channel_names(x),
-  #     dplyr::funs(. - mean(.[between(.sample_id, sample_id, 0)], na.rm = TRUE))
-  #   )
-
- 
   new_signal <- data.table::copy(x$signal)
   new_signal[, (channel_names(x)) := lapply(.SD, fun_baseline, .sample_id, sample_id) ,
              .SDcols = (channel_names(x)),
