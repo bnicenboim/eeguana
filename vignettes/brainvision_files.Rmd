@@ -94,6 +94,7 @@ faces_segs <- faces %>%
                         lim = c(-.2,.25)) %>%
                event_to_ch_NA(type == "Bad Interval") %>% 
                ch_baseline()
+
 ```
 
 
@@ -157,14 +158,11 @@ first making segments that include only the interval .1-.2 *s* after the onset
 of the stimuli.
 
 ```{r, fig.dim = c(10,5), out.width = "100%"}
-
 faces_segs_some %>% filter(between(.sample_id,20,50)) %>% 
                     group_by(condition) %>%
                     summarize_all_ch(mean, na.rm = TRUE) %>%
-                     as_tibble() %>%
-                     group_by(condition) %>%
-                    interpolate_tbl() %>%
-                    plot_topo()
+                      interpolate_tbl() %>%
+                    plot_topo() + facet_grid(~condition)
 
 ```
 
@@ -201,7 +199,7 @@ faces_segs_some_t <-
   faces_segs_some %>% 
       select(O1, O2, P7, P8) %>%
       group_by(.sample_id) %>% 
-      summarize_all(funs(t = t.test(.[condition == "faces"],
+      summarize_all_ch(funs(t = t.test(.[condition == "faces"],
           .[condition == "non-faces"])$statistic))
 
   plot_gg(faces_segs_some_t) + 

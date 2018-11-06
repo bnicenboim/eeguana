@@ -30,13 +30,12 @@ chs_mean <- function(..., na.rm = FALSE) {
   # # This is the environment where I can find the columns of signal_tbl
   # signal_env <- rlang::env_get(env = parent.frame(), ".top_env", inherit = TRUE)
   # signal_tbl <- dplyr::as_tibble(rlang::env_get_list(signal_env, rlang::env_names(signal_env)))
+
  # https://stackoverflow.com/questions/17133522/invalid-internal-selfref-in-data-table
- # { # shallow copy here...
- #        data.table:::settruelength(tt, 0)
- #        invisible(alloc.col(tt))
- #    }
-    
-	 rowMeans(data.table(...), na.rm = na.rm)  # throws a warning
+
+	 rowMeans(data.table::data.table(...), na.rm = na.rm)  # throws a warning
+
+
 	 # rowMeans(copy(data.table::data.table(...)), na.rm = na.rm)  # throws a warning
   # rowMeans(.SD, na.rm = na.rm), .SDcols = cols # should be the way, but it's hard to implement it in my template
 

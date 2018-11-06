@@ -210,8 +210,8 @@ validate_eeg_lst <- function(x) {
       call. = FALSE
     )
   }
-  
-  if(!identical(names(attributes(x)$vars),c("signal","segments"))){
+
+  if(any(!group_chr(x) %in% c(colnames(x$signal),colnames(x$segments)))){
       warning("Grouping variables are missing.",
       call. = FALSE
     )

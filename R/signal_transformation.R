@@ -26,18 +26,20 @@ ch_baseline.eeg_lst <- function(x, time = -Inf, sample_id = NULL) {
     message("# Ignoring time parameter.")
   }
  
-  new_signal <- data.table::copy(x$signal)
-  new_signal[, (channel_names(x)) := lapply(.SD, fun_baseline, .sample_id, sample_id) ,
+  # new_signal <- data.table::copy(x$signal)
+  # new_signal[, (channel_names(x)) := lapply(.SD, fun_baseline, .sample_id, sample_id) ,
+  #            .SDcols = (channel_names(x)),
+  #             by = .id ]
+  
+  # x$signal <- new_signal
+ x$signal <- data.table::copy(x$signal)
+ x$signal <- x$signal[, (channel_names(x)) := lapply(.SD, fun_baseline, .sample_id, sample_id) ,
              .SDcols = (channel_names(x)),
               by = .id ]
   
-  x$signal <- new_signal
-
-
   x
 }
 
-# TODO: it doesn't work with grouped data because of a bug of dplyr
 #' @export
 ch_baseline.channel_dbl <- function(x, time = -Inf, sample_id = NULL) {
 

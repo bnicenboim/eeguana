@@ -33,7 +33,6 @@ rollup_at_eeg_lst <- function(.eeg_lst, vars, funs, level = c()){
 }
 
 summarize_eval_eeg_lst <- function(.eeg_lst, eval, cond_cols, segment_groups){
-
    channels_info <- channels_tbl(.eeg_lst)
   .eeg_lst$signal <- summarize_eval_signal(.eeg_lst, eval, cond_cols, segment_groups)
       ## Restructure segments table to fit the new signal table
@@ -75,24 +74,27 @@ summarize_segments <-  function(segments, segments_groups, last_id){
 summarize_eval_signal <- function(.eeg_lst, eval, cond_cols,segment_groups){
     # To update later
     attr_sample_id <- attributes(.eeg_lst$signal$.sample_id)
-    new_signal <- eval_signal(.eeg_lst, eval_txt = eval, cond_cols = cond_cols, out_cols = NULL, remove_cols = segment_groups) 
-
+    extended_signal <- eval_signal(.eeg_lst, eval_txt = eval, cond_cols = cond_cols) 
     ## Restructure signal table
     # Recover lost attributes and columns of signal_id
     #Add obligatory cols (.id, .sample_id) in case they are missing  :
-    if(!".sample_id" %in% colnames(new_signal)) {
-     new_signal[,.sample_id := sample_int(NA_integer_, attr_sample_id$sampling_rate)]
+    if(!".sample_id" %in% colnames(extended_signal)) {
+     extended_signal[,.sample_id := sample_int(NA_integer_, attr_sample_id$sampling_rate)]
     } else {
-     attributes(new_signal$.sample_id) <- attr_sample_id 
+     attributes(extended_signal$.sample_id) <- attr_sample_id 
     }
 
     # Add .id in case it was removed by a summary
-    if(!".id" %in% colnames(new_signal)) {
-     new_signal[,.id := seq_len(.N), by =  .sample_id]
+    if(!".id" %in% colnames(extended_signal)) {
+     extended_signal[,.id := seq_len(.N), by =  .sample_id]
+    }
+    
+    if(length(segment_groups)>0){
+     extended_signal[, (segment_groups) := NULL] 
     }
 
-    data.table::setkey(new_signal,.id,.sample_id)
-    data.table::setcolorder(new_signal,c(".id",".sample_id"))
-    new_signal
+    data.table::setkey(extended_signal,.id,.sample_id)
+    data.table::setcolorder(extended_signal,c(".id",".sample_id"))
+    extended_signal
   }
 

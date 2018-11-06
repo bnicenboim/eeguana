@@ -1,7 +1,7 @@
 #' @noRd
 extended_signal <- function(.eeg_lst, cond_cols){
   relevant_cols <- c(obligatory_cols$segments, group_chr(.eeg_lst),cond_cols)
-print(relevant_cols)
+
  if(length(relevant_cols)>1) {
   segments <-  dplyr::ungroup(.eeg_lst$segments) %>% 
                dplyr::select_if(names(.) %in% relevant_cols) %>%
