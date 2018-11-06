@@ -14,7 +14,7 @@
 #'
 #' @export
 as_tibble.eeg_lst <- function(x, add_segments = TRUE, add_channels_info = TRUE) {
-   x$signal %>% 
+   x$signal[,lapply(.SD, `attributes<-`, NULL )] %>% 
     tidyr::gather(key = "channel", value = "amplitude", channel_names(x)) %>%
     {
       if (add_segments) {

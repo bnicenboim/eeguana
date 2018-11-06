@@ -4,14 +4,20 @@ interpolate_tbl <- function(.data, ...) {
 }
 
 #' @export
-interpolate_tbl.eeg_lst <- function(.data, x = .x, y = .y, method = "MBA", ...) {
-  grouping <- group_vars(.data)
-  .data <- dplyr::as_tibble(.data) %>% dplyr::group_by(grouping)
-  NextMethod()
+interpolate_tbl.eeg_lst <- function(.data, x = .x, y = .y, value = amplitude, label = channel, diam_points =200, method = "MBA",...) {
+  grouping <- group_chr(.data)
+  .data <- dplyr::as_tibble(.data) %>% dplyr::group_by_at(vars(grouping))
+  x <- rlang::enquo(x)
+  y <- rlang::enquo(y)
+  value <- rlang::enquo(value)
+  label <- rlang::enquo(label)
+  dots <- rlang::enquos(...)
+  # NextMethod()
+  interpolate_tbl(.data, !!x, !!y, !!value, !!label, diam_points, method, !!!dots)
 }
 
 #' @export
-interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, label = channel, method = "MBA", ...) {
+interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, label = channel, diam_points =200, method = "MBA",...) {
   # x <- rlang::quo(.x)
   # y <- rlang::quo(.y)
   # value <- rlang::quo(amplitude)
@@ -58,7 +64,7 @@ interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, lab
       stop("Package MBA needs to be installed to interpolate using multilevel B-splines ")
     }
     # change to sp = FALSE and adapt, so that I remove the sp package
-    interpolation_alg <- function(xyz, ...) MBA::mba.surf(xyz = xyz, 100, 100, sp = FALSE, extend = TRUE, ...)
+    interpolation_alg <- function(xyz, ...) MBA::mba.surf(xyz = xyz, diam_points, diam_points, sp = FALSE, extend = TRUE, ...)
   } else {
     stop("Non supported method.")
   }
