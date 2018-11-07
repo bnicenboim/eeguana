@@ -69,7 +69,7 @@ channels_tbl.eeg_lst <- function(x, ...) {
   x$signal <- dplyr::bind_cols(nochannels, update_channel_meta_data(channels, value))
   new_names <- channel_names(x)
 
-  for (i in eeguana:::seq_len(nchannels(x))) {
+  for (i in seq_len(nchannels(x))) {
     x$events <- mutate(x$events, .channel = dplyr::if_else(.channel == orig_names[i], new_names[i], .channel))
   }
 

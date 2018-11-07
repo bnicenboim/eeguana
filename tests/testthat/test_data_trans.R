@@ -112,8 +112,6 @@ test_that("can bind unlisted files that were filtered", {
 
 
 
-sloop::s3_methods_generic("as_tibble")
-as_tibble(cond1)
 
 test_that("can transform to tibble", {
   cond1_2 <- cond2

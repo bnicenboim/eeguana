@@ -48,21 +48,6 @@ chs_mean <- function(..., na.rm = FALSE) {
 # 	dplyr::transmute(x, MEAN = chs_mean.default(x = NULL,!!!all_channels, na.rm = na.rm) )
 # }
 
-#' @noRd
-mutate_cols_eval <- function(.dots){
-  
- 
-  dots_txt <- purrr::imap(.dots, ~ 
-          {if(.y!="") {
-                         paste(.y, ":=", rlang::quo_text(.x)) 
-                       } else {
-                         paste0("`",rlang::quo_text(.x),"`" , " := ", rlang::quo_text(.x)) 
-                       }} %>%
-                       paste0("[, ",.,", by = c(by)]")) %>% paste0(collapse = "")
-
-  sprintf("new_signal%s[,..signal_cols][]", dots_txt)
-   
-} 
 
 
 

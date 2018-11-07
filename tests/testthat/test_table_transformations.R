@@ -163,8 +163,6 @@ data0 <- eeg_lst(
   segments = dplyr::tibble(.id = 1L, recording = "recording1", segment = 1)
 )
 
-x <- data
-dots <- rlang::quos(type == "Time 0")
 test_that("can segment", {
   data_s <- segment(data, type == "Time 0")
   expect_equal(data$signal, data_s$signal)
@@ -203,18 +201,18 @@ test_that("can segment", {
 
 
 baselines <- dplyr::summarize(dplyr::group_by(
-  dplyr::filter(eeguana:::declass(data$signal)$tbl, .sample_id <= 0),
+  dplyr::filter(as_tibble(data$signal), .sample_id <= 0),
   .id
 ), bX = mean(X), bY = mean(Y))
-signal_with_baselines <- dplyr::left_join(eeguana:::declass(data$signal)$tbl, baselines)
+signal_with_baselines <- dplyr::left_join(as_tibble(data$signal), baselines)
 signal_with_baselines$new_X <- signal_with_baselines$X - signal_with_baselines$bX
 signal_with_baselines$new_Y <- signal_with_baselines$Y - signal_with_baselines$bY
 baselined <- ch_baseline(data)
 
 
 test_that("baseline works", {
-  expect_equal(eeguana:::declass(baselined$signal)$tbl$X, signal_with_baselines$new_X)
-  expect_equal(eeguana:::declass(baselined$signal)$tbl$Y, signal_with_baselines$new_Y)
+  expect_equal(as_tibble(baselined$signal)$X, signal_with_baselines$new_X)
+  expect_equal(as_tibble(baselined$signal)$Y, signal_with_baselines$new_Y)
 })
 
 

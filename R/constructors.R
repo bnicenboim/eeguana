@@ -9,6 +9,8 @@
 #' @return A valid eggble.
 #' @export
 eeg_lst <- function(signal, events, segments) {
+  if(!data.table::is.data.table(events)) events <- data.table::as.data.table(events)
+  if(!data.table::is.data.table(signal)) signal <- data.table::as.data.table(signal)
   validate_eeg_lst(new_eeg_lst(signal, events, segments))
 }
 

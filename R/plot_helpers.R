@@ -6,7 +6,7 @@ interpolate_tbl <- function(.data, ...) {
 #' @export
 interpolate_tbl.eeg_lst <- function(.data, x = .x, y = .y, value = amplitude, label = channel, diam_points =200, method = "MBA",...) {
   grouping <- group_chr(.data)
-  .data <- dplyr::as_tibble(.data) %>% dplyr::group_by_at(vars(grouping))
+  .data <- dplyr::as_tibble(.data) %>% dplyr::group_by_at(dplyr::vars(grouping))
   x <- rlang::enquo(x)
   y <- rlang::enquo(y)
   value <- rlang::enquo(value)

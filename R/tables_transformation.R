@@ -147,10 +147,14 @@ bind <- function(...) {
   events[, .id := .GRP, by = .(.sid,.id)][,.sid := NULL]
 
 
-  segments <- purrr::map_dfr(eeg_lsts, ~
-  dplyr::ungroup(.x$segments), .id = ".sid") %>%
-    dplyr::mutate(.id = dplyr::group_indices(., .sid,.id)) %>%
-    dplyr::select(-.sid)
+  segments <- purrr::map(eeg_lsts, ~data.table::data.table(.x$segments)) %>% data.table::rbindlist(idcol=".sid")
+  segments[, .id := .GRP, by = .(.sid,.id)][,.sid := NULL] %>% dplyr::as_tibble()
+
+
+  # purrr::map_dfr(eeg_lsts, ~
+  # dplyr::ungroup(.x$segments), .id = ".sid") %>%
+  #   dplyr::mutate(.id = dplyr::group_indices(., .sid,.id)) %>%
+  #   dplyr::select(-.sid)
 
 
 
