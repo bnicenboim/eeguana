@@ -20,8 +20,9 @@ segment <- function(x, ...) {
 }
 
 #' @export
-segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
+segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds", recording_col = "recording") {
   dots <- rlang::enquos(...)
+  
 
   times0 <- dplyr::filter(x$events, !!!dots) %>%
     dplyr::select(-.channel, -.size) 
@@ -85,12 +86,14 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
   message(paste0("# Total of ", max(x$signal$.id), " segments found."))
 
   x$segments <- dplyr::right_join(x$segments,
-    dplyr::select(times0, -.sample_0),
-    by = ".id"
-  ) %>%
-    dplyr::mutate(.id = 1:n()) %>%
-    dplyr::group_by(recording) %>%
-    dplyr::mutate(segment = 1:n())
+                dplyr::select(times0, -.sample_0), by = ".id") %>%
+                dplyr::mutate(.id = 1:n()) 
+
+  if(!is.null(recording_col) && !is.na(recording_col)){
+  x$segments <- x$segments %>% dplyr::group_by_at(dplyr::vars(recording_col)) %>%
+                    dplyr::mutate(segment = 1:n()) %>%
+                    dplyr::ungroup()
+  } 
 
   message(paste0(say_size(x), " after segmentation."))
   validate_eeg_lst(x)
@@ -139,18 +142,18 @@ bind <- function(...) {
   # Binding
   # .id of the new eggbles needs to be adapted
 
-  signal <- purrr::map(eeg_lsts, ~.x$signal) %>% data.table::rbindlist(idcol=".sid")
+  signal <- purrr::map(eeg_lsts, ~.x$signal) %>% data.table::rbindlist(idcol=".sid", fill = TRUE)
   signal[, .id := .GRP, by = .(.sid,.id)][,.sid := NULL]
   data.table::setkey(signal,.id,.sample_id)
-
-  events <- purrr::map(eeg_lsts, ~.x$events) %>% data.table::rbindlist(idcol=".sid")
+  
+  data.table::setattr(signal,"class",c("signal_tbl",class(signal)))
+  events <- purrr::map(eeg_lsts, ~.x$events) %>% data.table::rbindlist(idcol=".sid", fill = TRUE)
   events[, .id := .GRP, by = .(.sid,.id)][,.sid := NULL]
 
 
-  segments <- purrr::map(eeg_lsts, ~data.table::data.table(.x$segments)) %>% data.table::rbindlist(idcol=".sid")
-  segments[, .id := .GRP, by = .(.sid,.id)][,.sid := NULL] %>% dplyr::as_tibble()
-
-
+  segments <- purrr::map(eeg_lsts, ~data.table::data.table(.x$segments)) %>% data.table::rbindlist(idcol=".sid", fill = TRUE)
+  segments[, .id := .GRP, by = .(.sid,.id)][,.sid := NULL] 
+  segments <- segments %>% dplyr::as_tibble()
   # purrr::map_dfr(eeg_lsts, ~
   # dplyr::ungroup(.x$segments), .id = ".sid") %>%
   #   dplyr::mutate(.id = dplyr::group_indices(., .sid,.id)) %>%

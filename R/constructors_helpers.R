@@ -85,9 +85,13 @@ validate_channel_dbl <- function(channel) {
 #' @noRd
 new_signal_tbl <- function(signal_matrix = matrix(), ids = c(), sample_ids = c(), channel_info = dplyr::tibble()) {
   
-  signal_tbl <- lapply(seq_len(ncol(signal_matrix)), function(i) signal_matrix[, i]) %>% 
-                update_channel_meta_data( channel_info) %>%
-                data.table::as.data.table()
+  if(data.table::is.data.table(signal_matrix)) {
+    signal_tbl <- signal_matrix[, (update_channel_meta_data(.SD, channel_info)),.SDcols=colnames(signal_matrix)]
+   } else if(is.matrix(signal_matrix) || is.data.frame(signal_matrix)) {
+    signal_tbl <- lapply(seq_len(ncol(signal_matrix)), function(i) signal_matrix[, i]) %>% 
+                  update_channel_meta_data( channel_info) %>%
+                  data.table::as.data.table()
+  }
 
 
   signal_tbl[, .id := ids][, .sample_id := sample_ids]
@@ -181,7 +185,7 @@ validate_signal_tbl <- function(signal_tbl) {
     )
   }
 
-  if (all(unique(signal_tbl$.id) != seq_len(max(signal_tbl$.id)))) {
+  if (length(signal_tbl$.id) >0 && all(unique(signal_tbl$.id) != seq_len(max(signal_tbl$.id)))) {
     warning("Missing .ids, some functions might fail.",
       call. = FALSE
     )
@@ -197,7 +201,7 @@ validate_signal_tbl <- function(signal_tbl) {
   validate_sample_int(signal_tbl$.sample_id)
 
   #checks if there are channels
-  if(all(!sapply(signal_tbl, is_channel_dbl))){
+  if(all(!sapply(signal_tbl, is_channel_dbl)) && nrow(signal_tbl)>0){
     warning("No channels found.")
   }
 
@@ -240,7 +244,7 @@ validate_events <- function(events, channels) {
 #' @noRd
 validate_segments <- function(segments) {
   # Validates .id
-  if (all(unique(segments$.id) != seq_len(max(segments$.id)))) {
+  if (length(segments$.id) >0 && all(unique(segments$.id) != seq_len(max(segments$.id)))) {
     warning("Missing .ids, some functions might fail.",
       call. = FALSE
     )

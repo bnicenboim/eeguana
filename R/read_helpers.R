@@ -86,7 +86,6 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
   seg_sample_id[,.sample_id :=  .sample_id - .sample_0 +1L]
 
-  #TODO -> it could be faster
   signal_tbl <- new_signal_tbl(
     signal_matrix = raw_signal,
      ids = as.integer(seg_sample_id$.id),
