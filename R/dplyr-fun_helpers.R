@@ -30,11 +30,16 @@ filter_eeg_lst <- function(.eeg_lst, dots){
     
     # filter the segments and update the signal_tbl
     if (length(new_dots$segments) > 0) {
-      .eeg_lst$segments <- dplyr::filter(.eeg_lst$segments, !!!new_dots$segments)
+      grouping <- group_chr(.eeg_lst)[group_chr(.eeg_lst) %in% colnames(.eeg_lst$segments)]
+      .eeg_lst$segments <- .eeg_lst$segments %>% 
+                           dplyr::group_by_at(dplyr::vars(grouping)) %>% 
+                           dplyr::filter(!!!new_dots$segments) %>%
+                           dplyr::ungroup()
       .eeg_lst$signal <- semi_join_dt(.eeg_lst$signal, .eeg_lst$segments, by = ".id")
     }
       .eeg_lst$events <- semi_join_dt(.eeg_lst$events, .eeg_lst$segments, by = ".id")
   
+
     # Fix the indices in case some of them drop out
     .eeg_lst <- redo_indices(.eeg_lst) %>% update_events_channels() 
     data.table::setkey(.eeg_lst$signal,.id,.sample_id)

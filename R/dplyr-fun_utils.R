@@ -2,14 +2,14 @@
 extended_signal <- function(.eeg_lst, cond_cols){
   relevant_cols <- c(obligatory_cols$segments, group_chr(.eeg_lst),cond_cols)
 
- if(length(relevant_cols)>1) {
+ if(length(group_chr_only_segments)>0) {
   segments <-  dplyr::ungroup(.eeg_lst$segments) %>% 
                dplyr::select_if(names(.) %in% relevant_cols) %>%
                data.table::data.table()
   data.table::setkey(segments,.id)
   return(.eeg_lst$signal[segments])
  } else {
-  return(.eeg_lst$signal)
+  return(data.table::copy(.eeg_lst$signal))
  }
 }
 
@@ -24,6 +24,16 @@ eval_signal <- function(.eeg_lst, eval_txt, cond_cols, out_cols = colnames(.eeg_
 #' @noRd
 group_chr <- function(.eeg_lst){
  dplyr::group_vars(.eeg_lst) %>%  unlist()
+} 
+
+#' @noRd
+group_chr_segments <- function(.eeg_lst){
+ intersect(group_chr(.eeg_lst), colnames(.eeg_lst$segments))
+} 
+
+#' @noRd
+group_chr_only_segments <- function(.eeg_lst){
+ group_chr_segments(.eeg_lst) %>% {.[. != ".id"]}
 } 
 
 #' @noRd

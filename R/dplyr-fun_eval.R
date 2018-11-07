@@ -30,7 +30,8 @@ summarize_eval <- function(.dots){
   #                 ,.(!!!col_expr), by = c(by)]) %>% 
   #   rlang::eval_tidy(data = .eeg_lst$signal)
   # .dots_expr <- rlang::get_expr(.dots)
- dots_txt <- purrr::imap(.dots, ~ if(.y!="") paste(.y, "=", rlang::quo_text(.x)) else rlang::quo_text(.x)) %>%
+ dots_txt <- rlang::quos_auto_name(.dots) %>%  
+            purrr::imap( ~  paste0("`",.y,"`", " = ", rlang::quo_text(.x))) %>%
      paste0(., collapse = ", ")
   sprintf("extended_signal[,.(%s), by = c(by)]", dots_txt)
 } 
@@ -57,3 +58,18 @@ rollup_at_eval <- function(.vars, .fun, grouping){
 }
 
 
+#' @noRd
+mutate_cols_eval <- function(.dots){
+  
+ 
+  dots_txt <- purrr::imap(.dots, ~ 
+          {if(.y!="") {
+                         paste(.y, ":=", rlang::quo_text(.x)) 
+                       } else {
+                         paste0("`",rlang::quo_text(.x),"`" , " := ", rlang::quo_text(.x)) 
+                       }} %>%
+                       paste0("[, ",.,", by = c(by)]")) %>% paste0(collapse = "")
+
+  sprintf("new_signal%s[,..signal_cols][]", dots_txt)
+   
+} 
