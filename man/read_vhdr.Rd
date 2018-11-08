@@ -26,3 +26,4 @@ Read a BrainVision file into an eeg_lst object.
 \seealso{
 Other read: \code{\link{read_ft}}
 }
+\concept{read}

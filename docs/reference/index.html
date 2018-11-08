@@ -58,7 +58,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.0.2.9000</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.0.2.9001</span>
       </span>
     </div>
 
@@ -157,7 +157,7 @@
     </tbody><tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-tidyverse-dplyr-like-functions" class="hasAnchor"><a href="#section-tidyverse-dplyr-like-functions" class="anchor"></a>Tidyverse 'dplyr'(-like) functions</h2>
+          <h2 id="section-tidyverse-dplyr-like-functions-and-extensions" class="hasAnchor"><a href="#section-tidyverse-dplyr-like-functions-and-extensions" class="anchor"></a>Tidyverse 'dplyr'(-like) functions and extensions</h2>
           <p class="section-desc"><p>Functions that overload some <code>dplyr</code> functions and always return an <code>eeg_lst</code>.</p></p>
         </th>
       </tr>
@@ -173,6 +173,18 @@
           <p><code><a href="bind.html">bind()</a></code> </p>
         </td>
         <td><p>Bind eeg_lst objects.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="rollup.html">rollup_all_ch()</a></code> <code><a href="rollup.html">rollup_at_ch()</a></code> <code><a href="rollup.html">rollup.eeg_lst()</a></code> </p>
+        </td>
+        <td><p>Rollup summary for the signal table of an eeg_lst.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="summarize_ch.html">summarize_at_ch()</a></code> <code><a href="summarize_ch.html">summarize_all_ch()</a></code> </p>
+        </td>
+        <td><p>Summarize...</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -282,12 +294,6 @@
       <tr>
         
         <td>
-          <p><code><a href="as_sample_id.html">as_sample_id()</a></code> </p>
-        </td>
-        <td><p>Convert a time point into a sample point.</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="as_tibble.eeg_lst.html">as_tibble(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="as_tibble.eeg_lst.html">as_data_frame(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="as_tibble.eeg_lst.html">as.tibble.eeg_lst()</a></code> </p>
         </td>
         <td><p>Convert an eeg_lst to a tibble.</p></td>
@@ -385,7 +391,7 @@ This function returns  TRUE for signals.</p></td>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#section-about">About</a></li>
       <li><a href="#section-reading-functions">Reading functions</a></li>
-      <li><a href="#section-tidyverse-dplyr-like-functions">Tidyverse 'dplyr'(-like) functions</a></li>
+      <li><a href="#section-tidyverse-dplyr-like-functions-and-extensions">Tidyverse 'dplyr'(-like) functions and extensions</a></li>
       <li><a href="#section-specialized-summarizing-functions">Specialized summarizing functions</a></li>
       <li><a href="#section-channel-functions">Channel functions</a></li>
       <li><a href="#section-eeg-specialized-functions">EEG-specialized functions</a></li>

@@ -3,33 +3,32 @@
 #'
 #' Manipulate the signal_tbl and the segments table of an eeg_lst.
 #'
-#' Wrappers for \link{dplyr}'s commands that act on different parts
+#' Wrappers for [dplyr][dplyr::dplyr]'s commands that act on different parts
 #' `eggble` objects.
 #' The following wrappers have been implemented for `eeg_lst` objects:
-#' * `summarize()` summarizes the channel of the signal_tbl table
-#' * `summarize_chs()` summarizes all the channels of the signal_tbl table.
 #' * `mutate()` adds new variables and preserves existing ones. Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.
-#' * `mutate_all()` mutates all the channels of the signal_tbl table.
-#' * `transmute()` like `mutate` but drops non-used variables of the referred table.
-#' * `select()` keeps only the mentioned variables from the refered table, except for the obligatory columns starting with `.`.
-#' * `rename()`: keeps all variables.
+#' * `transmute()` like `mutate` but drops non-used variables of the referred table, except for the obligatory columns starting with `.`.
 #' * `filter()`: finds segments/samples where conditions are true. Segments/samples where the condition evaluates to NA are dropped.
-#' * `left_join()`: left-joins an external table to one of the segments of the eeg_lst.
-#' * `semi_join()`: semi-joins an external table to one of the segments of the eeg_lst.
-#' * `anti_join()`: anti-joins an external table to one of the segments of the eeg_lst.
+#' * `summarize()` summarizes the channel of the signal_tbl table
 #' *  `group_by()`: allows that operations would be performed "by group".
 #' *  `ungroup()`: removes the grouping created by group_by.
+#' * `select()` keeps only the mentioned variables from the refered table, except for the obligatory columns starting with `.`.
+#' * `rename()`: keeps all variables.
+#' * `left_join()`: left-joins an external table to the segments table of the eeg_lst.
+#' * `semi_join()`: semi-joins an external table to the segments table of the eeg_lst.
+#' * `anti_join()`: anti-joins an external table to the segments table of the eeg_lst.
 #'
 #' These commands always return the entire eeg_lst so that
-#' they can be ' piped using \link{magrittr}'s pipe, %>%.
+#' they can be ' piped using [magrittr][magrittr::magrittr] 's pipe, [%>%][magrittr::`%>%`()].
 #'
 #' @param .data An eeg_lst.
-#' @param ... Name-value pairs of expressions; see  \link{dplyr-package} for more help.
+#' @param ... Name-value pairs of expressions; see  [dplyr][dplyr::dplyr] for more help.
 #' @return An eeg_lst object.
 #'
+#' @family dplyr functions
+#' @seealso [summarize_at_ch], [summarize_all_ch], [rollup], [rollup_at_ch], [rollup_all_ch], [bind] for the extended dplyr-like functions.
 #'
 #' @name dplyr
-#' @family dplyr
 #' 
 #' @examples
 #' \dontrun{
@@ -62,28 +61,26 @@ transmute_.eeg_lst <- function(.data, ..., .dots = list()) {
   mutate_eeg_lst(.data, dots, keep_cols = FALSE)
 }
 #' @export
-summarise_.eeg_lst <- function(.data, ..., .dots = list()) {
+filter_.eeg_lst <- function(.data, ..., .dots = list()) {
   dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
- summarize_eeg_lst(.data, dots)
+  filter_eeg_lst(.data, dots = dots)
 }
-
+#' @rdname dplyr
+#' @export
+filter.eeg_lst <- function(.data, ...) {
+  dots <- rlang::quos(...)
+  filter_eeg_lst(.data, dots = dots)
+}
 #' @rdname dplyr
 #' @export
 summarise.eeg_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
  summarize_eeg_lst(.data, dots)
 }
-
-
-#' @rdname dplyr
 #' @export
-tbl_vars.eeg_lst <- function(x) {
-  setdiff(tbl_vars(x$signal), c(".id", ".sample_id"))
-}
-#' @rdname dplyr
-#' @export
-groups.eeg_lst <- function(x) {
-  groups(x$segments)
+summarise_.eeg_lst <- function(.data, ..., .dots = list()) {
+  dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
+ summarize_eeg_lst(.data, dots)
 }
 #' @export
 group_by_.eeg_lst <- function(.data, ..., .dots = list()) {
@@ -99,26 +96,18 @@ group_by.eeg_lst <- function(.data, ...) {
 #' @rdname dplyr
 #' @export
 ungroup.eeg_lst <- function(.data, ...) {
-  .data$signal <- dplyr::ungroup(.data$signal)
-  .data$segments <- dplyr::ungroup(.data$segments)
+  attributes(.data)$vars <- character(0)
   validate_eeg_lst(.data)
+}
+#' @rdname dplyr
+#' @export
+groups.eeg_lst <- function(x) {
+attributes(x)$vars %>% purrr::map(as.name)
 }
 #' @rdname dplyr
 #' @export
 group_vars.eeg_lst <- function(x) {
   attributes(x)$vars
-}
-
-#' @export
-filter_.eeg_lst <- function(.data, ..., .dots = list()) {
-  dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
-  filter_eeg_lst(.data, dots = dots)
-}
-#' @rdname dplyr
-#' @export
-filter.eeg_lst <- function(.data, ...) {
-  dots <- rlang::quos(...)
-  filter_eeg_lst(.data, dots = dots)
 }
 #' @rdname dplyr
 #' @export
@@ -160,4 +149,10 @@ anti_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   x$events <- dplyr::semi_join(x$events, x$segments, by = ".id")
 
   redo_indices(x) %>% validate_eeg_lst()
+}
+
+#' @rdname dplyr
+#' @export
+tbl_vars.eeg_lst <- function(x) {
+  setdiff(dplyr::tbl_vars(x$signal),dplyr::tbl_vars(x$segments), c(".id", ".sample_id"))
 }

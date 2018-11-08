@@ -44,17 +44,17 @@ summarize_at_eval <- function(.vars, .fun ){
 } 
 
 #' @noRd
-rollup_eval <- function(.dots, grouping){
+rollup_eval <- function(.dots){
   dots_txt <- purrr::imap(.dots, ~ if(.y!="") paste(.y, "=", rlang::quo_text(.x)) else rlang::quo_text(.x)) %>%
      paste0(., collapse = ", ")
-  sprintf("rollup(extended_signal,.(%s), by = c(by), id = TRUE)[grouping== %s]", dots_txt,grouping)
+  sprintf("rollup(extended_signal,.(%s), by = c(by))", dots_txt)
 }
 
 #' @noRd
-rollup_at_eval <- function(.vars, .fun, grouping){
+rollup_at_eval <- function(.vars, .fun){
   fun_txt <- rlang::quo_text(.fun[[1]])
   vars_txt <- paste0("'",.vars,"'",collapse =", ")
-  sprintf("rollup(extended_signal,purrr::map(.SD,~ %s),.SDcols = c(%s), by = c(by), id = TRUE)[grouping== %s]", fun_txt, vars_txt, grouping)
+  sprintf("rollup(extended_signal,purrr::map(.SD,~ %s),.SDcols = c(%s), by = c(by))", fun_txt, vars_txt)
 }
 
 

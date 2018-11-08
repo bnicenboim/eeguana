@@ -148,7 +148,7 @@ cols_events_temp <- unique(c(colnames(events), colnames(segmentation),"i..sample
   # We want to capture events that span after the .lower bound ,that is .sample_0 + .size - 1L
   # and events and that start before the .upper bound:
   new_events <- segmentation[new_events, on = .(.lower<= lowerb, .upper >= .sample_0), 
-                              ..cols_events_temp, allow.cartesian=TRUE]
+                              ..cols_events_temp, allow.cartesian=TRUE][!is.na(.id)]
 
   #i..sample_0 are the original sample_0 from the events file  
   #.sample_0 is the first sample of each segment   

@@ -98,7 +98,7 @@ new_signal_tbl <- function(signal_matrix = matrix(), ids = c(), sample_ids = c()
   data.table::setcolorder(signal_tbl, c(".id", ".sample_id"))
   data.table::setattr(signal_tbl, "class",c("signal_tbl",class(signal_tbl)))
   data.table::setkey(signal_tbl, .id, .sample_id)
-  signal_tbl
+  signal_tbl[]
 }
 
 #' @param channels 
@@ -146,8 +146,7 @@ new_eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
   x <- unclass(x)
   structure(x,
     class = c("eeg_lst"),
-    vars = list(signal = character(0),
-                 segments = character(0))
+    vars = character(0)
   )
    
 }
