@@ -3,7 +3,8 @@ group_by_eeg_lst <- function(.eeg_lst, .dots, .add = FALSE){
   attributes(.eeg_lst)$vars <- purrr::map_chr(.dots, rlang::quo_text)
   allcols <- c(colnames(.eeg_lst$signal), colnames(.eeg_lst$segments))
   if(length(setdiff(attributes(.eeg_lst)$vars, allcols))>0) {
-    stop("Incorrect grouping.",call. = FALSE)
+    notfound <- paste0(setdiff(attributes(.eeg_lst)$vars, allcols), collapse = ", ")
+    stop(sprintf("Incorrect grouping. The groups %s were not found", notfound),call. = FALSE)
   }
   .eeg_lst
 }
@@ -265,19 +266,4 @@ update_channels_tbl <- function(.eeg_lst, channels_info){
   .eeg_lst
 }
 
-level_to_grouping <- function(level){
-  if(is.character(level)){
-    final_groups <- levels
-    grouping <- {!dplyr::group_vars(.eeg_lst) %in% level} %>% purrr::map_chr(as.integer) %>% 
-                                                paste0(collapse = "") %>%
-                                                strtoi( base = 2)
-  } else {
-    stop("Invalid level")
-  }
-  # grouping <-    case_when(level %in% c("last","ultimate") ~ "max(grouping)",
-  #             level %in% c("penultimate") ~ "max(grouping[grouping!=max(grouping)])",
-  #             level %in% c("first") ~ 0,
-  #             is.numeric(level) ~ as.character(round(level,0)),
-  #             TRUE ~ stop("Incorrect level for the rollup"))
- grouping    
-}
+

@@ -55,7 +55,7 @@ signal_tbl <- function(signal_matrix, ids, sample_ids, channel_info) {
 #' @return `TRUE` if the object inherits from the `signal_tbl` class.
 #' @export
 is_signal_tbl <- function(x) {
-  class(x) == "signal_tbl"
+  "signal_tbl" %in% class(x) 
 }
 
 

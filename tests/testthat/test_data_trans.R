@@ -68,47 +68,6 @@ cond3 <- eeg_lst(
 
 # eeg_lsts <- list(cond1, cond2)
 
-test_that("can bind unlisted files", {
-  conds <- bind(cond1, cond2)
-  expect_equal(nrow(conds$signal), nrow(cond1$signal) + nrow(cond2$signal))
-  expect_equal(max(conds$signal$.id), max(cond1$signal$.id) + max(cond2$signal$.id))
-  # expect_equal(max(conds$segments$segment), max(cond1$segments$segment) + max(cond2$segments$segment))
-})
-
-test_that("can bind listed files", {
-  conds <- bind(list(cond1, cond2))
-  expect_equal(nrow(conds$signal), nrow(cond1$signal) + nrow(cond2$signal))
-  expect_equal(max(conds$signal$.id), max(cond1$signal$.id) + max(cond2$signal$.id))
-  # expect_equal(max(conds$segments$segment), max(cond1$segments$segment) + max(cond2$segments$segment))
-})
-
-
-test_that("can bind listed files that show and do not show channels on the event table", {
-  conds <- bind(list(cond1, cond3))
-  expect_equal(nrow(conds$signal), nrow(cond1$signal) + nrow(cond3$signal))
-  expect_equal(max(conds$signal$.id), max(cond1$signal$.id) + max(cond3$signal$.id))
-  # expect_equal(max(conds$segments$segment), max(cond1$segments$segment) + max(cond3$segments$segment))
-})
-
-
-
-test_that("can bind unlisted files", {
-  cond1_2 <- cond2
-  cond1_2$segments$recording <- "recording2"
-  conds <- bind(cond1, cond1_2)
-  expect_equal(nrow(conds$signal), nrow(cond1$signal) + nrow(cond2$signal))
-  expect_equal(max(conds$signal$.id), max(cond1$signal$.id) + max(cond2$signal$.id))
-})
-
-
-test_that("can bind unlisted files that were filtered", {
-  cond1_2 <- cond2
-  cond1_2$segments$recording <- "recording2"
-  cond1_2 <- filter(cond1_2, .id > 0)
-  conds <- bind(cond1, cond1_2)
-  expect_equal(nrow(conds$signal), nrow(cond1$signal) + nrow(cond2$signal))
-  expect_equal(max(conds$signal$.id), max(cond1$signal$.id) + max(cond2$signal$.id))
-})
 
 
 

@@ -15,8 +15,8 @@ read_vhdr <- function(file, sep = type == "New Segment", zero = type == "Time 0"
                       recording = file) {
   sep <- rlang::enquo(sep)
   zero <- rlang::enquo(zero)
-  # zero = quo(type == "Time 0")
   # sep = quo(type == "New Segment")
+  # zero = quo(type == "Time 0")
 
   # Takes the files from the header:
   file_path <- stringr::str_match(file, "(.*(/|\\\\)).")[, 2] %>% {
@@ -110,7 +110,10 @@ read_ft <- function(file, layout = NULL, recording = file) {
       lsegment[[1]] %>% t() %>% dplyr::as_tibble()
     },
     .id = ".id"
-  )
+  ) 
+  data.table::setDT(signal_tbl)
+  
+
 
   # channel info:
   channels <- dplyr::tibble(
@@ -172,7 +175,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
     dplyr::rename(.size = dplyr::matches("duration"), .sample_0 = sample) %>%
     dplyr::mutate(.sample_0 = as.integer(.sample_0), .size = as.integer(.size)) %>%
     add_event_channel(channel_names) %>%
-    segment_events(.lower = slengths$V1, .sample_0 = slengths$V3 + slengths$V1, .upper= slengths$V2)
+    segment_events(.lower = slengths$V1, .sample_0 = slengths$V1 - slengths$V3, .upper= slengths$V2)
 
 
 

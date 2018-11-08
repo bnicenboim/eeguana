@@ -21,3 +21,4 @@ ggplot object based on an eeg_lst object.
 Other plot: \code{\link{plot.eeg_lst}},
   \code{\link{plot_topo}}
 }
+\concept{plot}

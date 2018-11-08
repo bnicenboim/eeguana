@@ -51,7 +51,6 @@ test_that("dplyr functions work correctly on ungrouped data", {
   group4_by_eeg_lst <- group_by(data, .sample_id, recording)
   group4_by_eeg_lst <- group_by(data, .id, recording)
   group5_by_eeg_lst <- group_by(data, .id, .sample_id, recording)
-  #TODO
 }
 )
 
@@ -107,4 +106,4 @@ expect_equal(is_channel_dbl(  summarize_g2_signal_tbl$signal$`mean(X)`), TRUE)
 
 
 # add tests 
-# for filtering accoring to segments, grouped and ungrouped
+# for filtering according to segments, grouped and ungrouped
