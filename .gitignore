@@ -6,4 +6,13 @@ eegble_func.old
 eegble_func.old.R
 read.old
 test_del.R
-inst/doc
+inst/doc/
+temp_exp/
+tests/testthat/other_tests.R
+# produced vignettes
+vignettes/*.html
+vignettes/*.pdf
+# Workspace files are user-specific
+*.sublime-workspace
+*.sublime-project
+

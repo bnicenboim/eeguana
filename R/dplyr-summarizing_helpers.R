@@ -14,19 +14,9 @@ summarize_at_eeg_lst <- function(.eeg_lst, vars, funs){
   summarize_eval_eeg_lst(.eeg_lst, eval = summarize_at_eval(vars, funs), cond_cols)
 }
 
-rollup_eeg_lst <- function(.eeg_lst, dots, level = c()){
-  cond_cols <- names_segments_col(.eeg_lst, dots)
-  summarize_eval_eeg_lst(.eeg_lst, eval = rollup_eval(dots), cond_cols, level)
-}
-
-rollup_at_eeg_lst <- function(.eeg_lst, vars, funs, level = c()){
-  cond_cols <- names_segments_col(.eeg_lst, funs[[1]])
-  summarize_eval_eeg_lst(.eeg_lst, eval = rollup_at_eval(vars, funs), cond_cols, level)
-}
-
-summarize_eval_eeg_lst <- function(.eeg_lst, eval, cond_cols, level = dplyr::group_vars(.eeg_lst)){
+summarize_eval_eeg_lst <- function(.eeg_lst, eval, cond_cols){
    channels_info <- channels_tbl(.eeg_lst)
-  .eeg_lst$signal <- summarize_eval_signal(.eeg_lst, eval, cond_cols, level)
+  .eeg_lst$signal <- summarize_eval_signal(.eeg_lst, eval, cond_cols)
       ## Restructure segments table to fit the new signal table
   if (nrow(.eeg_lst$signal) != 0) {
     last_id <- max(.eeg_lst$signal$.id)
@@ -34,26 +24,13 @@ summarize_eval_eeg_lst <- function(.eeg_lst, eval, cond_cols, level = dplyr::gro
     last_id <- integer(0)
   }
 
-
-  segment_groups <- intersect(level, colnames(.eeg_lst$segments)) 
-
-    # should be  "group_chr_segments(.eeg_lst)" when  we don't remove any level
-
   .eeg_lst$segments <- summarize_segments(.eeg_lst$segments, 
-                                            segments_groups = segment_groups,
+                                            segments_groups = group_chr_segments(.eeg_lst),
                                             last_id= last_id ) 
     ## Restructure events table
     # TODO maybe I can do some type of summary of the events table, instead
   .eeg_lst$events <- .eeg_lst$events %>% filter(FALSE)
 
-   
-  # updates groups in case rollup was used:
-  
-  if(is.null(level) || is.na(level) || length(level) == 0) {
-    .eeg_lst <- dplyr::ungroup(.eeg_lst)
-  } else {
-    .eeg_lst <- dplyr::group_by(.eeg_lst, !!!rlang::syms(level)) 
-  }
     #update channels in the events and the meta data (summarize deletes the metadata of the channels)
   .eeg_lst <- update_events_channels(.eeg_lst) %>% update_channels_tbl(channels_info)
 
@@ -79,7 +56,7 @@ summarize_segments <-  function(segments, segments_groups, last_id){
 }
 
 
-summarize_eval_signal <- function(.eeg_lst, eval, cond_cols, level ){
+summarize_eval_signal <- function(.eeg_lst, eval, cond_cols){
   # To update later
   attr_sample_id <- attributes(.eeg_lst$signal$.sample_id)
   extended_signal <- eval_signal(.eeg_lst, eval_txt = eval, cond_cols = cond_cols) 
@@ -88,17 +65,6 @@ summarize_eval_signal <- function(.eeg_lst, eval, cond_cols, level ){
   if(!is_signal_tbl(extended_signal)) {
     class(extended_signal) <- c("signal_tbl", class(extended_signal))
   }
-
-  #extract the right level in case rollup was used
-
-    # we want to keep the grouping until the level, 
-    # so the difference between the level and grouping cols should be NA.
-  NAcols <- setdiff(dplyr::group_vars(.eeg_lst), level) 
-  if(length(NAcols)>0) {
-      extended_signal <- extended_signal[apply(extended_signal[,..NAcols],1,function(x) all(is.na(x)))]
- }
- extended_signal <- na.omit(extended_signal, level)
-
 
   ## Restructure signal table
   # Recover lost attributes and columns of signal_id

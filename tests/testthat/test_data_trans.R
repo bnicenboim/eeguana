@@ -69,9 +69,6 @@ cond3 <- eeg_lst(
 # eeg_lsts <- list(cond1, cond2)
 
 
-
-
-
 test_that("can transform to tibble", {
   cond1_2 <- cond2
   cond1_2$segments$recording <- "recording2"

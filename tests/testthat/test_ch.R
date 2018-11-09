@@ -27,7 +27,14 @@ data <- eeg_lst(
   segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
 )
 
-# test_that("can clean whole channels in files", {
 
-# expect_equal(transmute(data, MEAN = chs_mean(X,Y)), chs_mean(data))
-# })
+data_M <- transmute(data, mean = chs_mean(X,Y))
+
+test_that("can take the mean of the channels", {
+expect_equal(data_M$signal$mean %>% as.numeric(), rowMeans(data$signal[,.(X,Y)]))
+})
+
+data_M2 <- chs_mean(data)
+test_that("both .eeg_lst and .channel_dbl give the same output", {
+  expect_equal(data_M, data_M2)
+})

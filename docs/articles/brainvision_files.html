@@ -82,7 +82,7 @@
       <h1>Manipulating a clean EEG file exported from BrainVision 2.0</h1>
                         <h4 class="author">Bruno Nicenboim</h4>
             
-            <h4 class="date">2018-11-08</h4>
+            <h4 class="date">2018-11-09</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bnicenboim/eeguana/blob/master/vignettes/brainvision_files.Rmd"><code>vignettes/brainvision_files.Rmd</code></a></small>
       <div class="hidden name"><code>brainvision_files.Rmd</code></div>
@@ -206,10 +206,6 @@
 <span class="co">#&gt; attr(,"class")</span>
 <span class="co">#&gt; [1] "eeg_lst"</span>
 <span class="co">#&gt; attr(,"vars")</span>
-<span class="co">#&gt; attr(,"vars")$signal</span>
-<span class="co">#&gt; character(0)</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; attr(,"vars")$segments</span>
 <span class="co">#&gt; character(0)</span></code></pre></div>
 <p>It provides a summary:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/summary">summary</a></span>(faces)
@@ -385,10 +381,6 @@ faces_segs_some
 <span class="co">#&gt; attr(,"class")</span>
 <span class="co">#&gt; [1] "eeg_lst"</span>
 <span class="co">#&gt; attr(,"vars")</span>
-<span class="co">#&gt; attr(,"vars")$signal</span>
-<span class="co">#&gt; character(0)</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; attr(,"vars")$segments</span>
 <span class="co">#&gt; character(0)</span></code></pre></div>
 <p>With some “regular” <code>ggplot</code> skills, we can create customized plots. <code>plot_gg</code> downsamples the signals (by default), and converts them to a long-format data frame that is feed into <code>ggplot</code> object. This object can then be customized.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces_segs_some <span class="op">%&gt;%</span><span class="st"> </span>
@@ -417,7 +409,7 @@ faces_segs_some
 <p>Another possibility is to create a topographic plot of the two conditions, by first making segments that include only the interval .1-.2 <em>s</em> after the onset of the stimuli, creating a table with interpolated amplitudes and using the ggplot wrapper <code>plot_topo</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces_segs_some <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(<span class="kw">between</span>(<span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/as_time">as_time</a></span>(.sample_id, <span class="dt">unit =</span> <span class="st">"milliseconds"</span>),<span class="dv">100</span>,<span class="dv">200</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">                    </span><span class="kw">group_by</span>(condition) <span class="op">%&gt;%</span>
-<span class="st">                    </span><span class="kw">summarize_all_ch</span>(mean, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span>
+<span class="st">                    </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/summarize_ch">summarize_all_ch</a></span>(mean, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span>
 <span class="st">                      </span><span class="kw">interpolate_tbl</span>() <span class="op">%&gt;%</span>
 <span class="st">                    </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/plot_topo">plot_topo</a></span>() <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(<span class="op">~</span>condition)</code></pre></div>
 <p><img src="brainvision_files_files/figure-html/unnamed-chunk-10-1.png" width="100%"></p>
@@ -456,7 +448,7 @@ df
 <span class="st">  </span>faces_segs_some <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">      </span><span class="kw">select</span>(O1, O2, P7, P8) <span class="op">%&gt;%</span>
 <span class="st">      </span><span class="kw">group_by</span>(.sample_id) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">      </span><span class="kw">summarize_all_ch</span>(<span class="kw">funs</span>(<span class="dt">t =</span> <span class="kw">t.test</span>(.[condition <span class="op">==</span><span class="st"> "faces"</span>],
+<span class="st">      </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/summarize_ch">summarize_all_ch</a></span>(<span class="kw">funs</span>(<span class="dt">t =</span> <span class="kw">t.test</span>(.[condition <span class="op">==</span><span class="st"> "faces"</span>],
           .[condition <span class="op">==</span><span class="st"> "non-faces"</span>])<span class="op">$</span>statistic))
 
   <span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/plot_gg">plot_gg</a></span>(faces_segs_some_t) <span class="op">+</span><span class="st"> </span>

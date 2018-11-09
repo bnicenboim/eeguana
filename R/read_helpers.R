@@ -43,7 +43,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
   } else if (common_info$format == "ASCII") {
 
     if(multiplexed){
-          raw_signal <- data.table::fread(file)  
+          raw_signal <- data.table::fread(file, skip = 1)  #channel names might be problematic
       } else {
           raw_signal <- data.table::fread(file)  %>%
             dplyr::select_if(is.double) %>% data.table::transpose() 

@@ -130,13 +130,10 @@
 <span class='fu'>transmute</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
+<span class='fu'>filter</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for eeg_lst</span>
 <span class='fu'>summarise</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>tbl_vars</span>(<span class='no'>x</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>groups</span>(<span class='no'>x</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
 <span class='fu'>group_by</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
@@ -145,10 +142,10 @@
 <span class='fu'>ungroup</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>group_vars</span>(<span class='no'>x</span>)
+<span class='fu'>groups</span>(<span class='no'>x</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>filter</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
+<span class='fu'>group_vars</span>(<span class='no'>x</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
 <span class='fu'>select</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
@@ -166,7 +163,10 @@
 
 <span class='co'># S3 method for eeg_lst</span>
 <span class='fu'>anti_join</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>suffix</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>".x"</span>, <span class='st'>".y"</span>),
-  <span class='no'>...</span>)</pre>
+  <span class='no'>...</span>)
+
+<span class='co'># S3 method for eeg_lst</span>
+<span class='fu'>tbl_vars</span>(<span class='no'>x</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -190,26 +190,25 @@
     <p>Wrappers for <a href='http://dplyr.tidyverse.org/reference/dplyr-package.html'>dplyr</a>'s commands that act on different parts
 <code>eggble</code> objects.
 The following wrappers have been implemented for <code>eeg_lst</code> objects:</p><ul>
-<li><p><code>summarize()</code> summarizes the channel of the signal_tbl table</p></li>
 <li><p><code>mutate()</code> adds new variables and preserves existing ones. Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.</p></li>
 <li><p><code>transmute()</code> like <code>mutate</code> but drops non-used variables of the referred table, except for the obligatory columns starting with <code>.</code>.</p></li>
+<li><p><code>filter()</code>: finds segments/samples where conditions are true. Segments/samples where the condition evaluates to NA are dropped.</p></li>
+<li><p><code>summarize()</code> summarizes the channel of the signal_tbl table</p></li>
+<li><p><code>group_by()</code>: allows that operations would be performed "by group".</p></li>
+<li><p><code>ungroup()</code>: removes the grouping created by group_by.</p></li>
 <li><p><code>select()</code> keeps only the mentioned variables from the refered table, except for the obligatory columns starting with <code>.</code>.</p></li>
 <li><p><code>rename()</code>: keeps all variables.</p></li>
-<li><p><code>filter()</code>: finds segments/samples where conditions are true. Segments/samples where the condition evaluates to NA are dropped.</p></li>
 <li><p><code>left_join()</code>: left-joins an external table to the segments table of the eeg_lst.</p></li>
 <li><p><code>semi_join()</code>: semi-joins an external table to the segments table of the eeg_lst.</p></li>
 <li><p><code>anti_join()</code>: anti-joins an external table to the segments table of the eeg_lst.</p></li>
-<li><p><code>group_by()</code>: allows that operations would be performed "by group".</p></li>
-<li><p><code>ungroup()</code>: removes the grouping created by group_by.</p></li>
 </ul>
     <p>These commands always return the entire eeg_lst so that
 they can be ' piped using <a href='http://www.rdocumentation.org/packages/magrittr/topics/magrittr'>magrittr</a> 's pipe, %&gt;%.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><a href='summarize_ch.html'>summarize_at_ch</a>, <a href='summarize_ch.html'>summarize_all_ch</a>, <a href='rollup.html'>rollup</a>, <a href='rollup.html'>rollup_at_ch</a>, <a href='rollup.html'>rollup_all_ch</a>, <a href='bind.html'>bind</a> for the extended dplyr-like functions.</p>
-<p>Other dplyr functions: <code><a href='rollup.html'>rollup</a></code>,
-  <code><a href='summarize_ch.html'>summarize_ch</a></code></p></div>
+    <div class='dont-index'><p>summarize_at_ch, summarize_all_ch, rollup, rollup_at_ch, rollup_all_ch, bind for the extended dplyr-like functions.</p>
+<p>Other dplyr functions: <code>summarize_ch</code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>

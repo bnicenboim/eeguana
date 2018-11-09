@@ -1,0 +1,24 @@
+BrainVision Data Exchange Marker File, Version 1.0
+; Data created by EEMAGINE EEG Data Exporter
+
+[Common Infos]
+DataFile=asalab_export_bv.eeg
+
+[Marker Infos]
+; Each entry: Mk<Marker number>=<Type>,<Description>,<Position in data points>,
+; <Size in data points>, <Channel number (0 = marker is related to all channels)>
+; Fields are delimited by commas, some fields might be omitted (empty).
+; Commas in type or description text are coded as "\1".
+Mk1=New Segment,,0,1,0,20181106153757758000
+Mk2=Stimulus,s10,142,1,0
+Mk3=Stimulus,s11,424,1,0
+Mk4=Stimulus,s12,745,1,0
+Mk5=Stimulus,s10,1303,1,0
+Mk6=Stimulus,s11,1584,1,0
+Mk7=Stimulus,s12,1876,1,0
+Mk8=Stimulus,s10,2374,1,0
+Mk9=Stimulus,s11,2654,1,0
+Mk10=Stimulus,s12,3018,1,0
+Mk11=Stimulus,s10,3531,1,0
+Mk12=Stimulus,s11,3812,1,0
+Mk13=Stimulus,s12,4165,1,0

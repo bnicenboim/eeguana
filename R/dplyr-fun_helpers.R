@@ -224,30 +224,6 @@ validate_segments <- function(segments) {
 }
 
 
-# #' @noRd
-# group_vars_int <- function(eeg_lst) {
-#   list(signal_tbl = group_vars(eeg_lst$signal), segments = group_vars(eeg_lst$segments))
-# }
-
-# #' @noRd
-# groups_int <- function(eeg_lst) {
-#   list(signal_tbl = groups(eeg_lst$signal), segments = groups(eeg_lst$segments))
-# }
-
-
-# #' @noRd
-# group_by_id <- function(eeg_lst) {
-#   orig_groups <- dplyr::group_vars(eeg_lst)
-#   # if there are many groupings
-#   if (length(orig_groups) == 0 | length(orig_groups) > 1 |
-#     # or if the only one is not .id
-#     (length(orig_groups) == 1 & orig_groups[1] != ".id")) {
-#     message("# Grouping by .id.")
-#   }
-
-#   dplyr::group_by(eeg_lst, .id)
-# }
-
 #' @noRd
 signal_from_parent_frame <- function(env = parent.frame()) {
   # This is the environment where I can find the columns of signal_tbl
