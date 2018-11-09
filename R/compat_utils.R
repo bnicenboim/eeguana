@@ -21,8 +21,6 @@
   register_s3_method("dplyr", "semi_join", "eeg_lst")
   register_s3_method("dplyr", "anti_join", "eeg_lst")
 
-  register_s3_method("data.table", "rollup", "eeg_lst")
-
   invisible()
 }
 

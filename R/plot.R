@@ -136,14 +136,6 @@ plot_topo.tbl_df <- function(data, x = .x, y =.y, value= amplitude,  label=chann
 
 #' @export
 plot_topo.eeg_lst <- function(data, x = .x, y =.y, value= amplitude,  label=channel) {
-  # # grouping_vars <- colnames(x$segments) %>% setdiff(c(".id", "segment"))
-  # grouping_vars <- group_vars(x$segments)
-  # chan_vars <- c(".x", ".y")
-  # s_x <- summarize_by_id_tbl(x, mean, na.rm = TRUE) %>%
-  #   dplyr::group_by_at(c(grouping_vars, "channel", chan_vars)) %>%
-  #   dplyr::summarize(A = mean(mean, na.rm = TRUE)) %>%
-  #   dplyr::group_by_at(grouping_vars) %>%
-  #   dplyr::rename(x = .x, y = .y)
 
   x <- rlang::enquo(x)
   y <- rlang::enquo(y)

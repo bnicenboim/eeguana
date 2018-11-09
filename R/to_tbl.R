@@ -47,50 +47,6 @@ as_tibble.signal_tbl <- function(x) {
 
 
 
-#' Convert an eeg_lst into a summary long-data frame based on a statistics.
-#' @param x An `eeg_lst` object.
-#' @param ... Other arguments passed on to `.funs`. See \link{dplyr-package} help.
-#'
-#' @return A long tibble.
-#'
-#' @family summarize
-#' @export
-summarize_by_id_tbl <- function(x, ...) {
-  UseMethod("summarize_by_id_tbl")
-}
-#' @export
-summarize_by_id_tbl.eeg_lst <- function(x, .funs = mean, ...) {
-  funs_name <- rlang::enquo(.funs)
-
-  # I need to define a name to unify the columns based on the function applied
-  #  .funs = funs(nas = unique(is.na(.)))
-  # [[1]]
-  #  [1] "funs"   "nas"    "unique" "is.na"
-  # .funs = mean
-  # [[1]]
-  # [1] "mean"
-  fname <- rlang::quo_text(funs_name) %>%
-    stringr::str_extract_all(stringr::boundary("word")) %>%
-    {
-      if (length(.[[1]]) == 1) .[[1]] else .[[1]][2]
-    }
-
-  declass(x$signal, remove_attributes = TRUE)$tbl %>%
-    dplyr::group_by(.id) %>% # keep grouping for later
-    dplyr::summarize_at(channel_names(x), .funs, ...) %>%
-    # change the column back to channel names, when funs(?? = fun)
-    # maybe there is a tidyverse solution
-    {
-      colnames(.) <- c(".id", channel_names(x))
-      .
-    } %>%
-    # make it long format:
-    tidyr::gather(key = channel, value = !!rlang::sym(fname), -.id) %>%
-    # adds segment info
-    dplyr::left_join(., x$segments, by = ".id") %>%
-    dplyr::left_join(rename(channels_tbl(x), channel = .name), by = "channel")
-}
-
 
 #' @rdname as_tibble.eeg_lst
 #' @export

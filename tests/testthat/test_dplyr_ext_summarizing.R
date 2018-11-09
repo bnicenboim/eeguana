@@ -1,4 +1,4 @@
-context("test extended dplyr functions - rollup")
+context("test summarize at different levels dplyr functions")
 library(eeguana)
 
 
@@ -36,37 +36,42 @@ data <- bind(data_1,data_2)
 
 reference_data <- data.table::copy(data)
 
-data_s1 <- data %>% group_by(condition, .sample_id, recording) %>% summarize(X = mean(X))
-data_s2 <- data_s1 %>% group_by(condition, .sample_id) %>% summarize(X = mean(X))
-data_s3 <- data_s2 %>% group_by(condition) %>% summarize(X = mean(X))
-data_s4 <- data_s3 %>% group_by() %>% summarize(X = mean(X))
+# with my functions
+data_s1 <- data %>% group_by(condition, .sample_id, recording) %>% summarize(X = mean(X),Y = mean(Y))
+data_s2 <- data_s1 %>% group_by(condition, .sample_id) %>% summarize(X = mean(X),Y = mean(Y))
+data_s3 <- data_s2 %>% group_by(condition) %>% summarize(X = mean(X),Y = mean(Y))
+data_s4 <- data_s3 %>% group_by() %>% summarize(X = mean(X),Y = mean(Y))
 
-d <- left_join(data$signal, data$segments, by =".id" )
-d %>% group_by(condition, .sample_id, recording) %>%summarize(X = mean(X))
-data_s1$signal
-data_r1$signal
+# with pure dplyr functions
+extended_signal <- left_join(data$signal, data$segments, by =".id" )
+e_data_s1 <- data.table::data.table(extended_signal)[,.(X = mean(X),Y = mean(Y)), by = c("condition", ".sample_id", "recording")]
+s_data_s1 <- e_data_s1[,unique(.SD) ,.SDcols = c("condition", "recording")]
 
-data$segments %>% group_by(condition,  recording) %>% summarize()
-# data.table(data$segments)[,.SD,.SDcols= c("condition",  "recording"), by = c("condition",  "recording")]
+e_data_s2 <- data.table::data.table(e_data_s1)[,.(X = mean(X),Y = mean(Y)), by = c("condition", ".sample_id")]
+s_data_s2 <- e_data_s2[,unique(.SD) ,.SDcols = c("condition")]
 
-data.table(data$segments)[,unique(.SD),.SDcols= c("condition",  "recording")]
+e_data_s3 <- data.table::data.table(e_data_s2)[,.(X = mean(X),Y = mean(Y)), by = c("condition")]
+s_data_s3 <- e_data_s1[,unique(.SD) ,.SDcols = c("condition")]
 
-d %>% group_by(condition, .sample_id, recording) %>%summarize(X = mean(X)) %>%
- group_by(condition, .sample_id) %>%summarize(X = mean(X))
-data_s2$signal
+e_data_s4 <- data.table::data.table(e_data_s3)[,.(X = mean(X),Y = mean(Y)), by = character(0)]
 
 
-data_r1 <- data %>% group_by(condition, .sample_id, recording) %>% rollup(X = mean(X),level = c("condition", ".sample_id", "recording")) 
-data_r2 <- data %>% group_by(condition, .sample_id, recording) %>% rollup(X = mean(X),level =c("condition", ".sample_id")) 
-data_r3 <- data %>% group_by(condition, .sample_id, recording) %>% rollup(X = mean(X),level =c("condition")) 
-data_r4 <- data %>% group_by(condition, .sample_id, recording) %>% rollup(X = mean(X),level =c()) 
 
-test_that("rollup does the same as summarizing by groups", {
-expect_equal(data_s1,data_r1)
-expect_equal(data_s2,data_r2)
-expect_equal(data_s3,data_r3)
-expect_equal(data_s4,data_r4)
+test_that("summarizing by groups works as expected for the channel values", {
+expect_equal(data_s1$signal$X,e_data_s1$X)
+expect_equal(data_s2$signal$X,e_data_s2$X)
+expect_equal(data_s3$signal$X,e_data_s3$X)
+expect_equal(data_s4$signal$X %>% as.numeric,e_data_s4$X)
 })
+
+
+test_that("summarizing by groups works as expected for the segments", {
+expect_equal(data_s1$segments,as_tibble(s_data_s1)%>% mutate(.id = 1:n()))
+expect_equal(data_s2$segments,as_tibble(s_data_s2)%>% mutate(.id = 1:n()))
+expect_equal(data_s3$segments,as_tibble(s_data_s3)%>% mutate(.id = 1:n()))
+expect_equal(data_s4$segments,tibble(.id= 1L))
+})
+
 
 
 data_all_s1 <- data %>% group_by(.sample_id, condition, recording) %>% summarize_all_ch(mean)
@@ -74,35 +79,10 @@ data_all_s2 <- data_all_s1 %>% group_by(.sample_id, condition) %>% summarize_all
 data_all_s3 <- data_all_s2 %>% group_by(.sample_id) %>% summarize_all_ch(mean)
 data_all_s4 <- data_all_s3 %>% group_by() %>% summarize_all_ch(mean)
 
-data_all_r1 <- data %>% group_by(.sample_id, condition, recording) %>% rollup_all_ch(mean,level = c(".sample_id", "condition", "recording")) 
-data_all_r2 <- data %>% group_by(.sample_id, condition, recording) %>% rollup_all_ch(mean,level =c(".sample_id", "condition")) 
-data_all_r3 <- data %>% group_by(.sample_id, condition, recording) %>% rollup_all_ch(mean,level =c(".sample_id")) 
-data_all_r4 <- data %>% group_by(.sample_id, condition, recording) %>% rollup_all_ch(mean,level =c()) 
-
-test_that("all variants rollup does the same as summarizing by groups", {
-expect_equal(data_all_s1,data_all_r1)
-expect_equal(data_all_s2,data_all_r2)
-expect_equal(data_all_s3,data_all_r3)
-expect_equal(data_all_s4,data_all_r4)
+test_that("summarize all channels works as the regular summarize", {
+expect_equal(data_all_s1,data_all_s1)
+expect_equal(data_all_s2,data_all_s2)
+expect_equal(data_all_s3,data_all_s3)
+expect_equal(data_all_s4,data_all_s4)
 })
 
-xx <- data$signal[data.table(data$segments), on = ".id"]
-
-rollup(xx, .(mean(X)), by = c(".sample_id", "condition", "recording"))[!is.na(.sample_id) & !is.na(condition) & is.na(recording)] 
-cube(xx, .(mean(X)), by = c(".sample_id", "condition", "recording"))[!is.na(.sample_id) & !is.na(condition) & is.na(recording)] 
-xx[,.(X = mean(X)), by = c(".sample_id", "condition")]
-xx[,.(X = mean(X)), by = c(".sample_id", "condition", "recording")][,.(X = mean(X)), by = c(".sample_id", "condition")]
-
-
-
-x2 <- xx[,.(X = mean(X)), by = c(".sample_id", "condition", "recording")]
-x2[,.(X = mean(X)), by = c(".sample_id", "condition")]
-data_s1$signal
-data_s2$signal
-
-extended_signal[,.(`X` = mean(X)), by = c(by)]
-extended_signal[,.(`X` = mean(X)), by = c(".sample_id", "condition")]
-
-
-mean(xx[,.(X = mean(X)), by = c(".sample_id", "condition", "recording")]$X)
-mean(extended_signal$X)

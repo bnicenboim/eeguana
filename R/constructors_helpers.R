@@ -158,7 +158,7 @@ validate_eeg_lst <- function(x) {
   validate_signal_tbl(x$signal)
   validate_events(x$events, channel_names(x))
   validate_segments(x$segments)
-  if (!identical(unique(x$signal$.id), unique(x$segments$.id))) {
+  if (!all.equal(unique(x$signal$.id), unique(x$segments$.id))) {
     warning("The values of .ids mismatch between tables.",
       call. = FALSE
     )

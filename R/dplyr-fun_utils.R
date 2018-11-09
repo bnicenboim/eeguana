@@ -16,7 +16,7 @@ extended_signal <- function(.eeg_lst, cond_cols){
 eval_signal <- function(.eeg_lst, eval_txt, cond_cols, out_cols = colnames(.eeg_lst$signal),remove_cols = NULL){
   extended_signal <- extended_signal(.eeg_lst, cond_cols) 
   out_cols
-  by <- group_chr(.eeg_lst)
+  by <- dplyr::group_vars(.eeg_lst)
   # eval needs signal_cols and extended signal and by
   eval(parse(text= eval_txt)) 
 }
