@@ -27,7 +27,7 @@ reference:
 
   - title: "Channel functions"
     desc: >
-      Functions that act on the channels of the signal table. They have a default version that acts on all the channels, and can be used inside a `mutate` call for more control. (Not all of them support both actions right now, but they will be implemented in the near future).
+      Functions that act on the channels of the signal table. They have a default version that acts on all the channels, and can be used inside a `mutate` call for more control.
     contents: 
     - starts_with("ch_")
     - starts_with("chs_")
