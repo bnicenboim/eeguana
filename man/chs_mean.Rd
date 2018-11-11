@@ -17,6 +17,17 @@ A new channel or an \code{eeg_lst} object with a \code{mean} channel instead of 
 \description{
 Wrapper of \code{rowMeans} that performs a by-sample mean of the specified channels.
 }
+\examples{
+\dontrun{
+
+faces_segs_some \%>\%
+               transmute(Occipital = chs_mean(O1, O2, Oz, na.rm = TRUE),
+                         Parietal = chs_mean(P3, P4, P7,  P8, Pz, na.rm = TRUE))
+
+faces_segs_some \%>\%
+               chs_mean(na.rm = TRUE)
+}
+}
 \seealso{
 Other channel: \code{\link{ch_baseline}},
   \code{\link{ch_rereference}}, \code{\link{channel_dbl}},

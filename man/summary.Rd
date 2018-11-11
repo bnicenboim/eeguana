@@ -40,7 +40,6 @@
 }
 }
 \seealso{
-Other summarize: \code{\link{count_complete_cases_tbl}},
-  \code{\link{summarize_by_id_tbl}}
+Other summarize: \code{\link{count_complete_cases_tbl}}
 }
 \concept{summarize}

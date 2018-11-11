@@ -177,7 +177,13 @@ validate_eeg_lst <- function(x) {
 #'
 #' @noRd
 validate_signal_tbl <- function(signal_tbl) {
-  # Validates .id
+  
+  if (!data.table::is.data.table(signal_tbl)) {
+    warning("'signal' be a data.table.",
+      call. = FALSE
+    )
+  }
+
   if (!is.integer(signal_tbl$.id)) {
     warning(".id should be an integer.",
       call. = FALSE
@@ -216,6 +222,12 @@ validate_signal_tbl <- function(signal_tbl) {
 #'
 #' @noRd
 validate_events <- function(events, channels) {
+if (!data.table::is.data.table(events)) {
+    warning("'events' be a data.table.",
+      call. = FALSE
+    )
+  }
+
   if (!is.integer(events$.sample_0)) {
     warning("Values of .sample_0 should be integers",
       call. = FALSE
