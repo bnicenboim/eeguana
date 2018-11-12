@@ -58,7 +58,6 @@ reference:
     - starts_with("as.")
     - starts_with("is_")
     - starts_with("n")
-    - '`event_to_ch_NA`'
 
   - title: "Constructor functions"
     desc: >
