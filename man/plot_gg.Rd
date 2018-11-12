@@ -4,7 +4,7 @@
 \alias{plot_gg}
 \title{ggplot object based on an eeg_lst object.}
 \usage{
-plot_gg(x, ...)
+plot_gg(.data, ...)
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
@@ -21,3 +21,4 @@ ggplot object based on an eeg_lst object.
 Other plot: \code{\link{plot.eeg_lst}},
   \code{\link{plot_topo}}
 }
+\concept{plot}

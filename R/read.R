@@ -15,24 +15,46 @@ read_vhdr <- function(file, sep = type == "New Segment", zero = type == "Time 0"
                       recording = file) {
   sep <- rlang::enquo(sep)
   zero <- rlang::enquo(zero)
-  # zero = quo(type == "Time 0")
   # sep = quo(type == "New Segment")
+  # zero = quo(type == "Time 0")
 
   # Takes the files from the header:
   file_path <- stringr::str_match(file, "(.*(/|\\\\)).")[, 2] %>% {
     if (is.na(.)) NULL else .
   }
-  header_info <- read_vhdr_metadata(file)
+  header_info <- tryCatch(read_vhdr_metadata(file),
+        error=function(cond) {
+            message(paste("Error in the metadata of:", file))
+            message(paste(cond,"\n"))
+            return(NA)
+        },
+        warning=function(cond) {
+            message(paste("Warning in the metadata of:", file))
+            message(paste(cond,"\n"))
+            return(NULL)
+        })
+
   data_file <- header_info$common_info$data_file
   data_ext <- tools::file_ext(data_file)
   # It only accepts .dat files (for now)
   vmrk_file <- header_info$common_info$vmrk_file
-  events <- read_vmrk(file = paste0(file_path, vmrk_file))
+
+  events <- 
+   tryCatch(read_vmrk(file = paste0(file_path, vmrk_file)),
+        error=function(cond) {
+            message(paste("Error in the events of:", paste0(file_path, vmrk_file)))
+            message(paste(cond,"\n"))
+            return(NA)
+        },
+        warning=function(cond) {
+            message(paste("Warning in the events of:", paste0(file_path, vmrk_file)))
+            message(paste(cond,"\n"))
+            return(NULL)
+        })
+
   if (data_ext == "dat" || data_ext == "eeg") {
     x <- read_dat(
       file = paste0(file_path, data_file),
-      # common_info = header_info$common_info,
-      # chan_info = header_info$chan_info,
       header_info = header_info,
       events = events,
       recording = recording,
@@ -88,7 +110,10 @@ read_ft <- function(file, layout = NULL, recording = file) {
       lsegment[[1]] %>% t() %>% dplyr::as_tibble()
     },
     .id = ".id"
-  )
+  ) 
+  data.table::setDT(signal_tbl)
+  
+
 
   # channel info:
   channels <- dplyr::tibble(
@@ -150,7 +175,9 @@ read_ft <- function(file, layout = NULL, recording = file) {
     dplyr::rename(.size = dplyr::matches("duration"), .sample_0 = sample) %>%
     dplyr::mutate(.sample_0 = as.integer(.sample_0), .size = as.integer(.size)) %>%
     add_event_channel(channel_names) %>%
-    segment_events(beg_segs = slengths$V1, s0 = slengths$V3 + slengths$V1, end_segs = slengths$V2)
+    segment_events(.lower = slengths$V1, .sample_0 = slengths$V1 - slengths$V3, .upper= slengths$V2)
+
+
 
   segments <- tibble::tibble(
     .id = seq(nrow(slengths)),
@@ -158,7 +185,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
   )
 
   eeg_lst <- new_eeg_lst(
-    signal_tbl = signal_tbl, events = events, segments = segments
+    signal = signal_tbl, events = events, segments = segments
   )
 
 

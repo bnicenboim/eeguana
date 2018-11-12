@@ -3,7 +3,7 @@ library(eeguana)
 
 
 data <- eeg_lst(
-  signal_tbl = signal_tbl(
+  signal = signal_tbl(
     signal_matrix = as.matrix(
       data.frame(X = sin(1:20), Y = cos(1:20))
     ),
@@ -29,7 +29,7 @@ data <- eeg_lst(
 
 
 data_NA <- eeg_lst(
-  signal_tbl = signal_tbl(
+  signal = signal_tbl(
     signal_matrix = as.matrix(
       data.frame(X = sin(1:20), Y = cos(1:20))
     ),
@@ -54,7 +54,7 @@ data_NA <- eeg_lst(
 )
 
 data_XY <- eeg_lst(
-  signal_tbl = signal_tbl(
+  signal = signal_tbl(
     signal_matrix = as.matrix(
       data.frame(X = sin(1:20), Y = cos(1:20))
     ),
@@ -139,7 +139,7 @@ test_that("can clean whole segments in files", {
 
 
 data0 <- eeg_lst(
-  signal_tbl = signal_tbl(
+  signal = signal_tbl(
     signal_matrix = as.matrix(
       data.frame(X = sin(1:20), Y = cos(1:20))
     ),
@@ -163,23 +163,25 @@ data0 <- eeg_lst(
   segments = dplyr::tibble(.id = 1L, recording = "recording1", segment = 1)
 )
 
-
 test_that("can segment", {
   data_s <- segment(data, type == "Time 0")
   expect_equal(data$signal, data_s$signal)
   expect_equal(data$events, data_s$events)
   expect_equal(data$segments, dplyr::select(data_s$segments, -type, -description))
+  # expect_equal(data$segments, data_s$segments)
   d <- segment(data, type == "Time 0")
   d_rec <- segment(d, type == "Time 0")
   expect_equal(d$signal, d_rec$signal)
   expect_equal(d$events, d_rec$events)
   expect_equal(dplyr::select(d$segments, -type, -description), dplyr::select(d_rec$segments, -type.x, -description.x, -type.y, -description.y))
+  # expect_equal(d$segments,d_rec$segments)
   d_0 <- segment(data, type == "Time 0", lim = c(0, Inf))
   d_0_0 <- segment(d_0, type == "Time 0", lim = c(0, Inf))
   expect_equal(nrow(d_0$signal), 10)
   expect_equal(d_0$signal, d_0_0$signal)
   expect_equal(d_0$events, d_0_0$events)
   expect_equal(dplyr::select(d_0$segments, -type, -description), dplyr::select(d_0_0$segments, -type.x, -description.x, -type.y, -description.y))
+  # expect_equal(d_0$segments,d_0_0$segments)
   s1 <- segment(data0, type == "Time 0", lim = c(0, 1 / 500))
   expect_equal(s1$signal$X[1], data0$signal$X[6])
   expect_equal(nrow(s1$signal), 4)
@@ -199,18 +201,18 @@ test_that("can segment", {
 
 
 baselines <- dplyr::summarize(dplyr::group_by(
-  dplyr::filter(eeguana:::declass(data$signal)$tbl, .sample_id <= 0),
+  dplyr::filter(as_tibble(data$signal), .sample_id <= 0),
   .id
 ), bX = mean(X), bY = mean(Y))
-signal_with_baselines <- dplyr::left_join(eeguana:::declass(data$signal)$tbl, baselines)
+signal_with_baselines <- dplyr::left_join(as_tibble(data$signal), baselines)
 signal_with_baselines$new_X <- signal_with_baselines$X - signal_with_baselines$bX
 signal_with_baselines$new_Y <- signal_with_baselines$Y - signal_with_baselines$bY
 baselined <- ch_baseline(data)
 
 
 test_that("baseline works", {
-  expect_equal(eeguana:::declass(baselined$signal)$tbl$X, signal_with_baselines$new_X)
-  expect_equal(eeguana:::declass(baselined$signal)$tbl$Y, signal_with_baselines$new_Y)
+  expect_equal(as_tibble(baselined$signal)$X, signal_with_baselines$new_X)
+  expect_equal(as_tibble(baselined$signal)$Y, signal_with_baselines$new_Y)
 })
 
 

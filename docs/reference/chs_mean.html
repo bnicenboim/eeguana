@@ -61,7 +61,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.0.2.9000</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.0.2.9001</span>
       </span>
     </div>
 
@@ -113,7 +113,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Get the by-sample (or by-row) mean of the specified channels.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/dplyr-related.R'><code>R/dplyr-related.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/channel_functions.R'><code>R/channel_functions.R</code></a></small>
     <div class="hidden name"><code>chs_mean.Rd</code></div>
     </div>
 
@@ -123,20 +123,24 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>chs_mean</span>(<span class='no'>...</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>chs_mean</span>(<span class='no'>x</span>, <span class='no'>...</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>...</th>
-      <td><p>A channel or a group of channels</p></td>
+      <td><p>A channel or a group of channels, or an <code>eeg_lst</code> object.</p></td>
+    </tr>
+    <tr>
+      <th>na.rm</th>
+      <td></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A new channel.</p>
+    <p>A new channel or an <code>eeg_lst</code> object with a <code>mean</code> channel instead of the previous channels.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -151,7 +155,8 @@
                <span class='fu'>transmute</span>(<span class='kw'>Occipital</span> <span class='kw'>=</span> <span class='fu'>chs_mean</span>(<span class='no'>O1</span>, <span class='no'>O2</span>, <span class='no'>Oz</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>),
                          <span class='kw'>Parietal</span> <span class='kw'>=</span> <span class='fu'>chs_mean</span>(<span class='no'>P3</span>, <span class='no'>P4</span>, <span class='no'>P7</span>,  <span class='no'>P8</span>, <span class='no'>Pz</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>))
 
-
+<span class='no'>faces_segs_some</span> <span class='kw'>%&gt;%</span>
+               <span class='fu'>chs_mean</span>(<span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 <span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -171,7 +176,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Bruno Nicenboim.</p>
+  <p>Developed by <a href='http://www.ling.uni-potsdam.de/~nicenboim/'>Bruno Nicenboim</a>.</p>
 </div>
 
 <div class="pkgdown">

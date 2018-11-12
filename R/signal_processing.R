@@ -1,26 +1,3 @@
-#' Rereference channel.
-#'
-#' This function is meant to be used together with `mutate` or `mutate_all`. See the example
-#'
-#' @param x A channel.
-#' @param ... Channels that will be averaged as the reference.
-#' @return A rereferenced channel.
-#' @export
-#'
-#' @family channel
-#'
-#' @examples
-#' \dontrun{
-#' # Rereference all channels used the linked mastoids (average of the two mastoids)
-#'
-#' faces_segs %>% act_on(signal_tbl) %>%
-#'                  mutate_all(funs(rereference(., M1, M2)))
-#' }#'
-ch_rereference <- function(x, ..., na.rm = FALSE) {
-  x - vec_mean(..., na.rm = na.rm)
-}
-
-
 #' Downsample EEG data
 #'
 #' Downsample a signal_tbl by a factor `q`, using an FIR or IIR filter.
@@ -81,42 +58,53 @@ downsample.eeg_lst <- function(x, q = 2L, max_sample = NULL,
   ))
 
   list_of_attr <- purrr::map(x$signal, ~attributes(.x))
+  channels_info <- channels_tbl(x)
 
-  x$signal <- x$signal %>%
-    dplyr::select(-.sample_id) %>%
-    split(x$signal$.id) %>%
-    purrr::map_dfr(
-      function(signal_id) purrr::map_dfc(
-          signal_id[-1],
-          # reduce the channel info by applying decimate to the elements of q
-          function(channel) purrr::reduce(c(list(channel), as.list(q)), ~
-            signal::decimate(x = .x, q = .y, n = n, ftype = ftype))
-        )
-      ,
-      .id = ".id"
-    ) %>%
-    dplyr::mutate(.id = as.integer(.id)) %>%
-    dplyr::group_by(.id) %>%
-    dplyr::mutate(.sample_id = seq_len(dplyr::n())) %>%
-    dplyr::select(.id, .sample_id, dplyr::everything()) %>%
-    dplyr::ungroup() %>%
-    # add back the attributes
-    purrr::map2_dfc(list_of_attr, ~`attributes<-`(.x, .y))
-  # TODO should group back
+  x$signal <- x$signal[,purrr::map(.SD, function(channel) purrr::reduce(c(list(channel), as.list(q)), ~
+            signal::decimate(x = .x, q = .y, n = n, ftype = ftype))), .SDcols = c(channel_names(x)),by = c(".id")][
+            ,.sample_id := sample_int(seq_len(.N), new_sampling_rate),by = c(".id")][]
+
+  data.table::setkey(x$signal,.id,.sample_id)
+  data.table::setcolorder(x$signal,c(".id",".sample_id"))
+
+  # x$signal <- as_tibble(x$signal) %>%
+  #   dplyr::select(-.sample_id) %>%
+  #   split(x$signal$.id) %>%
+  #   purrr::map_dfr(
+  #     function(signal_id) purrr::map_dfc(
+  #         signal_id[-1],
+  #         # reduce the channel info by applying decimate to the elements of q
+  #         function(channel) purrr::reduce(c(list(channel), as.list(q)), ~
+  #           signal::decimate(x = .x, q = .y, n = n, ftype = ftype))
+  #       )
+  #     ,
+  #     .id = ".id"
+  #   ) %>%
+  #   dplyr::mutate(.id = as.integer(.id)) %>%
+  #   dplyr::group_by(.id) %>%
+  #   dplyr::mutate(.sample_id = seq_len(dplyr::n())) %>%
+  #   dplyr::select(.id, .sample_id, dplyr::everything()) %>%
+  #   dplyr::ungroup() %>%
+  #   # add back the attributes
+  #   purrr::map2_dfc(list_of_attr, ~`attributes<-`(.x, .y))
+  # # TODO should group back
 
   # even table needs to be adapted, starts from 1,
   # and the size is divided by two with a min of 1
-  x$events <- x$events %>%
-    dplyr::mutate(
-      .sample_0 = as.integer(round(.sample_0 / factor)) + 1L,
-      .size = round(.size / factor) %>%
-        as.integer() %>%
-        purrr::map_int(~max(.x, 1L))
-    )
+  x$events <- data.table::copy(x$events)[, .sample_0 := as.integer(round(.sample_0 / factor)) + 1L][, .size := round(.size / factor) %>%
+                                       as.integer() %>%
+                                       purrr::map_int(~max(.x, 1L)) ][]
+    # dplyr::mutate(
+    #   .sample_0 = as.integer(round(.sample_0 / factor)) + 1L,
+    #   .size = round(.size / factor) %>%
+    #     as.integer() %>%
+    #     purrr::map_int(~max(.x, 1L))
+    # )
 
   # just in case I update the .id from segments table
   x$segments <- dplyr::mutate(x$segments, .id = seq_len(dplyr::n()))
 
   message(say_size(x))
-  validate_eeg_lst(x)
+
+  x %>% update_channels_tbl(channels_info) %>% validate_eeg_lst()
 }

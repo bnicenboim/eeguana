@@ -7,7 +7,7 @@
 #'
 #' @param x An `eeg_lst` object.
 #' @param ... Description of the event.
-#' @param lim Vector indicating the time before and after the event. Or matrix with two columns, with nrow=total number of segments
+#' @param lim Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments
 #' @param unit Unit
 #'
 #' @return An `eeg_lst`.
@@ -20,197 +20,86 @@ segment <- function(x, ...) {
 }
 
 #' @export
-segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds") {
+segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds", recording_col = "recording") {
   dots <- rlang::enquos(...)
-  # dots <- rlang::quos(description == "s121")
-  # dots <- rlang::quos(description == "s70")
-  # dots <- rlang::quos(description == "s13")
-  # dots <- rlang::quos(description %in% c("s70",s71"))
-  # dots <- rlang::quos(type == "New Segment")
-
-  # the segmentation will ignore the groups:
-  orig_groups <- list()
-  orig_groups$signal <- dplyr::groups(x$signal)
-  orig_groups$events <- dplyr::groups(x$events)
-  orig_groups$segments <- dplyr::groups(x$segments)
-
-  x$signal <- dplyr::ungroup(x$signal)
-  x$events <- dplyr::ungroup(x$events)
-  x$segments <- dplyr::ungroup(x$segments)
+  
 
   times0 <- dplyr::filter(x$events, !!!dots) %>%
-    dplyr::select(-.channel, -.size)
-
-  scaling <- scaling(sampling_rate(x), unit = unit)
-
-  if (length(lim) == 2) {
-    lim <- rep(list(lim), each = nrow(times0))
+    dplyr::select(-.channel, -.size) 
+    
+  if (any(lim[[2]] < lim[[1]])) {
+    stop("A segment needs to be of positive length and include at least 1 sample.")
   }
-
-  if (is.matrix(lim) && dim(lim)[2] == 2 && dim(lim)[1] == nrow(times0)) {
-    lim <- purrr::array_branch(lim, 1)
-  } else if (is.list(lim) && length(lim) == nrow(times0)) {
-    # ok format
-    NULL
+  
+  
+  if ((length(lim) == 2) || ## two values or a dataframe
+    (!is.null(nrow(lim)) && nrow(lim) == nrow(times0)) ) {
+    scaling <- scaling(sampling_rate(x), unit = unit)
+    sample_lim <- round(lim * scaling) 
+    seg_names <- colnames(times0)[!startsWith(colnames(times0),".")]
+    segmentation_info <- times0 %>% dplyr::mutate(.lower =.sample_0+ sample_lim[[1]] %>% as_integer(), 
+                                                  .upper = .sample_0+ sample_lim[[2]] %>% as_integer(),
+                                                  .new_id = seq_len(dplyr::n())) %>%
+                                    dplyr::select(-dplyr::one_of(seg_names))
   } else {
     stop("Wrong dimension of lim")
   }
 
-  slim <- purrr::modify(lim, function(l) {
-    if (l[2] < l[1]) {
-      stop("A segment needs to be of positive length and include at least 1 sample.")
-    }
-    round(l * scaling) %>% as_integer()
-  })
+  segmentation <- data.table::as.data.table(segmentation_info)
 
-  # bind_rows looses the attributes
-  # https://github.com/tidyverse/dplyr/issues/2457
-  # pmap_sgr is pmap_dfr for signal_table
-  # TODO benchmark other way: first work only with the samples (and .id maybe), make NA the irrelevant ones,
-  # then filter the bad samples
-  x$signal <- pmap_sgr(list(times0$.id, times0$.sample_0, slim),
-    function(i, s0, sl) x$signal %>%
-        # filter the relevant samples
-        dplyr::filter(
-          .sample_id >= s0 + sl[1],
-          .sample_id <= s0 + sl[2],
-          .id == i
-        ) %>%
-        dplyr::mutate(.sample_id = .sample_id - s0 + 1L) %>%
-        # order the signals df:
-        dplyr::select(-.id)
-    ,
-    .id = ".id"
-  ) %>%
-    dplyr::mutate(.id = as.integer(.id))
+  # update the signal tbl:
+  cols_signal <- colnames(x$signal)
+  cols_signal_temp <- c(".new_id",".sample_0","x..sample_id",cols_signal[cols_signal!=".id"])
 
+  new_signal <- x$signal[segmentation, on = .(.id, .sample_id >= .lower, .sample_id <= .upper), allow.cartesian=TRUE,
+  ..cols_signal_temp]
 
-  slim <- purrr::map2(slim, split(x$signal, x$signal$.id), function(sl, d) {
-    sl <- c(min(d$.sample_id) - 1L, max(d$.sample_id) - 1L)
-  })
+  
+  #.sample_id is now the lower bound
+  #x..sample_id is the original columns
+  new_signal[, .sample_id := x..sample_id - .sample_0 + 1L][,.sample_0 := NULL][, x..sample_id:=NULL ]
+  data.table::setnames(new_signal, ".new_id",".id")
+  attributes(new_signal$.sample_id) <- attributes(x$signal$.sample_id)
+  data.table::setkey(new_signal, .id, .sample_id)
+  x$signal <- new_signal
 
-  x$events <- purrr::pmap_dfr(list(times0$.id, times0$.sample_0, slim),
-    .id = ".id",
-    function(i, s0, sl) {
-      # bound according to the segment
-      x$events %>%
-        # filter the relevant events
-        # started after the segment (s0 + slim[1])
-        # or span after the segment (s0 + slim[1])
-        dplyr::filter(
-          .sample_0 + .size - 1 >= s0 + sl[1],
-          .sample_0 <= s0 + sl[2],
-          .id == i
-        ) %>%
-        dplyr::mutate(
-          .size = dplyr::if_else(
-            .sample_0 < s0 + sl[1],
-            as.integer(.size - (s0 + sl[1] - .sample_0) + 1L),
-            # adjust the size so that it doesn't spillover after the segment
-            .size
-          ) %>% pmin(., sl[2] + 1L - .sample_0 + s0),
-          .sample_0 = dplyr::if_else(
-            .sample_0 < s0 + sl[1], sl[1] + 1L,
-            .sample_0 - s0 + 1L
-          )
-        ) %>%
-        dplyr::select(-.id)
-    }
-  ) %>%
-    dplyr::mutate(.id = as.integer(.id))
+  #update events table
+  cols_events <- colnames(x$events)
+  cols_events_temp <- unique(c(cols_events, colnames(segmentation_info),"i..sample_0"))
+  #i..sample_0 is the sample_0 of events
+  new_events <- segmentation[x$events, on = .(.id), ..cols_events_temp, allow.cartesian=TRUE][
+                                data.table::between(i..sample_0,.lower - .size + 1 , .upper)]
+
+  new_events[,.size := dplyr::if_else(i..sample_0 < .lower,
+                                      as.integer(.size - (.lower - i..sample_0) + 1L),
+                                      # adjust the size so that it doesn't spillover after the segment
+                                      .size) %>% 
+                        pmin(., .upper + 1L - i..sample_0 )][,
+               .sample_0 := dplyr::if_else(i..sample_0 < .lower, 
+                                           .lower - .sample_0 + 1L,
+                                           i..sample_0 - .sample_0 + 1L)  ][, 
+               .id := .new_id]
+
+  x$events <- new_events[,..cols_events] 
+
 
   message(paste0("# Total of ", max(x$signal$.id), " segments found."))
 
   x$segments <- dplyr::right_join(x$segments,
-    dplyr::select(times0, -.sample_0),
-    by = ".id"
-  ) %>%
-    dplyr::mutate(.id = 1:n()) %>%
-    dplyr::group_by(recording) %>%
-    dplyr::mutate(segment = 1:n())
+                dplyr::select(times0, -.sample_0), by = ".id") %>%
+                dplyr::mutate(.id = 1:n()) 
 
-  x$signal <- dplyr::group_by(x$signal, !!!orig_groups$signal)
-  x$events <- dplyr::group_by(x$events, !!!orig_groups$events)
-  x$segments <- dplyr::group_by(x$segments, !!!orig_groups$segments)
+  if(!is.null(recording_col) && !is.na(recording_col)){
+  x$segments <- x$segments %>% dplyr::group_by_at(dplyr::vars(recording_col)) %>%
+                    dplyr::mutate(segment = 1:n()) %>%
+                    dplyr::ungroup()
+  } 
 
   message(paste0(say_size(x), " after segmentation."))
   validate_eeg_lst(x)
 }
 
 
-#' Bind eeg_lst objects.
-#'
-#' Binds eeg_lst and throws a warning if there is a mismatch in the channel information.
-#'
-#' @param ... eeg_lst objects to combine.
-#'
-#' @return An `eeg_lst` object.
-#'
-#' @importFrom magrittr %>%
-#'
-#' @export
-bind <- function(...) {
-  eeg_lsts <- list(...)
-  # hack to allow that "..." would already be a list
-  if (class(eeg_lsts[[1]]) != "eeg_lst") {
-    eeg_lsts <- list(...)[[1]]
-  }
-
-  # Checks:
-  purrr::iwalk(
-    eeg_lsts[seq(2, length(eeg_lsts))],
-    ~if (!identical(channels_tbl(eeg_lsts[[1]]), channels_tbl(.x))) {
-      warning("Objects with different channels information, see below\n\n", "File ",
-        as.character(as.numeric(.y) + 1), " ... \n",
-        paste0(
-          capture.output(setdiff(channels_tbl(eeg_lsts[[1]]), channels_tbl(.x))),
-          collapse = "\n"
-        ),
-        "\n\n ... in comparison with file 1 ...\n\n",
-        paste0(
-          capture.output(setdiff(channels_tbl(.x), channels_tbl(eeg_lsts[[1]]))),
-          collapse = "\n"
-        )
-        ,
-        call. = FALSE
-      )
-    }
-  )
-
-  # Binding
-  # .id of the new eggbles needs to be adapted
-
-  add_ids <- purrr::map_int(eeg_lsts, ~max(.x$signal$.id)) %>%
-    cumsum() %>%
-    dplyr::lag(default = 0) %>%
-    as.integer()
-
-
-  signal_tbl <- map2_sgr(eeg_lsts, add_ids, ~
-  dplyr::ungroup(.x$signal) %>%
-    dplyr::mutate(.id = .id + .y))
-
-  # signal_tbl <- purrr::map(eeg_lsts)
-
-
-
-  events <- purrr::map2_dfr(eeg_lsts, add_ids, ~
-  dplyr::ungroup(.x$events) %>%
-    dplyr::mutate(.id = .id + .y))
-
-  segments <- purrr::map2_dfr(eeg_lsts, add_ids, ~
-  dplyr::ungroup(.x$segments) %>%
-    dplyr::mutate(.id = .id + .y))
-
-
-
-  new_eeg_lst <- new_eeg_lst(
-    signal_tbl = signal_tbl, events = events, segments = segments
-  ) %>%
-    validate_eeg_lst()
-  message(say_size(new_eeg_lst))
-  new_eeg_lst
-}
 
 
 #' Remove (transform to NA) problematic events from an eeg_lst.
@@ -240,6 +129,9 @@ event_to_ch_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
                                    drop_events = TRUE) {
   dots <- rlang::enquos(...)
 
+  #TODO in data.table
+  x$signal <- as.data.frame(x$signal)
+  x$events <- dplyr::as_tibble(x$events)
 
   # dots <- rlang::quos(type == "Bad Interval")
 
@@ -253,6 +145,7 @@ event_to_ch_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
   b_chans <- dplyr::filter(baddies, !is.na(.channel)) %>%
     .$.channel %>%
     unique()
+
   for (c in b_chans) {
     b <- dplyr::filter(baddies, .channel == c & !is.na(.channel))
     if (!entire_seg) {
@@ -289,5 +182,11 @@ event_to_ch_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
       dplyr::filter(x$events, !!!dots)
     ))
   }
+
+  #TODO fix this:
+  x$signal <- data.table::data.table(x$signal)
+  data.table::setattr(x$signal, "class", c("signal_tbl", class(x$signal))) 
+  data.table::setkey(x$signal,.id,.sample_id)
+  x$events <- data.table::data.table(x$events)
   validate_eeg_lst(x)
 }

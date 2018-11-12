@@ -1,0 +1,69 @@
+authors:
+  Bruno Nicenboim:
+    href: "http://www.ling.uni-potsdam.de/~nicenboim/"
+reference:
+  - title: About
+    contents:
+    - '`eeguana`'
+  - title: "Reading functions"
+    desc: >
+      Functions for reading external files (BrainVision and mat
+      files from Fieldtrip) and return an `eeg_lst`. (Upcoming: eeglab and edf files).
+    contents: 
+    - starts_with("read")
+  - title: "Tidyverse 'dplyr'(-like) functions and extensions"
+    desc: >
+      Functions that overload some `dplyr` functions and always return an `eeg_lst`. 
+    contents: 
+    - '`dplyr`'
+    - '`bind`'
+    - '`summarize_ch`'
+  - title: "Specialized summarizing functions"
+    desc: >
+      Functions that apply a series of `dplyr` functions to return useful summaries.
+    contents: 
+     - '`summary`'
+     - '`count_complete_cases_tbl`'
+
+  - title: "Channel functions"
+    desc: >
+      Functions that act on the channels of the signal table. They have a default version that acts on all the channels, and can be used inside a `mutate` call for more control.
+    contents: 
+    - starts_with("ch_")
+    - starts_with("chs_")
+
+  - title: "EEG-specialized functions"
+    desc: >
+      Functions for applying specialized actions on specific channels of the signal 
+      table or the entire `eeg_lst`. (I may add a prefix to the functions when I see
+      that I can group them).
+    contents: 
+    - '`downsample`'
+    - '`segment`'
+    - '`event_to_ch_NA`'
+
+  - title: "Plot functions"
+    desc: >
+      Functions for doing data wrangling after summarizing or downsampling the signal 
+      to create a long table, and then wrap `ggplot` functions.
+    contents: 
+    - starts_with("plot")
+
+  - title: "'base'-inspired functions"
+    desc: >
+      Functions for doing data wrangling after summarizing or downsampling the signal 
+      to create a long table, and then wrap `ggplot` functions.
+    contents: 
+    - starts_with("as_")
+    - starts_with("as.")
+    - starts_with("is_")
+    - starts_with("n")
+
+  - title: "Constructor functions"
+    desc: >
+      Internal functions for creating objects.
+    contents: 
+    - '`eeg_lst`'
+    - '`sample_int`'
+    - '`channel_dbl`'
+    - '`signal_tbl`'
