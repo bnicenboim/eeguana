@@ -25,7 +25,6 @@ Imports:
     pryr,
     fastmatch,
     lazyeval,
-    ggrepel (>= 0.7.3),
     rlang,
     signal,
     MBA,
