@@ -1,4 +1,4 @@
-#' Convert an eeg_lst to a tibble.
+#' Convert an eeg_lst to a wide table.
 #'
 #' Convert the signal_tbl table from wide to long format, and optionally `left_join`s the segment table
 #'

@@ -1,6 +1,6 @@
 # eeguana 0.0.2.9001
 
-- Internal changes only.
+- Data table is now powered by data.table.
 
 
 # eeguana 0.0.2.9000
