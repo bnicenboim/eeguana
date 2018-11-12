@@ -1,25 +1,70 @@
-interpolate_xy <- function(.df, x, y, value, method = "MBA", ...) {
-  # x <- rlang::quo(x)
-  # y <- rlang::quo(y)
-  # value <- rlang::quo(A)
+#' @export
+interpolate_tbl <- function(.data, ...) {
+  UseMethod("interpolate_tbl")
+}
+
+#' @export
+interpolate_tbl.eeg_lst <- function(.data, x = .x, y = .y, value = amplitude, label = channel, diam_points =200, method = "MBA",...) {
+  grouping <- group_chr(.data)
+  .data <- dplyr::as_tibble(.data) %>% dplyr::group_by_at(dplyr::vars(grouping))
   x <- rlang::enquo(x)
   y <- rlang::enquo(y)
   value <- rlang::enquo(value)
+  label <- rlang::enquo(label)
+  dots <- rlang::enquos(...)
+  # NextMethod()
+  interpolate_tbl(.data, !!x, !!y, !!value, !!label, diam_points, method, !!!dots)
+}
 
-  .df <- dplyr::select(.df, dplyr::one_of(dplyr::group_vars(.df)), !!x, !!y, !!value, channel)
+#' @export
+interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, label = channel, diam_points =200, method = "MBA",...) {
+  # x <- rlang::quo(.x)
+  # y <- rlang::quo(.y)
+  # value <- rlang::quo(amplitude)
+  # label <- rlang::quo(channel)
+  x <- rlang::enquo(x)
+  y <- rlang::enquo(y)
+  value <- rlang::enquo(value)
+  label <- rlang::enquo(label)
 
-  l <- dplyr::select(.df, dplyr::one_of(dplyr::group_vars(.df))) %>%
+  .data <- dplyr::select(.data, dplyr::one_of(dplyr::group_vars(.data)), !!x, !!y, !!value, !!label)     
+   group_vars <- dplyr::group_vars(.data)
+   group_vars <- group_vars[!group_vars %in%  
+                      c(rlang::quo_text(x),rlang::quo_text(y),rlang::quo_text(value),rlang::quo_text(label))]
+
+## add columns that are constant=>
+   is_grouped <- .data %>% dplyr::group_by_at(group_vars) %>%
+                  dplyr::group_by(!!label,add=TRUE) %>%
+                 dplyr::summarize(L = n()) %>% 
+                 # dplyr::filter(!is.na(!!x) |!is.na(!!y)) %>% 
+                 dplyr::pull(L) %>%
+                 all(.==1) 
+   if(!is_grouped){
+    stop("Data needs to grouped or summarized so that each label appears one per group.")
+   } 
+
+# .data %>% summarize(L = length(!!label)) %>% print(n=100)
+#    if(is.null(dplyr::groups(.data) && "channel" %in% colnames) {
+#     message("Grouping by channel")
+#     .data <- .data %>% dplyr::group_by(!!x,!!y, channel)
+#    } else if(!is.null(dplyr::groups(.data)){
+#    } else {
+#     stop("The table needs to be grouped.")
+#    }
+
+#   l <- .data %>%  dplyr::summarize(!!value := mean(!!value))
+
+    l <- .data %>% dplyr::ungroup() %>% dplyr::select(dplyr::one_of(group_vars)) %>%
     # in case it should group by some NA
-    dplyr::ungroup() %>%
-    dplyr::mutate_all(tidyr::replace_na, "NA")
+    
+    dplyr::mutate_all(tidyr::replace_na, "NA") %>% distinct()
 
-  # REMOVE EMPTY
   if (method == "MBA") {
     if (!"MBA" %in% rownames(utils::installed.packages())) {
       stop("Package MBA needs to be installed to interpolate using multilevel B-splines ")
     }
     # change to sp = FALSE and adapt, so that I remove the sp package
-    interpolation_alg <- function(xyz, ...) MBA::mba.surf(xyz = xyz, 100, 100, sp = FALSE, extend = TRUE, ...)
+    interpolation_alg <- function(xyz, ...) MBA::mba.surf(xyz = xyz, diam_points, diam_points, sp = FALSE, extend = TRUE, ...)
   } else {
     stop("Non supported method.")
   }
@@ -27,28 +72,28 @@ interpolate_xy <- function(.df, x, y, value, method = "MBA", ...) {
   # if there are no groups, it will just create a list with the entire df
   grid <- {
     if (ncol(l) == 0) {
-      list(.df)
+      list(.data)
     } else {
-      split(.df, l)
+      split(.data, l)
     }
   } %>%
     purrr::discard(~nrow(.x) == 0) %>%
     purrr::map_dfr(function(.d) {
       common <- .d %>%
         dplyr::ungroup() %>%
-        dplyr::select(-channel, -!!x, -!!y, -!!value) %>%
-        distinct()
+        dplyr::select(-!!label, -!!x, -!!y, -!!value) %>%
+        dplyr::distinct()
 
       if (nrow(common) > 1
       # when there is no common columns, distintict returns anyway a number of columns, distinct bug?? TODO: report
-      & ncol(common) > 0) {
+      && ncol(common) > 0) {
         stop("Bad grouping.")
       }
 
       interpolate_from <- .d %>%
         dplyr::ungroup() %>%
         dplyr::select(!!x, !!y, !!value) %>%
-        dplyr::filter(!is.na(x) | !is.na(y))
+        dplyr::filter(!is.na(!!x) | !is.na(!!y))
 
       if (nrow(interpolate_from) == 1) stop("Interpolation is not possible from only one point.")
       mba_interp <- interpolation_alg(interpolate_from)
@@ -67,5 +112,5 @@ interpolate_xy <- function(.df, x, y, value, method = "MBA", ...) {
         }
     })
 
-  grid
+  dplyr::bind_rows(grid,.data)
 }

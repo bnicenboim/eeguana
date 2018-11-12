@@ -61,7 +61,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.0.2.9000</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.0.2.9001</span>
       </span>
     </div>
 
@@ -124,12 +124,14 @@
     </div>
 
     <pre class="usage"><span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>as_tibble</span>(<span class='no'>x</span>, <span class='kw'>add_segments</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='fu'>as_tibble</span>(<span class='no'>x</span>, <span class='kw'>add_segments</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>add_channels_info</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>as_data_frame</span>(<span class='no'>x</span>, <span class='kw'>add_segments</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='fu'>as_data_frame</span>(<span class='no'>x</span>, <span class='kw'>add_segments</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>add_channels_info</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 
-<span class='fu'>as.tibble.eeg_lst</span>(<span class='no'>x</span>, <span class='kw'>add_segments</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+<span class='fu'>as.tibble.eeg_lst</span>(<span class='no'>x</span>, <span class='kw'>add_segments</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>add_channels_info</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -170,7 +172,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Bruno Nicenboim.</p>
+  <p>Developed by <a href='http://www.ling.uni-potsdam.de/~nicenboim/'>Bruno Nicenboim</a>.</p>
 </div>
 
 <div class="pkgdown">

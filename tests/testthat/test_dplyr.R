@@ -3,7 +3,7 @@ library(eeguana)
 
 
 data <- eeg_lst(
-  signal_tbl = signal_tbl(
+  signal = signal_tbl(
     signal_matrix = as.matrix(
       data.frame(X = sin(1:20), Y = cos(1:20))
     ),
@@ -28,56 +28,83 @@ data <- eeg_lst(
 )
 
 
+reference_data <- data.table::copy(data)
 
+  mutate_eeg_lst <- mutate(data, X = X + 10)
+  mutate2_eeg_lst <- mutate(data, ZZ = X + 10)
+  mutate3_eeg_lst <- mutate(data, mean(X))
+  mutate4_eeg_lst <- mutate(data, subject = recording)
+  transmute_eeg_lst <- transmute(data, X = X + 1)
+  #TODO
+  # mutate_all_eeg_lst <- mutate_all_ch(data, mean)
+  # mutate_at_eeg_lst <- mutate_at(data, channel_names(data), mean)
+  summarizeX_eeg_lst <- summarize(data, mean(X))
+  summarize_at_eeg_lst <- summarize_at_ch(data, channel_names(data), mean)
+  summarize_all_eeg_lst <- summarize_all_ch(data, mean)
+  summarize_all2_eeg_lst <- summarize_all_ch(data, "mean")
+  summarize_all3_eeg_lst <- summarize_all_ch(data, funs(mean(.)))
+  summarize_all4_eeg_lst <- summarize_all_ch(data, funs(m = mean(.)))
+  group_by_eeg_lst <- group_by(data, .sample_id)
+  group2_by_eeg_lst <- group_by(data, .id)
+  group3_by_eeg_lst <- group_by(data, recording)
+  group4_by_eeg_lst <- group_by(data, .sample_id, recording)
+  group4_by_eeg_lst <- group_by(data, .id, recording)
+  group5_by_eeg_lst <- group_by(data, .id, .sample_id, recording)
 
-group_by_eeg_lst <- dplyr::group_by(data, .sample_id)
-mutate_eeg_lst <- dplyr::mutate(data, X = X + 1)
-mutate2_eeg_lst <- dplyr::mutate(data, ZZ = X + 1)
-transmute_eeg_lst <- dplyr::transmute(data, X = X + 1)
-mutate_all_eeg_lst <- dplyr::mutate_all(data, mean)
-mutate_at_eeg_lst <- dplyr::mutate_at(data, channel_names(data), mean)
-summarize_eeg_lst <- dplyr::summarize(data)
-summarizeX_eeg_lst <- dplyr::summarize(data, mean(X))
-summarize_at_eeg_lst <- dplyr::summarize_at(data, channel_names(data), mean)
-group2_by_eeg_lst <- dplyr::group_by(data, .id)
+test_that("dplyr functions work correctly on ungrouped data", {
+}
+)
 
-# purrr::map(mutate_at_eeg_lst$signal, ~ attributes(.x))
-# purrr::map_chr(mutate_at_eeg_lst$signal, class)
-# purrr::map(mutate_at_eeg_lst$events, class)
-
-test_that("the classes of channels of signal_tbl remain in non-grouped eeg_lst", {
-expect_equal(is_channel_dbl(mutate_eeg_lst$signal$X), TRUE)
-expect_equal(is_channel_dbl(mutate2_eeg_lst$signal$X), TRUE)
-expect_equal(is_channel_dbl(mutate2_eeg_lst$signal$ZZ), TRUE)
-expect_equal(is_channel_dbl(transmute_eeg_lst$signal$X), TRUE)
-expect_equal(is_channel_dbl(mutate_all_eeg_lst$signal$X), TRUE)
-expect_equal(is_channel_dbl(mutate_at_eeg_lst$signal$X), TRUE)
-expect_equal(is_channel_dbl(summarizeX_eeg_lst$signal$`mean(X)`), TRUE)
-expect_equal(is_channel_dbl(summarize_at_eeg_lst$signal$X), TRUE)
-})
-
-mutate_g_signal_tbl <- dplyr::mutate(group_by_eeg_lst, X = X + 1)
-mutate2_g_signal_tbl <- dplyr::mutate(group_by_eeg_lst, ZZ = X + 1)
-transmute_g_signal_tbl <- dplyr::transmute(group_by_eeg_lst, X = X + 1)
-mutate_all_g_signal_tbl <- dplyr::mutate_all(group_by_eeg_lst, mean)
-mutate_at_g_signal_tbl <- dplyr::mutate_at(group_by_eeg_lst, channel_names(data), mean)
-summarize_g_signal_tbl <- dplyr::summarize(group_by_eeg_lst, mean(X))
-summarize_at_g_signal_tbl <- dplyr::summarize_at(group_by_eeg_lst, channel_names(data), mean)
-summarize2_g_signal_tbl <- dplyr::summarize(group2_by_eeg_lst, mean(X))
-
+test_that("data didn't change", {
+expect_equal(reference_data, data)
+ }) 
 
 test_that("the classes of channels of signal_tbl remain in non-grouped eeg_lst", {
-expect_equal(is_channel_dbl(group_by_eeg_lst$signal$X), TRUE)
-expect_equal(is_channel_dbl(group2_by_eeg_lst$signal$X), TRUE)
-
-expect_equal(is_channel_dbl(mutate_g_signal_tbl$signal$X), TRUE)
-expect_equal(is_channel_dbl(mutate2_g_signal_tbl$signal$X), TRUE)
-expect_equal(is_channel_dbl(mutate2_g_signal_tbl$signal$ZZ), TRUE)
-expect_equal(is_channel_dbl(transmute_g_signal_tbl$signal$X), TRUE)
-expect_equal(is_channel_dbl(mutate_all_g_signal_tbl$signal$X), TRUE)
-expect_equal(is_channel_dbl(mutate_at_g_signal_tbl$signal$X), TRUE)
-expect_equal(is_channel_dbl(summarize_g_signal_tbl$signal$`mean(X)`), TRUE)
-expect_equal(is_channel_dbl(summarize_at_g_signal_tbl$signal$X), TRUE)
-expect_equal(is_channel_dbl(summarize2_g_signal_tbl$signal$`mean(X)`), TRUE)
+  expect_equal(is_channel_dbl(mutate_eeg_lst$signal$X), TRUE)
+  expect_equal(is_channel_dbl(mutate2_eeg_lst$signal$X), TRUE)
+  expect_equal(is_channel_dbl(mutate2_eeg_lst$signal$ZZ), TRUE)
+  expect_equal(is_channel_dbl(transmute_eeg_lst$signal$X), TRUE)
+  # expect_equal(is_channel_dbl(mutate_all_eeg_lst$signal$X), TRUE)
+  # expect_equal(is_channel_dbl(mutate_at_eeg_lst$signal$X), TRUE)
+  expect_equal(is_channel_dbl(summarizeX_eeg_lst$signal$`mean(X)`), TRUE)
+  expect_equal(is_channel_dbl(summarize_at_eeg_lst$signal$X), TRUE)
 })
 
+  mutate_g_signal_tbl <- mutate(group_by_eeg_lst, X = X + 1)
+  mutate2_g_signal_tbl <- mutate(group_by_eeg_lst, ZZ = X + 1)
+  transmute_g_signal_tbl <- transmute(group_by_eeg_lst, X = X + 1)
+  # mutate_all_g_signal_tbl <- mutate_all(group_by_eeg_lst, mean)
+  # mutate_at_g_signal_tbl <- mutate_at(group_by_eeg_lst, channel_names(data), mean)
+  summarize_g_signal_tbl <- summarize(group_by_eeg_lst, mean(X))
+  summarize_at_g_signal_tbl <- summarize_at_ch(group_by_eeg_lst, channel_names(data), mean)
+test_that("dplyr functions work correctly on  data grouped by .sample_id", {
+})
+
+test_that("data didn't change after grouping and dplyr functions", {
+  expect_equal(reference_data, data)
+ }) 
+
+
+  summarize_g2_signal_tbl <- summarize(group2_by_eeg_lst, mean(X))
+test_that("dplyr functions work correctly on  data grouped by .sample_id", {
+})
+
+test_that("the classes of channels of signal_tbl remain in non-grouped eeg_lst", {
+  expect_equal(is_channel_dbl(group_by_eeg_lst$signal$X), TRUE)
+  expect_equal(is_channel_dbl(group2_by_eeg_lst$signal$X), TRUE)
+  
+  expect_equal(is_channel_dbl(mutate_g_signal_tbl$signal$X), TRUE)
+  expect_equal(is_channel_dbl(mutate2_g_signal_tbl$signal$X), TRUE)
+  expect_equal(is_channel_dbl(mutate2_g_signal_tbl$signal$ZZ), TRUE)
+  expect_equal(is_channel_dbl(transmute_g_signal_tbl$signal$X), TRUE)
+  # expect_equal(is_channel_dbl(mutate_all_g_signal_tbl$signal$X), TRUE)
+  # expect_equal(is_channel_dbl(mutate_at_g_signal_tbl$signal$X), TRUE)
+  expect_equal(is_channel_dbl(summarize_g_signal_tbl$signal$`mean(X)`), TRUE)
+  expect_equal(is_channel_dbl(summarize_at_g_signal_tbl$signal$X), TRUE)
+  expect_equal(is_channel_dbl(summarize_g2_signal_tbl$signal$`mean(X)`), TRUE)
+})
+
+
+
+# add tests 
+# for filtering according to segments, grouped and ungrouped

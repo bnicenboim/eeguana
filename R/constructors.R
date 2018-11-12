@@ -8,8 +8,25 @@
 #'
 #' @return A valid eggble.
 #' @export
-eeg_lst <- function(signal_tbl, events, segments) {
-  validate_eeg_lst(new_eeg_lst(signal_tbl, events, segments))
+eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
+  if(is.null(signal)) {
+    signal <- data.table::data.table(.id= integer(0),.sample_id= integer(0))
+    data.table::setkey(signal,.id,.sample_id)
+  }
+  if(!data.table::is.data.table(signal) && is.data.frame(signal)) {
+   signal <- data.table::as.data.table(signal)
+   data.table::setkey(signal,.id,.sample_id)
+ }
+  if(is.null(events)) {
+    events <- data.table::data.table(.id= integer(0),.sample_0= integer(0),.size= integer(0),.channel= integer(0))
+  }
+  if(!data.table::is.data.table(events) && is.data.frame(events)) {
+   events <- data.table::as.data.table(events)
+ }
+ if(is.null(segments)) {
+    segments <- dplyr::tibble(.id = integer(0))
+  }
+  validate_eeg_lst(new_eeg_lst(signal, events, segments))
 }
 
 
@@ -38,7 +55,7 @@ signal_tbl <- function(signal_matrix, ids, sample_ids, channel_info) {
 #' @return `TRUE` if the object inherits from the `signal_tbl` class.
 #' @export
 is_signal_tbl <- function(x) {
-  class(x) == "signal_tbl"
+  "signal_tbl" %in% class(x) 
 }
 
 
@@ -118,5 +135,9 @@ channel_dbl <- function(values, x = NA_real_, y = NA_real_, z = NA_real_, refere
 #' @return `TRUE` if the object inherits from the `sampl` class.
 #' @export
 is_channel_dbl <- function(x) {
-  class(x) == "channel"
+   if(class(x) == "channel") {
+    message("channel class is deprecated")
+    return(TRUE)
+  }
+  class(x) == "channel_dbl"
 }

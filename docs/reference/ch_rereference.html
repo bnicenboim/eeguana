@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Rereference channel. — ch_rereference • eeguana</title>
+<title>Rereference a channel or group of channels. — ch_rereference • eeguana</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Rereference channel. — ch_rereference" />
+<meta property="og:title" content="Rereference a channel or group of channels. — ch_rereference" />
 
-<meta property="og:description" content="This function is meant to be used together with mutate or mutate_all. See the example" />
+<meta property="og:description" content="Rereference a channel or group of channels." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -61,7 +61,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.0.2.9000</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.0.2.9001</span>
       </span>
     </div>
 
@@ -112,14 +112,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Rereference channel.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/signal_processing.R'><code>R/signal_processing.R</code></a></small>
+    <h1>Rereference a channel or group of channels.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/channel_functions.R'><code>R/channel_functions.R</code></a></small>
     <div class="hidden name"><code>ch_rereference.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function is meant to be used together with <code>mutate</code> or <code>mutate_all</code>. See the example</p>
+    <p>Rereference a channel or group of channels.</p>
     
     </div>
 
@@ -136,11 +136,19 @@
       <th>...</th>
       <td><p>Channels that will be averaged as the reference.</p></td>
     </tr>
+    <tr>
+      <th>na.rm</th>
+      <td></td>
+    </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A rereferenced channel.</p>
+    <p>A rereferenced channel or an eeg_lst with all channels re-referenced.</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Notice that this function will update the channels one by one when used inside a mutate and not all at the same time.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -153,10 +161,8 @@
     <pre class="examples"><span class='co'># NOT RUN {</span>
 <span class='co'># Rereference all channels used the linked mastoids (average of the two mastoids)</span>
 
-<span class='no'>faces_segs</span> <span class='kw'>%&gt;%</span> <span class='fu'>act_on</span>(<span class='no'>signal_tbl</span>) <span class='kw'>%&gt;%</span>
-                 <span class='fu'>mutate_all</span>(<span class='fu'>funs</span>(<span class='fu'>rereference</span>(<span class='no'>.</span>, <span class='no'>M1</span>, <span class='no'>M2</span>)))
-<span class='co'># }</span><div class='input'>#'
-</div></pre>
+<span class='no'>faces_segs</span> <span class='kw'>%&gt;%</span> <span class='fu'>ch_rereference</span>(<span class='no'>M1</span>, <span class='no'>M2</span>)
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -164,6 +170,8 @@
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
 
       <li><a href="#see-also">See also</a></li>
       
@@ -175,7 +183,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Bruno Nicenboim.</p>
+  <p>Developed by <a href='http://www.ling.uni-potsdam.de/~nicenboim/'>Bruno Nicenboim</a>.</p>
 </div>
 
 <div class="pkgdown">

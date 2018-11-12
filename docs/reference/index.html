@@ -58,7 +58,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.0.2.9000</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.0.2.9001</span>
       </span>
     </div>
 
@@ -157,14 +157,14 @@
     </tbody><tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-tidyverse-dplyr-like-functions" class="hasAnchor"><a href="#section-tidyverse-dplyr-like-functions" class="anchor"></a>Tidyverse 'dplyr'(-like) functions</h2>
+          <h2 id="section-tidyverse-dplyr-like-functions-and-extensions" class="hasAnchor"><a href="#section-tidyverse-dplyr-like-functions-and-extensions" class="anchor"></a>Tidyverse 'dplyr'(-like) functions and extensions</h2>
           <p class="section-desc"><p>Functions that overload some <code>dplyr</code> functions and always return an <code>eeg_lst</code>.</p></p>
         </th>
       </tr>
       <tr>
         
         <td>
-          <p><code><a href="dplyr.html">mutate(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">transmute(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">summarise(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">tbl_vars(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">groups(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">group_by(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">ungroup(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">group_vars(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">filter(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">select(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">rename(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">left_join(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">semi_join(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">anti_join(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
+          <p><code><a href="dplyr.html">mutate(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">transmute(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">filter(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">summarise(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">group_by(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">ungroup(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">groups(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">group_vars(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">select(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">rename(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">left_join(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">semi_join(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">anti_join(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">tbl_vars(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
         </td>
         <td><p>Dplyr functions for eeg_lst objects.</p></td>
       </tr><tr>
@@ -173,6 +173,12 @@
           <p><code><a href="bind.html">bind()</a></code> </p>
         </td>
         <td><p>Bind eeg_lst objects.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="summarize_ch.html">summarize_at_ch()</a></code> <code><a href="summarize_ch.html">summarize_all_ch()</a></code> </p>
+        </td>
+        <td><p>Summarize multiple channels</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -184,9 +190,9 @@
       <tr>
         
         <td>
-          <p><code><a href="summarize_by_id_tbl.html">summarize_by_id_tbl()</a></code> </p>
+          <p><code><a href="summary.html">channel_names(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">nchannels(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">channels_tbl(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">`channels_tbl<-`(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">nsamples(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">summary(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">print(<i>&lt;eeg_summary&gt;</i>)</a></code> </p>
         </td>
-        <td><p>Convert an eeg_lst into a summary long-data frame based on a statistics.</p></td>
+        <td><p>Display information of the eeg_lst object.</p></td>
       </tr><tr>
         
         <td>
@@ -198,7 +204,7 @@
       <tr>
         <th colspan="2">
           <h2 id="section-channel-functions" class="hasAnchor"><a href="#section-channel-functions" class="anchor"></a>Channel functions</h2>
-          <p class="section-desc"><p>Functions that act on the channels of the signal table. They have a default version that acts on all the channels, and can be used inside a <code>mutate</code> call for more control. (Not all of them support both actions right now, but they will be implemented in the near future).</p></p>
+          <p class="section-desc"><p>Functions that act on the channels of the signal table. They have a default version that acts on all the channels, and can be used inside a <code>mutate</code> call for more control.</p></p>
         </th>
       </tr>
       <tr>
@@ -212,7 +218,7 @@
         <td>
           <p><code><a href="ch_rereference.html">ch_rereference()</a></code> </p>
         </td>
-        <td><p>Rereference channel.</p></td>
+        <td><p>Rereference a channel or group of channels.</p></td>
       </tr><tr>
         
         <td>
@@ -282,12 +288,6 @@
       <tr>
         
         <td>
-          <p><code><a href="as_sample_id.html">as_sample_id()</a></code> </p>
-        </td>
-        <td><p>Convert a time point into a sample point.</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="as_tibble.eeg_lst.html">as_tibble(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="as_tibble.eeg_lst.html">as_data_frame(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="as_tibble.eeg_lst.html">as.tibble.eeg_lst()</a></code> </p>
         </td>
         <td><p>Convert an eeg_lst to a tibble.</p></td>
@@ -337,12 +337,6 @@ This function returns  TRUE for signals.</p></td>
           <p><code><a href="summary.html">channel_names(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">nchannels(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">channels_tbl(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">`channels_tbl<-`(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">nsamples(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">summary(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">print(<i>&lt;eeg_summary&gt;</i>)</a></code> </p>
         </td>
         <td><p>Display information of the eeg_lst object.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="event_to_ch_NA.html">event_to_ch_NA()</a></code> </p>
-        </td>
-        <td><p>Remove (transform to NA) problematic events from an eeg_lst.</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -385,7 +379,7 @@ This function returns  TRUE for signals.</p></td>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#section-about">About</a></li>
       <li><a href="#section-reading-functions">Reading functions</a></li>
-      <li><a href="#section-tidyverse-dplyr-like-functions">Tidyverse 'dplyr'(-like) functions</a></li>
+      <li><a href="#section-tidyverse-dplyr-like-functions-and-extensions">Tidyverse 'dplyr'(-like) functions and extensions</a></li>
       <li><a href="#section-specialized-summarizing-functions">Specialized summarizing functions</a></li>
       <li><a href="#section-channel-functions">Channel functions</a></li>
       <li><a href="#section-eeg-specialized-functions">EEG-specialized functions</a></li>
@@ -398,7 +392,7 @@ This function returns  TRUE for signals.</p></td>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Bruno Nicenboim.</p>
+  <p>Developed by <a href='http://www.ling.uni-potsdam.de/~nicenboim/'>Bruno Nicenboim</a>.</p>
 </div>
 
 <div class="pkgdown">
