@@ -29,7 +29,7 @@ There is still **no** released version of *eeguana*.  The package is in the earl
 
 
 ``` r
-devtools::install_github("bnicenboim/eeguana", build_vignettes = TRUE)
+devtools::install_github("bnicenboim/eeguana")
 
 ```
 
