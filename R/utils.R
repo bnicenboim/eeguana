@@ -12,10 +12,13 @@ seq_len <- function(length.out) {
   }
 }
 
+object_size <- object.size
+
+
 #' @noRd
 say_size <- function(eeg_lst) paste(
     "# Object size in memory",
-    capture.output(pryr::object_size(eeg_lst))
+    capture.output(object_size(eeg_lst))
   )
 
 #' Get integers so that their prod is approx N
@@ -54,9 +57,6 @@ vec_mean <- function(..., na.rm = FALSE) {
 #' @noRd
 # https://github.com/mllg/batchtools/blob/master/R/Joins.R
 semi_join_dt <- function(x, y, by = NULL) {
-  x <- data.table::as.data.table(x)
-  y <- data.table::as.data.table(y)
-
   w <- unique(x[y, on = by, nomatch = 0L, which = TRUE, allow.cartesian = TRUE])
   x[w]
 }

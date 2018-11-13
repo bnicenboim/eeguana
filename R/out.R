@@ -117,7 +117,7 @@ summary.eeg_lst <- function(object) {
     events = object$events %>%
       dplyr::group_by_at(dplyr::vars(-.size, -.channel, -.sample_0, -.id)) %>%
       dplyr::count(),
-    size = capture.output(pryr::object_size(object))
+    size = capture.output(object_size(object))
   )
   class(summ) <- c("eeg_summary", class(summ))
   summ
