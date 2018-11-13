@@ -40,7 +40,8 @@ summarize_eval_eeg_lst <- function(.eeg_lst, eval, cond_cols){
 
 #' @noRd
 summarize_segments <-  function(segments, segments_groups, last_id){
-    data.table::data.table(segments)[,unique(.SD),.SDcols=c(segments_groups)][] %>% dplyr::as_tibble() %>%
+    # data.table::data.table(segments)[,unique(.SD),.SDcols=c(segments_groups)][] %>% dplyr::as_tibble() %>%
+    data.table::data.table(segments)[,.(segment_n = .N),by=c(segments_groups)][] %>% dplyr::as_tibble() %>%
     # segments %>% 
           # dplyr::group_by_at(vars(segments_groups)) %>%
           # dplyr::summarize() %>%

@@ -104,7 +104,7 @@ test_that("the classes of channels of signal_tbl remain in non-grouped eeg_lst",
   expect_equal(is_channel_dbl(summarize_g2_signal_tbl$signal$`mean(X)`), TRUE)
 })
 
+# data %>% group_by(.sample_id) %>%  summarize_all_ch(funs(diff = .[segment==1]- .[segment==2]))
+# data %>% group_by(.sample_id) %>%  summarize_all_ch(funs(tvalue = t.test(.[segment==1], .[segment==2])$statistic))
+# data %>% group_by(.sample_id) %>%  summarize_all_ch(funs(diff = diff(.[segment==1], .[segment==2])))
 
-
-# add tests 
-# for filtering according to segments, grouped and ungrouped
