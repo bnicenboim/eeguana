@@ -29,6 +29,7 @@ filter_eeg_lst <- function(.eeg_lst, dots){
       .eeg_lst$segments <- dplyr::semi_join(.eeg_lst$segments, .eeg_lst$signal, by = ".id")
      }
     
+
     # filter the segments and update the signal_tbl
     if (length(new_dots$segments) > 0) {
       grouping <- group_chr(.eeg_lst)[group_chr(.eeg_lst) %in% colnames(.eeg_lst$segments)]
@@ -36,9 +37,9 @@ filter_eeg_lst <- function(.eeg_lst, dots){
                            dplyr::group_by_at(dplyr::vars(grouping)) %>% 
                            dplyr::filter(!!!new_dots$segments) %>%
                            dplyr::ungroup()
-      .eeg_lst$signal <- semi_join_dt(.eeg_lst$signal, .eeg_lst$segments, by = ".id")
+      .eeg_lst$signal <- semi_join_dt(.eeg_lst$signal, data.table::as.data.table(.eeg_lst$segments), by = ".id")
     }
-      .eeg_lst$events <- semi_join_dt(.eeg_lst$events, .eeg_lst$segments, by = ".id")
+      .eeg_lst$events <- semi_join_dt(.eeg_lst$events, data.table::as.data.table(.eeg_lst$segments), by = ".id")
   
 
     # Fix the indices in case some of them drop out
@@ -169,19 +170,11 @@ scaling <- function(sampling_rate, unit) {
 
 #' @noRd
 redo_indices <- function(.eeg_lst) {
-  redo_indices_df <- function(df) {
-    df$.id <- as.factor(df$.id) %>% as.integer(.)
-    df
-    # orig_groups <- dplyr::groups(df)
-    # df <- df %>%
-    #   dplyr::ungroup() %>%
-    #   dplyr::mutate(.id = dplyr::group_indices(., .id) %>% as.integer()) %>%
-    #   dplyr::group_by(!!!orig_groups)
-  }
 
-  .eeg_lst$signal <- redo_indices_df(.eeg_lst$signal)
-  .eeg_lst$segments <- redo_indices_df(.eeg_lst$segments)
-  .eeg_lst$events <- redo_indices_df(.eeg_lst$events)
+  .eeg_lst$signal[,.id:= as.factor(.id) %>% as.integer(.)]
+  .eeg_lst$segments <- .eeg_lst$segments %>%  mutate(.id =  as.factor(.id) %>% as.integer(.))
+  .eeg_lst$events[,.id:= as.factor(.id) %>% as.integer(.)]
+  data.table::setkey(.eeg_lst$signal, .id, .sample_id)
   .eeg_lst
 }
 
