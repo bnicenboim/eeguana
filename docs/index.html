@@ -96,7 +96,7 @@
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
 <p>There is still <strong>no</strong> released version of <em>eeguana</em>. The package is in the early stages of development, and it <strong>will</strong> be subject to a lot of changes. To install the latest version from github use:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"bnicenboim/eeguana"</span>, <span class="dt">build_vignettes =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"bnicenboim/eeguana"</span>)</code></pre></div>
 </div>
 <div id="example" class="section level2">
 <h2 class="hasAnchor">
@@ -115,7 +115,7 @@
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/read_vhdr">read_vhdr</a></span>(<span class="st">"faces.vhdr"</span>)
 <span class="co">#&gt; # Data from faces.dat was read.</span>
 <span class="co">#&gt; # Data from 1 segment(s) and 34 channels was loaded.</span>
-<span class="co">#&gt; # Object size in memory 147 MB</span></code></pre></div>
+<span class="co">#&gt; # Object size in memory 147300848 bytes</span></code></pre></div>
 <p>The function <code>read_vhdr</code> creates a list with data frames for the signal, events, segments information, and incorporates in its attributes generic EEG information.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces
 <span class="co">#&gt; $signal</span>
@@ -223,7 +223,7 @@
 <span class="st">               </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/event_to_ch_NA">event_to_ch_NA</a></span>(type <span class="op">==</span><span class="st"> "Bad Interval"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">               </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/ch_baseline">ch_baseline</a></span>()
 <span class="co">#&gt; # Total of 200 segments found.</span>
-<span class="co">#&gt; # Object size in memory 12.7 MB after segmentation.</span></code></pre></div>
+<span class="co">#&gt; # Object size in memory 12758888 bytes after segmentation.</span></code></pre></div>
 <p>We can also edit the segmentation information and add more descriptive labels. <em>eeguana</em> has wrappers for many <code>dplyr</code> commands for the EEG data. These commands always return an entire <code>eeg_lst</code> object so that they can be piped using <code>magrittr</code>’s pipe, <code>%&gt;%</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces_segs_some &lt;-<span class="st"> </span>faces_segs <span class="op">%&gt;%</span><span class="st">  </span>
 <span class="st">                  </span><span class="kw">mutate</span>(<span class="dt">condition =</span>
