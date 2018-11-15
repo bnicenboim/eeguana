@@ -21,25 +21,24 @@ segment <- function(x, ...) {
 }
 
 #' @export
-segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end = NULL, unit = "seconds", recording_col = "recording") {
+segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds", recording_col = "recording") {
   dots <- rlang::enquos(...)
-  end <- rlang::enquo(...)
-  
+  end <- rlang::enquo(end)
 
   times0 <- dplyr::filter(x$events, !!!dots) %>%
     dplyr::select(-.channel, -.size) 
   
-  if(!is.null(end))   {
-     times_end <- dplyr::filter(x$events, !!end) %>%
-    dplyr::select(-.channel, -.size) 
+  if(!rlang::quo_is_missing(end)){
+    times_end <- dplyr::filter(x$events, !!end) %>%
+      dplyr::select(-.channel, -.size) 
   }
 
-  if (is.null(end) && any(lim[[2]] < lim[[1]])) {
+  if (rlang::quo_is_missing(end) && any(lim[[2]] < lim[[1]])) {
     stop("A segment needs to be of positive length and include at least 1 sample.")
   }
   
   
-  if (is.null(end) && (length(lim) == 2) || ## two values or a dataframe
+  if (rlang::quo_is_missing(end) && (length(lim) == 2) || ## two values or a dataframe
     (!is.null(nrow(lim)) && nrow(lim) == nrow(times0)) ) {
     scaling <- scaling(sampling_rate(x), unit = unit)
     sample_lim <- round(lim * scaling) 
@@ -48,13 +47,13 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end = NULL, unit = "second
                                                   .upper = .sample_0+ sample_lim[[2]] %>% as_integer(),
                                                   .new_id = seq_len(dplyr::n())) %>%
                                     dplyr::select(-dplyr::one_of(seg_names))
-  } else if (is.null(end)) {
+  } else if (rlang::quo_is_missing(end)) {
     stop("Wrong dimension of lim")
-  } else if(is.null(end) && (nrow(times0) == nrow(times_end)) ) {
+  } else if(!rlang::quo_is_missing(end) && (nrow(times0) == nrow(times_end)) ) {
 
     seg_names <- colnames(times0)[!startsWith(colnames(times0),".")]
-    segmentation_info <- times0 %>% dplyr::rename(.lower = .sample_0 %>% as_integer()) %>%
-                                    dplyr::mutate(.upper = times_end$.sample_0 %>% as_integer(),
+    segmentation_info <- times0 %>% dplyr::mutate(.lower = .sample_0, 
+                                                  .upper = times_end$.sample_0,
                                                   .new_id = seq_len(dplyr::n()))%>%
                                     dplyr::select(-dplyr::one_of(seg_names))
   } else {

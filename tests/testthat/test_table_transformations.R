@@ -163,7 +163,7 @@ data0 <- eeg_lst(
   segments = dplyr::tibble(.id = 1L, recording = "recording1", segment = 1)
 )
 
-test_that("can segment", {
+test_that("can segment using lim", {
   data_s <- segment(data, type == "Time 0")
   expect_equal(data$signal, data_s$signal)
   expect_equal(data$events, data_s$events)
@@ -199,6 +199,10 @@ test_that("can segment", {
   expect_equal(all(s1_u2$events$.sample_0 + s1_u2$events$.size - 1 <= max(s1_u2$signal$.sample_id)), TRUE)
 })
 
+test_that("can segment using end", {
+  #works I should add an expect_equal
+  data_s_e <- segment(data,type == "New Segment" , end = type == "Time 0")
+}
 
 baselines <- dplyr::summarize(dplyr::group_by(
   dplyr::filter(as_tibble(data$signal), .sample_id <= 0),
