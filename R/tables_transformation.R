@@ -3,11 +3,12 @@
 #' Subdivide of the EEG into different segments or epochs. When there is no
 #' segmentation, the `eeg_lst` contain one segment. (Fieldtrip calls the
 #' segment "trials".) The limits of `segment` are inclusive: If, for
-#' example, lim =c(0,0), the segment would contain only sample 1.
+#' example, `lim = c(0,0)`, the segment would contain only sample 1.
 #'
 #' @param x An `eeg_lst` object.
 #' @param ... Description of the event.
 #' @param lim Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments
+#' @param end Description of the event that indicates the end of the segment, if this is used, `lim` is ignored.
 #' @param unit Unit
 #'
 #' @return An `eeg_lst`.
@@ -20,19 +21,25 @@ segment <- function(x, ...) {
 }
 
 #' @export
-segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds", recording_col = "recording") {
+segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end = NULL, unit = "seconds", recording_col = "recording") {
   dots <- rlang::enquos(...)
+  end <- rlang::enquo(...)
   
 
   times0 <- dplyr::filter(x$events, !!!dots) %>%
     dplyr::select(-.channel, -.size) 
-    
-  if (any(lim[[2]] < lim[[1]])) {
+  
+  if(!is.null(end))   {
+     times_end <- dplyr::filter(x$events, !!end) %>%
+    dplyr::select(-.channel, -.size) 
+  }
+
+  if (is.null(end) && any(lim[[2]] < lim[[1]])) {
     stop("A segment needs to be of positive length and include at least 1 sample.")
   }
   
   
-  if ((length(lim) == 2) || ## two values or a dataframe
+  if (is.null(end) && (length(lim) == 2) || ## two values or a dataframe
     (!is.null(nrow(lim)) && nrow(lim) == nrow(times0)) ) {
     scaling <- scaling(sampling_rate(x), unit = unit)
     sample_lim <- round(lim * scaling) 
@@ -41,8 +48,17 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds", recordin
                                                   .upper = .sample_0+ sample_lim[[2]] %>% as_integer(),
                                                   .new_id = seq_len(dplyr::n())) %>%
                                     dplyr::select(-dplyr::one_of(seg_names))
-  } else {
+  } else if (is.null(end)) {
     stop("Wrong dimension of lim")
+  } else if(is.null(end) && (nrow(times0) == nrow(times_end)) ) {
+
+    seg_names <- colnames(times0)[!startsWith(colnames(times0),".")]
+    segmentation_info <- times0 %>% dplyr::rename(.lower = .sample_0 %>% as_integer()) %>%
+                                    dplyr::mutate(.upper = times_end$.sample_0 %>% as_integer(),
+                                                  .new_id = seq_len(dplyr::n()))%>%
+                                    dplyr::select(-dplyr::one_of(seg_names))
+  } else {
+    stop(sprintf("Number of initial markers (%d) doesn't match the number of final markers (%d)", nrow(times0), nrow(times_end)))
   }
 
   segmentation <- data.table::as.data.table(segmentation_info)
