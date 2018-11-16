@@ -21,22 +21,22 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
 
   if (common_info$format == "BINARY") {
-    samplesize <- dplyr::case_when(
-      stringr::str_detect(common_info$bits, stringr::regex("float_32",
-        ignore_case = TRUE
-      )) ~ 4,
-      stringr::str_detect(common_info$bits, stringr::regex("int_32",
-        ignore_case = TRUE
-      )) ~ 4,
-      stringr::str_detect(common_info$bits, stringr::regex("int_16",
-        ignore_case = TRUE
-      )) ~ 2,
-      TRUE ~ NA_real_
-    )
+     type <-  stringr::str_extract(common_info$bits, stringr::regex("float|int", ignore_case = TRUE)) %>%
+              stringr::str_to_lower() %>%
+              {dplyr::case_when(. == "float" ~ "double",
+                                . == "int" ~ "integer",
+                                            TRUE ~ .)}
+     if(!type %in% c("double","integer")){
+      stop(sprintf("Type '%s' is not recognized (it should be double (float) or integer (int)", type))
+     }
+
+     bytes <- stringr::str_extract(common_info$bits, stringr::regex("\\d*$")) %>%
+              as.numeric() %>% {. /8 }
+
 
     amps <- readBin(file,
-      what = "double", n = file.info(file)$size,
-      size = samplesize
+      what = type, n = file.info(file)$size,
+      size = bytes
     )
 
     raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = multiplexed) 
