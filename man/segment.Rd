@@ -13,6 +13,8 @@ segment(x, ...)
 
 \item{lim}{Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments}
 
+\item{end}{Description of the event that indicates the end of the segment, if this is used, \code{lim} is ignored.}
+
 \item{unit}{Unit}
 }
 \value{
@@ -22,5 +24,5 @@ An \code{eeg_lst}.
 Subdivide of the EEG into different segments or epochs. When there is no
 segmentation, the \code{eeg_lst} contain one segment. (Fieldtrip calls the
 segment "trials".) The limits of \code{segment} are inclusive: If, for
-example, lim =c(0,0), the segment would contain only sample 1.
+example, \code{lim = c(0,0)}, the segment would contain only sample 1.
 }

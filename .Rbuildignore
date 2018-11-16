@@ -12,3 +12,6 @@ experimental
 ^eeguana\.sublime-project
 ^eeguana.sublime-workspace
 ^temp_exp.*
+^vignettes\.*\.vhdr
+^vignettes\.*\.vmrk
+^vignettes\.*\.dat

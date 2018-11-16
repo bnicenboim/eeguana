@@ -8,33 +8,33 @@ library(eeguana)
 
 # x <- xx
 
-eeg_lst_av <- read_vhdr("../../inst/extdata/binary-avfaces.vhdr")
+eeg_file <- read_vhdr("../../inst/extdata/bv_export_bv_txt_bin_multi.vhdr")
 
 # just to check if something break, but this should be done with test_that
-channel_names(eeg_lst_av)
-nchannels(eeg_lst_av)
-nsamples(eeg_lst_av)
-count_complete_cases_tbl(eeg_lst_av)
-# summary(eeg_lst_av)
+channel_names(eeg_file)
+nchannels(eeg_file)
+nsamples(eeg_file)
+count_complete_cases_tbl(eeg_file)
+# summary(eeg_file)
 
 
 test_that("can read channels metadata", {
-	  channels_df <-  channels_tbl(eeg_lst_av)
-  expect_equal(channels_df$.name, channel_names(eeg_lst_av))
-  expect_equal(length(channels_df$.x), nchannels(eeg_lst_av))
+	  channels_df <-  channels_tbl(eeg_file)
+  expect_equal(channels_df$.name, channel_names(eeg_file))
+  expect_equal(length(channels_df$.x), nchannels(eeg_file))
 })
 
 test_that("can change channels metadata", {
-  channels_info <- channels_tbl(eeg_lst_av)
+  channels_info <- channels_tbl(eeg_file)
   channels_info$.name[1] <- "NEW_CHANNEL"
   channels_info$.x[1] <- 100
   channels_info$.x[2] <- 100
-  channels_tbl(eeg_lst_av) <- channels_info
-  expect_equal(names(eeg_lst_av$signal[, 3]), "NEW_CHANNEL")
-  expect_equal(attributes(eeg_lst_av$signal[[4]])$.x, 100)
+  channels_tbl(eeg_file) <- channels_info
+  expect_equal(names(eeg_file$signal[, 3]), "NEW_CHANNEL")
+  expect_equal(attributes(eeg_file$signal[[4]])$.x, 100)
 })
 
-# eeguana:::update_channel_meta_data(select(eeg_lst_av$signal, channel_names(eeg_lst_av)), channels_info)
-# eeg_lst_av$signal[[3]]
+# eeguana:::update_channel_meta_data(select(eeg_file$signal, channel_names(eeg_file)), channels_info)
+# eeg_file$signal[[3]]
 
-# select(eeg_lst_av$signal, -one_of(channel_names(eeg_lst_av)))
+# select(eeg_file$signal, -one_of(channel_names(eeg_file)))
