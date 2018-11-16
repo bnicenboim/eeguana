@@ -5,11 +5,11 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Manipulating a clean EEG file exported from BrainVision 2.0 • eeguana</title>
+<title>Introducction - Manipulating a clean EEG file exported from BrainVision 2.0 • eeguana</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Manipulating a clean EEG file exported from BrainVision 2.0">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Introducction - Manipulating a clean EEG file exported from BrainVision 2.0">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
@@ -52,7 +52,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/brainvision_files.html">Manipulating a clean EEG file exported from BrainVision 2.0</a>
+      <a href="../articles/brainvision_files.html">Introducction - Manipulating a clean EEG file exported from BrainVision 2.0</a>
     </li>
   </ul>
 </li>
@@ -79,10 +79,10 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Manipulating a clean EEG file exported from BrainVision 2.0</h1>
+      <h1>Introducction - Manipulating a clean EEG file exported from BrainVision 2.0</h1>
                         <h4 class="author">Bruno Nicenboim</h4>
             
-            <h4 class="date">2018-11-13</h4>
+            <h4 class="date">2018-11-16</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bnicenboim/eeguana/blob/master/vignettes/brainvision_files.Rmd"><code>vignettes/brainvision_files.Rmd</code></a></small>
       <div class="hidden name"><code>brainvision_files.Rmd</code></div>
@@ -94,12 +94,13 @@
 <p><em>eeguana</em> provides a framework for manipulating EEG data with <em>dplyr</em>-based function (e.g., <code>mutate</code>, <code>filter</code>, <code>summarize</code>) extended to a new class <code>eeg_lst</code>. In addition, it provides other EEG-specialized functions, and <code>ggplot</code> wrapper functions. The new class is inspired by tidyverse principles but it’s not really “tidy” (due to space considerations), it’s a list of (i) a wide table (<code>signal_tbl</code>) that contains the signal amplitudes at every sample point of the EEG, (ii) an events table with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant (<code>recording</code>), conditions, etc.</p>
 <p>Here, I exemplify the use of <em>eeguana</em> with (pre-processed) EEG data from BrainVision 2.0. The data belong to a simple experiment where a participant was presented 100 faces and 100 assorted images in random order. The task of the experiment was to mentally count the number of faces.</p>
 <p>First we download the data:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">download.file</span>(<span class="st">"https://www.ling.uni-potsdam.de/~nicenboim/files/faces.vhdr"</span>, 
-              <span class="st">"faces.vhdr"</span>, <span class="dt">mode=</span><span class="st">"wb"</span>)
-<span class="kw">download.file</span>(<span class="st">"https://www.ling.uni-potsdam.de/~nicenboim/files/faces.vmrk"</span>, 
-              <span class="st">"faces.vmrk"</span>, <span class="dt">mode=</span><span class="st">"wb"</span>)
-<span class="kw">download.file</span>(<span class="st">"https://www.ling.uni-potsdam.de/~nicenboim/files/faces.dat"</span>, 
-              <span class="st">"faces.dat"</span>, <span class="dt">mode=</span><span class="st">"wb"</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+<span class="kw">download.file</span>(<span class="st">"http://www.ling.uni-potsdam.de/~nicenboim/files/faces.vhdr"</span>, 
+               <span class="dt">mode=</span><span class="st">"wb"</span>, <span class="dt">destfile=</span><span class="st">"faces.vhdr"</span>)
+<span class="kw">download.file</span>(<span class="st">"http://www.ling.uni-potsdam.de/~nicenboim/files/faces.vmrk"</span>, 
+               <span class="dt">mode=</span><span class="st">"wb"</span>, <span class="dt">destfile=</span><span class="st">"faces.vmrk"</span>)
+<span class="kw">download.file</span>(<span class="st">"http://www.ling.uni-potsdam.de/~nicenboim/files/faces.dat"</span>, 
+               <span class="dt">mode=</span><span class="st">"wb"</span>, <span class="dt">destfile=</span><span class="st">"faces.dat"</span>)</code></pre></div>
 <p>BrainVision 2.0 exports three files: <code>faces.vhdr</code>, <code>faces.vmrk</code>, and <code>faces.dat</code>. The file <code>faces.vhdr</code> contains the metadata and links to the other two files, <code>faces.vmrk</code> contains the triggers and other events in the samples, and <code>faces.dat</code> contains the signals at every sample for every channel recorded.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(eeguana)</code></pre></div>
 <p>We first need to read the data:</p>

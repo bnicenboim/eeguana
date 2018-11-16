@@ -1,5 +1,5 @@
 ---
-title: "Manipulating a clean EEG file exported from BrainVision 2.0"
+title: "Introducction - Manipulating a clean EEG file exported from BrainVision 2.0"
 author: "Bruno Nicenboim"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -30,13 +30,14 @@ task of the experiment was to mentally count the number of faces.
 
 First we download the data:
 
-```{r downloading, eval = FALSE}
-download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.vhdr", 
-              "faces.vhdr", mode="wb")
-download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.vmrk", 
-              "faces.vmrk", mode="wb")
-download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.dat", 
-              "faces.dat", mode="wb")
+```{r downloading, cache = TRUE, eval = any(!file.exists("faces.dat","faces.vmrk","faces.dat"))}
+
+download.file("http://www.ling.uni-potsdam.de/~nicenboim/files/faces.vhdr", 
+               mode="wb", destfile="faces.vhdr")
+download.file("http://www.ling.uni-potsdam.de/~nicenboim/files/faces.vmrk", 
+               mode="wb", destfile="faces.vmrk")
+download.file("http://www.ling.uni-potsdam.de/~nicenboim/files/faces.dat", 
+               mode="wb", destfile="faces.dat")
 ```
 
 BrainVision 2.0 exports three files: `faces.vhdr`, `faces.vmrk`, and
@@ -51,7 +52,7 @@ library(eeguana)
 
 We first need to read the data:
 
-```{r}
+```{r, cache = TRUE}
 faces <- read_vhdr("faces.vhdr")
 ```
 

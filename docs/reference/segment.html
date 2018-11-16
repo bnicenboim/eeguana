@@ -35,7 +35,7 @@
 <meta property="og:description" content="Subdivide of the EEG into different segments or epochs. When there is no
 segmentation, the eeg_lst contain one segment. (Fieldtrip calls the
 segment &quot;trials&quot;.) The limits of segment are inclusive: If, for
-example, lim =c(0,0), the segment would contain only sample 1." />
+example, lim = c(0,0), the segment would contain only sample 1." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -87,7 +87,7 @@ example, lim =c(0,0), the segment would contain only sample 1." />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/brainvision_files.html">Manipulating a clean EEG file exported from BrainVision 2.0</a>
+      <a href="../articles/brainvision_files.html">Introducction - Manipulating a clean EEG file exported from BrainVision 2.0</a>
     </li>
   </ul>
 </li>
@@ -125,7 +125,7 @@ example, lim =c(0,0), the segment would contain only sample 1." />
     <p>Subdivide of the EEG into different segments or epochs. When there is no
 segmentation, the <code>eeg_lst</code> contain one segment. (Fieldtrip calls the
 segment "trials".) The limits of <code>segment</code> are inclusive: If, for
-example, lim =c(0,0), the segment would contain only sample 1.</p>
+example, <code>lim = c(0,0)</code>, the segment would contain only sample 1.</p>
     
     </div>
 
@@ -145,6 +145,10 @@ example, lim =c(0,0), the segment would contain only sample 1.</p>
     <tr>
       <th>lim</th>
       <td><p>Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments</p></td>
+    </tr>
+    <tr>
+      <th>end</th>
+      <td><p>Description of the event that indicates the end of the segment, if this is used, <code>lim</code> is ignored.</p></td>
     </tr>
     <tr>
       <th>unit</th>

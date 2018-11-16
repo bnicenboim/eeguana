@@ -202,12 +202,13 @@ test_that("can segment using lim", {
 test_that("can segment using end", {
   #works I should add an expect_equal
   data_s_e <- segment(data,type == "New Segment" , end = type == "Time 0")
-}
+})
 
 baselines <- dplyr::summarize(dplyr::group_by(
   dplyr::filter(as_tibble(data$signal), .sample_id <= 0),
   .id
 ), bX = mean(X), bY = mean(Y))
+
 signal_with_baselines <- dplyr::left_join(as_tibble(data$signal), baselines)
 signal_with_baselines$new_X <- signal_with_baselines$X - signal_with_baselines$bX
 signal_with_baselines$new_Y <- signal_with_baselines$Y - signal_with_baselines$bY
