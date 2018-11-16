@@ -10,7 +10,7 @@ data_1 <- eeg_lst(
     ids = rep(c(1L, 2L, 3L), each = 10),
     sample_ids = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500),
     dplyr::tibble(
-      .name = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+      channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = c(1, 1), .y = NA_real_, .z = NA_real_
     )
   ),

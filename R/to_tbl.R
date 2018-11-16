@@ -25,7 +25,7 @@ as_tibble.eeg_lst <- function(x, add_segments = TRUE, add_channels_info = TRUE) 
     } %>% 
      {
       if (add_channels_info) {
-        dplyr::left_join(., dplyr::select(channels_tbl(x),-class), by = c("channel"=".name"))
+        dplyr::left_join(., channels_tbl(x), by = c("channel"))
       } else {
         .
       }

@@ -60,8 +60,15 @@ downsample.eeg_lst <- function(x, q = 2L, max_sample = NULL,
   list_of_attr <- purrr::map(x$signal, ~attributes(.x))
   channels_info <- channels_tbl(x)
 
-  x$signal <- x$signal[,purrr::map(.SD, function(channel) purrr::reduce(c(list(channel), as.list(q)), ~
-            signal::decimate(x = .x, q = .y, n = n, ftype = ftype))), .SDcols = c(channel_names(x)),by = c(".id")][
+decimate_fun <- function(channel) {
+  attrs <- attributes(channel)
+  purrr::reduce(c(list(channel), as.list(q)), ~
+            signal::decimate(x = .x, q = .y, n = n, ftype = ftype))
+  mostattributes(channel) <- attrs 
+  channel
+}
+
+  x$signal <- x$signal[,lapply(.SD, decimate_fun), .SDcols = c(channel_names(x)),by = c(".id")][
             ,.sample_id := sample_int(seq_len(.N), new_sampling_rate),by = c(".id")][]
 
   data.table::setkey(x$signal,.id,.sample_id)
@@ -106,5 +113,6 @@ downsample.eeg_lst <- function(x, q = 2L, max_sample = NULL,
 
   message(say_size(x))
 
-  x %>% update_channels_tbl(channels_info) %>% validate_eeg_lst()
+  x %>% #update_channels_tbl(channels_info) %>% 
+      validate_eeg_lst()
 }

@@ -1,4 +1,4 @@
-context("test dplyr functions joins")
+context("test dplyr functions rename/select")
 library(eeguana)
 
 
@@ -27,17 +27,4 @@ data <- eeg_lst(
   segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
 )
 
-table0 <- tibble(.id = 1, condition = "BLUE") 
-
-data_l <- left_join(data,table0)
-data_s <- semi_join(data,table0)
-data_a <- anti_join(data,table0)
-
-test_that("joins work", {
-  expect_equal(data_l$segments, dplyr::left_join(data$segments,table0, by = ".id"))
-  expect_equal(data_l$signal, data$signal)
-  expect_equal(data_s$segments, dplyr::semi_join(data$segments,table0, by = ".id"))
-  expect_equal(data_s, filter(data, .id == 1))
-  expect_equal(data_a, filter(data, .id == 2))
-})
-
+rename(data,ZZ=Y) %>% channels_tbl()

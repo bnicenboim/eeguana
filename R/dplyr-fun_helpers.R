@@ -225,14 +225,14 @@ signal_from_parent_frame <- function(env = parent.frame()) {
 }
 
 
-update_channels_tbl <- function(.eeg_lst, channels_info){
-  new_channels_names <- dplyr::tibble(.name = setdiff(channel_names(.eeg_lst), channels_info$.name), class = "channel_dbl")
-  old_channels_tbl <- dplyr::filter(channels_info, .name %in% channel_names(.eeg_lst))
-  new_channels_tbl <- dplyr::bind_rows(new_channels_names, old_channels_tbl) %>% 
-                    left_join(dplyr::tibble(.name=channel_names(.eeg_lst)),.,by=".name")
+# update_channels_tbl <- function(.eeg_lst, channels_info){
+#   new_channels_names <- dplyr::tibble(.name = setdiff(channel_names(.eeg_lst), channels_info$.name), class = "channel_dbl")
+#   old_channels_tbl <- dplyr::filter(channels_info, .name %in% channel_names(.eeg_lst))
+#   new_channels_tbl <- dplyr::bind_rows(new_channels_names, old_channels_tbl) %>% 
+#                     left_join(dplyr::tibble(.name=channel_names(.eeg_lst)),.,by=".name")
 
-   channels_tbl(.eeg_lst) <- new_channels_tbl
-  .eeg_lst
-}
+#    channels_tbl(.eeg_lst) <- new_channels_tbl
+#   .eeg_lst
+# }
 
 
