@@ -141,3 +141,48 @@ is_channel_dbl <- function(x) {
   }
   class(x) == "channel_dbl"
 }
+
+
+#' @export
+`[.channel_dbl` <- function(x,i,...) {
+  attrs <- attributes(x)
+  class(x) <- NULL
+  r <- NextMethod("[")
+  mostattributes(r) <- attrs
+  r
+}
+
+#' @export
+`[[.channel_dbl` <- function(x,i,...) {
+  attrs <- attributes(x)
+  r <- NextMethod("[[")
+  mostattributes(r) <- attrs
+  r
+}
+
+#' @export
+mean.channel_dbl <- function(x,...) {
+  attrs <- attributes(x)
+  class(x) <- NULL
+  r <- NextMethod("mean")
+  mostattributes(r) <-attrs
+  r
+}
+
+#' @export
+sd.channel_dbl <- function(x,...) {
+  attrs <- attributes(x)
+  class(x) <- NULL
+  r <- NextMethod("sd")
+  mostattributes(r) <- attrs
+  r
+}
+
+#' @export
+subset.channel_dbl <- function(x, ... ) {
+  attrs <- attributes(x)
+  class(x) <- NULL
+  r <- NextMethod("subset")
+  mostattributes(r) <- attrs
+ r
+}

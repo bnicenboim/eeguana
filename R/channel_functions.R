@@ -36,7 +36,7 @@ chs_mean.channel_dbl <- function(..., na.rm = FALSE) {
 
  # https://stackoverflow.com/questions/17133522/invalid-internal-selfref-in-data-table
 
-	 rowMeans(data.table::data.table(...), na.rm = na.rm)  # throws a warning
+	 rowMeans_ch(data.table::data.table(...), na.rm = na.rm)  # throws a warning
 
   # rowMeans(copy(data.table::data.table(...)), na.rm = na.rm)  # throws a warning
   # rowMeans(.SD, na.rm = na.rm), .SDcols = cols # should be the way, but it's hard to implement it in my template
@@ -46,11 +46,11 @@ chs_mean.channel_dbl <- function(..., na.rm = FALSE) {
 
 #' @export
 chs_mean.eeg_lst <- function(x, na.rm = FALSE) {
-  channels_info <- channels_tbl(x)
+  #channels_info <- channels_tbl(x)
   signal <- data.table::copy(x$signal)
-  signal[,mean := rowMeans(.SD, na.rm = na.rm),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
+  signal[,mean := rowMeans_ch(.SD, na.rm = na.rm),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
   x$signal <- signal
-  update_events_channels(x) %>% update_channels_tbl(channels_info) %>%
+  update_events_channels(x) %>% #update_channels_tbl(channels_info) %>%
       validate_eeg_lst()
 }
 
@@ -87,15 +87,21 @@ ch_rereference.channel_dbl <- function(x, ..., na.rm = FALSE) {
 
 #' @export
 ch_rereference.eeg_lst <- function(x,..., na.rm = FALSE) {
-  channels_info <- channels_tbl(x)
+  #channels_info <- channels_tbl(x)
   signal <- data.table::copy(x$signal)
   dots <- rlang::enquos(...)
   cols <- rlang::quos_auto_name(dots) %>% names()
   ref <- rowMeans(x$signal[,..cols], na.rm = na.rm)
+  reref <- function(x){
+    x <- x - ref 
+    attributes(x)$.reference <- purrr::map_chr(dots, rlang::quo_text) %>% paste0(collapse = ", ")
+    # print(x)
+    x
+  }
 
-  signal[, (channel_names(x)) := purrr::map(.SD, ~ .x - ref),.SDcols = channel_names(x)]
+  signal[, (channel_names(x)) := purrr::map(.SD, reref),.SDcols = channel_names(x)]
   x$signal <- signal
-  update_events_channels(x) %>% update_channels_tbl(channels_info) %>%
+  update_events_channels(x) %>% #update_channels_tbl(channels_info) %>%
       validate_eeg_lst()
 
 }

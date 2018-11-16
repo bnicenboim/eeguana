@@ -57,7 +57,7 @@ mutate_eeg_lst <- function(.eeg_lst, dots, keep_cols = TRUE){
     new_dots <- dots_by_tbl_quos(.eeg_lst, dots)
 
     if (length(new_dots$signal) > 0) {
-      channels_info <- channels_tbl(.eeg_lst)
+      # channels_info <- channels_tbl(.eeg_lst)
 
       new_cols <-  rlang::quos_auto_name(new_dots$signal) %>%
                     names()
@@ -74,7 +74,7 @@ mutate_eeg_lst <- function(.eeg_lst, dots, keep_cols = TRUE){
                                             out_cols = signal_cols) 
 
       #updates the events and the channels
-      .eeg_lst <- .eeg_lst %>% update_events_channels()  %>% update_channels_tbl(channels_info)
+      .eeg_lst <- .eeg_lst %>% update_events_channels()  #%>% update_channels_tbl(channels_info)
       data.table::setkey(.eeg_lst$signal,.id,.sample_id)
      }
     
