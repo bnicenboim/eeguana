@@ -62,10 +62,10 @@ downsample.eeg_lst <- function(x, q = 2L, max_sample = NULL,
 
 decimate_fun <- function(channel) {
   attrs <- attributes(channel)
-  purrr::reduce(c(list(channel), as.list(q)), ~
+  decimated_chan <- purrr::reduce(c(list(channel), as.list(q)), ~
             signal::decimate(x = .x, q = .y, n = n, ftype = ftype))
-  mostattributes(channel) <- attrs 
-  channel
+  mostattributes(decimated_chan) <- attrs 
+  decimated_chan
 }
 
   x$signal <- x$signal[,lapply(.SD, decimate_fun), .SDcols = c(channel_names(x)),by = c(".id")][
