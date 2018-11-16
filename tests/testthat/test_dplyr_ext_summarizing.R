@@ -43,7 +43,7 @@ data_s3 <- data_s2 %>% group_by(condition) %>% summarize(X = mean(X),Y = mean(Y)
 data_s4 <- data_s3 %>% group_by() %>% summarize(X = mean(X),Y = mean(Y))
 
 # with pure dplyr functions
-extended_signal <- left_join(data$signal, data$segments, by =".id" )
+extended_signal <- left_join(as_tibble(data$signal), data$segments, by =".id" )
 e_data_s1 <- data.table::data.table(extended_signal)[,.(X = mean(X),Y = mean(Y)), by = c("condition", ".sample_id", "recording")]
 s_data_s1 <- e_data_s1[,unique(.SD) ,.SDcols = c("condition", "recording")]
 

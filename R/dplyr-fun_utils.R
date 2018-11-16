@@ -53,20 +53,28 @@ getAST <- function(ee) {
 
 #' @noRd
 dots_by_tbl_quos <- function(.eeg_lst, dots) {
-# TODO: use str_* to make the signal_cols more general,
-# it should ignore if there is a function that starts with ch_ (using is.function)
-  signal_cols <- c(channel_names(.eeg_lst), ".id", ".sample_id", "chs_mean")
+
+  signal_cols <- c(channel_names(.eeg_lst),
+                     paste0("`",channel_names(.eeg_lst),"`"), #In case channel name is used with ` in the function call
+                     ".id", ".sample_id")
 
   signal_dots <- purrr::map_lgl(dots, function(dot)
   # get the AST of each call and unlist it
     getAST(dot) %>%
       unlist(.) %>%
       # make it a vector of strings
-      purrr::map_chr(~rlang::quo_text(.x)) %>%
-      # check if it's some channel (might be problematic if a channel is named like function)
-      {
-        length(dplyr::intersect(., signal_cols)) > 0
-      })
+      purrr::map_lgl(function(element){  # check for every element if it's a channel or if it's a channel function
+        txt_element <- rlang::quo_text(element) 
+        if (txt_element %in% signal_cols) {
+          return(TRUE)
+        } else if(exists(txt_element) && is.function(eval(parse(text= txt_element)))){
+          return(stringr::str_detect(txt_element, stringr::regex("^ch_|^chs_|^channel_dbl|^channel_names")))
+        } else {
+          return(FALSE)
+        }
+        }) %>% any())
+
+# things might fail if there is a function named as a signal column. TODO, check for that in the validate.
 
   # signal_dots is a vector of TRUE/FALSE indicating for each call whether it belongs to signals
   # if both signal_tbl and segments columns are there, it will say that the dots should apply
@@ -74,3 +82,29 @@ dots_by_tbl_quos <- function(.eeg_lst, dots) {
   segments <- c(dots[!signal_dots], dots[signal_dots][rlang::quos(.id) %in% dots[signal_dots]])
   list(signal = dots[signal_dots], segments = segments)
 }
+
+
+# getAST(dot) %>%
+#       unlist(.) %>% purrr::map(function (e) {
+#         e <- rlang::quo_text(e) %>% rlang::sym() 
+#         print(e)
+#         is.function(!!e)})
+
+# is.function(!!rlang::quo(mean))
+# is.function(mean)
+# is.function(eval(parse(text= "M1")) )
+# exists("mean")
+# is.function(parse(text= "M1"))
+
+# getAST(dot)[[2]][[1]] %>% class()
+# getAST(dot)[[2]][[2]] %>% class()
+
+# dot2 <- rlang::quo(mean)
+# getAST(dot2)[[2]]  %>% purrr::is_function()
+
+# xx <- getAST(dot2)[[2]]
+# is.function(!!rlang::as_quosure(xx, env = NULL))
+# is.function(mean)
+
+# is.function(rlang::expr("mean()"))
+
