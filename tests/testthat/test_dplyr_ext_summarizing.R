@@ -61,7 +61,7 @@ test_that("summarizing by groups works as expected for the channel values", {
 expect_equal(data_s1$signal$X,e_data_s1$X)
 expect_equal(data_s2$signal$X,e_data_s2$X)
 expect_equal(data_s3$signal$X,e_data_s3$X)
-expect_equal(data_s4$signal$X %>% as.numeric,e_data_s4$X)
+expect_equal(data_s4$signal$X,e_data_s4$X)
 })
 
 

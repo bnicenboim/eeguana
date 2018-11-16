@@ -40,7 +40,8 @@ summarize_eval <- function(.dots){
 summarize_at_eval <- function(.vars, .fun ){
   fun_txt <- rlang::quo_text(.fun[[1]])
   vars_txt <- paste0("'",.vars,"'",collapse =", ")
-  sprintf("extended_signal[,purrr::map(.SD,~ %s),.SDcols = c(%s) , by = c(by)]", fun_txt, vars_txt)
+  #TODO move functions outside!!
+  sprintf("myfun <- function(.){ %s } ; extended_signal[,lapply(.SD, myfun),.SDcols = c(%s) , by = c(by)]", fun_txt, vars_txt)
 } 
 
 

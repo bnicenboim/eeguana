@@ -15,7 +15,7 @@ summarize_at_eeg_lst <- function(.eeg_lst, vars, funs){
 }
 
 summarize_eval_eeg_lst <- function(.eeg_lst, eval, cond_cols){
-   channels_info <- channels_tbl(.eeg_lst)
+   #channels_info <- channels_tbl(.eeg_lst)
   .eeg_lst$signal <- summarize_eval_signal(.eeg_lst, eval, cond_cols)
       ## Restructure segments table to fit the new signal table
   if (nrow(.eeg_lst$signal) != 0) {
@@ -29,10 +29,10 @@ summarize_eval_eeg_lst <- function(.eeg_lst, eval, cond_cols){
                                             last_id= last_id ) 
     ## Restructure events table
     # TODO maybe I can do some type of summary of the events table, instead
-  .eeg_lst$events <- .eeg_lst$events %>% filter(FALSE)
+  .eeg_lst$events <- .eeg_lst$events %>% filter(FALSE) %>% data.table::data.table() 
 
     #update channels in the events and the meta data (summarize deletes the metadata of the channels)
-  .eeg_lst <- update_events_channels(.eeg_lst) %>% update_channels_tbl(channels_info)
+  .eeg_lst <- update_events_channels(.eeg_lst) #%>% update_channels_tbl(channels_info)
 
   validate_eeg_lst(.eeg_lst)
 }

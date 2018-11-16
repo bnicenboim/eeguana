@@ -63,3 +63,8 @@ semi_join_dt <- function(x, y, by = NULL) {
   w <- unique(x[y, on = by, nomatch = 0L, which = TRUE, allow.cartesian = TRUE])
   x[w]
 }
+
+
+rowMeans_ch <- function(x, na.rm = FALSE, dims = 1L) {
+  channel_dbl(rowMeans(x, na.rm, dims))
+}
