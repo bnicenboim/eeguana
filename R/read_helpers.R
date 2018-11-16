@@ -52,7 +52,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
   #TODO maybe convert to data.table directly
   # Adding the channel names to event table
-  events <- add_event_channel(events, header_info$chan_info$.name) %>% data.table::as.data.table()
+  events <- add_event_channel(events, header_info$chan_info$channel) %>% data.table::as.data.table()
 
   # Initial samples as in Brainvision
   max_sample <- nrow(raw_signal)
@@ -259,7 +259,7 @@ read_vhdr_metadata <- function(file) {
 
 
   channel_info <- read_metadata("Channel Infos") %>%
-    tidyr::separate(value, c(".name", ".reference", "resolution", "unit"), sep = ",", fill = "right")
+    tidyr::separate(value, c("channel", ".reference", "resolution", "unit"), sep = ",", fill = "right")
   coordinates <- read_metadata("Coordinates") %>%
     tidyr::separate(value, c("radius", "theta", "phi"), sep = ",", fill = "right") %>%
     readr::type_convert(
