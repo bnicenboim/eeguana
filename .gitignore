@@ -16,3 +16,4 @@ vignettes/*.pdf
 *.sublime-workspace
 *.sublime-project
 
+inst/doc
