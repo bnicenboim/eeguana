@@ -117,7 +117,8 @@ summary.eeg_lst <- function(object) {
     events = object$events %>%
       dplyr::group_by_at(dplyr::vars(-.size, -.channel, -.sample_0, -.id)) %>%
       dplyr::count(),
-    size = capture.output(object_size(object))
+    size = capture.output(print(object.size(object), units = "auto")),
+    duration= format(.POSIXct(nrow(object$signal) / sampling_rate(object) ,tz="GMT"), "%H:%M:%S")
   )
   class(summ) <- c("eeg_summary", class(summ))
   summ
@@ -134,6 +135,8 @@ print.eeg_summary <- function(x, ...) {
   cat(paste0("# Sampling rate: ", x$sampling_rate, " Hz.\n"))
 
   cat(paste0("# Size in memory: ", x$size, ".\n"))
+
+  cat(paste0("# Total duration: ", x$duration, ".\n"))
 
   cat("# Summary of segments\n")
   x$segments %>%
