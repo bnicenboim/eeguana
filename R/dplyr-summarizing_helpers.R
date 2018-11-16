@@ -11,7 +11,7 @@ summarize_eeg_lst <- function(.eeg_lst, dots){
 summarize_at_eeg_lst <- function(.eeg_lst, vars, funs){
   segment_groups <- intersect(dplyr::group_vars(.eeg_lst), colnames(.eeg_lst$segments))
   cond_cols <- names_segments_col(.eeg_lst, funs[[1]])
-  summarize_eval_eeg_lst(.eeg_lst, eval = summarize_at_eval(vars, funs), cond_cols)
+  summarize_eval_eeg_lst(.eeg_lst, eval = summarize_at_eval(vars, funs, cond_cols), cond_cols)
 }
 
 summarize_eval_eeg_lst <- function(.eeg_lst, eval, cond_cols){

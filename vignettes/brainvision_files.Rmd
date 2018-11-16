@@ -80,7 +80,6 @@ The standard plots  can be slightly customized using `ggplot` layers.
 
 ```{r, fig.dim = c(10,15), out.width = "100%"}
 plot(faces) + coord_cartesian(ylim = c(-500,500))
-as_tibble(faces)
 ```
 
 

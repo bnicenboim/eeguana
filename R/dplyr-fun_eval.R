@@ -37,11 +37,17 @@ summarize_eval <- function(.dots){
 } 
 
 #' @noRd
-summarize_at_eval <- function(.vars, .fun ){
+summarize_at_eval <- function(.vars, .fun, cond_cols = NULL){
   fun_txt <- rlang::quo_text(.fun[[1]])
   vars_txt <- paste0("'",.vars,"'",collapse =", ")
+  cond_cols_txt <- paste0(cond_cols,collapse =", ")
+  if(cond_cols_txt != ""){
+    cond_cols_txt <- paste(", ",cond_cols_txt)
+  }
+
   #TODO move functions outside!!
-  sprintf("myfun <- function(.){ %s } ; extended_signal[,lapply(.SD, myfun),.SDcols = c(%s) , by = c(by)]", fun_txt, vars_txt)
+  sprintf("myfun <- function(. %s ){ %s } ; extended_signal[,lapply(.SD, myfun %s),.SDcols = c(%s) , by = c(by)]", 
+    cond_cols_txt, fun_txt, cond_cols_txt, vars_txt)
 } 
 
 
