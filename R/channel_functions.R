@@ -61,9 +61,10 @@ chs_mean.eeg_lst <- function(x, na.rm = FALSE) {
 #'
 #' Notice that this function will update the channels one by one when used inside a mutate and not all at the same time.
 #' 
-#' @param x A channel.
+#' @param x A channel to be referenced an eeg_lst where all the channels will be re-referenced (except for the ones in exclude).
 #' @param ... Channels that will be averaged as the reference.
 #' @param na.rm 
+#' @param exclude  A character vector of channels to exclude from referencing.
 #' @return A rereferenced channel or an eeg_lst with all channels re-referenced.
 #' @export
 #'
@@ -86,7 +87,7 @@ ch_rereference.channel_dbl <- function(x, ..., na.rm = FALSE) {
 }
 
 #' @export
-ch_rereference.eeg_lst <- function(x,..., na.rm = FALSE) {
+ch_rereference.eeg_lst <- function(x,..., na.rm = FALSE, exclude = NULL) {
   #channels_info <- channels_tbl(x)
   signal <- data.table::copy(x$signal)
   dots <- rlang::enquos(...)
@@ -99,7 +100,7 @@ ch_rereference.eeg_lst <- function(x,..., na.rm = FALSE) {
     x
   }
 
-  signal[, (channel_names(x)) := purrr::map(.SD, reref),.SDcols = channel_names(x)]
+  signal[, (channel_names(x)[!channel_names(x) %in% exclude]) := purrr::map(.SD, reref),.SDcols = channel_names(x)]
   x$signal <- signal
   update_events_channels(x) %>% #update_channels_tbl(channels_info) %>%
       validate_eeg_lst()

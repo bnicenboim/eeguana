@@ -30,4 +30,5 @@ data_eeg <- eeg_lst(
 
 data_d <- downsample(data_eeg, max_sample=2)
 
-#need to test
+#need to test it better
+
