@@ -93,7 +93,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
   channel_names <- mat[[1]][, , 1]$label %>% unlist()
   sampling_rate <- mat[[1]][, , 1]$fsample[[1]]
 
-  ## signal_tbl df:
+  ## signal_raw df:
 
   # segment lengths, initial, final, offset
   slengths <- mat[[1]][, , 1]$cfg[, , 1]$trl %>%
@@ -105,19 +105,19 @@ read_ft <- function(file, layout = NULL, recording = file) {
     unlist() %>%
     new_sample_int(sampling_rate = sampling_rate)
 
-  signal_tbl <- purrr::map_dfr(mat[[1]][, , 1]$trial,
+  signal_raw <- purrr::map_dfr(mat[[1]][, , 1]$trial,
     function(lsegment) {
       lsegment[[1]] %>% t() %>% dplyr::as_tibble()
     },
     .id = ".id"
-  ) 
-  data.table::setDT(signal_tbl)
+  ) %>% mutate(.id = as.integer(.id))
   
+
 
 
   # channel info:
   channels <- dplyr::tibble(
-    channel = make.unique(channel_names)
+    channel = make.unique(channel_names) %>% make.names()
   )
 
   if (!is.null(layout)) {
@@ -149,8 +149,8 @@ read_ft <- function(file, layout = NULL, recording = file) {
   # colnames(signal_tbl) <- c(".id", channel_names)
   # signal_tbl <- dplyr::mutate(signal_tbl, .sample = sample, .id = as.integer(.id)) %>%
   #   dplyr::select(.id, .sample, dplyr::everything())
-  signal_tbl <- new_signal_tbl(select(signal_tbl, -.id),
-    ids = signal_tbl[[".id"]], sample_ids = sample, channel_info = channels
+  signal_tbl <- new_signal_tbl(signal_matrix = dplyr::select(signal_raw, -.id),
+    ids = dplyr::pull(signal_raw,.id), sample_ids = sample, channel_info = channels
   )
 
 
@@ -198,5 +198,5 @@ read_ft <- function(file, layout = NULL, recording = file) {
     " segment(s) and ", nchannels(eeg_lst), " channels was loaded."
   ))
   message(say_size(eeg_lst))
-  eeg_lst
+  validate_eeg_lst(eeg_lst)
 }

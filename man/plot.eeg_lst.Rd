@@ -4,7 +4,7 @@
 \alias{plot.eeg_lst}
 \title{Simple plot an eeg_lst object.}
 \usage{
-\method{plot}{eeg_lst}(x, max_sample = 2000)
+\method{plot}{eeg_lst}(x, max_sample = 64000)
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
