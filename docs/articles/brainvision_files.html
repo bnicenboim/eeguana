@@ -54,6 +54,12 @@
 <li>
       <a href="../articles/brainvision_files.html">Introducction - Manipulating a clean EEG file exported from BrainVision 2.0</a>
     </li>
+    <li>
+      <a href="../articles/continuous-ft.html">Preprocessing - Reading continuous EEG data (Fieldtrip tutorial)</a>
+    </li>
+    <li>
+      <a href="../articles/test.html">Preprocessing - Reading continuous EEG data (Fieldtrip tutorial)</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -82,7 +88,7 @@
       <h1>Introducction - Manipulating a clean EEG file exported from BrainVision 2.0</h1>
                         <h4 class="author">Bruno Nicenboim</h4>
             
-            <h4 class="date">2018-11-16</h4>
+            <h4 class="date">2018-11-18</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bnicenboim/eeguana/blob/master/vignettes/brainvision_files.Rmd"><code>vignettes/brainvision_files.Rmd</code></a></small>
       <div class="hidden name"><code>brainvision_files.Rmd</code></div>
@@ -107,7 +113,7 @@
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/read_vhdr">read_vhdr</a></span>(<span class="st">"faces.vhdr"</span>)
 <span class="co">#&gt; # Data from faces.dat was read.</span>
 <span class="co">#&gt; # Data from 1 segment(s) and 34 channels was loaded.</span>
-<span class="co">#&gt; # Object size in memory 147300848 bytes</span></code></pre></div>
+<span class="co">#&gt; # Object size in memory 140.5 Mb</span></code></pre></div>
 <p>The function <code>read_vhdr</code> creates a list with data frames for the signal, events, segments information, and incorporates in its attributes generic EEG information.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces
 <span class="co">#&gt; $signal</span>
@@ -211,54 +217,108 @@
 <p>It provides a summary:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/summary">summary</a></span>(faces)
 <span class="co">#&gt; # EEG data (eeg_lst) from the following channels:</span>
-<span class="co">#&gt; # A tibble: 34 x 12</span>
-<span class="co">#&gt;    class type  .name .reference resolution unit  radius theta   phi    .x</span>
-<span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;      &lt;chr&gt;      &lt;chr&gt;  &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;dbl&gt;</span>
-<span class="co">#&gt;  1 chan… Ch1   Fp1   avim12     ""         µV         1   -90   -72 -0.31</span>
-<span class="co">#&gt;  2 chan… Ch2   Fpz   avim12     ""         µV         1    90    90  0   </span>
-<span class="co">#&gt;  3 chan… Ch3   Fp2   avim12     ""         µV         1    90    72  0.31</span>
-<span class="co">#&gt;  4 chan… Ch4   F7    avim12     ""         µV         1   -90   -36 -0.81</span>
-<span class="co">#&gt;  5 chan… Ch5   F3    avim12     ""         µV         1   -60   -51 -0.55</span>
-<span class="co">#&gt;  6 chan… Ch6   Fz    avim12     ""         µV         1    45    90  0   </span>
-<span class="co">#&gt;  7 chan… Ch7   F4    avim12     ""         µV         1    60    51  0.55</span>
-<span class="co">#&gt;  8 chan… Ch8   F8    avim12     ""         µV         1    90    36  0.81</span>
-<span class="co">#&gt;  9 chan… Ch9   FC5   avim12     ""         µV         1   -69   -21 -0.87</span>
-<span class="co">#&gt; 10 chan… Ch10  FC1   avim12     ""         µV         1   -31   -46 -0.36</span>
-<span class="co">#&gt; # ... with 24 more rows, and 2 more variables: .y &lt;dbl&gt;, .z &lt;dbl&gt;</span>
+<span class="co">#&gt;     channel type .reference resolution unit radius theta phi    .x    .y</span>
+<span class="co">#&gt;  1:     Fp1  Ch1     avim12              µV      1   -90 -72 -0.31  0.95</span>
+<span class="co">#&gt;  2:     Fpz  Ch2     avim12              µV      1    90  90  0.00  1.00</span>
+<span class="co">#&gt;  3:     Fp2  Ch3     avim12              µV      1    90  72  0.31  0.95</span>
+<span class="co">#&gt;  4:      F7  Ch4     avim12              µV      1   -90 -36 -0.81  0.59</span>
+<span class="co">#&gt;  5:      F3  Ch5     avim12              µV      1   -60 -51 -0.55  0.67</span>
+<span class="co">#&gt;  6:      Fz  Ch6     avim12              µV      1    45  90  0.00  0.71</span>
+<span class="co">#&gt;  7:      F4  Ch7     avim12              µV      1    60  51  0.55  0.67</span>
+<span class="co">#&gt;  8:      F8  Ch8     avim12              µV      1    90  36  0.81  0.59</span>
+<span class="co">#&gt;  9:     FC5  Ch9     avim12              µV      1   -69 -21 -0.87  0.33</span>
+<span class="co">#&gt; 10:     FC1 Ch10     avim12              µV      1   -31 -46 -0.36  0.37</span>
+<span class="co">#&gt; 11:     FC2 Ch11     avim12              µV      1    31  46  0.36  0.37</span>
+<span class="co">#&gt; 12:     FC6 Ch12     avim12              µV      1    69  21  0.87  0.33</span>
+<span class="co">#&gt; 13:      M1 Ch13     avim12              µV      0     0   0    NA    NA</span>
+<span class="co">#&gt; 14:      T7 Ch14     avim12              µV      1   -90   0 -1.00  0.00</span>
+<span class="co">#&gt; 15:      C3 Ch15     avim12              µV      1   -45   0 -0.71  0.00</span>
+<span class="co">#&gt; 16:      Cz Ch16     avim12              µV      1     0   0  0.00  0.00</span>
+<span class="co">#&gt; 17:      C4 Ch17     avim12              µV      1    45   0  0.71  0.00</span>
+<span class="co">#&gt; 18:      T8 Ch18     avim12              µV      1    90   0  1.00  0.00</span>
+<span class="co">#&gt; 19:      M2 Ch19     avim12              µV      0     0   0    NA    NA</span>
+<span class="co">#&gt; 20:     CP5 Ch20     avim12              µV      1   -69  21 -0.87 -0.33</span>
+<span class="co">#&gt; 21:     CP1 Ch21     avim12              µV      1   -31  46 -0.36 -0.37</span>
+<span class="co">#&gt; 22:     CP2 Ch22     avim12              µV      1    31 -46  0.36 -0.37</span>
+<span class="co">#&gt; 23:     CP6 Ch23     avim12              µV      1    69 -21  0.87 -0.33</span>
+<span class="co">#&gt; 24:      P7 Ch24     avim12              µV      1   -90  36 -0.81 -0.59</span>
+<span class="co">#&gt; 25:      P3 Ch25     avim12              µV      1   -60  51 -0.55 -0.67</span>
+<span class="co">#&gt; 26:      Pz Ch26     avim12              µV      1    45 -90  0.00 -0.71</span>
+<span class="co">#&gt; 27:      P4 Ch27     avim12              µV      1    60 -51  0.55 -0.67</span>
+<span class="co">#&gt; 28:      P8 Ch28     avim12              µV      1    90 -36  0.81 -0.59</span>
+<span class="co">#&gt; 29:     POz Ch29     avim12              µV      1    67 -90  0.00 -0.92</span>
+<span class="co">#&gt; 30:      O1 Ch30     avim12              µV      1   -90  72 -0.31 -0.95</span>
+<span class="co">#&gt; 31:      Oz Ch31     avim12              µV      1    90 -90  0.00 -1.00</span>
+<span class="co">#&gt; 32:      O2 Ch32     avim12              µV      1    90 -72  0.31 -0.95</span>
+<span class="co">#&gt; 33:    EOGV Ch33                         µV      0     0   0    NA    NA</span>
+<span class="co">#&gt; 34:    EOGH Ch34                         µV      0     0   0    NA    NA</span>
+<span class="co">#&gt;     channel type .reference resolution unit radius theta phi    .x    .y</span>
+<span class="co">#&gt;       .z</span>
+<span class="co">#&gt;  1: 0.00</span>
+<span class="co">#&gt;  2: 0.00</span>
+<span class="co">#&gt;  3: 0.00</span>
+<span class="co">#&gt;  4: 0.00</span>
+<span class="co">#&gt;  5: 0.50</span>
+<span class="co">#&gt;  6: 0.71</span>
+<span class="co">#&gt;  7: 0.50</span>
+<span class="co">#&gt;  8: 0.00</span>
+<span class="co">#&gt;  9: 0.36</span>
+<span class="co">#&gt; 10: 0.86</span>
+<span class="co">#&gt; 11: 0.86</span>
+<span class="co">#&gt; 12: 0.36</span>
+<span class="co">#&gt; 13:   NA</span>
+<span class="co">#&gt; 14: 0.00</span>
+<span class="co">#&gt; 15: 0.71</span>
+<span class="co">#&gt; 16: 1.00</span>
+<span class="co">#&gt; 17: 0.71</span>
+<span class="co">#&gt; 18: 0.00</span>
+<span class="co">#&gt; 19:   NA</span>
+<span class="co">#&gt; 20: 0.36</span>
+<span class="co">#&gt; 21: 0.86</span>
+<span class="co">#&gt; 22: 0.86</span>
+<span class="co">#&gt; 23: 0.36</span>
+<span class="co">#&gt; 24: 0.00</span>
+<span class="co">#&gt; 25: 0.50</span>
+<span class="co">#&gt; 26: 0.71</span>
+<span class="co">#&gt; 27: 0.50</span>
+<span class="co">#&gt; 28: 0.00</span>
+<span class="co">#&gt; 29: 0.39</span>
+<span class="co">#&gt; 30: 0.00</span>
+<span class="co">#&gt; 31: 0.00</span>
+<span class="co">#&gt; 32: 0.00</span>
+<span class="co">#&gt; 33:   NA</span>
+<span class="co">#&gt; 34:   NA</span>
+<span class="co">#&gt;       .z</span>
 <span class="co">#&gt; # Sampling rate: 500 Hz.</span>
-<span class="co">#&gt; # Size in memory: 147300848 bytes.</span>
+<span class="co">#&gt; # Size in memory: 140.5 Mb.</span>
+<span class="co">#&gt; # Total duration: 00:17:30.</span>
 <span class="co">#&gt; # Summary of segments</span>
-<span class="co">#&gt; # A tibble: 1 x 2</span>
-<span class="co">#&gt;   recording  segment_n</span>
-<span class="co">#&gt;   &lt;chr&gt;          &lt;int&gt;</span>
-<span class="co">#&gt; 1 faces.vhdr         1</span>
+<span class="co">#&gt;     recording segment_n</span>
+<span class="co">#&gt; 1: faces.vhdr         1</span>
 <span class="co">#&gt; # Summary of events</span>
-<span class="co">#&gt; # A tibble: 13 x 3</span>
-<span class="co">#&gt; # Groups:   type, description [13]</span>
-<span class="co">#&gt;    type         description     n</span>
-<span class="co">#&gt;    &lt;chr&gt;        &lt;chr&gt;       &lt;int&gt;</span>
-<span class="co">#&gt;  1 Bad Interval Bad Min-Max  3734</span>
-<span class="co">#&gt;  2 Bad Interval Multiple      105</span>
-<span class="co">#&gt;  3 New Segment  &lt;NA&gt;            1</span>
-<span class="co">#&gt;  4 Stimulus     s101            1</span>
-<span class="co">#&gt;  5 Stimulus     s102            1</span>
-<span class="co">#&gt;  6 Stimulus     s111            1</span>
-<span class="co">#&gt;  7 Stimulus     s121            1</span>
-<span class="co">#&gt;  8 Stimulus     s122            1</span>
-<span class="co">#&gt;  9 Stimulus     s130          200</span>
-<span class="co">#&gt; 10 Stimulus     s5              1</span>
-<span class="co">#&gt; 11 Stimulus     s70           100</span>
-<span class="co">#&gt; 12 Stimulus     s71           100</span>
-<span class="co">#&gt; 13 UserDefined  Blink          30</span></code></pre></div>
+<span class="co">#&gt;             type description    n</span>
+<span class="co">#&gt;  1: Bad Interval Bad Min-Max 3734</span>
+<span class="co">#&gt;  2: Bad Interval    Multiple  105</span>
+<span class="co">#&gt;  3:  New Segment        &lt;NA&gt;    1</span>
+<span class="co">#&gt;  4:     Stimulus        s101    1</span>
+<span class="co">#&gt;  5:     Stimulus        s102    1</span>
+<span class="co">#&gt;  6:     Stimulus        s111    1</span>
+<span class="co">#&gt;  7:     Stimulus        s121    1</span>
+<span class="co">#&gt;  8:     Stimulus        s122    1</span>
+<span class="co">#&gt;  9:     Stimulus        s130  200</span>
+<span class="co">#&gt; 10:     Stimulus          s5    1</span>
+<span class="co">#&gt; 11:     Stimulus         s70  100</span>
+<span class="co">#&gt; 12:     Stimulus         s71  100</span>
+<span class="co">#&gt; 13:  UserDefined       Blink   30</span></code></pre></div>
 <p>Furthermore, it allows for quick visualization.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(faces)
 <span class="co">#&gt; # Downsampling from 500Hz to 2.08333333333333Hz.</span>
-<span class="co">#&gt; # Object size in memory 780464 bytes</span></code></pre></div>
+<span class="co">#&gt; # Object size in memory 828.8 Kb</span></code></pre></div>
 <p><img src="brainvision_files_files/figure-html/unnamed-chunk-4-1.png" width="100%"></p>
 <p>The standard plots can be slightly customized using <code>ggplot</code> layers.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(faces) <span class="op">+</span><span class="st"> </span><span class="kw">coord_cartesian</span>(<span class="dt">ylim =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">500</span>,<span class="dv">500</span>))
 <span class="co">#&gt; # Downsampling from 500Hz to 2.08333333333333Hz.</span>
-<span class="co">#&gt; # Object size in memory 780464 bytes</span></code></pre></div>
+<span class="co">#&gt; # Object size in memory 828.8 Kb</span></code></pre></div>
 <p><img src="brainvision_files_files/figure-html/unnamed-chunk-5-1.png" width="100%"></p>
 <p>Some intervals were marked as “bad” by BrainVision, and so we’ll remove them from the data. We’ll also segment and baseline the data. In this experiment, the trigger “s70” was used for faces and “s71” for no faces. We’ll segment the data using these two triggers.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces_segs &lt;-<span class="st"> </span>faces <span class="op">%&gt;%</span><span class="st"> </span>
@@ -267,7 +327,7 @@
 <span class="st">               </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/event_to_ch_NA">event_to_ch_NA</a></span>(type <span class="op">==</span><span class="st"> "Bad Interval"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">               </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/ch_baseline">ch_baseline</a></span>()
 <span class="co">#&gt; # Total of 200 segments found.</span>
-<span class="co">#&gt; # Object size in memory 12758888 bytes after segmentation.</span></code></pre></div>
+<span class="co">#&gt; # Object size in memory 12.2 Mb after segmentation.</span></code></pre></div>
 <p>We can also edit the segmentation information and add more descriptive labels. <em>eeguana</em> has wrappers for many <code>dplyr</code> commands for the EEG data. These commands always return an entire <code>eeg_lst</code> object so that they can be piped using <code>magrittr</code>’s pipe, <code>%&gt;%</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces_segs_some &lt;-<span class="st"> </span>faces_segs <span class="op">%&gt;%</span><span class="st">  </span>
 <span class="st">                  </span><span class="kw">mutate</span>(<span class="dt">condition =</span>
