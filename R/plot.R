@@ -9,7 +9,7 @@
 #' @importFrom magrittr %>%
 #'
 #' @export
-plot.eeg_lst <- function(x, max_sample = 2000) {
+plot.eeg_lst <- function(x, max_sample = 64000) {
   if (is.numeric(max_sample) & max_sample != 0 &
     # it will downsample if the samples are at least twice as large than the max_sample
     max(duration(x)) * sampling_rate(x) * 2 > max_sample) {

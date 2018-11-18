@@ -109,14 +109,14 @@ nsamples.eeg_lst <- function(x) {
 #' @export
 summary.eeg_lst <- function(object) {
   summ <- list(
-    channels = channels_tbl(object),
+    channels = channels_tbl(object) %>% data.table::data.table(),
     sampling_rate = sampling_rate(object),
     segments = object$segments %>%
       dplyr::count(recording) %>%
-      dplyr::rename(segment_n = n),
+      dplyr::rename(segment_n = n) %>% data.table::data.table(),
     events = object$events %>%
       dplyr::group_by_at(dplyr::vars(-.size, -.channel, -.sample_0, -.id)) %>%
-      dplyr::count(),
+      dplyr::count() %>% data.table::data.table(),
     size = capture.output(print(object.size(object), units = "auto")),
     duration= format(.POSIXct(nrow(object$signal) / sampling_rate(object) ,tz="GMT"), "%H:%M:%S")
   )
@@ -130,7 +130,7 @@ print.eeg_summary <- function(x, ...) {
   cat(paste0("# EEG data (eeg_lst) from the following channels:\n"))
 
   x$channels %>%
-    print(., ...)
+    print(.)
 
   cat(paste0("# Sampling rate: ", x$sampling_rate, " Hz.\n"))
 
@@ -140,12 +140,12 @@ print.eeg_summary <- function(x, ...) {
 
   cat("# Summary of segments\n")
   x$segments %>%
-    print(., ...)
+    print(.)
 
   cat("# Summary of events\n")
 
   x$events %>%
-    print(., ...)
+    print(.)
 
   invisible(x)
 }

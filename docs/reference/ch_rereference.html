@@ -86,6 +86,12 @@
     <li>
       <a href="../articles/brainvision_files.html">Introducction - Manipulating a clean EEG file exported from BrainVision 2.0</a>
     </li>
+    <li>
+      <a href="../articles/continuous-ft.html">Preprocessing - Reading continuous EEG data (Fieldtrip tutorial)</a>
+    </li>
+    <li>
+      <a href="../articles/test.html">Preprocessing - Reading continuous EEG data (Fieldtrip tutorial)</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -130,7 +136,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>A channel.</p></td>
+      <td><p>A channel to be referenced an eeg_lst where all the channels will be re-referenced (except for the ones in exclude).</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -139,6 +145,10 @@
     <tr>
       <th>na.rm</th>
       <td></td>
+    </tr>
+    <tr>
+      <th>exclude</th>
+      <td><p>A character vector of channels to exclude from referencing.</p></td>
     </tr>
     </table>
     
