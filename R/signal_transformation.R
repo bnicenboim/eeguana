@@ -36,7 +36,6 @@ ch_baseline.eeg_lst <- function(x, time = -Inf, sample_id = NULL) {
  x$signal <- x$signal[, (channel_names(x)) := lapply(.SD, fun_baseline, .sample_id, sample_id) ,
              .SDcols = (channel_names(x)),
               by = .id ]
-  
   x
 }
 
