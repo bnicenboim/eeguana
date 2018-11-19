@@ -42,7 +42,7 @@ validate_sample_int <- function(sample_id) {
 
 #' @noRd
 new_channel_dbl <- function(values, channel_info = list()) {
-  values <- unclass(values)
+  values <- unclass(values) %>% as.double
   attributes(values) <- c(
     class = "channel_dbl",
     channel_info
@@ -56,8 +56,8 @@ new_channel_dbl <- function(values, channel_info = list()) {
 #'
 #' @noRd
 validate_channel_dbl <- function(channel) {
-  if (!is.numeric(channel)) {
-    stop("Values should be numeric.",
+  if (!is.double(channel)) {
+    stop("Values should be double.",
       call. = FALSE
     )
   }
