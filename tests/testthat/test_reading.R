@@ -9,6 +9,12 @@ vectorized_bin_bv2 <- read_vhdr("../../inst/extdata/bv_export_bv_txt_bin_vector.
 multiplexed_ascii_bv2 <- read_vhdr(file = "../../inst/extdata/bv_export_bv_txt_txt_multi.vhdr", recording = "bv2")
 vectorized_ascii_bv2 <- read_vhdr("../../inst/extdata/bv_export_bv_txt_txt_vector.vhdr", recording = "bv2")
 
+#Integer encoding
+multiplexed_bin_bv2_int16 <- read_vhdr(file = "../../inst/extdata/bv_export_bv_txt_bin_multi_16bit.vhdr", recording = "bv2")
+vectorized_bin_bv2_int16 <- read_vhdr("../../inst/extdata/bv_export_bv_txt_bin_vector_16bit.vhdr", recording = "bv2")
+
+multiplexed_bin_bv2_int32 <- read_vhdr("../../inst/extdata/bv_export_bv_txt_bin_multi_32bit.vhdr", recording = "bv2")
+vectorized_bin_bv2_int32 <- read_vhdr("../../inst/extdata/bv_export_bv_txt_bin_vector_32bit.vhdr", recording = "bv2")
 
 test_that("files match", {
   expect_equal(multiplexed_bin_bv2,vectorized_bin_bv2)
@@ -18,6 +24,12 @@ test_that("files match", {
  vectorized_bin_bv2$signal <- round(vectorized_bin_bv2$signal,-2)
   expect_equal(vectorized_ascii_bv2,vectorized_bin_bv2)
 })
+
+test_that("int files match", {
+  expect_equal(multiplexed_bin_bv2_int16,vectorized_bin_bv2_int16)
+  expect_equal(multiplexed_bin_bv2_int32,vectorized_bin_bv2_int32)
+})
+
 
 ft <- read_ft(file = "../../inst/extdata/fieldtrip_matrix.mat", recording = "bv2")
 
