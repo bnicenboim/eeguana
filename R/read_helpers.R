@@ -39,7 +39,8 @@ read_dat <- function(file, header_info = NULL, events = NULL,
       size = bytes
     )
 
-    raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = multiplexed) 
+    raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = multiplexed) %>%
+                  data.table::as.data.table()
   } else if (common_info$format == "ASCII") {
 
     if(multiplexed){
@@ -48,6 +49,11 @@ read_dat <- function(file, header_info = NULL, events = NULL,
           raw_signal <- data.table::fread(file)  %>%
             dplyr::select_if(is.double) %>% data.table::transpose() 
       }
+  }
+
+  # if there is a resolution use it. (This seems to be relevant only if the encoding is integer)
+  if(!all(is.na(header_info$chan_info$resolution))) {
+    raw_signal <- raw_signal[,purrr::map2(.SD,header_info$chan_info$resolution, ~ .x *.y)]
   }
 
   #TODO maybe convert to data.table directly
@@ -260,7 +266,9 @@ read_vhdr_metadata <- function(file) {
 
 
   channel_info <- read_metadata("Channel Infos") %>%
-    tidyr::separate(value, c("channel", ".reference", "resolution", "unit"), sep = ",", fill = "right")
+    tidyr::separate(value, c("channel", ".reference", "resolution", "unit"), sep = ",", fill = "right") %>%
+    dplyr::mutate(resolution = as.double(resolution))
+
   coordinates <- read_metadata("Coordinates") %>%
     tidyr::separate(value, c("radius", "theta", "phi"), sep = ",", fill = "right") %>%
     readr::type_convert(
