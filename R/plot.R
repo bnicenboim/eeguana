@@ -45,8 +45,11 @@ plot_gg <- function(.data, ...) {
 }
 
 #' @export
-plot_gg.eeg_lst <- function(.data, ..., max_sample = 2000) {
-  if (is.numeric(max_sample) && max_sample != 0 &&
+plot_gg.eeg_lst <- function(.data, x = time, y = amplitude, ..., max_sample = 2000) {
+  x <- rlang::enquo(x)
+  y <- rlang::enquo(y)
+
+  if (!all(is.na(.data$signal$.sample_id)) && is.numeric(max_sample) && max_sample != 0 &&
     # it will downsample if the samples are at least twice as large than the max_sample
     max(duration(.data)) * sampling_rate(.data) * 2 > max_sample) {
     .data <- downsample(.data, max_sample = max_sample)
@@ -56,24 +59,22 @@ plot_gg.eeg_lst <- function(.data, ..., max_sample = 2000) {
   df <- dplyr::as_tibble(.data)
   plot <- ggplot2::ggplot(
     df,
-    ggplot2::aes(x = time, y = amplitude, !!!dots)
+    ggplot2::aes(x = !!x, y = !!y, !!!dots)
   ) +
-    ggplot2::scale_y_reverse() +
     ggplot2::scale_colour_brewer(type = "qual", palette = "Dark2") +
     ggplot2::theme_bw()
   plot
 }
 
 #' @export
-plot_gg.tbl_df <- function(.data, x = time, y = amplitude,  ...) {
+plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
   dots <- rlang::enquos(...)
-  time <- rlang::enquo(time)
-  amplitude <- rlang::enquo(amplitude)
+  x <- rlang::enquo(x)
+  y <- rlang::enquo(y)
   plot <- ggplot2::ggplot(
     .data,
-    ggplot2::aes(x = !!time, y = !!amplitude, !!!dots)
+    ggplot2::aes(x = !!x, y = !!y, !!!dots)
   ) +
-    ggplot2::scale_y_reverse() +
     ggplot2::scale_colour_brewer(type = "qual", palette = "Dark2") +
     ggplot2::theme_bw()
   plot
