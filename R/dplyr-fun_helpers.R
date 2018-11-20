@@ -1,6 +1,6 @@
 #' @noRd
-group_by_eeg_lst <- function(.eeg_lst, .dots, .add = FALSE){
-  attributes(.eeg_lst)$vars <- purrr::map_chr(.dots, rlang::quo_text)
+group_by_eeg_lst <- function(.eeg_lst, dots, .add = FALSE){
+  attributes(.eeg_lst)$vars <- purrr::map_chr(dots, rlang::quo_text)
   allcols <- c(colnames(.eeg_lst$signal), colnames(.eeg_lst$segments))
   if(length(setdiff(attributes(.eeg_lst)$vars, allcols))>0) {
     notfound <- paste0(setdiff(attributes(.eeg_lst)$vars, allcols), collapse = ", ")
@@ -9,16 +9,7 @@ group_by_eeg_lst <- function(.eeg_lst, .dots, .add = FALSE){
   .eeg_lst
 }
 
-# summarize_eeg_lst <- function(.eeg_lst, dots){
-#    # # if there is something conditional on segments (O[condition == "faces"],
-#    # # I should add them to the signal_tbl df temporarily
-#                                       # cond_cols = cond_cols)
-
-#   cond_cols <- names_segments_col(.eeg_lst, dots)
-#   segment_groups <- intersect(dplyr::group_vars(.eeg_lst), colnames(.eeg_lst$segments))
-#    summarize_eval_eeg_lst(.eeg_lst, eval = summarize_eval(dots), cond_cols, segment_groups)
-# }
-
+#' @noRd
 filter_eeg_lst <- function(.eeg_lst, dots){  
 
     new_dots <- dots_by_tbl_quos(.eeg_lst, dots)
@@ -106,15 +97,11 @@ mutate_eeg_lst <- function(.eeg_lst, dots, keep_cols = TRUE){
 select_rename <- function(.eeg_lst, select = TRUE, ...) {
   if (select) {
     vars_fun <- tidyselect::vars_select
-    # dplyr_fun <- dplyr::select
   } else {
     vars_fun <- tidyselect::vars_rename
-    # dplyr_fun <- dplyr::rename
   }
   dots <- rlang::enquos(...)
-  # dots <- rlang::quos(xx =Fp1, yy = Cz)
-  # dots <- rlang::quos(O1, O2, P7, P8)
-  # dots <- rlang::quos(-Fp1)
+
   all_vars <- vars_fun(unique(c(
     names(.eeg_lst$signal),
     names(.eeg_lst$segments)
@@ -145,10 +132,6 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
   update_events_channels(.eeg_lst) %>% validate_eeg_lst()
 }
 
-
-
-
-
 #' @noRd
 scaling <- function(sampling_rate, unit) {
   if (stringr::str_to_lower(unit) %in% c("s", "sec", "second", "seconds", "secs")) {
@@ -170,7 +153,6 @@ scaling <- function(sampling_rate, unit) {
 
 #' @noRd
 redo_indices <- function(.eeg_lst) {
-
   .eeg_lst$signal[,.id:= as.factor(.id) %>% as.integer(.)]
   .eeg_lst$segments <- .eeg_lst$segments %>%  mutate(.id =  as.factor(.id) %>% as.integer(.))
   .eeg_lst$events[,.id:= as.factor(.id) %>% as.integer(.)]
@@ -178,6 +160,7 @@ redo_indices <- function(.eeg_lst) {
   .eeg_lst
 }
 
+#' Gives the names of segment columns except for .id included in a quosure
 #' @noRd
 names_segments_col <- function(.eeg_lst, dots) {
   segments_cols <- setdiff(colnames(.eeg_lst$segments), ".id") # removes .id
