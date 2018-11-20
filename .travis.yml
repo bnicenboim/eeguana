@@ -12,4 +12,7 @@ before_script:
   - R CMD INSTALL ${PKG_TARBALL}
   - rm ${PKG_TARBALL}
   - echo "Session info:"
-- Rscript -e "library(${PKG_NAME});devtools::session_info('${PKG_NAME}')"
+  - Rscript -e "library(${PKG_NAME});devtools::session_info('${PKG_NAME}')"
+
+after_success:
+- Rscript -e 'covr::codecov()'
