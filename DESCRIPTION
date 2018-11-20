@@ -29,7 +29,6 @@ Imports:
     tibble,
     data.table (>= 1.9.8)
 Suggests:
-    ggplotly,
     testthat,
     roxygen2,
     knitr,
