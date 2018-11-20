@@ -26,7 +26,7 @@ plot.eeg_lst <- function(x, max_sample = 64000) {
       labeller = ggplot2::label_wrap_gen(multi_line = FALSE)
     ) +
     ggplot2::scale_y_reverse() +
-    ggplot2::theme_bw()
+    theme_eeguana
   plot
 }
 
@@ -62,7 +62,7 @@ plot_gg.eeg_lst <- function(.data, x = time, y = amplitude, ..., max_sample = 20
     ggplot2::aes(x = !!x, y = !!y, !!!dots)
   ) +
     ggplot2::scale_colour_brewer(type = "qual", palette = "Dark2") +
-    ggplot2::theme_bw()
+    theme_eeguana
   plot
 }
 
@@ -76,7 +76,7 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
     ggplot2::aes(x = !!x, y = !!y, !!!dots)
   ) +
     ggplot2::scale_colour_brewer(type = "qual", palette = "Dark2") +
-    ggplot2::theme_bw()
+    theme_eeguana
   plot
 }
 
@@ -125,7 +125,7 @@ plot_topo.tbl_df <- function(data, x = .x, y =.y, value= amplitude,  label=chann
       colours = c("darkred", "yellow", "green", "darkblue"),
       values = c(1.0, 0.75, 0.5, 0.25, 0)
     ) +
-    ggplot2::theme_bw()
+    theme_eeguana
 
   # if (length(grouping_vars) > 0) {
   #   plot <- plot + facet_wrap(grouping_vars)
@@ -156,7 +156,7 @@ plot_topo.eeg_lst <- function(data, x = .x, y =.y, value= amplitude,  label=chan
       colours = c("darkred", "yellow", "green", "darkblue"),
       values = c(1.0, 0.75, 0.5, 0.25, 0)
     ) +
-    ggplot2::theme_bw()
+    theme_eeguana
 
   # if (length(grouping_vars) > 0) {
   #   plot <- plot + facet_wrap(grouping_vars)
