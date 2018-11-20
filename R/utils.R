@@ -68,3 +68,15 @@ semi_join_dt <- function(x, y, by = NULL) {
 rowMeans_ch <- function(x, na.rm = FALSE, dims = 1L) {
   channel_dbl(rowMeans(x, na.rm, dims))
 }
+
+row_fun_ch <- function(x, .funs, ...) {
+ # TODO: faster options seem to be melting first (memory usage?):
+  #https://stackoverflow.com/questions/7885147/efficient-row-wise-operations-on-a-data-table
+# or with for loop set:
+  # https://stackoverflow.com/questions/37667335/row-operations-in-data-table-using-by-i?noredirect=1&lq=1
+  funs <- dplyr:::as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env(),...)
+  fun_txt <- rlang::quo_text(funs[[1]])
+  # channel_dbl(purrr::pmap(x, ~ eval(parse(text= fun_txt))))
+  channel_dbl(apply(x, 1, function(.) eval(parse(text= fun_txt))))
+}
+

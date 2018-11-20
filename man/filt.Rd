@@ -80,7 +80,6 @@ Matt Craddock's code of \code{eegUtils} \email{matt@mattcraddock.com}.
 \examples{
 \dontrun{
 
-faces_segs \%>\% mutate(Cz = filt_low_pass_ch(Cz, band_edge = 5, order = 2))
-faces_segs \%>\% filt_low_pass_ch( band_edge = 5, order = 2)
+faces_segs \%>\% filt_low_pass_ch(band_edge = 100, order = 4)
 }
 }

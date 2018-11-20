@@ -95,7 +95,7 @@ ch_filt_stop_pass.channel_dbl <- function(x, band_edge = NULL, order = 6, direct
 #' @rdname filt
 #' @export
 ch_filt_low_pass.eeg_lst <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
-  x$signal <- copy(x$signal)
+  x$signal <- data.table::copy(x$signal)
   x$signal[, (channel_names(x)) := lapply(.SD, ch_filt_low_pass.channel_dbl, band_edge = band_edge, 
                           order = order, direction = direction, 
                           sampling_rate = sampling_rate(x)), 
@@ -106,7 +106,7 @@ ch_filt_low_pass.eeg_lst <- function(x, band_edge = NULL, order = 6, direction =
 #' @rdname filt
 #' @export
 ch_filt_high_pass.eeg_lst <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
-  x$signal <- copy(x$signal)
+  x$signal <- data.table::copy(x$signal)
   x$signal[, (channel_names(x)) := lapply(.SD, ch_filt_high_pass.channel_dbl, band_edge = band_edge, 
                           order = order, direction = direction, 
                           sampling_rate = sampling_rate(x)), 
@@ -116,7 +116,7 @@ ch_filt_high_pass.eeg_lst <- function(x, band_edge = NULL, order = 6, direction 
 #' @rdname filt
 #' @export
 ch_filt_high_pass.eeg_lst <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
-  x$signal <- copy(x$signal)
+  x$signal <- data.table::copy(x$signal)
   x$signal[, (channel_names(x)) := lapply(.SD, ch_filt_high_pass.channel_dbl, band_edge = band_edge, 
                           order = order, direction = direction, 
                           sampling_rate = sampling_rate(x)), 
@@ -126,7 +126,7 @@ ch_filt_high_pass.eeg_lst <- function(x, band_edge = NULL, order = 6, direction 
 #' @rdname filt
 #' @export
 ch_filt_stop_pass.eeg_lst <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
-   x$signal <- copy(x$signal)
+   x$signal <- data.table::copy(x$signal)
   x$signal[, (channel_names(x)) := lapply(.SD, ch_filt_stop_pass.channel_dbl, band_edge = band_edge, 
                           order = order, direction = direction, 
                           sampling_rate = sampling_rate(x)), 
@@ -136,7 +136,7 @@ ch_filt_stop_pass.eeg_lst <- function(x, band_edge = NULL, order = 6, direction 
 #' @rdname filt
 #' @export
 ch_filt_band_pass.eeg_lst <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
-   x$signal <- copy(x$signal)
+   x$signal <- data.table::copy(x$signal)
   x$signal[, (channel_names(x)) := lapply(.SD, ch_filt_band_pass.channel_dbl, band_edge = band_edge, 
                           order = order, direction = direction, 
                           sampling_rate = sampling_rate(x)), 

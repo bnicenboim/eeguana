@@ -29,12 +29,14 @@ Imports:
     tibble,
     data.table (>= 1.9.8)
 Suggests:
+    ggplotly,
     testthat,
     roxygen2,
     knitr,
     rmarkdown,
     R.matlab,
-    spelling
+    spelling,
+    covr
 LazyData: true
 VignetteBuilder: knitr
 Language: en-US

@@ -2,7 +2,7 @@ context("test out functions")
 library(eeguana)
 
 
-eeg_file <- read_vhdr("../../inst/extdata/bv_export_bv_txt_bin_multi.vhdr")
+eeg_file <- read_vhdr("bv_export_bv_txt_bin_multi.vhdr")
 
 # just to check if something break, but this should be done with test_that
 channel_names(eeg_file)

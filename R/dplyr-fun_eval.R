@@ -35,6 +35,8 @@ summarize_eval <- function(.dots){
      paste0(., collapse = ", ")
   sprintf("extended_signal[,.(%s), by = c(by)]", dots_txt)
 } 
+# https://stackoverflow.com/questions/14837902/how-to-write-a-function-that-calls-a-function-that-calls-data-table
+# https://stackoverflow.com/questions/15790743/data-table-meta-programming
 
 #' @noRd
 summarize_at_eval <- function(.vars, .fun, cond_cols = NULL){
@@ -45,8 +47,8 @@ summarize_at_eval <- function(.vars, .fun, cond_cols = NULL){
     cond_cols_txt <- paste(", ",cond_cols_txt)
   }
 
-  #TODO move functions outside!!
-  sprintf("myfun <- function(. %s ){ %s } ; extended_signal[,lapply(.SD, myfun %s),.SDcols = c(%s) , by = c(by)]", 
+  #save attributes, then do the function, then keep attributes
+  sprintf("myfun <- function(. %s ){attr <- attributes(.);  `attributes<-`(%s,attr)} ; extended_signal[,lapply(.SD, myfun %s),.SDcols = c(%s) , by = c(by)]", 
     cond_cols_txt, fun_txt, cond_cols_txt, vars_txt)
 } 
 
