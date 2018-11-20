@@ -107,3 +107,33 @@ ch_rereference.eeg_lst <- function(x,..., na.rm = FALSE, exclude = NULL) {
 
 }
 
+
+
+#' @export
+chs_fun <- function(x, .funs, ...) {
+  UseMethod("chs_fun")
+}
+
+
+#' @export
+chs_fun.channel_dbl <- function(...,.funs, pars = list()) {
+   row_fun_ch(data.table::data.table(...),.funs,  unlist(pars))  # throws a warning
+}
+
+#' @export
+chs_fun.eeg_lst <- function(x,.funs, pars = list()) {
+
+  signal <- data.table::copy(x$signal)
+  funs <- dplyr:::as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env())
+  fun_txt <- rlang::quo_text(funs[[1]]) %>% make.names()
+
+  # TODO a more elegant way, but if pars is list(), then row_fun_ch thinks that ... is NULL, and the function gets an argument NULL
+  if(length(pars) != 0){
+    signal[,(fun_txt) := row_fun_ch(.SD, .funs,  unlist(pars)),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
+  } else {
+    signal[,(fun_txt) := row_fun_ch(.SD, .funs),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
+  }
+  x$signal <- signal
+  update_events_channels(x) %>% #update_channels_tbl(channels_info) %>%
+      validate_eeg_lst()
+}

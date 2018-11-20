@@ -2,6 +2,8 @@
 output: github_document
 ---
 
+[![Travis build status](https://travis-ci.org/bnicenboim/eeguana.svg?branch=master)](https://travis-ci.org/bnicenboim/eeguana) [![Codecov test coverage](https://codecov.io/gh/bnicenboim/eeguana/branch/master/graph/badge.svg)](https://codecov.io/gh/bnicenboim/eeguana?branch=master)
+
 
 
 ```{r setup, include = FALSE}
