@@ -169,6 +169,13 @@ data_judg_s_p %>%  select(eogv) %>%
                    geom_line() + 
                    facet_wrap(~segment)
 
+plot <- data_judg_s_p %>%  select(eogv) %>% 
+                   plot_gg() + 
+                   geom_line() + 
+                   facet_wrap(~segment) +
+                   theme_eeguana
+
+
 ```
 
 The data can be also displayed in a different way :

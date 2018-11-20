@@ -80,3 +80,10 @@ row_fun_ch <- function(x, .funs, ...) {
   channel_dbl(apply(x, 1, function(.) eval(parse(text= fun_txt))))
 }
 
+
+
+theme_eeguana <- ggplot2::theme_bw() + 
+                ggplot2::theme(
+                    strip.background = ggplot2::element_rect(colour = "transparent", fill = "transparent"),
+                    panel.spacing  = ggplot2::unit(.01, "points"),
+                    panel.border = ggplot2::element_rect(colour = "transparent", fill = "transparent"))
