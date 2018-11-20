@@ -85,13 +85,13 @@ summarise_.eeg_lst <- function(.data, ..., .dots = list()) {
 #' @export
 group_by_.eeg_lst <- function(.data, ..., .dots = list()) {
   dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
-  group_by_eeg_lst(.eeg_lst = .data, .dots = dots, .add = FALSE)
+  group_by_eeg_lst(.eeg_lst = .data, dots, .add = FALSE)
 }
 #' @rdname dplyr
 #' @export
 group_by.eeg_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
-  group_by_eeg_lst(.eeg_lst = .data, .dots = dots, .add = FALSE)
+  group_by_eeg_lst(.eeg_lst = .data, dots, .add = FALSE)
 }
 #' @rdname dplyr
 #' @export
