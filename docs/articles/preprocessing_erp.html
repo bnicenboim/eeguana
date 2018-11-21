@@ -85,7 +85,7 @@
       <h1>Preprocessing of EEG data and computing ERPs (Fieldtrip tutorial)</h1>
                         <h4 class="author">Bruno Nicenboim</h4>
             
-            <h4 class="date">2018-11-20</h4>
+            <h4 class="date">2018-11-21</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bnicenboim/eeguana/blob/master/vignettes/preprocessing_erp.Rmd"><code>vignettes/preprocessing_erp.Rmd</code></a></small>
       <div class="hidden name"><code>preprocessing_erp.Rmd</code></div>
@@ -94,10 +94,10 @@
 
     
     
-<p>This tutorial is an adaptation (and some parts are a verbatim copy) of <em>Fieldtrip</em>’s <a href="http://www.fieldtriptoolbox.org/tutorial/preprocessing_erp">Preprocessing - Reading continuous EEG data</a>. Fieldtrip is a great MATLAB toolbox for MEG and EEG analysis. Here I show, how we would do the same analysis with <em>eeguana</em>. (No previous exposure Fieldtrip is needed to follow this vignette).</p>
-<p>The preprocessing of data refers to the reading of the data, segmenting the data around interesting events such as triggers, temporal filtering and optionally rereferencing.</p>
-<p>There are largely two alternative approaches for preprocessing, which especially differ in the amount of memory required (and time). The first approach is to read all data from the file into memory, apply filters, and subsequently cut the data into interesting segments. The second approach is to segment the data and then apply the filters to those segments only. This tutorial explains the second approach.</p>
-<p>Preprocessing involves several steps including identifying individual trials from the dataset, filtering and artifact rejections. This tutorial covers how to identify trials using the trigger signal. Defining data segments of interest can be done according to a specified trigger channel or according to your own criteria. Examples for both ways are described in this tutorial, and both ways depend on the <code><a href="http://www.rdocumentation.org/packages/eeguana/topics/segment">segment()</a></code> function.</p>
+<p>This tutorial is an adaptation (and some parts are a verbatim copy) of <em>Fieldtrip</em>’s <a href="http://www.fieldtriptoolbox.org/tutorial/preprocessing_erp">Preprocessing - Reading continuous EEG data</a>. Fieldtrip is a great MATLAB toolbox for MEG and EEG analysis. Here I show, how we would do a very similar analysis with <em>eeguana</em>. (No previous exposure Fieldtrip is needed to follow this vignette).</p>
+<p>The preprocessing of data refers to the reading of the data, segmenting the data around interesting events such as triggers, temporal filtering, and optionally rereferencing.</p>
+<p>There are largely two alternative approaches for preprocessing, which especially differ in the amount of memory required (and time). The first approach is to read all data from the file(s) into memory, apply filters, and subsequently cut the data into interesting segments. The second approach is to segment the data and then apply the filters to those segments only. This tutorial explains the second approach.</p>
+<p>Preprocessing involves several steps including identifying individual trials from the dataset, filtering and artifact rejections. This tutorial covers how to identify trials using the trigger signal. Defining data segments of interest can be done according to a specified trigger channel or according to your own criteria.</p>
 <div id="dataset" class="section level2">
 <h2 class="hasAnchor">
 <a href="#dataset" class="anchor"></a>Dataset</h2>
@@ -120,7 +120,7 @@
 <div id="defining-trials" class="section level3">
 <h3 class="hasAnchor">
 <a href="#defining-trials" class="anchor"></a>Defining trials</h3>
-<p>The triggers were sent such that the trigger “S131” indicates condition 1 (positive-negative judgment) and “S132” indicates condition 2 (animal-human judgment).</p>
+<p>The triggers were defined such that the trigger “S131” indicates condition 1 (positive-negative judgment) and “S132” indicates condition 2 (animal-human judgment).</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/events">events</a></span>(data_judg)</a>
 <a class="sourceLine" id="cb4-2" title="2"><span class="co">#&gt;      .id        type description .sample_0 .size .channel</span></a>
 <a class="sourceLine" id="cb4-3" title="3"><span class="co">#&gt;   1:   1 New Segment        &lt;NA&gt;         1     1     &lt;NA&gt;</span></a>
@@ -134,7 +134,7 @@
 <a class="sourceLine" id="cb4-11" title="11"><span class="co">#&gt; 959:   1    Stimulus        S122   1108169     1     &lt;NA&gt;</span></a>
 <a class="sourceLine" id="cb4-12" title="12"><span class="co">#&gt; 960:   1    Stimulus        S141   1108929     1     &lt;NA&gt;</span></a>
 <a class="sourceLine" id="cb4-13" title="13"><span class="co">#&gt; 961:   1    Stimulus        S132   1109582     1     &lt;NA&gt;</span></a></code></pre></div>
-<p>However, we want the ERP defined by the trigger “S141” that precedes any of these two triggers. We edit the events table (using dplyr functions) to indicate to which condition each trigger “S141” belongs, and then we can segment based on these conditions:</p>
+<p>However, we want the ERP based on the trigger “S141” that precedes any of these two triggers. We edit the events table (using dplyr functions) to indicate to which condition each trigger “S141” belongs, and then we can segment based on these conditions:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/events">events</a></span>(data_judg) &lt;-<span class="st"> </span><span class="kw">mutate</span>(<span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/events">events</a></span>(data_judg), </a>
 <a class="sourceLine" id="cb5-2" title="2">                            <span class="dt">condition =</span> <span class="kw">case_when</span>(description <span class="op">==</span><span class="st"> "S141"</span> <span class="op">&amp;</span></a>
 <a class="sourceLine" id="cb5-3" title="3"><span class="st">                                                  </span><span class="kw">lead</span>(description) <span class="op">==</span><span class="st"> "S131"</span> <span class="op">~</span><span class="st"> </span><span class="dv">1</span> ,</a>
@@ -158,8 +158,12 @@
 <a class="sourceLine" id="cb6-6" title="6"><span class="st">                </span><span class="co"># All channels are references with REF  </span></a>
 <a class="sourceLine" id="cb6-7" title="7"><span class="st">                </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/ch_rereference">ch_rereference</a></span>(RM, REF) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb6-8" title="8"><span class="st">                </span><span class="co"># A low pass filter is applied </span></a>
-<a class="sourceLine" id="cb6-9" title="9"><span class="st">                </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/filt">ch_filt_low_pass</a></span>(<span class="dv">100</span>)  </a></code></pre></div>
-<p>We can have a look at one of the trials of one channel using <code>plot()</code></p>
+<a class="sourceLine" id="cb6-9" title="9"><span class="st">                </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/filt">ch_filt_low_pass</a></span>(<span class="dv">100</span>)  </a>
+<a class="sourceLine" id="cb6-10" title="10"><span class="co">#&gt; &lt;quosure&gt;</span></a>
+<a class="sourceLine" id="cb6-11" title="11"><span class="co">#&gt; expr: ^channel_dbl(0)</span></a>
+<a class="sourceLine" id="cb6-12" title="12"><span class="co">#&gt; env:  0x4738720</span></a>
+<a class="sourceLine" id="cb6-13" title="13"><span class="co">#&gt; NULL</span></a></code></pre></div>
+<p>We can have a look at one of the trials (the second one) of one channel (channel 11) using <code>plot()</code></p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1">data_judg_s_p <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(segment <span class="op">==</span><span class="st"> </span><span class="dv">2</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb7-2" title="2"><span class="st">                  </span><span class="kw">select</span>(X11) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb7-3" title="3"><span class="st">                  </span><span class="kw">plot</span>()</a></code></pre></div>
@@ -173,13 +177,20 @@
 <div id="extracting-the-eog-signals" class="section level2">
 <h2 class="hasAnchor">
 <a href="#extracting-the-eog-signals" class="anchor"></a>Extracting the EOG signals</h2>
-<p>We now continue with re-referencing to extract the bipolar EOG signal from the data. In the BrainAmp acquisition system, all channels are measured relative to a common reference. For the horizontal EOG we will compute the potential difference between channels 57 and 25 (see the plot of the layout and the figure below). For the vertical EOG we will use channel 53 and channel “LEOG” which was placed below the subjects’ left eye.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"></a>
-<a class="sourceLine" id="cb9-2" title="2">data_judg_s_p &lt;-<span class="st"> </span>data_judg_s_p <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb9-3" title="3"><span class="st">                 </span><span class="kw">mutate</span>(<span class="dt">eogv =</span> <span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/ch_rereference">ch_rereference</a></span>(<span class="dt">x =</span>LEOG, X53),</a>
-<a class="sourceLine" id="cb9-4" title="4">                        <span class="dt">eogh =</span> <span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/ch_rereference">ch_rereference</a></span>(<span class="dt">x =</span> X25, X57)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb9-5" title="5"><span class="st">                 </span><span class="co"># Unnecessary channels are removed</span></a>
-<a class="sourceLine" id="cb9-6" title="6"><span class="st">                 </span><span class="kw">select</span>(<span class="op">-</span>LEOG, <span class="op">-</span>X53, <span class="op">-</span>X56, <span class="op">-</span>X25) </a></code></pre></div>
+<p>In the BrainAmp acquisition system, all channels are measured relative to a common reference. For the horizontal EOG we will compute the potential difference between channels 57 and 25 (see the plot of the layout and the figure below). For the vertical EOG we will use channel 53 and channel “LEOG” which was placed below the subjects’ left eye.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">data_judg_s_p &lt;-<span class="st"> </span>data_judg_s_p <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="st">                 </span><span class="kw">mutate</span>(<span class="dt">eogv =</span> <span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/ch_rereference">ch_rereference</a></span>(<span class="dt">x =</span> LEOG, X53),</a>
+<a class="sourceLine" id="cb9-3" title="3">                        <span class="dt">eogh =</span> <span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/ch_rereference">ch_rereference</a></span>(<span class="dt">x =</span> X25, X57)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb9-4" title="4"><span class="st">                 </span><span class="co"># Unnecessary channels are removed</span></a>
+<a class="sourceLine" id="cb9-5" title="5"><span class="st">                 </span><span class="kw">select</span>(<span class="op">-</span>LEOG, <span class="op">-</span>X53, <span class="op">-</span>X56, <span class="op">-</span>X25) </a>
+<a class="sourceLine" id="cb9-6" title="6"><span class="co">#&gt; &lt;quosure&gt;</span></a>
+<a class="sourceLine" id="cb9-7" title="7"><span class="co">#&gt; expr: ^ch_rereference(x = LEOG, X53)</span></a>
+<a class="sourceLine" id="cb9-8" title="8"><span class="co">#&gt; env:  0x7074760</span></a>
+<a class="sourceLine" id="cb9-9" title="9"><span class="co">#&gt; NULL</span></a>
+<a class="sourceLine" id="cb9-10" title="10"><span class="co">#&gt; &lt;quosure&gt;</span></a>
+<a class="sourceLine" id="cb9-11" title="11"><span class="co">#&gt; expr: ^ch_rereference(x = X25, X57)</span></a>
+<a class="sourceLine" id="cb9-12" title="12"><span class="co">#&gt; env:  0x7074760</span></a>
+<a class="sourceLine" id="cb9-13" title="13"><span class="co">#&gt; NULL</span></a></code></pre></div>
 <p>You can check the channel labels that are now present in the data:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">channels_tbl</span>(data_judg_s_p) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">print</span>(<span class="dt">n=</span><span class="dv">100</span>)</a>
 <a class="sourceLine" id="cb10-2" title="2"><span class="co">#&gt; # A tibble: 63 x 11</span></a>
@@ -246,27 +257,39 @@
 <a class="sourceLine" id="cb10-63" title="63"><span class="co">#&gt; 59 X63     Ch63  RM, REF           0.1 µV        NA    NA    NA    NA    NA</span></a>
 <a class="sourceLine" id="cb10-64" title="64"><span class="co">#&gt; 60 X64     Ch64  RM, REF           0.1 µV        NA    NA    NA    NA    NA</span></a>
 <a class="sourceLine" id="cb10-65" title="65"><span class="co">#&gt; 61 REF     &lt;NA&gt;  RM, REF          NA   &lt;NA&gt;      NA    NA    NA    NA    NA</span></a>
-<a class="sourceLine" id="cb10-66" title="66"><span class="co">#&gt; 62 eogv    Ch61  RM, REF           0.1 µV        NA    NA    NA    NA    NA</span></a>
-<a class="sourceLine" id="cb10-67" title="67"><span class="co">#&gt; 63 eogh    Ch25  RM, REF           0.1 µV        NA    NA    NA    NA    NA</span></a>
+<a class="sourceLine" id="cb10-66" title="66"><span class="co">#&gt; 62 eogv    Ch61  X53               0.1 µV        NA    NA    NA    NA    NA</span></a>
+<a class="sourceLine" id="cb10-67" title="67"><span class="co">#&gt; 63 eogh    Ch25  X57               0.1 µV        NA    NA    NA    NA    NA</span></a>
 <a class="sourceLine" id="cb10-68" title="68"><span class="co">#&gt; # ... with 1 more variable: .z &lt;dbl&gt;</span></a></code></pre></div>
-</div>
-<div id="channel-layout" class="section level2">
-<h2 class="hasAnchor">
-<a href="#channel-layout" class="anchor"></a>Channel layout</h2>
-<p>For topoplotting and sometimes for analysis it is necessary to know how the electrodes were positioned on the scalp. In contrast to the sensor arrangement from a given MEG manufacturer, the topographical arrangement of the channels in EEG is not fixed. Different acquisition systems are designed for different electrode montages, and the number and position of electrodes can be adjusted depending on the experimental goal. In the current experiment, so-called 64-electrodes equidistant montage (ActiCap, BrainVision) was used.</p>
-<p>The channel positions are not always stored in the EEG dataset. But we can use a fieldtrip layout file; this is a .mat file that contains the 2-D positions of the channels. (FieldTrip provides a number of default layouts for BrainVision EEG caps in the fieldtrip/template/layout directory.) It is also possible to edit the <code>channels_tbl</code> manually. In this example we will use an existing layout.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1"><span class="co"># layout &lt;- read_layout(mpi_customized_acticap64.mat)</span></a></code></pre></div>
-<p>Note that the layout should contain correct channel labels that match the channel labels in the data (channel labels not present in either will not be plotted when using a given layout).</p>
+<!-- ## Channel layout
+
+For topoplotting and sometimes for analysis it is necessary to know how the electrodes were positioned on the scalp. In contrast to the sensor arrangement from a given MEG manufacturer, the topographical arrangement of the channels in EEG is not fixed. Different acquisition systems are designed for different electrode montages, and the number and position of electrodes can be adjusted depending on the experimental goal. In the current experiment, so-called 64-electrodes equidistant montage (ActiCap, BrainVision) was used. 
+
+The channel positions are not always stored in the EEG dataset. But we can use a fieldtrip layout file; this is a .mat file that contains the 2-D positions of the channels. (FieldTrip provides a number of default layouts for BrainVision EEG caps in the fieldtrip/template/layout directory.) It is also possible to edit the `channels_tbl` manually. In this example we will use an existing layout.
+
+
+
+```r
+#layout <- read_layout(mpi_customized_acticap64.mat)
+
+```
+
+Note that the layout should contain correct channel labels that match the channel labels in the data (channel labels not present in either will not be plotted when using a given layout). 
+ -->
 </div>
 <div id="artifacts" class="section level2">
 <h2 class="hasAnchor">
 <a href="#artifacts" class="anchor"></a>Artifacts</h2>
-<p>An next important step of EEG preprocessing is detection (and rejection) of artifacts. We can plot EOG channel (’veog’, number 61) and confirm that the segments 22, 42, 126, 136 and 150 contain blinks.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">data_judg_s_p <span class="op">%&gt;%</span><span class="st">  </span><span class="kw">select</span>(eogv) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb12-2" title="2"><span class="st">                   </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/plot_gg">plot_gg</a></span>() <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb12-3" title="3"><span class="st">                   </span><span class="kw">geom_line</span>() <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb12-4" title="4"><span class="st">                   </span><span class="kw">facet_wrap</span>(<span class="op">~</span>segment)</a></code></pre></div>
+<p>A next important step of EEG preprocessing is detection (and rejection) of artifacts. We can plot EOG channel (’veog’, number 61) and confirm that the segments 22, 42, 126, 136 and 150 contain blinks.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1">data_judg_s_p <span class="op">%&gt;%</span><span class="st">  </span><span class="kw">select</span>(eogv) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb11-2" title="2"><span class="st">                   </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/plot_gg">plot_gg</a></span>() <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb11-3" title="3"><span class="st">                   </span><span class="kw">geom_line</span>() <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb11-4" title="4"><span class="st">                   </span><span class="kw">facet_wrap</span>(<span class="op">~</span>segment)</a></code></pre></div>
 <p><img src="preprocessing_erp_files/figure-html/unnamed-chunk-10-1.png" width="100%"></p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1"></a>
+<a class="sourceLine" id="cb12-2" title="2">plot &lt;-<span class="st"> </span>data_judg_s_p <span class="op">%&gt;%</span><span class="st">  </span><span class="kw">select</span>(eogv) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb12-3" title="3"><span class="st">                   </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/plot_gg">plot_gg</a></span>() <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb12-4" title="4"><span class="st">                   </span><span class="kw">geom_line</span>() <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb12-5" title="5"><span class="st">                   </span><span class="kw">facet_wrap</span>(<span class="op">~</span>segment) </a></code></pre></div>
 <p>The data can be also displayed in a different way :</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1">data_judg_s_p <span class="op">%&gt;%</span><span class="st">  </span><span class="kw">group_by</span>(segment) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/summarize_ch">summarize_all_ch</a></span>(var) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb13-2" title="2"><span class="st">                   </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/plot_gg">plot_gg</a></span>(<span class="dt">x =</span> segment, <span class="dt">y=</span> channel, <span class="dt">fill =</span> amplitude) <span class="op">+</span><span class="st"> </span></a>
@@ -284,10 +307,10 @@
 <p><img src="preprocessing_erp_files/figure-html/unnamed-chunk-11-3.png" width="100%"></p>
 <!-- 
 
-  group_by(segment) %>%
-                  summarize(chs_fun(vars or vector of characters, .funs = var))
+  #group_by(segment) %>%
+   #               summarize(chs_fun(vars or vector of characters, .funs = var))
 
-                  #ch_fun ignore the grouping
+    #              #ch_fun ignore the grouping
 
  -->
 <p>You can also plot the signal in a specific trial with “Plot trial” box. Here, we have plotted the trial 90 - the one with the highest variance. We can see a drift in the channel 48. You can zoom in to this channel by dragging the mouse over it.</p>
@@ -342,7 +365,6 @@
       <li><a href="#procedure">Procedure</a></li>
       <li><a href="#pre-processing-and-re-referencing">Pre-processing and re-referencing</a></li>
       <li><a href="#extracting-the-eog-signals">Extracting the EOG signals</a></li>
-      <li><a href="#channel-layout">Channel layout</a></li>
       <li><a href="#artifacts">Artifacts</a></li>
       <li><a href="#computing-and-plotting-the-erps">Computing and plotting the ERP’s</a></li>
       </ul>
