@@ -59,6 +59,13 @@ reference:
     - starts_with("is_")
     - starts_with("n")
 
+ - title: "Editing functions"
+    desc: >
+      Functions for editing `eeg_lst` objects.
+    contents: 
+    - '`events`'
+    - '`channels_tbl`'
+
   - title: "Constructor functions"
     desc: >
       Internal functions for creating objects.

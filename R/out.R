@@ -31,50 +31,9 @@ nchannels <- function(x, ...) {
   UseMethod("nchannels")
 }
 
-#' @rdname summary
 #' @export
 nchannels.eeg_lst <- function(x) {
   ncol(x$signal) - length(obligatory_cols$signal)
-}
-
-
-#' @export
-channels_tbl <- function(x, ...) {
-  UseMethod("channels_tbl")
-}
-
-
-#' @rdname summary
-#' @export
-channels_tbl.eeg_lst <- function(x, ...) {
-  dplyr::tibble(channel = channel_names(x)) %>%
-    # first row is enough and it makes it faster
-    dplyr::bind_cols(x$signal[1,] %>%
-      dplyr::select(channel_names(x)) %>%
-      purrr::map_dfr(~attributes(.x))) %>%
-    select(-class)
-}
-
-#' @export
-`channels_tbl<-` <- function(x, value) {
-  UseMethod("channels_tbl<-")
-}
-
-#' @rdname summary
-#' @export
-`channels_tbl<-.eeg_lst` <- function(x, value) {
-  orig_names <- channel_names(x)
-  channels <- dplyr::select(x$signal, orig_names)
-  nochannels <- dplyr::select(x$signal, -dplyr::one_of(channel_names(x)))
-  x$signal <- dplyr::bind_cols(nochannels, update_channel_meta_data(channels, value))
-  new_names <- channel_names(x)
-
-  for (i in seq_len(nchannels(x))) {
-    x$events <- mutate(x$events, .channel = dplyr::if_else(.channel == orig_names[i], new_names[i], .channel)) %>%
-                data.table::as.data.table()
-  }
-
-  x
 }
 
 sampling_rate <- function(x) {
