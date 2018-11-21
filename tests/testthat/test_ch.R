@@ -40,9 +40,11 @@ test_that("both .eeg_lst and .channel_dbl give the same output for chs_mean", {
 })
 
 data_reref <- mutate(data_eeg, X = ch_rereference(X, X, Y))
+X_reref <- data_eeg$signal$X - (data_eeg$signal$X+data_eeg$signal$Y)/2
+attributes(X_reref)$.reference = "X, Y"
 
 test_that("can reref the mean of the channels", {
-  expect_equal(data_reref$signal$X, data_eeg$signal$X - (data_eeg$signal$X+data_eeg$signal$Y)/2)
+  expect_equal(data_reref$signal$X, X_reref)
 })
 
 data_reref_all_chs <- ch_rereference(data_eeg, X, Y)
