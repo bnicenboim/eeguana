@@ -110,6 +110,18 @@ test_that("the classes of channels of signal_tbl remain in non-grouped eeg_lst",
 # data %>% group_by(.sample_id) %>%  summarize_all_ch(funs(diff = diff(.[segment==1], .[segment==2])))
 
 
+# d <- data$signal[data.table(data$segments), on = ".id" ]
+
+
+# group_by(d, .sample_id) %>% summarize(X[condition=="a"]-X[condition=="b"])
+
+
+
+# data$signal[data.table(data$segments), on = ".id" ][,.(X[condition=="a"] - X[condition=="b"])]
+
+
+# summarize(data, t.test(X[.id==1],X[.id==2])$summary)
+
 
 ## special columns:
 

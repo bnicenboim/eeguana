@@ -42,6 +42,7 @@ data_s2 <- data_s1 %>% group_by(condition, .sample_id) %>% summarize(X = mean(X)
 data_s3 <- data_s2 %>% group_by(condition) %>% summarize(X = mean(X),Y = mean(Y))
 data_s4 <- data_s3 %>% group_by() %>% summarize(X = mean(X),Y = mean(Y))
 
+
 # with pure dplyr functions
 extended_signal <- left_join(as_tibble(data$signal), data$segments, by =".id" )
 e_data_s1 <- data.table::data.table(extended_signal)[,.(X = mean(X),Y = mean(Y)), by = c("condition", ".sample_id", "recording")]
@@ -54,7 +55,6 @@ e_data_s3 <- data.table::data.table(e_data_s2)[,.(X = mean(X),Y = mean(Y)), by =
 s_data_s3 <- e_data_s1[,unique(.SD) ,.SDcols = c("condition")]
 
 e_data_s4 <- data.table::data.table(e_data_s3)[,.(X = mean(X),Y = mean(Y)), by = character(0)]
-
 
 
 test_that("summarizing by groups works as expected for the channel values", {
@@ -87,3 +87,13 @@ expect_equal(data_all_s3,data_all_s3)
 expect_equal(data_all_s4,data_all_s4)
 })
 
+
+
+group_by(data, .sample_id) %>% summarize(mean(X[condition=="a"]-X[condition=="b"]))
+group_by(data, .sample_id) %>% summarize(mean(X[condition=="a" & recording == "recording1"]-X[condition=="b" & recording == "recording2"]))
+
+group_by(data, .sample_id) %>% summarize_all_ch(funs(mean(.[condition=="a"]-.[condition=="b"])))
+group_by(data, .sample_id) %>% summarize_all_ch(funs(mean(.[condition=="a" & recording == "recording1"]-.[condition=="b" & recording == "recording2"])))
+
+group_by(data, .sample_id) %>% summarize_all_ch(funs(x = mean(.[condition=="a"]-.[condition=="b"])))
+group_by(data, .sample_id) %>% summarize_all_ch("mean")

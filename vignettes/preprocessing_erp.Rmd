@@ -80,7 +80,6 @@ events(data_judg) <- mutate(events(data_judg),
                                                   lead(description) == "S132" ~ 2, 
                                                                          TRUE ~ 0))
 data_judg_s <- data_judg %>% segment(condition %in% c(1,2), lim = c(-0.2,1))
-
 ```
 
 
@@ -106,7 +105,6 @@ We can have a look at one of the trials (the second one) of one channel (channel
 data_judg_s_p %>% filter(segment == 2) %>% 
                   select(X11) %>% 
                   plot()
-
 ```
 
 
@@ -116,7 +114,6 @@ And we can do more advanced plotting using `plot_gg` (allowing us to display mor
 data_judg_s_p %>% select(X11) %>% 
                   plot_gg() + 
                   geom_line(aes(group = segment, color = factor(condition)), alpha = .5) 
-
 ```
 
 ## Extracting the EOG signals
@@ -124,13 +121,11 @@ data_judg_s_p %>% select(X11) %>%
 In the BrainAmp acquisition system, all channels are measured relative to a common reference. For the horizontal EOG we will compute the potential difference between channels 57 and 25 (see the plot of the layout and the figure below). For the vertical EOG we will use channel 53 and channel "LEOG" which was placed below the subjects' left eye.
 
 ```{r}
-
 data_judg_s_p <- data_judg_s_p %>% 
                  mutate(eogv = ch_rereference(x = LEOG, X53),
                         eogh = ch_rereference(x = X25, X57)) %>%
                  # Unnecessary channels are removed
                  select(-LEOG, -X53, -X56, -X25) 
-
 ```
 
 You can check the channel labels that are now present in the data:
@@ -138,7 +133,6 @@ You can check the channel labels that are now present in the data:
 
 ```{r}
 channels_tbl(data_judg_s_p) %>% print(n=100)
-
 ```
 
 <!-- ## Channel layout
@@ -149,7 +143,7 @@ The channel positions are not always stored in the EEG dataset. But we can use a
 
 
 ```{r}
-layout <- read_layout(mpi_customized_acticap64.mat)
+#layout <- read_layout(mpi_customized_acticap64.mat)
 
 ```
 
@@ -172,10 +166,7 @@ data_judg_s_p %>%  select(eogv) %>%
 plot <- data_judg_s_p %>%  select(eogv) %>% 
                    plot_gg() + 
                    geom_line() + 
-                   facet_wrap(~segment) +
-                   theme_eeguana
-
-
+                   facet_wrap(~segment) 
 ```
 
 The data can be also displayed in a different way :
@@ -196,10 +187,10 @@ data_judg_s_p %>% chs_fun(var) %>%
 
 <!-- 
 
-  group_by(segment) %>%
-                  summarize(chs_fun(vars or vector of characters, .funs = var))
+  #group_by(segment) %>%
+   #               summarize(chs_fun(vars or vector of characters, .funs = var))
 
-                  #ch_fun ignore the grouping
+    #              #ch_fun ignore the grouping
 
  -->
 

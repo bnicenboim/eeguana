@@ -27,3 +27,13 @@ data <- eeg_lst(
   segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
 )
 
+filter(data, .id ==1)
+
+
+filter(data, segment == 2)
+
+filter(data, segment == 2 & .id ==2)
+
+filter(data, segment == 2 & .id ==1)
+
+filter(data, .sample_id ==2)

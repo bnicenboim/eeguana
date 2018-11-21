@@ -95,7 +95,6 @@ faces_segs <- faces %>%
                         lim = c(-.2,.25)) %>%
                event_to_ch_NA(type == "Bad Interval") %>% 
                ch_baseline()
-
 ```
 
 
@@ -150,7 +149,6 @@ faces_segs_some %>%
                   aes(color = condition)) +
                 facet_wrap(~ channel) + 
                 theme(legend.position = "bottom") 
-
 ```
 
 
@@ -164,7 +162,6 @@ faces_segs_some %>% filter(between(as_time(.sample_id, unit = "milliseconds"),10
                     summarize_all_ch(mean, na.rm = TRUE) %>%
                       interpolate_tbl() %>%
                     plot_topo() + facet_grid(~condition)
-
 ```
 
 
