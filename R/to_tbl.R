@@ -72,31 +72,4 @@ as.data.frame.eeg_lst <- function(...) {
 }
 
 
-#' Functions to get or set the events table of an eeg_lst object.
-#'
-#'
-#' @param x An eeg_lst object.
-#' @param value An events table.
-#' 
-#' @return A table.
-#' @export
-events <- function(x, ...) {
-  UseMethod("events")
-}
-#' @rdname events
-#' @export
-events.eeg_lst <- function(x){
-  x$events
-}
-#' @rdname events
-#' @export
-`events<-` <- function(x, value,...) {
-  UseMethod("events<-")
-}
-#' @rdname events
-#' @export
-`events<-.eeg_lst` <- function(x, value) {
-  x$events <- data.table::data.table(value)
-  x
-}
 

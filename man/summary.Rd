@@ -3,21 +3,12 @@
 \name{summary}
 \alias{summary}
 \alias{channel_names.eeg_lst}
-\alias{nchannels.eeg_lst}
-\alias{channels_tbl.eeg_lst}
-\alias{channels_tbl<-.eeg_lst}
 \alias{nsamples.eeg_lst}
 \alias{summary.eeg_lst}
 \alias{print.eeg_summary}
 \title{Display information of the eeg_lst object.}
 \usage{
 \method{channel_names}{eeg_lst}(x)
-
-\method{nchannels}{eeg_lst}(x)
-
-\method{channels_tbl}{eeg_lst}(x, ...)
-
-\method{channels_tbl}{eeg_lst}(x) <- value
 
 \method{nsamples}{eeg_lst}(x)
 
