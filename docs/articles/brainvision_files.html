@@ -462,15 +462,7 @@
 <a class="sourceLine" id="cb11-6" title="6"><span class="st">                </span><span class="kw">stat_summary</span>(<span class="dt">fun.y =</span> <span class="st">"mean"</span>, <span class="dt">geom =</span><span class="st">"line"</span>, <span class="dt">alpha =</span> <span class="dv">1</span>, <span class="dt">size =</span> <span class="dv">1</span>, </a>
 <a class="sourceLine" id="cb11-7" title="7">                  <span class="kw">aes</span>(<span class="dt">color =</span> condition)) <span class="op">+</span></a>
 <a class="sourceLine" id="cb11-8" title="8"><span class="st">                </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>channel) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb11-9" title="9"><span class="st">                </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>) </a>
-<a class="sourceLine" id="cb11-10" title="10"><span class="co">#&gt; &lt;quosure&gt;</span></a>
-<a class="sourceLine" id="cb11-11" title="11"><span class="co">#&gt; expr: ^chs_mean(O1, O2, Oz, na.rm = TRUE)</span></a>
-<a class="sourceLine" id="cb11-12" title="12"><span class="co">#&gt; env:  0x26558698</span></a>
-<a class="sourceLine" id="cb11-13" title="13"><span class="co">#&gt; NULL</span></a>
-<a class="sourceLine" id="cb11-14" title="14"><span class="co">#&gt; &lt;quosure&gt;</span></a>
-<a class="sourceLine" id="cb11-15" title="15"><span class="co">#&gt; expr: ^chs_mean(P3, P4, P7, P8, Pz, na.rm = TRUE)</span></a>
-<a class="sourceLine" id="cb11-16" title="16"><span class="co">#&gt; env:  0x26558698</span></a>
-<a class="sourceLine" id="cb11-17" title="17"><span class="co">#&gt; NULL</span></a></code></pre></div>
+<a class="sourceLine" id="cb11-9" title="9"><span class="st">                </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>) </a></code></pre></div>
 <p><img src="brainvision_files_files/figure-html/unnamed-chunk-9-1.png" width="100%"></p>
 <p>Another possibility is to create a topographic plot of the two conditions, by first making segments that include only the interval .1-.2 <em>s</em> after the onset of the stimuli, creating a table with interpolated amplitudes and using the ggplot wrapper <code>plot_topo</code>.</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">faces_segs_some <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(<span class="kw">between</span>(<span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/as_time">as_time</a></span>(.sample_id, <span class="dt">unit =</span> <span class="st">"milliseconds"</span>),<span class="dv">100</span>,<span class="dv">200</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>

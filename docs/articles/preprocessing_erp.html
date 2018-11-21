@@ -158,11 +158,7 @@
 <a class="sourceLine" id="cb6-6" title="6"><span class="st">                </span><span class="co"># All channels are references with REF  </span></a>
 <a class="sourceLine" id="cb6-7" title="7"><span class="st">                </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/ch_rereference">ch_rereference</a></span>(RM, REF) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb6-8" title="8"><span class="st">                </span><span class="co"># A low pass filter is applied </span></a>
-<a class="sourceLine" id="cb6-9" title="9"><span class="st">                </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/filt">ch_filt_low_pass</a></span>(<span class="dv">100</span>)  </a>
-<a class="sourceLine" id="cb6-10" title="10"><span class="co">#&gt; &lt;quosure&gt;</span></a>
-<a class="sourceLine" id="cb6-11" title="11"><span class="co">#&gt; expr: ^channel_dbl(0)</span></a>
-<a class="sourceLine" id="cb6-12" title="12"><span class="co">#&gt; env:  0x4738720</span></a>
-<a class="sourceLine" id="cb6-13" title="13"><span class="co">#&gt; NULL</span></a></code></pre></div>
+<a class="sourceLine" id="cb6-9" title="9"><span class="st">                </span><span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/filt">ch_filt_low_pass</a></span>(<span class="dv">100</span>)  </a></code></pre></div>
 <p>We can have a look at one of the trials (the second one) of one channel (channel 11) using <code>plot()</code></p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1">data_judg_s_p <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(segment <span class="op">==</span><span class="st"> </span><span class="dv">2</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb7-2" title="2"><span class="st">                  </span><span class="kw">select</span>(X11) <span class="op">%&gt;%</span><span class="st"> </span></a>
@@ -182,15 +178,7 @@
 <a class="sourceLine" id="cb9-2" title="2"><span class="st">                 </span><span class="kw">mutate</span>(<span class="dt">eogv =</span> <span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/ch_rereference">ch_rereference</a></span>(<span class="dt">x =</span> LEOG, X53),</a>
 <a class="sourceLine" id="cb9-3" title="3">                        <span class="dt">eogh =</span> <span class="kw"><a href="http://www.rdocumentation.org/packages/eeguana/topics/ch_rereference">ch_rereference</a></span>(<span class="dt">x =</span> X25, X57)) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb9-4" title="4"><span class="st">                 </span><span class="co"># Unnecessary channels are removed</span></a>
-<a class="sourceLine" id="cb9-5" title="5"><span class="st">                 </span><span class="kw">select</span>(<span class="op">-</span>LEOG, <span class="op">-</span>X53, <span class="op">-</span>X56, <span class="op">-</span>X25) </a>
-<a class="sourceLine" id="cb9-6" title="6"><span class="co">#&gt; &lt;quosure&gt;</span></a>
-<a class="sourceLine" id="cb9-7" title="7"><span class="co">#&gt; expr: ^ch_rereference(x = LEOG, X53)</span></a>
-<a class="sourceLine" id="cb9-8" title="8"><span class="co">#&gt; env:  0x7074760</span></a>
-<a class="sourceLine" id="cb9-9" title="9"><span class="co">#&gt; NULL</span></a>
-<a class="sourceLine" id="cb9-10" title="10"><span class="co">#&gt; &lt;quosure&gt;</span></a>
-<a class="sourceLine" id="cb9-11" title="11"><span class="co">#&gt; expr: ^ch_rereference(x = X25, X57)</span></a>
-<a class="sourceLine" id="cb9-12" title="12"><span class="co">#&gt; env:  0x7074760</span></a>
-<a class="sourceLine" id="cb9-13" title="13"><span class="co">#&gt; NULL</span></a></code></pre></div>
+<a class="sourceLine" id="cb9-5" title="5"><span class="st">                 </span><span class="kw">select</span>(<span class="op">-</span>LEOG, <span class="op">-</span>X53, <span class="op">-</span>X56, <span class="op">-</span>X25) </a></code></pre></div>
 <p>You can check the channel labels that are now present in the data:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">channels_tbl</span>(data_judg_s_p) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">print</span>(<span class="dt">n=</span><span class="dv">100</span>)</a>
 <a class="sourceLine" id="cb10-2" title="2"><span class="co">#&gt; # A tibble: 63 x 11</span></a>
