@@ -83,8 +83,15 @@ ch_rereference <- function(x, ...,na.rm= FALSE) {
 
 #' @export
 ch_rereference.channel_dbl <- function(x, ..., na.rm = FALSE) {
-  x - rowMeans(data.table::data.table(...), na.rm = na.rm)
-}
+   dots <- rlang::enquos(...)
+   new_ref <-  purrr::map_chr(dots, rlang::quo_text) %>% paste0(collapse = ", ")
+
+  {x - rowMeans(data.table::data.table(...), na.rm = na.rm)}  %>%
+   { `attributes<-`(., c(attributes(.), 
+                        list(.reference = new_ref))
+                        ) }
+  # {`attributes<-`(., list(.reference=2))}
+ }
 
 #' @export
 ch_rereference.eeg_lst <- function(x,..., na.rm = FALSE, exclude = NULL) {
