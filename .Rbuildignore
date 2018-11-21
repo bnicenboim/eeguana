@@ -20,3 +20,4 @@ experimental
 ^vignettes\.*\.vmrk
 ^vignettes\.*\.dat
 ^vignettes\.*\.Rmd
+^vignettes.*
