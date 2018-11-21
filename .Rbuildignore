@@ -1,3 +1,5 @@
+^Meta$
+^doc$
 ^codecov\.yml$
 ^\.travis\.yml$
 ^docs$
@@ -17,3 +19,4 @@ experimental
 ^vignettes\.*\.vhdr
 ^vignettes\.*\.vmrk
 ^vignettes\.*\.dat
+^vignettes\.*\.Rmd

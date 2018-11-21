@@ -5,8 +5,7 @@ summarize_eeg_lst <- function(.eeg_lst, dots){
 }
 
 summarize_at_eeg_lst <- function(.eeg_lst, vars, funs){
-
-   .eeg_lst$signal <-   summarize_at_eval_eeg_lst(.eeg_lst, vars, funs[[1]])
+   .eeg_lst$signal <-   summarize_at_eval_eeg_lst(.eeg_lst, vars, funs)
    update_summarized_eeg_lst(.eeg_lst)
 
 }
@@ -20,7 +19,7 @@ update_summarized_eeg_lst <- function(.eeg_lst){
     last_id <- integer(0)
   }
 
-  .eeg_lst$segments <- summarize_segments(.eeg_lst$segments, 
+  .eeg_lst$segments <- summarize_segments(segments = .eeg_lst$segments, 
                                             segments_groups = group_chr_segments(.eeg_lst),
                                             last_id= last_id ) 
     ## Restructure events table
@@ -86,26 +85,33 @@ summarize_eval_signal <- function(.eeg_lst, dots){
   
 }
 
-summarize_at_eval_eeg_lst <- function(.eeg_lst, vars, fun_quo){
-
+summarize_at_eval_eeg_lst <- function(.eeg_lst, vars, funs){
+  
+  fun_quo <- funs[[1]]
   cond_cols <- names_segments_col(.eeg_lst, fun_quo)
+  names(cond_cols) <- cond_cols
+
   extended_signal <- extended_signal(.eeg_lst, cond_cols) 
   by <- dplyr::group_vars(.eeg_lst)
 
   fun_txt <- rlang::quo_text(fun_quo)
-  # vars_txt <- paste0("'",vars,"'",collapse =", ")
-  cond_cols_txt <- paste0(cond_cols,collapse =", ")
- 
-
+  
   #save attributes, then do the function, then keep attributes
-  myfun <- function(., ...){
-      attr <- attributes(.)
-      `attributes<-`(eval(parse(text=fun_txt)),attr)
+  myfun <- function(., args){
+       attr <- attributes(.)
+      `attributes<-`(with(args,eval(parse(text=fun_txt))),attr)
     }
  
- extended_signal <- extended_signal[,lapply(.SD, myfun, eval(parse(text=cond_cols_txt))),.SDcols = as.character(vars) , by = c(by)]
-
- update_summarized_signal(extended_signal,.eeg_lst)
+  extended_signal <-  extended_signal[,
+                      # apply my fun to all ther relevant columns
+                      lapply(.SD, myfun, 
+                        # adding the auxiliary columns that are used as conditions (e.g., .[cond=1])
+                        args = lapply(cond_cols, function(.) get(.))
+                        ),
+                      .SDcols = as.character(vars),
+                       by = c(by)]
+  data.table::setnames(extended_signal, as.character(vars), paste0(as.character(vars),"_",names(funs)))
+  update_summarized_signal(extended_signal,.eeg_lst)
 }
 
 

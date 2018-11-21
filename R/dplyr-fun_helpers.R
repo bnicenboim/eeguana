@@ -15,9 +15,19 @@ filter_eeg_lst <- function(.eeg_lst, dots){
     new_dots <- dots_by_tbl_quos(.eeg_lst, dots)
 
     if (length(new_dots$signal) > 0) {
-      .eeg_lst$signal <- eval_signal(.eeg_lst, eval_txt = filter_eval(new_dots$signal), 
-                          cond_cols = names_segments_col(.eeg_lst, dots))
-      .eeg_lst$segments <- dplyr::semi_join(.eeg_lst$segments, .eeg_lst$signal, by = ".id")
+     cond_cols <- names_segments_col(.eeg_lst, dots)
+     extended_signal <- extended_signal(.eeg_lst, cond_cols) 
+     by <- as.character(dplyr::group_vars(.eeg_lst))
+ 
+    # https://stackoverflow.com/questions/16573995/subset-by-group-with-data-table
+     dots_txt <- purrr::map(dots, ~  rlang::quo_text(.x)) %>%
+     paste0(., collapse = " & ")
+     
+     signal_cols <- colnames(.eeg_lst$signal)
+
+     .eeg_lst$signal <-  extended_signal[extended_signal[,.I[eval(parse(text = dots_txt))], by = c(by)]$V1][,..signal_cols]
+
+     .eeg_lst$segments <- dplyr::semi_join(.eeg_lst$segments, .eeg_lst$signal, by = ".id")
      }
     
 
@@ -59,10 +69,22 @@ mutate_eeg_lst <- function(.eeg_lst, dots, keep_cols = TRUE){
                               obligatory_cols$signal
                              }}  %>% c(.,new_cols) %>%
                        unique()
+      
+      cond_cols <- names_segments_col(.eeg_lst, dots)
 
-      .eeg_lst$signal <- eval_signal(.eeg_lst, eval_txt = mutate_eval(new_dots$signal), 
-                                            cond_cols = names_segments_col(.eeg_lst, dots),
-                                            out_cols = signal_cols) 
+
+  extended_signal <- extended_signal(.eeg_lst, cond_cols) 
+  by <- dplyr::group_vars(.eeg_lst) %>% as.character()
+  # eval needs signal_cols and extended signal and by
+  
+
+  new_dots$signal <- rlang::quos_auto_name(new_dots$signal)
+  for(i in seq_len(length(new_dots$signal))){
+    extended_signal[,`:=`(names(new_dots$signal[i]), eval(parse(text = rlang::quo_text(new_dots$signal[[i]])))), by = c(by)]
+  }
+ 
+  .eeg_lst$signal <- extended_signal[,..signal_cols][]
+
 
       #updates the events and the channels
       .eeg_lst <- .eeg_lst %>% update_events_channels()  #%>% update_channels_tbl(channels_info)
