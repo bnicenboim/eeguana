@@ -212,32 +212,8 @@ hd_add_column <- function(.data, ..., .before = NULL, .after = NULL) {
 
 
 #' @noRd
-validate_segments <- function(segments) {
-  # Validates .id
-  if (all(unique(segments$.id) != seq_len(max(segments$.id)))) {
-    warning("Missing .ids, some functions might fail.",
-      call. = FALSE
-    )
-  }
-}
-
-
-#' @noRd
 signal_from_parent_frame <- function(env = parent.frame()) {
   # This is the environment where I can find the columns of signal_tbl
   signal_env <- rlang::env_get(env = env, ".top_env", inherit = TRUE)
   signal_tbl <- dplyr::as_tibble(rlang::env_get_list(signal_env, rlang::env_names(signal_env)))
 }
-
-
-# update_channels_tbl <- function(.eeg_lst, channels_info){
-#   new_channels_names <- dplyr::tibble(.name = setdiff(channel_names(.eeg_lst), channels_info$.name), class = "channel_dbl")
-#   old_channels_tbl <- dplyr::filter(channels_info, .name %in% channel_names(.eeg_lst))
-#   new_channels_tbl <- dplyr::bind_rows(new_channels_names, old_channels_tbl) %>% 
-#                     left_join(dplyr::tibble(.name=channel_names(.eeg_lst)),.,by=".name")
-
-#    channels_tbl(.eeg_lst) <- new_channels_tbl
-#   .eeg_lst
-# }
-
-
