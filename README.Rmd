@@ -35,12 +35,7 @@ devtools::install_github("bnicenboim/eeguana")
 
 ```
 
-
-
-
 ## Example
-
-
 
 Here, I
 exemplify the use of *eeguana* with (pre-processed) EEG data from BrainVision 2.0. The data belong to 
@@ -50,7 +45,7 @@ task of the experiment was to mentally count the number of faces.
 
 First we download the data:
 
-```{r downloading, eval = FALSE}
+```{r downloading, eval = any(!file.exists("faces.dat","faces.vmrk","faces.dat"))}
 download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.vhdr", 
               "faces.vhdr", mode="wb")
 download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.vmrk", 
