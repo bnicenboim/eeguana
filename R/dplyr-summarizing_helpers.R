@@ -110,7 +110,10 @@ summarize_at_eval_eeg_lst <- function(.eeg_lst, vars, funs){
                         ),
                       .SDcols = as.character(vars),
                        by = c(by)]
-  data.table::setnames(extended_signal, as.character(vars), paste0(as.character(vars),"_",names(funs)))
+   #give a name if the name wasn't given
+  if(!is.null(names(funs))){
+    data.table::setnames(extended_signal, as.character(vars), paste0(as.character(vars),"_",names(funs)))
+  }                     
   update_summarized_signal(extended_signal,.eeg_lst)
 }
 

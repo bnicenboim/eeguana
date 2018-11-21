@@ -35,6 +35,15 @@ summarize_at_ch.eeg_lst <- function(.tbl,.vars,  .funs, ...) {
   #TODO look for a rlang alternative for dplyr:::as_fun_list and dplyr:::tbl_at_syms
   funs <- dplyr:::as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env(),...) # fun_list class, contains a quosure such as ^mean(.)
   vars <- dplyr:::tbl_at_syms(.tbl$signal, .vars) #list of chars
+
+  is_named <- rlang::quo_text(rlang::enquo(.funs)) %>% 
+              stringr::str_detect('have_name = TRUE')
+
+  # if a name wasn't given:
+  if(!is_named){
+    names(funs) <- NULL
+  }
+
   summarize_at_eeg_lst(.tbl, vars, funs) 
 }
 
@@ -45,6 +54,15 @@ summarise_at_ch <- summarize_at_ch
 #' @export
 summarize_all_ch.eeg_lst <- function(.tbl, .funs, ...) {
   funs <- dplyr:::as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env(),...) # fun_list class, contains a quosure such as ^mean(.)
+  
+  is_named <- rlang::quo_text(rlang::enquo(.funs)) %>% 
+              stringr::str_detect('have_name = TRUE')
+
+  # if a name wasn't given:
+  if(!is_named){
+    names(funs) <- NULL
+  }
+  
   vars <- as.list(channel_names(.tbl))
   summarize_at_eeg_lst(.tbl, vars, funs) 
 }
