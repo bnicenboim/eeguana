@@ -11,7 +11,8 @@ ch_rereference(x, ..., na.rm = FALSE)
 
 \item{...}{Channels that will be averaged as the reference.}
 
-\item{na.rm}{}
+\item{na.rm}{a logical value indicating whether \code{NA}
+    values should be stripped before the computation proceeds.}
 
 \item{exclude}{A character vector of channels to exclude from referencing.}
 }

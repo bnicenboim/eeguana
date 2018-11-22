@@ -125,7 +125,7 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds", rec
 #'     it will consider samples from all channels (Default:  `all_chans = FALSE`).
 #' @param entire_seg If set to `FALSE`, it will consider only the marked part of the segment,
 #'     otherwise it will consider the entire segment (Default: entire_seg = TRUE). Setting it to FALSE can make the function very slow.
-#' @param drop_events
+#' @param drop_events If set to `TRUE` (default), the events that were using for setting signals to NA, will be removed from the events table.
 #'
 #'
 #' @return An eeg_lst.

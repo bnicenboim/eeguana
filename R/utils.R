@@ -17,7 +17,7 @@ seq_len <- function(length.out) {
 #' @noRd
 say_size <- function(eeg_lst) paste(
     "# Object size in memory",
-    capture.output(print(object.size(eeg_lst), units = "auto"))
+    utils::capture.output(print(utils::object.size(eeg_lst), units = "auto"))
   )
 
 
@@ -87,3 +87,7 @@ theme_eeguana <- ggplot2::theme_bw() +
                     strip.background = ggplot2::element_rect(colour = "transparent", fill = "transparent"),
                     panel.spacing  = ggplot2::unit(.01, "points"),
                     panel.border = ggplot2::element_rect(colour = "transparent", fill = "transparent"))
+
+
+#' @export
+between <- data.table::between

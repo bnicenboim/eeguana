@@ -11,7 +11,7 @@ events(x, ...)
 
 \method{events}{eeg_lst}(x)
 
-events(x, ...) <- value
+events(x) <- value
 
 \method{events}{eeg_lst}(x) <- value
 }

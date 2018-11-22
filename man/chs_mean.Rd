@@ -7,9 +7,15 @@
 chs_mean(x, ..., na.rm = FALSE)
 }
 \arguments{
+\item{x}{An \R object.  Currently there are methods for
+    numeric/logical vectors and \link[=Dates]{date},
+    \link{date-time} and \link{time interval} objects.  Complex vectors
+    are allowed for \code{trim = 0}, only.}
+
 \item{...}{A channel or a group of channels, or an \code{eeg_lst} object.}
 
-\item{na.rm}{}
+\item{na.rm}{a logical value indicating whether \code{NA}
+    values should be stripped before the computation proceeds.}
 }
 \value{
 A new channel or an \code{eeg_lst} object with a \code{mean} channel instead of the previous channels.

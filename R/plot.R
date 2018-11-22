@@ -115,13 +115,13 @@ plot_topo.tbl_df <- function(data, x = .x, y =.y, value= amplitude,  label=chann
 
   # grid <- interpolate_xy(s_x, x = x, y = y, value = A, method = "MBA", ...)
 
-  plot <- filter(data, !is.na(!!x), !is.na(!!y), is.na(!!label)) %>%
-    ggplot(aes(x=!!x, y=!!y)) +
-    geom_raster(aes(fill = !!value), interpolate = TRUE, hjust = 0.5, vjust = 0.5) +
-    geom_contour(aes(z = !!value)) +
-    geom_text(data = filter(data, !is.na(!!x), !is.na(!!y), !is.na(!!label)), aes(x = !!x, y = !!y, label = !!label), colour = "black") +
+  plot <- dplyr::filter(data, !is.na(!!x), !is.na(!!y), is.na(!!label)) %>%
+    ggplot2::ggplot(ggplot2::aes(x=!!x, y=!!y)) +
+    ggplot2::geom_raster(ggplot2::aes(fill = !!value), interpolate = TRUE, hjust = 0.5, vjust = 0.5) +
+    ggplot2::geom_contour(ggplot2::aes(z = !!value)) +
+    ggplot2::geom_text(data = dplyr::filter(data, !is.na(!!x), !is.na(!!y), !is.na(!!label)), ggplot2::aes(x = !!x, y = !!y, label = !!label), colour = "black") +
     # scale_fill_distiller(palette = "Spectral", guide = "colourbar", oob = scales::squish) + #, oob = scales::squish
-    scale_fill_gradientn(
+    ggplot2::scale_fill_gradientn(
       colours = c("darkred", "yellow", "green", "darkblue"),
       values = c(1.0, 0.75, 0.5, 0.25, 0)
     ) +
@@ -147,12 +147,12 @@ plot_topo.eeg_lst <- function(data, x = .x, y =.y, value= amplitude,  label=chan
   # grid <- interpolate_xy(s_x, x = x, y = y, value = A, method = "MBA", ...)
 
   plot <- data %>%
-    ggplot(aes(x=!!x, y=!!y)) +
-    geom_raster(aes(fill = !!value), interpolate = F, hjust = 0.5, vjust = 0.5) +
-    geom_contour(aes(z = !!value)) +
-    geom_text(data = filter(data, !is.na(!!x), !is.na(!!y)), aes(x = !!x, y = !!y, label = !!label), colour = "black") +
+    ggplot2::ggplot(ggplot2::aes(x=!!x, y=!!y)) +
+    ggplot2::geom_raster(ggplot2::aes(fill = !!value), interpolate = F, hjust = 0.5, vjust = 0.5) +
+    ggplot2::geom_contour(ggplot2::aes(z = !!value)) +
+    ggplot2::geom_text(data = dplyr::filter(data, !is.na(!!x), !is.na(!!y)), ggplot2::aes(x = !!x, y = !!y, label = !!label), colour = "black") +
     # scale_fill_distiller(palette = "Spectral", guide = "colourbar", oob = scales::squish) + #, oob = scales::squish
-    scale_fill_gradientn(
+    ggplot2::scale_fill_gradientn(
       colours = c("darkred", "yellow", "green", "darkblue"),
       values = c(1.0, 0.75, 0.5, 0.25, 0)
     ) +

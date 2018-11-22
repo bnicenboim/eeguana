@@ -16,7 +16,7 @@ events.eeg_lst <- function(x){
 }
 #' @rdname events
 #' @export
-`events<-` <- function(x, value,...) {
+`events<-` <- function(x, value) {
   UseMethod("events<-")
 }
 #' @rdname events
@@ -48,7 +48,7 @@ channels_tbl.eeg_lst <- function(x, ...) {
     dplyr::bind_cols(x$signal[1,] %>%
       dplyr::select(channel_names(x)) %>%
       purrr::map_dfr(~attributes(.x))) %>%
-    select(-class)
+    dplyr::select(-class)
 }
 #' @rdname channels_tbl
 #' @export

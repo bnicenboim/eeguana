@@ -96,12 +96,12 @@ bind <- function(...) {
       warning("Objects with different channels information, see below\n\n", "File ",
         as.character(as.numeric(.y) + 1), " ... \n",
         paste0(
-          capture.output(setdiff(channels_tbl(eeg_lsts[[1]]), channels_tbl(.x))),
+          utils::capture.output(setdiff(channels_tbl(eeg_lsts[[1]]), channels_tbl(.x))),
           collapse = "\n"
         ),
         "\n\n ... in comparison with file 1 ...\n\n",
         paste0(
-          capture.output(setdiff(channels_tbl(.x), channels_tbl(eeg_lsts[[1]]))),
+          utils::capture.output(setdiff(channels_tbl(.x), channels_tbl(eeg_lsts[[1]]))),
           collapse = "\n"
         )
         ,
