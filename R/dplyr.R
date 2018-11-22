@@ -138,5 +138,5 @@ semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
 
 #' @rdname dplyr
 tbl_vars.eeg_lst <- function(x) {
-  setdiff(dplyr::tbl_vars(x$signal),dplyr::tbl_vars(x$segments), c(".id", ".sample_id"))
+  setdiff(dplyr::tbl_vars(x$signal), c(dplyr::tbl_vars(x$segments), c(".id", ".sample_id")))
 }
