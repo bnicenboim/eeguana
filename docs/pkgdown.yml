@@ -1,5 +1,7 @@
 pandoc: '2.4'
 pkgdown: 1.1.0
 pkgdown_sha: ~
-articles: []
+articles:
+  brainvision_files: brainvision_files.html
+  preprocessing_erp: preprocessing_erp.html
 
