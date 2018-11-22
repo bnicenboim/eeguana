@@ -1,6 +1,5 @@
 # eeguana 0.0.3.9000
  - Changes
-   - Fieldtrip tutorial added to the website.
    - ggplot2 theme improved.
    - changed the default downsampling in plots.
    - better handling of weird channel names.
