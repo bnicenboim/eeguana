@@ -44,7 +44,7 @@ mutate.eeg_lst <- function(.data, ...) {
   mutate_eeg_lst(.data, dots, keep_cols = TRUE)
 }
 mutate_.eeg_lst <- function(.data, ..., .dots = list()) {
-  dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
+  dots <- dplyr:::compat_lazy_dots(.dots, rlang::caller_env(), ...)
   mutate_eeg_lst(.data, dots, keep_cols = TRUE)
 }
 #' @rdname dplyr
@@ -53,11 +53,11 @@ transmute.eeg_lst <- function(.data, ...) {
   mutate_eeg_lst(.data, dots, keep_cols = FALSE)
 }
 transmute_.eeg_lst <- function(.data, ..., .dots = list()) {
-  dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
+  dots <- dplyr:::compat_lazy_dots(.dots, rlang::caller_env(), ...)
   mutate_eeg_lst(.data, dots, keep_cols = FALSE)
 }
 filter_.eeg_lst <- function(.data, ..., .dots = list()) {
-  dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
+  dots <- dplyr:::compat_lazy_dots(.dots, rlang::caller_env(), ...)
   filter_eeg_lst(.data, dots = dots)
 }
 #' @rdname dplyr
@@ -71,11 +71,11 @@ summarise.eeg_lst <- function(.data, ...) {
  summarize_eeg_lst(.data, dots)
 }
 summarise_.eeg_lst <- function(.data, ..., .dots = list()) {
-  dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
+  dots <- dplyr:::compat_lazy_dots(.dots, rlang::caller_env(), ...)
  summarize_eeg_lst(.data, dots)
 }
 group_by_.eeg_lst <- function(.data, ..., .dots = list()) {
-  dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
+  dots <- dplyr:::compat_lazy_dots(.dots, rlang::caller_env(), ...)
   group_by_eeg_lst(.eeg_lst = .data, dots, .add = FALSE)
 }
 #' @rdname dplyr

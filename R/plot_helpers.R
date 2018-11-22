@@ -57,7 +57,8 @@ interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, lab
     l <- .data %>% dplyr::ungroup() %>% dplyr::select(dplyr::one_of(group_vars)) %>%
     # in case it should group by some NA
     
-    dplyr::mutate_all(tidyr::replace_na, "NA") %>% distinct()
+    dplyr::mutate_all(tidyr::replace_na, "NA") %>% 
+    dplyr::distinct()
 
   if (method == "MBA") {
     if (!"MBA" %in% rownames(utils::installed.packages())) {
@@ -99,11 +100,11 @@ interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, lab
       mba_interp <- interpolation_alg(interpolate_from)
 
       dplyr::tibble(
-        !!quo_name(x) := rep(mba_interp$xyz$x, times = mba_interp$no.Y),
+        !!rlang::quo_name(x) := rep(mba_interp$xyz$x, times = mba_interp$no.Y),
         # eq to mba_interp$xyz.est@coords[,1] with sp = TRUE, which requires an extra package
-        !!quo_name(y) := rep(mba_interp$xyz$y, each = mba_interp$no.X),
+        !!rlang::quo_name(y) := rep(mba_interp$xyz$y, each = mba_interp$no.X),
         # eq to mba_interp$xyz.est@coords[,2]
-        !!quo_name(value) := c(mba_interp$xyz$z)
+        !!rlang::quo_name(value) := c(mba_interp$xyz$z)
       ) %>%
         # eq to mba_interp$xyz.est@data$z
         dplyr::filter(((!!x)^2 + (!!y)^2 < 1.1)) %>%

@@ -3,7 +3,7 @@
 #' Wrapper of `rowMeans` that performs a by-sample mean of the specified channels.
 #'
 #' @param ... A channel or a group of channels, or an `eeg_lst` object.
-#' @param na.rm 
+#' @inheritParams base::mean
 #' @return A new channel or an `eeg_lst` object with a `mean` channel instead of the previous channels.
 #' @family channel
 #'
@@ -63,8 +63,8 @@ chs_mean.eeg_lst <- function(x, na.rm = FALSE) {
 #' 
 #' @param x A channel to be referenced an eeg_lst where all the channels will be re-referenced (except for the ones in exclude).
 #' @param ... Channels that will be averaged as the reference.
-#' @param na.rm 
 #' @param exclude  A character vector of channels to exclude from referencing.
+#' @inheritParams base::mean
 #' @return A rereferenced channel or an eeg_lst with all channels re-referenced.
 #' @export
 #'

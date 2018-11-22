@@ -23,9 +23,9 @@ filter_eeg_lst <- function(.eeg_lst, dots){
      dots_txt <- purrr::map(dots, ~  rlang::quo_text(.x)) %>%
      paste0(., collapse = " & ")
      
-     signal_cols <- colnames(.eeg_lst$signal)
+     cols_signal <- colnames(.eeg_lst$signal)
 
-     .eeg_lst$signal <-  extended_signal[extended_signal[,.I[eval(parse(text = dots_txt))], by = c(by)]$V1][,..signal_cols]
+     .eeg_lst$signal <-  extended_signal[extended_signal[,.I[eval(parse(text = dots_txt))], by = c(by)]$V1][,..cols_signal]
 
      .eeg_lst$segments <- dplyr::semi_join(.eeg_lst$segments, .eeg_lst$signal, by = ".id")
      }
@@ -63,7 +63,7 @@ mutate_eeg_lst <- function(.eeg_lst, dots, keep_cols = TRUE){
       new_cols <-  rlang::quos_auto_name(new_dots$signal) %>%
                     names()
 
-      signal_cols <- {if(keep_cols) {
+      cols_signal <- {if(keep_cols) {
                               colnames(.eeg_lst$signal)
                              } else {
                               obligatory_cols$signal
@@ -75,7 +75,7 @@ mutate_eeg_lst <- function(.eeg_lst, dots, keep_cols = TRUE){
 
   extended_signal <- extended_signal(.eeg_lst, cond_cols) 
   by <- dplyr::group_vars(.eeg_lst) %>% as.character()
-  # eval needs signal_cols and extended signal and by
+  # eval needs cols_signal and extended signal and by
   
 
   new_dots$signal <- rlang::quos_auto_name(new_dots$signal)
@@ -83,7 +83,7 @@ mutate_eeg_lst <- function(.eeg_lst, dots, keep_cols = TRUE){
     extended_signal[,`:=`(names(new_dots$signal[i]), eval(parse(text = rlang::quo_text(new_dots$signal[[i]])))), by = c(by)]
   }
  
-  .eeg_lst$signal <- extended_signal[,..signal_cols][]
+  .eeg_lst$signal <- extended_signal[,..cols_signal][]
 
 
       #updates the events and the channels
@@ -176,7 +176,8 @@ scaling <- function(sampling_rate, unit) {
 #' @noRd
 redo_indices <- function(.eeg_lst) {
   .eeg_lst$signal[,.id:= as.factor(.id) %>% as.integer(.)]
-  .eeg_lst$segments <- .eeg_lst$segments %>%  mutate(.id =  as.factor(.id) %>% as.integer(.))
+  .eeg_lst$segments <- .eeg_lst$segments %>% 
+                        dplyr::mutate(.id =  as.factor(.id) %>% as.integer(.))
   .eeg_lst$events[,.id:= as.factor(.id) %>% as.integer(.)]
   data.table::setkey(.eeg_lst$signal, .id, .sample_id)
   .eeg_lst

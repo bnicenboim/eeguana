@@ -147,8 +147,8 @@ segment_events <- function(events, .lower, .sample_0, .upper) {
   segmentation <- data.table::data.table(.lower, .sample_0, .upper)
   segmentation[,.id := seq_len(.N)]
 
-cols_events_temp <- unique(c(colnames(events), colnames(segmentation),"i..sample_0","i..size","x..lower"))
-  col_events <- c(".id",colnames(events))
+  cols_events_temp <- unique(c(colnames(events), colnames(segmentation),"i..sample_0","i..size","x..lower"))
+  cols_events <- c(".id",colnames(events))
   new_events <- data.table::as.data.table(events)
   new_events[, lowerb :=.sample_0 + .size - 1L]
 
@@ -166,7 +166,7 @@ cols_events_temp <- unique(c(colnames(events), colnames(segmentation),"i..sample
                 .sample_0 := dplyr::if_else(i..sample_0 < x..lower, 
                                              as.integer(x..lower - i..sample_0 + 1L),
                                              as.integer(i..sample_0 - .sample_0 + 1L))  ]
-  new_events[,..col_events] 
+  new_events[,..cols_events] 
 
   # purrr::pmap_dfr(list(.lower, .sample_0, .upper),
   #   .id = ".id",
