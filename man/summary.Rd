@@ -19,6 +19,8 @@
 \arguments{
 \item{x}{An eeg_lst object.}
 
+\item{...}{additional arguments affecting the summary produced.}
+
 \item{object}{An eeg_lst object.}
 }
 \description{

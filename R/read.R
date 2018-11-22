@@ -13,6 +13,9 @@
 #' @export
 read_vhdr <- function(file, sep = type == "New Segment", zero = type == "Time 0",
                       recording = file) {
+  
+  if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
+
   sep <- rlang::enquo(sep)
   zero <- rlang::enquo(zero)
   # sep = rlang::quo(type == "New Segment")
@@ -74,7 +77,7 @@ read_vhdr <- function(file, sep = type == "New Segment", zero = type == "Time 0"
 #'
 #' @param file A .mat file containing a fieldtrip struct.
 #' @param recording Recording name, by default is the file name.
-#'
+#' @param layout A .mat [layout from Fieldtrip](http://www.fieldtriptoolbox.org/template/layout)
 #' @return An `eeg_lst` object with signal_tbl and event from a matlab file.
 #'
 #' @family read
@@ -82,11 +85,13 @@ read_vhdr <- function(file, sep = type == "New Segment", zero = type == "Time 0"
 #' @importFrom magrittr %>%
 #'
 #' @export
-read_ft <- function(file, layout = NULL, recording = file) {
+read_ft <- function(file, layout. = NULL, recording = file) {
   # TODO: checks if R.matlab was installed first
 
   # It should be based on this:
   # http://www.fieldtriptoolbox.org/reference/ft_datatype_raw
+
+  if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
 
   mat <- R.matlab::readMat(file)
 
@@ -110,7 +115,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
       lsegment[[1]] %>% t() %>% dplyr::as_tibble()
     },
     .id = ".id"
-  ) %>% mutate(.id = as.integer(.id))
+  ) %>% dplyr::mutate(.id = as.integer(.id))
   
 
 

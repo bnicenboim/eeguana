@@ -3,8 +3,8 @@
 #' Convert the signal_tbl table from wide to long format, and optionally `left_join`s the segment table
 #'
 #' @param x An `eeg_lst` object.
-#' @param add_segments Whether the segments table
-#'
+#' @param add_segments Whether the segments table is included.
+#' @param add_channels_info Whether the channels information (`channels_tbl`) is included. 
 #' `as_data_frame` is an alias.
 #' @return A tibble.
 #'

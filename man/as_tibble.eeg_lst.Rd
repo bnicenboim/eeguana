@@ -14,8 +14,9 @@
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
 
-\item{add_segments}{Whether the segments table
+\item{add_segments}{Whether the segments table is included.}
 
+\item{add_channels_info}{Whether the channels information (\code{channels_tbl}) is included.
 \code{as_data_frame} is an alias.}
 }
 \value{

@@ -63,6 +63,7 @@ nsamples.eeg_lst <- function(x, ...) {
 #' Summary of eeg_lst information.
 #'
 #' @param object An eeg_lst object.
+#' @inheritParams base::summary
 #' @rdname summary
 #'
 #' @export
