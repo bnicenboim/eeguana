@@ -2,12 +2,19 @@
 % Please edit documentation in R/signal_transformation.R
 \name{ch_baseline}
 \alias{ch_baseline}
+\alias{ch_baseline.eeg_lst}
+\alias{ch_baseline.channel_dbl}
 \title{Baseline an eeg_lst}
 \usage{
 ch_baseline(x, ...)
+
+\method{ch_baseline}{eeg_lst}(x, time = -Inf, sample_id = NULL, ...)
+
+\method{ch_baseline}{channel_dbl}(x, time = -Inf, sample_id = NULL,
+  ...)
 }
 \arguments{
-\item{x}{An \code{eeg_lst} object.}
+\item{x}{An \code{eeg_lst} object or a channel.}
 
 \item{...}{Not in use.}
 
