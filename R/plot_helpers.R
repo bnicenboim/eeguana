@@ -1,7 +1,23 @@
+#' Create a table with interpolated singnals fromof an eeg_lst object.
+#'
+#' Create a default topographic plot based on the segments of the `eeg_lst` object.
+#'
+#' The following methods of interpolation are available :
+#'
+#'
+#' @param .data An `eeg_lst` object or a long table with amplitudes..
+#' @param method Method of interpolation (Only `"MBA"` Multilevel B-splines using the function `mba.surf` of the package `MBA`.).
+#' @param x Coordinate x
+#' @param y Coordinate y
+#' @param value amplitude (default)
+#' @param label channel (default)
+#' @param diam_points Density of the interpolation (number of points that are interpolated in the diameter of the scalp).
+#' @param ... Various arguments passed to the interpolation method.
 #' @export
 interpolate_tbl <- function(.data, ...) {
   UseMethod("interpolate_tbl")
 }
+
 
 #' @export
 interpolate_tbl.eeg_lst <- function(.data, x = .x, y = .y, value = amplitude, label = channel, diam_points =200, method = "MBA",...) {

@@ -88,7 +88,7 @@ faces_segs \%>\% select(O1, O2, P7, P8)
 }
 }
 \seealso{
-\link{summarize_at_ch}, \link{summarize_all_ch}, \link{rollup}, \link{rollup_at_ch}, \link{rollup_all_ch}, \link{bind} for the extended dplyr-like functions.
+\link{summarize_at_ch}, \link{summarize_all_ch}, \link{bind} for the extended dplyr-like functions.
 
 Other dplyr functions: \code{\link{summarize_ch}}
 }

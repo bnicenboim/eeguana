@@ -26,7 +26,7 @@
 #' @return An eeg_lst object.
 #'
 #' @family dplyr functions
-#' @seealso [summarize_at_ch], [summarize_all_ch], [rollup], [rollup_at_ch], [rollup_all_ch], [bind] for the extended dplyr-like functions.
+#' @seealso [summarize_at_ch], [summarize_all_ch], [bind] for the extended dplyr-like functions.
 #'
 #' @name dplyr
 #' 

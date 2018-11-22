@@ -12,7 +12,7 @@
 #' @param x An eeg_lst object.
 #' @param q integer factor(s) to downsample by.
 #' @param max_sample Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total numbe of samples.
-#' @param ... Other arguments passed to decimate.
+#' @param ... Not in use.
 #' 
 #' @family eeg
 #' 
@@ -24,7 +24,7 @@ downsample <- function(x, q = 2, max_sample = NULL, ...) {
 #' @export
 downsample.eeg_lst <- function(x, q = 2L, max_sample = NULL,
                                n = if (ftype == "iir") 8 else 30,
-                               ftype = "iir") {
+                               ftype = "iir", ...) {
 
   # if(stringr::str_to_lower(q) == "min") {
   #   q <- mindiv(sampling_rate(x), start = 2)
@@ -73,28 +73,6 @@ decimate_fun <- function(channel) {
 
   data.table::setkey(x$signal,.id,.sample_id)
   data.table::setcolorder(x$signal,c(".id",".sample_id"))
-
-  # x$signal <- as_tibble(x$signal) %>%
-  #   dplyr::select(-.sample_id) %>%
-  #   split(x$signal$.id) %>%
-  #   purrr::map_dfr(
-  #     function(signal_id) purrr::map_dfc(
-  #         signal_id[-1],
-  #         # reduce the channel info by applying decimate to the elements of q
-  #         function(channel) purrr::reduce(c(list(channel), as.list(q)), ~
-  #           signal::decimate(x = .x, q = .y, n = n, ftype = ftype))
-  #       )
-  #     ,
-  #     .id = ".id"
-  #   ) %>%
-  #   dplyr::mutate(.id = as.integer(.id)) %>%
-  #   dplyr::group_by(.id) %>%
-  #   dplyr::mutate(.sample_id = seq_len(dplyr::n())) %>%
-  #   dplyr::select(.id, .sample_id, dplyr::everything()) %>%
-  #   dplyr::ungroup() %>%
-  #   # add back the attributes
-  #   purrr::map2_dfc(list_of_attr, ~`attributes<-`(.x, .y))
-  # # TODO should group back
 
   # even table needs to be adapted, starts from 1,
   # and the size is divided by two with a min of 1

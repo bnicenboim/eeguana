@@ -7,13 +7,13 @@
 signal_tbl(signal_matrix, ids, sample_ids, channel_info)
 }
 \arguments{
-\item{signal_matrix}{}
+\item{signal_matrix}{Matrix or table of channels with their signal.}
 
-\item{ids}{}
+\item{ids}{Integers indicating to which group the row of the signal matrix belongs.}
 
-\item{sample_ids}{}
+\item{sample_ids}{Vector of integers.}
 
-\item{channel_info}{}
+\item{channel_info}{A table with information about each channel (such as the one produced by `channels_tbl``)}
 }
 \value{
 A valid signal_tbl table.

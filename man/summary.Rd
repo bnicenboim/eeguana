@@ -8,9 +8,9 @@
 \alias{print.eeg_summary}
 \title{Display information of the eeg_lst object.}
 \usage{
-\method{channel_names}{eeg_lst}(x)
+\method{channel_names}{eeg_lst}(x, ...)
 
-\method{nsamples}{eeg_lst}(x)
+\method{nsamples}{eeg_lst}(x, ...)
 
 \method{summary}{eeg_lst}(object)
 

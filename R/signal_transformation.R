@@ -5,6 +5,7 @@
 #' @param x An `eeg_lst` object.
 #' @param time A negative number indicating from when to baseline; the interval is defined as [time,0]. The default is to use all the negative times.
 #' @param sample_id A negative number indicating from when to baseline. The default is to use all the negative times. (`time` is ignored if  sample_id is used).
+#' @param ... Not in use. 
 #'
 #' @family channel
 #' @return An eeg_lst.
@@ -18,7 +19,7 @@ ch_baseline <- function(x, ...) {
 }
 
 #' @export
-ch_baseline.eeg_lst <- function(x, time = -Inf, sample_id = NULL) {
+ch_baseline.eeg_lst <- function(x, time = -Inf, sample_id = NULL, ...) {
 
   if (is.null(sample_id) & is.numeric(time)) {
     sample_id <- time * sampling_rate(x)
@@ -26,12 +27,6 @@ ch_baseline.eeg_lst <- function(x, time = -Inf, sample_id = NULL) {
     message("# Ignoring time parameter.")
   }
  
-  # new_signal <- data.table::copy(x$signal)
-  # new_signal[, (channel_names(x)) := lapply(.SD, fun_baseline, .sample_id, sample_id) ,
-  #            .SDcols = (channel_names(x)),
-  #             by = .id ]
-  
-  # x$signal <- new_signal
  x$signal <- data.table::copy(x$signal)
  x$signal <- x$signal[, (channel_names(x)) := lapply(.SD, fun_baseline, .sample_id, sample_id) ,
              .SDcols = (channel_names(x)),
@@ -40,7 +35,7 @@ ch_baseline.eeg_lst <- function(x, time = -Inf, sample_id = NULL) {
 }
 
 #' @export
-ch_baseline.channel_dbl <- function(x, time = -Inf, sample_id = NULL) {
+ch_baseline.channel_dbl <- function(x, time = -Inf, sample_id = NULL,...) {
 
   signal <- signal_from_parent_frame(env = parent.frame(1))
 

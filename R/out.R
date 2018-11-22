@@ -21,7 +21,7 @@ channel_names <- function(x, ...) {
 
 #' @rdname summary
 #' @export
-channel_names.eeg_lst <- function(x) {
+channel_names.eeg_lst <- function(x, ...) {
   setdiff(colnames(x$signal), obligatory_cols$signal)
 }
 
@@ -32,7 +32,7 @@ nchannels <- function(x, ...) {
 }
 
 #' @export
-nchannels.eeg_lst <- function(x) {
+nchannels.eeg_lst <- function(x, ...) {
   ncol(x$signal) - length(obligatory_cols$signal)
 }
 
@@ -55,7 +55,7 @@ nsamples <- function(x, ...) {
 
 #' @rdname summary
 #' @export
-nsamples.eeg_lst <- function(x) {
+nsamples.eeg_lst <- function(x, ...) {
   duration(x) * sampling_rate(x)
 }
 

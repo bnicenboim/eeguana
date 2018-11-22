@@ -9,9 +9,15 @@ plot_topo(data, ...)
 \arguments{
 \item{...}{Various arguments passed to the interpolation method.}
 
-\item{x}{An \code{eeg_lst} object.}
+\item{.data}{A table of interpolated electrodes as produced by \link{interpolate_tbl}}
 
-\item{method}{Method of interpolation.}
+\item{x}{Coordinate x}
+
+\item{y}{Coordinate y}
+
+\item{value}{amplitude (default)}
+
+\item{label}{channel (default)}
 }
 \value{
 A ggplot object

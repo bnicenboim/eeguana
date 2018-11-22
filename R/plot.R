@@ -90,8 +90,11 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 #' * `"MBA"` (Default) Multilevel B-splines using the function `mba.surf`; requires the package `MBA`.
 
 #'
-#' @param x An `eeg_lst` object.
-#' @param method Method of interpolation.
+#' @param .data A table of interpolated electrodes as produced by [interpolate_tbl]
+#' @param x Coordinate x
+#' @param y Coordinate y
+#' @param value amplitude (default)
+#' @param label channel (default)
 #' @param ... Various arguments passed to the interpolation method.
 #'
 #' @family plot
@@ -105,7 +108,7 @@ plot_topo <- function(data,  ...) {
 }
 
 #' @export
-plot_topo.tbl_df <- function(data, x = .x, y =.y, value= amplitude,  label=channel) {
+plot_topo.tbl_df <- function(data, x = .x, y =.y, value= amplitude,  label=channel, ...) {
 
   x <- rlang::enquo(x)
   y <- rlang::enquo(y)
@@ -134,35 +137,35 @@ plot_topo.tbl_df <- function(data, x = .x, y =.y, value= amplitude,  label=chann
   plot
 
 }
-
-#' @export
-plot_topo.eeg_lst <- function(data, x = .x, y =.y, value= amplitude,  label=channel) {
-
-  x <- rlang::enquo(x)
-  y <- rlang::enquo(y)
-  value <- rlang::enquo(value)
-  label <- rlang::enquo(label)
-
-
-  # grid <- interpolate_xy(s_x, x = x, y = y, value = A, method = "MBA", ...)
-
-  plot <- data %>%
-    ggplot2::ggplot(ggplot2::aes(x=!!x, y=!!y)) +
-    ggplot2::geom_raster(ggplot2::aes(fill = !!value), interpolate = F, hjust = 0.5, vjust = 0.5) +
-    ggplot2::geom_contour(ggplot2::aes(z = !!value)) +
-    ggplot2::geom_text(data = dplyr::filter(data, !is.na(!!x), !is.na(!!y)), ggplot2::aes(x = !!x, y = !!y, label = !!label), colour = "black") +
-    # scale_fill_distiller(palette = "Spectral", guide = "colourbar", oob = scales::squish) + #, oob = scales::squish
-    ggplot2::scale_fill_gradientn(
-      colours = c("darkred", "yellow", "green", "darkblue"),
-      values = c(1.0, 0.75, 0.5, 0.25, 0)
-    ) +
-    theme_eeguana
-
-  # if (length(grouping_vars) > 0) {
-  #   plot <- plot + facet_wrap(grouping_vars)
-  # }
-
-  plot
-  # scale_fill_distiller(palette = "RdBu", guide = "colourbar") + #, oob = scales::squish
-  # scale_fill_viridis_c(option="B") +
-}
+#' 
+#' #' @export
+#' plot_topo.eeg_lst <- function(data, x = .x, y =.y, value= amplitude,  label=channel) {
+#' 
+#'   x <- rlang::enquo(x)
+#'   y <- rlang::enquo(y)
+#'   value <- rlang::enquo(value)
+#'   label <- rlang::enquo(label)
+#' 
+#' 
+#'   # grid <- interpolate_xy(s_x, x = x, y = y, value = A, method = "MBA", ...)
+#' 
+#'   plot <- data %>%
+#'     ggplot2::ggplot(ggplot2::aes(x=!!x, y=!!y)) +
+#'     ggplot2::geom_raster(ggplot2::aes(fill = !!value), interpolate = F, hjust = 0.5, vjust = 0.5) +
+#'     ggplot2::geom_contour(ggplot2::aes(z = !!value)) +
+#'     ggplot2::geom_text(data = dplyr::filter(data, !is.na(!!x), !is.na(!!y)), ggplot2::aes(x = !!x, y = !!y, label = !!label), colour = "black") +
+#'     # scale_fill_distiller(palette = "Spectral", guide = "colourbar", oob = scales::squish) + #, oob = scales::squish
+#'     ggplot2::scale_fill_gradientn(
+#'       colours = c("darkred", "yellow", "green", "darkblue"),
+#'       values = c(1.0, 0.75, 0.5, 0.25, 0)
+#'     ) +
+#'     theme_eeguana
+#' 
+#'   # if (length(grouping_vars) > 0) {
+#'   #   plot <- plot + facet_wrap(grouping_vars)
+#'   # }
+#' 
+#'   plot
+#'   # scale_fill_distiller(palette = "RdBu", guide = "colourbar") + #, oob = scales::squish
+#'   # scale_fill_viridis_c(option="B") +
+#' }
