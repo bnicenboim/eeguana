@@ -17,7 +17,7 @@ it will consider samples from all channels (Default:  \code{all_chans = FALSE}).
 \item{entire_seg}{If set to \code{FALSE}, it will consider only the marked part of the segment,
 otherwise it will consider the entire segment (Default: entire_seg = TRUE). Setting it to FALSE can make the function very slow.}
 
-\item{drop_events}{}
+\item{drop_events}{If set to \code{TRUE} (default), the events that were using for setting signals to NA, will be removed from the events table.}
 }
 \value{
 An eeg_lst.

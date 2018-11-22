@@ -9,6 +9,8 @@ ch_baseline(x, ...)
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
 
+\item{...}{Not in use.}
+
 \item{time}{A negative number indicating from when to baseline; the interval is defined as \link{time,0}. The default is to use all the negative times.}
 
 \item{sample_id}{A negative number indicating from when to baseline. The default is to use all the negative times. (\code{time} is ignored if  sample_id is used).}

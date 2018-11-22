@@ -1,7 +1,6 @@
 context("test signal processing")
 library(eeguana)
 
-
 data_eeg <- eeg_lst(
   signal = signal_tbl(
     signal_matrix = as.matrix(
