@@ -1,7 +1,6 @@
 context("Read dat files")
 library(eeguana)
 
-
 multiplexed_bin_bv1 <- read_vhdr("asalab_export_bv.vhdr", recording = "bv1")
 
 multiplexed_bin_bv2 <- read_vhdr("bv_export_bv_txt_bin_multi.vhdr", recording = "bv2")
