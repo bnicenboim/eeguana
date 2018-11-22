@@ -5,14 +5,13 @@
 #' @param x An `eeg_lst` object.
 #' @param add_segments Whether the segments table
 #'
-#' `as_data_frame` and `as.tibble` are aliases.
+#' `as_data_frame` is an alias.
 #' @return A tibble.
 #'
 #' @importFrom magrittr %>%
 #'
 #' @family tibble
 #'
-#' @export
 as_tibble.eeg_lst <- function(x, add_segments = TRUE, add_channels_info = TRUE) {
    x$signal[,lapply(.SD, `attributes<-`, NULL )] %>% 
     tidyr::gather(key = "channel", value = "amplitude", channel_names(x)) %>%
@@ -39,8 +38,6 @@ as_tibble.eeg_lst <- function(x, add_segments = TRUE, add_channels_info = TRUE) 
 }
 
 
-
-#' @export
 as_tibble.signal_tbl <- function(x) {
   NextMethod()
 }
@@ -49,12 +46,9 @@ as_tibble.signal_tbl <- function(x) {
 
 
 #' @rdname as_tibble.eeg_lst
-#' @export
 as_data_frame.eeg_lst <- as_tibble.eeg_lst
 
-#' @rdname as_tibble.eeg_lst
-#' @export
-as.tibble.eeg_lst <- as_tibble.eeg_lst
+
 
 
 #' Convert an eeg_lst to a (base) data frame.

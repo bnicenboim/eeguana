@@ -20,6 +20,8 @@
   register_s3_method("dplyr", "left_join", "eeg_lst")
   register_s3_method("dplyr", "semi_join", "eeg_lst")
   register_s3_method("dplyr", "anti_join", "eeg_lst")
+  register_s3_method("dplyr", "as_tibble", "eeg_lst")
+  register_s3_method("dplyr", "as_data_frame", "eeg_lst")
 
   invisible()
 }
