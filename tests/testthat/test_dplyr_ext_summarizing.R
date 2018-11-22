@@ -10,7 +10,7 @@ data_1 <- eeg_lst(
     ids = rep(c(1L, 2L, 3L), each = 10),
     sample_ids = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500),
     dplyr::tibble(
-      .name = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+      channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = c(1, 1), .y = NA_real_, .z = NA_real_
     )
   ),
@@ -42,8 +42,9 @@ data_s2 <- data_s1 %>% group_by(condition, .sample_id) %>% summarize(X = mean(X)
 data_s3 <- data_s2 %>% group_by(condition) %>% summarize(X = mean(X),Y = mean(Y))
 data_s4 <- data_s3 %>% group_by() %>% summarize(X = mean(X),Y = mean(Y))
 
+
 # with pure dplyr functions
-extended_signal <- left_join(data$signal, data$segments, by =".id" )
+extended_signal <- left_join(as_tibble(data$signal), data$segments, by =".id" )
 e_data_s1 <- data.table::data.table(extended_signal)[,.(X = mean(X),Y = mean(Y)), by = c("condition", ".sample_id", "recording")]
 s_data_s1 <- e_data_s1[,unique(.SD) ,.SDcols = c("condition", "recording")]
 
@@ -56,20 +57,20 @@ s_data_s3 <- e_data_s1[,unique(.SD) ,.SDcols = c("condition")]
 e_data_s4 <- data.table::data.table(e_data_s3)[,.(X = mean(X),Y = mean(Y)), by = character(0)]
 
 
-
 test_that("summarizing by groups works as expected for the channel values", {
 expect_equal(data_s1$signal$X,e_data_s1$X)
 expect_equal(data_s2$signal$X,e_data_s2$X)
 expect_equal(data_s3$signal$X,e_data_s3$X)
-expect_equal(data_s4$signal$X %>% as.numeric,e_data_s4$X)
+expect_equal(data_s4$signal$X,e_data_s4$X)
 })
 
 
 test_that("summarizing by groups works as expected for the segments", {
-expect_equal(data_s1$segments,as_tibble(s_data_s1)%>% mutate(.id = 1:n()))
-expect_equal(data_s2$segments,as_tibble(s_data_s2)%>% mutate(.id = 1:n()))
-expect_equal(data_s3$segments,as_tibble(s_data_s3)%>% mutate(.id = 1:n()))
-expect_equal(data_s4$segments,tibble(.id= 1L))
+expect_equal(data_s1$segments %>% select(-segment_n),as_tibble(s_data_s1)%>% mutate(.id = 1:n()))
+expect_equal(data_s2$segments %>% select(-segment_n),as_tibble(s_data_s2)%>% mutate(.id = 1:n()))
+expect_equal(data_s3$segments %>% select(-segment_n),as_tibble(s_data_s3)%>% mutate(.id = 1:n()))
+expect_equal(data_s4$segments %>% select(-segment_n),tibble(.id= 1L))
+
 })
 
 
@@ -86,3 +87,13 @@ expect_equal(data_all_s3,data_all_s3)
 expect_equal(data_all_s4,data_all_s4)
 })
 
+
+
+group_by(data, .sample_id) %>% summarize(mean(X[condition=="a"]-X[condition=="b"]))
+group_by(data, .sample_id) %>% summarize(mean(X[condition=="a" & recording == "recording1"]-X[condition=="b" & recording == "recording2"]))
+
+group_by(data, .sample_id) %>% summarize_all_ch(funs(mean(.[condition=="a"]-.[condition=="b"])))
+group_by(data, .sample_id) %>% summarize_all_ch(funs(mean(.[condition=="a" & recording == "recording1"]-.[condition=="b" & recording == "recording2"])))
+
+group_by(data, .sample_id) %>% summarize_all_ch(funs(x = mean(.[condition=="a"]-.[condition=="b"])))
+group_by(data, .sample_id) %>% summarize_all_ch("mean")

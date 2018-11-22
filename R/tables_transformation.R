@@ -3,11 +3,12 @@
 #' Subdivide of the EEG into different segments or epochs. When there is no
 #' segmentation, the `eeg_lst` contain one segment. (Fieldtrip calls the
 #' segment "trials".) The limits of `segment` are inclusive: If, for
-#' example, lim =c(0,0), the segment would contain only sample 1.
+#' example, `lim = c(0,0)`, the segment would contain only sample 1.
 #'
 #' @param x An `eeg_lst` object.
 #' @param ... Description of the event.
 #' @param lim Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments
+#' @param end Description of the event that indicates the end of the segment, if this is used, `lim` is ignored.
 #' @param unit Unit
 #'
 #' @return An `eeg_lst`.
@@ -20,19 +21,24 @@ segment <- function(x, ...) {
 }
 
 #' @export
-segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds", recording_col = "recording") {
+segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds", recording_col = "recording") {
   dots <- rlang::enquos(...)
-  
+  end <- rlang::enquo(end)
 
   times0 <- dplyr::filter(x$events, !!!dots) %>%
     dplyr::select(-.channel, -.size) 
-    
-  if (any(lim[[2]] < lim[[1]])) {
+  
+  if(!rlang::quo_is_missing(end)){
+    times_end <- dplyr::filter(x$events, !!end) %>%
+      dplyr::select(-.channel, -.size) 
+  }
+
+  if (rlang::quo_is_missing(end) && any(lim[[2]] < lim[[1]])) {
     stop("A segment needs to be of positive length and include at least 1 sample.")
   }
   
   
-  if ((length(lim) == 2) || ## two values or a dataframe
+  if (rlang::quo_is_missing(end) && (length(lim) == 2) || ## two values or a dataframe
     (!is.null(nrow(lim)) && nrow(lim) == nrow(times0)) ) {
     scaling <- scaling(sampling_rate(x), unit = unit)
     sample_lim <- round(lim * scaling) 
@@ -41,8 +47,17 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds", recordin
                                                   .upper = .sample_0+ sample_lim[[2]] %>% as_integer(),
                                                   .new_id = seq_len(dplyr::n())) %>%
                                     dplyr::select(-dplyr::one_of(seg_names))
-  } else {
+  } else if (rlang::quo_is_missing(end)) {
     stop("Wrong dimension of lim")
+  } else if(!rlang::quo_is_missing(end) && (nrow(times0) == nrow(times_end)) ) {
+
+    seg_names <- colnames(times0)[!startsWith(colnames(times0),".")]
+    segmentation_info <- times0 %>% dplyr::mutate(.lower = .sample_0, 
+                                                  .upper = times_end$.sample_0,
+                                                  .new_id = seq_len(dplyr::n()))%>%
+                                    dplyr::select(-dplyr::one_of(seg_names))
+  } else {
+    stop(sprintf("Number of initial markers (%d) doesn't match the number of final markers (%d)", nrow(times0), nrow(times_end)))
   }
 
   segmentation <- data.table::as.data.table(segmentation_info)
@@ -106,11 +121,6 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), unit = "seconds", recordin
 #'
 #' @param x An `eeg_lst` object.
 #' @param ... Description of the problematic event.
-#' @param all_chans If set to `TRUE`,
-#'     it will consider samples from all channels (Default:  `all_chans = FALSE`).
-#' @param entire_seg If set to `FALSE`, it will consider only the marked part of the segment,
-#'     otherwise it will consider the entire segment (Default: entire_seg = TRUE). Setting it to FALSE can make the function very slow.
-#' @param drop_events
 #'
 #'
 #' @return An eeg_lst.
@@ -123,8 +133,13 @@ event_to_ch_NA <- function(x, ...) {
   UseMethod("event_to_ch_NA")
 }
 
-
-#' @export
+#' @param all_chans If set to `TRUE`,
+#'     it will consider samples from all channels (Default:  `all_chans = FALSE`).
+#' @param entire_seg If set to `FALSE`, it will consider only the marked part of the segment,
+#'     otherwise it will consider the entire segment (Default: entire_seg = TRUE). Setting it to FALSE can make the function very slow.
+#' @param drop_events If set to `TRUE` (default), the events that were using for setting signals to NA, will be removed from the events table.
+#' @rdname event_to_ch_NA
+#' @export 
 event_to_ch_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
                                    drop_events = TRUE) {
   dots <- rlang::enquos(...)

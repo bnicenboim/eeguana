@@ -1,7 +1,7 @@
 Package: eeguana
 Type: Package
 Title: A package for flexible manipulation of EEG data
-Version: 0.0.2.9001
+Version: 0.0.3.9000
 Authors@R: c(
     person("Bruno", "Nicenboim", email = "bruno.nicenboim@uni-potsdam.de", role = c("aut", "cre")),
     person("Kate", "Stone", email = "kate.stone@uni-potsdam.de", role = "ctb"))
@@ -34,7 +34,8 @@ Suggests:
     knitr,
     rmarkdown,
     R.matlab,
-    spelling
+    spelling,
+    covr
 LazyData: true
 VignetteBuilder: knitr
 Language: en-US

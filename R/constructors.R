@@ -1,8 +1,8 @@
 #' Builds an eeg_lst.
 #'
-#' @param signal_tbl 
-#' @param events 
-#' @param segments 
+#' @param signal signal
+#' @param events events
+#' @param segments segments
 #' 
 #' @family eeg_lst
 #'
@@ -32,10 +32,10 @@ eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
 
 #' Builds a signal_tbl table.
 #'
-#' @param signal_matrix 
-#' @param ids 
-#' @param sample_ids 
-#' @param channel_info 
+#' @param signal_matrix Matrix or table of channels with their signal.
+#' @param ids Integers indicating to which group the row of the signal matrix belongs.
+#' @param sample_ids Vector of integers.
+#' @param channel_info A table with information about each channel (such as the one produced by `channels_tbl``)
 #' 
 #' @family signal_tbl
 #' 
@@ -75,8 +75,8 @@ is_eeg_lst <- function(x) {
 
 #' Builds a serie of sample numbers.
 #'
-#' @param values 
-#' @param sampling_rate 
+#' @param values Sequence of integers.
+#' @param sampling_rate Double indicating the sampling rate in Hz.
 #'
 #' @family sample_int
 #' 
@@ -108,12 +108,12 @@ is_sample_int <- function(x) {
 
 #' Builds a channel.
 #'
-#' @param values 
-#' @param x 
-#' @param y 
-#' @param z 
-#' @param reference 
-#' @param ... 
+#' @param values Vector of doubles indicating amplitudes.
+#' @param x Position in the scalp.
+#' @param y Position in the scalp.
+#' @param z Position in the scalp.
+#' @param reference Reference electrode.
+#' @inheritParams base::mean
 #'
 #' @family channel
 #'
@@ -140,4 +140,50 @@ is_channel_dbl <- function(x) {
     return(TRUE)
   }
   class(x) == "channel_dbl"
+}
+
+
+#' @export
+`[.channel_dbl` <- function(x,i,...) {
+  attrs <- attributes(x)
+  class(x) <- NULL
+  r <- NextMethod("[")
+  mostattributes(r) <- attrs
+  r
+}
+
+#' @export
+`[[.channel_dbl` <- function(x,i,...) {
+  attrs <- attributes(x)
+  r <- NextMethod("[[")
+  mostattributes(r) <- attrs
+  r
+}
+
+#' @export
+mean.channel_dbl <- function(x,...) {
+  attrs <- attributes(x)
+  class(x) <- NULL
+  r <- NextMethod("mean")
+  mostattributes(r) <-attrs
+  r
+}
+
+#' @export
+sd.channel_dbl <- function(x,...) {
+  attrs <- attributes(x)
+  class(x) <- NULL
+  r <- NextMethod("sd")
+  mostattributes(r) <- attrs
+  r
+}
+
+
+#' @export
+subset.channel_dbl <- function(x, ... ) {
+  attrs <- attributes(x)
+  class(x) <- NULL
+  r <- NextMethod("subset")
+  mostattributes(r) <- attrs
+ r
 }

@@ -2,28 +2,24 @@
 % Please edit documentation in R/plot.R
 \name{plot_topo}
 \alias{plot_topo}
-\title{A topographic plot of an eeg_lst object.}
+\alias{plot_topo.tbl_df}
+\title{A topographic plot.}
 \usage{
 plot_topo(data, ...)
+
+\method{plot_topo}{tbl_df}(data, x = .x, y = .y, value = amplitude,
+  label = channel, ...)
 }
 \arguments{
-\item{...}{Various arguments passed to the interpolation method.}
+\item{data}{A table of interpolated electrodes as produced by \link{interpolate_tbl}}
 
-\item{x}{An \code{eeg_lst} object.}
-
-\item{method}{Method of interpolation.}
+\item{...}{Others.}
 }
 \value{
 A ggplot object
 }
 \description{
-Create a default topographic plot based on the segments of the \code{eeg_lst} object.
-}
-\details{
-The following methods of interpolation are available :
-\itemize{
-\item \code{"MBA"} (Default) Multilevel B-splines using the function \code{mba.surf}; requires the package \code{MBA}.
-}
+Create a default topographic plot based on an interpolation table.
 }
 \seealso{
 Other plot: \code{\link{plot.eeg_lst}},

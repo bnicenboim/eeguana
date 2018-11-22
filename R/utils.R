@@ -12,14 +12,17 @@ seq_len <- function(length.out) {
   }
 }
 
-object_size <- object.size
 
 
 #' @noRd
 say_size <- function(eeg_lst) paste(
     "# Object size in memory",
-    capture.output(object_size(eeg_lst))
+    utils::capture.output(print(utils::object.size(eeg_lst), units = "auto"))
   )
+
+
+
+
 
 #' Get integers so that their prod is approx N
 #' @noRd
@@ -60,3 +63,33 @@ semi_join_dt <- function(x, y, by = NULL) {
   w <- unique(x[y, on = by, nomatch = 0L, which = TRUE, allow.cartesian = TRUE])
   x[w]
 }
+
+
+rowMeans_ch <- function(x, na.rm = FALSE, dims = 1L) {
+  channel_dbl(rowMeans(x, na.rm, dims))
+}
+
+row_fun_ch <- function(x, .funs, ...) {
+ # TODO: faster options seem to be melting first (memory usage?):
+  #https://stackoverflow.com/questions/7885147/efficient-row-wise-operations-on-a-data-table
+# or with for loop set:
+  # https://stackoverflow.com/questions/37667335/row-operations-in-data-table-using-by-i?noredirect=1&lq=1
+  funs <- dplyr:::as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env(),...)
+  fun_txt <- rlang::quo_text(funs[[1]])
+  # channel_dbl(purrr::pmap(x, ~ eval(parse(text= fun_txt))))
+  channel_dbl(apply(x, 1, function(.) eval(parse(text= fun_txt))))
+}
+
+
+
+theme_eeguana <- ggplot2::theme_bw() + 
+                ggplot2::theme(
+                    strip.background = ggplot2::element_rect(colour = "transparent", fill = "transparent"),
+                    panel.spacing  = ggplot2::unit(.01, "points"),
+                    panel.border = ggplot2::element_rect(colour = "transparent", fill = "transparent"))
+
+
+#' @export
+between <- data.table::between
+
+

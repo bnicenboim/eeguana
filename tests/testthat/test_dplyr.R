@@ -10,7 +10,7 @@ data <- eeg_lst(
     ids = rep(c(1L, 2L), each = 10),
     sample_ids = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500),
     dplyr::tibble(
-      .name = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+      channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = c(1, 1), .y = NA_real_, .z = NA_real_
     )
   ),
@@ -26,6 +26,7 @@ data <- eeg_lst(
   ),
   segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
 )
+
 
 
 reference_data <- data.table::copy(data)
@@ -104,7 +105,50 @@ test_that("the classes of channels of signal_tbl remain in non-grouped eeg_lst",
   expect_equal(is_channel_dbl(summarize_g2_signal_tbl$signal$`mean(X)`), TRUE)
 })
 
+# data %>% group_by(.sample_id) %>%  summarize_all_ch(funs(diff = .[segment==1]- .[segment==2]))
+# data %>% group_by(.sample_id) %>%  summarize_all_ch(funs(tvalue = t.test(.[segment==1], .[segment==2])$statistic))
+# data %>% group_by(.sample_id) %>%  summarize_all_ch(funs(diff = diff(.[segment==1], .[segment==2])))
 
 
-# add tests 
-# for filtering according to segments, grouped and ungrouped
+# d <- data$signal[data.table(data$segments), on = ".id" ]
+
+
+# group_by(d, .sample_id) %>% summarize(X[condition=="a"]-X[condition=="b"])
+
+
+
+# data$signal[data.table(data$segments), on = ".id" ][,.(X[condition=="a"] - X[condition=="b"])]
+
+
+# summarize(data, t.test(X[.id==1],X[.id==2])$summary)
+
+
+## special columns:
+
+# data_sc <- eeg_lst(
+#   signal = signal_tbl(
+#     signal_matrix = as.matrix(
+#       data.frame(X = sin(1:20), Y = cos(1:20))
+#     ),
+#     ids = rep(c(1L, 2L), each = 10),
+#     sample_ids = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500),
+#     dplyr::tibble(
+#       channel = c("1", "2"), .reference = NA, theta = NA, phi = NA,
+#       radius = NA, .x = c(1, 1), .y = NA_real_, .z = NA_real_
+#     )
+#   ),
+#   events = dplyr::tribble(
+#     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
+#     1L, "New Segment", NA_character_, -4L, 1L, NA,
+#     1L, "Bad", NA_character_, -2L, 3L, NA,
+#     1L, "Time 0", NA_character_, 1L, 1L, NA,
+#     1L, "Bad", NA_character_, 2L, 2L, "1",
+#     2L, "New Segment", NA_character_, -4L, 1L, NA,
+#     2L, "Time 0", NA_character_, 1L, 1L, NA,
+#     2L, "Bad", NA_character_, 2L, 1L, "2"
+#   ),
+#   segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
+# )
+
+
+

@@ -2,9 +2,13 @@
 % Please edit documentation in R/tables_transformation.R
 \name{event_to_ch_NA}
 \alias{event_to_ch_NA}
+\alias{event_to_ch_NA.eeg_lst}
 \title{Remove (transform to NA) problematic events from an eeg_lst.}
 \usage{
 event_to_ch_NA(x, ...)
+
+\method{event_to_ch_NA}{eeg_lst}(x, ..., all_chans = FALSE,
+  entire_seg = TRUE, drop_events = TRUE)
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
@@ -17,7 +21,7 @@ it will consider samples from all channels (Default:  \code{all_chans = FALSE}).
 \item{entire_seg}{If set to \code{FALSE}, it will consider only the marked part of the segment,
 otherwise it will consider the entire segment (Default: entire_seg = TRUE). Setting it to FALSE can make the function very slow.}
 
-\item{drop_events}{}
+\item{drop_events}{If set to \code{TRUE} (default), the events that were using for setting signals to NA, will be removed from the events table.}
 }
 \value{
 An eeg_lst.

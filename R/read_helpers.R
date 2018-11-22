@@ -21,25 +21,26 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
 
   if (common_info$format == "BINARY") {
-    samplesize <- dplyr::case_when(
-      stringr::str_detect(common_info$bits, stringr::regex("float_32",
-        ignore_case = TRUE
-      )) ~ 4,
-      stringr::str_detect(common_info$bits, stringr::regex("int_32",
-        ignore_case = TRUE
-      )) ~ 4,
-      stringr::str_detect(common_info$bits, stringr::regex("int_16",
-        ignore_case = TRUE
-      )) ~ 2,
-      TRUE ~ NA_real_
-    )
+     type <-  stringr::str_extract(common_info$bits, stringr::regex("float|int", ignore_case = TRUE)) %>%
+              stringr::str_to_lower() %>%
+              {dplyr::case_when(. == "float" ~ "double",
+                                . == "int" ~ "integer",
+                                            TRUE ~ .)}
+     if(!type %in% c("double","integer")){
+      stop(sprintf("Type '%s' is not recognized (it should be double (float) or integer (int)", type))
+     }
+
+     bytes <- stringr::str_extract(common_info$bits, stringr::regex("\\d*$")) %>%
+              as.numeric() %>% {. /8 }
+
 
     amps <- readBin(file,
-      what = "double", n = file.info(file)$size,
-      size = samplesize
+      what = type, n = file.info(file)$size,
+      size = bytes
     )
 
-    raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = multiplexed) 
+    raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = multiplexed) %>%
+                  data.table::as.data.table()
   } else if (common_info$format == "ASCII") {
 
     if(multiplexed){
@@ -50,9 +51,14 @@ read_dat <- function(file, header_info = NULL, events = NULL,
       }
   }
 
+  # if there is a resolution use it. (This seems to be relevant only if the encoding is integer)
+  if(!all(is.na(header_info$chan_info$resolution))) {
+    raw_signal <- raw_signal[,purrr::map2(.SD,header_info$chan_info$resolution, ~ .x *.y)]
+  }
+
   #TODO maybe convert to data.table directly
   # Adding the channel names to event table
-  events <- add_event_channel(events, header_info$chan_info$.name) %>% data.table::as.data.table()
+  events <- add_event_channel(events, header_info$chan_info$channel) %>% data.table::as.data.table()
 
   # Initial samples as in Brainvision
   max_sample <- nrow(raw_signal)
@@ -122,6 +128,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
 
 add_event_channel <- function(events, labels) {
+  labels <- make.names(labels)
   dplyr::mutate(events, .channel = if (".channel" %in% names(events)) {
     .channel
   } else {
@@ -140,8 +147,8 @@ segment_events <- function(events, .lower, .sample_0, .upper) {
   segmentation <- data.table::data.table(.lower, .sample_0, .upper)
   segmentation[,.id := seq_len(.N)]
 
-cols_events_temp <- unique(c(colnames(events), colnames(segmentation),"i..sample_0","i..size","x..lower"))
-  col_events <- c(".id",colnames(events))
+  cols_events_temp <- unique(c(colnames(events), colnames(segmentation),"i..sample_0","i..size","x..lower"))
+  cols_events <- c(".id",colnames(events))
   new_events <- data.table::as.data.table(events)
   new_events[, lowerb :=.sample_0 + .size - 1L]
 
@@ -159,7 +166,7 @@ cols_events_temp <- unique(c(colnames(events), colnames(segmentation),"i..sample
                 .sample_0 := dplyr::if_else(i..sample_0 < x..lower, 
                                              as.integer(x..lower - i..sample_0 + 1L),
                                              as.integer(i..sample_0 - .sample_0 + 1L))  ]
-  new_events[,..col_events] 
+  new_events[,..cols_events] 
 
   # purrr::pmap_dfr(list(.lower, .sample_0, .upper),
   #   .id = ".id",
@@ -259,7 +266,9 @@ read_vhdr_metadata <- function(file) {
 
 
   channel_info <- read_metadata("Channel Infos") %>%
-    tidyr::separate(value, c(".name", ".reference", "resolution", "unit"), sep = ",", fill = "right")
+    tidyr::separate(value, c("channel", ".reference", "resolution", "unit"), sep = ",", fill = "right") %>%
+    dplyr::mutate(resolution = as.double(resolution))
+
   coordinates <- read_metadata("Coordinates") %>%
     tidyr::separate(value, c("radius", "theta", "phi"), sep = ",", fill = "right") %>%
     readr::type_convert(

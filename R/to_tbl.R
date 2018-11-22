@@ -3,16 +3,15 @@
 #' Convert the signal_tbl table from wide to long format, and optionally `left_join`s the segment table
 #'
 #' @param x An `eeg_lst` object.
-#' @param add_segments Whether the segments table
-#'
-#' `as_data_frame` and `as.tibble` are aliases.
+#' @param add_segments Whether the segments table is included.
+#' @param add_channels_info Whether the channels information (`channels_tbl`) is included. 
+#' `as_data_frame` is an alias.
 #' @return A tibble.
 #'
 #' @importFrom magrittr %>%
 #'
 #' @family tibble
 #'
-#' @export
 as_tibble.eeg_lst <- function(x, add_segments = TRUE, add_channels_info = TRUE) {
    x$signal[,lapply(.SD, `attributes<-`, NULL )] %>% 
     tidyr::gather(key = "channel", value = "amplitude", channel_names(x)) %>%
@@ -25,7 +24,7 @@ as_tibble.eeg_lst <- function(x, add_segments = TRUE, add_channels_info = TRUE) 
     } %>% 
      {
       if (add_channels_info) {
-        dplyr::left_join(., dplyr::select(channels_tbl(x),-class), by = c("channel"=".name"))
+        dplyr::left_join(., channels_tbl(x), by = c("channel"))
       } else {
         .
       }
@@ -39,8 +38,6 @@ as_tibble.eeg_lst <- function(x, add_segments = TRUE, add_channels_info = TRUE) 
 }
 
 
-
-#' @export
 as_tibble.signal_tbl <- function(x) {
   NextMethod()
 }
@@ -49,12 +46,9 @@ as_tibble.signal_tbl <- function(x) {
 
 
 #' @rdname as_tibble.eeg_lst
-#' @export
 as_data_frame.eeg_lst <- as_tibble.eeg_lst
 
-#' @rdname as_tibble.eeg_lst
-#' @export
-as.tibble.eeg_lst <- as_tibble.eeg_lst
+
 
 
 #' Convert an eeg_lst to a (base) data frame.
@@ -70,3 +64,6 @@ as.tibble.eeg_lst <- as_tibble.eeg_lst
 as.data.frame.eeg_lst <- function(...) {
   as.data.frame(as_tibble.eeg_lst(...))
 }
+
+
+

@@ -9,6 +9,8 @@ read_ft(file, layout = NULL, recording = file)
 \arguments{
 \item{file}{A .mat file containing a fieldtrip struct.}
 
+\item{layout}{A .mat \href{http://www.fieldtriptoolbox.org/template/layout}{layout from Fieldtrip}}
+
 \item{recording}{Recording name, by default is the file name.}
 }
 \value{

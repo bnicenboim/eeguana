@@ -42,7 +42,7 @@ validate_sample_int <- function(sample_id) {
 
 #' @noRd
 new_channel_dbl <- function(values, channel_info = list()) {
-  values <- unclass(values)
+  values <- unclass(values) %>% as.double
   attributes(values) <- c(
     class = "channel_dbl",
     channel_info
@@ -56,8 +56,8 @@ new_channel_dbl <- function(values, channel_info = list()) {
 #'
 #' @noRd
 validate_channel_dbl <- function(channel) {
-  if (!is.numeric(channel)) {
-    stop("Values should be numeric.",
+  if (!is.double(channel)) {
+    stop("Values should be double.",
       call. = FALSE
     )
   }
@@ -85,14 +85,19 @@ validate_channel_dbl <- function(channel) {
 #' @noRd
 new_signal_tbl <- function(signal_matrix = matrix(), ids = c(), sample_ids = c(), channel_info = dplyr::tibble()) {
   
-  if(data.table::is.data.table(signal_matrix)) {
-    signal_tbl <- signal_matrix[, (update_channel_meta_data(.SD, channel_info)),.SDcols=colnames(signal_matrix)]
-   } else if(is.matrix(signal_matrix) || is.data.frame(signal_matrix)) {
-    signal_tbl <- lapply(seq_len(ncol(signal_matrix)), function(i) signal_matrix[, i]) %>% 
-                  update_channel_meta_data( channel_info) %>%
-                  data.table::as.data.table()
+  # if(data.table::is.data.table(signal_matrix)) {
+  #   signal_tbl <- signal_matrix[, (update_channel_meta_data(.SD, channel_info)),.SDcols=colnames(signal_matrix)]
+  #  } else if(is.matrix(signal_matrix) || is.data.frame(signal_matrix)) {
+  #   signal_tbl <- lapply(seq_len(ncol(signal_matrix)), function(i) signal_matrix[, i]) %>% 
+  #                 update_channel_meta_data( channel_info) %>%
+  #                 data.table::as.data.table()
+  # }
+
+  if(!data.table::is.data.table(signal_matrix)) {
+    signal_matrix <- data.table::data.table(signal_matrix)
   }
 
+  signal_tbl <- signal_matrix[, (update_channel_meta_data(.SD, channel_info)),.SDcols=colnames(signal_matrix)]
 
   signal_tbl[, .id := ids][, .sample_id := sample_ids]
   data.table::setcolorder(signal_tbl, c(".id", ".sample_id"))
@@ -116,7 +121,7 @@ update_channel_meta_data <- function(channels, channel_info) {
     )
   } else {
     channels <- purrr::map2(
-      channels %>% setNames(channel_info$.name), purrr::transpose(channel_info),
+      channels %>% stats::setNames(make.names(channel_info$channel)), purrr::transpose(dplyr::select(channel_info, -channel)),
       function(sig, chan_info) {
         channel <- new_channel_dbl(value = sig, as.list(chan_info))
       }

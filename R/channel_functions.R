@@ -3,7 +3,7 @@
 #' Wrapper of `rowMeans` that performs a by-sample mean of the specified channels.
 #'
 #' @param ... A channel or a group of channels, or an `eeg_lst` object.
-#' @param na.rm 
+#' @inheritParams base::mean
 #' @return A new channel or an `eeg_lst` object with a `mean` channel instead of the previous channels.
 #' @family channel
 #'
@@ -20,7 +20,7 @@
 #'                chs_mean(na.rm = TRUE)
 #' }
 #' @export
-chs_mean <- function(x, ...,na.rm= FALSE) {
+chs_mean <- function(x, ..., na.rm= FALSE) {
   UseMethod("chs_mean")
 }
 
@@ -36,7 +36,7 @@ chs_mean.channel_dbl <- function(..., na.rm = FALSE) {
 
  # https://stackoverflow.com/questions/17133522/invalid-internal-selfref-in-data-table
 
-	 rowMeans(data.table::data.table(...), na.rm = na.rm)  # throws a warning
+	 rowMeans_ch(data.table::data.table(...), na.rm = na.rm)  # throws a warning
 
   # rowMeans(copy(data.table::data.table(...)), na.rm = na.rm)  # throws a warning
   # rowMeans(.SD, na.rm = na.rm), .SDcols = cols # should be the way, but it's hard to implement it in my template
@@ -45,12 +45,12 @@ chs_mean.channel_dbl <- function(..., na.rm = FALSE) {
 }
 
 #' @export
-chs_mean.eeg_lst <- function(x, na.rm = FALSE) {
-  channels_info <- channels_tbl(x)
+chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
+  #channels_info <- channels_tbl(x)
   signal <- data.table::copy(x$signal)
-  signal[,mean := rowMeans(.SD, na.rm = na.rm),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
+  signal[,mean := rowMeans_ch(.SD, na.rm = na.rm),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
   x$signal <- signal
-  update_events_channels(x) %>% update_channels_tbl(channels_info) %>%
+  update_events_channels(x) %>% #update_channels_tbl(channels_info) %>%
       validate_eeg_lst()
 }
 
@@ -61,9 +61,9 @@ chs_mean.eeg_lst <- function(x, na.rm = FALSE) {
 #'
 #' Notice that this function will update the channels one by one when used inside a mutate and not all at the same time.
 #' 
-#' @param x A channel.
+#' @param x A channel to be referenced an eeg_lst where all the channels will be re-referenced (except for the ones in exclude).
 #' @param ... Channels that will be averaged as the reference.
-#' @param na.rm 
+#' @inheritParams base::mean
 #' @return A rereferenced channel or an eeg_lst with all channels re-referenced.
 #' @export
 #'
@@ -79,24 +79,68 @@ chs_mean.eeg_lst <- function(x, na.rm = FALSE) {
 ch_rereference <- function(x, ...,na.rm= FALSE) {
   UseMethod("ch_rereference")
 }
-
+#' @rdname ch_rereference
 #' @export
 ch_rereference.channel_dbl <- function(x, ..., na.rm = FALSE) {
-  x - rowMeans(data.table::data.table(...), na.rm = na.rm)
-}
+   dots <- rlang::enquos(...)
+   new_ref <-  purrr::map_chr(dots, rlang::quo_text) %>% paste0(collapse = ", ")
 
+  {x - rowMeans(data.table::data.table(...), na.rm = na.rm)}  %>%
+   { `attributes<-`(., c(attributes(.), 
+                        list(.reference = new_ref))
+                        ) }
+  # {`attributes<-`(., list(.reference=2))}
+ }
+#' @rdname ch_rereference
+#' @param exclude  A character vector of channels to exclude from referencing.
 #' @export
-ch_rereference.eeg_lst <- function(x,..., na.rm = FALSE) {
-  channels_info <- channels_tbl(x)
+ch_rereference.eeg_lst <- function(x,..., na.rm = FALSE, exclude = NULL) {
+  #channels_info <- channels_tbl(x)
   signal <- data.table::copy(x$signal)
   dots <- rlang::enquos(...)
   cols <- rlang::quos_auto_name(dots) %>% names()
   ref <- rowMeans(x$signal[,..cols], na.rm = na.rm)
+  reref <- function(x){
+    x <- x - ref 
+    attributes(x)$.reference <- purrr::map_chr(dots, rlang::quo_text) %>% paste0(collapse = ", ")
+    # print(x)
+    x
+  }
 
-  signal[, (channel_names(x)) := purrr::map(.SD, ~ .x - ref),.SDcols = channel_names(x)]
+  signal[, (channel_names(x)[!channel_names(x) %in% exclude]) := purrr::map(.SD, reref),.SDcols = channel_names(x)]
   x$signal <- signal
-  update_events_channels(x) %>% update_channels_tbl(channels_info) %>%
+  update_events_channels(x) %>% #update_channels_tbl(channels_info) %>%
       validate_eeg_lst()
 
 }
 
+
+
+#' @export
+chs_fun <- function(x, .funs, ...) {
+  UseMethod("chs_fun")
+}
+
+
+#' @export
+chs_fun.channel_dbl <- function(...,.funs, pars = list()) {
+   row_fun_ch(data.table::data.table(...),.funs,  unlist(pars))  # throws a warning
+}
+
+#' @export
+chs_fun.eeg_lst <- function(x,.funs, pars = list(), ...) {
+
+  signal <- data.table::copy(x$signal)
+  funs <- dplyr:::as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env())
+  fun_txt <- rlang::quo_text(funs[[1]]) %>% make.names()
+
+  # TODO a more elegant way, but if pars is list(), then row_fun_ch thinks that ... is NULL, and the function gets an argument NULL
+  if(length(pars) != 0){
+    signal[,(fun_txt) := row_fun_ch(.SD, .funs,  unlist(pars)),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
+  } else {
+    signal[,(fun_txt) := row_fun_ch(.SD, .funs),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
+  }
+  x$signal <- signal
+  update_events_channels(x) %>% #update_channels_tbl(channels_info) %>%
+      validate_eeg_lst()
+}

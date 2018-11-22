@@ -13,7 +13,7 @@ downsample(x, q = 2, max_sample = NULL, ...)
 
 \item{max_sample}{Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total numbe of samples.}
 
-\item{...}{Other arguments passed to decimate.}
+\item{...}{Not in use.}
 }
 \description{
 Downsample a signal_tbl by a factor \code{q}, using an FIR or IIR filter.

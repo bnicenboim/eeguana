@@ -1,3 +1,7 @@
+^Meta$
+^doc$
+^codecov\.yml$
+^\.travis\.yml$
 ^docs$
 ^_pkgdown\.yml$
 ^LICENSE\.md$
@@ -12,3 +16,8 @@ experimental
 ^eeguana\.sublime-project
 ^eeguana.sublime-workspace
 ^temp_exp.*
+^vignettes\.*\.vhdr
+^vignettes\.*\.vmrk
+^vignettes\.*\.dat
+^vignettes\.*\.Rmd
+^vignettes.*

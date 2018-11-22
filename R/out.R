@@ -14,6 +14,7 @@
 NULL
 # > NULL
 
+#' @rdname summary
 #' @export
 channel_names <- function(x, ...) {
   UseMethod("channel_names")
@@ -21,11 +22,11 @@ channel_names <- function(x, ...) {
 
 #' @rdname summary
 #' @export
-channel_names.eeg_lst <- function(x) {
+channel_names.eeg_lst <- function(x, ...) {
   setdiff(colnames(x$signal), obligatory_cols$signal)
 }
 
-
+#' @rdname summary
 #' @export
 nchannels <- function(x, ...) {
   UseMethod("nchannels")
@@ -33,48 +34,8 @@ nchannels <- function(x, ...) {
 
 #' @rdname summary
 #' @export
-nchannels.eeg_lst <- function(x) {
+nchannels.eeg_lst <- function(x, ...) {
   ncol(x$signal) - length(obligatory_cols$signal)
-}
-
-
-#' @export
-channels_tbl <- function(x, ...) {
-  UseMethod("channels_tbl")
-}
-
-
-#' @rdname summary
-#' @export
-channels_tbl.eeg_lst <- function(x, ...) {
-  dplyr::tibble(channel = channel_names(x)) %>%
-    # first row is enough and it makes it faster
-    dplyr::bind_cols(x$signal[1,] %>%
-      dplyr::select(channel_names(x)) %>%
-      purrr::map_dfr(~attributes(.x))) %>%
-    select(-channel)
-}
-
-#' @export
-`channels_tbl<-` <- function(x, value) {
-  UseMethod("channels_tbl<-")
-}
-
-#' @rdname summary
-#' @export
-`channels_tbl<-.eeg_lst` <- function(x, value) {
-  orig_names <- channel_names(x)
-  channels <- dplyr::select(x$signal, orig_names)
-  nochannels <- dplyr::select(x$signal, -dplyr::one_of(channel_names(x)))
-  x$signal <- dplyr::bind_cols(nochannels, update_channel_meta_data(channels, value))
-  new_names <- channel_names(x)
-
-  for (i in seq_len(nchannels(x))) {
-    x$events <- mutate(x$events, .channel = dplyr::if_else(.channel == orig_names[i], new_names[i], .channel)) %>%
-                data.table::as.data.table()
-  }
-
-  x
 }
 
 sampling_rate <- function(x) {
@@ -89,6 +50,7 @@ duration <- function(x) {
     .$duration
 }
 
+#' @rdname summary
 #' @export
 nsamples <- function(x, ...) {
   UseMethod("nsamples")
@@ -96,7 +58,7 @@ nsamples <- function(x, ...) {
 
 #' @rdname summary
 #' @export
-nsamples.eeg_lst <- function(x) {
+nsamples.eeg_lst <- function(x, ...) {
   duration(x) * sampling_rate(x)
 }
 
@@ -104,20 +66,22 @@ nsamples.eeg_lst <- function(x) {
 #' Summary of eeg_lst information.
 #'
 #' @param object An eeg_lst object.
+#' @inheritParams base::summary
 #' @rdname summary
 #'
 #' @export
-summary.eeg_lst <- function(object) {
+summary.eeg_lst <- function(object, ...) {
   summ <- list(
-    channels = channels_tbl(object),
+    channels = channels_tbl(object) %>% data.table::data.table(),
     sampling_rate = sampling_rate(object),
     segments = object$segments %>%
       dplyr::count(recording) %>%
-      dplyr::rename(segment_n = n),
+      dplyr::rename(segment_n = n) %>% data.table::data.table(),
     events = object$events %>%
       dplyr::group_by_at(dplyr::vars(-.size, -.channel, -.sample_0, -.id)) %>%
-      dplyr::count(),
-    size = capture.output(object_size(object))
+      dplyr::count() %>% data.table::data.table(),
+    size = utils::capture.output(print(utils::object.size(object), units = "auto")),
+    duration= format(.POSIXct(nrow(object$signal) / sampling_rate(object) ,tz="GMT"), "%H:%M:%S")
   )
   class(summ) <- c("eeg_summary", class(summ))
   summ
@@ -129,20 +93,22 @@ print.eeg_summary <- function(x, ...) {
   cat(paste0("# EEG data (eeg_lst) from the following channels:\n"))
 
   x$channels %>%
-    print(., ...)
+    print(.)
 
   cat(paste0("# Sampling rate: ", x$sampling_rate, " Hz.\n"))
 
   cat(paste0("# Size in memory: ", x$size, ".\n"))
 
+  cat(paste0("# Total duration: ", x$duration, ".\n"))
+
   cat("# Summary of segments\n")
   x$segments %>%
-    print(., ...)
+    print(.)
 
   cat("# Summary of events\n")
 
   x$events %>%
-    print(., ...)
+    print(.)
 
   invisible(x)
 }
