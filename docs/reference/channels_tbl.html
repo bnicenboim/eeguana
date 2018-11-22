@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Display information of the eeg_lst object. — summary • eeguana</title>
+<title>Functions to get or set the channel information of an eeg_lst object. — channels_tbl • eeguana</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -30,15 +30,9 @@
 
 
 
-<meta property="og:title" content="Display information of the eeg_lst object. — summary" />
+<meta property="og:title" content="Functions to get or set the channel information of an eeg_lst object. — channels_tbl" />
 
-<meta property="og:description" content="
-nchannels(): Returns the number of channels.
-channel_names(): Returns a vector with the name of the channels.
-nchannels(): Returns the number of channels.
-nsamples(): Returns the number of samples of the recording (or segments).
-summary(): Prints a summary of the eeg_lst object. (It also returns a list.)
-" />
+<meta property="og:description" content="Functions to get or set the channel information of an eeg_lst object." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -121,34 +115,26 @@ summary(): Prints a summary of the eeg_lst object. (It also returns a list.)
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Display information of the eeg_lst object.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/out.R'><code>R/out.R</code></a></small>
-    <div class="hidden name"><code>summary.Rd</code></div>
+    <h1>Functions to get or set the channel information of an eeg_lst object.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/editing.R'><code>R/editing.R</code></a></small>
+    <div class="hidden name"><code>channels_tbl.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <ul>
-<li><p><code>nchannels()</code>: Returns the number of channels.</p></li>
-<li><p><code>channel_names()</code>: Returns a vector with the name of the channels.</p></li>
-<li><p><code>nchannels()</code>: Returns the number of channels.</p></li>
-<li><p><code>nsamples()</code>: Returns the number of samples of the recording (or segments).</p></li>
-<li><p><code>summary()</code>: Prints a summary of the eeg_lst object. (It also returns a list.)</p></li>
-</ul>
+    <p>Functions to get or set the channel information of an eeg_lst object.</p>
     
     </div>
 
-    <pre class="usage"><span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>channel_names</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+    <pre class="usage"><span class='fu'>channels_tbl</span>(<span class='no'>x</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>nsamples</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+<span class='fu'>channels_tbl</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+
+<span class='fu'>channels_tbl</span>(<span class='no'>x</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>summary</span>(<span class='no'>object</span>)
-
-<span class='co'># S3 method for eeg_summary</span>
-<span class='fu'>print</span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
+<span class='fu'>channels_tbl</span>(<span class='no'>x</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span></pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -158,14 +144,14 @@ summary(): Prints a summary of the eeg_lst object. (It also returns a list.)
       <td><p>An eeg_lst object.</p></td>
     </tr>
     <tr>
-      <th>object</th>
-      <td><p>An eeg_lst object.</p></td>
+      <th>value</th>
+      <td><p>A channel table.</p></td>
     </tr>
     </table>
     
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <div class='dont-index'><p>Other summarize: <code><a href='count_complete_cases_tbl.html'>count_complete_cases_tbl</a></code></p></div>
+    <p>A table.</p>
     
 
   </div>
@@ -174,7 +160,7 @@ summary(): Prints a summary of the eeg_lst object. (It also returns a list.)
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#see-also">See also</a></li>
+      <li><a href="#value">Value</a></li>
           </ul>
 
   </div>

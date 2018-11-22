@@ -61,7 +61,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.0.2.9001</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.0.3.9000</span>
       </span>
     </div>
 
@@ -132,12 +132,20 @@
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
+      <th>x</th>
+      <td><p>An <span style="R">R</span> object.  Currently there are methods for
+    numeric/logical vectors and date,
+    date-time and time interval objects.  Complex vectors
+    are allowed for <code>trim = 0</code>, only.</p></td>
+    </tr>
+    <tr>
       <th>...</th>
       <td><p>A channel or a group of channels, or an <code>eeg_lst</code> object.</p></td>
     </tr>
     <tr>
       <th>na.rm</th>
-      <td></td>
+      <td><p>a logical value indicating whether <code>NA</code>
+    values should be stripped before the computation proceeds.</p></td>
     </tr>
     </table>
     
@@ -147,9 +155,9 @@
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other channel: <code>ch_baseline</code>,
-  <code>ch_rereference</code>, <code>channel_dbl</code>,
-  <code>is_channel_dbl</code></p></div>
+    <div class='dont-index'><p>Other channel: <code><a href='ch_baseline.html'>ch_baseline</a></code>,
+  <code><a href='ch_rereference.html'>ch_rereference</a></code>, <code><a href='channel_dbl.html'>channel_dbl</a></code>,
+  <code><a href='is_channel_dbl.html'>is_channel_dbl</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
