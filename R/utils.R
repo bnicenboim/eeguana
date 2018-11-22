@@ -93,16 +93,3 @@ theme_eeguana <- ggplot2::theme_bw() +
 between <- data.table::between
 
 
-#from readr
-
-check_path <- function(path) {
-  if (file.exists(path))
-    return(normalizePath(path, "/", mustWork = FALSE))
-
-  stop("'", path, "' does not exist",
-    if (!is_absolute_path(path))
-      paste0(" in current working directory ('", getwd(), "')"),
-    ".",
-    call. = FALSE
-  )
-}

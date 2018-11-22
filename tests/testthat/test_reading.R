@@ -32,7 +32,7 @@ test_that("int files match", {
 })
 
 
-ft <- read_ft(system.file("testdata","fieldtrip_matrix.mat",package="eeguana"), recording = "bv2")
+ft <- read_ft(file = system.file("testdata","fieldtrip_matrix.mat",package="eeguana"), recording = "bv2")
 
 
 channels_tbl(ft) <- channels_tbl(multiplexed_bin_bv2)

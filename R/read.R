@@ -85,7 +85,7 @@ read_vhdr <- function(file, sep = type == "New Segment", zero = type == "Time 0"
 #' @importFrom magrittr %>%
 #'
 #' @export
-read_ft <- function(file, layout. = NULL, recording = file) {
+read_ft <- function(file, layout = NULL, recording = file) {
   # TODO: checks if R.matlab was installed first
 
   # It should be based on this:

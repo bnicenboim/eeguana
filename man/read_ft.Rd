@@ -4,14 +4,14 @@
 \alias{read_ft}
 \title{Read a Fieldtrip file into an eeg_lst object (requires R.matlab).}
 \usage{
-read_ft(file, layout. = NULL, recording = file)
+read_ft(file, layout = NULL, recording = file)
 }
 \arguments{
 \item{file}{A .mat file containing a fieldtrip struct.}
 
-\item{recording}{Recording name, by default is the file name.}
-
 \item{layout}{A .mat \href{http://www.fieldtriptoolbox.org/template/layout}{layout from Fieldtrip}}
+
+\item{recording}{Recording name, by default is the file name.}
 }
 \value{
 An \code{eeg_lst} object with signal_tbl and event from a matlab file.
