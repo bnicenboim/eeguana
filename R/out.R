@@ -14,6 +14,7 @@
 NULL
 # > NULL
 
+#' @rdname summary
 #' @export
 channel_names <- function(x, ...) {
   UseMethod("channel_names")
@@ -25,12 +26,13 @@ channel_names.eeg_lst <- function(x, ...) {
   setdiff(colnames(x$signal), obligatory_cols$signal)
 }
 
-
+#' @rdname summary
 #' @export
 nchannels <- function(x, ...) {
   UseMethod("nchannels")
 }
 
+#' @rdname summary
 #' @export
 nchannels.eeg_lst <- function(x, ...) {
   ncol(x$signal) - length(obligatory_cols$signal)
@@ -48,6 +50,7 @@ duration <- function(x) {
     .$duration
 }
 
+#' @rdname summary
 #' @export
 nsamples <- function(x, ...) {
   UseMethod("nsamples")
@@ -67,7 +70,7 @@ nsamples.eeg_lst <- function(x, ...) {
 #' @rdname summary
 #'
 #' @export
-summary.eeg_lst <- function(object) {
+summary.eeg_lst <- function(object, ...) {
   summ <- list(
     channels = channels_tbl(object) %>% data.table::data.table(),
     sampling_rate = sampling_rate(object),

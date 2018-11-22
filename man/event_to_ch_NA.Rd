@@ -2,9 +2,13 @@
 % Please edit documentation in R/tables_transformation.R
 \name{event_to_ch_NA}
 \alias{event_to_ch_NA}
+\alias{event_to_ch_NA.eeg_lst}
 \title{Remove (transform to NA) problematic events from an eeg_lst.}
 \usage{
 event_to_ch_NA(x, ...)
+
+\method{event_to_ch_NA}{eeg_lst}(x, ..., all_chans = FALSE,
+  entire_seg = TRUE, drop_events = TRUE)
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}

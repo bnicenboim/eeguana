@@ -4,12 +4,14 @@
 \alias{plot.eeg_lst}
 \title{Simple plot an eeg_lst object.}
 \usage{
-\method{plot}{eeg_lst}(x, max_sample = 64000)
+\method{plot}{eeg_lst}(x, max_sample = 64000, ...)
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
 
 \item{max_sample}{Downsample to approximately 64000 samples by default.}
+
+\item{...}{Not in use.}
 }
 \value{
 A ggplot object

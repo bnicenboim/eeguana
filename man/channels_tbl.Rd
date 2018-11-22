@@ -18,6 +18,8 @@ channels_tbl(x) <- value
 \arguments{
 \item{x}{An eeg_lst object.}
 
+\item{...}{Not in use.}
+
 \item{value}{A channel table.}
 }
 \value{

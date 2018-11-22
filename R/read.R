@@ -42,8 +42,11 @@ read_vhdr <- function(file, sep = type == "New Segment", zero = type == "Time 0"
   # It only accepts .dat files (for now)
   vmrk_file <- header_info$common_info$vmrk_file
 
+  file_vmrk <- paste0(file_path, vmrk_file)
+  if (!file.exists(file_vmrk)) stop(sprintf("File %s not found in %s",file, getwd()))
+
   events <- 
-   tryCatch(read_vmrk(file = paste0(file_path, vmrk_file)),
+   tryCatch(read_vmrk(file = file_vmrk),
         error=function(cond) {
             message(paste("Error in the events of:", paste0(file_path, vmrk_file)))
             message(paste(cond,"\n"))

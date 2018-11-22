@@ -20,7 +20,7 @@
 #'                chs_mean(na.rm = TRUE)
 #' }
 #' @export
-chs_mean <- function(x, ...,na.rm= FALSE) {
+chs_mean <- function(x, ..., na.rm= FALSE) {
   UseMethod("chs_mean")
 }
 
@@ -45,7 +45,7 @@ chs_mean.channel_dbl <- function(..., na.rm = FALSE) {
 }
 
 #' @export
-chs_mean.eeg_lst <- function(x, na.rm = FALSE) {
+chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
   #channels_info <- channels_tbl(x)
   signal <- data.table::copy(x$signal)
   signal[,mean := rowMeans_ch(.SD, na.rm = na.rm),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
@@ -63,7 +63,6 @@ chs_mean.eeg_lst <- function(x, na.rm = FALSE) {
 #' 
 #' @param x A channel to be referenced an eeg_lst where all the channels will be re-referenced (except for the ones in exclude).
 #' @param ... Channels that will be averaged as the reference.
-#' @param exclude  A character vector of channels to exclude from referencing.
 #' @inheritParams base::mean
 #' @return A rereferenced channel or an eeg_lst with all channels re-referenced.
 #' @export
@@ -80,7 +79,7 @@ chs_mean.eeg_lst <- function(x, na.rm = FALSE) {
 ch_rereference <- function(x, ...,na.rm= FALSE) {
   UseMethod("ch_rereference")
 }
-
+#' @rdname ch_rereference
 #' @export
 ch_rereference.channel_dbl <- function(x, ..., na.rm = FALSE) {
    dots <- rlang::enquos(...)
@@ -92,7 +91,8 @@ ch_rereference.channel_dbl <- function(x, ..., na.rm = FALSE) {
                         ) }
   # {`attributes<-`(., list(.reference=2))}
  }
-
+#' @rdname ch_rereference
+#' @param exclude  A character vector of channels to exclude from referencing.
 #' @export
 ch_rereference.eeg_lst <- function(x,..., na.rm = FALSE, exclude = NULL) {
   #channels_info <- channels_tbl(x)
@@ -128,7 +128,7 @@ chs_fun.channel_dbl <- function(...,.funs, pars = list()) {
 }
 
 #' @export
-chs_fun.eeg_lst <- function(x,.funs, pars = list()) {
+chs_fun.eeg_lst <- function(x,.funs, pars = list(), ...) {
 
   signal <- data.table::copy(x$signal)
   funs <- dplyr:::as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env())
