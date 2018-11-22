@@ -16,7 +16,7 @@ plot.eeg_lst <- function(x, max_sample = 64000) {
     x <- downsample(x, max_sample = max_sample)
   }
 
-  df <- as_tibble(x)
+  df <- dplyr::as_tibble(x)
   plot <- ggplot2::ggplot(
     df,
     ggplot2::aes(x = time, y = amplitude, group = .id)

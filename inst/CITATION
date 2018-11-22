@@ -1,0 +1,14 @@
+utils::("To cite eeguana in publications use:")
+
+citEntry(entry = "manual",
+  title        = "{{eeguana}: A package for manipulating {EEG} data in {R}",
+  author       = personList(as.person("Bruno Nicenboim")),
+  year         = "2018",
+  url          = "https://github.com/bnicenboim/eeguana",
+
+  textVersion  =
+  paste("Nicenboim, Bruno. (2018).",
+        "{{eeguana}: A package for manipulating {EEG} data in {R}.",
+        "URL https://github.com/bnicenboim/eeguana.")
+)
+

@@ -12,9 +12,9 @@
 \alias{group_vars.eeg_lst}
 \alias{select.eeg_lst}
 \alias{rename.eeg_lst}
+\alias{anti_join.eeg_lst}
 \alias{left_join.eeg_lst}
 \alias{semi_join.eeg_lst}
-\alias{anti_join.eeg_lst}
 \alias{tbl_vars.eeg_lst}
 \title{Dplyr functions for eeg_lst objects.}
 \usage{
@@ -38,13 +38,13 @@
 
 \method{rename}{eeg_lst}(.data, ...)
 
+\method{anti_join}{eeg_lst}(x, y, by = NULL, copy = FALSE,
+  suffix = c(".x", ".y"), ...)
+
 \method{left_join}{eeg_lst}(x, y, by = NULL, copy = FALSE,
   suffix = c(".x", ".y"), ...)
 
 \method{semi_join}{eeg_lst}(x, y, by = NULL, suffix = c(".x", ".y"),
-  ...)
-
-\method{anti_join}{eeg_lst}(x, y, by = NULL, suffix = c(".x", ".y"),
   ...)
 
 \method{tbl_vars}{eeg_lst}(x)
