@@ -53,6 +53,8 @@
 \item{.data}{An eeg_lst.}
 
 \item{...}{Name-value pairs of expressions; see  \link[dplyr:dplyr]{dplyr} for more help.}
+
+\item{x}{An eeg_lst.}
 }
 \value{
 An eeg_lst object.

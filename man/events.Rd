@@ -9,7 +9,7 @@
 \usage{
 events(x, ...)
 
-\method{events}{eeg_lst}(x)
+\method{events}{eeg_lst}(x, ...)
 
 events(x) <- value
 
@@ -17,6 +17,8 @@ events(x) <- value
 }
 \arguments{
 \item{x}{An eeg_lst object.}
+
+\item{...}{Not in use.}
 
 \item{value}{An events table.}
 }

@@ -2,9 +2,15 @@
 % Please edit documentation in R/channel_functions.R
 \name{ch_rereference}
 \alias{ch_rereference}
+\alias{ch_rereference.channel_dbl}
+\alias{ch_rereference.eeg_lst}
 \title{Rereference a channel or group of channels.}
 \usage{
 ch_rereference(x, ..., na.rm = FALSE)
+
+\method{ch_rereference}{channel_dbl}(x, ..., na.rm = FALSE)
+
+\method{ch_rereference}{eeg_lst}(x, ..., na.rm = FALSE, exclude = NULL)
 }
 \arguments{
 \item{x}{A channel to be referenced an eeg_lst where all the channels will be re-referenced (except for the ones in exclude).}

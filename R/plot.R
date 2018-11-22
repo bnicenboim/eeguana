@@ -1,7 +1,7 @@
 #' Simple plot an eeg_lst object.
 #' @param x An `eeg_lst` object.
 #' @param max_sample Downsample to approximately 64000 samples by default.
-#'
+#' @param ... Not in use.
 #' @family plot
 #' 
 #' @return A ggplot object
@@ -9,7 +9,7 @@
 #' @importFrom magrittr %>%
 #'
 #' @export
-plot.eeg_lst <- function(x, max_sample = 64000) {
+plot.eeg_lst <- function(x, max_sample = 64000, ...) {
   if (is.numeric(max_sample) & max_sample != 0 &
     # it will downsample if the samples are at least twice as large than the max_sample
     max(duration(x)) * sampling_rate(x) * 2 > max_sample) {

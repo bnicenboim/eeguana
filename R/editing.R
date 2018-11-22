@@ -3,6 +3,7 @@
 #'
 #' @param x An eeg_lst object.
 #' @param value An events table.
+#' @param ... Not in use.
 #' 
 #' @return A table.
 #' @export
@@ -11,7 +12,7 @@ events <- function(x, ...) {
 }
 #' @rdname events
 #' @export
-events.eeg_lst <- function(x){
+events.eeg_lst <- function(x,...){
   x$events
 }
 #' @rdname events
@@ -32,7 +33,7 @@ events.eeg_lst <- function(x){
 #'
 #'
 #' @param x An eeg_lst object.
-#' @param value A channel table.
+#' @param ... Not in use.
 #' 
 #' @return A table.
 #' @export
@@ -51,6 +52,7 @@ channels_tbl.eeg_lst <- function(x, ...) {
     dplyr::select(-class)
 }
 #' @rdname channels_tbl
+#' @param value A channel table.
 #' @export
 `channels_tbl<-` <- function(x, value) {
   UseMethod("channels_tbl<-")

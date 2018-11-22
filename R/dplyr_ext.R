@@ -67,7 +67,7 @@ summarize_all_ch.eeg_lst <- function(.tbl, .funs, ...) {
   vars <- as.list(channel_names(.tbl))
   summarize_at_eeg_lst(.tbl, vars, funs) 
 }
-
+#' @rdname summarize_ch
 #' @export
 summarise_all_ch <- summarize_all_ch
 

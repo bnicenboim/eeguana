@@ -8,7 +8,7 @@ Authors@R: c(
 Description: Flexible data manipulation of EEG data.
 URL: https://github.com/bnicenboim/eeguana
 BugReports: https://github.com/bnicenboim/eeguana/issues
-License: MIT + file LICENSE, and CC-BY-SA-4.0 when explicitly stated
+License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 6.1.1
 Depends:

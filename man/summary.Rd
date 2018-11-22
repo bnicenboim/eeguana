@@ -2,17 +2,29 @@
 % Please edit documentation in R/out.R
 \name{summary}
 \alias{summary}
+\alias{channel_names}
 \alias{channel_names.eeg_lst}
+\alias{nchannels}
+\alias{nchannels.eeg_lst}
+\alias{nsamples}
 \alias{nsamples.eeg_lst}
 \alias{summary.eeg_lst}
 \alias{print.eeg_summary}
 \title{Display information of the eeg_lst object.}
 \usage{
+channel_names(x, ...)
+
 \method{channel_names}{eeg_lst}(x, ...)
+
+nchannels(x, ...)
+
+\method{nchannels}{eeg_lst}(x, ...)
+
+nsamples(x, ...)
 
 \method{nsamples}{eeg_lst}(x, ...)
 
-\method{summary}{eeg_lst}(object)
+\method{summary}{eeg_lst}(object, ...)
 
 \method{print}{eeg_summary}(x, ...)
 }
