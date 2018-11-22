@@ -44,7 +44,7 @@ ch_baseline.channel_dbl <- function(x, time = -Inf, sample_id = NULL,...) {
   } else if( is.numeric(sample_id) & is.numeric(time)) {
     message("# Ignoring time parameter.")
   }
-
+# 
   print(signal$.sample_id)
   fun_baseline(x, signal[[".sample_id"]], sample_id)  
 }
