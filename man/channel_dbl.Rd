@@ -8,17 +8,17 @@ channel_dbl(values, x = NA_real_, y = NA_real_, z = NA_real_,
   reference = NA, ...)
 }
 \arguments{
-\item{values}{}
+\item{values}{Vector of doubles indicating amplitudes.}
 
-\item{x}{}
+\item{x}{Position in the scalp.}
 
-\item{y}{}
+\item{y}{Position in the scalp.}
 
-\item{z}{}
+\item{z}{Position in the scalp.}
 
-\item{reference}{}
+\item{reference}{Reference electrode.}
 
-\item{...}{}
+\item{...}{further arguments passed to or from other methods.}
 }
 \description{
 Builds a channel.

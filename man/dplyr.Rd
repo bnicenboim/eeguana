@@ -12,9 +12,9 @@
 \alias{group_vars.eeg_lst}
 \alias{select.eeg_lst}
 \alias{rename.eeg_lst}
+\alias{anti_join.eeg_lst}
 \alias{left_join.eeg_lst}
 \alias{semi_join.eeg_lst}
-\alias{anti_join.eeg_lst}
 \alias{tbl_vars.eeg_lst}
 \title{Dplyr functions for eeg_lst objects.}
 \usage{
@@ -38,13 +38,13 @@
 
 \method{rename}{eeg_lst}(.data, ...)
 
+\method{anti_join}{eeg_lst}(x, y, by = NULL, copy = FALSE,
+  suffix = c(".x", ".y"), ...)
+
 \method{left_join}{eeg_lst}(x, y, by = NULL, copy = FALSE,
   suffix = c(".x", ".y"), ...)
 
 \method{semi_join}{eeg_lst}(x, y, by = NULL, suffix = c(".x", ".y"),
-  ...)
-
-\method{anti_join}{eeg_lst}(x, y, by = NULL, suffix = c(".x", ".y"),
   ...)
 
 \method{tbl_vars}{eeg_lst}(x)
@@ -53,6 +53,8 @@
 \item{.data}{An eeg_lst.}
 
 \item{...}{Name-value pairs of expressions; see  \link[dplyr:dplyr]{dplyr} for more help.}
+
+\item{x}{An eeg_lst.}
 }
 \value{
 An eeg_lst object.
@@ -88,7 +90,7 @@ faces_segs \%>\% select(O1, O2, P7, P8)
 }
 }
 \seealso{
-\link{summarize_at_ch}, \link{summarize_all_ch}, \link{rollup}, \link{rollup_at_ch}, \link{rollup_all_ch}, \link{bind} for the extended dplyr-like functions.
+\link{summarize_at_ch}, \link{summarize_all_ch}, \link{bind} for the extended dplyr-like functions.
 
 Other dplyr functions: \code{\link{summarize_ch}}
 }

@@ -3,7 +3,6 @@
 \name{as_tibble.eeg_lst}
 \alias{as_tibble.eeg_lst}
 \alias{as_data_frame.eeg_lst}
-\alias{as.tibble.eeg_lst}
 \title{Convert an eeg_lst to a wide table.}
 \usage{
 \method{as_tibble}{eeg_lst}(x, add_segments = TRUE,
@@ -11,15 +10,14 @@
 
 \method{as_data_frame}{eeg_lst}(x, add_segments = TRUE,
   add_channels_info = TRUE)
-
-as.tibble.eeg_lst(x, add_segments = TRUE, add_channels_info = TRUE)
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
 
-\item{add_segments}{Whether the segments table
+\item{add_segments}{Whether the segments table is included.}
 
-\code{as_data_frame} and \code{as.tibble} are aliases.}
+\item{add_channels_info}{Whether the channels information (\code{channels_tbl}) is included.
+\code{as_data_frame} is an alias.}
 }
 \value{
 A tibble.

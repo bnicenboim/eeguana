@@ -26,7 +26,7 @@
 #' @return An eeg_lst object.
 #'
 #' @family dplyr functions
-#' @seealso [summarize_at_ch], [summarize_all_ch], [rollup], [rollup_at_ch], [rollup_all_ch], [bind] for the extended dplyr-like functions.
+#' @seealso [summarize_at_ch], [summarize_all_ch], [bind] for the extended dplyr-like functions.
 #'
 #' @name dplyr
 #' 
@@ -39,88 +39,84 @@ NULL
 # > NULL
 
 #' @rdname dplyr
-#' @export
 mutate.eeg_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
   mutate_eeg_lst(.data, dots, keep_cols = TRUE)
 }
-#' @export
 mutate_.eeg_lst <- function(.data, ..., .dots = list()) {
-  dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
+  dots <- compat_lazy_dots(.dots, rlang::caller_env(), ...)
   mutate_eeg_lst(.data, dots, keep_cols = TRUE)
 }
 #' @rdname dplyr
-#' @export
 transmute.eeg_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
   mutate_eeg_lst(.data, dots, keep_cols = FALSE)
 }
-#' @export
 transmute_.eeg_lst <- function(.data, ..., .dots = list()) {
-  dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
+  dots <- compat_lazy_dots(.dots, rlang::caller_env(), ...)
   mutate_eeg_lst(.data, dots, keep_cols = FALSE)
 }
-#' @export
 filter_.eeg_lst <- function(.data, ..., .dots = list()) {
-  dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
+  dots <- compat_lazy_dots(.dots, rlang::caller_env(), ...)
   filter_eeg_lst(.data, dots = dots)
 }
 #' @rdname dplyr
-#' @export
 filter.eeg_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
   filter_eeg_lst(.data, dots = dots)
 }
 #' @rdname dplyr
-#' @export
 summarise.eeg_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
  summarize_eeg_lst(.data, dots)
 }
-#' @export
 summarise_.eeg_lst <- function(.data, ..., .dots = list()) {
-  dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
+  dots <- compat_lazy_dots(.dots, rlang::caller_env(), ...)
  summarize_eeg_lst(.data, dots)
 }
-#' @export
 group_by_.eeg_lst <- function(.data, ..., .dots = list()) {
-  dots <- dplyr:::compat_lazy_dots(.dots, caller_env(), ...)
-  group_by_eeg_lst(.eeg_lst = .data, .dots = dots, .add = FALSE)
+  dots <- compat_lazy_dots(.dots, rlang::caller_env(), ...)
+  group_by_eeg_lst(.eeg_lst = .data, dots, .add = FALSE)
 }
 #' @rdname dplyr
-#' @export
 group_by.eeg_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
-  group_by_eeg_lst(.eeg_lst = .data, .dots = dots, .add = FALSE)
+  group_by_eeg_lst(.eeg_lst = .data, dots, .add = FALSE)
 }
 #' @rdname dplyr
-#' @export
 ungroup.eeg_lst <- function(.data, ...) {
   attributes(.data)$vars <- character(0)
   validate_eeg_lst(.data)
 }
 #' @rdname dplyr
-#' @export
 groups.eeg_lst <- function(x) {
 attributes(x)$vars %>% purrr::map(as.name)
 }
 #' @rdname dplyr
-#' @export
 group_vars.eeg_lst <- function(x) {
   attributes(x)$vars
 }
 #' @rdname dplyr
-#' @export
 select.eeg_lst <- function(.data, ...) {
   select_rename(.data, select = TRUE, ...)
 }
 #' @rdname dplyr
-#' @export
 rename.eeg_lst <- function(.data, ...) {
   select_rename(.data, select = FALSE, ...)
 }
 #' @rdname dplyr
-#' @export
+#' @param x An eeg_lst.
+anti_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
+  if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
+
+  x$segments <- dplyr::anti_join(x$segments, y, by = NULL, suffix = c(".x", ".y"), ...)
+
+  segments <- data.table::as.data.table(x$segments)
+  x$signal <- semi_join_dt(x$signal, segments, by = ".id")
+  x$events <- semi_join_dt(x$events, segments, by = ".id")
+  redo_indices(x) %>% validate_eeg_lst()
+}
+#' @rdname dplyr
 left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
   if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
 
@@ -129,7 +125,6 @@ left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".
   validate_eeg_lst(x)
 }
 #' @rdname dplyr
-#' @export
 semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
 
@@ -141,21 +136,8 @@ semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   redo_indices(x) %>% validate_eeg_lst()
   
 }
-#' @rdname dplyr
-#' @export
-anti_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
-  if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
-
-  x$segments <- dplyr::anti_join(x$segments, y, by = NULL, suffix = c(".x", ".y"), ...)
-
-  segments <- data.table::as.data.table(x$segments)
-  x$signal <- semi_join_dt(x$signal, segments, by = ".id")
-  x$events <- semi_join_dt(x$events, segments, by = ".id")
-  redo_indices(x) %>% validate_eeg_lst()
-}
 
 #' @rdname dplyr
-#' @export
 tbl_vars.eeg_lst <- function(x) {
-  setdiff(dplyr::tbl_vars(x$signal),dplyr::tbl_vars(x$segments), c(".id", ".sample_id"))
+  setdiff(dplyr::tbl_vars(x$signal), c(dplyr::tbl_vars(x$segments), c(".id", ".sample_id")))
 }

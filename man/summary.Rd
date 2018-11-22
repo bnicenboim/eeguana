@@ -2,31 +2,36 @@
 % Please edit documentation in R/out.R
 \name{summary}
 \alias{summary}
+\alias{channel_names}
 \alias{channel_names.eeg_lst}
+\alias{nchannels}
 \alias{nchannels.eeg_lst}
-\alias{channels_tbl.eeg_lst}
-\alias{channels_tbl<-.eeg_lst}
+\alias{nsamples}
 \alias{nsamples.eeg_lst}
 \alias{summary.eeg_lst}
 \alias{print.eeg_summary}
 \title{Display information of the eeg_lst object.}
 \usage{
-\method{channel_names}{eeg_lst}(x)
+channel_names(x, ...)
 
-\method{nchannels}{eeg_lst}(x)
+\method{channel_names}{eeg_lst}(x, ...)
 
-\method{channels_tbl}{eeg_lst}(x, ...)
+nchannels(x, ...)
 
-\method{channels_tbl}{eeg_lst}(x) <- value
+\method{nchannels}{eeg_lst}(x, ...)
 
-\method{nsamples}{eeg_lst}(x)
+nsamples(x, ...)
 
-\method{summary}{eeg_lst}(object)
+\method{nsamples}{eeg_lst}(x, ...)
+
+\method{summary}{eeg_lst}(object, ...)
 
 \method{print}{eeg_summary}(x, ...)
 }
 \arguments{
 \item{x}{An eeg_lst object.}
+
+\item{...}{additional arguments affecting the summary produced.}
 
 \item{object}{An eeg_lst object.}
 }

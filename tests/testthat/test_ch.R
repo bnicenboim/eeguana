@@ -10,7 +10,7 @@ data_eeg <- eeg_lst(
     ids = rep(c(1L, 2L), each = 10),
     sample_ids = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500),
     dplyr::tibble(
-      .name = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+      channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
     )
   ),
@@ -40,17 +40,26 @@ test_that("both .eeg_lst and .channel_dbl give the same output for chs_mean", {
 })
 
 data_reref <- mutate(data_eeg, X = ch_rereference(X, X, Y))
+X_reref <- data_eeg$signal$X - (data_eeg$signal$X+data_eeg$signal$Y)/2
+attributes(X_reref)$.reference = "X, Y"
 
 test_that("can reref the mean of the channels", {
-  expect_equal(data_reref$signal$X, data_eeg$signal$X - (data_eeg$signal$X+data_eeg$signal$Y)/2)
+  expect_equal(data_reref$signal$X, X_reref)
 })
+
+data_reref_all_chs <- ch_rereference(data_eeg, X, Y)
+
+test_that(".reference changes", {
+  expect_equal(unique(channels_tbl(data_reref_all_chs)$.reference),"X, Y")
+})
+
 
 data_reref_all <- transmute(data_eeg, X_ref = ch_rereference(X, X, Y), Y_ref = ch_rereference(Y, X, Y))  %>%
                     rename(X = X_ref, Y = Y_ref)
-data_reref_all_2 <- ch_rereference(data_eeg, X, Y)
+
 
 test_that("both .eeg_lst and .channel_dbl give the same values for ch_rereference (it's ok to loose the events and attributes", {
-  expect_equal(data_reref_all$signal$X %>% as.numeric, data_reref_all_2$signal$X %>% as.numeric)
-  expect_equal(data_reref_all$signal$Y %>% as.numeric, data_reref_all_2$signal$Y %>% as.numeric)
+  expect_equal(data_reref_all$signal$X %>% as.numeric, data_reref_all_chs$signal$X %>% as.numeric)
+  expect_equal(data_reref_all$signal$Y %>% as.numeric, data_reref_all_chs$signal$Y %>% as.numeric)
 })
 

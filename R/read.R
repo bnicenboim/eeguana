@@ -13,10 +13,13 @@
 #' @export
 read_vhdr <- function(file, sep = type == "New Segment", zero = type == "Time 0",
                       recording = file) {
+  
+  if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
+
   sep <- rlang::enquo(sep)
   zero <- rlang::enquo(zero)
-  # sep = quo(type == "New Segment")
-  # zero = quo(type == "Time 0")
+  # sep = rlang::quo(type == "New Segment")
+  # zero = rlang::quo(type == "Time 0")
 
   # Takes the files from the header:
   file_path <- stringr::str_match(file, "(.*(/|\\\\)).")[, 2] %>% {
@@ -39,8 +42,11 @@ read_vhdr <- function(file, sep = type == "New Segment", zero = type == "Time 0"
   # It only accepts .dat files (for now)
   vmrk_file <- header_info$common_info$vmrk_file
 
+  file_vmrk <- paste0(file_path, vmrk_file)
+  if (!file.exists(file_vmrk)) stop(sprintf("File %s not found in %s",file, getwd()))
+
   events <- 
-   tryCatch(read_vmrk(file = paste0(file_path, vmrk_file)),
+   tryCatch(read_vmrk(file = file_vmrk),
         error=function(cond) {
             message(paste("Error in the events of:", paste0(file_path, vmrk_file)))
             message(paste(cond,"\n"))
@@ -74,7 +80,7 @@ read_vhdr <- function(file, sep = type == "New Segment", zero = type == "Time 0"
 #'
 #' @param file A .mat file containing a fieldtrip struct.
 #' @param recording Recording name, by default is the file name.
-#'
+#' @param layout A .mat [layout from Fieldtrip](http://www.fieldtriptoolbox.org/template/layout)
 #' @return An `eeg_lst` object with signal_tbl and event from a matlab file.
 #'
 #' @family read
@@ -88,12 +94,14 @@ read_ft <- function(file, layout = NULL, recording = file) {
   # It should be based on this:
   # http://www.fieldtriptoolbox.org/reference/ft_datatype_raw
 
+  if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
+
   mat <- R.matlab::readMat(file)
 
   channel_names <- mat[[1]][, , 1]$label %>% unlist()
   sampling_rate <- mat[[1]][, , 1]$fsample[[1]]
 
-  ## signal_tbl df:
+  ## signal_raw df:
 
   # segment lengths, initial, final, offset
   slengths <- mat[[1]][, , 1]$cfg[, , 1]$trl %>%
@@ -105,31 +113,31 @@ read_ft <- function(file, layout = NULL, recording = file) {
     unlist() %>%
     new_sample_int(sampling_rate = sampling_rate)
 
-  signal_tbl <- purrr::map_dfr(mat[[1]][, , 1]$trial,
+  signal_raw <- purrr::map_dfr(mat[[1]][, , 1]$trial,
     function(lsegment) {
       lsegment[[1]] %>% t() %>% dplyr::as_tibble()
     },
     .id = ".id"
-  ) 
-  data.table::setDT(signal_tbl)
+  ) %>% dplyr::mutate(.id = as.integer(.id))
   
+
 
 
   # channel info:
   channels <- dplyr::tibble(
-    .name = make.unique(channel_names)
+    channel = make.unique(channel_names) %>% make.names()
   )
 
   if (!is.null(layout)) {
     chan_layout <- R.matlab::readMat(layout) %>%
       {
         dplyr::mutate(.$lay[, , 1]$pos %>% as.data.frame(),
-          .name = unlist(.$lay[, , 1]$label)
+          channel = unlist(.$lay[, , 1]$label)
         )
       } %>%
       dplyr::rename(.x = V1, .y = V2)
-    not_layout <- setdiff(chan_layout$.name, channels$.name)
-    not_channel <- setdiff(channels$.name, chan_layout$.name)
+    not_layout <- setdiff(chan_layout$channel, channels$channel)
+    not_channel <- setdiff(channels$channel, chan_layout$channel)
     warning(paste0(
       "The following channels are not in the layout file: ",
       paste(not_layout, collapse = ", "), "."
@@ -138,7 +146,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
       "The following channels are not in the data: ",
       paste(not_channel, collapse = ", "), "."
     ))
-    channels <- dplyr::left_join(channels, dplyr::as_tibble(chan_layout), by = ".name") %>%
+    channels <- dplyr::left_join(channels, dplyr::as_tibble(chan_layout), by = "channel") %>%
       dplyr::mutate(.z = NA_real_, .reference = NA)
   } else {
     channels <- channels %>%
@@ -149,8 +157,8 @@ read_ft <- function(file, layout = NULL, recording = file) {
   # colnames(signal_tbl) <- c(".id", channel_names)
   # signal_tbl <- dplyr::mutate(signal_tbl, .sample = sample, .id = as.integer(.id)) %>%
   #   dplyr::select(.id, .sample, dplyr::everything())
-  signal_tbl <- new_signal_tbl(select(signal_tbl, -.id),
-    ids = signal_tbl[[".id"]], sample_ids = sample, channel_info = channels
+  signal_tbl <- new_signal_tbl(signal_matrix = dplyr::select(signal_raw, -.id),
+    ids = dplyr::pull(signal_raw,.id), sample_ids = sample, channel_info = channels
   )
 
 
@@ -198,5 +206,5 @@ read_ft <- function(file, layout = NULL, recording = file) {
     " segment(s) and ", nchannels(eeg_lst), " channels was loaded."
   ))
   message(say_size(eeg_lst))
-  eeg_lst
+  validate_eeg_lst(eeg_lst)
 }

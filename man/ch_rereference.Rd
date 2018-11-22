@@ -2,16 +2,25 @@
 % Please edit documentation in R/channel_functions.R
 \name{ch_rereference}
 \alias{ch_rereference}
+\alias{ch_rereference.channel_dbl}
+\alias{ch_rereference.eeg_lst}
 \title{Rereference a channel or group of channels.}
 \usage{
 ch_rereference(x, ..., na.rm = FALSE)
+
+\method{ch_rereference}{channel_dbl}(x, ..., na.rm = FALSE)
+
+\method{ch_rereference}{eeg_lst}(x, ..., na.rm = FALSE, exclude = NULL)
 }
 \arguments{
-\item{x}{A channel.}
+\item{x}{A channel to be referenced an eeg_lst where all the channels will be re-referenced (except for the ones in exclude).}
 
 \item{...}{Channels that will be averaged as the reference.}
 
-\item{na.rm}{}
+\item{na.rm}{a logical value indicating whether \code{NA}
+    values should be stripped before the computation proceeds.}
+
+\item{exclude}{A character vector of channels to exclude from referencing.}
 }
 \value{
 A rereferenced channel or an eeg_lst with all channels re-referenced.

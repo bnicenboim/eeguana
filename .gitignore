@@ -1,3 +1,5 @@
+Meta
+doc
 .Rproj.user
 .Rhistory
 .RData
@@ -12,7 +14,14 @@ tests/testthat/other_tests.R
 # produced vignettes
 vignettes/*.html
 vignettes/*.pdf
+#data used in the vignettes
+vignettes/*.vhdr
+vignettes/*.vmrk
+vignettes/*.dat
 # Workspace files are user-specific
 *.sublime-workspace
 *.sublime-project
-
+/*.vhdr
+/*.dat
+/*.vmrk
+inst/doc

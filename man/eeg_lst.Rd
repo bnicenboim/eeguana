@@ -7,11 +7,11 @@
 eeg_lst(signal = NULL, events = NULL, segments = NULL)
 }
 \arguments{
-\item{events}{}
+\item{signal}{signal}
 
-\item{segments}{}
+\item{events}{events}
 
-\item{signal_tbl}{}
+\item{segments}{segments}
 }
 \value{
 A valid eggble.

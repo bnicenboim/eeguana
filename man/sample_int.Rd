@@ -7,9 +7,9 @@
 sample_int(values, sampling_rate)
 }
 \arguments{
-\item{values}{}
+\item{values}{Sequence of integers.}
 
-\item{sampling_rate}{}
+\item{sampling_rate}{Double indicating the sampling rate in Hz.}
 }
 \description{
 Builds a serie of sample numbers.

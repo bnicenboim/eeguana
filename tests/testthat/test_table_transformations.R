@@ -10,7 +10,7 @@ data <- eeg_lst(
     ids = rep(c(1L, 2L), each = 10),
     sample_ids = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500),
     dplyr::tibble(
-      .name = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+      channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
     )
   ),
@@ -36,7 +36,7 @@ data_NA <- eeg_lst(
     ids = rep(c(1L, 2L), each = 10),
     sample_ids = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500),
     dplyr::tibble(
-      .name = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+      channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
     )
   ),
@@ -61,7 +61,7 @@ data_XY <- eeg_lst(
     ids = rep(c(1L, 2L), each = 10),
     sample_ids = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500),
     dplyr::tibble(
-      .name = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+      channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
     )
   ),
@@ -146,7 +146,7 @@ data0 <- eeg_lst(
     ids = rep(c(1L, 1L), each = 10),
     sample_ids = sample_int(seq(1L, 20L), sampling_rate = 500),
     dplyr::tibble(
-      .name = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+      channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
     )
   ),
@@ -163,7 +163,7 @@ data0 <- eeg_lst(
   segments = dplyr::tibble(.id = 1L, recording = "recording1", segment = 1)
 )
 
-test_that("can segment", {
+test_that("can segment using lim", {
   data_s <- segment(data, type == "Time 0")
   expect_equal(data$signal, data_s$signal)
   expect_equal(data$events, data_s$events)
@@ -199,11 +199,16 @@ test_that("can segment", {
   expect_equal(all(s1_u2$events$.sample_0 + s1_u2$events$.size - 1 <= max(s1_u2$signal$.sample_id)), TRUE)
 })
 
+test_that("can segment using end", {
+  #works I should add an expect_equal
+  data_s_e <- segment(data,type == "New Segment" , end = type == "Time 0")
+})
 
 baselines <- dplyr::summarize(dplyr::group_by(
   dplyr::filter(as_tibble(data$signal), .sample_id <= 0),
   .id
 ), bX = mean(X), bY = mean(Y))
+
 signal_with_baselines <- dplyr::left_join(as_tibble(data$signal), baselines)
 signal_with_baselines$new_X <- signal_with_baselines$X - signal_with_baselines$bX
 signal_with_baselines$new_Y <- signal_with_baselines$Y - signal_with_baselines$bY
