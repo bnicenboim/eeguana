@@ -68,7 +68,7 @@ channels_tbl.eeg_lst <- function(x, ...) {
   new_names <- channel_names(x)
 
   for (i in seq_len(nchannels(x))) {
-    x$events <- mutate(x$events, .channel = dplyr::if_else(.channel == orig_names[i], new_names[i], .channel)) %>%
+    x$events <- dplyr::mutate(x$events, .channel = dplyr::if_else(.channel == orig_names[i], new_names[i], .channel)) %>%
                 data.table::as.data.table()
   }
 
