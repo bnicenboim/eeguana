@@ -2,14 +2,30 @@
 % Please edit documentation in R/plot.R
 \name{plot_gg}
 \alias{plot_gg}
+\alias{plot_gg.eeg_lst}
 \title{ggplot object based on an eeg_lst object.}
 \usage{
 plot_gg(.data, ...)
+
+\method{plot_gg}{eeg_lst}(.data, x = time, y = amplitude, ...,
+  max_sample = 64000)
 }
 \arguments{
-\item{x}{An \code{eeg_lst} object.}
+\item{.data}{An \code{eeg_lst} object.}
 
-\item{max_sample}{Downsample to approximately 2000 samples by default.}
+\item{...}{List of name value pairs giving aesthetics to map to
+variables. The names for x and y aesthetics are typically omitted because
+they are so common; all other aesthetics must be named.}
+
+\item{x}{List of name value pairs giving aesthetics to map to
+variables. The names for x and y aesthetics are typically omitted because
+they are so common; all other aesthetics must be named.}
+
+\item{y}{List of name value pairs giving aesthetics to map to
+variables. The names for x and y aesthetics are typically omitted because
+they are so common; all other aesthetics must be named.}
+
+\item{max_sample}{Downsample to approximately 64000 samples by default.}
 }
 \value{
 A ggplot object

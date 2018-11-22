@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
 
-\item{max_sample}{Downsample to approximately 2000 samples by default.}
+\item{max_sample}{Downsample to approximately 64000 samples by default.}
 }
 \value{
 A ggplot object
