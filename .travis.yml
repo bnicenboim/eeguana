@@ -13,6 +13,8 @@ branches:
 r_packages:
   - covr
   - devtools  # explicitly named temp fix for #2801
+  - data.table
+  - stringr
   - tidyverse
 
 after_success:

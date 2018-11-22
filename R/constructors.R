@@ -1,6 +1,6 @@
 #' Builds an eeg_lst.
 #'
-#' @param signal_tbl signal_tbl
+#' @param signal signal
 #' @param events events
 #' @param segments segments
 #' 

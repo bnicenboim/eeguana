@@ -1,6 +1,6 @@
 #' Simple plot an eeg_lst object.
 #' @param x An `eeg_lst` object.
-#' @param max_sample Downsample to approximately 2000 samples by default.
+#' @param max_sample Downsample to approximately 64000 samples by default.
 #'
 #' @family plot
 #' 
@@ -31,8 +31,9 @@ plot.eeg_lst <- function(x, max_sample = 64000) {
 }
 
 #' ggplot object based on an eeg_lst object.
-#' @param x An `eeg_lst` object.
-#' @param max_sample Downsample to approximately 2000 samples by default.
+#' @param .data An `eeg_lst` object.
+#' @inheritParams  ggplot2::aes
+#' @param max_sample Downsample to approximately 64000 samples by default.
 #'
 #' @family plot
 #' @return A ggplot object
@@ -43,9 +44,9 @@ plot.eeg_lst <- function(x, max_sample = 64000) {
 plot_gg <- function(.data, ...) {
   UseMethod("plot_gg")
 }
-
+#' @rdname plot_gg
 #' @export
-plot_gg.eeg_lst <- function(.data, x = time, y = amplitude, ..., max_sample = 2000) {
+plot_gg.eeg_lst <- function(.data, x = time, y = amplitude, ..., max_sample = 64000) {
   x <- rlang::enquo(x)
   y <- rlang::enquo(y)
 
@@ -81,21 +82,13 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 }
 
 
-#' A topographic plot of an eeg_lst object.
+#' A topographic plot.
 #'
-#' Create a default topographic plot based on the segments of the `eeg_lst` object.
+#' Create a default topographic plot based on an interpolation table.
 #'
-#' The following methods of interpolation are available :
 #'
-#' * `"MBA"` (Default) Multilevel B-splines using the function `mba.surf`; requires the package `MBA`.
-
-#'
-#' @param .data A table of interpolated electrodes as produced by [interpolate_tbl]
-#' @param x Coordinate x
-#' @param y Coordinate y
-#' @param value amplitude (default)
-#' @param label channel (default)
-#' @param ... Various arguments passed to the interpolation method.
+#' @param data A table of interpolated electrodes as produced by [interpolate_tbl]
+#' @param ... Others.
 #'
 #' @family plot
 #'
@@ -106,7 +99,7 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 plot_topo <- function(data,  ...) {
   UseMethod("plot_topo")
 }
-
+#' @rdname plot_topo
 #' @export
 plot_topo.tbl_df <- function(data, x = .x, y =.y, value= amplitude,  label=channel, ...) {
 
