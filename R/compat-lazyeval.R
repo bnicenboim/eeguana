@@ -6,7 +6,7 @@
 
 warn_underscored <- function() {
   return(NULL)
-  warn(paste(
+  rlang::warn(paste(
     "The underscored versions are deprecated in favour of",
     "tidy evaluation idioms. Please see the documentation",
     "for `quo()` in rlang"
@@ -14,46 +14,46 @@ warn_underscored <- function() {
 }
 warn_text_se <- function() {
   return(NULL)
-  warn("Text parsing is deprecated, please supply an expression or formula")
+  rlang::warn("Text parsing is deprecated, please supply an expression or formula")
 }
 
-compat_lazy <- function(lazy, env = caller_env(), warn = TRUE) {
+compat_lazy <- function(lazy, env = rlang::caller_env(), warn = TRUE) {
   if (warn) warn_underscored()
 
   if (missing(lazy)) {
-    return(quo())
+    return(rlang::quo())
   }
-  if (is_quosure(lazy)) {
+  if (rlang::is_quosure(lazy)) {
     return(lazy)
   }
-  if (is_formula(lazy)) {
-    return(as_quosure(lazy, env))
+  if (rlang::is_formula(lazy)) {
+    return(rlang::as_quosure(lazy, env))
   }
 
   out <- switch(typeof(lazy),
     symbol = ,
-    language = new_quosure(lazy, env),
+    language = rlang::new_quosure(lazy, env),
     character = {
-      if (warn) warn_text_se()
-      parse_quo(lazy[[1]], env)
+      if (rlang::warn) warn_text_se()
+      rlang::parse_quo(lazy[[1]], env)
     },
     logical = ,
     integer = ,
     double = {
       if (length(lazy) > 1) {
-        warn("Truncating vector to length 1")
+        rlang::warn("Truncating vector to length 1")
         lazy <- lazy[[1]]
       }
-      new_quosure(lazy, env)
+      rlang::new_quosure(lazy, env)
     },
     list =
       if (inherits(lazy, "lazy")) {
-        lazy = new_quosure(lazy$expr, lazy$env)
+        lazy = rlang::new_quosure(lazy$expr, lazy$env)
       }
   )
 
-  if (is_null(out)) {
-    abort(sprintf("Can't convert a %s to a quosure", typeof(lazy)))
+  if (rlang::is_null(out)) {
+    rlang::abort(sprintf("Can't convert a %s to a quosure", typeof(lazy)))
   } else {
     out
   }
@@ -76,24 +76,24 @@ compat_lazy_dots <- function(dots, env, ..., .named = FALSE) {
     warn <- FALSE
   }
 
-  named <- have_name(dots)
+  named <- rlang::have_name(dots)
   if (.named && any(!named)) {
-    nms <- vapply(dots[!named], function(x) expr_text(get_expr(x)), character(1))
+    nms <- vapply(dots[!named], function(x) rlang::expr_text(rlang::get_expr(x)), character(1))
     names(dots)[!named] <- nms
   }
 
-  names(dots) <- names2(dots)
+  names(dots) <- rlang::names2(dots)
   dots
 }
 
 compat_as_lazy <- function(quo) {
   structure(class = "lazy", list(
-    expr = get_expr(quo),
-    env = get_env(quo)
+    expr = rlang::get_expr(quo),
+    env = rlang::get_env(quo)
   ))
 }
 compat_as_lazy_dots <- function(...) {
-  structure(class = "lazy_dots", lapply(quos(...), compat_as_lazy))
+  structure(class = "lazy_dots", lapply(rlang::quos(...), compat_as_lazy))
 }
 
 
