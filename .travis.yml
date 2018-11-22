@@ -6,5 +6,14 @@ cache: packages
 r_check_args: "--no-vignettes"
 warnings_are_errors: false
 
+branches:
+  only:
+    - "experimental"
+
+r_packages:
+  - covr
+  - devtools  # explicitly named temp fix for #2801
+  - tidyverse
+
 after_success:
 - Rscript -e 'covr::codecov()'
