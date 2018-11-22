@@ -8,14 +8,14 @@ warnings_are_errors: false
 
 branches:
   only:
-    - "experimental"
+    - "master"
 
 r_packages:
   - covr
   - devtools  # explicitly named temp fix for #2801
   - data.table
   - stringr
-  - tidyverse
+  - dplyr
 
 after_success:
 - Rscript -e 'covr::codecov()'
