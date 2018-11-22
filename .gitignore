@@ -21,7 +21,7 @@ vignettes/*.dat
 # Workspace files are user-specific
 *.sublime-workspace
 *.sublime-project
-*.vhdr
-*.dat
-*.vmrk
+/*.vhdr
+/*.dat
+/*.vmrk
 inst/doc
