@@ -2,7 +2,8 @@
 #'
 #' Wrapper of `rowMeans` that performs a by-sample mean of the specified channels.
 #'
-#' @param ... A channel or a group of channels, or an `eeg_lst` object.
+#' @param x An `eeg_lst` object.
+#' @param ... A channel or a group of channels (if an `eeg_lst` is not specified).
 #' @inheritParams base::mean
 #' @return A new channel or an `eeg_lst` object with a `mean` channel instead of the previous channels.
 #' @family channel
@@ -116,22 +117,27 @@ ch_rereference.eeg_lst <- function(x,..., na.rm = FALSE, exclude = NULL) {
 
 
 
+#' Get the by-sample (or by-row) function of the specified channels.
+#' 
+#' @inheritParams chs_mean
+#' @return A new channel or an `eeg_lst` object with a channel where a function was instead of the previous channels.
+#' @inheritParams dplyr::summarize_at 
 #' @export
 chs_fun <- function(x, .funs, ...) {
   UseMethod("chs_fun")
 }
-
-
+#' @rdname chs_fun
+#' @param pars list that contains the additional arguments for the function calls in .funs.
 #' @export
 chs_fun.channel_dbl <- function(...,.funs, pars = list()) {
    row_fun_ch(data.table::data.table(...),.funs,  unlist(pars))  # throws a warning
 }
-
+#' @rdname chs_fun
 #' @export
 chs_fun.eeg_lst <- function(x,.funs, pars = list(), ...) {
 
   signal <- data.table::copy(x$signal)
-  funs <- dplyr:::as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env())
+  funs <- as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env())
   fun_txt <- rlang::quo_text(funs[[1]]) %>% make.names()
 
   # TODO a more elegant way, but if pars is list(), then row_fun_ch thinks that ... is NULL, and the function gets an argument NULL

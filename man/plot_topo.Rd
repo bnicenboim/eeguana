@@ -14,6 +14,14 @@ plot_topo(data, ...)
 \item{data}{A table of interpolated electrodes as produced by \link{interpolate_tbl}}
 
 \item{...}{Others.}
+
+\item{x}{x}
+
+\item{y}{y}
+
+\item{value}{value}
+
+\item{label}{label, generally channel}
 }
 \value{
 A ggplot object

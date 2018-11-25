@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Dplyr functions for eeg_lst objects. — dplyr • eeguana</title>
+<title>Dplyr functions for manipulating eeg_lst objects. — dplyr • eeguana</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -30,7 +30,7 @@
 
 
 
-<meta property="og:title" content="Dplyr functions for eeg_lst objects. — dplyr" />
+<meta property="og:title" content="Dplyr functions for manipulating eeg_lst objects. — dplyr" />
 
 <meta property="og:description" content="Manipulate the signal_tbl and the segments table of an eeg_lst." />
 <meta name="twitter:card" content="summary" />
@@ -112,7 +112,7 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Dplyr functions for eeg_lst objects.</h1>
+    <h1>Dplyr functions for manipulating eeg_lst objects.</h1>
     <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/dplyr.R'><code>R/dplyr.R</code></a></small>
     <div class="hidden name"><code>dplyr.Rd</code></div>
     </div>
@@ -142,31 +142,10 @@
 <span class='fu'>ungroup</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>groups</span>(<span class='no'>x</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>group_vars</span>(<span class='no'>x</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
 <span class='fu'>select</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>rename</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>anti_join</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>copy</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>suffix</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>".x"</span>, <span class='st'>".y"</span>), <span class='no'>...</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>left_join</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>copy</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>suffix</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>".x"</span>, <span class='st'>".y"</span>), <span class='no'>...</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>semi_join</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>suffix</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>".x"</span>, <span class='st'>".y"</span>),
-  <span class='no'>...</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>tbl_vars</span>(<span class='no'>x</span>)</pre>
+<span class='fu'>rename</span>(<span class='no'>.data</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -178,10 +157,6 @@
     <tr>
       <th>...</th>
       <td><p>Name-value pairs of expressions; see  <a href='http://dplyr.tidyverse.org/reference/dplyr-package.html'>dplyr</a> for more help.</p></td>
-    </tr>
-    <tr>
-      <th>x</th>
-      <td><p>An eeg_lst.</p></td>
     </tr>
     </table>
     
@@ -202,16 +177,13 @@ The following wrappers have been implemented for <code>eeg_lst</code> objects:</
 <li><p><code>ungroup()</code>: removes the grouping created by group_by.</p></li>
 <li><p><code>select()</code> keeps only the mentioned variables from the refered table, except for the obligatory columns starting with <code>.</code>.</p></li>
 <li><p><code>rename()</code>: keeps all variables.</p></li>
-<li><p><code>left_join()</code>: left-joins an external table to the segments table of the eeg_lst.</p></li>
-<li><p><code>semi_join()</code>: semi-joins an external table to the segments table of the eeg_lst.</p></li>
-<li><p><code>anti_join()</code>: anti-joins an external table to the segments table of the eeg_lst.</p></li>
 </ul>
     <p>These commands always return the entire eeg_lst so that
-they can be ' piped using <a href='http://www.rdocumentation.org/packages/magrittr/topics/magrittr'>magrittr</a> 's pipe, %&gt;%.</p>
+they can be ' piped using <a href='http://www.rdocumentation.org/packages/magrittr/topics/magrittr'>magrittr</a> 's pipe, <!-- %&gt;%. --></p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><a href='summarize_ch.html'>summarize_at_ch</a>, <a href='summarize_ch.html'>summarize_all_ch</a>, <a href='bind.html'>bind</a> for the extended dplyr-like functions.</p>
+    <div class='dont-index'><p><a href='join.html'>join</a>, <a href='summarize_ch.html'>summarize_at_ch</a>, <a href='summarize_ch.html'>summarize_all_ch</a>, <a href='bind.html'>bind</a> for the extended dplyr-like functions.</p>
 <p>Other dplyr functions: <code><a href='summarize_ch.html'>summarize_ch</a></code></p></div>
     
 

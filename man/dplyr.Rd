@@ -8,15 +8,9 @@
 \alias{summarise.eeg_lst}
 \alias{group_by.eeg_lst}
 \alias{ungroup.eeg_lst}
-\alias{groups.eeg_lst}
-\alias{group_vars.eeg_lst}
 \alias{select.eeg_lst}
 \alias{rename.eeg_lst}
-\alias{anti_join.eeg_lst}
-\alias{left_join.eeg_lst}
-\alias{semi_join.eeg_lst}
-\alias{tbl_vars.eeg_lst}
-\title{Dplyr functions for eeg_lst objects.}
+\title{Dplyr functions for manipulating eeg_lst objects.}
 \usage{
 \method{mutate}{eeg_lst}(.data, ...)
 
@@ -30,31 +24,14 @@
 
 \method{ungroup}{eeg_lst}(.data, ...)
 
-\method{groups}{eeg_lst}(x)
-
-\method{group_vars}{eeg_lst}(x)
-
 \method{select}{eeg_lst}(.data, ...)
 
 \method{rename}{eeg_lst}(.data, ...)
-
-\method{anti_join}{eeg_lst}(x, y, by = NULL, copy = FALSE,
-  suffix = c(".x", ".y"), ...)
-
-\method{left_join}{eeg_lst}(x, y, by = NULL, copy = FALSE,
-  suffix = c(".x", ".y"), ...)
-
-\method{semi_join}{eeg_lst}(x, y, by = NULL, suffix = c(".x", ".y"),
-  ...)
-
-\method{tbl_vars}{eeg_lst}(x)
 }
 \arguments{
 \item{.data}{An eeg_lst.}
 
 \item{...}{Name-value pairs of expressions; see  \link[dplyr:dplyr]{dplyr} for more help.}
-
-\item{x}{An eeg_lst.}
 }
 \value{
 An eeg_lst object.
@@ -75,13 +52,10 @@ The following wrappers have been implemented for \code{eeg_lst} objects:
 \item \code{ungroup()}: removes the grouping created by group_by.
 \item \code{select()} keeps only the mentioned variables from the refered table, except for the obligatory columns starting with \code{.}.
 \item \code{rename()}: keeps all variables.
-\item \code{left_join()}: left-joins an external table to the segments table of the eeg_lst.
-\item \code{semi_join()}: semi-joins an external table to the segments table of the eeg_lst.
-\item \code{anti_join()}: anti-joins an external table to the segments table of the eeg_lst.
 }
 
 These commands always return the entire eeg_lst so that
-they can be ' piped using \link[magrittr:magrittr]{magrittr} 's pipe, \link[magrittr:`\%>\%`]{\%>\%}.
+they can be ' piped using \link[magrittr:magrittr]{magrittr} 's pipe, %>%.
 }
 \examples{
 \dontrun{
@@ -90,7 +64,7 @@ faces_segs \%>\% select(O1, O2, P7, P8)
 }
 }
 \seealso{
-\link{summarize_at_ch}, \link{summarize_all_ch}, \link{bind} for the extended dplyr-like functions.
+\link{join}, \link{summarize_at_ch}, \link{summarize_all_ch}, \link{bind} for the extended dplyr-like functions.
 
 Other dplyr functions: \code{\link{summarize_ch}}
 }

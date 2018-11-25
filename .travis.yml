@@ -4,7 +4,7 @@ language: R
 sudo: false
 cache: packages
 r_check_args: "--no-vignettes"
-warnings_are_errors: false
+warnings_are_errors: true
 
 branches:
   only:
@@ -12,10 +12,6 @@ branches:
 
 r_packages:
   - covr
-  - devtools  # explicitly named temp fix for #2801
-  - data.table
-  - stringr
-  - dplyr
 
 after_success:
 - Rscript -e 'covr::codecov()'

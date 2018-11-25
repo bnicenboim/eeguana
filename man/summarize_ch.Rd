@@ -5,6 +5,7 @@
 \alias{summarize_at_ch}
 \alias{summarize_all_ch}
 \alias{summarize_at_ch.eeg_lst}
+\alias{summarise_at_ch}
 \alias{summarize_all_ch.eeg_lst}
 \alias{summarise_all_ch}
 \title{Summarize multiple channels}
@@ -14,6 +15,8 @@ summarize_at_ch(.tbl, ...)
 summarize_all_ch(.tbl, ...)
 
 \method{summarize_at_ch}{eeg_lst}(.tbl, .vars, .funs, ...)
+
+summarise_at_ch(.tbl, ...)
 
 \method{summarize_all_ch}{eeg_lst}(.tbl, .funs, ...)
 

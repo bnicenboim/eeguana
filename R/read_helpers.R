@@ -64,6 +64,10 @@ read_dat <- function(file, header_info = NULL, events = NULL,
   max_sample <- nrow(raw_signal)
   sample_id <- seq_len(max_sample)
 
+  if(nrow(events %>% dplyr::filter(!!sep))==0){
+    stop("Segment separation marker ",rlang::quo_text(sep), " not found in the events table.")
+  }
+
   # the first event can't be the end of the segment
   # and the last segment ends at the end of the file
   .upper <- events %>%
@@ -201,126 +205,81 @@ read_vmrk <- function(file) {
   # all channels)>, <Date (YYYYMMDDhhmmssuuuuuu)>
   # More information can be found in
   # http://pressrelease.brainproducts.com/markers/
-  markers_info_lines <- readr::read_lines(file) %>%
-    stringr::str_detect("Mk[0-9]*?=") %>%
-    which()
-  start <- markers_info_lines %>% min() - 1
-  end <- markers_info_lines %>% max() - start
 
-  col_names <- c(
-    "Mk_number=Type", "description", ".sample_0",
-    ".size", ".channel", "date"
-  )
+   markers <- readChar(file, file.info(file)$size) %>%
+    stringr::str_extract(stringr::regex("^Mk[0-9]*?=.*^Mk[0-9]*?=.*?$", multiline = TRUE, dotall = TRUE))
 
-  events <- suppressWarnings(readr::read_csv(file,
-    col_names = col_names,
-    col_types = readr::cols(
-      `Mk_number=Type` = readr::col_character(),
-      description = readr::col_character(),
-      .sample_0 = readr::col_integer(),
-      .size = readr::col_integer(),
-      .channel = readr::col_integer(),
-      date = readr::col_double()
-    ),
-    skip = start, n_max = end,
-    trim_ws = TRUE
-  )) %>%
-    tidyr::separate(`Mk_number=Type`,
-      c("mk", "type"),
-      sep = "="
-    ) %>%
-    dplyr::mutate(mk = as.numeric(stringr::str_remove(mk, "Mk"))) %>%
-    dplyr::select(-mk, -date)
-
-  events <- data.table::as.data.table(events)
-  # segs <- tibble_vmrk %>%  dplyr::transmute(
-  #                           bounds = ifelse(type == "Stimulus", NA, type), sample) %>%
-  #                 dplyr::filter(!is.na(bounds))
+   col_names <- c(
+     "type", "description", ".sample_0",
+     ".size", ".channel", "date"
+   )
+  events <- data.table::fread(markers, fill=TRUE,
+                              header = FALSE,
+                              col.names=col_names)
+  # splits Mk<Marker number>=<Type>, removes the Mk.., and <Date>
+  events[,type := stringr::str_split(type,"=") %>%
+           purrr::map_chr(~.x[[2]])][,date := NULL]
 
   return(events)
 }
 
-
 #' @importFrom magrittr %>%
 
 read_vhdr_metadata <- function(file) {
-  content_vhdr <- readr::read_file(file) %>%
-    stringr::str_match_all(stringr::regex("([A-Za-z ]*?)\\](.*?)(\\[|\\Z)",
-      dotall = TRUE, multiline = TRUE
-    )) %>%
-    .[[1]]
 
-  read_metadata <- function(tag, vhdr = content_vhdr) {
-    info <- vhdr[vhdr[, 2] == tag, 3]
-    if (length(info) == 0) {
-      return(tibble::tibble(type = character(), value = character()))
-    } else {
-      return(readr::read_delim(info,
-        delim = "=", comment = ";", col_names = c("type", "value")
-      ))
-    }
-  }
-
-
-  out <- list()
-
-
-  channel_info <- read_metadata("Channel Infos") %>%
-    tidyr::separate(value, c("channel", ".reference", "resolution", "unit"), sep = ",", fill = "right") %>%
+  vhdr <- ini::read.ini(file)
+  
+ channel_info <-  vhdr$`Channel Infos` %>% 
+    purrr::imap_dfr(~ c(.y, stringr::str_split(.x,",")[[1]]) %>% 
+                      t() %>% dplyr::as_tibble()) %>% {
+                      if(ncol(.)==4) dplyr::mutate(., empty_col = NA_real_) else .
+                        } %>%
+    purrr::set_names(c("type","channel", ".reference", "resolution", "unit")) %>%
     dplyr::mutate(resolution = as.double(resolution))
 
-  coordinates <- read_metadata("Coordinates") %>%
-    tidyr::separate(value, c("radius", "theta", "phi"), sep = ",", fill = "right") %>%
-    readr::type_convert(
-      col_types =
-        readr::cols(
-          radius = readr::col_integer(),
-          theta = readr::col_integer(),
-          phi = readr::col_integer()
-        )
-    )
-  # this is in case it can't find DataPoints and DataType in the header file
+  if(is.null(vhdr$Coordinates)){
+coordinates <- dplyr::tibble(type = channel_info$type,radius = NA_real_, theta = NA_real_, phi = NA_real_)
+  } else {
+  coordinates <-  vhdr$Coordinates %>% 
+    purrr::imap_dfr(~ c(.y, stringr::str_split(.x,",")[[1]]) %>% 
+                      t() %>% dplyr::as_tibble()) %>%
+    purrr::set_names(c("type","radius", "theta", "phi")) %>%
+    dplyr::mutate_at(dplyr::vars(c("radius", "theta", "phi")), as.numeric)
+    
+  }
+
+  
+    # this is in case it can't find DataPoints and DataType in the header file
   DataPoints <- NA
   DataType <- "time"
-  common_info <- read_metadata("Common Infos") %>%
-    tidyr::spread(type, value) %>%
-    readr::type_convert(col_types = readr::cols(
-      DataFile = readr::col_character(),
-      DataFormat = readr::col_character(),
-      DataOrientation = readr::col_character(),
-      MarkerFile = readr::col_character(),
-      NumberOfChannels = readr::col_integer(),
-      SamplingInterval = readr::col_double()
-    )) %>%
+
+   common_info <- vhdr$`Common Infos` %>% dplyr::as_tibble() %>%
     dplyr::transmute(
-      data_points = DataPoints,
+      data_points = as.numeric(DataPoints),
       # seg_data_points = as.numeric(SegmentDataPoints),
       orientation = DataOrientation,
       format = DataFormat,
       domain = DataType,
-      sampling_rate = 1000000 / SamplingInterval,
+      sampling_rate = 1000000 / as.double(SamplingInterval),
       data_file = DataFile,
       vmrk_file = MarkerFile
-    )
+    ) 
+
 
   if (common_info$format == "ASCII") {
-    format_info <- read_metadata("ASCII Infos") %>%
-      tidyr::spread(type, value) %>%
-      readr::type_convert(col_types = readr::cols(
-        DecimalSymbol = readr::col_character(),
-        SkipColumns = readr::col_integer(),
-        SkipLines = readr::col_integer()
-      ))
+    common_info <- common_info %>% 
+               dplyr::mutate(
+                DecimalSymbol = vhdr$`ASCII Infos`$DecimalSymbol,
+                SkipColumns = vhdr$`ASCII Infos`$SkipColumns %>% as.integer,
+                SkipLines = vhdr$`ASCII Infos`$SkipLines %>% as.integer
+              )
   } else if (common_info$format == "BINARY") {
-    format_info <- read_metadata("Binary Infos") %>%
-      tidyr::spread(type, value) %>%
-      dplyr::rename(bits = BinaryFormat)
+   common_info <- common_info %>% 
+              dplyr::mutate(bits = vhdr$`Binary Infos`$BinaryFormat)
   }
 
 
-  common_info <- dplyr::bind_cols(common_info, format_info)
-
-  if (stringr::str_sub(common_info$domain, 1, nchar("time")) %>%
+    if (stringr::str_sub(common_info$domain, 1, nchar("time")) %>%
     stringr::str_to_lower() != "time") {
     stop("DataType needs to be 'time'")
   }
@@ -335,6 +294,101 @@ read_vhdr_metadata <- function(file) {
   out$chan_info <- chan_info
   out$common_info <- common_info
   return(out)
+
+######
+
+
+  # content_vhdr <- readr::read_file(file) %>%
+  #   stringr::str_match_all(stringr::regex("([A-Za-z ]*?)\\](.*?)(\\[|\\Z)",
+  #     dotall = TRUE, multiline = TRUE
+  #   )) %>%
+  #   .[[1]]
+
+  # read_metadata <- function(tag, vhdr = content_vhdr) {
+  #   info <- vhdr[vhdr[, 2] == tag, 3]
+  #   if (length(info) == 0) {
+  #     return(tibble::tibble(type = character(), value = character()))
+  #   } else {
+  #     return(readr::read_delim(info,
+  #       delim = "=", comment = ";", col_names = c("type", "value")
+  #     ))
+  #   }
+  # }
+
+
+  # out <- list()
+
+
+  # # channel_info <- read_metadata("Channel Infos") %>%
+  # #   tidyr::separate(value, c("channel", ".reference", "resolution", "unit"), sep = ",", fill = "right") %>%
+  # #   dplyr::mutate(resolution = as.double(resolution))
+
+  # coordinates <- read_metadata("Coordinates") %>%
+  #   tidyr::separate(value, c("radius", "theta", "phi"), sep = ",", fill = "right") %>%
+  #   readr::type_convert(
+  #     col_types =
+  #       readr::cols(
+  #         radius = readr::col_integer(),
+  #         theta = readr::col_integer(),
+  #         phi = readr::col_integer()
+  #       )
+  #   )
+  # # this is in case it can't find DataPoints and DataType in the header file
+  # DataPoints <- NA
+  # DataType <- "time"
+  # common_info <- read_metadata("Common Infos") %>%
+  #   tidyr::spread(type, value) %>%
+  #   readr::type_convert(col_types = readr::cols(
+  #     DataFile = readr::col_character(),
+  #     DataFormat = readr::col_character(),
+  #     DataOrientation = readr::col_character(),
+  #     MarkerFile = readr::col_character(),
+  #     NumberOfChannels = readr::col_integer(),
+  #     SamplingInterval = readr::col_double()
+  #   )) %>%
+  #   dplyr::transmute(
+  #     data_points = DataPoints,
+  #     # seg_data_points = as.numeric(SegmentDataPoints),
+  #     orientation = DataOrientation,
+  #     format = DataFormat,
+  #     domain = DataType,
+  #     sampling_rate = 1000000 / SamplingInterval,
+  #     data_file = DataFile,
+  #     vmrk_file = MarkerFile
+  #   )
+
+  # if (common_info$format == "ASCII") {
+  #   format_info <- read_metadata("ASCII Infos") %>%
+  #     tidyr::spread(type, value) %>%
+  #     readr::type_convert(col_types = readr::cols(
+  #       DecimalSymbol = readr::col_character(),
+  #       SkipColumns = readr::col_integer(),
+  #       SkipLines = readr::col_integer()
+  #     ))
+  # } else if (common_info$format == "BINARY") {
+  #   format_info <- read_metadata("Binary Infos") %>%
+  #     tidyr::spread(type, value) %>%
+  #     dplyr::rename(bits = BinaryFormat)
+  # }
+
+
+  # common_info <- dplyr::bind_cols(common_info, format_info)
+
+  # if (stringr::str_sub(common_info$domain, 1, nchar("time")) %>%
+  #   stringr::str_to_lower() != "time") {
+  #   stop("DataType needs to be 'time'")
+  # }
+
+  # chan_info <- dplyr::full_join(channel_info, coordinates, by = "type") %>%
+  #   dplyr::bind_cols(purrr::pmap_dfr(
+  #     list(.$radius, .$theta, .$phi),
+  #     brainvision_loc_2_xyz
+  #   ))
+
+  # out <- list()
+  # out$chan_info <- chan_info
+  # out$common_info <- common_info
+  # return(out)
 }
 
 

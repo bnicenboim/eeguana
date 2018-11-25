@@ -7,8 +7,6 @@
 #'
 #' @param x An `eeg_lst` object.
 #' @param ... Description of the event.
-#' @param lim Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments
-#' @param end Description of the event that indicates the end of the segment, if this is used, `lim` is ignored.
 #' @param unit Unit
 #'
 #' @return An `eeg_lst`.
@@ -19,7 +17,11 @@
 segment <- function(x, ...) {
   UseMethod("segment")
 }
-
+#' @rdname segment
+#' @param lim Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments
+#' @param end Description of the event that indicates the end of the segment, if this is used, `lim` is ignored.
+#' @param recording_col Column in the segments table indicating to which recording or file each segment belogs.
+#' @inheritParams as_time
 #' @export
 segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds", recording_col = "recording") {
   dots <- rlang::enquos(...)
@@ -125,7 +127,6 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds", rec
 #'
 #' @return An eeg_lst.
 #'
-#' @importFrom fastmatch %fin%
 #' @importFrom magrittr %>%
 #'
 #' @export
