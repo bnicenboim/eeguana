@@ -29,9 +29,11 @@ data_eeg <- eeg_lst(
 
 
 data_M <- transmute(data_eeg, mean = chs_mean(X,Y))
+data_M_q <- transmute(data_eeg, mean = chs_mean(c("X","Y")))
 
 test_that("can take the mean of the channels", {
 expect_equal(data_M$signal$mean %>% as.numeric(), rowMeans(data_eeg$signal[,.(X,Y)]))
+expect_equal(data_M_q$signal$mean %>% as.numeric(), rowMeans(data_eeg$signal[,.(X,Y)]))
 })
 
 data_M2 <- chs_mean(data_eeg)

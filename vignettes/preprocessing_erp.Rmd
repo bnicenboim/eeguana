@@ -104,7 +104,8 @@ We can have a look at one of the trials (the second one) of one channel (channel
 ```{r}
 data_judg_s_p %>% filter(segment == 2) %>% 
                   select(X11) %>% 
-                  plot()
+                  plot() 
+                  
 ```
 
 
@@ -113,7 +114,8 @@ And we can do more advanced plotting using `plot_gg` (allowing us to display mor
 ```{r}
 data_judg_s_p %>% select(X11) %>% 
                   plot_gg() + 
-                  geom_line(aes(group = segment, color = factor(condition)), alpha = .5) 
+                  geom_line(aes(group = segment, color = factor(condition)), alpha = .5) +
+                  theme(legend.position = "bottom")
 ```
 
 ## Extracting the EOG signals
@@ -161,7 +163,7 @@ EOG channel ('veog', number 61) and confirm that the segments 22, 42, 126, 136 a
 data_judg_s_p %>%  select(eogv) %>% 
                    plot_gg() + 
                    geom_line() + 
-                   facet_wrap(~segment)
+                   facet_wrap(~segment) 
 ```
 
 The data can be also displayed in a different way :
@@ -169,17 +171,16 @@ The data can be also displayed in a different way :
 ```{r,   fig.dim = c(5,5),fig.show='hold',   out.width = "45%"}
 data_judg_s_p %>%  group_by(segment) %>% summarize_all_ch(var) %>% 
                    plot_gg(x = segment, y= channel, fill = amplitude) + 
-                   geom_raster() 
+                   geom_raster() + 
+                   theme(legend.position ="none")
 
 data_judg_s_p %>%  summarize_all_ch(var) %>% 
                    plot_gg(x = amplitude, y= channel) + 
                    geom_point() 
-```
 
-```{r,   fig.dim = c(5,5),fig.show='hold', fig.align='left', out.width = "50%"}
-
-data_judg_s_p %>% chs_fun(var) %>% 
-                   plot_gg(x = amplitude, y= channel) + 
+data_judg_s_p %>%  group_by(segment) %>%
+                   mutate(var = chs_fun(channel_names(data_judg_s_p), var)) %>% 
+                   plot_gg(x = channel, y = amplitude) + 
                    geom_point() 
 ```
 
