@@ -74,7 +74,7 @@ row_fun_ch <- function(x, .funs, ...) {
   #https://stackoverflow.com/questions/7885147/efficient-row-wise-operations-on-a-data-table
 # or with for loop set:
   # https://stackoverflow.com/questions/37667335/row-operations-in-data-table-using-by-i?noredirect=1&lq=1
-  funs <- dplyr:::as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env(),...)
+  funs <- as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env(),...)
   fun_txt <- rlang::quo_text(funs[[1]])
   # channel_dbl(purrr::pmap(x, ~ eval(parse(text= fun_txt))))
   channel_dbl(apply(x, 1, function(.) eval(parse(text= fun_txt))))
@@ -88,7 +88,11 @@ theme_eeguana <- ggplot2::theme_bw() +
                     panel.spacing  = ggplot2::unit(.01, "points"),
                     panel.border = ggplot2::element_rect(colour = "transparent", fill = "transparent"))
 
-
+#' Convenience function for range subsets 
+#' 
+#' between is a thin wrapper for the between function of [data.table]. It is equivalent to x >= lower & x <= upper when incbounds=TRUE, or x > lower & y < upper when FALSE.
+#' 
+#' @inheritParams  data.table::between
 #' @export
 between <- data.table::between
 

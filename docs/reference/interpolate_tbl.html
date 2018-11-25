@@ -123,7 +123,17 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>interpolate_tbl</span>(<span class='no'>.data</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>interpolate_tbl</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for eeg_lst</span>
+<span class='fu'>interpolate_tbl</span>(<span class='no'>.data</span>, <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>.x</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>.y</span>,
+  <span class='kw'>value</span> <span class='kw'>=</span> <span class='no'>amplitude</span>, <span class='kw'>label</span> <span class='kw'>=</span> <span class='no'>channel</span>, <span class='kw'>diam_points</span> <span class='kw'>=</span> <span class='fl'>200</span>,
+  <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"MBA"</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for tbl_df</span>
+<span class='fu'>interpolate_tbl</span>(<span class='no'>.data</span>, <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>.x</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>.y</span>,
+  <span class='kw'>value</span> <span class='kw'>=</span> <span class='no'>amplitude</span>, <span class='kw'>label</span> <span class='kw'>=</span> <span class='no'>channel</span>, <span class='kw'>diam_points</span> <span class='kw'>=</span> <span class='fl'>200</span>,
+  <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"MBA"</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -135,10 +145,6 @@
     <tr>
       <th>...</th>
       <td><p>Various arguments passed to the interpolation method.</p></td>
-    </tr>
-    <tr>
-      <th>method</th>
-      <td><p>Method of interpolation (Only <code>"MBA"</code> Multilevel B-splines using the function <code>mba.surf</code> of the package <code>MBA</code>.).</p></td>
     </tr>
     <tr>
       <th>x</th>
@@ -159,6 +165,10 @@
     <tr>
       <th>diam_points</th>
       <td><p>Density of the interpolation (number of points that are interpolated in the diameter of the scalp).</p></td>
+    </tr>
+    <tr>
+      <th>method</th>
+      <td><p>Method of interpolation (Only <code>"MBA"</code> Multilevel B-splines using the function <code>mba.surf</code> of the package <code>MBA</code>.).</p></td>
     </tr>
     </table>
     

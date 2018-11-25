@@ -33,9 +33,9 @@ summarize_all_ch <- function(.tbl, ...) {
 #' @rdname summarize_ch
 #' @export
 summarize_at_ch.eeg_lst <- function(.tbl,.vars,  .funs, ...) {
-  #TODO look for a rlang alternative for dplyr:::as_fun_list and dplyr:::tbl_at_syms
-  funs <- dplyr:::as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env(),...) # fun_list class, contains a quosure such as ^mean(.)
-  vars <- dplyr:::tbl_at_syms(.tbl$signal, .vars) #list of chars
+  #TODO look for a rlang alternative for as_fun_list and dplyr:::tbl_at_syms
+  funs <- as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env(),...) # fun_list class, contains a quosure such as ^mean(.)
+  vars <- tbl_at_syms(.tbl$signal, .vars) #list of chars
 
   is_named <- rlang::quo_text(rlang::enquo(.funs)) %>% 
               stringr::str_detect('have_name = TRUE')
@@ -48,13 +48,14 @@ summarize_at_ch.eeg_lst <- function(.tbl,.vars,  .funs, ...) {
   summarize_at_eeg_lst(.tbl, vars, funs) 
 }
 
+#' @rdname summarize_ch
 #' @export
 summarise_at_ch <- summarize_at_ch
 
 #' @rdname summarize_ch
 #' @export
 summarize_all_ch.eeg_lst <- function(.tbl, .funs, ...) {
-  funs <- dplyr:::as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env(),...) # fun_list class, contains a quosure such as ^mean(.)
+  funs <- as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env(),...) # fun_list class, contains a quosure such as ^mean(.)
   
   is_named <- rlang::quo_text(rlang::enquo(.funs)) %>% 
               stringr::str_detect('have_name = TRUE')

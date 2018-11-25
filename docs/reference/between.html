@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Baseline an eeg_lst — ch_baseline • eeguana</title>
+<title>Convenience function for range subsets — between • eeguana</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Baseline an eeg_lst — ch_baseline" />
+<meta property="og:title" content="Convenience function for range subsets — between" />
 
-<meta property="og:description" content="Subtract the average or baseline of the points in a defined interval from all points in the segment." />
+<meta property="og:description" content="between is a thin wrapper for the between function of data.table. It is equivalent to x &amp;gt;= lower &amp;amp; x &amp;lt;= upper when incbounds=TRUE, or x &amp;gt; lower &amp;amp; y &amp;lt; upper when FALSE." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -112,56 +112,43 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Baseline an eeg_lst</h1>
-    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/signal_transformation.R'><code>R/signal_transformation.R</code></a></small>
-    <div class="hidden name"><code>ch_baseline.Rd</code></div>
+    <h1>Convenience function for range subsets</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/utils.R'><code>R/utils.R</code></a></small>
+    <div class="hidden name"><code>between.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Subtract the average or baseline of the points in a defined interval from all points in the segment.</p>
+    <p>between is a thin wrapper for the between function of data.table. It is equivalent to x &gt;= lower &amp; x &lt;= upper when incbounds=TRUE, or x &gt; lower &amp; y &lt; upper when FALSE.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>ch_baseline</span>(<span class='no'>x</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>ch_baseline</span>(<span class='no'>x</span>, <span class='kw'>time</span> <span class='kw'>=</span> -<span class='fl'>Inf</span>, <span class='kw'>sample_id</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for channel_dbl</span>
-<span class='fu'>ch_baseline</span>(<span class='no'>x</span>, <span class='kw'>time</span> <span class='kw'>=</span> -<span class='fl'>Inf</span>, <span class='kw'>sample_id</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>between</span>(<span class='no'>x</span>, <span class='no'>lower</span>, <span class='no'>upper</span>, <span class='kw'>incbounds</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>An <code>eeg_lst</code> object or a channel.</p></td>
+      <td><p>Any orderable vector, i.e., those with relevant methods for
+<code>`&lt;=`</code>, such as <code>numeric</code>, <code>character</code>, <code>Date</code>, etc. in
+case of <code>between</code> and a numeric vector in case of <code>inrange</code>.</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>Not in use.</p></td>
+      <th>lower</th>
+      <td><p>Lower range bound.</p></td>
     </tr>
     <tr>
-      <th>time</th>
-      <td><p>A negative number indicating from when to baseline; the interval is defined as [time,0]. The default is to use all the negative times.</p></td>
+      <th>upper</th>
+      <td><p>Upper range bound.</p></td>
     </tr>
     <tr>
-      <th>sample_id</th>
-      <td><p>A negative number indicating from when to baseline. The default is to use all the negative times. (<code>time</code> is ignored if  sample_id is used).</p></td>
+      <th>incbounds</th>
+      <td><p><code>TRUE</code> means inclusive bounds, i.e., [lower,upper].
+<code>FALSE</code> means exclusive bounds, i.e., (lower,upper).</p>
+<p>It is set to <code>TRUE</code> by default for infix notations.</p></td>
     </tr>
     </table>
-    
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>An eeg_lst.</p>
-    
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>Other channel: <code><a href='ch_rereference.html'>ch_rereference</a></code>,
-  <code><a href='channel_dbl.html'>channel_dbl</a></code>, <code><a href='chs_mean.html'>chs_mean</a></code>,
-  <code><a href='is_channel_dbl.html'>is_channel_dbl</a></code></p></div>
     
 
   </div>
@@ -169,11 +156,7 @@
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
-      <li><a href="#value">Value</a></li>
-
-      <li><a href="#see-also">See also</a></li>
-          </ul>
+                </ul>
 
   </div>
 </div>

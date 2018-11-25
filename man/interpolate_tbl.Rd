@@ -2,16 +2,24 @@
 % Please edit documentation in R/plot_helpers.R
 \name{interpolate_tbl}
 \alias{interpolate_tbl}
+\alias{interpolate_tbl.eeg_lst}
+\alias{interpolate_tbl.tbl_df}
 \title{Create a table with interpolated singnals fromof an eeg_lst object.}
 \usage{
 interpolate_tbl(.data, ...)
+
+\method{interpolate_tbl}{eeg_lst}(.data, x = .x, y = .y,
+  value = amplitude, label = channel, diam_points = 200,
+  method = "MBA", ...)
+
+\method{interpolate_tbl}{tbl_df}(.data, x = .x, y = .y,
+  value = amplitude, label = channel, diam_points = 200,
+  method = "MBA", ...)
 }
 \arguments{
 \item{.data}{An \code{eeg_lst} object or a long table with amplitudes..}
 
 \item{...}{Various arguments passed to the interpolation method.}
-
-\item{method}{Method of interpolation (Only \code{"MBA"} Multilevel B-splines using the function \code{mba.surf} of the package \code{MBA}.).}
 
 \item{x}{Coordinate x}
 
@@ -22,6 +30,8 @@ interpolate_tbl(.data, ...)
 \item{label}{channel (default)}
 
 \item{diam_points}{Density of the interpolation (number of points that are interpolated in the diameter of the scalp).}
+
+\item{method}{Method of interpolation (Only \code{"MBA"} Multilevel B-splines using the function \code{mba.surf} of the package \code{MBA}.).}
 }
 \description{
 Create a default topographic plot based on the segments of the \code{eeg_lst} object.

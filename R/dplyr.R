@@ -1,5 +1,5 @@
 
-#' Dplyr functions for eeg_lst objects.
+#' Dplyr functions for manipulating eeg_lst objects.
 #'
 #' Manipulate the signal_tbl and the segments table of an eeg_lst.
 #'
@@ -14,19 +14,16 @@
 #' *  `ungroup()`: removes the grouping created by group_by.
 #' * `select()` keeps only the mentioned variables from the refered table, except for the obligatory columns starting with `.`.
 #' * `rename()`: keeps all variables.
-#' * `left_join()`: left-joins an external table to the segments table of the eeg_lst.
-#' * `semi_join()`: semi-joins an external table to the segments table of the eeg_lst.
-#' * `anti_join()`: anti-joins an external table to the segments table of the eeg_lst.
 #'
 #' These commands always return the entire eeg_lst so that
-#' they can be ' piped using [magrittr][magrittr::magrittr] 's pipe, [%>%][magrittr::`%>%`()].
+#' they can be ' piped using [magrittr][magrittr::magrittr] 's pipe, %>%.
 #'
 #' @param .data An eeg_lst.
 #' @param ... Name-value pairs of expressions; see  [dplyr][dplyr::dplyr] for more help.
 #' @return An eeg_lst object.
 #'
 #' @family dplyr functions
-#' @seealso [summarize_at_ch], [summarize_all_ch], [bind] for the extended dplyr-like functions.
+#' @seealso [join], [summarize_at_ch], [summarize_all_ch], [bind] for the extended dplyr-like functions.
 #'
 #' @name dplyr
 #' 
@@ -88,11 +85,11 @@ ungroup.eeg_lst <- function(.data, ...) {
   attributes(.data)$vars <- character(0)
   validate_eeg_lst(.data)
 }
-#' @rdname dplyr
+
 groups.eeg_lst <- function(x) {
 attributes(x)$vars %>% purrr::map(as.name)
 }
-#' @rdname dplyr
+
 group_vars.eeg_lst <- function(x) {
   attributes(x)$vars
 }
@@ -104,8 +101,33 @@ select.eeg_lst <- function(.data, ...) {
 rename.eeg_lst <- function(.data, ...) {
   select_rename(.data, select = FALSE, ...)
 }
-#' @rdname dplyr
+
+#' Dplyr functions for joining data frames to the segments of  eeg_lst objects.
+#'
+#' Join a data frames to the segments of an eeg_lst object, and modify the signal table accordingly (dropping rows when necesary).
+#'
+#' Wrappers for [dplyr][dplyr::join]'s commands:
+#' The following wrappers have been implemented for `eeg_lst` objects:
+#' * `left_join()`: left-joins an external table to the segments table of the eeg_lst.
+#' * `semi_join()`: semi-joins an external table to the segments table of the eeg_lst.
+#' * `anti_join()`: anti-joins an external table to the segments table of the eeg_lst.
+#' These commands always return the entire eeg_lst so that
+#' they can be ' piped using [magrittr][magrittr::magrittr] 's pipe, %>%.
+#'
 #' @param x An eeg_lst.
+#' @param y A data frame, tibble, or data.table.
+#' @inheritParams dplyr::join
+#' @return An eeg_lst object.
+#'
+#' @family join functions
+#' @seealso [dplyr], [summarize_at_ch], [summarize_all_ch], [bind] for the extended dplyr-like functions.
+#'
+#' @name join
+#' 
+NULL
+# > NULL
+
+#' @rdname join
 anti_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
   if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
 
@@ -116,7 +138,7 @@ anti_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".
   x$events <- semi_join_dt(x$events, segments, by = ".id")
   redo_indices(x) %>% validate_eeg_lst()
 }
-#' @rdname dplyr
+#' @rdname join
 left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
   if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
 
@@ -124,7 +146,7 @@ left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".
 
   validate_eeg_lst(x)
 }
-#' @rdname dplyr
+#' @rdname join
 semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
 
@@ -137,7 +159,6 @@ semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   
 }
 
-#' @rdname dplyr
 tbl_vars.eeg_lst <- function(x) {
   setdiff(dplyr::tbl_vars(x$signal), c(dplyr::tbl_vars(x$segments), c(".id", ".sample_id")))
 }

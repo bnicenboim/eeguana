@@ -169,14 +169,6 @@ mean.channel_dbl <- function(x,...) {
   r
 }
 
-#' @export
-sd.channel_dbl <- function(x,...) {
-  attrs <- attributes(x)
-  class(x) <- NULL
-  r <- NextMethod("sd")
-  mostattributes(r) <- attrs
-  r
-}
 
 
 #' @export

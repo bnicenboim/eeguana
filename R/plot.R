@@ -99,6 +99,12 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 plot_topo <- function(data,  ...) {
   UseMethod("plot_topo")
 }
+
+#' @param x x
+#' @param y y
+#' @param value value 
+#' @param label label, generally channel
+
 #' @rdname plot_topo
 #' @export
 plot_topo.tbl_df <- function(data, x = .x, y =.y, value= amplitude,  label=channel, ...) {

@@ -2,9 +2,13 @@
 % Please edit documentation in R/tables_transformation.R
 \name{segment}
 \alias{segment}
+\alias{segment.eeg_lst}
 \title{Segment an eeg_lst.}
 \usage{
 segment(x, ...)
+
+\method{segment}{eeg_lst}(x, ..., lim = c(-0.5, 0.5), end,
+  unit = "seconds", recording_col = "recording")
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
@@ -16,6 +20,8 @@ segment(x, ...)
 \item{end}{Description of the event that indicates the end of the segment, if this is used, \code{lim} is ignored.}
 
 \item{unit}{Unit}
+
+\item{recording_col}{Column in the segments table indicating to which recording or file each segment belogs.}
 }
 \value{
 An \code{eeg_lst}.

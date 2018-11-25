@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Segment an eeg_lst. — segment • eeguana</title>
+<title>License • eeguana</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,18 +25,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
-<link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script>
+<link href="pkgdown.css" rel="stylesheet">
+<script src="pkgdown.js"></script>
 
 
 
-<meta property="og:title" content="Segment an eeg_lst. — segment" />
-
-<meta property="og:description" content="Subdivide of the EEG into different segments or epochs. When there is no
-segmentation, the eeg_lst contain one segment. (Fieldtrip calls the
-segment &quot;trials&quot;.) The limits of segment are inclusive: If, for
-example, lim = c(0,0), the segment would contain only sample 1." />
-<meta name="twitter:card" content="summary" />
+<meta property="og:title" content="License" />
 
 
 
@@ -52,7 +46,7 @@ example, lim = c(0,0), the segment would contain only sample 1." />
   </head>
 
   <body>
-    <div class="container template-reference-topic">
+    <div class="container template-title-body">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -63,7 +57,7 @@ example, lim = c(0,0), the segment would contain only sample 1." />
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">eeguana</a>
+        <a class="navbar-link" href="index.html">eeguana</a>
         <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.0.3.9000</span>
       </span>
     </div>
@@ -71,13 +65,13 @@ example, lim = c(0,0), the segment would contain only sample 1." />
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
+  <a href="index.html">
     <span class="fa fa-home fa-lg"></span>
      
   </a>
 </li>
 <li>
-  <a href="../reference/index.html">Reference</a>
+  <a href="reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -87,12 +81,12 @@ example, lim = c(0,0), the segment would contain only sample 1." />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/brainvision_files.html">Introducction - Manipulating a clean EEG file exported from BrainVision 2.0</a>
+      <a href="articles/brainvision_files.html">Introducction - Manipulating a clean EEG file exported from BrainVision 2.0</a>
     </li>
   </ul>
 </li>
 <li>
-  <a href="../news/index.html">Changelog</a>
+  <a href="news/index.html">Changelog</a>
 </li>
       </ul>
       
@@ -113,73 +107,19 @@ example, lim = c(0,0), the segment would contain only sample 1." />
       </header>
 
 <div class="row">
-  <div class="col-md-9 contents">
+  <div class="contents col-md-9">
     <div class="page-header">
-    <h1>Segment an eeg_lst.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/tables_transformation.R'><code>R/tables_transformation.R</code></a></small>
-    <div class="hidden name"><code>segment.Rd</code></div>
+      <h1>License</h1>
     </div>
 
-    <div class="ref-description">
-    
-    <p>Subdivide of the EEG into different segments or epochs. When there is no
-segmentation, the <code>eeg_lst</code> contain one segment. (Fieldtrip calls the
-segment "trials".) The limits of <code>segment</code> are inclusive: If, for
-example, <code>lim = c(0,0)</code>, the segment would contain only sample 1.</p>
-    
-    </div>
-
-    <pre class="usage"><span class='fu'>segment</span>(<span class='no'>x</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>segment</span>(<span class='no'>x</span>, <span class='no'>...</span>, <span class='kw'>lim</span> <span class='kw'>=</span> <span class='fu'>c</span>(-<span class='fl'>0.5</span>, <span class='fl'>0.5</span>), <span class='no'>end</span>,
-  <span class='kw'>unit</span> <span class='kw'>=</span> <span class='st'>"seconds"</span>, <span class='kw'>recording_col</span> <span class='kw'>=</span> <span class='st'>"recording"</span>)</pre>
-    
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>x</th>
-      <td><p>An <code>eeg_lst</code> object.</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Description of the event.</p></td>
-    </tr>
-    <tr>
-      <th>lim</th>
-      <td><p>Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments</p></td>
-    </tr>
-    <tr>
-      <th>end</th>
-      <td><p>Description of the event that indicates the end of the segment, if this is used, <code>lim</code> is ignored.</p></td>
-    </tr>
-    <tr>
-      <th>unit</th>
-      <td><p>Unit</p></td>
-    </tr>
-    <tr>
-      <th>recording_col</th>
-      <td><p>Column in the segments table indicating to which recording or file each segment belogs.</p></td>
-    </tr>
-    </table>
-    
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>An <code>eeg_lst</code>.</p>
-    
+<pre>YEAR: 2018
+COPYRIGHT HOLDER: Bruno Nicenboim
+</pre>
 
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      
-      <li><a href="#value">Value</a></li>
-          </ul>
 
-  </div>
 </div>
+
 
       <footer>
       <div class="copyright">
