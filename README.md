@@ -20,10 +20,10 @@ information about markers (or triggers), blinks and other exported
 information, and (iii) a long table with experimental information, such
 as participant number (`recording`), conditions, etc.
 
-*eeguana* **cannot** pre-process data for now, but I plan to incorporate
-pre-processing functions with time, and thus it is meant to be used on
-EEG files where filtering, artifact rejection, ICA, etc have already
-been done.
+*eeguana* cannot do much pre-processing for now, but I plan to
+incorporate pre-processing functions with time, and thus it is meant to
+be used on EEG files where filtering, artifact rejection, ICA, etc have
+already been done.
 
 See
 [Reference](https://bnicenboim.github.io/eeguana/reference/index.html)
@@ -78,9 +78,9 @@ faces <- read_vhdr("faces.vhdr")
 #> # Object size in memory 140.5 Mb
 ```
 
-The function `read_vhdr` creates a list with data frames for the signal,
-events, segments information, and incorporates in its attributes generic
-EEG information.
+The function `read_vhdr()` creates a list with data frames for the
+signal, events, segments information, and incorporates in its attributes
+generic EEG information.
 
 ``` r
 faces
@@ -160,7 +160,7 @@ faces
 #> 
 #> $events
 #>       .id         type description .sample_0 .size .channel
-#>    1:   1  New Segment        <NA>         1     1     <NA>
+#>    1:   1  New Segment                     1     1     <NA>
 #>    2:   1 Bad Interval Bad Min-Max      2158   738      Fp1
 #>    3:   1 Bad Interval Bad Min-Max      2161   731      Fp2
 #>    4:   1 Bad Interval Bad Min-Max      2162   729      Fpz
@@ -322,7 +322,7 @@ faces_segs_some
 ```
 
 With some “regular” `ggplot` skills, we can create customized plots.
-`plot_gg` downsamples the signals (by default), and converts them to a
+`plot_gg()` downsamples the signals (by default), and converts them to a
 long-format data frame that is feed into `ggplot` object. This object
 can then be customized.
 
@@ -335,8 +335,8 @@ faces_segs_some %>%
                   aes(color = condition)) +
                   facet_wrap(~ channel) + 
                   geom_vline(xintercept = 0, linetype = "dashed") + 
-                geom_vline(xintercept = .17, linetype = "dotted") + 
-                theme(legend.position = "bottom") 
+                  geom_vline(xintercept = .17, linetype = "dotted") + 
+                  theme(legend.position = "bottom") 
 ```
 
 <img src="man/figures/README-plot-1.png" width="100%" />
@@ -351,7 +351,7 @@ interpolated amplitudes and using the ggplot wrapper
 faces_segs_some %>% filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) %>% 
                     group_by(condition) %>%
                     summarize_all_ch(mean, na.rm = TRUE) %>%
-                      interpolate_tbl() %>%
+                    interpolate_tbl() %>%
                     plot_topo() + facet_grid(~condition)
 ```
 
