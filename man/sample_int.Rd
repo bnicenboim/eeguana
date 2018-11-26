@@ -2,7 +2,7 @@
 % Please edit documentation in R/constructors.R
 \name{sample_int}
 \alias{sample_int}
-\title{Builds a serie of sample numbers.}
+\title{Builds a series of sample numbers.}
 \usage{
 sample_int(values, sampling_rate)
 }
@@ -12,7 +12,7 @@ sample_int(values, sampling_rate)
 \item{sampling_rate}{Double indicating the sampling rate in Hz.}
 }
 \description{
-Builds a serie of sample numbers.
+Builds a series of sample numbers.
 }
 \examples{
 

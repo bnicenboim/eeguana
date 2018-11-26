@@ -119,7 +119,7 @@ chs_fun <- function(x, .funs, ...) {
   UseMethod("chs_fun")
 }
 #' @rdname chs_fun
-#' @param pars list that contains the additional arguments for the function calls in .funs.
+#' @param pars List that contains the additional arguments for the function calls in .funs.
 #' @export
 chs_fun.channel_dbl <- function(...,.funs, pars = list()) {
 if(length(pars) != 0){
@@ -129,7 +129,7 @@ if(length(pars) != 0){
  }
 }
 #' @rdname chs_fun
-#' @param pars list that contains the additional arguments for the function calls in .funs.
+#' @param pars List that contains the additional arguments for the function calls in .funs.
 #' @export
 chs_fun.character <- function(..., .funs, pars = list()) {
   dt_chs <- data.table::as.data.table(mget(..., envir = rlang::caller_env()))
@@ -140,8 +140,8 @@ chs_fun.character <- function(..., .funs, pars = list()) {
   }
 }
 
-
 #' @rdname chs_fun
+#' @param pars List that contains the additional arguments for the function calls in .funs.
 #' @export
 chs_fun.eeg_lst <- function(x,.funs, pars = list(), ...) {
 

@@ -1,5 +1,5 @@
 ---
-title: "Introducction - Manipulating a clean EEG file exported from BrainVision 2.0"
+title: "Introduction - Manipulating a clean EEG file exported from BrainVision 2.0"
 author: "Bruno Nicenboim"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette

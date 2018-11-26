@@ -58,7 +58,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.0.3.9000</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.0.4.9000</span>
       </span>
     </div>
 
@@ -81,7 +81,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/brainvision_files.html">Introducction - Manipulating a clean EEG file exported from BrainVision 2.0</a>
+      <a href="../articles/brainvision_files.html">Introduction - Manipulating a clean EEG file exported from BrainVision 2.0</a>
     </li>
     <li>
       <a href="../articles/preprocessing_erp.html">Preprocessing of EEG data and computing ERPs (Fieldtrip tutorial)</a>
@@ -167,9 +167,15 @@
       <tr>
         
         <td>
-          <p><code><a href="dplyr.html">mutate(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">transmute(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">filter(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">summarise(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">group_by(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">ungroup(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">select(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr.html">rename(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
+          <p><code><a href="dplyr-eeguana.html">mutate(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">transmute(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">filter(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">summarise(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">group_by(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">ungroup(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">select(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">rename(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
         </td>
         <td><p>Dplyr functions for manipulating eeg_lst objects.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="join-eeguana.html">anti_join(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="join-eeguana.html">left_join(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="join-eeguana.html">semi_join(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Dplyr functions for joining data frames to the segments of  eeg_lst objects.</p></td>
       </tr><tr>
         
         <td>
@@ -227,7 +233,7 @@
         <td>
           <p><code><a href="filt.html">ch_filt_low_pass()</a></code> <code><a href="filt.html">ch_filt_high_pass()</a></code> <code><a href="filt.html">ch_filt_band_pass()</a></code> <code><a href="filt.html">ch_filt_stop_pass()</a></code> </p>
         </td>
-        <td><p>Apply a butterworth IIR filter.</p></td>
+        <td><p>Apply a Butterworth IIR filter.</p></td>
       </tr><tr>
         
         <td>
@@ -271,7 +277,7 @@
         <td>
           <p><code><a href="interpolate_tbl.html">interpolate_tbl()</a></code> </p>
         </td>
-        <td><p>Create a table with interpolated singnals fromof an eeg_lst object.</p></td>
+        <td><p>Create a table with interpolated signals of an eeg_lst object.</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -397,7 +403,7 @@ This function returns  TRUE for signals.</p></td>
         <td>
           <p><code><a href="sample_int.html">sample_int()</a></code> </p>
         </td>
-        <td><p>Builds a serie of sample numbers.</p></td>
+        <td><p>Builds a series of sample numbers.</p></td>
       </tr><tr>
         
         <td>
