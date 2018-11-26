@@ -19,22 +19,18 @@ knitr::opts_chunk$set(
 )
 ```
 
-This tutorial is an adaptation (and some parts are a verbatim copy) of *Fieldtrip*'s [Preprocessing - Reading continuous EEG data](http://www.fieldtriptoolbox.org/tutorial/preprocessing_erp). Fieldtrip is a great MATLAB toolbox for MEG and EEG analysis. Here I show, how we would do a very similar analysis with *eeguana*. (No previous exposure Fieldtrip is needed to follow this vignette). 
-
-
-
+This tutorial is an adaptation (and some parts are a verbatim copy) of *Fieldtrip*'s [Preprocessing - Reading continuous EEG data](http://www.fieldtriptoolbox.org/tutorial/preprocessing_erp). Fieldtrip is a great MATLAB toolbox for MEG and EEG analysis. Here I show, how we would do a very similar analysis with *eeguana*. (No previous experience with Fieldtrip is needed to follow this vignette). 
 
 The preprocessing of data refers to the reading of the data, segmenting the data around interesting events such as triggers, temporal filtering, and optionally rereferencing.
 
-
-There are largely two alternative approaches for preprocessing, which especially differ in the amount of memory required (and time). The first approach is to read all data from the file(s) into memory, apply filters, and subsequently cut the data into interesting segments. The second approach is to segment the data and then apply the filters to those segments only. This tutorial explains the second approach.
+There are largely two alternative approaches for preprocessing, which especially differ in the amount of memory required (and processing time). The first approach is to read all data from the file(s) into memory, apply filters, and subsequently cut the data into interesting segments. The second approach is to segment the data and then apply the filters to those segments only. This tutorial explains the second approach. It should be noticed that filtering distorts the edges of the segments, and this second approach should be followed with care. Even more so with *eeguana* than with Fieldtrip, since filters in *eeguana* depend on the package [signal](), which is far from being the state-of-the-arts.
 
 Preprocessing involves several steps including identifying individual trials from the dataset, filtering and artifact rejections. This tutorial covers how to identify trials using the trigger signal. Defining data segments of interest can be done according to a specified trigger channel or according to your own criteria.
 
 
 ## Dataset
 
-The EEG dataset used in this script is available [here](ftp://ftp.fieldtriptoolbox.org/pub/fieldtrip/tutorial/preprocessing_erp). In the experiment, subjects made positive/negative or animal/human judgments on nouns. The nouns were either positive animals (puppy), negative animals (maggot), positive humans (princess), or negative humans (murderer). The nouns were presented visually (written words). The task cue (which judgment to make) was given with each word.
+The EEG dataset used in this script is available in [Fieldtrip's ftp](ftp://ftp.fieldtriptoolbox.org/pub/fieldtrip/tutorial/preprocessing_erp). In the experiment, subjects made positive/negative or animal/human judgments on nouns. The nouns were either positive animals (puppy), negative animals (maggot), positive humans (princess), or negative humans (murderer). The nouns were presented visually (written words). The task cue (which judgment to make) was given with each word.
 
 
 First we download the data:
@@ -52,6 +48,7 @@ segments information, and incorporates in its attributes generic EEG information
 
 ```{r libs, message = FALSE}
 library(eeguana)
+library(plotly)
 ```
 
 ```{r}
@@ -63,13 +60,13 @@ data_judg <- read_vhdr(file = "s04.vhdr")
 ### Defining trials
 
 The triggers were defined such that the trigger "S131" indicates condition 1 (positive-negative judgment) and 
- "S132" indicates condition 2 (animal-human judgment).
+ "S132" indicates condition 2 (animal-human judgment). We access the events with `events()` function.
 
 ```{r}
 events(data_judg)
 ```
 
-However, we want the ERP based on the trigger "S141" that precedes any of these two triggers. We edit the events table (using dplyr functions) to indicate to which condition each trigger "S141" belongs, and then we can segment based on these conditions:
+However, we want the ERP based on the trigger "S141" that precedes any of these two triggers. We edit the events table (using dplyr functions: `mutate`, `case_when`, `lead`) to indicate to which condition each trigger "S141" belongs, and then we can segment based on these conditions using *eeguana*'s `segment()` (We are going to create a segment slightly bigger than what we want (\[-.2,1\] seconds) in order to discard the artifacts at edges that will be created by the filtering):
 
 
 ```{r}
@@ -79,43 +76,52 @@ events(data_judg) <- mutate(events(data_judg),
                                                   description == "S141" & 
                                                   lead(description) == "S132" ~ 2, 
                                                                          TRUE ~ 0))
-data_judg_s <- data_judg %>% segment(condition %in% c(1,2), lim = c(-0.2,1))
+data_judg_s <- data_judg %>% segment(condition %in% c(1,2), lim = c(-0.3,1.1))
 ```
 
 
 ## Pre-processing and re-referencing
 
-In this raw BrainVision dataset, the signal from all electrodes is monopolar and referenced to the left mastoid. We want the signal to be referenced to linked (left and right) mastoids. During the acquisition the 'RM' electrode (number 32) had been placed on the right mastoid. In order to re-reference the data (e.g. including also the right mastoid in the reference) we add implicit channel 'REF' to the channels (which represents the left mastoid) by creating a channel with `channel_dbl()` and filling it with zeros. The we re-reference the data using 'REF' and 'RM', the left and right mastoids respectively. Finally we apply a low-pass filter:
+In this raw BrainVision dataset, the signal from all electrodes is monopolar and referenced to the left mastoid. We want the signal to be referenced to linked (left and right) mastoids. During the acquisition the 'RM' electrode (number 32) had been placed on the right mastoid. We first baseline the signal with `ch_baseline`. In order to re-reference the data (e.g. including also the right mastoid in the reference) we add implicit channel 'REF' to the channels (which represents the left mastoid) by creating a channel with `channel_dbl()` and filling it with zeros using `mutate()` overloaded by *eeguana* to work with `eeg_lst`s. The we re-reference the data using 'REF' and 'RM', the left and right mastoids respectively using `ch_rereference()`. Finally we apply a low-pass filter with a stop band frequency of 100 Hz using `ch_filt_low_pass()`:
 
 ```{r}
-data_judg_s_p <- data_judg_s %>% 
-                # By default from the beginning of each segment to 0:
-                ch_baseline() %>% 
+data_judg_s <- data_judg_s %>% 
+                # From the beginning of our desired segment length:
+                ch_baseline(-.2) %>% 
                 # The reference channel REF is filled with 0  
                 mutate(REF = channel_dbl(0)) %>% 
                 # All channels are references with REF  
-                ch_rereference(RM, REF) %>% 
+                ch_rereference(RM, REF) 
+
+data_judg_s_p <- data_judg_s %>% 
                 # A low pass filter is applied 
                 ch_filt_low_pass(100)  
 ```
 
-We can have a look at one of the trials (the second one) of one channel (channel 11) using `plot()`
+We can have a look at one of the trials (the second one) of one channel (channel 27) using `plot()` to see the action of the filter.
 
-```{r}
-data_judg_s_p %>% filter(segment == 2) %>% 
-                  select(X11) %>% 
-                  plot() 
+```{r , fig.dim = c(10,7)}
+X27_filtered <- data_judg_s_p %>% filter(segment == 2) %>% 
+                  select(X27) %>% 
+                  mutate(filter = "Filtered")
+
+X27_unfiltered <- data_judg_s %>% filter(segment == 2) %>% 
+                  select(X27) %>% 
+                  mutate(filter = "Unfiltered")
+
+bind(X27_filtered,X27_unfiltered) %>% plot() +
+                                      geom_line(aes(color = filter)) +
+                                      facet_wrap(~channel)  +
+                                      theme(legend.position = "bottom")
                   
 ```
 
 
-And we can do more advanced plotting using `plot_gg` (allowing us to display more information):
+Now we filter the samples that might be distorted by the filter.
 
-```{r}
-data_judg_s_p %>% select(X11) %>% 
-                  plot_gg() + 
-                  geom_line(aes(group = segment, color = factor(condition)), alpha = .5) +
-                  theme(legend.position = "bottom")
+```{r , fig.dim = c(10,10)}
+data_judg_s_p <- data_judg_s_p %>% filter(as_time(.sample_id) %>% between(-.2,1)) 
+
 ```
 
 ## Extracting the EOG signals
@@ -166,26 +172,38 @@ data_judg_s_p %>%  select(eogv) %>%
                    facet_wrap(~segment) 
 ```
 
-The data can be also displayed in a different way :
+The data can be also displayed in a different way. And `ggplotly` can help us navigate the data.
 
-```{r,   fig.dim = c(5,5),fig.show='hold',   out.width = "45%"}
-#order
-data_summary <- data_judg_s_p %>% group_by(segment) %>% summarize_all_ch(var)
+```{r }
+data_summary <- data_judg_s_p %>% 
+                select(-eogh, -eogv) %>% 
+                group_by(segment) %>% 
+                summarize_all_ch(var)
 
-data_summary       %>% 
+plot_general <- data_summary       %>% 
                    plot_gg(x = segment, y= channel, fill = amplitude) + 
                    geom_raster() + 
                    theme(legend.position ="none")
 
-data_summary %>%  summarize_all_ch(mean) %>% 
+plot_channels <- data_summary %>%  ungroup() %>% summarize_all_ch(max) %>% 
                    plot_gg(x = amplitude, y= channel) + 
                    geom_point() 
 
-data_summary %>%  chs_mean() %>% 
+plot_segments <- data_summary %>%  chs_fun(max) %>% 
                    plot_gg(x = segment, y = amplitude) + 
                    geom_point() 
+
+#ggplotly(plot_general)
+#ggplotly(plot_channels)
+#ggplotly(plot_segments)
+
 ```
 
+```{r, fig.dim = c(5,5),fig.show='hold',echo= FALSE, out.width = "45%"}
+ggplotly(plot_general)
+ggplotly(plot_channels)
+ggplotly(plot_segments)
+```
 <!-- 
 
   #group_by(segment) %>%
