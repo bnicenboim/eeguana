@@ -28,7 +28,9 @@ data_eeg <- eeg_lst(
 )
 
 
+
 data_M <- transmute(data_eeg, mean = chs_mean(X,Y))
+
 data_M_q <- transmute(data_eeg, mean = chs_mean(c("X","Y")))
 
 test_that("can take the mean of the channels", {
@@ -40,6 +42,15 @@ data_M2 <- chs_mean(data_eeg)
 test_that("both .eeg_lst and .channel_dbl give the same output for chs_mean", {
   expect_equal(data_M, data_M2)
 })
+
+data_M_f <- transmute(data_eeg, mean = chs_fun(X,Y,.funs = mean))
+data_M_fa <- chs_fun(data_eeg,.funs = mean)
+
+test_that("both chs_fun and chs_mean give the same output", {
+  expect_equal(data_M, data_M_fa)
+})
+
+
 
 data_reref <- mutate(data_eeg, X = ch_rereference(X, X, Y))
 X_reref <- data_eeg$signal$X - (data_eeg$signal$X+data_eeg$signal$Y)/2

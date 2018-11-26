@@ -11,7 +11,7 @@ chs_mean(x, ..., na.rm = FALSE)
 
 \method{chs_mean}{channel_dbl}(..., na.rm = FALSE)
 
-\method{chs_mean}{character}(..., .funs, pars = list())
+\method{chs_mean}{character}(..., na.rm = FALSE)
 
 \method{chs_mean}{eeg_lst}(x, ..., na.rm = FALSE)
 }
