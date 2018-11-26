@@ -170,18 +170,19 @@ The data can be also displayed in a different way :
 
 ```{r,   fig.dim = c(5,5),fig.show='hold',   out.width = "45%"}
 #order
-data_judg_s_p %>%  group_by(segment) %>% summarize_all_ch(var) %>% 
+data_summary <- data_judg_s_p %>% group_by(segment) %>% summarize_all_ch(var)
+
+data_summary       %>% 
                    plot_gg(x = segment, y= channel, fill = amplitude) + 
                    geom_raster() + 
                    theme(legend.position ="none")
 
-data_judg_s_p %>%  summarize_all_ch(var) %>% 
+data_summary %>%  summarize_all_ch(mean) %>% 
                    plot_gg(x = amplitude, y= channel) + 
                    geom_point() 
 
-data_judg_s_p %>%  group_by(segment) %>%
-                   summarize(var = chs_fun(channel_names(data_judg_s_p), var)) %>% 
-                   plot_gg(x = channel, y = amplitude) + 
+data_summary %>%  chs_mean() %>% 
+                   plot_gg(x = segment, y = amplitude) + 
                    geom_point() 
 ```
 
