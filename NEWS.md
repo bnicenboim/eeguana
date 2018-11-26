@@ -1,3 +1,10 @@
+# eeguana 0.0.4.9000
+ - Changes
+   - `chs_fun()` to apply arbitrary functions to the channels.
+   - Fieldtrip tutorial added as a vignette.
+ - Bugs
+   - Channels appear in the right order in plots.
+   - Other minor bugs.
 # eeguana 0.0.3.9000
  - Changes
    - ggplot2 theme improved.

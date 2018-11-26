@@ -1,4 +1,4 @@
-#' Create a table with interpolated singnals fromof an eeg_lst object.
+#' Create a table with interpolated signals of an eeg_lst object.
 #'
 #' Create a default topographic plot based on the segments of the `eeg_lst` object.
 #'

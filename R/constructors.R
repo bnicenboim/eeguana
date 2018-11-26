@@ -6,7 +6,7 @@
 #' 
 #' @family eeg_lst
 #'
-#' @return A valid eggble.
+#' @return A valid eeg_lst.
 #' @export
 eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
   if(is.null(signal)) {
@@ -73,7 +73,7 @@ is_eeg_lst <- function(x) {
 }
 
 
-#' Builds a serie of sample numbers.
+#' Builds a series of sample numbers.
 #'
 #' @param values Sequence of integers.
 #' @param sampling_rate Double indicating the sampling rate in Hz.

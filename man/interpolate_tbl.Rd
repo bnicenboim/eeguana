@@ -4,7 +4,7 @@
 \alias{interpolate_tbl}
 \alias{interpolate_tbl.eeg_lst}
 \alias{interpolate_tbl.tbl_df}
-\title{Create a table with interpolated singnals fromof an eeg_lst object.}
+\title{Create a table with interpolated signals of an eeg_lst object.}
 \usage{
 interpolate_tbl(.data, ...)
 

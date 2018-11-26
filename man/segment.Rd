@@ -21,7 +21,7 @@ segment(x, ...)
 
 \item{unit}{Unit}
 
-\item{recording_col}{Column in the segments table indicating to which recording or file each segment belogs.}
+\item{recording_col}{Column in the segments table indicating to which recording or file each segment belongs.}
 }
 \value{
 An \code{eeg_lst}.

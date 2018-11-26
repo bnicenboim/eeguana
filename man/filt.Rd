@@ -13,7 +13,7 @@
 \alias{ch_filt_high_pass.eeg_lst}
 \alias{ch_filt_stop_pass.eeg_lst}
 \alias{ch_filt_band_pass.eeg_lst}
-\title{Apply a butterworth IIR filter.}
+\title{Apply a Butterworth IIR filter.}
 \usage{
 ch_filt_low_pass(x, band_edge = NULL, order = 6,
   direction = "twopass", ...)
