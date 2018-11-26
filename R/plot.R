@@ -17,7 +17,7 @@ plot.eeg_lst <- function(x, max_sample = 64000, ...) {
   }
 
   df <- dplyr::as_tibble(x) %>% 
-        dplyr::mutate(channel = factor(channel, levels = channel))
+        dplyr::mutate(channel = factor(channel, levels = unique(channel)))
   plot <- ggplot2::ggplot(
     df,
     ggplot2::aes(x = time, y = amplitude, group = .id)
@@ -59,7 +59,7 @@ plot_gg.eeg_lst <- function(.data, x = time, y = amplitude, ..., max_sample = 64
 
   dots <- rlang::enquos(...)
   df <- dplyr::as_tibble(.data) %>% 
-        dplyr::mutate(channel = factor(channel, levels = channel))
+        dplyr::mutate(channel = factor(channel, levels = unique(channel)))
 
   plot <- ggplot2::ggplot(
     df,
