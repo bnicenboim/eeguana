@@ -14,6 +14,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+options(width = 80)
 ```
 
 *eeguana* provides a framework for manipulating EEG data with *dplyr*-based function (e.g., `mutate`, `filter`, `summarize`) extended to a new class `eeg_lst`. In addition, it provides other EEG-specialized functions, and `ggplot` wrapper functions.  The new class is inspired by tidyverse principles but it's not really "tidy" (due to space considerations), it's a list of (i) a wide table (`signal_tbl`) that contains the signal amplitudes at every sample point of the EEG,  (ii) an events table with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant (`recording`), conditions, etc.  
@@ -56,7 +57,7 @@ We first need to read the data:
 faces <- read_vhdr("faces.vhdr")
 ```
 
-The function `read_vhdr` creates a list with data frames for the signal, events,
+The function `read_vhdr()` creates a list with data frames for the signal, events,
 segments information, and incorporates in its attributes generic EEG information.
 
 ```{r}
@@ -99,9 +100,9 @@ faces_segs <- faces %>%
 
 
 We can also edit the segmentation information and add more descriptive labels.
-*eeguana* has wrappers for many `dplyr` commands for the EEG data.  These commands always return an entire `eeg_lst` object so that they can be piped using `magrittr`'s pipe, `%>%`.
+*eeguana* has wrappers for many `dplyr` commands for the EEG data (see `` ?`dplyr-eeguana` ``).  These commands always return an entire `eeg_lst` object so that they can be piped using `magrittr`'s pipe, `%>%`.
 
-```{r}
+```{r,  fig.dim = c(10,5)}
 faces_segs_some <- faces_segs %>%  
                   mutate(condition =
                   if_else(description == "s70", "faces", "non-faces")) %>% 
@@ -110,12 +111,12 @@ faces_segs_some <- faces_segs %>%
 faces_segs_some
 ```
 
-With some "regular" `ggplot` skills, we can create customized plots. `plot_gg`
+With some `ggplot` skills, we can create customized plots. `plot_gg`
 downsamples the signals (by default), and converts them to a long-format data frame that is
 feed into `ggplot` object. This object can then be customized. 
 
 
-```{r, fig.dim = c(10,15), out.width = "100%"}
+```{r, fig.dim = c(10,10), out.width = "100%"}
 faces_segs_some %>% 
                   select(O1, O2, P7, P8) %>% 
                   plot_gg() + 
@@ -124,22 +125,22 @@ faces_segs_some %>%
                   aes(color = condition)) +
                   facet_wrap(~ channel) + 
                   geom_vline(xintercept = 0, linetype = "dashed") + 
-                geom_vline(xintercept = .17, linetype = "dotted") + 
-                theme(legend.position = "bottom") 
+                  geom_vline(xintercept = .17, linetype = "dotted") + 
+                  theme(legend.position = "bottom") 
 ```
 
 The motivation for manipulating the data in the `eeg_lst` format and not transforming
 them directly to a data frame has to do with size considerations. In this case,
 the original file was 149 MB, converting it to a long format entails a lot of
-repetition and generates an object of 786 MB. While this is still ok here, a long format quickly becomes prohibitive in real settings with longer recordings and with
+repetition and generates an object of 786 MB. While this will still work here, a long format quickly becomes prohibitive in real settings with longer recordings and with
 several subjects.
 
 We can see here the N170 component in the faces condition for the average trial
 on a single participant. We can investigate the signal by averaging the channels
-of the occipital and parietal lobes using the capabilities inherited from `dplyr`, and the special function, `chs_mean`, a wrapper for `rowMeans`, which takes as arguments the relevant channels and whether missing values should be omitted from the calculations.
+of the occipital and parietal lobes using the capabilities inherited from `dplyr`, and the special function, `chs_mean()`, a wrapper for `rowMeans()`, which takes as arguments the relevant channels and whether missing values should be omitted from the calculations.
 
                                                               
-```{r, fig.dim = c(10,15), out.width = "100%"}
+```{r, fig.dim = c(10,5), out.width = "100%"}
 faces_segs_some %>% 
                 transmute(Occipital = chs_mean(O1, O2, Oz, na.rm = TRUE),
                           Parietal = chs_mean(P3, P4, P7,  P8, Pz, na.rm = TRUE)) %>% 
@@ -154,13 +155,13 @@ faces_segs_some %>%
 
 Another possibility is to create a topographic plot of the two conditions, by
 first making segments that include only the interval .1-.2 *s* after the onset
-of the stimuli, creating a table with interpolated amplitudes and using the ggplot wrapper `plot_topo`.
+of the stimuli, creating a table with interpolated amplitudes and using the ggplot wrapper `plot_topo()`.
 
 ```{r, fig.dim = c(10,5), out.width = "100%"}
 faces_segs_some %>% filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) %>% 
                     group_by(condition) %>%
                     summarize_all_ch(mean, na.rm = TRUE) %>%
-                      interpolate_tbl() %>%
+                    interpolate_tbl() %>%
                     plot_topo() + facet_grid(~condition)
 ```
 
@@ -185,14 +186,14 @@ df
 
 Then we just load the data frame into `ggplot`.
 
-```{r, fig.dim = c(10,15), out.width = "100%"}
+```{r, fig.dim = c(10,10), out.width = "100%"}
 ggplot(df, aes(x = time, y = `t-value`)) + geom_line() +
                 facet_wrap(~ channel) 
 ```
 
 However, this can be also done in the without transforming the `eeg_lst` object:
 
-```{r, fig.dim = c(10,15), out.width = "100%"}
+```{r, fig.dim = c(10,10), out.width = "100%"}
 faces_segs_some_t <- 
   faces_segs_some %>% 
       select(O1, O2, P7, P8) %>%
