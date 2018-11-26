@@ -129,7 +129,6 @@ if(length(pars) != 0){
  }
 }
 #' @rdname chs_fun
-#' @param pars List that contains the additional arguments for the function calls in .funs.
 #' @export
 chs_fun.character <- function(..., .funs, pars = list()) {
   dt_chs <- data.table::as.data.table(mget(..., envir = rlang::caller_env()))
@@ -141,7 +140,6 @@ chs_fun.character <- function(..., .funs, pars = list()) {
 }
 
 #' @rdname chs_fun
-#' @param pars List that contains the additional arguments for the function calls in .funs.
 #' @export
 chs_fun.eeg_lst <- function(x,.funs, pars = list(), ...) {
 
