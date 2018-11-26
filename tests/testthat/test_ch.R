@@ -47,7 +47,8 @@ data_M_f <- transmute(data_eeg, mean = chs_fun(X,Y,.funs = mean))
 data_M_fa <- chs_fun(data_eeg,.funs = mean)
 
 test_that("both chs_fun and chs_mean give the same output", {
-  expect_equal(data_M, data_M_fa)
+  expect_equal(data_M_f, data_M_fa)
+  expect_equal(data_M, data_M_f)
 })
 
 
