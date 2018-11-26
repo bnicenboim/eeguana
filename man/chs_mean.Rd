@@ -2,14 +2,23 @@
 % Please edit documentation in R/channel_functions.R
 \name{chs_mean}
 \alias{chs_mean}
+\alias{chs_mean.channel_dbl}
+\alias{chs_mean.character}
+\alias{chs_mean.eeg_lst}
 \title{Get the by-sample (or by-row) mean of the specified channels.}
 \usage{
 chs_mean(x, ..., na.rm = FALSE)
+
+\method{chs_mean}{channel_dbl}(..., na.rm = FALSE)
+
+\method{chs_mean}{character}(..., na.rm = FALSE)
+
+\method{chs_mean}{eeg_lst}(x, ..., na.rm = FALSE)
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
 
-\item{...}{A channel or a group of channels (if an \code{eeg_lst} is not specified).}
+\item{...}{A channel or a group of unquoted or quoted channels (if an \code{eeg_lst} is not specified).}
 
 \item{na.rm}{a logical value indicating whether \code{NA}
     values should be stripped before the computation proceeds.}

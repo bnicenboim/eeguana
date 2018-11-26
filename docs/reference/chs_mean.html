@@ -61,7 +61,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.0.3.9000</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.0.4.9000</span>
       </span>
     </div>
 
@@ -84,7 +84,10 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/brainvision_files.html">Introducction - Manipulating a clean EEG file exported from BrainVision 2.0</a>
+      <a href="../articles/brainvision_files.html">Introduction - Manipulating a clean EEG file exported from BrainVision 2.0</a>
+    </li>
+    <li>
+      <a href="../articles/preprocessing_erp.html">Preprocessing of EEG data and computing ERPs (Fieldtrip tutorial)</a>
     </li>
   </ul>
 </li>
@@ -123,7 +126,16 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>chs_mean</span>(<span class='no'>x</span>, <span class='no'>...</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>chs_mean</span>(<span class='no'>x</span>, <span class='no'>...</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+
+<span class='co'># S3 method for channel_dbl</span>
+<span class='fu'>chs_mean</span>(<span class='no'>...</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+
+<span class='co'># S3 method for character</span>
+<span class='fu'>chs_mean</span>(<span class='no'>...</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+
+<span class='co'># S3 method for eeg_lst</span>
+<span class='fu'>chs_mean</span>(<span class='no'>x</span>, <span class='no'>...</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -134,7 +146,7 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>A channel or a group of channels (if an <code>eeg_lst</code> is not specified).</p></td>
+      <td><p>A channel or a group of unquoted or quoted channels (if an <code>eeg_lst</code> is not specified).</p></td>
     </tr>
     <tr>
       <th>na.rm</th>

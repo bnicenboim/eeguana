@@ -1,4 +1,4 @@
-#' Apply a butterworth IIR filter.
+#' Apply a Butterworth IIR filter.
 #'
 #' Apply a Butterworth IIR filter using \code{signal::filt_filt}. Based on
 #' Matt Craddock's code of \code{eegUtils} \email{matt@mattcraddock.com}.

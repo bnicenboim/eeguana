@@ -11,7 +11,7 @@
 #'
 #' @param x An eeg_lst object.
 #' @param q integer factor(s) to downsample by.
-#' @param max_sample Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total numbe of samples.
+#' @param max_sample Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total number of samples.
 #' @param ... Not in use.
 #' 
 #' @family eeg

@@ -49,7 +49,7 @@ These are scoped variants of \code{summarize()} that apply operations on a selec
 }
 }
 \seealso{
-Other dplyr functions: \code{\link{dplyr}}
+Other dplyr functions: \code{\link{dplyr-eeguana}}
 }
 \concept{dplyr functions}
 \concept{summarizing functions}

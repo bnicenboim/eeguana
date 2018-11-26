@@ -29,7 +29,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">eeguana</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.0.3.9000</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.0.4.9000</span>
       </span>
     </div>
 
@@ -52,7 +52,10 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="articles/brainvision_files.html">Introducction - Manipulating a clean EEG file exported from BrainVision 2.0</a>
+      <a href="articles/brainvision_files.html">Introduction - Manipulating a clean EEG file exported from BrainVision 2.0</a>
+    </li>
+    <li>
+      <a href="articles/preprocessing_erp.html">Preprocessing of EEG data and computing ERPs (Fieldtrip tutorial)</a>
     </li>
   </ul>
 </li>
@@ -117,7 +120,7 @@
 <a class="sourceLine" id="cb4-2" title="2"><span class="co">#&gt; # Data from faces.dat was read.</span></a>
 <a class="sourceLine" id="cb4-3" title="3"><span class="co">#&gt; # Data from 1 segment(s) and 34 channels was loaded.</span></a>
 <a class="sourceLine" id="cb4-4" title="4"><span class="co">#&gt; # Object size in memory 140.5 Mb</span></a></code></pre></div>
-<p>The function <code>read_vhdr</code> creates a list with data frames for the signal, events, segments information, and incorporates in its attributes generic EEG information.</p>
+<p>The function <code><a href="reference/read_vhdr.html">read_vhdr()</a></code> creates a list with data frames for the signal, events, segments information, and incorporates in its attributes generic EEG information.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">faces</a>
 <a class="sourceLine" id="cb5-2" title="2"><span class="co">#&gt; $signal</span></a>
 <a class="sourceLine" id="cb5-3" title="3"><span class="co">#&gt;         .id .sample_id        Fp1        Fpz        Fp2         F7</span></a>
@@ -340,7 +343,7 @@
 <a class="sourceLine" id="cb7-112" title="112"><span class="co">#&gt; [1] "eeg_lst"</span></a>
 <a class="sourceLine" id="cb7-113" title="113"><span class="co">#&gt; attr(,"vars")</span></a>
 <a class="sourceLine" id="cb7-114" title="114"><span class="co">#&gt; character(0)</span></a></code></pre></div>
-<p>With some “regular” <code>ggplot</code> skills, we can create customized plots. <code>plot_gg</code> downsamples the signals (by default), and converts them to a long-format data frame that is feed into <code>ggplot</code> object. This object can then be customized.</p>
+<p>With some “regular” <code>ggplot</code> skills, we can create customized plots. <code><a href="reference/plot_gg.html">plot_gg()</a></code> downsamples the signals (by default), and converts them to a long-format data frame that is feed into <code>ggplot</code> object. This object can then be customized.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1">faces_segs_some <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb8-2" title="2"><span class="st">                  </span><span class="kw">select</span>(O1, O2, P7, P8) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb8-3" title="3"><span class="st">                  </span><span class="kw"><a href="reference/plot_gg.html">plot_gg</a></span>() <span class="op">+</span><span class="st"> </span></a>
@@ -349,14 +352,14 @@
 <a class="sourceLine" id="cb8-6" title="6">                  <span class="kw">aes</span>(<span class="dt">color =</span> condition)) <span class="op">+</span></a>
 <a class="sourceLine" id="cb8-7" title="7"><span class="st">                  </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>channel) <span class="op">+</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb8-8" title="8"><span class="st">                  </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="dv">0</span>, <span class="dt">linetype =</span> <span class="st">"dashed"</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb8-9" title="9"><span class="st">                </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="fl">.17</span>, <span class="dt">linetype =</span> <span class="st">"dotted"</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb8-10" title="10"><span class="st">                </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>) </a></code></pre></div>
+<a class="sourceLine" id="cb8-9" title="9"><span class="st">                  </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="fl">.17</span>, <span class="dt">linetype =</span> <span class="st">"dotted"</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb8-10" title="10"><span class="st">                  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>) </a></code></pre></div>
 <p><img src="reference/figures/README-plot-1.png" width="100%"></p>
 <p>Another possibility is to create a topographic plot of the two conditions, by first making segments that include only the interval .1-.2 <em>s</em> after the onset of the stimuli, creating a table with interpolated amplitudes and using the ggplot wrapper <code>plot_topo</code>.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">faces_segs_some <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(<span class="kw"><a href="reference/between.html">between</a></span>(<span class="kw"><a href="reference/as_time.html">as_time</a></span>(.sample_id, <span class="dt">unit =</span> <span class="st">"milliseconds"</span>),<span class="dv">100</span>,<span class="dv">200</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb9-2" title="2"><span class="st">                    </span><span class="kw">group_by</span>(condition) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb9-3" title="3"><span class="st">                    </span><span class="kw"><a href="reference/summarize_ch.html">summarize_all_ch</a></span>(mean, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb9-4" title="4"><span class="st">                      </span><span class="kw"><a href="reference/interpolate_tbl.html">interpolate_tbl</a></span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb9-4" title="4"><span class="st">                    </span><span class="kw"><a href="reference/interpolate_tbl.html">interpolate_tbl</a></span>() <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb9-5" title="5"><span class="st">                    </span><span class="kw"><a href="reference/plot_topo.html">plot_topo</a></span>() <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(<span class="op">~</span>condition)</a></code></pre></div>
 <p><img src="reference/figures/README-topo-1.png" width="100%"></p>
 </div>
