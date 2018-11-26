@@ -3,7 +3,7 @@
 \name{chs_fun}
 \alias{chs_fun}
 \alias{chs_fun.channel_dbl}
-\alias{chs_mean.character}
+\alias{chs_fun.character}
 \alias{chs_fun.eeg_lst}
 \title{Get the by-sample (or by-row) function of the specified channels.}
 \usage{
@@ -11,7 +11,7 @@ chs_fun(x, .funs, ...)
 
 \method{chs_fun}{channel_dbl}(..., .funs, pars = list())
 
-\method{chs_mean}{character}(..., .funs, pars = list())
+\method{chs_fun}{character}(..., .funs, pars = list())
 
 \method{chs_fun}{eeg_lst}(x, .funs, pars = list(), ...)
 }

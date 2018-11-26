@@ -122,14 +122,22 @@ chs_fun <- function(x, .funs, ...) {
 #' @param pars list that contains the additional arguments for the function calls in .funs.
 #' @export
 chs_fun.channel_dbl <- function(...,.funs, pars = list()) {
-   row_fun_ch(data.table::data.table(...),.funs,  unlist(pars))  # throws a warning
+if(length(pars) != 0){
+   row_fun_ch(data.table::data.table(...),.funs,  unlist(pars))  
+ } else {
+   row_fun_ch(data.table::data.table(...),.funs)  
+ }
 }
 #' @rdname chs_fun
 #' @param pars list that contains the additional arguments for the function calls in .funs.
 #' @export
-chs_mean.character <- function(..., .funs, pars = list()) {
+chs_fun.character <- function(..., .funs, pars = list()) {
   dt_chs <- data.table::as.data.table(mget(..., envir = rlang::caller_env()))
-  row_fun_ch(dt_chs,.funs,  unlist(pars))  # throws a warning
+  if(length(pars) != 0){
+    row_fun_ch(dt_chs,.funs,  unlist(pars))
+  } else {
+    row_fun_ch(dt_chs,.funs)
+  }
 }
 
 
