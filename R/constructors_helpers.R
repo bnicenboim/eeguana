@@ -252,7 +252,7 @@ if (!data.table::is.data.table(events)) {
 #' @noRd
 validate_segments <- function(segments) {
   # Validates .id
-  if (length(segments$.id) >0 && all(unique(segments$.id) != seq_len(max(segments$.id)))) {
+  if (length(segments$.id) >0 && all(segments$.id != seq_len(max(segments$.id)))) {
     warning("Missing .ids, some functions might fail.",
       call. = FALSE
     )
