@@ -3,8 +3,8 @@
 #' @param file A vhdr file in a folder that contains a .vmrk and .dat files
 #' @param sep Segment separation marker. By default: type == "New Segment"
 #' @param zero Time zero marker. By default: type == "Time 0"
-#' @param recording Recording name, by default is the file name.
-#'
+#' @param recording Recording name (file name, by default).
+#' 
 #' @return An `eeg_lst` object with signal_tbl and event from file_name.dat,
 #' file_name.vhdr, and file_name.vmrk.
 #' @family read
@@ -196,6 +196,70 @@ read_ft <- function(file, layout = NULL, recording = file) {
     signal = signal_tbl, events = events, segments = segments
   )
 
+
+  message(paste0(
+    "# Data from ", file,
+    " was read."
+  ))
+  message(paste0(
+    "# Data from ", nrow(eeg_lst$segments),
+    " segment(s) and ", nchannels(eeg_lst), " channels was loaded."
+  ))
+  message(say_size(eeg_lst))
+  validate_eeg_lst(eeg_lst)
+}
+
+#' Read a edf/bdf file into an eeg_lst object.
+#'
+#' @param file A edf/bdf file
+#' @param recording Recording name (file name, by default). If set to NULL or NA, the patient name will be used.
+#'
+#' @return An `eeg_lst` object.
+#' @family read
+#'
+#' @export
+read_edf <- function(file, recording = file) {
+  
+  if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
+ 
+  
+  header_edf <- edfReader::readEdfHeader(file)  
+  if(is.null(recording) || is.na(recording)) {
+    recording <- header_edf$patient 
+    if(recording== "" ||  is.null(recording) || is.na(recording)) {
+      stop("Patient information is missing.")
+    }
+  }
+  signal_edf <- edfReader::readEdfSignals(header_edf)
+  
+  signal_dt <- purrr::map(signal_edf, ~.x$signal) %>% 
+                data.table::as.data.table()
+  sampling_rate <- purrr::map_dbl(signal_edf, ~.x$sRate) %>% 
+                  unique() 
+  if(length(sampling_rate)>1) {
+    stop("Channels with different sampling rates are not supported.")
+  }  
+  
+  if(header_edf$isContinuous) {
+    s_id <- rep(1L,nrow(signal_dt))
+    sample_id <- sample_int(seq_len(nrow(signal_dt)),sampling_rate = sampling_rate)
+  } else {
+    stop("Segmented edfs is not supported yet.")
+  }
+  channel_info <- dplyr::tibble(channel= header_edf$sHeaders$label, 
+                                .x = NA_real_, .y = NA_real_, .z = NA_real_,
+                                .reference = NA_character_)
+  signal <- new_signal_tbl(signal_matrix = signal_dt,ids = s_id,
+                      sample_ids = sample_id, 
+                      channel_info = channel_info)
+  events <- data.table::data.table(.sample_0 = integer(0), .size= integer(0), .channel= character(0))
+  segments <- tibble::tibble(.id = seq_len(max(s_id)),
+                            recording = recording, 
+                            segment = .id)
+  
+  eeg_lst <- new_eeg_lst(
+    signal = signal, events = events, segments = segments
+  )
 
   message(paste0(
     "# Data from ", file,

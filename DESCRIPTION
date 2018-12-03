@@ -27,7 +27,8 @@ Imports:
     signal,
     MBA,
     tibble,
-    data.table (>= 1.9.8)
+    data.table (>= 1.9.8),
+    edfReader
 Suggests:
     testthat,
     roxygen2,

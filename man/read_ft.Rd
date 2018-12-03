@@ -20,6 +20,6 @@ An \code{eeg_lst} object with signal_tbl and event from a matlab file.
 Read a Fieldtrip file into an eeg_lst object (requires R.matlab).
 }
 \seealso{
-Other read: \code{\link{read_vhdr}}
+Other read: \code{\link{read_edf}}, \code{\link{read_vhdr}}
 }
 \concept{read}

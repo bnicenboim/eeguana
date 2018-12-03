@@ -172,27 +172,6 @@ segment_events <- function(events, .lower, .sample_0, .upper) {
                                              as.integer(i..sample_0 - .sample_0 + 1L))  ]
   new_events[,..cols_events] 
 
-  # purrr::pmap_dfr(list(.lower, .sample_0, .upper),
-  #   .id = ".id",
-  #   function(b, .sample_0, e) events %>%
-  #       # filter the relevant events
-  #       # started after the segment (b)
-  #       # or span after the segment (b)
-  #       dplyr::filter(
-  #         .sample_0 >= b | .sample_0 + .size - 1 >= b,
-  #         # start before the end
-  #         .sample_0 <= e
-  #       ) %>%
-  #       dplyr::mutate(
-  #         .size = dplyr::if_else(.sample_0 < b, b - .size, .size),
-  #         .sample_0 = dplyr::case_when(
-  #           .sample_0 >= b ~ .sample_0 - .sample_0 + 1L,
-  #           .sample_0 < b ~ b - .sample_0 + 1L
-  #         )
-  #       )
-  # ) %>%
-  #   dplyr::mutate(.id = as.integer(.id))
-
 }
 
 
@@ -295,100 +274,6 @@ coordinates <- dplyr::tibble(type = channel_info$type,radius = NA_real_, theta =
   out$common_info <- common_info
   return(out)
 
-######
-
-
-  # content_vhdr <- readr::read_file(file) %>%
-  #   stringr::str_match_all(stringr::regex("([A-Za-z ]*?)\\](.*?)(\\[|\\Z)",
-  #     dotall = TRUE, multiline = TRUE
-  #   )) %>%
-  #   .[[1]]
-
-  # read_metadata <- function(tag, vhdr = content_vhdr) {
-  #   info <- vhdr[vhdr[, 2] == tag, 3]
-  #   if (length(info) == 0) {
-  #     return(tibble::tibble(type = character(), value = character()))
-  #   } else {
-  #     return(readr::read_delim(info,
-  #       delim = "=", comment = ";", col_names = c("type", "value")
-  #     ))
-  #   }
-  # }
-
-
-  # out <- list()
-
-
-  # # channel_info <- read_metadata("Channel Infos") %>%
-  # #   tidyr::separate(value, c("channel", ".reference", "resolution", "unit"), sep = ",", fill = "right") %>%
-  # #   dplyr::mutate(resolution = as.double(resolution))
-
-  # coordinates <- read_metadata("Coordinates") %>%
-  #   tidyr::separate(value, c("radius", "theta", "phi"), sep = ",", fill = "right") %>%
-  #   readr::type_convert(
-  #     col_types =
-  #       readr::cols(
-  #         radius = readr::col_integer(),
-  #         theta = readr::col_integer(),
-  #         phi = readr::col_integer()
-  #       )
-  #   )
-  # # this is in case it can't find DataPoints and DataType in the header file
-  # DataPoints <- NA
-  # DataType <- "time"
-  # common_info <- read_metadata("Common Infos") %>%
-  #   tidyr::spread(type, value) %>%
-  #   readr::type_convert(col_types = readr::cols(
-  #     DataFile = readr::col_character(),
-  #     DataFormat = readr::col_character(),
-  #     DataOrientation = readr::col_character(),
-  #     MarkerFile = readr::col_character(),
-  #     NumberOfChannels = readr::col_integer(),
-  #     SamplingInterval = readr::col_double()
-  #   )) %>%
-  #   dplyr::transmute(
-  #     data_points = DataPoints,
-  #     # seg_data_points = as.numeric(SegmentDataPoints),
-  #     orientation = DataOrientation,
-  #     format = DataFormat,
-  #     domain = DataType,
-  #     sampling_rate = 1000000 / SamplingInterval,
-  #     data_file = DataFile,
-  #     vmrk_file = MarkerFile
-  #   )
-
-  # if (common_info$format == "ASCII") {
-  #   format_info <- read_metadata("ASCII Infos") %>%
-  #     tidyr::spread(type, value) %>%
-  #     readr::type_convert(col_types = readr::cols(
-  #       DecimalSymbol = readr::col_character(),
-  #       SkipColumns = readr::col_integer(),
-  #       SkipLines = readr::col_integer()
-  #     ))
-  # } else if (common_info$format == "BINARY") {
-  #   format_info <- read_metadata("Binary Infos") %>%
-  #     tidyr::spread(type, value) %>%
-  #     dplyr::rename(bits = BinaryFormat)
-  # }
-
-
-  # common_info <- dplyr::bind_cols(common_info, format_info)
-
-  # if (stringr::str_sub(common_info$domain, 1, nchar("time")) %>%
-  #   stringr::str_to_lower() != "time") {
-  #   stop("DataType needs to be 'time'")
-  # }
-
-  # chan_info <- dplyr::full_join(channel_info, coordinates, by = "type") %>%
-  #   dplyr::bind_cols(purrr::pmap_dfr(
-  #     list(.$radius, .$theta, .$phi),
-  #     brainvision_loc_2_xyz
-  #   ))
-
-  # out <- list()
-  # out$chan_info <- chan_info
-  # out$common_info <- common_info
-  # return(out)
 }
 
 
