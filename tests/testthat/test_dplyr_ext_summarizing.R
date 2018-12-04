@@ -43,6 +43,9 @@ data_s3 <- data_s2 %>% group_by(condition) %>% summarize(X = mean(X),Y = mean(Y)
 data_s4 <- data_s3 %>% group_by() %>% summarize(X = mean(X),Y = mean(Y))
 
 
+.eeg_lst <- data %>% group_by(condition, .sample_id, recording)
+dots <- rlang::quos(X = mean(X),Y = mean(Y))
+
 # with pure dplyr functions
 extended_signal <- left_join(as_tibble(data$signal), data$segments, by =".id" )
 e_data_s1 <- data.table::data.table(extended_signal)[,.(X = mean(X),Y = mean(Y)), by = c("condition", ".sample_id", "recording")]
@@ -98,3 +101,15 @@ group_by(data, .sample_id) %>% summarize_all_ch(funs(mean(.[condition=="a" & rec
 
 group_by(data, .sample_id) %>% summarize_all_ch(funs(x = mean(.[condition=="a"]-.[condition=="b"])))
 group_by(data, .sample_id) %>% summarize_all_ch("mean")
+
+mutate(data, time = as_time(.sample_id, unit = "milliseconds")) %>%
+        summarize(mean(time))
+
+
+mutate(data, time = as_time(.sample_id, unit = "milliseconds")) %>% group_by(.sample_id) %>%
+        summarize(mean(X))
+
+#Maybe it's fine that the following fails:
+# mutate(data, time = as_time(.sample_id, unit = "milliseconds")) %>% group_by(time) %>%
+#         summarize(mean(X))
+

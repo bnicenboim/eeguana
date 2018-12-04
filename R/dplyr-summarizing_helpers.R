@@ -79,7 +79,8 @@ summarize_eval_signal <- function(.eeg_lst, dots){
  added_cols <- paste0("V",seq_len(length(dots)))
 
  # add class to the columns that lost their class
- extended_signal[, (added_cols) := lapply(.SD, function(x) if(!is_channel_dbl(x)) {channel_dbl(x)} else {x}), .SDcols = added_cols]
+ extended_signal[, (added_cols) := lapply(.SD, function(x) 
+                  if(!is_channel_dbl(x)) {channel_dbl(x)} else {x}), .SDcols = added_cols]
 
  data.table::setnames(extended_signal, added_cols, rlang::quos_auto_name(dots) %>% names()) 
 
@@ -140,7 +141,7 @@ update_summarized_signal <- function(extended_signal, .eeg_lst){
 
   # Add .id in case it was removed by a summary
   if(!".id" %in% colnames(extended_signal)) {
-   extended_signal[,.id := seq_len(.N), by =  .sample_id]
+   extended_signal[,.id := seq_len(.N), by = .sample_id]
   }
   
   if(length(group_chr_only_segments(.eeg_lst))>0){

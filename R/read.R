@@ -185,8 +185,6 @@ read_ft <- function(file, layout = NULL, recording = file) {
     add_event_channel(channel_names) %>%
     segment_events(.lower = slengths$V1, .sample_0 = slengths$V1 - slengths$V3, .upper= slengths$V2)
 
-
-
   segments <- tibble::tibble(
     .id = seq(nrow(slengths)),
     recording = recording, segment = .id

@@ -257,6 +257,11 @@ validate_segments <- function(segments) {
       call. = FALSE
     )
   }
+  if( length(segments$.id) != length(unique(segments$.id)) ){
+        warning("Some .ids are repeated in the segments table, some functions might fail.",
+      call. = FALSE
+    )
+  }
   segments
 }
 

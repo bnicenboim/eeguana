@@ -70,10 +70,11 @@ interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, lab
 #   l <- .data %>%  dplyr::summarize(!!value := mean(!!value))
 
     l <- .data %>% dplyr::ungroup() %>% dplyr::select(dplyr::one_of(group_vars)) %>%
-    # in case it should group by some NA
-    
-    dplyr::mutate_all(tidyr::replace_na, "NA") %>% 
-    dplyr::distinct()
+        dplyr::distinct()
+
+     if(!identical(na.omit(l),l)) { 
+      stop("Data cannot be grouped by a column that contains NAs.")
+     }
 
   if (method == "MBA") {
     if (!"MBA" %in% rownames(utils::installed.packages())) {

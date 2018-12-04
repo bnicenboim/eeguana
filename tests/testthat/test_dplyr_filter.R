@@ -37,3 +37,6 @@ filter(data, segment == 2 & .id ==2)
 filter(data, segment == 2 & .id ==1)
 
 filter(data, .sample_id ==2)
+
+mutate(data, time = as_time(.sample_id, unit = "milliseconds")) %>%
+        filter(time == 2)
