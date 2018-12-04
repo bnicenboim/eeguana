@@ -23,7 +23,7 @@ channel_names <- function(x, ...) {
 #' @rdname summary
 #' @export
 channel_names.eeg_lst <- function(x, ...) {
-  setdiff(colnames(x$signal), obligatory_cols$signal)
+  colnames(x$signal)[x$signal[,purrr::map_lgl(.SD, is_channel_dbl )]]
 }
 
 #' @rdname summary

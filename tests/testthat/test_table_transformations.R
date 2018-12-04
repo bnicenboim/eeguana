@@ -81,6 +81,7 @@ data_XY <- eeg_lst(
 
 # TEST when the event exceeds the end of the segment
 
+x <- data
 
 test_that("can clean files with entire_seg = FALSE", {
   clean_data <- event_to_ch_NA(data, type == "Bad", entire_seg = FALSE)

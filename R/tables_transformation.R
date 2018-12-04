@@ -146,7 +146,7 @@ event_to_ch_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
   dots <- rlang::enquos(...)
 
   #TODO in data.table
-  x$signal <- as.data.frame(x$signal)
+  signal <- as.data.frame(x$signal)
   x$events <- dplyr::as_tibble(x$events)
 
   # dots <- rlang::quos(type == "Bad Interval")
@@ -166,15 +166,15 @@ event_to_ch_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
     b <- dplyr::filter(baddies, .channel == c & !is.na(.channel))
     if (!entire_seg) {
       for (i in seq(1, nrow(b))) {
-        x$signal[[as.character(c)]][x$signal$.id %in% b$.id[i] &
+        signal[[as.character(c)]][signal$.id %in% b$.id[i] &
           between(
-            x$signal$.sample_id, b$.sample_0[i],
+            signal$.sample_id, b$.sample_0[i],
             b$.sample_0[i] + b$.size[i] - 1
           )  ] <- NA
       }
       # could try with na_if, maybe it's faster?
     } else {
-      x$signal[[as.character(c)]][x$signal$.id %in% b$.id] <- NA
+      signal[[as.character(c)]][signal$.id %in% b$.id] <- NA
     }
   }
   # For the replacement in the complete of the segments
@@ -182,14 +182,14 @@ event_to_ch_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
 
   if (!entire_seg & nrow(b_all) != 0) {
     for (i in seq(1, nrow(b_all))) {
-      x$signal[, channel_names(x)][x$signal$.id == b_all$.id[i] &
+      signal[, channel_names(x)][signal$.id == b_all$.id[i] &
         between(
-          x$signal$.sample_id, b_all$.sample_0[i],
+          signal$.sample_id, b_all$.sample_0[i],
           b_all$.sample_0[i] + b_all$.size[i] - 1
         ), ] <- NA
     }
   } else {
-    x$signal[, channel_names(x)][x$signal$.id %in% b_all$.id, ] <- NA
+    signal[, channel_names(x)][signal$.id %in% b_all$.id, ] <- NA
   }
 
   if (drop_events) {
@@ -200,7 +200,7 @@ event_to_ch_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
   }
 
   #TODO fix this:
-  x$signal <- data.table::data.table(x$signal)
+  x$signal <- data.table::data.table(signal)
   data.table::setattr(x$signal, "class", c("signal_tbl", class(x$signal))) 
   data.table::setkey(x$signal,.id,.sample_id)
   x$events <- data.table::data.table(x$events)
