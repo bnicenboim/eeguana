@@ -2,7 +2,7 @@
 extended_signal <- function(.eeg_lst, cond_cols){
   relevant_cols <- c(obligatory_cols$segments, group_chr(.eeg_lst),cond_cols)
 
- if(length(group_chr_only_segments(.eeg_lst))>0) {
+ if(length(relevant_cols)>1) { #more than just .id
   segments <-  dplyr::ungroup(.eeg_lst$segments) %>% 
                dplyr::select_if(names(.) %in% relevant_cols) %>%
                data.table::data.table()

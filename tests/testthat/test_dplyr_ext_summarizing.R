@@ -92,6 +92,7 @@ expect_equal(data_all_s4,data_all_s4)
 group_by(data, .sample_id) %>% summarize(mean(X[condition=="a"]-X[condition=="b"]))
 group_by(data, .sample_id) %>% summarize(mean(X[condition=="a" & recording == "recording1"]-X[condition=="b" & recording == "recording2"]))
 
+
 group_by(data, .sample_id) %>% summarize_all_ch(funs(mean(.[condition=="a"]-.[condition=="b"])))
 group_by(data, .sample_id) %>% summarize_all_ch(funs(mean(.[condition=="a" & recording == "recording1"]-.[condition=="b" & recording == "recording2"])))
 
