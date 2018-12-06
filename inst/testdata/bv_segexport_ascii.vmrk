@@ -1,0 +1,58 @@
+Brain Vision Data Exchange Marker File, Version 2.0
+; Data created from history path: asalab_export_bv/Raw Data/Segmentation
+; The channel numbers are related to the channels in the exported file.
+
+[Common Infos]
+Codepage=UTF-8
+DataFile=bv_segexport_ascii.dat
+
+[Marker Infos]
+; Each entry: Mk<Marker number>=<Type>,<Description>,<Position in data points>,
+; <Size in data points>, <Channel number (0 = marker is related to all channels)>,
+; <Date (YYYYMMDDhhmmssuuuuuu)>, Visible
+; Fields are delimited by commas, some fields may be omitted (empty).
+; Commas in type or description text are coded as "\1".
+Mk1=Time 0,,1,1,0
+Mk2=New Segment,,1,1,0,20181106153758033390
+Mk3=Stimulus,s10,1,1,0
+Mk4=Time 0,,257,1,0
+Mk5=Stimulus,s11,257,1,0
+Mk6=New Segment,,257,1,0,20181106153758584171
+Mk7=Time 0,,513,1,0
+Mk8=New Segment,,513,1,0,20181106153759211125
+Mk9=Stimulus,s12,513,1,0
+Mk10=Stimulus,s10,769,1,0
+Mk11=New Segment,,769,1,0,20181106153800300968
+Mk12=Time 0,,769,1,0
+Mk13=New Segment,,1025,1,0,20181106153800849796
+Mk14=Time 0,,1025,1,0
+Mk15=Stimulus,s11,1025,1,0
+Mk16=New Segment,,1281,1,0,20181106153801420109
+Mk17=Time 0,,1281,1,0
+Mk18=Stimulus,s12,1281,1,0
+Mk19=Stimulus,s10,1537,1,0
+Mk20=Time 0,,1537,1,0
+Mk21=New Segment,,1537,1,0,20181106153802392765
+Mk22=Time 0,,1793,1,0
+Mk23=New Segment,,1793,1,0,20181106153802939640
+Mk24=Stimulus,s11,1793,1,0
+Mk25=Stimulus,s12,2049,1,0
+Mk26=New Segment,,2049,1,0,20181106153803650578
+Mk27=Time 0,,2049,1,0
+Mk28=Time 0,,2305,1,0
+Mk29=Stimulus,s10,2305,1,0
+Mk30=New Segment,,2305,1,0,20181106153804652531
+Mk31=New Segment,,2561,1,0,20181106153805201359
+Mk32=Time 0,,2561,1,0
+Mk33=Stimulus,s11,2561,1,0
+Mk34=Time 0,,2817,1,0
+Mk35=New Segment,,2817,1,0,20181106153805890812
+Mk36=Stimulus,s12,2817,1,0
+
+[Marker User Infos]
+; Each entry: Prop<Number>=Mk<Marker number>,<Type>,<Name>,<Value>,<Value2>,...,<ValueN>
+; Property number must be unique. Types can be int, single, string, bool, byte, double, uint
+; or arrays of those, indicated int-array etc
+; Array types have more than one value, number of values determines size of array.
+; Fields are delimited by commas, commas in strings are written \1
+; Properties are assigned to markers using their marker number.

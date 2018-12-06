@@ -2,7 +2,7 @@
 % Please edit documentation in R/read.R
 \name{read_edf}
 \alias{read_edf}
-\title{Read a edf/bdf file into an eeg_lst object.}
+\title{Read a edf/edf+/bdf file into an eeg_lst object.}
 \usage{
 read_edf(file, recording = file)
 }
@@ -15,7 +15,7 @@ read_edf(file, recording = file)
 An \code{eeg_lst} object.
 }
 \description{
-Read a edf/bdf file into an eeg_lst object.
+Read a edf/edf+/bdf file into an eeg_lst object.
 }
 \seealso{
 Other read: \code{\link{read_ft}}, \code{\link{read_vhdr}}

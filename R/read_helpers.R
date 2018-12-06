@@ -38,7 +38,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
       what = type, n = file.info(file)$size,
       size = bytes
     )
-
+    
     raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = multiplexed) %>%
                   data.table::as.data.table()
   } else if (common_info$format == "ASCII") {

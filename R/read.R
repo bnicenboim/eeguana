@@ -207,7 +207,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
   validate_eeg_lst(eeg_lst)
 }
 
-#' Read a edf/bdf file into an eeg_lst object.
+#' Read a edf/edf+/bdf file into an eeg_lst object.
 #'
 #' @param file A edf/bdf file
 #' @param recording Recording name (file name, by default). If set to NULL or NA, the patient name will be used.
@@ -219,7 +219,6 @@ read_ft <- function(file, layout = NULL, recording = file) {
 read_edf <- function(file, recording = file) {
   
   if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
- 
   
   header_edf <- edfReader::readEdfHeader(file)  
   if(is.null(recording) || is.na(recording)) {
@@ -229,7 +228,19 @@ read_edf <- function(file, recording = file) {
     }
   }
   signal_edf <- edfReader::readEdfSignals(header_edf)
-  
+  if(header_edf$nSignals == 1) {
+    signal_edf <- list(signal_edf) %>% #convert to list for compatibility
+                setNames(header_edf$sHeaders[[1]])
+  }
+  if(is.list(signal_edf))
+  annot_item <- purrr::map_lgl(signal_edf, ~ .x$isAnnotation)
+  if(sum(annot_item)>=2){
+    stop("eeguana cannot read a file with more than one annotation. Please open an issue in ", url_issues)
+  }
+  l_annot <- signal_edf[annot_item]
+  channel_names <- header_edf$sHeaders$label[!annot_item]
+
+  signal_edf[annot_item] <- NULL
   signal_dt <- purrr::map(signal_edf, ~.x$signal) %>% 
                 data.table::as.data.table()
   sampling_rate <- purrr::map_dbl(signal_edf, ~.x$sRate) %>% 
@@ -238,19 +249,32 @@ read_edf <- function(file, recording = file) {
     stop("Channels with different sampling rates are not supported.")
   }  
   
-  if(header_edf$isContinuous) {
+  if(header_edf$isContinuous && all(purrr::map_lgl(signal_edf, ~.x$isContinuous)) ) {
     s_id <- rep(1L,nrow(signal_dt))
     sample_id <- sample_int(seq_len(nrow(signal_dt)),sampling_rate = sampling_rate)
   } else {
-    stop("Segmented edfs is not supported yet.")
+    stop("Non continuous edf/bdf files are not supported yet.")
   }
-  channel_info <- dplyr::tibble(channel= header_edf$sHeaders$label, 
+
+  channel_info <- dplyr::tibble(channel=   channel_names, 
                                 .x = NA_real_, .y = NA_real_, .z = NA_real_,
                                 .reference = NA_character_)
   signal <- new_signal_tbl(signal_matrix = signal_dt,ids = s_id,
                       sample_ids = sample_id, 
                       channel_info = channel_info)
-  events <- data.table::data.table(.sample_0 = integer(0), .size= integer(0), .channel= character(0))
+  if(length(l_annot)==0){
+    events <- data.table::data.table(.id= integer(0), .sample_0 = integer(0), .size= integer(0), .channel= character(0))
+  } else {
+    edf_events <- l_annot[[1]]$annotations
+    events <- data.table::data.table(.id=1L, 
+                                     .sample_0 = round(edf_events$onset * sampling_rate) %>% as.integer + 1L,
+                                     annotation = edf_events$annotation,
+                                     .size = dplyr::case_when(!is.na(edf_events$duration) ~ round(edf_events$duration* sampling_rate) %>% as.integer,
+                                                              !is.na(edf_events$end) ~  round((edf_events$end - edf_events$onset + 1)* sampling_rate) %>% as.integer, 
+                                                              TRUE ~ 1L),
+                                     .channel= NA_character_)
+
+  }
   segments <- tibble::tibble(.id = seq_len(max(s_id)),
                             recording = recording, 
                             segment = .id)
