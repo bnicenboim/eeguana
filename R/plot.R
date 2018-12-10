@@ -130,7 +130,7 @@ plot_topo.tbl_df <- function(data, x = .x, y =.y, value= amplitude,  label=chann
       colours = c("darkred", "yellow", "green", "darkblue"),
       values = c(1.0, 0.75, 0.5, 0.25, 0)
     ) +
-    theme_eeguana
+    theme_eeguana_empty
 
   # if (length(grouping_vars) > 0) {
   #   plot <- plot + facet_wrap(grouping_vars)
