@@ -81,7 +81,12 @@ interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, lab
       stop("Package MBA needs to be installed to interpolate using multilevel B-splines ")
     }
     # change to sp = FALSE and adapt, so that I remove the sp package
-    interpolation_alg <- function(xyz, ...) MBA::mba.surf(xyz = xyz, diam_points, diam_points, sp = FALSE, extend = TRUE, ...)
+    interpolation_alg <- function(xyz, ...) MBA::mba.surf(xyz = xyz, 
+                                                          diam_points, 
+                                                          diam_points, 
+                                                          sp = FALSE, 
+                                                          extend = TRUE, 
+                                                          b.box = c(-1.1,1.1,-1.1,1.1))
   } else {
     stop("Non supported method.")
   }
@@ -123,7 +128,7 @@ interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, lab
         !!rlang::quo_name(value) := c(mba_interp$xyz$z)
       ) %>%
         # eq to mba_interp$xyz.est@data$z
-        dplyr::filter(((!!x)^2 + (!!y)^2 < 1.1)) %>%
+        dplyr::filter(((!!x)^2 + (!!y)^2 <= 1.1)) %>%
         {
           dplyr::bind_cols(dplyr::slice(common, rep(1, each = nrow(.))), .)
         }
