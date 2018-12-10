@@ -189,7 +189,7 @@ data_judg_s_p %>%  select(eogv) %>%
 
 The data can be also displayed in a different way. And `ggplotly()` can help us navigate the data.
 
-```{r, fig.dim = c(10,7),fig.show='hold',echo= FALSE, out.width = "100%"}
+```{r, fig.dim = c(10,7),fig.show='hold',echo= TRUE, out.width = "100%"}
 data_summary <- data_judg_s_p %>% 
                 select(-eogh, -eogv) %>% 
                 group_by(segment) %>% 
