@@ -151,10 +151,10 @@ expect_equal(data_s4$signal$X,e_data_s4$X)
 
 
 test_that("summarizing by groups works as expected for the segments", {
-expect_equal(data_s1$segments %>% select(-segment_n),as_tibble(s_data_s1)%>% mutate(.id = 1:n()))
-expect_equal(data_s2$segments %>% select(-segment_n),as_tibble(s_data_s2)%>% mutate(.id = 1:n()))
-expect_equal(data_s3$segments %>% select(-segment_n),as_tibble(s_data_s3)%>% mutate(.id = 1:n()))
-expect_equal(data_s4$segments %>% select(-segment_n),tibble(.id= 1L))
+expect_equal(data_s1$segments %>% dplyr::select(-segment_n),as_tibble(s_data_s1)%>% mutate(.id = 1:n()))
+expect_equal(data_s2$segments %>% dplyr::select(-segment_n),as_tibble(s_data_s2)%>% mutate(.id = 1:n()))
+expect_equal(data_s3$segments %>% dplyr::select(-segment_n),as_tibble(s_data_s3)%>% mutate(.id = 1:n()))
+expect_equal(data_s4$segments %>% dplyr::select(-segment_n),tibble(.id= 1L))
 
 })
 

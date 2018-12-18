@@ -45,8 +45,8 @@ edf_f <- dplyr::filter(edf, .sample_id <=  4722)
 channels_tbl(edf_f) <- ch_tbl
 channels_tbl(edf) <- channels_tbl(edf_bv)
 channels_tbl(edf_plus_bv) <- channels_tbl(edf_bv)
-events_bv <- events(multiplexed_bin_bv2) %>% select(-type) %>% rename(annotation=description) %>% 
-        mutate(annotation=ifelse(annotation=="","New Segment",annotation)) %>% as_tibble()
+events_bv <- events(multiplexed_bin_bv2) %>% dplyr::select(-type) %>% dplyr::rename(annotation=description) %>% 
+  dplyr::mutate(annotation=ifelse(annotation=="","New Segment",annotation)) %>% dplyr::as_tibble()
 events_edf <- events(edf_plus_bv) %>% as_tibble()      
 
 test_that("edf and dat files match", {
@@ -78,11 +78,11 @@ seg_bin_bv2 <- read_vhdr(system.file("testdata","bv_segexport_bin.vhdr",package=
 test_that("seg matches", {
   expect_equal(seg_ascii_bv2$signal,seged_ascii$signal)
   expect_equal(events(seg_ascii_bv2)[type=="Stimulus"],events(seged_ascii))
-  expect_equal(seg_ascii_bv2$segments,select(seged_ascii$segments,-type,-description))
+  expect_equal(seg_ascii_bv2$segments,dplyr::select(seged_ascii$segments,-type,-description))
 
   expect_equal(seg_bin_bv2$signal,seged_bin$signal)
   expect_equal(events(seg_bin_bv2)[type=="Stimulus"],events(seged_bin))
-  expect_equal(seg_bin_bv2$segments,select(seged_bin$segments,-type,-description))
+  expect_equal(seg_bin_bv2$segments,dplyr::select(seged_bin$segments,-type,-description))
 })
 
 
