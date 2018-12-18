@@ -17,6 +17,24 @@
 
 # http://www.fieldtriptoolbox.org/example/use_independent_component_analysis_ica_to_remove_eog_artifacts
 
+# eeglab:
+#https://sccn.ucsd.edu/wiki/Chapter_09:_Decomposing_Data_Using_ICA
+
+#another tutorial:
+#https://www.nbtwiki.net/doku.php?id=tutorial:how_to_use_ica_to_remove_artifacts#.XBEabxBRdhE
+
+# fast ica:
+
+# http://research.ics.aalto.fi/ica/icademo/
+
+# http://cnl.salk.edu/~tony/ica.html
+
+
+#cpp code:
+
+
+# https://github.com/ptillet/hf-ica/blob/master/lib/ica.cpp
+
 # https://github.com/fieldtrip/fieldtrip/blob/master/external/eeglab/runica.m
 #fieldtrip defaults:
 # MAX_WEIGHT           = 1e8;       % guess that weights larger than this have blown up
@@ -70,30 +88,101 @@
 
 # .eeg_lst <- multiplexed_bin_bv2 %>% select(-M1, -M2)
 
+
+# https://www.nmr.mgh.harvard.edu/mne/dev/generated/mne.preprocessing.infomax.html
+
+
+# https://rstudio-pubs-static.s3.amazonaws.com/93614_be30df613b2a4707b3e5a1a62f631d19.html
+
+
+# https://labeling.ucsd.edu/tutorial/labels
+
 eeg_ica <- function(.eeg_lst, 
           ncomponents = nchannels(.eeg_lst),
-          method = "imax",
-          algorithm = "gradient",
-          squashing = "logistic",
+          method = "infomax",
+          algorithm = "default",
+          fun = "default",
           learning_rate = 0.00065/log(nchannels(.eeg_lst)),
           annealing_rate_angle = 60,
           annealing_rate_step = 0.90,
           max_iterations = 512)
 {
 
-  signal_raw <-select(.eeg_lst$signal, -.id, -.sample_id)
+  signal_raw <-select_if(.eeg_lst$signal, is_channel_dbl)
 
-  ica_res <- ica::icaimax(signal_raw,
+  if(stringr::str_to_lower(infomax) %in% c("imax","infomax","im")){
+    if(algorithm=="default"){
+      algorithm<-"gradient"
+    }
+    if(fun == "default") {
+      fun <- "logistic"
+    }
+    infomax <- ica::icaimax(signal_raw,
               nc = ncomponents,
-              rate = learning_rate,
-              rateanneal= c(annealing_rate_angle,annealing_rate_step),
+               rate = learning_rate,
+               rateanneal= c(annealing_rate_angle,annealing_rate_step),
               maxit = max_iterations, 
               alg  = "gradient",
               fun = "log")
- 
-  signal_ICA <- new_signal_tbl(signal_matrix = ica_res$S,ids = s_id,
-                      sample_ids = sample_id, 
-                      channel_info = channel_info)
+    S_ICA <- data.table::as.data.table(infomax$S)
+    ncomponents <- nrow(infomax$W)
+    mixing_matrix <- ica_res$M 
+    unmixing_matrix <- ica_res$W 
+
+  } else if(stringr::str_to_lower(infomax) %in% c("fi","fastica","fica")){
+    if(algorithm=="default"){
+      algorithm <- "parallel"
+    }
+    if(fun == "default") {
+      fun <- "logcosh"
+    }
+
+    ica_res <- fastICA::fastICA(signal_raw, n.comp = ncomponents, alg.typ = algorithm,
+        fun = fun, alpha = 1.0, method = "C", #c("R","C"),
+        row.norm = FALSE, maxit = max_iterations, tol = 1e-04, verbose = FALSE,
+        w.init = NULL)
+  }
+
+
+  component_names <- paste0("C",seq_len(ncomponents))
+  
+  intercept <- colMeans(signal_raw)
+
+  data.table::setnames(S_ICA, component_names)
+  S_ICA[,.id := .eeg_lst$signal$.id][
+                 ,.sample_id := .eeg_lst$signal$.sample_id]
+
 #col_info instead of channel_info and without any obligatory attribute...
 #ica_lst (signal, events, segments, mixing, unmixing with the channels info)
+
+reconstr <- (infomax$S %*% t(mixing_matrix) + intercept) 
+
+
+message("Absolute difference between original data and reconstructed from independent sources: ", 
+  mean(abs(reconstr - as.matrix(signal_raw))) %>% signif(2))
+
+
+mixing_matrix <- mixing_matrix %>% 
+    `colnames<-`(component_names) %>%
+    `rownames<-`(channel_names(.eeg_lst))
+
+signal_out <- as.matrix(signal_raw) -  (dplyr::select(S_ICA,C2) %>% as.matrix() %*% mixing_matrix[,2])
+
+mean(abs(signal_out - as.matrix(signal_matrix)))
+
+if(0){
+unmixing_matrix <- unmixing_matrix %>% #Sometimes called W
+    `rownames<-`(component_names) %>%
+    `colnames<-`(channel_names(.eeg_lst))
+mixing_matrix %>%
+    dplyr::as_tibble()  %>%
+    dplyr::mutate(channel=rownames(mixing_matrix))  %>% 
+    tidyr::gather(component, amplitude, -channel) %>% 
+    dplyr::left_join(channels_tbl(.eeg_lst), by = "channel")  %>% 
+    group_by(component) %>% interpolate_tbl() %>% plot_topo() + facet_grid(~component)
+  }
+
+
+
+
 }

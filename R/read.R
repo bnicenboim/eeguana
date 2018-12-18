@@ -99,20 +99,27 @@ read_ft <- function(file, layout = NULL, recording = file) {
   mat <- R.matlab::readMat(file)
 
   channel_names <- mat[[1]][, , 1]$label %>% unlist()
-  sampling_rate <- mat[[1]][, , 1]$fsample[[1]]
-
+  # fsample seems to be deprecated, but I can't find the sampling rate anywere
+  if(!is.null(mat[[1]][, , 1]$fsample)){
+    sampling_rate <- mat[[1]][, , 1]$fsample[[1]]  
+  } else {
+    #if fsample is not here, I reconstruct the sampling rate from the difference between time steps
+    sampling_rate <- mean(1/diff(mat[[1]][, , 1]$time[[1]][[1]][1,]))
+  }
+  
   ## signal_raw df:
+  
 
-  # segment lengths, initial, final, offset
-  slengths <- mat[[1]][, , 1]$cfg[, , 1]$trl %>%
-    apply(., c(1, 2), as.integer) %>%
-    dplyr::as_tibble(.)
+  # sample <- purrr::pmap(slengths, ~
+  # seq(..3 + 1, length.out = ..2 - ..1 + 1)) %>%
+  #   unlist() %>%
+  #   new_sample_int(sampling_rate = sampling_rate)
 
-  sample <- purrr::pmap(slengths, ~
-  seq(..3 + 1, length.out = ..2 - ..1 + 1)) %>%
-    unlist() %>%
-    new_sample_int(sampling_rate = sampling_rate)
-
+  sample <- mat[[1]][, , 1]$time %>% purrr::map(~ unlist(.x) * sampling_rate) %>% 
+            unlist()  %>%
+            new_sample_int(sampling_rate = sampling_rate)
+  
+  
   signal_raw <- purrr::map_dfr(mat[[1]][, , 1]$trial,
     function(lsegment) {
       lsegment[[1]] %>% t() %>% dplyr::as_tibble()
@@ -120,8 +127,6 @@ read_ft <- function(file, layout = NULL, recording = file) {
     .id = ".id"
   ) %>% dplyr::mutate(.id = as.integer(.id))
   
-
-
 
   # channel info:
   channels <- dplyr::tibble(
@@ -174,6 +179,12 @@ read_ft <- function(file, layout = NULL, recording = file) {
     }
   }
 
+  # In case the configuration includes events  
+  if(!is.null(mat[[1]][, , 1]$cfg[, , 1]$event) && !is.null(mat[[1]][, , 1]$cfg[, , 1]$trl)){
+    # # segment lengths, initial, final, offset
+    slengths <- mat[[1]][, , 1]$cfg[, , 1]$trl %>%
+      apply(., c(1, 2), as.integer) %>%
+      dplyr::as_tibble(.)
   ## events df:
   events <- mat[[1]][, , 1]$cfg[, , 1]$event[, 1, ] %>%
     t() %>%
@@ -184,11 +195,18 @@ read_ft <- function(file, layout = NULL, recording = file) {
     dplyr::mutate(.sample_0 = as.integer(.sample_0), .size = as.integer(.size)) %>%
     add_event_channel(channel_names) %>%
     segment_events(.lower = slengths$V1, .sample_0 = slengths$V1 - slengths$V3, .upper= slengths$V2)
-
+  } else {
+    events <- data.table::data.table(.id= integer(0), .sample_0 = integer(0), .size= integer(0), .channel= character(0))
+  }
+  
   segments <- tibble::tibble(
-    .id = seq(nrow(slengths)),
+    .id = seq_len(max(signal_tbl$.id)),
     recording = recording, segment = .id
   )
+  
+  if(!is.null(mat[[1]][, , 1]$trialinfo)){
+    segments <- segments %>% dplyr::bind_cols(dplyr::as_tibble(mat[[1]][, , 1]$trialinfo))
+  }
 
   eeg_lst <- new_eeg_lst(
     signal = signal_tbl, events = events, segments = segments

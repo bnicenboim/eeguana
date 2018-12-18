@@ -32,7 +32,8 @@ interpolate_tbl.eeg_lst <- function(.data, x = .x, y = .y, value = amplitude, la
 }
 #' @rdname interpolate_tbl
 #' @export
-interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, label = channel, diam_points =200, method = "MBA",...) {
+interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, label = channel, diam_points =200, 
+  method = "MBA",...) {
   # x <- rlang::quo(.x)
   # y <- rlang::quo(.y)
   # value <- rlang::quo(amplitude)
@@ -69,8 +70,8 @@ interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, lab
 
 #   l <- .data %>%  dplyr::summarize(!!value := mean(!!value))
 
-    l <- .data %>% dplyr::ungroup() %>% dplyr::select(dplyr::one_of(group_vars)) %>%
-        dplyr::distinct()
+    l <- .data %>% dplyr::ungroup() %>% dplyr::select(dplyr::one_of(group_vars))# %>%
+        #dplyr::distinct()
 
      if(!identical(na.omit(l),l)) { 
       stop("Data cannot be grouped by a column that contains NAs.")
@@ -96,7 +97,7 @@ interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, lab
     if (ncol(l) == 0) {
       list(.data)
     } else {
-      split(.data, l)
+      base::split(.data, l)
     }
   } %>%
     purrr::discard(~nrow(.x) == 0) %>%
