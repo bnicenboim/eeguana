@@ -4,8 +4,8 @@
 #'
 #' @noRd
 new_sample_int <- function(values, sampling_rate) {
-  if (all(!is.na(values)) & any(values != round(values))) {
-    stop("Values should be round numbers.",
+  if (all(!is.na(values)) && all.equal(values, round(values))) {
+    stop("Sample integer values should be round numbers.",
       call. = FALSE
     )
   } else {
