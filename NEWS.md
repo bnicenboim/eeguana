@@ -1,7 +1,6 @@
 # eeguana 0.0.5.9000
  - Changes
    - `read_edf()` was added.
-   - 
  - Bugs
    - Bug in `channel_names()` was fixed.
    - Bug  #34 fixed.
