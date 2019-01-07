@@ -14,7 +14,7 @@ eeg_lst(signal = NULL, events = NULL, segments = NULL)
 \item{segments}{segments}
 }
 \value{
-A valid eggble.
+A valid eeg_lst.
 }
 \description{
 Builds an eeg_lst.

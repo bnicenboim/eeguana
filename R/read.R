@@ -3,8 +3,8 @@
 #' @param file A vhdr file in a folder that contains a .vmrk and .dat files
 #' @param sep Segment separation marker. By default: type == "New Segment"
 #' @param zero Time zero marker. By default: type == "Time 0"
-#' @param recording Recording name, by default is the file name.
-#'
+#' @param recording Recording name (file name, by default).
+#' 
 #' @return An `eeg_lst` object with signal_tbl and event from file_name.dat,
 #' file_name.vhdr, and file_name.vmrk.
 #' @family read
@@ -99,20 +99,27 @@ read_ft <- function(file, layout = NULL, recording = file) {
   mat <- R.matlab::readMat(file)
 
   channel_names <- mat[[1]][, , 1]$label %>% unlist()
-  sampling_rate <- mat[[1]][, , 1]$fsample[[1]]
-
+  # fsample seems to be deprecated, but I can't find the sampling rate anywere
+  if(!is.null(mat[[1]][, , 1]$fsample)){
+    sampling_rate <- mat[[1]][, , 1]$fsample[[1]]  
+  } else {
+    #if fsample is not here, I reconstruct the sampling rate from the difference between time steps
+    sampling_rate <- mean(1/diff(mat[[1]][, , 1]$time[[1]][[1]][1,]))
+  }
+  
   ## signal_raw df:
+  
 
-  # segment lengths, initial, final, offset
-  slengths <- mat[[1]][, , 1]$cfg[, , 1]$trl %>%
-    apply(., c(1, 2), as.integer) %>%
-    dplyr::as_tibble(.)
+  # sample <- purrr::pmap(slengths, ~
+  # seq(..3 + 1, length.out = ..2 - ..1 + 1)) %>%
+  #   unlist() %>%
+  #   new_sample_int(sampling_rate = sampling_rate)
 
-  sample <- purrr::pmap(slengths, ~
-  seq(..3 + 1, length.out = ..2 - ..1 + 1)) %>%
-    unlist() %>%
-    new_sample_int(sampling_rate = sampling_rate)
-
+  sample <- mat[[1]][, , 1]$time %>% purrr::map(~ unlist(.x) * sampling_rate) %>% 
+            unlist()  %>%
+            new_sample_int(sampling_rate = sampling_rate)
+  
+  
   signal_raw <- purrr::map_dfr(mat[[1]][, , 1]$trial,
     function(lsegment) {
       lsegment[[1]] %>% t() %>% dplyr::as_tibble()
@@ -120,8 +127,6 @@ read_ft <- function(file, layout = NULL, recording = file) {
     .id = ".id"
   ) %>% dplyr::mutate(.id = as.integer(.id))
   
-
-
 
   # channel info:
   channels <- dplyr::tibble(
@@ -174,6 +179,12 @@ read_ft <- function(file, layout = NULL, recording = file) {
     }
   }
 
+  # In case the configuration includes events  
+  if(!is.null(mat[[1]][, , 1]$cfg[, , 1]$event) && !is.null(mat[[1]][, , 1]$cfg[, , 1]$trl)){
+    # # segment lengths, initial, final, offset
+    slengths <- mat[[1]][, , 1]$cfg[, , 1]$trl %>%
+      apply(., c(1, 2), as.integer) %>%
+      dplyr::as_tibble(.)
   ## events df:
   events <- mat[[1]][, , 1]$cfg[, , 1]$event[, 1, ] %>%
     t() %>%
@@ -184,18 +195,111 @@ read_ft <- function(file, layout = NULL, recording = file) {
     dplyr::mutate(.sample_0 = as.integer(.sample_0), .size = as.integer(.size)) %>%
     add_event_channel(channel_names) %>%
     segment_events(.lower = slengths$V1, .sample_0 = slengths$V1 - slengths$V3, .upper= slengths$V2)
-
-
-
+  } else {
+    events <- data.table::data.table(.id= integer(0), .sample_0 = integer(0), .size= integer(0), .channel= character(0))
+  }
+  
   segments <- tibble::tibble(
-    .id = seq(nrow(slengths)),
+    .id = seq_len(max(signal_tbl$.id)),
     recording = recording, segment = .id
   )
+  
+  if(!is.null(mat[[1]][, , 1]$trialinfo)){
+    segments <- segments %>% dplyr::bind_cols(dplyr::as_tibble(mat[[1]][, , 1]$trialinfo))
+  }
 
   eeg_lst <- new_eeg_lst(
     signal = signal_tbl, events = events, segments = segments
   )
 
+
+  message(paste0(
+    "# Data from ", file,
+    " was read."
+  ))
+  message(paste0(
+    "# Data from ", nrow(eeg_lst$segments),
+    " segment(s) and ", nchannels(eeg_lst), " channels was loaded."
+  ))
+  message(say_size(eeg_lst))
+  validate_eeg_lst(eeg_lst)
+}
+
+#' Read a edf/edf+/bdf file into an eeg_lst object.
+#'
+#' @param file A edf/bdf file
+#' @param recording Recording name (file name, by default). If set to NULL or NA, the patient name will be used.
+#'
+#' @return An `eeg_lst` object.
+#' @family read
+#'
+#' @export
+read_edf <- function(file, recording = file) {
+  
+  if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
+  
+  header_edf <- edfReader::readEdfHeader(file)  
+  if(is.null(recording) || is.na(recording)) {
+    recording <- header_edf$patient 
+    if(recording== "" ||  is.null(recording) || is.na(recording)) {
+      stop("Patient information is missing.")
+    }
+  }
+  signal_edf <- edfReader::readEdfSignals(header_edf)
+  if(header_edf$nSignals == 1) {
+    signal_edf <- list(signal_edf) %>% #convert to list for compatibility
+                setNames(header_edf$sHeaders[[1]])
+  }
+  if(is.list(signal_edf))
+  annot_item <- purrr::map_lgl(signal_edf, ~ .x$isAnnotation)
+  if(sum(annot_item)>=2){
+    stop("eeguana cannot read a file with more than one annotation. Please open an issue in ", url_issues)
+  }
+  l_annot <- signal_edf[annot_item]
+  channel_names <- header_edf$sHeaders$label[!annot_item]
+
+  signal_edf[annot_item] <- NULL
+  signal_dt <- purrr::map(signal_edf, ~.x$signal) %>% 
+                data.table::as.data.table()
+  sampling_rate <- purrr::map_dbl(signal_edf, ~.x$sRate) %>% 
+                  unique() 
+  if(length(sampling_rate)>1) {
+    stop("Channels with different sampling rates are not supported.")
+  }  
+  
+  if(header_edf$isContinuous && all(purrr::map_lgl(signal_edf, ~.x$isContinuous)) ) {
+    s_id <- rep(1L,nrow(signal_dt))
+    sample_id <- sample_int(seq_len(nrow(signal_dt)),sampling_rate = sampling_rate)
+  } else {
+    stop("Non continuous edf/bdf files are not supported yet.")
+  }
+
+  channel_info <- dplyr::tibble(channel=   channel_names, 
+                                .x = NA_real_, .y = NA_real_, .z = NA_real_,
+                                .reference = NA_character_)
+  signal <- new_signal_tbl(signal_matrix = signal_dt,ids = s_id,
+                      sample_ids = sample_id, 
+                      channel_info = channel_info)
+  if(length(l_annot)==0){
+    events <- data.table::data.table(.id= integer(0), .sample_0 = integer(0), .size= integer(0), .channel= character(0))
+  } else {
+    edf_events <- l_annot[[1]]$annotations
+    events <- data.table::data.table(.id=1L, 
+                                     .sample_0 = round(edf_events$onset * sampling_rate) %>% as.integer + 1L,
+                                     annotation = edf_events$annotation,
+                                     .size = dplyr::case_when(!is.na(edf_events$duration) ~ round(edf_events$duration* sampling_rate) %>% as.integer,
+                                                              !is.na(edf_events$end) ~  round((edf_events$end - edf_events$onset + 1)* sampling_rate) %>% as.integer, 
+                                                              TRUE ~ 1L),
+                                     .channel= NA_character_)
+
+  }
+  segments <- tibble::tibble(.id = seq_len(max(s_id)),
+                            recording = recording, 
+                            segment = .id)
+  
+  eeg_lst <- new_eeg_lst(
+    signal = signal, events = events, segments = segments
+  )
 
   message(paste0(
     "# Data from ", file,

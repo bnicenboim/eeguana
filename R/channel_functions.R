@@ -3,7 +3,7 @@
 #' Wrapper of `rowMeans` that performs a by-sample mean of the specified channels.
 #'
 #' @param x An `eeg_lst` object.
-#' @param ... A channel or a group of channels (if an `eeg_lst` is not specified).
+#' @param ... A channel or a group of unquoted or quoted channels (if an `eeg_lst` is not specified).
 #' @inheritParams base::mean
 #' @return A new channel or an `eeg_lst` object with a `mean` channel instead of the previous channels.
 #' @family channel
@@ -24,27 +24,19 @@
 chs_mean <- function(x, ..., na.rm= FALSE) {
   UseMethod("chs_mean")
 }
-
-
+#' @rdname chs_mean
 #' @export
 chs_mean.channel_dbl <- function(..., na.rm = FALSE) {
-  dots <- rlang::quos(...)
-
-  # # signal_tbl <- signal_from_parent_frame(env = parent.frame())
-  # # This is the environment where I can find the columns of signal_tbl
-  # signal_env <- rlang::env_get(env = parent.frame(), ".top_env", inherit = TRUE)
-  # signal_tbl <- dplyr::as_tibble(rlang::env_get_list(signal_env, rlang::env_names(signal_env)))
-
- # https://stackoverflow.com/questions/17133522/invalid-internal-selfref-in-data-table
-
-	 rowMeans_ch(data.table::data.table(...), na.rm = na.rm)  # throws a warning
-
-  # rowMeans(copy(data.table::data.table(...)), na.rm = na.rm)  # throws a warning
-  # rowMeans(.SD, na.rm = na.rm), .SDcols = cols # should be the way, but it's hard to implement it in my template
-
-  # rowMeans(dplyr::select(signal_tbl, !!!dots), na.rm = na.rm)
+  dt_chs <- data.table::data.table(...)
+  rowMeans_ch(dt_chs, na.rm = na.rm) 
 }
-
+#' @rdname chs_mean
+#' @export
+chs_mean.character <- function(..., na.rm = FALSE) {
+  dt_chs <- data.table::as.data.table(mget(..., envir = rlang::caller_env()))
+  rowMeans_ch(dt_chs, na.rm = na.rm) 
+}
+#' @rdname chs_mean
 #' @export
 chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
   #channels_info <- channels_tbl(x)
@@ -127,18 +119,34 @@ chs_fun <- function(x, .funs, ...) {
   UseMethod("chs_fun")
 }
 #' @rdname chs_fun
-#' @param pars list that contains the additional arguments for the function calls in .funs.
+#' @param pars List that contains the additional arguments for the function calls in .funs.
 #' @export
 chs_fun.channel_dbl <- function(...,.funs, pars = list()) {
-   row_fun_ch(data.table::data.table(...),.funs,  unlist(pars))  # throws a warning
+if(length(pars) != 0){
+   row_fun_ch(data.table::data.table(...),.funs,  unlist(pars))  
+ } else {
+   row_fun_ch(data.table::data.table(...),.funs)  
+ }
 }
+#' @rdname chs_fun
+#' @export
+chs_fun.character <- function(..., .funs, pars = list()) {
+  dt_chs <- data.table::as.data.table(mget(..., envir = rlang::caller_env()))
+  if(length(pars) != 0){
+    row_fun_ch(dt_chs,.funs,  unlist(pars))
+  } else {
+    row_fun_ch(dt_chs,.funs)
+  }
+}
+
 #' @rdname chs_fun
 #' @export
 chs_fun.eeg_lst <- function(x,.funs, pars = list(), ...) {
 
   signal <- data.table::copy(x$signal)
   funs <- as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env())
-  fun_txt <- rlang::quo_text(funs[[1]]) %>% make.names()
+  # fun_txt <- rlang::quo_text(funs[[1]]) %>% make.names()
+  fun_txt <- names(funs) %>% make.names()
 
   # TODO a more elegant way, but if pars is list(), then row_fun_ch thinks that ... is NULL, and the function gets an argument NULL
   if(length(pars) != 0){

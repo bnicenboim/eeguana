@@ -1,15 +1,8 @@
-context("test out functions")
+context("test editing functions")
 library(eeguana)
 
 
 eeg_file <- read_vhdr(system.file("testdata","bv_export_bv_txt_bin_multi.vhdr",package="eeguana"))
-
-# just to check if something break, but this should be done with test_that
-channel_names(eeg_file)
-nchannels(eeg_file)
-nsamples(eeg_file)
-count_complete_cases_tbl(eeg_file)
-# summary(eeg_file)
 
 
 test_that("can read channels metadata", {
@@ -27,8 +20,3 @@ test_that("can change channels metadata", {
   expect_equal(names(eeg_file$signal[, 3]), "NEW_CHANNEL")
   expect_equal(attributes(eeg_file$signal[[4]])$.x, 100)
 })
-
-# eeguana:::update_channel_meta_data(select(eeg_file$signal, channel_names(eeg_file)), channels_info)
-# eeg_file$signal[[3]]
-
-# select(eeg_file$signal, -one_of(channel_names(eeg_file)))

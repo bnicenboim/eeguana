@@ -3,12 +3,15 @@
 \name{chs_fun}
 \alias{chs_fun}
 \alias{chs_fun.channel_dbl}
+\alias{chs_fun.character}
 \alias{chs_fun.eeg_lst}
 \title{Get the by-sample (or by-row) function of the specified channels.}
 \usage{
 chs_fun(x, .funs, ...)
 
 \method{chs_fun}{channel_dbl}(..., .funs, pars = list())
+
+\method{chs_fun}{character}(..., .funs, pars = list())
 
 \method{chs_fun}{eeg_lst}(x, .funs, pars = list(), ...)
 }
@@ -24,9 +27,9 @@ hybrid evaluation from happening and it is thus more efficient to
 supply functions like \code{mean()} directly rather than in a
 lambda-formula.}
 
-\item{...}{A channel or a group of channels (if an \code{eeg_lst} is not specified).}
+\item{...}{A channel or a group of unquoted or quoted channels (if an \code{eeg_lst} is not specified).}
 
-\item{pars}{list that contains the additional arguments for the function calls in .funs.}
+\item{pars}{List that contains the additional arguments for the function calls in .funs.}
 }
 \value{
 A new channel or an \code{eeg_lst} object with a channel where a function was instead of the previous channels.

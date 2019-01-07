@@ -5,11 +5,11 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Introducction - Manipulating a clean EEG file exported from BrainVision 2.0 • eeguana</title>
+<title>Introduction - Manipulating a clean EEG file exported from BrainVision 2.0 • eeguana</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Introducction - Manipulating a clean EEG file exported from BrainVision 2.0">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Introduction - Manipulating a clean EEG file exported from BrainVision 2.0">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
@@ -29,7 +29,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.0.3.9000</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.0.5.9000</span>
       </span>
     </div>
 
@@ -52,7 +52,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/brainvision_files.html">Introducction - Manipulating a clean EEG file exported from BrainVision 2.0</a>
+      <a href="../articles/brainvision_files.html">Introduction - Manipulating a clean EEG file exported from BrainVision 2.0</a>
+    </li>
+    <li>
+      <a href="../articles/eeg_datasets.html">UNKNOWN TITLE</a>
+    </li>
+    <li>
+      <a href="../articles/preprocessing_erp.html">Preprocessing of EEG data and computing ERPs (Fieldtrip tutorial)</a>
     </li>
   </ul>
 </li>
@@ -79,10 +85,10 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Introducction - Manipulating a clean EEG file exported from BrainVision 2.0</h1>
+      <h1>Introduction - Manipulating a clean EEG file exported from BrainVision 2.0</h1>
                         <h4 class="author">Bruno Nicenboim</h4>
             
-            <h4 class="date">2018-11-25</h4>
+            <h4 class="date">2019-01-07</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bnicenboim/eeguana/blob/master/vignettes/brainvision_files.Rmd"><code>vignettes/brainvision_files.Rmd</code></a></small>
       <div class="hidden name"><code>brainvision_files.Rmd</code></div>
@@ -108,81 +114,81 @@
 <a class="sourceLine" id="cb3-2" title="2"><span class="co">#&gt; # Data from faces.dat was read.</span></a>
 <a class="sourceLine" id="cb3-3" title="3"><span class="co">#&gt; # Data from 1 segment(s) and 34 channels was loaded.</span></a>
 <a class="sourceLine" id="cb3-4" title="4"><span class="co">#&gt; # Object size in memory 140.5 Mb</span></a></code></pre></div>
-<p>The function <code>read_vhdr</code> creates a list with data frames for the signal, events, segments information, and incorporates in its attributes generic EEG information.</p>
+<p>The function <code><a href="../reference/read_vhdr.html">read_vhdr()</a></code> creates a list with data frames for the signal, events, segments information, and incorporates in its attributes generic EEG information.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">faces</a>
 <a class="sourceLine" id="cb4-2" title="2"><span class="co">#&gt; $signal</span></a>
-<a class="sourceLine" id="cb4-3" title="3"><span class="co">#&gt;         .id .sample_id        Fp1        Fpz        Fp2         F7</span></a>
-<a class="sourceLine" id="cb4-4" title="4"><span class="co">#&gt;      1:   1          1  -4.270188 -12.496757  -8.512611  5.8104863</span></a>
-<a class="sourceLine" id="cb4-5" title="5"><span class="co">#&gt;      2:   1          2  -5.986778 -11.261559  -8.302858  4.4670320</span></a>
-<a class="sourceLine" id="cb4-6" title="6"><span class="co">#&gt;      3:   1          3  -6.580773  -9.333183  -7.679757  3.7081127</span></a>
-<a class="sourceLine" id="cb4-7" title="7"><span class="co">#&gt;      4:   1          4  -5.896090  -6.184696  -6.079263  3.9488502</span></a>
-<a class="sourceLine" id="cb4-8" title="8"><span class="co">#&gt;      5:   1          5  -5.349657  -2.581047  -3.960115  4.6228004</span></a>
-<a class="sourceLine" id="cb4-9" title="9"><span class="co">#&gt;     ---                                                           </span></a>
-<a class="sourceLine" id="cb4-10" title="10"><span class="co">#&gt; 525203:   1     525203 -19.180754 -14.482754 -11.880928 -3.0353870</span></a>
-<a class="sourceLine" id="cb4-11" title="11"><span class="co">#&gt; 525204:   1     525204 -14.669420 -10.800195  -7.822333 -0.2864416</span></a>
-<a class="sourceLine" id="cb4-12" title="12"><span class="co">#&gt; 525205:   1     525205 -10.086312  -7.376223  -4.007497  2.3745189</span></a>
-<a class="sourceLine" id="cb4-13" title="13"><span class="co">#&gt; 525206:   1     525206  -5.963717  -6.318047  -2.550068  4.0785899</span></a>
-<a class="sourceLine" id="cb4-14" title="14"><span class="co">#&gt; 525207:   1     525207  -2.811746  -9.569276  -5.257495  3.9431772</span></a>
-<a class="sourceLine" id="cb4-15" title="15"><span class="co">#&gt;                 F3         Fz        F4          F8        FC5       FC1</span></a>
-<a class="sourceLine" id="cb4-16" title="16"><span class="co">#&gt;      1:  0.7987084 -3.7944875 -7.004565  -9.5905457 -5.5008502 -1.040939</span></a>
-<a class="sourceLine" id="cb4-17" title="17"><span class="co">#&gt;      2: -0.4558482 -3.9204431 -7.312232 -10.1968956 -8.2559958 -1.625572</span></a>
-<a class="sourceLine" id="cb4-18" title="18"><span class="co">#&gt;      3: -1.8434987 -3.6854007 -7.325179 -10.5801353 -8.9441166 -2.496611</span></a>
-<a class="sourceLine" id="cb4-19" title="19"><span class="co">#&gt;      4: -2.6274934 -2.2696950 -6.544898 -10.5005941 -5.3551817 -3.275798</span></a>
-<a class="sourceLine" id="cb4-20" title="20"><span class="co">#&gt;      5: -2.9634132 -0.1724038 -5.449733 -10.2940083 -0.5347631 -3.816769</span></a>
-<a class="sourceLine" id="cb4-21" title="21"><span class="co">#&gt;     ---                                                                 </span></a>
-<a class="sourceLine" id="cb4-22" title="22"><span class="co">#&gt; 525203: -3.5060143 -5.1268702 -3.885933   1.3387113 -6.0354300 -3.429955</span></a>
-<a class="sourceLine" id="cb4-23" title="23"><span class="co">#&gt; 525204: -2.9062314 -4.6610451 -3.474034   0.5267539 -5.6796050 -3.269526</span></a>
-<a class="sourceLine" id="cb4-24" title="24"><span class="co">#&gt; 525205: -2.2934551 -3.9615459 -2.554780  -0.1948199 -5.2791243 -2.709156</span></a>
-<a class="sourceLine" id="cb4-25" title="25"><span class="co">#&gt; 525206: -2.8591332 -4.5113835 -2.396278  -0.8776174 -5.5155010 -2.732390</span></a>
-<a class="sourceLine" id="cb4-26" title="26"><span class="co">#&gt; 525207: -4.7773180 -7.2133980 -4.015337  -1.6118808 -7.1379128 -3.719297</span></a>
-<a class="sourceLine" id="cb4-27" title="27"><span class="co">#&gt;               FC2       FC6         M1         T7        C3        Cz</span></a>
-<a class="sourceLine" id="cb4-28" title="28"><span class="co">#&gt;      1: -5.750594 -9.455340  3.2116241 -2.5749669 -3.198639 -7.162738</span></a>
-<a class="sourceLine" id="cb4-29" title="29"><span class="co">#&gt;      2: -6.205832 -9.701509  1.5566816 -2.1688442 -3.223826 -7.327467</span></a>
-<a class="sourceLine" id="cb4-30" title="30"><span class="co">#&gt;      3: -6.225702 -9.615817  0.4754019 -1.5235398 -4.196370 -7.618096</span></a>
-<a class="sourceLine" id="cb4-31" title="31"><span class="co">#&gt;      4: -5.792281 -8.781445 -0.3485098 -0.1197605 -6.155464 -7.683692</span></a>
-<a class="sourceLine" id="cb4-32" title="32"><span class="co">#&gt;      5: -5.539208 -7.758235 -1.6416440  1.5852079 -8.072474 -7.589663</span></a>
-<a class="sourceLine" id="cb4-33" title="33"><span class="co">#&gt;     ---                                                              </span></a>
-<a class="sourceLine" id="cb4-34" title="34"><span class="co">#&gt; 525203: -1.821500 -1.574225 -3.9028225 -9.0984344 -2.281207 -1.244156</span></a>
-<a class="sourceLine" id="cb4-35" title="35"><span class="co">#&gt; 525204: -1.967095 -2.711437 -1.4479842 -8.1386690 -1.984105 -1.888554</span></a>
-<a class="sourceLine" id="cb4-36" title="36"><span class="co">#&gt; 525205: -1.333362 -3.477794  0.6584158 -7.0688133 -1.378137 -2.078016</span></a>
-<a class="sourceLine" id="cb4-37" title="37"><span class="co">#&gt; 525206: -1.006990 -4.265026  2.0143995 -6.4578338 -1.488095 -2.738976</span></a>
-<a class="sourceLine" id="cb4-38" title="38"><span class="co">#&gt; 525207: -1.199275 -6.290535  3.4945364 -7.3460751 -2.911523 -4.274473</span></a>
-<a class="sourceLine" id="cb4-39" title="39"><span class="co">#&gt;                 C4        T8         M2       CP5       CP1        CP2</span></a>
-<a class="sourceLine" id="cb4-40" title="40"><span class="co">#&gt;      1: -6.0244598 -4.771918 -3.2116241 -6.062939 -4.813977 -5.0018249</span></a>
-<a class="sourceLine" id="cb4-41" title="41"><span class="co">#&gt;      2: -4.7359419 -3.939853 -1.5566816 -5.505422 -4.283286 -3.9824409</span></a>
-<a class="sourceLine" id="cb4-42" title="42"><span class="co">#&gt;      3: -3.2705278 -3.285263 -0.4754019 -5.300730 -4.089828 -2.8778281</span></a>
-<a class="sourceLine" id="cb4-43" title="43"><span class="co">#&gt;      4: -1.2953618 -2.399213  0.3485098 -5.378413 -4.206456 -1.4029371</span></a>
-<a class="sourceLine" id="cb4-44" title="44"><span class="co">#&gt;      5:  0.9121451 -1.056782  1.6416440 -5.488734 -4.434868  0.3268354</span></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="co">#&gt;         .id .sample_id        Fp1        Fpz        Fp2         F7         F3</span></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="co">#&gt;      1:   1          1  -4.270188 -12.496757  -8.512611  5.8104863  0.7987084</span></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="co">#&gt;      2:   1          2  -5.986778 -11.261559  -8.302858  4.4670320 -0.4558482</span></a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="co">#&gt;      3:   1          3  -6.580773  -9.333183  -7.679757  3.7081127 -1.8434987</span></a>
+<a class="sourceLine" id="cb4-7" title="7"><span class="co">#&gt;      4:   1          4  -5.896090  -6.184696  -6.079263  3.9488502 -2.6274934</span></a>
+<a class="sourceLine" id="cb4-8" title="8"><span class="co">#&gt;      5:   1          5  -5.349657  -2.581047  -3.960115  4.6228004 -2.9634132</span></a>
+<a class="sourceLine" id="cb4-9" title="9"><span class="co">#&gt;     ---                                                                      </span></a>
+<a class="sourceLine" id="cb4-10" title="10"><span class="co">#&gt; 525203:   1     525203 -19.180754 -14.482754 -11.880928 -3.0353870 -3.5060143</span></a>
+<a class="sourceLine" id="cb4-11" title="11"><span class="co">#&gt; 525204:   1     525204 -14.669420 -10.800195  -7.822333 -0.2864416 -2.9062314</span></a>
+<a class="sourceLine" id="cb4-12" title="12"><span class="co">#&gt; 525205:   1     525205 -10.086312  -7.376223  -4.007497  2.3745189 -2.2934551</span></a>
+<a class="sourceLine" id="cb4-13" title="13"><span class="co">#&gt; 525206:   1     525206  -5.963717  -6.318047  -2.550068  4.0785899 -2.8591332</span></a>
+<a class="sourceLine" id="cb4-14" title="14"><span class="co">#&gt; 525207:   1     525207  -2.811746  -9.569276  -5.257495  3.9431772 -4.7773180</span></a>
+<a class="sourceLine" id="cb4-15" title="15"><span class="co">#&gt;                 Fz        F4          F8        FC5       FC1       FC2</span></a>
+<a class="sourceLine" id="cb4-16" title="16"><span class="co">#&gt;      1: -3.7944875 -7.004565  -9.5905457 -5.5008502 -1.040939 -5.750594</span></a>
+<a class="sourceLine" id="cb4-17" title="17"><span class="co">#&gt;      2: -3.9204431 -7.312232 -10.1968956 -8.2559958 -1.625572 -6.205832</span></a>
+<a class="sourceLine" id="cb4-18" title="18"><span class="co">#&gt;      3: -3.6854007 -7.325179 -10.5801353 -8.9441166 -2.496611 -6.225702</span></a>
+<a class="sourceLine" id="cb4-19" title="19"><span class="co">#&gt;      4: -2.2696950 -6.544898 -10.5005941 -5.3551817 -3.275798 -5.792281</span></a>
+<a class="sourceLine" id="cb4-20" title="20"><span class="co">#&gt;      5: -0.1724038 -5.449733 -10.2940083 -0.5347631 -3.816769 -5.539208</span></a>
+<a class="sourceLine" id="cb4-21" title="21"><span class="co">#&gt;     ---                                                                </span></a>
+<a class="sourceLine" id="cb4-22" title="22"><span class="co">#&gt; 525203: -5.1268702 -3.885933   1.3387113 -6.0354300 -3.429955 -1.821500</span></a>
+<a class="sourceLine" id="cb4-23" title="23"><span class="co">#&gt; 525204: -4.6610451 -3.474034   0.5267539 -5.6796050 -3.269526 -1.967095</span></a>
+<a class="sourceLine" id="cb4-24" title="24"><span class="co">#&gt; 525205: -3.9615459 -2.554780  -0.1948199 -5.2791243 -2.709156 -1.333362</span></a>
+<a class="sourceLine" id="cb4-25" title="25"><span class="co">#&gt; 525206: -4.5113835 -2.396278  -0.8776174 -5.5155010 -2.732390 -1.006990</span></a>
+<a class="sourceLine" id="cb4-26" title="26"><span class="co">#&gt; 525207: -7.2133980 -4.015337  -1.6118808 -7.1379128 -3.719297 -1.199275</span></a>
+<a class="sourceLine" id="cb4-27" title="27"><span class="co">#&gt;               FC6         M1         T7        C3        Cz         C4</span></a>
+<a class="sourceLine" id="cb4-28" title="28"><span class="co">#&gt;      1: -9.455340  3.2116241 -2.5749669 -3.198639 -7.162738 -6.0244598</span></a>
+<a class="sourceLine" id="cb4-29" title="29"><span class="co">#&gt;      2: -9.701509  1.5566816 -2.1688442 -3.223826 -7.327467 -4.7359419</span></a>
+<a class="sourceLine" id="cb4-30" title="30"><span class="co">#&gt;      3: -9.615817  0.4754019 -1.5235398 -4.196370 -7.618096 -3.2705278</span></a>
+<a class="sourceLine" id="cb4-31" title="31"><span class="co">#&gt;      4: -8.781445 -0.3485098 -0.1197605 -6.155464 -7.683692 -1.2953618</span></a>
+<a class="sourceLine" id="cb4-32" title="32"><span class="co">#&gt;      5: -7.758235 -1.6416440  1.5852079 -8.072474 -7.589663  0.9121451</span></a>
+<a class="sourceLine" id="cb4-33" title="33"><span class="co">#&gt;     ---                                                               </span></a>
+<a class="sourceLine" id="cb4-34" title="34"><span class="co">#&gt; 525203: -1.574225 -3.9028225 -9.0984344 -2.281207 -1.244156 -2.6202018</span></a>
+<a class="sourceLine" id="cb4-35" title="35"><span class="co">#&gt; 525204: -2.711437 -1.4479842 -8.1386690 -1.984105 -1.888554 -3.1423230</span></a>
+<a class="sourceLine" id="cb4-36" title="36"><span class="co">#&gt; 525205: -3.477794  0.6584158 -7.0688133 -1.378137 -2.078016 -2.8522072</span></a>
+<a class="sourceLine" id="cb4-37" title="37"><span class="co">#&gt; 525206: -4.265026  2.0143995 -6.4578338 -1.488095 -2.738976 -3.3436871</span></a>
+<a class="sourceLine" id="cb4-38" title="38"><span class="co">#&gt; 525207: -6.290535  3.4945364 -7.3460751 -2.911523 -4.274473 -5.8495107</span></a>
+<a class="sourceLine" id="cb4-39" title="39"><span class="co">#&gt;                T8         M2       CP5       CP1        CP2        CP6</span></a>
+<a class="sourceLine" id="cb4-40" title="40"><span class="co">#&gt;      1: -4.771918 -3.2116241 -6.062939 -4.813977 -5.0018249 -8.6002913</span></a>
+<a class="sourceLine" id="cb4-41" title="41"><span class="co">#&gt;      2: -3.939853 -1.5566816 -5.505422 -4.283286 -3.9824409 -6.4684544</span></a>
+<a class="sourceLine" id="cb4-42" title="42"><span class="co">#&gt;      3: -3.285263 -0.4754019 -5.300730 -4.089828 -2.8778281 -4.4623995</span></a>
+<a class="sourceLine" id="cb4-43" title="43"><span class="co">#&gt;      4: -2.399213  0.3485098 -5.378413 -4.206456 -1.4029371 -2.4144411</span></a>
+<a class="sourceLine" id="cb4-44" title="44"><span class="co">#&gt;      5: -1.056782  1.6416440 -5.488734 -4.434868  0.3268354 -0.1063155</span></a>
 <a class="sourceLine" id="cb4-45" title="45"><span class="co">#&gt;     ---                                                               </span></a>
-<a class="sourceLine" id="cb4-46" title="46"><span class="co">#&gt; 525203: -2.6202018 -3.093663  3.9028225 -8.155416 -3.549603 -3.7856157</span></a>
-<a class="sourceLine" id="cb4-47" title="47"><span class="co">#&gt; 525204: -3.1423230 -2.935883  1.4479842 -6.898589 -3.393985 -4.0930557</span></a>
-<a class="sourceLine" id="cb4-48" title="48"><span class="co">#&gt; 525205: -2.8522072 -3.875237 -0.6584158 -5.362293 -2.832092 -3.8660426</span></a>
-<a class="sourceLine" id="cb4-49" title="49"><span class="co">#&gt; 525206: -3.3436871 -4.052106 -2.0143995 -4.340692 -2.890889 -4.3359194</span></a>
-<a class="sourceLine" id="cb4-50" title="50"><span class="co">#&gt; 525207: -5.8495107 -4.504183 -3.4945364 -4.906254 -4.134459 -6.3578181</span></a>
-<a class="sourceLine" id="cb4-51" title="51"><span class="co">#&gt;                CP6           P7        P3        Pz         P4         P8</span></a>
-<a class="sourceLine" id="cb4-52" title="52"><span class="co">#&gt;      1: -8.6002913  -6.72501945 -7.823194 -9.713374 -10.933434 -4.1939182</span></a>
-<a class="sourceLine" id="cb4-53" title="53"><span class="co">#&gt;      2: -6.4684544  -4.19162369 -6.248482 -8.652735  -8.811299 -2.4914169</span></a>
-<a class="sourceLine" id="cb4-54" title="54"><span class="co">#&gt;      3: -4.4623995  -1.97165060 -4.997821 -7.685406  -6.668526 -1.0310369</span></a>
-<a class="sourceLine" id="cb4-55" title="55"><span class="co">#&gt;      4: -2.4144411  -0.09873655 -3.947244 -6.593503  -4.320339  0.6503686</span></a>
-<a class="sourceLine" id="cb4-56" title="56"><span class="co">#&gt;      5: -0.1063155   1.68736827 -2.843956 -5.372189  -1.687156  2.8481901</span></a>
+<a class="sourceLine" id="cb4-46" title="46"><span class="co">#&gt; 525203: -3.093663  3.9028225 -8.155416 -3.549603 -3.7856157 -1.9837997</span></a>
+<a class="sourceLine" id="cb4-47" title="47"><span class="co">#&gt; 525204: -2.935883  1.4479842 -6.898589 -3.393985 -4.0930557 -3.5452051</span></a>
+<a class="sourceLine" id="cb4-48" title="48"><span class="co">#&gt; 525205: -3.875237 -0.6584158 -5.362293 -2.832092 -3.8660426 -4.0679202</span></a>
+<a class="sourceLine" id="cb4-49" title="49"><span class="co">#&gt; 525206: -4.052106 -2.0143995 -4.340692 -2.890889 -4.3359194 -4.9113569</span></a>
+<a class="sourceLine" id="cb4-50" title="50"><span class="co">#&gt; 525207: -4.504183 -3.4945364 -4.906254 -4.134459 -6.3578181 -7.4022784</span></a>
+<a class="sourceLine" id="cb4-51" title="51"><span class="co">#&gt;                   P7        P3        Pz         P4         P8        POz</span></a>
+<a class="sourceLine" id="cb4-52" title="52"><span class="co">#&gt;      1:  -6.72501945 -7.823194 -9.713374 -10.933434 -4.1939182 -13.021215</span></a>
+<a class="sourceLine" id="cb4-53" title="53"><span class="co">#&gt;      2:  -4.19162369 -6.248482 -8.652735  -8.811299 -2.4914169 -10.943350</span></a>
+<a class="sourceLine" id="cb4-54" title="54"><span class="co">#&gt;      3:  -1.97165060 -4.997821 -7.685406  -6.668526 -1.0310369  -8.963390</span></a>
+<a class="sourceLine" id="cb4-55" title="55"><span class="co">#&gt;      4:  -0.09873655 -3.947244 -6.593503  -4.320339  0.6503686  -6.857091</span></a>
+<a class="sourceLine" id="cb4-56" title="56"><span class="co">#&gt;      5:   1.68736827 -2.843956 -5.372189  -1.687156  2.8481901  -4.618455</span></a>
 <a class="sourceLine" id="cb4-57" title="57"><span class="co">#&gt;     ---                                                                  </span></a>
-<a class="sourceLine" id="cb4-58" title="58"><span class="co">#&gt; 525203: -1.9837997 -17.43293571 -7.778884 -3.405085  -1.660518 -4.3979721</span></a>
-<a class="sourceLine" id="cb4-59" title="59"><span class="co">#&gt; 525204: -3.5452051 -14.93541336 -6.817270 -4.063128  -2.827326 -5.3324118</span></a>
-<a class="sourceLine" id="cb4-60" title="60"><span class="co">#&gt; 525205: -4.0679202 -12.36065578 -5.574656 -4.185033  -3.481713 -6.1155925</span></a>
-<a class="sourceLine" id="cb4-61" title="61"><span class="co">#&gt; 525206: -4.9113569 -10.60478783 -5.109689 -4.693735  -4.598518 -7.1271410</span></a>
-<a class="sourceLine" id="cb4-62" title="62"><span class="co">#&gt; 525207: -7.4022784 -11.30642700 -6.548401 -6.205623  -6.893994 -9.2952871</span></a>
-<a class="sourceLine" id="cb4-63" title="63"><span class="co">#&gt;                POz         O1          Oz         O2       EOGV      EOGH</span></a>
-<a class="sourceLine" id="cb4-64" title="64"><span class="co">#&gt;      1: -13.021215  -7.650791  -8.6958437  -8.901768 36.3205566  20.61859</span></a>
-<a class="sourceLine" id="cb4-65" title="65"><span class="co">#&gt;      2: -10.943350  -3.840688  -5.8336391  -6.211349 39.7541809  25.55089</span></a>
-<a class="sourceLine" id="cb4-66" title="66"><span class="co">#&gt;      3:  -8.963390  -0.550869  -3.2353799  -3.810405 42.1534882  29.02995</span></a>
-<a class="sourceLine" id="cb4-67" title="67"><span class="co">#&gt;      4:  -6.857091   2.178792  -0.7047617  -1.321697 44.8317413  30.14127</span></a>
-<a class="sourceLine" id="cb4-68" title="68"><span class="co">#&gt;      5:  -4.618455   4.996092   2.2072635   1.650699 49.1988983  29.85255</span></a>
-<a class="sourceLine" id="cb4-69" title="69"><span class="co">#&gt;     ---                                                                  </span></a>
-<a class="sourceLine" id="cb4-70" title="70"><span class="co">#&gt; 525203:  -7.370723 -17.387997 -13.6087084 -10.443031  0.8650103 -12.82597</span></a>
-<a class="sourceLine" id="cb4-71" title="71"><span class="co">#&gt; 525204:  -7.889754 -15.422725 -14.4835081 -12.536522 -0.9290609 -14.95488</span></a>
-<a class="sourceLine" id="cb4-72" title="72"><span class="co">#&gt; 525205:  -7.927995 -13.746743 -15.2129507 -14.059873 -1.9016356 -14.81808</span></a>
-<a class="sourceLine" id="cb4-73" title="73"><span class="co">#&gt; 525206:  -8.352034 -13.172369 -16.1580162 -15.562737 -3.9798355 -12.73059</span></a>
-<a class="sourceLine" id="cb4-74" title="74"><span class="co">#&gt; 525207:  -9.975165 -14.335607 -17.8692055 -17.643250 -9.1380615 -12.55048</span></a>
+<a class="sourceLine" id="cb4-58" title="58"><span class="co">#&gt; 525203: -17.43293571 -7.778884 -3.405085  -1.660518 -4.3979721  -7.370723</span></a>
+<a class="sourceLine" id="cb4-59" title="59"><span class="co">#&gt; 525204: -14.93541336 -6.817270 -4.063128  -2.827326 -5.3324118  -7.889754</span></a>
+<a class="sourceLine" id="cb4-60" title="60"><span class="co">#&gt; 525205: -12.36065578 -5.574656 -4.185033  -3.481713 -6.1155925  -7.927995</span></a>
+<a class="sourceLine" id="cb4-61" title="61"><span class="co">#&gt; 525206: -10.60478783 -5.109689 -4.693735  -4.598518 -7.1271410  -8.352034</span></a>
+<a class="sourceLine" id="cb4-62" title="62"><span class="co">#&gt; 525207: -11.30642700 -6.548401 -6.205623  -6.893994 -9.2952871  -9.975165</span></a>
+<a class="sourceLine" id="cb4-63" title="63"><span class="co">#&gt;                 O1          Oz         O2       EOGV      EOGH</span></a>
+<a class="sourceLine" id="cb4-64" title="64"><span class="co">#&gt;      1:  -7.650791  -8.6958437  -8.901768 36.3205566  20.61859</span></a>
+<a class="sourceLine" id="cb4-65" title="65"><span class="co">#&gt;      2:  -3.840688  -5.8336391  -6.211349 39.7541809  25.55089</span></a>
+<a class="sourceLine" id="cb4-66" title="66"><span class="co">#&gt;      3:  -0.550869  -3.2353799  -3.810405 42.1534882  29.02995</span></a>
+<a class="sourceLine" id="cb4-67" title="67"><span class="co">#&gt;      4:   2.178792  -0.7047617  -1.321697 44.8317413  30.14127</span></a>
+<a class="sourceLine" id="cb4-68" title="68"><span class="co">#&gt;      5:   4.996092   2.2072635   1.650699 49.1988983  29.85255</span></a>
+<a class="sourceLine" id="cb4-69" title="69"><span class="co">#&gt;     ---                                                       </span></a>
+<a class="sourceLine" id="cb4-70" title="70"><span class="co">#&gt; 525203: -17.387997 -13.6087084 -10.443031  0.8650103 -12.82597</span></a>
+<a class="sourceLine" id="cb4-71" title="71"><span class="co">#&gt; 525204: -15.422725 -14.4835081 -12.536522 -0.9290609 -14.95488</span></a>
+<a class="sourceLine" id="cb4-72" title="72"><span class="co">#&gt; 525205: -13.746743 -15.2129507 -14.059873 -1.9016356 -14.81808</span></a>
+<a class="sourceLine" id="cb4-73" title="73"><span class="co">#&gt; 525206: -13.172369 -16.1580162 -15.562737 -3.9798355 -12.73059</span></a>
+<a class="sourceLine" id="cb4-74" title="74"><span class="co">#&gt; 525207: -14.335607 -17.8692055 -17.643250 -9.1380615 -12.55048</span></a>
 <a class="sourceLine" id="cb4-75" title="75"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb4-76" title="76"><span class="co">#&gt; $events</span></a>
 <a class="sourceLine" id="cb4-77" title="77"><span class="co">#&gt;       .id         type description .sample_0 .size .channel</span></a>
@@ -211,99 +217,63 @@
 <p>It provides a summary:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw"><a href="../reference/summary.html">summary</a></span>(faces)</a>
 <a class="sourceLine" id="cb5-2" title="2"><span class="co">#&gt; # EEG data (eeg_lst) from the following channels:</span></a>
-<a class="sourceLine" id="cb5-3" title="3"><span class="co">#&gt;     channel type .reference resolution unit radius theta phi    .x    .y</span></a>
-<a class="sourceLine" id="cb5-4" title="4"><span class="co">#&gt;  1:     Fp1  Ch1     avim12         NA   µV      1   -90 -72 -0.31  0.95</span></a>
-<a class="sourceLine" id="cb5-5" title="5"><span class="co">#&gt;  2:     Fpz  Ch2     avim12         NA   µV      1    90  90  0.00  1.00</span></a>
-<a class="sourceLine" id="cb5-6" title="6"><span class="co">#&gt;  3:     Fp2  Ch3     avim12         NA   µV      1    90  72  0.31  0.95</span></a>
-<a class="sourceLine" id="cb5-7" title="7"><span class="co">#&gt;  4:      F7  Ch4     avim12         NA   µV      1   -90 -36 -0.81  0.59</span></a>
-<a class="sourceLine" id="cb5-8" title="8"><span class="co">#&gt;  5:      F3  Ch5     avim12         NA   µV      1   -60 -51 -0.55  0.67</span></a>
-<a class="sourceLine" id="cb5-9" title="9"><span class="co">#&gt;  6:      Fz  Ch6     avim12         NA   µV      1    45  90  0.00  0.71</span></a>
-<a class="sourceLine" id="cb5-10" title="10"><span class="co">#&gt;  7:      F4  Ch7     avim12         NA   µV      1    60  51  0.55  0.67</span></a>
-<a class="sourceLine" id="cb5-11" title="11"><span class="co">#&gt;  8:      F8  Ch8     avim12         NA   µV      1    90  36  0.81  0.59</span></a>
-<a class="sourceLine" id="cb5-12" title="12"><span class="co">#&gt;  9:     FC5  Ch9     avim12         NA   µV      1   -69 -21 -0.87  0.33</span></a>
-<a class="sourceLine" id="cb5-13" title="13"><span class="co">#&gt; 10:     FC1 Ch10     avim12         NA   µV      1   -31 -46 -0.36  0.37</span></a>
-<a class="sourceLine" id="cb5-14" title="14"><span class="co">#&gt; 11:     FC2 Ch11     avim12         NA   µV      1    31  46  0.36  0.37</span></a>
-<a class="sourceLine" id="cb5-15" title="15"><span class="co">#&gt; 12:     FC6 Ch12     avim12         NA   µV      1    69  21  0.87  0.33</span></a>
-<a class="sourceLine" id="cb5-16" title="16"><span class="co">#&gt; 13:      M1 Ch13     avim12         NA   µV      0     0   0    NA    NA</span></a>
-<a class="sourceLine" id="cb5-17" title="17"><span class="co">#&gt; 14:      T7 Ch14     avim12         NA   µV      1   -90   0 -1.00  0.00</span></a>
-<a class="sourceLine" id="cb5-18" title="18"><span class="co">#&gt; 15:      C3 Ch15     avim12         NA   µV      1   -45   0 -0.71  0.00</span></a>
-<a class="sourceLine" id="cb5-19" title="19"><span class="co">#&gt; 16:      Cz Ch16     avim12         NA   µV      1     0   0  0.00  0.00</span></a>
-<a class="sourceLine" id="cb5-20" title="20"><span class="co">#&gt; 17:      C4 Ch17     avim12         NA   µV      1    45   0  0.71  0.00</span></a>
-<a class="sourceLine" id="cb5-21" title="21"><span class="co">#&gt; 18:      T8 Ch18     avim12         NA   µV      1    90   0  1.00  0.00</span></a>
-<a class="sourceLine" id="cb5-22" title="22"><span class="co">#&gt; 19:      M2 Ch19     avim12         NA   µV      0     0   0    NA    NA</span></a>
-<a class="sourceLine" id="cb5-23" title="23"><span class="co">#&gt; 20:     CP5 Ch20     avim12         NA   µV      1   -69  21 -0.87 -0.33</span></a>
-<a class="sourceLine" id="cb5-24" title="24"><span class="co">#&gt; 21:     CP1 Ch21     avim12         NA   µV      1   -31  46 -0.36 -0.37</span></a>
-<a class="sourceLine" id="cb5-25" title="25"><span class="co">#&gt; 22:     CP2 Ch22     avim12         NA   µV      1    31 -46  0.36 -0.37</span></a>
-<a class="sourceLine" id="cb5-26" title="26"><span class="co">#&gt; 23:     CP6 Ch23     avim12         NA   µV      1    69 -21  0.87 -0.33</span></a>
-<a class="sourceLine" id="cb5-27" title="27"><span class="co">#&gt; 24:      P7 Ch24     avim12         NA   µV      1   -90  36 -0.81 -0.59</span></a>
-<a class="sourceLine" id="cb5-28" title="28"><span class="co">#&gt; 25:      P3 Ch25     avim12         NA   µV      1   -60  51 -0.55 -0.67</span></a>
-<a class="sourceLine" id="cb5-29" title="29"><span class="co">#&gt; 26:      Pz Ch26     avim12         NA   µV      1    45 -90  0.00 -0.71</span></a>
-<a class="sourceLine" id="cb5-30" title="30"><span class="co">#&gt; 27:      P4 Ch27     avim12         NA   µV      1    60 -51  0.55 -0.67</span></a>
-<a class="sourceLine" id="cb5-31" title="31"><span class="co">#&gt; 28:      P8 Ch28     avim12         NA   µV      1    90 -36  0.81 -0.59</span></a>
-<a class="sourceLine" id="cb5-32" title="32"><span class="co">#&gt; 29:     POz Ch29     avim12         NA   µV      1    67 -90  0.00 -0.92</span></a>
-<a class="sourceLine" id="cb5-33" title="33"><span class="co">#&gt; 30:      O1 Ch30     avim12         NA   µV      1   -90  72 -0.31 -0.95</span></a>
-<a class="sourceLine" id="cb5-34" title="34"><span class="co">#&gt; 31:      Oz Ch31     avim12         NA   µV      1    90 -90  0.00 -1.00</span></a>
-<a class="sourceLine" id="cb5-35" title="35"><span class="co">#&gt; 32:      O2 Ch32     avim12         NA   µV      1    90 -72  0.31 -0.95</span></a>
-<a class="sourceLine" id="cb5-36" title="36"><span class="co">#&gt; 33:    EOGV Ch33                    NA   µV      0     0   0    NA    NA</span></a>
-<a class="sourceLine" id="cb5-37" title="37"><span class="co">#&gt; 34:    EOGH Ch34                    NA   µV      0     0   0    NA    NA</span></a>
-<a class="sourceLine" id="cb5-38" title="38"><span class="co">#&gt;     channel type .reference resolution unit radius theta phi    .x    .y</span></a>
-<a class="sourceLine" id="cb5-39" title="39"><span class="co">#&gt;       .z</span></a>
-<a class="sourceLine" id="cb5-40" title="40"><span class="co">#&gt;  1: 0.00</span></a>
-<a class="sourceLine" id="cb5-41" title="41"><span class="co">#&gt;  2: 0.00</span></a>
-<a class="sourceLine" id="cb5-42" title="42"><span class="co">#&gt;  3: 0.00</span></a>
-<a class="sourceLine" id="cb5-43" title="43"><span class="co">#&gt;  4: 0.00</span></a>
-<a class="sourceLine" id="cb5-44" title="44"><span class="co">#&gt;  5: 0.50</span></a>
-<a class="sourceLine" id="cb5-45" title="45"><span class="co">#&gt;  6: 0.71</span></a>
-<a class="sourceLine" id="cb5-46" title="46"><span class="co">#&gt;  7: 0.50</span></a>
-<a class="sourceLine" id="cb5-47" title="47"><span class="co">#&gt;  8: 0.00</span></a>
-<a class="sourceLine" id="cb5-48" title="48"><span class="co">#&gt;  9: 0.36</span></a>
-<a class="sourceLine" id="cb5-49" title="49"><span class="co">#&gt; 10: 0.86</span></a>
-<a class="sourceLine" id="cb5-50" title="50"><span class="co">#&gt; 11: 0.86</span></a>
-<a class="sourceLine" id="cb5-51" title="51"><span class="co">#&gt; 12: 0.36</span></a>
-<a class="sourceLine" id="cb5-52" title="52"><span class="co">#&gt; 13:   NA</span></a>
-<a class="sourceLine" id="cb5-53" title="53"><span class="co">#&gt; 14: 0.00</span></a>
-<a class="sourceLine" id="cb5-54" title="54"><span class="co">#&gt; 15: 0.71</span></a>
-<a class="sourceLine" id="cb5-55" title="55"><span class="co">#&gt; 16: 1.00</span></a>
-<a class="sourceLine" id="cb5-56" title="56"><span class="co">#&gt; 17: 0.71</span></a>
-<a class="sourceLine" id="cb5-57" title="57"><span class="co">#&gt; 18: 0.00</span></a>
-<a class="sourceLine" id="cb5-58" title="58"><span class="co">#&gt; 19:   NA</span></a>
-<a class="sourceLine" id="cb5-59" title="59"><span class="co">#&gt; 20: 0.36</span></a>
-<a class="sourceLine" id="cb5-60" title="60"><span class="co">#&gt; 21: 0.86</span></a>
-<a class="sourceLine" id="cb5-61" title="61"><span class="co">#&gt; 22: 0.86</span></a>
-<a class="sourceLine" id="cb5-62" title="62"><span class="co">#&gt; 23: 0.36</span></a>
-<a class="sourceLine" id="cb5-63" title="63"><span class="co">#&gt; 24: 0.00</span></a>
-<a class="sourceLine" id="cb5-64" title="64"><span class="co">#&gt; 25: 0.50</span></a>
-<a class="sourceLine" id="cb5-65" title="65"><span class="co">#&gt; 26: 0.71</span></a>
-<a class="sourceLine" id="cb5-66" title="66"><span class="co">#&gt; 27: 0.50</span></a>
-<a class="sourceLine" id="cb5-67" title="67"><span class="co">#&gt; 28: 0.00</span></a>
-<a class="sourceLine" id="cb5-68" title="68"><span class="co">#&gt; 29: 0.39</span></a>
-<a class="sourceLine" id="cb5-69" title="69"><span class="co">#&gt; 30: 0.00</span></a>
-<a class="sourceLine" id="cb5-70" title="70"><span class="co">#&gt; 31: 0.00</span></a>
-<a class="sourceLine" id="cb5-71" title="71"><span class="co">#&gt; 32: 0.00</span></a>
-<a class="sourceLine" id="cb5-72" title="72"><span class="co">#&gt; 33:   NA</span></a>
-<a class="sourceLine" id="cb5-73" title="73"><span class="co">#&gt; 34:   NA</span></a>
-<a class="sourceLine" id="cb5-74" title="74"><span class="co">#&gt;       .z</span></a>
-<a class="sourceLine" id="cb5-75" title="75"><span class="co">#&gt; # Sampling rate: 500 Hz.</span></a>
-<a class="sourceLine" id="cb5-76" title="76"><span class="co">#&gt; # Size in memory: 140.5 Mb.</span></a>
-<a class="sourceLine" id="cb5-77" title="77"><span class="co">#&gt; # Total duration: 00:17:30.</span></a>
-<a class="sourceLine" id="cb5-78" title="78"><span class="co">#&gt; # Summary of segments</span></a>
-<a class="sourceLine" id="cb5-79" title="79"><span class="co">#&gt;     recording segment_n</span></a>
-<a class="sourceLine" id="cb5-80" title="80"><span class="co">#&gt; 1: faces.vhdr         1</span></a>
-<a class="sourceLine" id="cb5-81" title="81"><span class="co">#&gt; # Summary of events</span></a>
-<a class="sourceLine" id="cb5-82" title="82"><span class="co">#&gt;             type description    n</span></a>
-<a class="sourceLine" id="cb5-83" title="83"><span class="co">#&gt;  1: Bad Interval Bad Min-Max 3734</span></a>
-<a class="sourceLine" id="cb5-84" title="84"><span class="co">#&gt;  2: Bad Interval    Multiple  105</span></a>
-<a class="sourceLine" id="cb5-85" title="85"><span class="co">#&gt;  3:  New Segment                1</span></a>
-<a class="sourceLine" id="cb5-86" title="86"><span class="co">#&gt;  4:     Stimulus        s101    1</span></a>
-<a class="sourceLine" id="cb5-87" title="87"><span class="co">#&gt;  5:     Stimulus        s102    1</span></a>
-<a class="sourceLine" id="cb5-88" title="88"><span class="co">#&gt;  6:     Stimulus        s111    1</span></a>
-<a class="sourceLine" id="cb5-89" title="89"><span class="co">#&gt;  7:     Stimulus        s121    1</span></a>
-<a class="sourceLine" id="cb5-90" title="90"><span class="co">#&gt;  8:     Stimulus        s122    1</span></a>
-<a class="sourceLine" id="cb5-91" title="91"><span class="co">#&gt;  9:     Stimulus        s130  200</span></a>
-<a class="sourceLine" id="cb5-92" title="92"><span class="co">#&gt; 10:     Stimulus          s5    1</span></a>
-<a class="sourceLine" id="cb5-93" title="93"><span class="co">#&gt; 11:     Stimulus         s70  100</span></a>
-<a class="sourceLine" id="cb5-94" title="94"><span class="co">#&gt; 12:     Stimulus         s71  100</span></a>
-<a class="sourceLine" id="cb5-95" title="95"><span class="co">#&gt; 13:  UserDefined       Blink   30</span></a></code></pre></div>
+<a class="sourceLine" id="cb5-3" title="3"><span class="co">#&gt;     channel type .reference resolution unit radius theta phi    .x    .y   .z</span></a>
+<a class="sourceLine" id="cb5-4" title="4"><span class="co">#&gt;  1:     Fp1  Ch1     avim12         NA   µV      1   -90 -72 -0.31  0.95 0.00</span></a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="co">#&gt;  2:     Fpz  Ch2     avim12         NA   µV      1    90  90  0.00  1.00 0.00</span></a>
+<a class="sourceLine" id="cb5-6" title="6"><span class="co">#&gt;  3:     Fp2  Ch3     avim12         NA   µV      1    90  72  0.31  0.95 0.00</span></a>
+<a class="sourceLine" id="cb5-7" title="7"><span class="co">#&gt;  4:      F7  Ch4     avim12         NA   µV      1   -90 -36 -0.81  0.59 0.00</span></a>
+<a class="sourceLine" id="cb5-8" title="8"><span class="co">#&gt;  5:      F3  Ch5     avim12         NA   µV      1   -60 -51 -0.55  0.67 0.50</span></a>
+<a class="sourceLine" id="cb5-9" title="9"><span class="co">#&gt;  6:      Fz  Ch6     avim12         NA   µV      1    45  90  0.00  0.71 0.71</span></a>
+<a class="sourceLine" id="cb5-10" title="10"><span class="co">#&gt;  7:      F4  Ch7     avim12         NA   µV      1    60  51  0.55  0.67 0.50</span></a>
+<a class="sourceLine" id="cb5-11" title="11"><span class="co">#&gt;  8:      F8  Ch8     avim12         NA   µV      1    90  36  0.81  0.59 0.00</span></a>
+<a class="sourceLine" id="cb5-12" title="12"><span class="co">#&gt;  9:     FC5  Ch9     avim12         NA   µV      1   -69 -21 -0.87  0.33 0.36</span></a>
+<a class="sourceLine" id="cb5-13" title="13"><span class="co">#&gt; 10:     FC1 Ch10     avim12         NA   µV      1   -31 -46 -0.36  0.37 0.86</span></a>
+<a class="sourceLine" id="cb5-14" title="14"><span class="co">#&gt; 11:     FC2 Ch11     avim12         NA   µV      1    31  46  0.36  0.37 0.86</span></a>
+<a class="sourceLine" id="cb5-15" title="15"><span class="co">#&gt; 12:     FC6 Ch12     avim12         NA   µV      1    69  21  0.87  0.33 0.36</span></a>
+<a class="sourceLine" id="cb5-16" title="16"><span class="co">#&gt; 13:      M1 Ch13     avim12         NA   µV      0     0   0    NA    NA   NA</span></a>
+<a class="sourceLine" id="cb5-17" title="17"><span class="co">#&gt; 14:      T7 Ch14     avim12         NA   µV      1   -90   0 -1.00  0.00 0.00</span></a>
+<a class="sourceLine" id="cb5-18" title="18"><span class="co">#&gt; 15:      C3 Ch15     avim12         NA   µV      1   -45   0 -0.71  0.00 0.71</span></a>
+<a class="sourceLine" id="cb5-19" title="19"><span class="co">#&gt; 16:      Cz Ch16     avim12         NA   µV      1     0   0  0.00  0.00 1.00</span></a>
+<a class="sourceLine" id="cb5-20" title="20"><span class="co">#&gt; 17:      C4 Ch17     avim12         NA   µV      1    45   0  0.71  0.00 0.71</span></a>
+<a class="sourceLine" id="cb5-21" title="21"><span class="co">#&gt; 18:      T8 Ch18     avim12         NA   µV      1    90   0  1.00  0.00 0.00</span></a>
+<a class="sourceLine" id="cb5-22" title="22"><span class="co">#&gt; 19:      M2 Ch19     avim12         NA   µV      0     0   0    NA    NA   NA</span></a>
+<a class="sourceLine" id="cb5-23" title="23"><span class="co">#&gt; 20:     CP5 Ch20     avim12         NA   µV      1   -69  21 -0.87 -0.33 0.36</span></a>
+<a class="sourceLine" id="cb5-24" title="24"><span class="co">#&gt; 21:     CP1 Ch21     avim12         NA   µV      1   -31  46 -0.36 -0.37 0.86</span></a>
+<a class="sourceLine" id="cb5-25" title="25"><span class="co">#&gt; 22:     CP2 Ch22     avim12         NA   µV      1    31 -46  0.36 -0.37 0.86</span></a>
+<a class="sourceLine" id="cb5-26" title="26"><span class="co">#&gt; 23:     CP6 Ch23     avim12         NA   µV      1    69 -21  0.87 -0.33 0.36</span></a>
+<a class="sourceLine" id="cb5-27" title="27"><span class="co">#&gt; 24:      P7 Ch24     avim12         NA   µV      1   -90  36 -0.81 -0.59 0.00</span></a>
+<a class="sourceLine" id="cb5-28" title="28"><span class="co">#&gt; 25:      P3 Ch25     avim12         NA   µV      1   -60  51 -0.55 -0.67 0.50</span></a>
+<a class="sourceLine" id="cb5-29" title="29"><span class="co">#&gt; 26:      Pz Ch26     avim12         NA   µV      1    45 -90  0.00 -0.71 0.71</span></a>
+<a class="sourceLine" id="cb5-30" title="30"><span class="co">#&gt; 27:      P4 Ch27     avim12         NA   µV      1    60 -51  0.55 -0.67 0.50</span></a>
+<a class="sourceLine" id="cb5-31" title="31"><span class="co">#&gt; 28:      P8 Ch28     avim12         NA   µV      1    90 -36  0.81 -0.59 0.00</span></a>
+<a class="sourceLine" id="cb5-32" title="32"><span class="co">#&gt; 29:     POz Ch29     avim12         NA   µV      1    67 -90  0.00 -0.92 0.39</span></a>
+<a class="sourceLine" id="cb5-33" title="33"><span class="co">#&gt; 30:      O1 Ch30     avim12         NA   µV      1   -90  72 -0.31 -0.95 0.00</span></a>
+<a class="sourceLine" id="cb5-34" title="34"><span class="co">#&gt; 31:      Oz Ch31     avim12         NA   µV      1    90 -90  0.00 -1.00 0.00</span></a>
+<a class="sourceLine" id="cb5-35" title="35"><span class="co">#&gt; 32:      O2 Ch32     avim12         NA   µV      1    90 -72  0.31 -0.95 0.00</span></a>
+<a class="sourceLine" id="cb5-36" title="36"><span class="co">#&gt; 33:    EOGV Ch33                    NA   µV      0     0   0    NA    NA   NA</span></a>
+<a class="sourceLine" id="cb5-37" title="37"><span class="co">#&gt; 34:    EOGH Ch34                    NA   µV      0     0   0    NA    NA   NA</span></a>
+<a class="sourceLine" id="cb5-38" title="38"><span class="co">#&gt;     channel type .reference resolution unit radius theta phi    .x    .y   .z</span></a>
+<a class="sourceLine" id="cb5-39" title="39"><span class="co">#&gt; # Sampling rate: 500 Hz.</span></a>
+<a class="sourceLine" id="cb5-40" title="40"><span class="co">#&gt; # Size in memory: 140.5 Mb.</span></a>
+<a class="sourceLine" id="cb5-41" title="41"><span class="co">#&gt; # Total duration: 00:17:30.</span></a>
+<a class="sourceLine" id="cb5-42" title="42"><span class="co">#&gt; # Summary of segments</span></a>
+<a class="sourceLine" id="cb5-43" title="43"><span class="co">#&gt;     recording segment_n</span></a>
+<a class="sourceLine" id="cb5-44" title="44"><span class="co">#&gt; 1: faces.vhdr         1</span></a>
+<a class="sourceLine" id="cb5-45" title="45"><span class="co">#&gt; # Summary of events</span></a>
+<a class="sourceLine" id="cb5-46" title="46"><span class="co">#&gt;             type description    n</span></a>
+<a class="sourceLine" id="cb5-47" title="47"><span class="co">#&gt;  1: Bad Interval Bad Min-Max 3734</span></a>
+<a class="sourceLine" id="cb5-48" title="48"><span class="co">#&gt;  2: Bad Interval    Multiple  105</span></a>
+<a class="sourceLine" id="cb5-49" title="49"><span class="co">#&gt;  3:  New Segment                1</span></a>
+<a class="sourceLine" id="cb5-50" title="50"><span class="co">#&gt;  4:     Stimulus        s101    1</span></a>
+<a class="sourceLine" id="cb5-51" title="51"><span class="co">#&gt;  5:     Stimulus        s102    1</span></a>
+<a class="sourceLine" id="cb5-52" title="52"><span class="co">#&gt;  6:     Stimulus        s111    1</span></a>
+<a class="sourceLine" id="cb5-53" title="53"><span class="co">#&gt;  7:     Stimulus        s121    1</span></a>
+<a class="sourceLine" id="cb5-54" title="54"><span class="co">#&gt;  8:     Stimulus        s122    1</span></a>
+<a class="sourceLine" id="cb5-55" title="55"><span class="co">#&gt;  9:     Stimulus        s130  200</span></a>
+<a class="sourceLine" id="cb5-56" title="56"><span class="co">#&gt; 10:     Stimulus          s5    1</span></a>
+<a class="sourceLine" id="cb5-57" title="57"><span class="co">#&gt; 11:     Stimulus         s70  100</span></a>
+<a class="sourceLine" id="cb5-58" title="58"><span class="co">#&gt; 12:     Stimulus         s71  100</span></a>
+<a class="sourceLine" id="cb5-59" title="59"><span class="co">#&gt; 13:  UserDefined       Blink   30</span></a></code></pre></div>
 <p>Furthermore, it allows for quick visualization.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">plot</span>(faces)</a>
 <a class="sourceLine" id="cb6-2" title="2"><span class="co">#&gt; # Downsampling from 500Hz to 62.5Hz.</span></a>
@@ -322,7 +292,7 @@
 <a class="sourceLine" id="cb8-5" title="5"><span class="st">               </span><span class="kw"><a href="../reference/ch_baseline.html">ch_baseline</a></span>()</a>
 <a class="sourceLine" id="cb8-6" title="6"><span class="co">#&gt; # Total of 200 segments found.</span></a>
 <a class="sourceLine" id="cb8-7" title="7"><span class="co">#&gt; # Object size in memory 12.2 Mb after segmentation.</span></a></code></pre></div>
-<p>We can also edit the segmentation information and add more descriptive labels. <em>eeguana</em> has wrappers for many <code>dplyr</code> commands for the EEG data. These commands always return an entire <code>eeg_lst</code> object so that they can be piped using <code>magrittr</code>’s pipe, <code>%&gt;%</code>.</p>
+<p>We can also edit the segmentation information and add more descriptive labels. <em>eeguana</em> has wrappers for many <code>dplyr</code> commands for the EEG data (see <code><a href="../reference/dplyr-eeguana.html">?`dplyr-eeguana`</a></code>). These commands always return an entire <code>eeg_lst</code> object so that they can be piped using <code>magrittr</code>’s pipe, <code>%&gt;%</code>.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">faces_segs_some &lt;-<span class="st"> </span>faces_segs <span class="op">%&gt;%</span><span class="st">  </span></a>
 <a class="sourceLine" id="cb9-2" title="2"><span class="st">                  </span><span class="kw">mutate</span>(<span class="dt">condition =</span></a>
 <a class="sourceLine" id="cb9-3" title="3">                  <span class="kw">if_else</span>(description <span class="op">==</span><span class="st"> "s70"</span>, <span class="st">"faces"</span>, <span class="st">"non-faces"</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
@@ -330,78 +300,78 @@
 <a class="sourceLine" id="cb9-5" title="5"></a>
 <a class="sourceLine" id="cb9-6" title="6">faces_segs_some</a>
 <a class="sourceLine" id="cb9-7" title="7"><span class="co">#&gt; $signal</span></a>
-<a class="sourceLine" id="cb9-8" title="8"><span class="co">#&gt;        .id .sample_id      Fp1      Fpz       Fp2        F7        F3</span></a>
-<a class="sourceLine" id="cb9-9" title="9"><span class="co">#&gt;     1:   1        -99 3.000602 3.822540  1.676837  5.345215  8.526904</span></a>
-<a class="sourceLine" id="cb9-10" title="10"><span class="co">#&gt;     2:   1        -98 4.651500 5.966759  2.899244  6.229248 11.957867</span></a>
-<a class="sourceLine" id="cb9-11" title="11"><span class="co">#&gt;     3:   1        -97 5.636973 7.734169  3.360790  6.146507 12.643122</span></a>
-<a class="sourceLine" id="cb9-12" title="12"><span class="co">#&gt;     4:   1        -96 4.887103 7.093736  1.560090  4.679008 10.153717</span></a>
-<a class="sourceLine" id="cb9-13" title="13"><span class="co">#&gt;     5:   1        -95 1.679875 3.586631 -2.115480  1.817395  6.471601</span></a>
-<a class="sourceLine" id="cb9-14" title="14"><span class="co">#&gt;    ---                                                               </span></a>
-<a class="sourceLine" id="cb9-15" title="15"><span class="co">#&gt; 45196: 200        122       NA       NA        NA -6.226833 -6.164627</span></a>
-<a class="sourceLine" id="cb9-16" title="16"><span class="co">#&gt; 45197: 200        123       NA       NA        NA -7.609634 -6.624886</span></a>
-<a class="sourceLine" id="cb9-17" title="17"><span class="co">#&gt; 45198: 200        124       NA       NA        NA -8.355278 -7.320350</span></a>
-<a class="sourceLine" id="cb9-18" title="18"><span class="co">#&gt; 45199: 200        125       NA       NA        NA -8.419843 -8.317026</span></a>
-<a class="sourceLine" id="cb9-19" title="19"><span class="co">#&gt; 45200: 200        126       NA       NA        NA -8.219583 -9.290400</span></a>
-<a class="sourceLine" id="cb9-20" title="20"><span class="co">#&gt;               Fz        F4         F8        FC5       FC1       FC2</span></a>
-<a class="sourceLine" id="cb9-21" title="21"><span class="co">#&gt;     1:  4.730365  3.188497 -0.1089175  -3.644006  7.912477  3.989274</span></a>
-<a class="sourceLine" id="cb9-22" title="22"><span class="co">#&gt;     2:  6.160355  3.994015 -0.8760965   1.023301  9.416551  4.667467</span></a>
-<a class="sourceLine" id="cb9-23" title="23"><span class="co">#&gt;     3:  7.125668  4.267825 -2.2046354   7.279726  9.103708  5.293130</span></a>
-<a class="sourceLine" id="cb9-24" title="24"><span class="co">#&gt;     4:  6.335395  3.259394 -3.9267309  10.369022  7.112526  4.947480</span></a>
-<a class="sourceLine" id="cb9-25" title="25"><span class="co">#&gt;     5:  4.633891  1.394350 -5.1243312  10.296667  4.968021  4.046026</span></a>
-<a class="sourceLine" id="cb9-26" title="26"><span class="co">#&gt;    ---                                                              </span></a>
-<a class="sourceLine" id="cb9-27" title="27"><span class="co">#&gt; 45196: -8.134506 -6.909568 -0.8537389  -9.798989 -7.777216 -9.401660</span></a>
-<a class="sourceLine" id="cb9-28" title="28"><span class="co">#&gt; 45197: -8.577490 -7.793821 -0.9486715 -10.705381 -8.119785 -9.315678</span></a>
-<a class="sourceLine" id="cb9-29" title="29"><span class="co">#&gt; 45198: -8.860150 -8.050289 -0.5816752 -11.125468 -8.373542 -9.178003</span></a>
-<a class="sourceLine" id="cb9-30" title="30"><span class="co">#&gt; 45199: -9.056007 -7.632708  0.1328152 -10.956071 -8.740564 -9.007817</span></a>
-<a class="sourceLine" id="cb9-31" title="31"><span class="co">#&gt; 45200: -9.426888 -7.286663  0.5260323 -10.897510 -9.636951 -8.939460</span></a>
-<a class="sourceLine" id="cb9-32" title="32"><span class="co">#&gt;              FC6         M1        T7        C3         Cz          C4</span></a>
-<a class="sourceLine" id="cb9-33" title="33"><span class="co">#&gt;     1:  1.272626  0.2677516 -3.057617 10.609308   5.917813   0.8313377</span></a>
-<a class="sourceLine" id="cb9-34" title="34"><span class="co">#&gt;     2:  3.301379 -0.2832003 -1.562383 12.928541   6.262912   1.0666051</span></a>
-<a class="sourceLine" id="cb9-35" title="35"><span class="co">#&gt;     3:  3.712586 -0.7368386  1.504318 11.542353   5.948693   1.9167381</span></a>
-<a class="sourceLine" id="cb9-36" title="36"><span class="co">#&gt;     4:  1.836436 -0.8240938  5.022166  7.915255   4.986212   2.8912187</span></a>
-<a class="sourceLine" id="cb9-37" title="37"><span class="co">#&gt;     5: -1.199115 -0.6874469  6.427537  4.484360   4.172830   3.3982225</span></a>
-<a class="sourceLine" id="cb9-38" title="38"><span class="co">#&gt;    ---                                                                </span></a>
-<a class="sourceLine" id="cb9-39" title="39"><span class="co">#&gt; 45196: -6.067313 -6.4766435 -8.022766 -6.429070 -10.872999  -8.3944751</span></a>
-<a class="sourceLine" id="cb9-40" title="40"><span class="co">#&gt; 45197: -7.353704 -6.6995262 -8.829075 -7.358996 -10.609312  -9.2848460</span></a>
-<a class="sourceLine" id="cb9-41" title="41"><span class="co">#&gt; 45198: -8.296130 -6.9813064 -9.287003 -8.015747 -10.252135  -9.7955848</span></a>
-<a class="sourceLine" id="cb9-42" title="42"><span class="co">#&gt; 45199: -8.350711 -7.0623969 -9.304779 -8.464732  -9.964297  -9.9221298</span></a>
-<a class="sourceLine" id="cb9-43" title="43"><span class="co">#&gt; 45200: -7.994563 -7.0156692 -9.483838 -9.494273 -10.028708 -10.5967504</span></a>
-<a class="sourceLine" id="cb9-44" title="44"><span class="co">#&gt;                T8         M2       CP5        CP1       CP2       CP6</span></a>
-<a class="sourceLine" id="cb9-45" title="45"><span class="co">#&gt;     1: -10.315272 -0.2677516  1.964691  6.7162759  3.262704 -7.399092</span></a>
-<a class="sourceLine" id="cb9-46" title="46"><span class="co">#&gt;     2: -10.356676  0.2832003  4.404590  7.4449489  3.293858 -5.744716</span></a>
-<a class="sourceLine" id="cb9-47" title="47"><span class="co">#&gt;     3: -11.298820  0.7368386  5.582302  7.1147640  3.475278 -3.493423</span></a>
-<a class="sourceLine" id="cb9-48" title="48"><span class="co">#&gt;     4: -11.997029  0.8240938  5.430152  6.1576960  3.890801 -1.759528</span></a>
-<a class="sourceLine" id="cb9-49" title="49"><span class="co">#&gt;     5: -12.559875  0.6874469  4.314408  5.2338812  4.307086 -1.050894</span></a>
-<a class="sourceLine" id="cb9-50" title="50"><span class="co">#&gt;    ---                                                               </span></a>
-<a class="sourceLine" id="cb9-51" title="51"><span class="co">#&gt; 45196:  -3.502227  6.4766435 -1.349851 -0.4762376 -5.722418 -3.533263</span></a>
-<a class="sourceLine" id="cb9-52" title="52"><span class="co">#&gt; 45197:  -4.407707  6.6995262 -3.101862 -1.1596463 -6.534246 -4.621159</span></a>
-<a class="sourceLine" id="cb9-53" title="53"><span class="co">#&gt; 45198:  -4.839347  6.9813064 -4.486185 -1.7303489 -6.932361 -5.494592</span></a>
-<a class="sourceLine" id="cb9-54" title="54"><span class="co">#&gt; 45199:  -4.811365  7.0623969 -5.391058 -2.1837558 -7.031692 -6.007089</span></a>
-<a class="sourceLine" id="cb9-55" title="55"><span class="co">#&gt; 45200:  -4.864176  7.0156692 -6.672053 -3.0703575 -7.622055 -6.492426</span></a>
-<a class="sourceLine" id="cb9-56" title="56"><span class="co">#&gt;               P7         P3        Pz         P4         P8        POz</span></a>
-<a class="sourceLine" id="cb9-57" title="57"><span class="co">#&gt;     1: -5.496809  2.0440808  4.166571 -0.0616881 -8.3880332 -0.3286116</span></a>
-<a class="sourceLine" id="cb9-58" title="58"><span class="co">#&gt;     2: -2.861829  3.2697255  4.204710  0.5590584 -6.7958000  0.3093608</span></a>
-<a class="sourceLine" id="cb9-59" title="59"><span class="co">#&gt;     3:  1.280905  4.4449736  4.435450  1.7226454 -4.7219687  1.9620757</span></a>
-<a class="sourceLine" id="cb9-60" title="60"><span class="co">#&gt;     4:  5.945641  5.2879867  4.639458  2.7629569 -3.0705338  3.7967925</span></a>
-<a class="sourceLine" id="cb9-61" title="61"><span class="co">#&gt;     5:  8.049101  5.4885453  4.919482  3.4599713 -1.9033555  5.3241937</span></a>
-<a class="sourceLine" id="cb9-62" title="62"><span class="co">#&gt;    ---                                                                </span></a>
-<a class="sourceLine" id="cb9-63" title="63"><span class="co">#&gt; 45196:  2.242977  0.7155832 -4.610498 -3.9528958  1.4214111 -4.3255999</span></a>
-<a class="sourceLine" id="cb9-64" title="64"><span class="co">#&gt; 45197: -0.126445 -0.6689793 -5.037940 -4.7200541  0.7046986 -4.7982240</span></a>
-<a class="sourceLine" id="cb9-65" title="65"><span class="co">#&gt; 45198: -2.238547 -1.8152691 -5.363847 -5.5482372 -0.2055778 -5.3792999</span></a>
-<a class="sourceLine" id="cb9-66" title="66"><span class="co">#&gt; 45199: -3.761132 -2.4688984 -5.509579 -6.1985716 -1.2616262 -5.9168708</span></a>
-<a class="sourceLine" id="cb9-67" title="67"><span class="co">#&gt; 45200: -5.677335 -3.4514109 -5.946858 -6.8952164 -1.9542868 -6.5737116</span></a>
-<a class="sourceLine" id="cb9-68" title="68"><span class="co">#&gt;                O1        Oz         O2       EOGV      EOGH</span></a>
-<a class="sourceLine" id="cb9-69" title="69"><span class="co">#&gt;     1: -6.0260374 -5.461096 -4.2778666   6.783448  2.078419</span></a>
-<a class="sourceLine" id="cb9-70" title="70"><span class="co">#&gt;     2: -2.6993167 -2.760820 -2.2311228   6.625389  4.423636</span></a>
-<a class="sourceLine" id="cb9-71" title="71"><span class="co">#&gt;     3:  1.8627557  1.137758  0.7749981   7.371072  6.663611</span></a>
-<a class="sourceLine" id="cb9-72" title="72"><span class="co">#&gt;     4:  5.8118551  4.439274  3.4188545   9.326947  8.364970</span></a>
-<a class="sourceLine" id="cb9-73" title="73"><span class="co">#&gt;     5:  8.0964449  6.621065  5.8291734  11.692706  9.205865</span></a>
-<a class="sourceLine" id="cb9-74" title="74"><span class="co">#&gt;    ---                                                     </span></a>
-<a class="sourceLine" id="cb9-75" title="75"><span class="co">#&gt; 45196: -0.5402464 -4.114951 -0.3463787  -8.905102 18.196424</span></a>
-<a class="sourceLine" id="cb9-76" title="76"><span class="co">#&gt; 45197: -0.8443795 -3.887248 -0.4495586  -9.181591 17.637968</span></a>
-<a class="sourceLine" id="cb9-77" title="77"><span class="co">#&gt; 45198: -2.0916432 -4.558462 -1.1659049  -8.742321 17.773702</span></a>
-<a class="sourceLine" id="cb9-78" title="78"><span class="co">#&gt; 45199: -4.1249534 -6.119560 -2.5120736  -9.108685 17.002721</span></a>
-<a class="sourceLine" id="cb9-79" title="79"><span class="co">#&gt; 45200: -6.4350015 -7.568655 -3.5681661 -10.735058 15.214422</span></a>
+<a class="sourceLine" id="cb9-8" title="8"><span class="co">#&gt;        .id .sample_id      Fp1      Fpz       Fp2        F7        F3        Fz</span></a>
+<a class="sourceLine" id="cb9-9" title="9"><span class="co">#&gt;     1:   1        -99 3.000602 3.822540  1.676837  5.345215  8.526904  4.730365</span></a>
+<a class="sourceLine" id="cb9-10" title="10"><span class="co">#&gt;     2:   1        -98 4.651500 5.966759  2.899244  6.229248 11.957867  6.160355</span></a>
+<a class="sourceLine" id="cb9-11" title="11"><span class="co">#&gt;     3:   1        -97 5.636973 7.734169  3.360790  6.146507 12.643122  7.125668</span></a>
+<a class="sourceLine" id="cb9-12" title="12"><span class="co">#&gt;     4:   1        -96 4.887103 7.093736  1.560090  4.679008 10.153717  6.335395</span></a>
+<a class="sourceLine" id="cb9-13" title="13"><span class="co">#&gt;     5:   1        -95 1.679875 3.586631 -2.115480  1.817395  6.471601  4.633891</span></a>
+<a class="sourceLine" id="cb9-14" title="14"><span class="co">#&gt;    ---                                                                         </span></a>
+<a class="sourceLine" id="cb9-15" title="15"><span class="co">#&gt; 45196: 200        122       NA       NA        NA -6.226833 -6.164627 -8.134506</span></a>
+<a class="sourceLine" id="cb9-16" title="16"><span class="co">#&gt; 45197: 200        123       NA       NA        NA -7.609634 -6.624886 -8.577490</span></a>
+<a class="sourceLine" id="cb9-17" title="17"><span class="co">#&gt; 45198: 200        124       NA       NA        NA -8.355278 -7.320350 -8.860150</span></a>
+<a class="sourceLine" id="cb9-18" title="18"><span class="co">#&gt; 45199: 200        125       NA       NA        NA -8.419843 -8.317026 -9.056007</span></a>
+<a class="sourceLine" id="cb9-19" title="19"><span class="co">#&gt; 45200: 200        126       NA       NA        NA -8.219583 -9.290400 -9.426888</span></a>
+<a class="sourceLine" id="cb9-20" title="20"><span class="co">#&gt;               F4         F8        FC5       FC1       FC2       FC6         M1</span></a>
+<a class="sourceLine" id="cb9-21" title="21"><span class="co">#&gt;     1:  3.188497 -0.1089175  -3.644006  7.912477  3.989274  1.272626  0.2677516</span></a>
+<a class="sourceLine" id="cb9-22" title="22"><span class="co">#&gt;     2:  3.994015 -0.8760965   1.023301  9.416551  4.667467  3.301379 -0.2832003</span></a>
+<a class="sourceLine" id="cb9-23" title="23"><span class="co">#&gt;     3:  4.267825 -2.2046354   7.279726  9.103708  5.293130  3.712586 -0.7368386</span></a>
+<a class="sourceLine" id="cb9-24" title="24"><span class="co">#&gt;     4:  3.259394 -3.9267309  10.369022  7.112526  4.947480  1.836436 -0.8240938</span></a>
+<a class="sourceLine" id="cb9-25" title="25"><span class="co">#&gt;     5:  1.394350 -5.1243312  10.296667  4.968021  4.046026 -1.199115 -0.6874469</span></a>
+<a class="sourceLine" id="cb9-26" title="26"><span class="co">#&gt;    ---                                                                         </span></a>
+<a class="sourceLine" id="cb9-27" title="27"><span class="co">#&gt; 45196: -6.909568 -0.8537389  -9.798989 -7.777216 -9.401660 -6.067313 -6.4766435</span></a>
+<a class="sourceLine" id="cb9-28" title="28"><span class="co">#&gt; 45197: -7.793821 -0.9486715 -10.705381 -8.119785 -9.315678 -7.353704 -6.6995262</span></a>
+<a class="sourceLine" id="cb9-29" title="29"><span class="co">#&gt; 45198: -8.050289 -0.5816752 -11.125468 -8.373542 -9.178003 -8.296130 -6.9813064</span></a>
+<a class="sourceLine" id="cb9-30" title="30"><span class="co">#&gt; 45199: -7.632708  0.1328152 -10.956071 -8.740564 -9.007817 -8.350711 -7.0623969</span></a>
+<a class="sourceLine" id="cb9-31" title="31"><span class="co">#&gt; 45200: -7.286663  0.5260323 -10.897510 -9.636951 -8.939460 -7.994563 -7.0156692</span></a>
+<a class="sourceLine" id="cb9-32" title="32"><span class="co">#&gt;               T7        C3         Cz          C4         T8         M2</span></a>
+<a class="sourceLine" id="cb9-33" title="33"><span class="co">#&gt;     1: -3.057617 10.609308   5.917813   0.8313377 -10.315272 -0.2677516</span></a>
+<a class="sourceLine" id="cb9-34" title="34"><span class="co">#&gt;     2: -1.562383 12.928541   6.262912   1.0666051 -10.356676  0.2832003</span></a>
+<a class="sourceLine" id="cb9-35" title="35"><span class="co">#&gt;     3:  1.504318 11.542353   5.948693   1.9167381 -11.298820  0.7368386</span></a>
+<a class="sourceLine" id="cb9-36" title="36"><span class="co">#&gt;     4:  5.022166  7.915255   4.986212   2.8912187 -11.997029  0.8240938</span></a>
+<a class="sourceLine" id="cb9-37" title="37"><span class="co">#&gt;     5:  6.427537  4.484360   4.172830   3.3982225 -12.559875  0.6874469</span></a>
+<a class="sourceLine" id="cb9-38" title="38"><span class="co">#&gt;    ---                                                                 </span></a>
+<a class="sourceLine" id="cb9-39" title="39"><span class="co">#&gt; 45196: -8.022766 -6.429070 -10.872999  -8.3944751  -3.502227  6.4766435</span></a>
+<a class="sourceLine" id="cb9-40" title="40"><span class="co">#&gt; 45197: -8.829075 -7.358996 -10.609312  -9.2848460  -4.407707  6.6995262</span></a>
+<a class="sourceLine" id="cb9-41" title="41"><span class="co">#&gt; 45198: -9.287003 -8.015747 -10.252135  -9.7955848  -4.839347  6.9813064</span></a>
+<a class="sourceLine" id="cb9-42" title="42"><span class="co">#&gt; 45199: -9.304779 -8.464732  -9.964297  -9.9221298  -4.811365  7.0623969</span></a>
+<a class="sourceLine" id="cb9-43" title="43"><span class="co">#&gt; 45200: -9.483838 -9.494273 -10.028708 -10.5967504  -4.864176  7.0156692</span></a>
+<a class="sourceLine" id="cb9-44" title="44"><span class="co">#&gt;              CP5        CP1       CP2       CP6        P7         P3        Pz</span></a>
+<a class="sourceLine" id="cb9-45" title="45"><span class="co">#&gt;     1:  1.964691  6.7162759  3.262704 -7.399092 -5.496809  2.0440808  4.166571</span></a>
+<a class="sourceLine" id="cb9-46" title="46"><span class="co">#&gt;     2:  4.404590  7.4449489  3.293858 -5.744716 -2.861829  3.2697255  4.204710</span></a>
+<a class="sourceLine" id="cb9-47" title="47"><span class="co">#&gt;     3:  5.582302  7.1147640  3.475278 -3.493423  1.280905  4.4449736  4.435450</span></a>
+<a class="sourceLine" id="cb9-48" title="48"><span class="co">#&gt;     4:  5.430152  6.1576960  3.890801 -1.759528  5.945641  5.2879867  4.639458</span></a>
+<a class="sourceLine" id="cb9-49" title="49"><span class="co">#&gt;     5:  4.314408  5.2338812  4.307086 -1.050894  8.049101  5.4885453  4.919482</span></a>
+<a class="sourceLine" id="cb9-50" title="50"><span class="co">#&gt;    ---                                                                        </span></a>
+<a class="sourceLine" id="cb9-51" title="51"><span class="co">#&gt; 45196: -1.349851 -0.4762376 -5.722418 -3.533263  2.242977  0.7155832 -4.610498</span></a>
+<a class="sourceLine" id="cb9-52" title="52"><span class="co">#&gt; 45197: -3.101862 -1.1596463 -6.534246 -4.621159 -0.126445 -0.6689793 -5.037940</span></a>
+<a class="sourceLine" id="cb9-53" title="53"><span class="co">#&gt; 45198: -4.486185 -1.7303489 -6.932361 -5.494592 -2.238547 -1.8152691 -5.363847</span></a>
+<a class="sourceLine" id="cb9-54" title="54"><span class="co">#&gt; 45199: -5.391058 -2.1837558 -7.031692 -6.007089 -3.761132 -2.4688984 -5.509579</span></a>
+<a class="sourceLine" id="cb9-55" title="55"><span class="co">#&gt; 45200: -6.672053 -3.0703575 -7.622055 -6.492426 -5.677335 -3.4514109 -5.946858</span></a>
+<a class="sourceLine" id="cb9-56" title="56"><span class="co">#&gt;                P4         P8        POz         O1        Oz         O2</span></a>
+<a class="sourceLine" id="cb9-57" title="57"><span class="co">#&gt;     1: -0.0616881 -8.3880332 -0.3286116 -6.0260374 -5.461096 -4.2778666</span></a>
+<a class="sourceLine" id="cb9-58" title="58"><span class="co">#&gt;     2:  0.5590584 -6.7958000  0.3093608 -2.6993167 -2.760820 -2.2311228</span></a>
+<a class="sourceLine" id="cb9-59" title="59"><span class="co">#&gt;     3:  1.7226454 -4.7219687  1.9620757  1.8627557  1.137758  0.7749981</span></a>
+<a class="sourceLine" id="cb9-60" title="60"><span class="co">#&gt;     4:  2.7629569 -3.0705338  3.7967925  5.8118551  4.439274  3.4188545</span></a>
+<a class="sourceLine" id="cb9-61" title="61"><span class="co">#&gt;     5:  3.4599713 -1.9033555  5.3241937  8.0964449  6.621065  5.8291734</span></a>
+<a class="sourceLine" id="cb9-62" title="62"><span class="co">#&gt;    ---                                                                 </span></a>
+<a class="sourceLine" id="cb9-63" title="63"><span class="co">#&gt; 45196: -3.9528958  1.4214111 -4.3255999 -0.5402464 -4.114951 -0.3463787</span></a>
+<a class="sourceLine" id="cb9-64" title="64"><span class="co">#&gt; 45197: -4.7200541  0.7046986 -4.7982240 -0.8443795 -3.887248 -0.4495586</span></a>
+<a class="sourceLine" id="cb9-65" title="65"><span class="co">#&gt; 45198: -5.5482372 -0.2055778 -5.3792999 -2.0916432 -4.558462 -1.1659049</span></a>
+<a class="sourceLine" id="cb9-66" title="66"><span class="co">#&gt; 45199: -6.1985716 -1.2616262 -5.9168708 -4.1249534 -6.119560 -2.5120736</span></a>
+<a class="sourceLine" id="cb9-67" title="67"><span class="co">#&gt; 45200: -6.8952164 -1.9542868 -6.5737116 -6.4350015 -7.568655 -3.5681661</span></a>
+<a class="sourceLine" id="cb9-68" title="68"><span class="co">#&gt;              EOGV      EOGH</span></a>
+<a class="sourceLine" id="cb9-69" title="69"><span class="co">#&gt;     1:   6.783448  2.078419</span></a>
+<a class="sourceLine" id="cb9-70" title="70"><span class="co">#&gt;     2:   6.625389  4.423636</span></a>
+<a class="sourceLine" id="cb9-71" title="71"><span class="co">#&gt;     3:   7.371072  6.663611</span></a>
+<a class="sourceLine" id="cb9-72" title="72"><span class="co">#&gt;     4:   9.326947  8.364970</span></a>
+<a class="sourceLine" id="cb9-73" title="73"><span class="co">#&gt;     5:  11.692706  9.205865</span></a>
+<a class="sourceLine" id="cb9-74" title="74"><span class="co">#&gt;    ---                     </span></a>
+<a class="sourceLine" id="cb9-75" title="75"><span class="co">#&gt; 45196:  -8.905102 18.196424</span></a>
+<a class="sourceLine" id="cb9-76" title="76"><span class="co">#&gt; 45197:  -9.181591 17.637968</span></a>
+<a class="sourceLine" id="cb9-77" title="77"><span class="co">#&gt; 45198:  -8.742321 17.773702</span></a>
+<a class="sourceLine" id="cb9-78" title="78"><span class="co">#&gt; 45199:  -9.108685 17.002721</span></a>
+<a class="sourceLine" id="cb9-79" title="79"><span class="co">#&gt; 45200: -10.735058 15.214422</span></a>
 <a class="sourceLine" id="cb9-80" title="80"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb9-81" title="81"><span class="co">#&gt; $events</span></a>
 <a class="sourceLine" id="cb9-82" title="82"><span class="co">#&gt;      .id     type description .sample_0 .size .channel</span></a>
@@ -437,7 +407,7 @@
 <a class="sourceLine" id="cb9-112" title="112"><span class="co">#&gt; [1] "eeg_lst"</span></a>
 <a class="sourceLine" id="cb9-113" title="113"><span class="co">#&gt; attr(,"vars")</span></a>
 <a class="sourceLine" id="cb9-114" title="114"><span class="co">#&gt; character(0)</span></a></code></pre></div>
-<p>With some “regular” <code>ggplot</code> skills, we can create customized plots. <code>plot_gg</code> downsamples the signals (by default), and converts them to a long-format data frame that is feed into <code>ggplot</code> object. This object can then be customized.</p>
+<p>With some <code>ggplot</code> skills, we can create customized plots. <code>plot_gg</code> downsamples the signals (by default), and converts them to a long-format data frame that is feed into <code>ggplot</code> object. This object can then be customized.</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1">faces_segs_some <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb10-2" title="2"><span class="st">                  </span><span class="kw">select</span>(O1, O2, P7, P8) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb10-3" title="3"><span class="st">                  </span><span class="kw"><a href="../reference/plot_gg.html">plot_gg</a></span>() <span class="op">+</span><span class="st"> </span></a>
@@ -446,11 +416,11 @@
 <a class="sourceLine" id="cb10-6" title="6">                  <span class="kw">aes</span>(<span class="dt">color =</span> condition)) <span class="op">+</span></a>
 <a class="sourceLine" id="cb10-7" title="7"><span class="st">                  </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>channel) <span class="op">+</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb10-8" title="8"><span class="st">                  </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="dv">0</span>, <span class="dt">linetype =</span> <span class="st">"dashed"</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb10-9" title="9"><span class="st">                </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="fl">.17</span>, <span class="dt">linetype =</span> <span class="st">"dotted"</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb10-10" title="10"><span class="st">                </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>) </a></code></pre></div>
+<a class="sourceLine" id="cb10-9" title="9"><span class="st">                  </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="fl">.17</span>, <span class="dt">linetype =</span> <span class="st">"dotted"</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb10-10" title="10"><span class="st">                  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>) </a></code></pre></div>
 <p><img src="brainvision_files_files/figure-html/unnamed-chunk-8-1.png" width="100%"></p>
-<p>The motivation for manipulating the data in the <code>eeg_lst</code> format and not transforming them directly to a data frame has to do with size considerations. In this case, the original file was 149 MB, converting it to a long format entails a lot of repetition and generates an object of 786 MB. While this is still ok here, a long format quickly becomes prohibitive in real settings with longer recordings and with several subjects.</p>
-<p>We can see here the N170 component in the faces condition for the average trial on a single participant. We can investigate the signal by averaging the channels of the occipital and parietal lobes using the capabilities inherited from <code>dplyr</code>, and the special function, <code>chs_mean</code>, a wrapper for <code>rowMeans</code>, which takes as arguments the relevant channels and whether missing values should be omitted from the calculations.</p>
+<p>The motivation for manipulating the data in the <code>eeg_lst</code> format and not transforming them directly to a data frame has to do with size considerations. In this case, the original file was 149 MB, converting it to a long format entails a lot of repetition and generates an object of 786 MB. While this will still work here, a long format quickly becomes prohibitive in real settings with longer recordings and with several subjects.</p>
+<p>We can see here the N170 component in the faces condition for the average trial on a single participant. We can investigate the signal by averaging the channels of the occipital and parietal lobes using the capabilities inherited from <code>dplyr</code>, and the special function, <code><a href="../reference/chs_mean.html">chs_mean()</a></code>, a wrapper for <code>rowMeans()</code>, which takes as arguments the relevant channels and whether missing values should be omitted from the calculations.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1">faces_segs_some <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb11-2" title="2"><span class="st">                </span><span class="kw">transmute</span>(<span class="dt">Occipital =</span> <span class="kw"><a href="../reference/chs_mean.html">chs_mean</a></span>(O1, O2, Oz, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>),</a>
 <a class="sourceLine" id="cb11-3" title="3">                          <span class="dt">Parietal =</span> <span class="kw"><a href="../reference/chs_mean.html">chs_mean</a></span>(P3, P4, P7,  P8, Pz, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
@@ -461,11 +431,11 @@
 <a class="sourceLine" id="cb11-8" title="8"><span class="st">                </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>channel) <span class="op">+</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb11-9" title="9"><span class="st">                </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>) </a></code></pre></div>
 <p><img src="brainvision_files_files/figure-html/unnamed-chunk-9-1.png" width="100%"></p>
-<p>Another possibility is to create a topographic plot of the two conditions, by first making segments that include only the interval .1-.2 <em>s</em> after the onset of the stimuli, creating a table with interpolated amplitudes and using the ggplot wrapper <code>plot_topo</code>.</p>
+<p>Another possibility is to create a topographic plot of the two conditions, by first making segments that include only the interval .1-.2 <em>s</em> after the onset of the stimuli, creating a table with interpolated amplitudes and using the ggplot wrapper <code><a href="../reference/plot_topo.html">plot_topo()</a></code>.</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">faces_segs_some <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(<span class="kw"><a href="../reference/between.html">between</a></span>(<span class="kw"><a href="../reference/as_time.html">as_time</a></span>(.sample_id, <span class="dt">unit =</span> <span class="st">"milliseconds"</span>),<span class="dv">100</span>,<span class="dv">200</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb12-2" title="2"><span class="st">                    </span><span class="kw">group_by</span>(condition) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb12-3" title="3"><span class="st">                    </span><span class="kw"><a href="../reference/summarize_ch.html">summarize_all_ch</a></span>(mean, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb12-4" title="4"><span class="st">                      </span><span class="kw"><a href="../reference/interpolate_tbl.html">interpolate_tbl</a></span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb12-4" title="4"><span class="st">                    </span><span class="kw"><a href="../reference/interpolate_tbl.html">interpolate_tbl</a></span>() <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb12-5" title="5"><span class="st">                    </span><span class="kw"><a href="../reference/plot_topo.html">plot_topo</a></span>() <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(<span class="op">~</span>condition)</a></code></pre></div>
 <p><img src="brainvision_files_files/figure-html/unnamed-chunk-10-1.png" width="100%"></p>
 <p>For more specialized plots or analyses, it might be necessary to extract the data in long data frame format first. For example, here, we visualize independent t-tests (or some other statistics) at every electrode and time point.</p>

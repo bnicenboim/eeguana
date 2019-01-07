@@ -2,7 +2,7 @@
 extended_signal <- function(.eeg_lst, cond_cols){
   relevant_cols <- c(obligatory_cols$segments, group_chr(.eeg_lst),cond_cols)
 
- if(length(group_chr_only_segments)>0) {
+ if(length(relevant_cols)>1) { #more than just .id
   segments <-  dplyr::ungroup(.eeg_lst$segments) %>% 
                dplyr::select_if(names(.) %in% relevant_cols) %>%
                data.table::data.table()
@@ -54,9 +54,9 @@ getAST <- function(ee) {
 #' @noRd
 dots_by_tbl_quos <- function(.eeg_lst, dots) {
 
-  signal_cols <- c(channel_names(.eeg_lst),
-                     paste0("`",channel_names(.eeg_lst),"`"), #In case channel name is used with ` in the function call
-                     ".id", ".sample_id")
+  signal_cols <- c(colnames(.eeg_lst$signal),
+                     paste0("`",channel_names(.eeg_lst),"`") #In case channel name is used with ` in the function call, NOT sure if needed anymore
+                     )
 
   signal_dots <- purrr::map_lgl(dots, function(dot)
   # get the AST of each call and unlist it

@@ -1,4 +1,4 @@
-context("test extended dplyr functions - bind")
+context("test extended tidyverse: bind")
 library(eeguana)
 
 

@@ -15,7 +15,8 @@ reference:
     desc: >
       Functions that overload some `dplyr` functions and always return an `eeg_lst`. 
     contents: 
-    - '`dplyr`'
+    - '`dplyr-eeguana`'
+    - '`join-eeguana`'
     - '`bind`'
     - '`summarize_ch`'
   - title: "Specialized summarizing functions"

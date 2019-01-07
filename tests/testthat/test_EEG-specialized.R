@@ -1,4 +1,4 @@
-context("table transformations")
+context("test EEG-specialized functions")
 library(eeguana)
 
 
@@ -81,6 +81,7 @@ data_XY <- eeg_lst(
 
 # TEST when the event exceeds the end of the segment
 
+x <- data
 
 test_that("can clean files with entire_seg = FALSE", {
   clean_data <- event_to_ch_NA(data, type == "Bad", entire_seg = FALSE)
@@ -225,3 +226,36 @@ test_that("baseline works", {
 segment(data, type == "Time 0", lim = c(-1 / 500, 0))
 segment(data0, type == "Time 0", lim = c(-1 / 500, 0))
 data0_s <- segment(data0, type == "Time 0", lim = c(-Inf, Inf))
+
+
+
+
+data_eeg <- eeg_lst(
+  signal = signal_tbl(
+    signal_matrix = as.matrix(
+      data.frame(X = sin(1:20), Y = cos(1:20))
+    ),
+    ids = rep(c(1L, 2L), each = 10),
+    sample_ids = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500),
+    dplyr::tibble(
+      channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+      radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
+    )
+  ),
+  events = dplyr::tribble(
+    ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
+    1L, "New Segment", NA_character_, -4L, 1L, NA,
+    1L, "Bad", NA_character_, -2L, 3L, NA,
+    1L, "Time 0", NA_character_, 1L, 1L, NA,
+    1L, "Bad", NA_character_, 2L, 2L, "X",
+    2L, "New Segment", NA_character_, -4L, 1L, NA,
+    2L, "Time 0", NA_character_, 1L, 1L, NA,
+    2L, "Bad", NA_character_, 2L, 1L, "Y"
+  ),
+  segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
+)
+
+
+data_d <- downsample(data_eeg, max_sample=2)
+
+#need to test it better

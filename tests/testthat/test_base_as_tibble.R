@@ -1,4 +1,4 @@
-context("Binding and transforming")
+context("base functions: as_tibble")
 library(eeguana)
 
 cond1 <- eeg_lst(

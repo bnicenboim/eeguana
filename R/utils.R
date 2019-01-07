@@ -1,4 +1,3 @@
-  .datatable.aware = TRUE
   
 #' @noRd
 seq_len <- function(length.out) {
@@ -87,7 +86,12 @@ theme_eeguana <- ggplot2::theme_bw() +
                     strip.background = ggplot2::element_rect(colour = "transparent", fill = "transparent"),
                     panel.spacing  = ggplot2::unit(.01, "points"),
                     panel.border = ggplot2::element_rect(colour = "transparent", fill = "transparent"))
-
+theme_eeguana_empty <- theme_eeguana +
+                    theme(panel.grid = ggplot2::element_line(colour = "transparent"),
+                      axis.ticks= ggplot2::element_line(colour = "transparent"),
+                      axis.text= ggplot2::element_blank(),
+                      axis.title= ggplot2::element_blank())
+                    
 #' Convenience function for range subsets 
 #' 
 #' between is a thin wrapper for the between function of [data.table]. It is equivalent to x >= lower & x <= upper when incbounds=TRUE, or x > lower & y < upper when FALSE.

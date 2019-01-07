@@ -3,4 +3,6 @@ pkgdown: 1.1.0
 pkgdown_sha: ~
 articles:
   brainvision_files: brainvision_files.html
+  eeg_datasets: eeg_datasets.html
+  preprocessing_erp: preprocessing_erp.html
 

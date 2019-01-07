@@ -16,7 +16,8 @@ plot.eeg_lst <- function(x, max_sample = 64000, ...) {
     x <- downsample(x, max_sample = max_sample)
   }
 
-  df <- dplyr::as_tibble(x)
+  df <- dplyr::as_tibble(x) %>% 
+        dplyr::mutate(channel = factor(channel, levels = unique(channel)))
   plot <- ggplot2::ggplot(
     df,
     ggplot2::aes(x = time, y = amplitude, group = .id)
@@ -57,7 +58,9 @@ plot_gg.eeg_lst <- function(.data, x = time, y = amplitude, ..., max_sample = 64
   }
 
   dots <- rlang::enquos(...)
-  df <- dplyr::as_tibble(.data)
+  df <- dplyr::as_tibble(.data) %>% 
+        dplyr::mutate(channel = factor(channel, levels = unique(channel)))
+
   plot <- ggplot2::ggplot(
     df,
     ggplot2::aes(x = !!x, y = !!y, !!!dots)
@@ -127,7 +130,7 @@ plot_topo.tbl_df <- function(data, x = .x, y =.y, value= amplitude,  label=chann
       colours = c("darkred", "yellow", "green", "darkblue"),
       values = c(1.0, 0.75, 0.5, 0.25, 0)
     ) +
-    theme_eeguana
+    theme_eeguana_empty
 
   # if (length(grouping_vars) > 0) {
   #   plot <- plot + facet_wrap(grouping_vars)

@@ -12,7 +12,7 @@
 #' * `summarize()` summarizes the channel of the signal_tbl table
 #' *  `group_by()`: allows that operations would be performed "by group".
 #' *  `ungroup()`: removes the grouping created by group_by.
-#' * `select()` keeps only the mentioned variables from the refered table, except for the obligatory columns starting with `.`.
+#' * `select()` keeps only the mentioned variables from the referred table, except for the obligatory columns starting with `.`.
 #' * `rename()`: keeps all variables.
 #'
 #' These commands always return the entire eeg_lst so that
@@ -25,7 +25,7 @@
 #' @family dplyr functions
 #' @seealso [join], [summarize_at_ch], [summarize_all_ch], [bind] for the extended dplyr-like functions.
 #'
-#' @name dplyr
+#' @name dplyr-eeguana
 #' 
 #' @examples
 #' \dontrun{
@@ -35,7 +35,7 @@
 NULL
 # > NULL
 
-#' @rdname dplyr
+#' @rdname dplyr-eeguana
 mutate.eeg_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
   mutate_eeg_lst(.data, dots, keep_cols = TRUE)
@@ -44,7 +44,7 @@ mutate_.eeg_lst <- function(.data, ..., .dots = list()) {
   dots <- compat_lazy_dots(.dots, rlang::caller_env(), ...)
   mutate_eeg_lst(.data, dots, keep_cols = TRUE)
 }
-#' @rdname dplyr
+#' @rdname dplyr-eeguana
 transmute.eeg_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
   mutate_eeg_lst(.data, dots, keep_cols = FALSE)
@@ -57,12 +57,12 @@ filter_.eeg_lst <- function(.data, ..., .dots = list()) {
   dots <- compat_lazy_dots(.dots, rlang::caller_env(), ...)
   filter_eeg_lst(.data, dots = dots)
 }
-#' @rdname dplyr
+#' @rdname dplyr-eeguana
 filter.eeg_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
   filter_eeg_lst(.data, dots = dots)
 }
-#' @rdname dplyr
+#' @rdname dplyr-eeguana
 summarise.eeg_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
  summarize_eeg_lst(.data, dots)
@@ -75,12 +75,12 @@ group_by_.eeg_lst <- function(.data, ..., .dots = list()) {
   dots <- compat_lazy_dots(.dots, rlang::caller_env(), ...)
   group_by_eeg_lst(.eeg_lst = .data, dots, .add = FALSE)
 }
-#' @rdname dplyr
+#' @rdname dplyr-eeguana
 group_by.eeg_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
   group_by_eeg_lst(.eeg_lst = .data, dots, .add = FALSE)
 }
-#' @rdname dplyr
+#' @rdname dplyr-eeguana
 ungroup.eeg_lst <- function(.data, ...) {
   attributes(.data)$vars <- character(0)
   validate_eeg_lst(.data)
@@ -93,18 +93,19 @@ attributes(x)$vars %>% purrr::map(as.name)
 group_vars.eeg_lst <- function(x) {
   attributes(x)$vars
 }
-#' @rdname dplyr
+#' @rdname dplyr-eeguana
 select.eeg_lst <- function(.data, ...) {
   select_rename(.data, select = TRUE, ...)
 }
-#' @rdname dplyr
+#' @rdname dplyr-eeguana
 rename.eeg_lst <- function(.data, ...) {
   select_rename(.data, select = FALSE, ...)
 }
 
 #' Dplyr functions for joining data frames to the segments of  eeg_lst objects.
 #'
-#' Join a data frames to the segments of an eeg_lst object, and modify the signal table accordingly (dropping rows when necesary).
+#' Join a data frames to the segments of an eeg_lst object, and 
+#' modify the signal table accordingly (dropping rows when necessary).
 #'
 #' Wrappers for [dplyr][dplyr::join]'s commands:
 #' The following wrappers have been implemented for `eeg_lst` objects:
@@ -122,12 +123,12 @@ rename.eeg_lst <- function(.data, ...) {
 #' @family join functions
 #' @seealso [dplyr], [summarize_at_ch], [summarize_all_ch], [bind] for the extended dplyr-like functions.
 #'
-#' @name join
+#' @name join-eeguana
 #' 
 NULL
 # > NULL
 
-#' @rdname join
+#' @rdname join-eeguana
 anti_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
   if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
 
@@ -138,7 +139,7 @@ anti_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".
   x$events <- semi_join_dt(x$events, segments, by = ".id")
   redo_indices(x) %>% validate_eeg_lst()
 }
-#' @rdname join
+#' @rdname join-eeguana
 left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
   if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
 
@@ -146,7 +147,7 @@ left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".
 
   validate_eeg_lst(x)
 }
-#' @rdname join
+#' @rdname join-eeguana
 semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
 

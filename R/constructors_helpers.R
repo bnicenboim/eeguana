@@ -4,8 +4,8 @@
 #'
 #' @noRd
 new_sample_int <- function(values, sampling_rate) {
-  if (all(!is.na(values)) & any(values != round(values))) {
-    stop("Values should be round numbers.",
+  if (!all(is.na(values)) && !all.equal(values, round(values))) {
+    stop("Sample integer values should be round numbers.",
       call. = FALSE
     )
   } else {
@@ -84,14 +84,6 @@ validate_channel_dbl <- function(channel) {
 #'
 #' @noRd
 new_signal_tbl <- function(signal_matrix = matrix(), ids = c(), sample_ids = c(), channel_info = dplyr::tibble()) {
-  
-  # if(data.table::is.data.table(signal_matrix)) {
-  #   signal_tbl <- signal_matrix[, (update_channel_meta_data(.SD, channel_info)),.SDcols=colnames(signal_matrix)]
-  #  } else if(is.matrix(signal_matrix) || is.data.frame(signal_matrix)) {
-  #   signal_tbl <- lapply(seq_len(ncol(signal_matrix)), function(i) signal_matrix[, i]) %>% 
-  #                 update_channel_meta_data( channel_info) %>%
-  #                 data.table::as.data.table()
-  # }
 
   if(!data.table::is.data.table(signal_matrix)) {
     signal_matrix <- data.table::data.table(signal_matrix)
@@ -260,16 +252,15 @@ if (!data.table::is.data.table(events)) {
 #' @noRd
 validate_segments <- function(segments) {
   # Validates .id
-  if (length(segments$.id) >0 && all(unique(segments$.id) != seq_len(max(segments$.id)))) {
+  if (length(segments$.id) >0 && all(segments$.id != seq_len(max(segments$.id)))) {
     warning("Missing .ids, some functions might fail.",
+      call. = FALSE
+    )
+  }
+  if( length(segments$.id) != length(unique(segments$.id)) ){
+        warning("Some .ids are repeated in the segments table, some functions might fail.",
       call. = FALSE
     )
   }
   segments
 }
-
-obligatory_cols <- list(
-  signal = c(.id = ".id", .sample_id = ".sample_id"),
-  events = c(.id = ".id", .sample_0 = ".sample_0", .size = ".size", .channel = ".channel"),
-  segments = c(.id = ".id")
-)

@@ -1,4 +1,4 @@
-#' Create a table with interpolated singnals fromof an eeg_lst object.
+#' Create a table with interpolated signals of an eeg_lst object.
 #'
 #' Create a default topographic plot based on the segments of the `eeg_lst` object.
 #'
@@ -32,7 +32,8 @@ interpolate_tbl.eeg_lst <- function(.data, x = .x, y = .y, value = amplitude, la
 }
 #' @rdname interpolate_tbl
 #' @export
-interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, label = channel, diam_points =200, method = "MBA",...) {
+interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, label = channel, diam_points =200, 
+  method = "MBA",...) {
   # x <- rlang::quo(.x)
   # y <- rlang::quo(.y)
   # value <- rlang::quo(amplitude)
@@ -69,18 +70,24 @@ interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, lab
 
 #   l <- .data %>%  dplyr::summarize(!!value := mean(!!value))
 
-    l <- .data %>% dplyr::ungroup() %>% dplyr::select(dplyr::one_of(group_vars)) %>%
-    # in case it should group by some NA
-    
-    dplyr::mutate_all(tidyr::replace_na, "NA") %>% 
-    dplyr::distinct()
+    l <- .data %>% dplyr::ungroup() %>% dplyr::select(dplyr::one_of(group_vars))# %>%
+        #dplyr::distinct()
+
+     if(!identical(na.omit(l),l)) { 
+      stop("Data cannot be grouped by a column that contains NAs.")
+     }
 
   if (method == "MBA") {
     if (!"MBA" %in% rownames(utils::installed.packages())) {
       stop("Package MBA needs to be installed to interpolate using multilevel B-splines ")
     }
     # change to sp = FALSE and adapt, so that I remove the sp package
-    interpolation_alg <- function(xyz, ...) MBA::mba.surf(xyz = xyz, diam_points, diam_points, sp = FALSE, extend = TRUE, ...)
+    interpolation_alg <- function(xyz, ...) MBA::mba.surf(xyz = xyz, 
+                                                          diam_points, 
+                                                          diam_points, 
+                                                          sp = FALSE, 
+                                                          extend = TRUE, 
+                                                          b.box = c(-1.1,1.1,-1.1,1.1))
   } else {
     stop("Non supported method.")
   }
@@ -90,7 +97,7 @@ interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, lab
     if (ncol(l) == 0) {
       list(.data)
     } else {
-      split(.data, l)
+      base::split(.data, l)
     }
   } %>%
     purrr::discard(~nrow(.x) == 0) %>%
@@ -122,7 +129,7 @@ interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, lab
         !!rlang::quo_name(value) := c(mba_interp$xyz$z)
       ) %>%
         # eq to mba_interp$xyz.est@data$z
-        dplyr::filter(((!!x)^2 + (!!y)^2 < 1.1)) %>%
+        dplyr::filter(((!!x)^2 + (!!y)^2 <= 1.1)) %>%
         {
           dplyr::bind_cols(dplyr::slice(common, rep(1, each = nrow(.))), .)
         }
