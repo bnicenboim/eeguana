@@ -145,18 +145,15 @@ new_eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
     class = c("eeg_lst"),
     vars = character(0)
   )
-   
 }
 
 #' @param x 
 #'
 #' @noRd
 validate_eeg_lst <- function(x) {
- 
-
-  validate_signal_tbl(x$signal)
-  validate_events(x$events, channel_names(x))
-  validate_segments(x$segments)
+  x$signal <- validate_signal_tbl(x$signal)
+  x$events <- validate_events(x$events, channel_names(x))
+  x$segments <- validate_segments(x$segments)
   if (!all.equal(unique(x$signal$.id), unique(x$segments$.id))) {
     warning("The values of .ids mismatch between tables.",
       call. = FALSE
@@ -335,8 +332,8 @@ new_ica_lst <- function(signal = NULL, mixing = NULL, events = NULL, segments = 
 #'
 #' @noRd
 validate_ica_lst <- function(x) {
-    validate_mixing_tbl(x$mixing)
-    validate_eeg_lst(x)
+    x <- validate_eeg_lst(x)
+    x$mixing <- validate_mixing_tbl(x$mixing)
 }
 
 #' @param mixing_tbl 
