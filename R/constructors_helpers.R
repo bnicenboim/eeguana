@@ -152,6 +152,8 @@ new_eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
 #'
 #' @noRd
 validate_eeg_lst <- function(x) {
+ 
+
   validate_signal_tbl(x$signal)
   validate_events(x$events, channel_names(x))
   validate_segments(x$segments)
@@ -174,7 +176,14 @@ validate_eeg_lst <- function(x) {
 #'
 #' @noRd
 validate_signal_tbl <- function(signal_tbl) {
-  
+    if(is.null(signal_tbl)) {
+        signal_tbl <- data.table::data.table(.id= integer(0),.sample_id= integer(0))
+        data.table::setkey(signal_tbl,.id,.sample_id)
+    }
+    if(!data.table::is.data.table(signal_tbl) && is.data.frame(signal_tbl)) {
+        signal <- data.table::as.data.table(signal_tbl)
+        data.table::setkey(signal_tbl,.id,.sample_id)
+   }     
   if (!data.table::is.data.table(signal_tbl)) {
     warning("'signal' be a data.table.",
       call. = FALSE
@@ -219,6 +228,16 @@ validate_signal_tbl <- function(signal_tbl) {
 #'
 #' @noRd
 validate_events <- function(events, channels) {
+    if(is.null(events)) {
+        events <- data.table::data.table(.id= integer(0),
+                                         .sample_0= integer(0),
+                                         .size= integer(0),
+                                         .channel= integer(0))
+    }
+    if(!data.table::is.data.table(events) && is.data.frame(events)) {
+        events <- data.table::as.data.table(events)
+    }
+
 if (!data.table::is.data.table(events)) {
     warning("'events' be a data.table.",
       call. = FALSE
@@ -251,6 +270,9 @@ if (!data.table::is.data.table(events)) {
 #'
 #' @noRd
 validate_segments <- function(segments) {
+    if(is.null(segments)) {
+        segments <- dplyr::tibble(.id = integer(0))
+    }
   # Validates .id
   if (length(segments$.id) >0 && all(segments$.id != seq_len(max(segments$.id)))) {
     warning("Missing .ids, some functions might fail.",
@@ -263,4 +285,97 @@ validate_segments <- function(segments) {
     )
   }
   segments
+}
+#' @param values
+#' @noRd
+new_component_dbl <- function(values)  {
+    values <- unclass(values) %>% as.double
+    attributes(values) <- c(
+        class = "component_dbl"
+    )
+    values
+}
+
+
+
+#' @param component 
+#'
+#' @noRd
+validate_component_dbl <- function(component) {
+    if (!is.double(component)) {
+        stop("Values should be double.",
+             call. = FALSE
+             )
+    }
+    component
+}
+
+#' @param signal_tbl 
+#'
+#' @param events 
+#' @param segments 
+#'
+#' @noRd
+new_ica_lst <- function(signal = NULL, mixing = NULL, events = NULL, segments = NULL) {
+    x <- list(
+        signal = signal,
+        mixing = mixing,
+        events = events,
+        segments = segments
+    )
+    x <- unclass(x)
+    structure(x,
+              class = c("ica_lst","eeg_lst"),
+              vars = character(0)
+              )
+    
+}
+
+#' @param x 
+#'
+#' @noRd
+validate_ica_lst <- function(x) {
+    validate_mixing_tbl(x$mixing)
+    validate_eeg_lst(x)
+}
+
+#' @param mixing_tbl 
+#'
+#' @noRd
+validate_mixing_tbl <- function(mixing_tbl) {
+    
+    if (!data.table::is.data.table(mixing_tbl)) {
+        warning("'mixing' should be a data.table.",
+                call. = FALSE
+                )
+    }
+
+     if(all(!sapply(mixing_tbl, is_channel_dbl)) && nrow(mixing_tbl)>0){
+        warning("No channels found.")
+    }
+    # Validates channels 
+    mixing_tbl[, lapply(.SD,validate_channel_dbl), .SDcols= sapply(mixing_tbl, is_channel_dbl)] 
+
+    mixing_tbl
+}
+
+#' @param mixing_matrix 
+#' @param components 
+#' @param channel_info 
+#'
+#' @noRd
+new_mixing_tbl <- function( mixing_matrix = matrix(), components = c(), channel_info = dplyr::tibble()) {
+
+    if(!data.table::is.data.table(mixing_matrix)) {
+        mixing_matrix <- data.table::data.table(mixing_matrix)
+    }
+
+    mixing_tbl <- mixing_matrix[, (update_channel_meta_data(.SD, channel_info)),
+                                .SDcols=colnames(mixing_matrix)]
+
+    mixing_tbl[, .id := ids][, .sample_id := sample_ids]
+    data.table::setcolorder(mixing_tbl, c(".id", ".sample_id"))
+    data.table::setattr(mixing_tbl, "class",c("signal_tbl",class(signal_tbl)))
+    data.table::setkey(mixing_tbl, .id, .sample_id)
+    mixing_tbl[]
 }

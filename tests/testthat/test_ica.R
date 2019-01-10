@@ -1,7 +1,7 @@
 context("test eeg ica")
 library(eeguana)
 
-library(MASS)
+# library(MASS)
 
 # 6 independent sources
 S <- cbind(sin((1:1000)/20),
@@ -102,10 +102,13 @@ data_eyes <- eeg_lst(
 )
 
 plot(data_eyes) + facet_grid(channel~.id)
-.eeg_lst <- data_eyes
 
-plot(data_eyes) + facet_grid(channel~.id)
-data %>% filter(.id==1) %>% summarize_all_ch(mean) %>% interpolate_tbl() %>% plot_topo()
+#remove later
+.eeg_lst <- data_eyes
+.eeg_lst
+signal_raw <- dplyr::select(.eeg_lst$signal, channel_names(.eeg_lst))
+
+# data %>% filter(.id==1) %>% summarize_all_ch(mean) %>% interpolate_tbl() %>% plot_topo()
 
 .eeg_lst <- data_eyes %>% select(-eye)
 
