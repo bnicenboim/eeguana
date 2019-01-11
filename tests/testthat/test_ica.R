@@ -103,37 +103,51 @@ data_eyes <- eeg_lst(
 
 plot(data_eyes) + facet_grid(channel~.id)
 
-#remove later
-.eeg_lst <- data_eyes
-.eeg_lst
-signal_raw <- dplyr::select(.eeg_lst$signal, channel_names(.eeg_lst))
 
-# data %>% filter(.id==1) %>% summarize_all_ch(mean) %>% interpolate_tbl() %>% plot_topo()
+data_ica <- eeg_ica(data_eyes, channel_names(data_eyes), method = "fastica")
 
-.eeg_lst <- data_eyes %>% select(-eye)
+#need to implement this:
+data_ica$mixing %>% mutate(component=1:n()) %>%
+    tidyr::gather(channel, amplitude, -component)  %>%
+    left_join(channels_tbl(data_eyes))  %>%
+    group_by(component) %>% interpolate_tbl() %>% plot_topo() + facet_grid(~component)
 
-data_eyes_fixed <- eeg_lst(
-  signal = signal_tbl(
-    signal_matrix = signal_out
-    ,
-    ids = rep(c(1L, 2L), each = 500),
-    sample_ids = sample_int(rep(seq(1L, 500L), times = 2), sampling_rate = 500),
-    channels
-  ),
-  events = dplyr::tibble(
-    .id=integer(0),.sample_0 =integer(0), .size=integer(0), .channel=character(0),
-  ),
-  segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
-)
+#I should use a more realistic example
 
-plot(data_eyes_fixed) + facet_grid(channel~.id)
-.eeg_lst <- data_eyes
-# ?interpolate_tbl
-# as_tibble(MASS::ginv(ica_res$W) ) %>% 
-# mutate(channel=c("A","B","C","D","E")) %>% 
-# # mutate(comp=1:n())%>% 
-# tidyr::gather(comp, amplitude, -channel) %>% left_join(channels_tbl(.eeg_lst)) %>% filter(comp=="V4") %>% 
-# interpolate_tbl() %>% plot_topo() 
+data_ica %>% select(-C1) %>% as_eeg_lst()
+
+
+
+# .eeg_lst <- data_eyes
+# .eeg_lst
+# signal_raw <- dplyr::select(.eeg_lst$signal, channel_names(.eeg_lst))
+# 
+# # data %>% filter(.id==1) %>% summarize_all_ch(mean) %>% interpolate_tbl() %>% plot_topo()
+# 
+# .eeg_lst <- data_eyes %>% select(-eye)
+# 
+# data_eyes_fixed <- eeg_lst(
+#   signal = signal_tbl(
+#     signal_matrix = signal_out
+#     ,
+#     ids = rep(c(1L, 2L), each = 500),
+#     sample_ids = sample_int(rep(seq(1L, 500L), times = 2), sampling_rate = 500),
+#     channels
+#   ),
+#   events = dplyr::tibble(
+#     .id=integer(0),.sample_0 =integer(0), .size=integer(0), .channel=character(0),
+#   ),
+#   segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
+# )
+# 
+# plot(data_eyes_fixed) + facet_grid(channel~.id)
+# .eeg_lst <- data_eyes
+# # ?interpolate_tbl
+# # as_tibble(MASS::ginv(ica_res$W) ) %>% 
+# # mutate(channel=c("A","B","C","D","E")) %>% 
+# # # mutate(comp=1:n())%>% 
+# # tidyr::gather(comp, amplitude, -channel) %>% left_join(channels_tbl(.eeg_lst)) %>% filter(comp=="V4") %>% 
+# # interpolate_tbl() %>% plot_topo() 
 
 
 # as.matrix(signal_raw) %*% ica_res$W[1,]

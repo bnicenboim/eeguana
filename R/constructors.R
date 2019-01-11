@@ -252,7 +252,7 @@ ica_lst <- function(signal = NULL, mixing = NULL, events = NULL, segments = NULL
 #' 
 #' @return A valid mixing_tbl table.
 #' @export
-mixing_tbl <- function(mixing_matrix, ids, sample_ids, channel_info) {
+mixing_tbl <- function(mixing_matrix, components, channel_info) {
     validate_mixing_tbl(new_mixing_tbl(mixing_matrix, components, channel_info))
     
 }

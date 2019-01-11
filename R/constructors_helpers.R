@@ -209,8 +209,11 @@ validate_signal_tbl <- function(signal_tbl) {
   validate_sample_int(signal_tbl$.sample_id)
 
   #checks if there are channels
-  if(all(!sapply(signal_tbl, is_channel_dbl)) && nrow(signal_tbl)>0){
-    warning("No channels found.")
+    if(nrow(signal_tbl)>0){
+      nchannels <- sum(sapply(signal_tbl, is_channel_dbl))
+      ncomponents <- sum(sapply(signal_tbl, is_component_dbl))
+      if(nchannels ==0 & ncomponents ==0  )
+        warning("No channels or components found.")
   }
 
   # Validates channels 
@@ -287,7 +290,7 @@ validate_segments <- function(segments) {
 #' @noRd
 new_component_dbl <- function(values)  {
     values <- unclass(values) %>% as.double
-    attributes(values) <- c(
+    attributes(values) <- list(
         class = "component_dbl"
     )
     values
@@ -334,6 +337,7 @@ new_ica_lst <- function(signal = NULL, mixing = NULL, events = NULL, segments = 
 validate_ica_lst <- function(x) {
     x <- validate_eeg_lst(x)
     x$mixing <- validate_mixing_tbl(x$mixing)
+    x
 }
 
 #' @param mixing_tbl 
@@ -370,9 +374,6 @@ new_mixing_tbl <- function( mixing_matrix = matrix(), components = c(), channel_
     mixing_tbl <- mixing_matrix[, (update_channel_meta_data(.SD, channel_info)),
                                 .SDcols=colnames(mixing_matrix)]
 
-    mixing_tbl[, .id := ids][, .sample_id := sample_ids]
-    data.table::setcolorder(mixing_tbl, c(".id", ".sample_id"))
-    data.table::setattr(mixing_tbl, "class",c("signal_tbl",class(signal_tbl)))
-    data.table::setkey(mixing_tbl, .id, .sample_id)
+    data.table::setattr(mixing_tbl, "class",c("mixing_tbl",class(mixing_tbl)))
     mixing_tbl[]
 }
