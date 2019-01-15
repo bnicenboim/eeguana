@@ -174,44 +174,38 @@ expect_equal(data_all_s4,data_all_s4)
 
 
 # comparing summarize within and outside eeg_lst
-d1 <- group_by(data, .sample_id) %>% summarize(mean = mean(X[condition=="a"]-X[condition=="b"]))
-d2 <- data %>% as_tibble %>% group_by(time) %>% filter(channel=="X") %>% summarize(mean = mean(amplitude[condition=="a"]-amplitude[condition=="b"]))
+eeg_diff_means_1 <- group_by(data, .sample_id) %>% summarize(mean = mean(X[condition=="a"]-X[condition=="b"]))
+tbl_diff_means_1 <- data %>% as_tibble %>% group_by(time) %>% filter(channel=="X") %>% summarize(mean = mean(amplitude[condition=="a"]-amplitude[condition=="b"]))
 
-d3 <- group_by(data, .sample_id) %>% summarize_all_ch(funs(mean(.[condition=="a"]-.[condition=="b"])))
-d4 <- data %>% as_tibble %>% group_by(time, channel) %>% summarize(mean = mean(amplitude[condition=="a"]-amplitude[condition=="b"])) %>% spread(key = channel, value = mean) %>% ungroup()
+eeg_diff_means_2 <- group_by(data, .sample_id) %>% summarize_all_ch(funs(mean(.[condition=="a"]-.[condition=="b"])))
+tbl_diff_means_2 <- data %>% as_tibble %>% group_by(time, channel) %>% summarize(mean = mean(amplitude[condition=="a"]-amplitude[condition=="b"])) %>% spread(key = channel, value = mean) %>% ungroup()
 
-d5 <- group_by(data, .sample_id) %>% summarize(mean(X[condition=="a" & recording == "recording1"]-X[condition=="b" & recording == "recording2"]))
-d6 <- data %>% as_tibble %>% group_by(time) %>% filter(channel=="X") %>% summarize(mean = mean(amplitude[condition=="a" & recording == "recording1"]-amplitude[condition=="b" & recording == "recording2"]))
+eeg_diff_means_3 <- group_by(data, .sample_id) %>% summarize(mean = mean(X[condition=="a" & recording == "recording1"]-X[condition=="b" & recording == "recording2"]))
+tbl_diff_means_3 <- data %>% as_tibble %>% group_by(time) %>% filter(channel=="X") %>% summarize(mean = mean(amplitude[condition=="a" & recording == "recording1"]-amplitude[condition=="b" & recording == "recording2"]))
 
-d7 <- group_by(data, .sample_id) %>% summarize_all_ch(funs(mean(.[condition=="a" & recording == "recording1"]-.[condition=="b" & recording == "recording2"])))
-d8 <- data %>% as_tibble %>% group_by(time, channel) %>% summarize(mean = mean(amplitude[condition=="a" & recording == "recording1"]-amplitude[condition=="b" & recording == "recording2"])) %>% spread(key = channel, value = mean) %>% ungroup()
+eeg_diff_means_4 <- group_by(data, .sample_id) %>% summarize_all_ch(funs(mean(.[condition=="a" & recording == "recording1"]-.[condition=="b" & recording == "recording2"])))
+tbl_diff_means_4 <- data %>% as_tibble %>% group_by(time, channel) %>% summarize(mean = mean(amplitude[condition=="a" & recording == "recording1"]-amplitude[condition=="b" & recording == "recording2"])) %>% spread(key = channel, value = mean) %>% ungroup()
 
-d9 <- group_by(data, .sample_id) %>% summarize_all_ch("mean")
-d10 <- data %>% as_tibble() %>% group_by(time, channel) %>% summarize(mean = mean(amplitude)) %>% spread(key = channel, value = mean) %>% ungroup()
+eeg_means_5 <- group_by(data, .sample_id) %>% summarize_all_ch("mean")
+tbl_means_5 <- data %>% as_tibble() %>% group_by(time, channel) %>% summarize(mean = mean(amplitude)) %>% spread(key = channel, value = mean) %>% ungroup()
 
-d11 <- mutate(data, time = as_time(.sample_id, unit = "milliseconds")) %>% group_by(.sample_id) %>% summarize(mean(X))
-d12 <- data %>% as_tibble() %>% group_by(time) %>% summarize(mean = mean(amplitude[channel=="X"]))
 
 test_that("summarising functions work the same on eeg_lst as on tibble", {
-  expect_equal(as.double(d1$signal[[3]]), d2$mean)
-  expect_equal(as.matrix(d3$signal[,c(3,4)]), as.matrix(select(d4, X, Y)))
-  expect_equal(as.double(d5$signal[[3]]), d6$mean)
-  expect_equal(as.matrix(d7$signal[,c(3,4)]), as.matrix(select(d8, X, Y)))
-  expect_equal(as.matrix(d9$signal[,c(3,4)]), as.matrix(select(d10, X, Y)))
-  expect_equal(as.double(d11$signal[[3]]), d12$mean)
+  expect_equal(as.double(eeg_diff_means_1$signal[["mean"]]), tbl_diff_means_1$mean)
+  expect_equal(as.matrix(eeg_diff_means_2$signal[,c("X","Y")]), as.matrix(select(tbl_diff_means_2, X, Y)))
+  expect_equal(as.double(eeg_diff_means_3$signal[["mean"]]), tbl_diff_means_3$mean)
+  expect_equal(as.matrix(eeg_diff_means_4$signal[,c("X","Y")]), as.matrix(select(tbl_diff_means_4, X, Y)))
+  expect_equal(as.matrix(eeg_means_5$signal[,c("X","Y")]), as.matrix(select(tbl_means_5, X, Y)))
 })
 
 
-# not converting to ms
-d13 <- mutate(data, time = as_time(.sample_id, unit = "milliseconds")) %>% summarize(mean(time))
-d14 <- data %>% as_tibble() %>% summarize(mean = mean(time)) 
+# checking as_time conversion
+eeg_time <- mutate(data, time = as_time(.sample_id, unit = "milliseconds")) %>% summarize(mean = mean(time))
+tbl_time <- data %>% as_tibble() %>% summarize(mean = mean(time)) 
 
 test_that("as_time works as expected", {
-  expect_equal(as.double(d13$signal[[3]]), d14$mean)
+  expect_equal(as.double(eeg_time$signal[["mean"]]), tbl_time$mean)
 })
 
 
-#Maybe it's fine that the following fails:
-# mutate(data, time = as_time(.sample_id, unit = "milliseconds")) %>% group_by(time) %>%
-#         summarize(mean(X))
 
