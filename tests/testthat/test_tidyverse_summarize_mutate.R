@@ -173,23 +173,46 @@ expect_equal(data_all_s4,data_all_s4)
 })
 
 
+# eeg_lst vs. tibble
+d1 <- group_by(data, .sample_id) %>% summarize(mean(X[condition=="a"]-X[condition=="b"]))
+d2 <- data %>% as_tibble() %>% group_by(time) %>% summarize(mean = mean(amplitude[condition=="a"]-amplitude[condition=="b"])) 
 
-group_by(data, .sample_id) %>% summarize(mean(X[condition=="a"]-X[condition=="b"]))
-group_by(data, .sample_id) %>% summarize(mean(X[condition=="a" & recording == "recording1"]-X[condition=="b" & recording == "recording2"]))
+d3 <- group_by(data, .sample_id) %>% summarize(mean(X[condition=="a" & recording == "recording1"]-X[condition=="b" & recording == "recording2"]))
+d4 <- data %>% as_tibble() %>% group_by(time) %>% summarize(mean = mean(amplitude[condition=="a" & recording =="recording1"]-amplitude[condition=="b" & recording=="recording2"])) 
+
+d5 <- group_by(data, .sample_id) %>% summarize_all_ch(funs(mean(.[condition=="a"]-.[condition=="b"])))
+d6 <- data %>% as_tibble() %>% group_by(channel, time) %>% summarize(mean = mean(amplitude[condition=="a"]-amplitude[condition=="b"])) %>% spread(key = channel, value = mean)
+
+d7 <- group_by(data, .sample_id) %>% summarize_all_ch(funs(mean(.[condition=="a" & recording == "recording1"]-.[condition=="b" & recording == "recording2"])))
+d8 <- data %>% as_tibble() %>% group_by(channel, time) %>% summarize(mean = mean(amplitude[condition=="a" & recording=="recording1"]-amplitude[condition=="b" & recording=="recording2"])) %>% spread(key = channel, value = mean)
+
+d9 <- group_by(data, .sample_id) %>% summarize_all_ch("mean")
+d10 <- data %>% as_tibble() %>% group_by(channel, time) %>% summarize(mean = mean(amplitude)) %>% spread(key = channel, value = mean)
+
+d11 <- mutate(data, time = as_time(.sample_id, unit = "milliseconds")) %>% group_by(.sample_id) %>% summarize(mean(X))
+d12 <- data %>% as_tibble() %>% filter(channel=="X") %>% group_by(time) %>% summarize(mean = mean(amplitude))
+
+# after I last synched (14 Jan), summarize fails, summarize_all_ch is ok
+test_that("summarising eeg_lst works the same as summarising an exported tibble", {
+  expect_equal(as.double(d1$signal[[3]]), d2$mean)
+  expect_equal(as.double(d3$signal[[3]]), d4$mean)
+  expect_equal(as.matrix(d5$signal[,c(3,4)]), as.matrix(select(d6, X, Y)))
+  expect_equal(as.matrix(d7$signal[,c(3,4)]), as.matrix(select(d8, X, Y)))
+  expect_equal(as.matrix(d9$signal[,c(3,4)]), as.matrix(select(d10, X, Y)))
+  expect_equal(as.double(d11$signal[[3]]), d12$mean)
+})
 
 
-group_by(data, .sample_id) %>% summarize_all_ch(funs(mean(.[condition=="a"]-.[condition=="b"])))
-group_by(data, .sample_id) %>% summarize_all_ch(funs(mean(.[condition=="a" & recording == "recording1"]-.[condition=="b" & recording == "recording2"])))
 
-group_by(data, .sample_id) %>% summarize_all_ch(funs(x = mean(.[condition=="a"]-.[condition=="b"])))
-group_by(data, .sample_id) %>% summarize_all_ch("mean")
+d13 <- mutate(data, time = as_time(.sample_id, unit = "milliseconds")) %>% summarize(mean(time))
+d14 <- data %>% as_tibble() %>% summarise(mean = mean(time))
 
-mutate(data, time = as_time(.sample_id, unit = "milliseconds")) %>%
-        summarize(mean(time))
+# it doesn't
+test_that("as_time conversion works as expected", {
+  expect_equal(as.double(d13$signal[[3]]), d14$mean)
+})
 
 
-mutate(data, time = as_time(.sample_id, unit = "milliseconds")) %>% group_by(.sample_id) %>%
-        summarize(mean(X))
 
 #Maybe it's fine that the following fails:
 # mutate(data, time = as_time(.sample_id, unit = "milliseconds")) %>% group_by(time) %>%
