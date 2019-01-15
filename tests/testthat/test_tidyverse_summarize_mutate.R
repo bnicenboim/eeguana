@@ -208,4 +208,27 @@ test_that("as_time works as expected", {
 })
 
 
+# comparing mutate within eeg_lst and tibble
+
+# Bruno's note: Maybe it's fine that the following fails:
+#mutate(data, time = as_time(.sample_id, unit = "milliseconds")) %>% group_by(time) %>% summarize(mean(X))
+
+# create new variable with mutate
+eeg_mutate_1 <- data %>% mutate(bin = ntile(.sample_id, 5))
+tbl_mutate_1 <- data %>% as_tibble() %>% mutate(bin = ntile(time, 5))
+
+# use new variable in second variable doesn't work in eeg_lst
+eeg_mutate_2 <- data %>% mutate(time = as_time(.sample_id, unit = "ms"), bin = ntile(time, 5))
+tbl_mutate_2 <- data %>% as_tibble() %>% mutate(test = time+1, bin = ntile(test, 5))
+
+# can't summarize by a mutated variable within eeg_lst (?)
+eeg_mutate_3 <- data %>% mutate(bin = ntile(.sample_id, 5)) %>% group_by(bin) %>% summarize(mean = mean(X))
+tbl_mutate_3 <- data %>% as_tibble() %>% mutate(bin = ntile(time, 3)) %>% group_by(bin) %>% summarize(mean = mean(amplitude[channel=="X"]))
+
+
+test_that("mutate works the same on eeg_lst as on tibble", {
+  expect_equal(eeg_mutate_1$signal[["bin"]], tbl_mutate_1$bin[tbl_mutate_1$channel=="X"])
+  expect_equal(eeg_mutate_2$signal[["bin"]], tbl_mutate_2$bin[tbl_mutate_1$channel=="X"])
+  expect_equal(eeg_mutate_3$signal[["bin"]], tbl_mutate_3$bin)
+})
 
