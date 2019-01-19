@@ -119,10 +119,14 @@ test_that("the classes of channels of signal_tbl remain in non-grouped eeg_lst",
 
 
 # with my functions
-data_s1 <- data %>% group_by(condition, .sample_id, recording) %>% summarize(X = mean(X),Y = mean(Y))
-data_s2 <- data_s1 %>% group_by(condition, .sample_id) %>% summarize(X = mean(X),Y = mean(Y))
-data_s3 <- data_s2 %>% group_by(condition) %>% summarize(X = mean(X),Y = mean(Y))
-data_s4 <- data_s3 %>% group_by() %>% summarize(X = mean(X),Y = mean(Y))
+data_s1 <- data %>% group_by(condition, .sample_id, recording) %>%
+    summarize(X = mean(X),Y = mean(Y))
+data_s2 <- data_s1 %>% group_by(condition, .sample_id) %>%
+    summarize(X = mean(X),Y = mean(Y))
+data_s3 <- data_s2 %>% group_by(condition) %>%
+    summarize(X = mean(X),Y = mean(Y))
+data_s4 <- data_s3 %>% group_by() %>%
+    summarize(X = mean(X),Y = mean(Y))
 
 
 .eeg_lst <- data %>% group_by(condition, .sample_id, recording)
@@ -174,34 +178,61 @@ expect_equal(data_all_s4,data_all_s4)
 
 
 # comparing summarize within and outside eeg_lst
-eeg_diff_means_1 <- group_by(data, .sample_id) %>% summarize(mean = mean(X[condition=="a"]-X[condition=="b"]))
-tbl_diff_means_1 <- data %>% as_tibble %>% group_by(time) %>% filter(channel=="X") %>% summarize(mean = mean(amplitude[condition=="a"]-amplitude[condition=="b"]))
+eeg_diff_means_1 <- group_by(data, .sample_id) %>%
+    summarize(mean = mean(X[condition=="a"] - X[condition=="b"]))
+tbl_diff_means_1 <- data %>% as_tibble %>%
+    group_by(time) %>%
+    filter(channel=="X") %>%
+    summarize(mean = mean(amplitude[condition=="a"] - amplitude[condition=="b"]))
 
-eeg_diff_means_2 <- group_by(data, .sample_id) %>% summarize_all_ch(funs(mean(.[condition=="a"]-.[condition=="b"])))
-tbl_diff_means_2 <- data %>% as_tibble %>% group_by(time, channel) %>% summarize(mean = mean(amplitude[condition=="a"]-amplitude[condition=="b"])) %>% spread(key = channel, value = mean) %>% ungroup()
+eeg_diff_means_2 <- group_by(data, .sample_id) %>%
+    summarize_all_ch(funs(mean(.[condition=="a"]-.[condition=="b"])))
 
-eeg_diff_means_3 <- group_by(data, .sample_id) %>% summarize(mean = mean(X[condition=="a" & recording == "recording1"]-X[condition=="b" & recording == "recording2"]))
-tbl_diff_means_3 <- data %>% as_tibble %>% group_by(time) %>% filter(channel=="X") %>% summarize(mean = mean(amplitude[condition=="a" & recording == "recording1"]-amplitude[condition=="b" & recording == "recording2"]))
+tbl_diff_means_2 <- data %>% as_tibble %>%
+    group_by(time, channel) %>%
+    summarize(mean = mean(amplitude[condition=="a"]-amplitude[condition=="b"])) %>%
+    tidyr::spread(key = channel, value = mean) %>% ungroup()
 
-eeg_diff_means_4 <- group_by(data, .sample_id) %>% summarize_all_ch(funs(mean(.[condition=="a" & recording == "recording1"]-.[condition=="b" & recording == "recording2"])))
-tbl_diff_means_4 <- data %>% as_tibble %>% group_by(time, channel) %>% summarize(mean = mean(amplitude[condition=="a" & recording == "recording1"]-amplitude[condition=="b" & recording == "recording2"])) %>% spread(key = channel, value = mean) %>% ungroup()
+eeg_diff_means_3 <- group_by(data, .sample_id) %>%
+    summarize(mean = mean(X[condition=="a" & recording == "recording1"] -
+                          X[condition=="b" & recording == "recording2"]))
+tbl_diff_means_3 <- data %>% as_tibble %>%
+    group_by(time) %>%
+    filter(channel=="X") %>%
+    summarize(mean = mean(amplitude[condition=="a" & recording == "recording1"] -
+                          amplitude[condition=="b" & recording == "recording2"]))
+
+eeg_diff_means_4 <- group_by(data, .sample_id) %>%
+    summarize_all_ch(funs(mean(.[condition=="a" & recording == "recording1"] -
+                               .[condition=="b" & recording == "recording2"])))
+tbl_diff_means_4 <- data %>% as_tibble %>% group_by(time, channel) %>%
+    summarize(mean = mean(amplitude[condition=="a" & recording == "recording1"] -
+                          amplitude[condition=="b" & recording == "recording2"])) %>%
+    tidyr::spread(key = channel, value = mean) %>% ungroup()
 
 eeg_means_5 <- group_by(data, .sample_id) %>% summarize_all_ch("mean")
-tbl_means_5 <- data %>% as_tibble() %>% group_by(time, channel) %>% summarize(mean = mean(amplitude)) %>% spread(key = channel, value = mean) %>% ungroup()
+tbl_means_5 <- data %>% as_tibble() %>%
+    group_by(time, channel) %>%
+    summarize(mean = mean(amplitude)) %>%
+    tidyr::spread(key = channel, value = mean) %>% ungroup()
 
 
 test_that("summarising functions work the same on eeg_lst as on tibble", {
   expect_equal(as.double(eeg_diff_means_1$signal[["mean"]]), tbl_diff_means_1$mean)
-  expect_equal(as.matrix(eeg_diff_means_2$signal[,c("X","Y")]), as.matrix(select(tbl_diff_means_2, X, Y)))
+  expect_equal(as.matrix(eeg_diff_means_2$signal[,c("X","Y")]),
+               as.matrix(select(tbl_diff_means_2, X, Y)))
   expect_equal(as.double(eeg_diff_means_3$signal[["mean"]]), tbl_diff_means_3$mean)
-  expect_equal(as.matrix(eeg_diff_means_4$signal[,c("X","Y")]), as.matrix(select(tbl_diff_means_4, X, Y)))
+  expect_equal(as.matrix(eeg_diff_means_4$signal[,c("X","Y")]),
+               as.matrix(select(tbl_diff_means_4, X, Y)))
   expect_equal(as.matrix(eeg_means_5$signal[,c("X","Y")]), as.matrix(select(tbl_means_5, X, Y)))
 })
 
 
-# checking as_time conversion
-eeg_time <- mutate(data, time = as_time(.sample_id, unit = "milliseconds")) %>% summarize(mean = mean(time))
-tbl_time <- data %>% as_tibble() %>% summarize(mean = mean(time)) 
+# checking as_time conversion (bug #44)
+eeg_time <- mutate(data, time = as_time(.sample_id, unit = "seconds")) %>%
+    summarize(mean = mean(time))
+tbl_time <- data %>% as_tibble() %>%
+    summarize(mean = mean(time))
 
 test_that("as_time works as expected", {
   expect_equal(as.double(eeg_time$signal[["mean"]]), tbl_time$mean)
@@ -217,13 +248,21 @@ test_that("as_time works as expected", {
 eeg_mutate_1 <- data %>% mutate(bin = ntile(.sample_id, 5))
 tbl_mutate_1 <- data %>% as_tibble() %>% mutate(bin = ntile(time, 5))
 
-# use new variable in second variable doesn't work in eeg_lst
-eeg_mutate_2 <- data %>% mutate(time = as_time(.sample_id, unit = "ms"), bin = ntile(time, 5))
+# use new variable in second variable doesn't work in eeg_lst (#35)
+## eeg_mutate_2 <- data %>% mutate(time = as_time(.sample_id, unit = "ms"), bin = ntile(time, 5))
+# work around:
+eeg_mutate_2 <- data %>% mutate(time = as_time(.sample_id, unit = "ms")) %>%
+    mutate(bin = ntile(time, 5))
 tbl_mutate_2 <- data %>% as_tibble() %>% mutate(test = time+1, bin = ntile(test, 5))
 
-# can't summarize by a mutated variable within eeg_lst (?)
-eeg_mutate_3 <- data %>% mutate(bin = ntile(.sample_id, 5)) %>% group_by(bin) %>% summarize(mean = mean(X))
-tbl_mutate_3 <- data %>% as_tibble() %>% mutate(bin = ntile(time, 3)) %>% group_by(bin) %>% summarize(mean = mean(amplitude[channel=="X"]))
+# can't summarize by a mutated variable within eeg_lst (#43)
+eeg_mutate_3 <- data %>% mutate(bin = ntile(.sample_id, 5)) %>%
+    group_by(bin) %>%
+    summarize(mean = mean(X))
+tbl_mutate_3 <- data %>%
+    as_tibble() %>%
+    mutate(bin = ntile(time, 3)) %>%
+    group_by(bin) %>% summarize(mean = mean(amplitude[channel=="X"]))
 
 
 test_that("mutate works the same on eeg_lst as on tibble", {
