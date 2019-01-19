@@ -1,30 +1,30 @@
 #' Apply ICA
 #'
-#' @param .eeg_lst 
+#' @param .data 
 #' @param ... 
 #' 
 #' @export
-eeg_ica <- function(.eeg_lst, ...){
+eeg_ica <- function(.data, ...){
     UseMethod("eeg_ica")
 }
 
 
 #' @rdname eeg_ica
-#' @param .eeg_lst 
+#' @param .data 
 #' @param ... 
 #' @param method 
 #' @param configuration 
 #' 
 #' @return An ica_lst object
 #' @export
-eeg_ica.eeg_lst <- function(.eeg_lst, 
+eeg_ica.eeg_lst <- function(.data, 
                     ...,
           method = "infomax",
           configuration= 
             if(method=="infomax") {
               list(algorithm = "gradient",
               fun = "logistic",
-              learning_rate = 0.00065/log(nchannels(.eeg_lst)),
+              learning_rate = 0.00065/log(nchannels(.data)),
               annealing_rate_angle = 60,
               annealing_rate_step = 0.90,
               max_iterations = 512) 
@@ -38,12 +38,28 @@ eeg_ica.eeg_lst <- function(.eeg_lst,
                             )
 {
 
-  ncomponents = nchannels(.eeg_lst)
+  ncomponents = nchannels(.data)
   dots <- rlang::enquos(...)
-  signal_raw <- dplyr::select(.eeg_lst$signal, !!!dots)
-  
+  signal_raw <- dplyr::select(.data$signal, !!!dots)
+  group_vars <- group_chr(.data)
+    l <- signal_raw %>%
+        dplyr::ungroup() %>%
+        dplyr::select(dplyr::one_of(group_vars)) %>%
+        dplyr::distinct()
+
+    if(!identical(na.omit(l),l)) { 
+        stop("Data cannot be grouped by a column that contains NAs.")
+    }
+     if (ncol(l) == 0) {
+       l_signal_raw <- list(.data)
+        } else {
+       l_signal_raw <- base::split(.data, l)
+        }
+       l_signal_raw <- purrr::discard(~nrow(.x) == 0) 
+
+
   # rest of the channels and cols of signal for the later reconstruction
-  non_ica_signal <- .eeg_lst$signal[,setdiff(colnames(.eeg_lst$signal), colnames(signal_raw)), with = FALSE]
+  non_ica_signal <- .data$signal[,setdiff(colnames(.data$signal), colnames(signal_raw)), with = FALSE]
   
   if(stringr::str_to_lower(method) %in% c("imax","infomax","im")){
 
@@ -61,7 +77,7 @@ eeg_ica.eeg_lst <- function(.eeg_lst,
 
   } else if(stringr::str_to_lower(method) %in% c("fi","fastica","fica")){
 
-      ica_res <- fastICA::fastICA(signal_raw,
+      l_ica <- purrr::map(l_signal_raw, ~ fastICA::fastICA(.x,
                                   n.comp = ncomponents,
                                   alg.typ = configuration$algorithm,
                                   fun = configuration$fun,
@@ -72,6 +88,7 @@ eeg_ica.eeg_lst <- function(.eeg_lst,
                                   tol = configuration$tolerance,
                                   verbose = FALSE,
                                   w.init = NULL)
+#FROM HERE
     S_ICA <- ica_res$S
     ncomponents <- nrow(ica_res$W)
     mixing_matrix <- ica_res$A 
@@ -80,44 +97,43 @@ eeg_ica.eeg_lst <- function(.eeg_lst,
 warning("grouping not implemented!!!!, this might apply ICA to several subjects together")
   component_names <- paste0("C",seq_len(ncomponents))
   
-  intercept <- colMeans(signal_raw)
+   channel_means<- colMeans(signal_raw)
 
 #col_info instead of channel_info and without any obligatory attribute...
 #ica_lst (signal, events, segments, mixing, unmixing with the channels info)
 
-  reconstr <- (S_ICA %*% mixing_matrix + intercept) 
-  message("Absolute difference between original data and reconstructed from independent sources: ", 
+  reconstr <- (S_ICA %*% mixing_matrix + channel_means)
+  message("Absolute difference between original data and reconstructed from independent sources: ",
     mean(abs(reconstr - as.matrix(signal_raw))) %>% signif(2))
 
-  # S <- cbind(sin((1:1000)/20), rep((((1:200)-100)/100), 5))
-  # A <- matrix(c(0.291, 0.6557, -0.5439, 0.5572), 2, 2)
-  # X <- S %*% A
-  # 
-  # a <- fastICA::fastICA(X, 2, alg.typ = "parallel", fun = "logcosh", alpha = 1,
-  #              method = "R", row.norm = FALSE, maxit = 200,
-  #              tol = 0.0001, verbose = TRUE)
-  # a$S %*% a$A + colMeans(X)
-  # X
-  
+
   S_ICA <- data.table::as.data.table(S_ICA)
   data.table::setnames(S_ICA, component_names)
   S_ICA <- S_ICA[,lapply(.SD,component_dbl)]
-  # S_ICA[,.id := .eeg_lst$signal$.id][
-  #                ,.sample_id := .eeg_lst$signal$.sample_id]
-  
-  
+
+
   mixing_tbl <- mixing_tbl(mixing_matrix = mixing_matrix,
-                components = component_names, 
-                channel_info = channels_tbl(signal_raw)) 
+                           components = component_names,
+                           group_name = groupby, #group name
+                           groups = group_ids,
+                           channel_means = channel_means, 
+                           channel_info = channels_tbl(signal_raw))
 
-    ica_lst(signal = cbind(non_ica_signal, S_ICA), 
-            mixing = mixing_tbl, 
-            events = .eeg_lst$events, 
-            segments = .eeg_lst$segments)
+  ica_lst(signal = cbind(non_ica_signal, S_ICA),
+            mixing = mixing_tbl,
+            events = .data$events,
+            segments = .data$segments)
+}
+#' to.data object
+#'
+#' @param .data 
+#' @param ... 
+#' 
+#' @export
+as_eeg_lst <- function(.data, ...){
+    UseMethod("as_eeg_lst")
+}
 
-    #signal_out <- as.matrix(signal_raw) -  (dplyr::select(S_ICA,C2) %>% as.matrix() %*% mixing_matrix[,2])
-  #  mean(abs(signal_out - as.matrix(signal_matrix)))
-
-
+as_eeg_lst.ica_lst <- function(.data, ...){
 
 }
