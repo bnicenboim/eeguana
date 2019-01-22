@@ -1,0 +1,21 @@
+---
+title: "EEG datasets"
+author: "Bruno Nicenboim"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette
+vignette: >
+%\VignetteIndexEntry{EEG datasets}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.dim = c(10,15),
+  out.width = "100%"
+)
+```
+The website of DRYAD (https://datadryad.org/) provides many EEG datasets see for example [here](https://datadryad.org/discover?query=&submit=Go&fq=dc.subject_filter%3Aeeg%5C%7C%5C%7C%5C%7CEEG&filtertype=*&filter=&rpp=20&sort_by=score&order=DESC).
