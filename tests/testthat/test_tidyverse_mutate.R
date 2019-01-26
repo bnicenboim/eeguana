@@ -30,11 +30,17 @@ data_1 <- eeg_lst(
     3L, "Time 0", NA_character_, 1L, 1L, NA,
     3L, "Bad", NA_character_, 2L, 1L, "Y"
   ),
-  segments = dplyr::tibble(.id = c(1L, 2L, 3L), recording = "recording1", segment = c(1L, 2L, 3L), condition = c("a", "b", "a"))
+  segments = dplyr::tibble(.id = c(1L, 2L, 3L),
+                           recording = "recording1",
+                           segment = c(1L, 2L, 3L),
+                           condition = c("a", "b", "a"))
 )
 
 # just some different X and Y
-data_2 <- mutate(data_1, recording = "recording2", X = sin(X + 10), Y = cos(Y - 10), condition = c("b", "a", "b"))
+data_2 <- mutate(data_1, recording = "recording2",
+                 X = sin(X + 10),
+                 Y = cos(Y - 10),
+                 condition = c("b", "a", "b"))
 
 # bind it all together
 data <- bind(data_1, data_2)
@@ -69,7 +75,7 @@ mutate3_tbl <- data %>%
 
 mutate4_eeg_lst <- mutate(data, subject = recording)
 
-mutate4_tbl  <- data %>%
+mutate4_tbl <- data %>%
   as_tibble() %>%
   dplyr::filter(channel == "X") %>%
   dplyr::distinct(segment, condition, .keep_all = TRUE) %>%
@@ -117,7 +123,7 @@ test_that("data didn't change", {
 
 
 ### test dplyr mutate on grouped eeg_lst ###
-group_by_eeg_lst <- group_by(data, .sample_id) 
+group_by_eeg_lst <- group_by(data, .sample_id)
 group2_by_eeg_lst <- group_by(data, .id)
 group3_by_eeg_lst <- group_by(data, recording)
 group4_by_eeg_lst <- group_by(data, .sample_id, recording)
@@ -179,13 +185,13 @@ mutate7_g_signal_tbl <- mutate(group7_by_eeg_lst, mean = mean(Y))
 mutate7_g_tbl <- data %>%
   as_tibble() %>%
   dplyr::filter(channel == "Y") %>%
-  dplyr::group_by(condition, time) %>% # have to reverse order 
-  dplyr::mutate(mean = mean(amplitude)) 
+  dplyr::group_by(condition, time) %>% # have to reverse order
+  dplyr::mutate(mean = mean(amplitude))
 
 transmute_g_signal_tbl <- transmute(group_by_eeg_lst, X = X + 1)
 
 transmute_g_tbl <- data %>%
-  as_tibble %>%
+  as_tibble() %>%
   dplyr::group_by(time) %>%
   dplyr::filter(channel == "X") %>%
   dplyr::transmute(X = amplitude + 1)
@@ -196,11 +202,11 @@ mutate_at_g_signal_tbl <- mutate_at(group_by_eeg_lst, channel_names(data), mean)
 mutate_a_tbl <- data %>%
   as_tibble() %>%
   dplyr::group_by(time, channel) %>%
-  dplyr::mutate(mean = mean(amplitude)) %>% 
+  dplyr::mutate(mean = mean(amplitude)) %>%
   dplyr::select(.id, time, channel, mean) %>%
   tidyr::spread(key = channel, value = mean) %>%
   ungroup()
-  
+
 
 test_that("mutate works correctly on data grouped by .sample_id", {
   expect_equal(as.double(mutate_g_signal_tbl$signal[["X"]]), mutate_g_tbl$X)

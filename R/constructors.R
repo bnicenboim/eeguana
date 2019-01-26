@@ -162,3 +162,17 @@ subset.channel_dbl <- function(x, ... ) {
   mostattributes(r) <- attrs
  r
 }
+
+
+#' Test if the object is a component
+#' This function returns  TRUE for components.
+#'
+#' @param x An object.
+#'
+#' @family component
+#' 
+#' @return `TRUE` if the object inherits from the `sampl` class.
+#' @export
+is_component_dbl <- function(x) {
+    class(x) == "component_dbl"
+}
