@@ -9,23 +9,6 @@
 #' @return A valid eeg_lst.
 #' @export
 eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
-  if(is.null(signal)) {
-    signal <- data.table::data.table(.id= integer(0),.sample_id= integer(0))
-    data.table::setkey(signal,.id,.sample_id)
-  }
-  if(!data.table::is.data.table(signal) && is.data.frame(signal)) {
-   signal <- data.table::as.data.table(signal)
-   data.table::setkey(signal,.id,.sample_id)
- }
-  if(is.null(events)) {
-    events <- data.table::data.table(.id= integer(0),.sample_0= integer(0),.size= integer(0),.channel= integer(0))
-  }
-  if(!data.table::is.data.table(events) && is.data.frame(events)) {
-   events <- data.table::as.data.table(events)
- }
- if(is.null(segments)) {
-    segments <- dplyr::tibble(.id = integer(0))
-  }
   validate_eeg_lst(new_eeg_lst(signal, events, segments))
 }
 
