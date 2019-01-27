@@ -57,9 +57,6 @@ mutate_tbl <- data %>%
   dplyr::filter(channel == "X") %>%
   dplyr::mutate(X = amplitude + 10)
 
-mutate_tbl_eeg_lst <- data
-mutate_tbl_eeg_lst$signal$X <- mutate_tbl$X
-
 
 mutate2_eeg_lst <- mutate(data, ZZ = X + 10)
 
@@ -119,7 +116,7 @@ test_that("data didn't change", {
   expect_equal(reference_data, data)
 })
 
-warnings("Check that the rest of the object didn't change")
+warning("Check that the rest of the object didn't change")
 
 
 ### test dplyr mutate on grouped eeg_lst ###
