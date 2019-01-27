@@ -45,10 +45,8 @@ data_2 <- mutate(data_1, recording = "recording2",
 # bind it all together
 data <- bind(data_1, data_2)
 
-
 # for checks later
 reference_data <- data.table::copy(data)
-
 
 
 ### test dplyr mutate on ungrouped eeg_lst ###
@@ -58,6 +56,10 @@ mutate_tbl <- data %>%
   as_tibble() %>%
   dplyr::filter(channel == "X") %>%
   dplyr::mutate(X = amplitude + 10)
+
+mutate_tbl_eeg_lst <- data
+mutate_tbl_eeg_lst$signal$X <- mutate_tbl$X
+
 
 mutate2_eeg_lst <- mutate(data, ZZ = X + 10)
 
@@ -109,8 +111,6 @@ test_that("the classes of channels of signal_tbl remain in non-grouped eeg_lst",
   expect_equal(is_channel_dbl(transmute_eeg_lst$signal$X), TRUE)
   # expect_equal(is_channel_dbl(mutate_all_eeg_lst$signal$X), TRUE)
   # expect_equal(is_channel_dbl(mutate_at_eeg_lst$signal$X), TRUE)
-  expect_equal(is_channel_dbl(summarizeX_eeg_lst$signal$`mean(X)`), TRUE)
-  expect_equal(is_channel_dbl(summarize_at_eeg_lst$signal$X), TRUE)
 })
 
 
@@ -119,7 +119,7 @@ test_that("data didn't change", {
   expect_equal(reference_data, data)
 })
 
-
+warnings("Check that the rest of the object didn't change")
 
 
 ### test dplyr mutate on grouped eeg_lst ###
