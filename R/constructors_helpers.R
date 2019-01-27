@@ -145,13 +145,13 @@ new_eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
     class = c("eeg_lst"),
     vars = character(0)
   )
-   
 }
 
 #' @param x 
 #'
 #' @noRd
 validate_eeg_lst <- function(x) {
+<<<<<<< HEAD
     x$signal <- validate_signal_tbl(x$signal)
     x$events <- validate_events(x$events, channel_names(x))
     x$segments <- validate_segments(x$segments)
@@ -160,6 +160,16 @@ validate_eeg_lst <- function(x) {
                 call. = FALSE
                 )
     }
+=======
+  x$signal <- validate_signal_tbl(x$signal)
+  x$events <- validate_events(x$events, channel_names(x))
+  x$segments <- validate_segments(x$segments)
+  if (!all.equal(unique(x$signal$.id), unique(x$segments$.id))) {
+    warning("The values of .ids mismatch between tables.",
+      call. = FALSE
+    )
+  }
+>>>>>>> feature-ica
 
     if(any(!group_chr(x) %in% c(colnames(x$signal),colnames(x$segments)))){
         warning("Grouping variables are missing.",
@@ -283,4 +293,95 @@ validate_segments <- function(segments) {
     )
   }
   segments
+}
+#' @param values
+#' @noRd
+new_component_dbl <- function(values)  {
+    values <- unclass(values) %>% as.double
+    attributes(values) <- list(
+        class = "component_dbl"
+    )
+    values
+}
+
+
+
+#' @param component 
+#'
+#' @noRd
+validate_component_dbl <- function(component) {
+    if (!is.double(component)) {
+        stop("Values should be double.",
+             call. = FALSE
+             )
+    }
+    component
+}
+
+#' @param signal_tbl 
+#'
+#' @param events 
+#' @param segments 
+#'
+#' @noRd
+new_ica_lst <- function(signal = NULL, mixing = NULL, events = NULL, segments = NULL) {
+    x <- list(
+        signal = signal,
+        mixing = mixing,
+        events = events,
+        segments = segments
+    )
+    x <- unclass(x)
+    structure(x,
+              class = c("ica_lst","eeg_lst"),
+              vars = character(0)
+              )
+    
+}
+
+#' @param x 
+#'
+#' @noRd
+validate_ica_lst <- function(x) {
+    x <- validate_eeg_lst(x)
+    x$mixing <- validate_mixing_tbl(x$mixing)
+    x
+}
+
+#' @param mixing_tbl 
+#'
+#' @noRd
+validate_mixing_tbl <- function(mixing_tbl) {
+    
+    if (!data.table::is.data.table(mixing_tbl)) {
+        warning("'mixing' should be a data.table.",
+                call. = FALSE
+                )
+    }
+
+     if(all(!sapply(mixing_tbl, is_channel_dbl)) && nrow(mixing_tbl)>0){
+        warning("No channels found.")
+    }
+    # Validates channels 
+    mixing_tbl[, lapply(.SD,validate_channel_dbl), .SDcols= sapply(mixing_tbl, is_channel_dbl)] 
+
+    mixing_tbl
+}
+
+#' @param mixing_matrix 
+#' @param components 
+#' @param channel_info 
+#'
+#' @noRd
+new_mixing_tbl <- function( mixing_matrix = matrix(), components = c(), channel_info = dplyr::tibble()) {
+
+    if(!data.table::is.data.table(mixing_matrix)) {
+        mixing_matrix <- data.table::data.table(mixing_matrix)
+    }
+
+    mixing_tbl <- mixing_matrix[, (update_channel_meta_data(.SD, channel_info)),
+                                .SDcols=colnames(mixing_matrix)]
+
+    data.table::setattr(mixing_tbl, "class",c("mixing_tbl",class(mixing_tbl)))
+    mixing_tbl[]
 }
