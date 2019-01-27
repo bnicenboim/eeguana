@@ -285,7 +285,7 @@ eeg_mutate_3 <- data %>%
 
 tbl_mutate_3 <- data %>%
   as_tibble() %>%
-  dplyr::mutate(bin = ntile(time, 3)) %>%
+  dplyr::mutate(bin = ntile(time, 5)) %>%
   dplyr::group_by(bin) %>%
   dplyr::summarize(mean = mean(amplitude[channel == "X"]))
 
