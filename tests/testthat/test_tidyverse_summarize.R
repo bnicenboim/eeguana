@@ -191,9 +191,9 @@ test_that("summarize works correctly on  data grouped by .sample_id", {
 
 
 test_that("the classes of channels of signal_tbl remain in non-grouped eeg_lst", {
-  expect_equal(is_channel_dbl(summarize_g_signal_tbl$signal$`mean(X)`), TRUE)
+  expect_equal(is_channel_dbl(summarize_g_signal_tbl$signal$mean), TRUE)
   expect_equal(is_channel_dbl(summarize_at_g_signal_tbl$signal$X), TRUE)
-  expect_equal(is_channel_dbl(summarize_g2_signal_tbl$signal$`mean(X)`), TRUE)
+  expect_equal(is_channel_dbl(summarize_g2_signal_tbl$signal$mean), TRUE)
 })
 
 
@@ -260,8 +260,7 @@ test_that("summarizing by groups works as expected for the segments", {
   expect_equal(data_s3$segments %>%
     dplyr::select(-segment_n), as_tibble(s_data_s3) %>%
     mutate(.id = 1:n()))
-  expect_equal(data_s4$segments %>%
-    dplyr::select(-segment_n), tibble(.id = 1L))
+  expect_equal(data_s4$segments, tibble(.id = 1L))
 })
 
 
@@ -297,47 +296,47 @@ eeg_diff_means_1 <- group_by(data, .sample_id) %>%
 
 tbl_diff_means_1 <- data %>%
   as_tibble() %>%
-  dpylr::group_by(time) %>%
-  dpylr::filter(channel == "X") %>%
-  dpylr::summarize(mean = mean(amplitude[condition == "a"] - amplitude[condition == "b"]))
+  dplyr::group_by(time) %>%
+  dplyr::filter(channel == "X") %>%
+  dplyr::summarize(mean = mean(amplitude[condition == "a"] - amplitude[condition == "b"]))
 
 eeg_diff_means_2 <- group_by(data, .sample_id) %>%
   summarize_all_ch(funs(mean(.[condition == "a"] - .[condition == "b"])))
 
 tbl_diff_means_2 <- data %>%
   as_tibble() %>%
-  dpylr::group_by(time, channel) %>%
-  dpylr::summarize(mean = mean(amplitude[condition == "a"] - amplitude[condition == "b"])) %>%
+  dplyr::group_by(time, channel) %>%
+  dplyr::summarize(mean = mean(amplitude[condition == "a"] - amplitude[condition == "b"])) %>%
   tidyr::spread(key = channel, value = mean) %>%
-  dpylr::ungroup()
+  dplyr::ungroup()
 
 eeg_diff_means_3 <- group_by(data, .sample_id) %>%
   summarize(mean = mean(X[condition == "a" & recording == "recording1"] - X[condition == "b" & recording == "recording2"]))
 
 tbl_diff_means_3 <- data %>%
   as_tibble() %>%
-  dpylr::group_by(time) %>%
-  dpylr::filter(channel == "X") %>%
-  dpylr::summarize(mean = mean(amplitude[condition == "a" & recording == "recording1"] - amplitude[condition == "b" & recording == "recording2"]))
+  dplyr::group_by(time) %>%
+  dplyr::filter(channel == "X") %>%
+  dplyr::summarize(mean = mean(amplitude[condition == "a" & recording == "recording1"] - amplitude[condition == "b" & recording == "recording2"]))
 
 eeg_diff_means_4 <- group_by(data, .sample_id) %>%
   summarize_all_ch(funs(mean(.[condition == "a" & recording == "recording1"] - .[condition == "b" & recording == "recording2"])))
 
 tbl_diff_means_4 <- data %>%
   as_tibble() %>%
-  dpylr::group_by(time, channel) %>%
-  dpylr::summarize(mean = mean(amplitude[condition == "a" & recording == "recording1"] - amplitude[condition == "b" & recording == "recording2"])) %>%
+  dplyr::group_by(time, channel) %>%
+  dplyr::summarize(mean = mean(amplitude[condition == "a" & recording == "recording1"] - amplitude[condition == "b" & recording == "recording2"])) %>%
   tidyr::spread(key = channel, value = mean) %>%
-  dpylr::ungroup()
+  dplyr::ungroup()
 
 eeg_means_5 <- group_by(data, .sample_id) %>% summarize_all_ch("mean")
 
 tbl_means_5 <- data %>%
   as_tibble() %>%
-  dpylr::group_by(time, channel) %>%
-  dpylr::summarize(mean = mean(amplitude)) %>%
+  dplyr::group_by(time, channel) %>%
+  dplyr::summarize(mean = mean(amplitude)) %>%
   tidyr::spread(key = channel, value = mean) %>%
-  dpylr::ungroup()
+  dplyr::ungroup()
 
 
 test_that("summarising functions work the same on eeg_lst as on tibble", {
