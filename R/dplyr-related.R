@@ -15,6 +15,6 @@ as_time <- function(x, unit = "second") {
 
 #' @export
 as_time.sample_int <- function(x, unit = "second") {
-  time <- x / scaling(sampling_rate = attributes(x)$sampling_rate, unit)
+  time <- (x - 1) / scaling(sampling_rate = attributes(x)$sampling_rate, unit)
   time
 }

@@ -151,6 +151,7 @@ new_eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
 #'
 #' @noRd
 validate_eeg_lst <- function(x) {
+<<<<<<< HEAD
   x$signal <- validate_signal_tbl(x$signal)
   x$events <- validate_events(x$events, channel_names(x))
   x$segments <- validate_segments(x$segments)
@@ -159,16 +160,25 @@ validate_eeg_lst <- function(x) {
       call. = FALSE
     )
   }
+=======
+    x$signal <- validate_signal_tbl(x$signal)
+    x$events <- validate_events(x$events, channel_names(x))
+    x$segments <- validate_segments(x$segments)
+    if (!all.equal(unique(x$signal$.id), unique(x$segments$.id))) {
+        warning("The values of .ids mismatch between tables.",
+                call. = FALSE
+                )
+    }
+>>>>>>> experimental
 
-  if(any(!group_chr(x) %in% c(colnames(x$signal),colnames(x$segments)))){
-      warning("Grouping variables are missing.",
-      call. = FALSE
-    )
-  }
+    if(any(!group_chr(x) %in% c(colnames(x$signal),colnames(x$segments)))){
+        warning("Grouping variables are missing.",
+                call. = FALSE
+                )
+    }
 
-  x
+    x
 }
-
 #' @param signal_tbl 
 #'
 #' @noRd
@@ -221,7 +231,6 @@ validate_signal_tbl <- function(signal_tbl) {
 
   signal_tbl
 }
-
 #' @param events 
 #'
 #' @param channels 
@@ -265,7 +274,6 @@ if (!data.table::is.data.table(events)) {
 
   events
 }
-
 #' @param segments 
 #'
 #' @noRd
