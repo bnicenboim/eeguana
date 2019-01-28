@@ -3,7 +3,6 @@
 \name{channels_tbl}
 \alias{channels_tbl}
 \alias{channels_tbl.eeg_lst}
-\alias{channels_tbl.signal_tbl}
 \alias{channels_tbl<-}
 \alias{channels_tbl<-.eeg_lst}
 \title{Functions to get or set the channel information of an eeg_lst object.}
@@ -11,8 +10,6 @@
 channels_tbl(x, ...)
 
 \method{channels_tbl}{eeg_lst}(x, ...)
-
-\method{channels_tbl}{signal_tbl}(x, ...)
 
 channels_tbl(x) <- value
 
