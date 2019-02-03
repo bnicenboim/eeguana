@@ -40,7 +40,7 @@ data <- bind(data_1, data_2)
 
 # merge the eeg_lst tables into a tibble for testing against
 extended_data <- left_join(as_tibble(data$signal), data$segments, by = ".id") %>%
-  left_join(., data$events, by = ".id") # joining events gives duplicate cases - why?
+  left_join(., data$events, by = ".id") 
 
 # for checks later
 reference_data <- data.table::copy(data)
@@ -112,9 +112,9 @@ filter6_segm_tbl <- extended_data %>%
 
 # the .id numbers are different, all else ok
 test_that("filtering within eeg_lst segments table returns correct values in signal table", {
-  expect_equal(as.matrix(filter4_segm_eeg$signal[, c(".id", "X", "Y")]), as.matrix(distinct(select(filter4_segm_tbl, .id, X, Y))))
-  expect_equal(as.matrix(filter5_segm_eeg$signal[, c(".id", "X", "Y")]), as.matrix(distinct(select(filter5_segm_tbl, .id, X, Y))))
-  expect_equal(as.matrix(filter6_segm_eeg$signal[, c(".id", "X", "Y")]), as.matrix(distinct(select(filter6_segm_tbl, .id, X, Y))))
+  expect_equal(as.matrix(filter4_segm_eeg$signal), as.matrix(distinct(select(filter4_segm_tbl, .id, .sample_id, X, Y))))
+  expect_equal(as.matrix(filter5_segm_eeg$signal), as.matrix(distinct(select(filter5_segm_tbl, .id, .sample_id, X, Y))))
+  expect_equal(as.matrix(filter6_segm_eeg$signal), as.matrix(distinct(select(filter6_segm_tbl, .id, .sample_id, X, Y))))
 })
 
 
@@ -201,12 +201,12 @@ filter6_tbl <- extended_data %>%
 
 # ids are different except for 3
 test_that("filtering across eeg_lst tables returns the right signal table values", {
-  expect_equal(as.matrix(filter1_eeg$signal[, c(".id", "X", "Y")]), as.matrix(distinct(select(filter1_tbl, .id, X, Y))))
-  expect_equal(as.matrix(filter2_eeg$signal[, c(".id", "X", "Y")]), as.matrix(distinct(select(filter2_tbl, .id, X, Y))))
-  expect_equal(as.matrix(filter3_eeg$signal[, c(".id", "X", "Y")]), as.matrix(distinct(select(filter3_tbl, .id, X, Y))))
-  expect_equal(as.matrix(filter4_eeg$signal[, c(".id", "X", "Y")]), as.matrix(distinct(select(filter4_tbl, .id, X, Y))))
-  expect_equal(as.matrix(filter5_eeg$signal[, c(".id", "X", "Y")]), as.matrix(distinct(select(filter5_tbl, .id, X, Y))))
-  expect_equal(as.matrix(filter6_eeg$signal[, c(".id", "X", "Y")]), as.matrix(distinct(select(filter6_tbl, .id, X, Y))))
+  expect_equal(as.matrix(filter1_eeg$signal), as.matrix(distinct(select(filter1_tbl, .id, .sample_id, X, Y))))
+  expect_equal(as.matrix(filter2_eeg$signal), as.matrix(distinct(select(filter2_tbl, .id, .sample_id, X, Y))))
+  expect_equal(as.matrix(filter3_eeg$signal), as.matrix(distinct(select(filter3_tbl, .id, .sample_id, X, Y))))
+  expect_equal(as.matrix(filter4_eeg$signal), as.matrix(distinct(select(filter4_tbl, .id, .sample_id, X, Y))))
+  expect_equal(as.matrix(filter5_eeg$signal), as.matrix(distinct(select(filter5_tbl, .id, .sample_id, X, Y))))
+  expect_equal(as.matrix(filter6_eeg$signal), as.matrix(distinct(select(filter6_tbl, .id, .sample_id, X, Y))))
 })
 
 
@@ -425,7 +425,7 @@ test_that("filtering after grouping and summarizing returns correct values in si
   expect_equal(as.matrix(mutate_at_filter_eeg$signal[, c(".id", "X", "Y")]), as.matrix(select(mutate_a_tbl, .id, X, Y)))
   expect_equal(as.double(summarize_filter_eeg$signal$mean), as.double(summarize_filter_tbl$mean))
   expect_equal(as.matrix(summarize_at_filter_eeg$signal[, c(".id", "X", "Y")]), as.matrix(select(summarize_at_filter_tbl, .id, X, Y)))
-  expect_equal(as.matrix(summarize_all_filter_eeg$signal[, c(".id", "X", "Y")]), as.matrix(select(summarize_all_filter_tbl, .id, X, Y)))
+  expect_equal(as.matrix(summarize_all_filter_eeg$signal), as.matrix(select(summarize_all_filter_tbl, .id, .sample_id, X, Y)))
   expect_equal(as.matrix(summarize_all1_filter_eeg$signal[, c(".id", "X", "Y")]), as.matrix(select(summarize_all1_filter_tbl, .id, X, Y)))
   expect_equal(as.matrix(summarize_all2_filter_eeg$signal[, c("X", "Y")]), as.matrix(select(summarize_all2_filter_tbl, X, Y)))
 })
