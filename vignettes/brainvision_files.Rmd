@@ -152,6 +152,19 @@ faces_segs_some %>%
                 theme(legend.position = "bottom") 
 ```
 
+We can also calculate the ERPs and then plot them:
+
+```{r, fig.dim = c(10,5), out.width = "100%"}
+ERP_faces <- faces_segs_some %>% group_by(.sample_id, condition) %>%
+    summarize_all_ch(mean,na.rm=TRUE)
+
+ERP_plot <- ERP_faces %>%
+                plot_gg() + 
+                geom_line(aes(color = condition)) +
+               facet_wrap(~ channel) + 
+                theme(legend.position = "bottom") 
+ERP_plot %>% plot_in_layout()
+```
 
 Another possibility is to create a topographic plot of the two conditions, by
 first making segments that include only the interval .1-.2 *s* after the onset
