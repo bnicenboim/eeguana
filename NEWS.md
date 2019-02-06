@@ -1,3 +1,11 @@
+# eeguana ...
+  - Changes
+    - `plot_in_layout()` to place facets in the electrode layout was added.
+  - Bugs
+    - Various minor bugs fixed
+  - Internal changes
+    - More tests
+    
 # eeguana 0.0.5.9000
  - Changes
    - `read_edf()` was added.

@@ -8,8 +8,7 @@
 \method{as_tibble}{eeg_lst}(x, add_segments = TRUE,
   add_channels_info = TRUE)
 
-\method{as_data_frame}{eeg_lst}(x, add_segments = TRUE,
-  add_channels_info = TRUE)
+as_data_frame.eeg_lst(x, add_segments = TRUE, add_channels_info = TRUE)
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}

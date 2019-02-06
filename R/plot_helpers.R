@@ -137,3 +137,94 @@ interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, lab
 
   dplyr::bind_rows(grid,.data)
 }
+
+#' Looks for grobs matching a pattern. Almost identical to gtable::gtable_filter
+#'
+#' @param x 
+#' @param pattern 
+#' @noRd
+#' 
+g_filter <-
+  function (x, pattern, trim = TRUE) {
+    matches <- grepl(pattern, x$layout$name)
+    x$layout <- x$layout[matches, , drop = FALSE]
+    x$grobs <- x$grobs[matches]
+    if (trim){
+      gtable_trim(x)  
+    } else {
+      x  
+    }
+  }
+#' Looks for grobs not matching a pattern. Opposite of gtable::gtable_filter
+#'
+#' @param x 
+#' @param pattern 
+#' @noRd
+#' 
+g_filter_out <-  function (x, pattern, trim) {
+    matches <- grepl(pattern, x$layout$name)
+    x$layout <- x$layout[!matches, , drop = FALSE]
+    x$grobs <- x$grobs[!matches]
+    if (trim){
+      gtable_trim(x)  
+    } else {
+      x  
+    }
+  }
+
+
+#' identical to gtable::gtable_trim
+#' @noRd
+gtable_trim<- 
+function (x) 
+{
+  w <- range(x$layout$l, x$layout$r)
+  h <- range(x$layout$t, x$layout$b)
+  x$widths <- x$widths[seq.int(w[1], w[2])]
+  x$heights <- x$heights[seq.int(h[1], h[2])]
+  x$layout$l <- x$layout$l - w[1] + 1
+  x$layout$r <- x$layout$r - w[1] + 1
+  x$layout$t <- x$layout$t - h[1] + 1
+  x$layout$b <- x$layout$b - h[1] + 1
+  x
+}
+
+#' stereographic projection over a 2d plane
+#'
+#' @param x 
+#' @param y 
+#' @param z 
+#' @noRd
+stereographic <- function(x,y,z){
+  mu <- 1 / (sqrt(x^2 + y^2 + z^2) + z)
+  x <- x * mu
+  y <- y * mu
+  list(x = x,y = y)
+}
+#' polar projection over a 2d plane
+#'
+#' @param x 
+#' @param y 
+#' @param z 
+#' @noRd
+polar <- function(x,y,z, scale = TRUE){
+  az <- atan2(y, x)
+  el <-  atan2(z, sqrt(x^2 + y^2))
+  x <-  (pi/2 - el) * cos(az)
+  y <- (pi/2 - el) * sin(az)
+  if(scale) {
+    k <- pi/2
+  } else {
+    k <- 1
+  } 
+  list(x = x/k,y = y/k)
+}
+#' orthographic projection over a 2d plane
+#'
+#' @param x 
+#' @param y 
+#' @param z 
+#' @noRd
+orthographic <- function(x,y,z){
+  list(x = x,y = y)
+}
