@@ -102,24 +102,20 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 plot_topo <- function(data,  ...) {
   UseMethod("plot_topo")
 }
-#' @param x x
-#' @param y y
 #' @param value value 
 #' @param label label, generally channel
 #' @rdname plot_topo
 #' @export
-plot_topo.tbl_df <- function(data, x = .x, y =.y, value= amplitude,  label=channel, ...) {
+plot_topo.tbl_df <- function(data, value= amplitude,  label=channel, ...) {
 
-  x <- rlang::enquo(x)
-  y <- rlang::enquo(y)
   value <- rlang::enquo(value)
   label <- rlang::enquo(label)
 
-  plot <- dplyr::filter(data, !is.na(!!x), !is.na(!!y), is.na(!!label)) %>%
-    ggplot2::ggplot(ggplot2::aes(x=!!x, y=!!y)) +
+    plot <- dplyr::filter(data, !is.na(.x), !is.na(.y), is.na(!!label)) %>%
+    ggplot2::ggplot(ggplot2::aes(x = .x, y = .y, label = !!label)) +
     ggplot2::geom_raster(ggplot2::aes(fill = !!value), interpolate = TRUE, hjust = 0.5, vjust = 0.5) +
     ggplot2::geom_contour(ggplot2::aes(z = !!value)) +
-    ggplot2::geom_text(data = dplyr::filter(data, !is.na(!!x), !is.na(!!y), !is.na(!!label)), ggplot2::aes(x = !!x, y = !!y, label = !!label), colour = "black") +
+    ggplot2::geom_text(data = dplyr::filter(data, !is.na(.x), !is.na(.y), !is.na(!!label)), colour = "black") +
     # scale_fill_distiller(palette = "Spectral", guide = "colourbar", oob = scales::squish) + #, oob = scales::squish
     ggplot2::scale_fill_gradientn(
       colours = c("darkred", "yellow", "green", "darkblue"),
@@ -130,16 +126,16 @@ plot_topo.tbl_df <- function(data, x = .x, y =.y, value= amplitude,  label=chann
 
 }
 
+#' @inheritParams plot_in_layout
 #' @rdname plot_topo
 #' @export
-plot_topo.eeg_lst <- function(data, x = .x, y =.y, value= amplitude,  label=channel, ...) {
+plot_topo.eeg_lst <- function(data, value= amplitude,  label=channel, projection = "polar", ...) {
   
-  .x <- rlang::enquo(x)
-  .y <- rlang::enquo(y)
   amplitude <- rlang::enquo(value)
   channel <- rlang::enquo(label)
-  data <- interpolate_tbl(data)
-  plot_topo(data, x = .x, y =.y, value= amplitude,  label=channel, ...)
+  channels_tbl(data)  <- change_coord(channels_tbl(data), projection) 
+  interpolate_tbl(data) %>%
+    plot_topo(value= amplitude,  label=channel,...)
   }
 
 #' Place channels in a layout.
@@ -268,7 +264,6 @@ plot_in_layout.gg <- function(plot, projection = "polar", size = 1, ...) {
 
   eeg_data <- change_coord(eeg_data, projection)
   
-
   for (i in seq_len(length(channel_grobs))) {
     new_coord <- eeg_data %>%
       dplyr::filter(channel == names(channel_grobs)[[i]]) %>%
