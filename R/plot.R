@@ -115,9 +115,6 @@ plot_topo.tbl_df <- function(data, x = .x, y =.y, value= amplitude,  label=chann
   value <- rlang::enquo(value)
   label <- rlang::enquo(label)
 
-
-  # grid <- interpolate_xy(s_x, x = x, y = y, value = A, method = "MBA", ...)
-
   plot <- dplyr::filter(data, !is.na(!!x), !is.na(!!y), is.na(!!label)) %>%
     ggplot2::ggplot(ggplot2::aes(x=!!x, y=!!y)) +
     ggplot2::geom_raster(ggplot2::aes(fill = !!value), interpolate = TRUE, hjust = 0.5, vjust = 0.5) +
@@ -129,11 +126,6 @@ plot_topo.tbl_df <- function(data, x = .x, y =.y, value= amplitude,  label=chann
       values = c(1.0, 0.75, 0.5, 0.25, 0)
     ) +
     theme_eeguana_empty
-
-  # if (length(grouping_vars) > 0) {
-  #   plot <- plot + facet_wrap(grouping_vars)
-  # }
-
   plot
 
 }
@@ -174,142 +166,130 @@ plot_in_layout <- function(plot,  ...) {
 #' @rdname plot_in_layout
 #' @export
 plot_in_layout.gg <- function(plot, projection = "polar", size = 1, ...) {
+  eeg_data <- plot$data
+  if (!"channel" %in% colnames(eeg_data)) {
+    stop("Channels are missing from the data.")
+  }
+  if (!all(c(".x", ".y", ".z") %in% colnames(eeg_data))) {
+    stop("Coordinates are missing from the data.")
+  }
+  plot <- plot + facet_wrap(~channel)
+  plot_grob <- ggplot2::ggplotGrob(plot)
+  layout <- ggplot2::ggplot_build(plot)$layout$layout
+
+  ## PANEL ROW COL channel SCALE_X SCALE_Y
+  ## 1      1   1   1     Fp1       1       1
+  ## 2      2   1   2     Fpz       1       1
+  ## 3      3   1   3     Fp2       1       1
+  ## 4      4   1   4      F7       1       1
+  ## 5      5   1   5      F3       1       1
+  ## 6      6   1   6      Fz       1       1
+  ## 7      7   2   1      F4       1       1
+
+  # The facet in the bottom left has both axis, I'll extract and use everywhere:
+  maxrow <- max(layout$ROW) # bottom
+  # first I extract the axis and I fill the grob with it.
+  axisl <- g_filter(plot_grob, paste0("axis-l-", maxrow, "-1"))
+  axisb <- g_filter(plot_grob, paste0("axis-b-1-", maxrow))
+
+  # # then I also extract the labels, which I'll use for each facet
+  axes_labels <- g_filter(plot_grob, ".lab-.")
+
+  # This the complete facet with axis
+  panel_txt <- paste0("panel-", maxrow, "-1")
+  strip_txt <- paste0("strip-t-1-", maxrow)
+  axisl_txt <- paste0("axis-l-", maxrow, "-1")
+  axisb_txt <- paste0("axis-b-1-", maxrow)
+  pattern_txt <- paste0(c(panel_txt, strip_txt, axisl_txt, axisb_txt), collapse = "|")
+  full_facet_grob <- g_filter(plot_grob, pattern_txt, trim = TRUE)
+
+  rowsize <- full_facet_grob$heights[3] # bottom
+  colsize <- full_facet_grob$widths[1] # left
+
+  # won't work for free scales, need to add an if-else inside
+
+  channel_grobs <- purrr::map(layout$channel, function(ch) {
+    ## pos <- which(facet_names==ch, arr.ind =  TRUE)
+    ch_pos <- layout %>% dplyr::filter(channel == ch)
+    panel_txt <- paste0("panel-", ch_pos$ROW, "-", ch_pos$COL)
+    strip_txt <- paste0("strip-t-", ch_pos$COL, "-", ch_pos$ROW)
+    axisl_txt <- paste0("axis-l-", ch_pos$ROW, "-", ch_pos$COL)
+    axisb_txt <- paste0("axis-b-", ch_pos$COL, "-", ch_pos$ROW)
+    # pattern_txt <- paste0(c(panel_txt,strip_txt,axisl_txt,axisb_txt), collapse = "|")
+    pattern_txt <- paste0(c(panel_txt, strip_txt), collapse = "|")
+    # plot_grob[[1]][[which(plot_grob$layout$name == axisl_txt)]] <- axisl[[1]][[1]]
+    # plot_grob[[1]][[which(plot_grob$layout$name == axisb_txt)]] <- axisb[[1]][[1]]
+    ch_grob <- g_filter(plot_grob, pattern_txt, trim = TRUE) %>%
+      gtable::gtable_add_rows(rowsize) %>%
+      gtable::gtable_add_grob(axisb[[1]][[1]], 3, 1) %>%
+      gtable::gtable_add_cols(colsize, 0) %>%
+      gtable::gtable_add_grob(axisl[[1]][[1]], 2, 1)
+
+    #  #if there is no bottom axis, add one:
+    #  if(is.null(g_filter(ch_grob,"axis-b")[[1]][[1]]$height)){
+    #    ch_grob <- ch_grob %>%
+    #     gtable::gtable_add_grob( axisb[[1]][[1]],3,2) %>%
+    #     gtable::gtable_add_rows(rowsize)
+    #  }
+    #  if(is.null(g_filter(ch_grob,"axis-l")[[1]][[1]]$width)){
+    #    ch_grob <- ch_grob %>% gtable::gtable_add_grob(axisl[[1]][[1]],2,1) %>%
+    #    gtable::gtable_add_cols(colsize,0)
+    # }
+
+    ch_grob
+  }) %>% setNames(layout$channel)
+  # #gtable::gtable_height(ch_grob)
+  # grid::heightDetails(ch_grob)
+  # grid::heightDetails(ch_grob)
+  # ch_grob$widths
+  #
+  # # grid::heightDetails()
+  # grid::grid.newpage()
+  # grid::grid.draw(ch_grob)
+
+  # Discard facet panels from the original plot:
+  rest_grobs <- g_filter_out(plot_grob, "panel|strip-t|axis|xlab|ylab", trim = FALSE)
+
+  # How much larger than the electrode position should the plot be?
+  cmin <- -1 - 0.3 * size
+  cmax <- 1 + 0.3 * size
+
+  new_plot <- ggplot(data.frame(x = c(cmin, cmax), y = c(cmin, cmax)), aes_(x = ~x, y = ~y)) +
+    geom_blank() +
+    scale_x_continuous(limits = c(cmin, cmax), expand = c(0, 0)) +
+    scale_y_continuous(limits = c(cmin, cmax), expand = c(0, 0)) +
+    theme_void() +
+    annotation_custom(rest_grobs,
+      xmin = cmin,
+      xmax = cmax,
+      ymin = cmin,
+      ymax = cmax
+    )
+
+  eeg_data <- change_coord(eeg_data, projection)
+  
+
+  for (i in seq_len(length(channel_grobs))) {
+    new_coord <- eeg_data %>%
+      dplyr::filter(channel == names(channel_grobs)[[i]]) %>%
+      dplyr::distinct(.x, .y)
+    if(is.na(new_coord$.x) && is.na(new_coord$.y)){
+      new_plot
     
-    eeg_data <- plot$data  
-    if(!"channel" %in% colnames(eeg_data)){
-      stop("Channels are missing from the data.")
+    } else if (is.na(new_coord$.x) | is.na(new_coord$.y)){
+      warning("X or Y coordinates are missing for electrode ", names(channel_grobs)[[i]])
+
+    } else {
+    
+    new_plot <- new_plot + annotation_custom(channel_grobs[[i]],
+      xmin = new_coord$.x - .13 * size,
+      xmax = new_coord$.x + .13 * size,
+      ymin = new_coord$.y - .13 * size,
+      ymax = new_coord$.y + .13 * size
+  
+    )
     }
-    if(!all(c(".x",".y",".z") %in% colnames(eeg_data))){
-      stop("Coordinates are missing from the data.")
-    }
-    plot <- plot + facet_wrap(~ channel)
-    plot_grob <- ggplot2::ggplotGrob(plot)
-    layout <- ggplot2::ggplot_build(plot)$layout$layout
-
-    ## PANEL ROW COL channel SCALE_X SCALE_Y
-    ## 1      1   1   1     Fp1       1       1
-    ## 2      2   1   2     Fpz       1       1
-    ## 3      3   1   3     Fp2       1       1
-    ## 4      4   1   4      F7       1       1
-    ## 5      5   1   5      F3       1       1
-    ## 6      6   1   6      Fz       1       1
-    ## 7      7   2   1      F4       1       1
-    
-    #The facet in the bottom left has both axis, I'll extract and use everywhere:
-    maxrow <- max(layout$ROW) #bottom
-    # first I extract the axis and I fill the grob with it.
-    axisl <- g_filter(plot_grob,paste0("axis-l-",maxrow,"-1"))
-    axisb <- g_filter(plot_grob,paste0("axis-b-1-",maxrow))
-
-    # # then I also extract the labels, which I'll use for each facet
-    axes_labels <- g_filter(plot_grob,".lab-.")
-    
-    # This the complete facet with axis
-    panel_txt <- paste0("panel-",maxrow,"-1")
-    strip_txt <- paste0("strip-t-1-",maxrow)
-    axisl_txt <- paste0("axis-l-",maxrow,"-1")
-    axisb_txt <- paste0("axis-b-1-",maxrow)
-    pattern_txt <- paste0(c(panel_txt,strip_txt,axisl_txt,axisb_txt), collapse = "|")
-    full_facet_grob <- g_filter(plot_grob,pattern_txt, trim = TRUE)
-    
-    rowsize <- full_facet_grob$heights[3] #bottom
-    colsize <- full_facet_grob$widths[1]  #left
-    
-#won't work for free scales, need to add an if-else inside
-    
-    channel_grobs <- purrr::map(layout$channel, function(ch){
-        ## pos <- which(facet_names==ch, arr.ind =  TRUE)
-      ch_pos <- layout %>% dplyr::filter(channel ==ch)
-      panel_txt <- paste0("panel-",ch_pos$ROW,"-",ch_pos$COL)
-      strip_txt <- paste0("strip-t-",ch_pos$COL,"-",ch_pos$ROW)
-      axisl_txt <- paste0("axis-l-",ch_pos$ROW,"-",ch_pos$COL)
-      axisb_txt <- paste0("axis-b-",ch_pos$COL,"-",ch_pos$ROW)
-      # pattern_txt <- paste0(c(panel_txt,strip_txt,axisl_txt,axisb_txt), collapse = "|")
-      pattern_txt <- paste0(c(panel_txt,strip_txt), collapse = "|")
-      # plot_grob[[1]][[which(plot_grob$layout$name == axisl_txt)]] <- axisl[[1]][[1]] 
-      # plot_grob[[1]][[which(plot_grob$layout$name == axisb_txt)]] <- axisb[[1]][[1]]
-       ch_grob <- g_filter(plot_grob,pattern_txt, trim = TRUE) %>% 
-                            gtable::gtable_add_rows(rowsize) %>%
-                            gtable::gtable_add_grob( axisb[[1]][[1]],3,1) %>%
-          gtable::gtable_add_cols(colsize,0) %>%
-         gtable::gtable_add_grob(axisl[[1]][[1]],2,1)
-       
-      #  #if there is no bottom axis, add one:
-      #  if(is.null(g_filter(ch_grob,"axis-b")[[1]][[1]]$height)){
-      #    ch_grob <- ch_grob %>% 
-      #     gtable::gtable_add_grob( axisb[[1]][[1]],3,2) %>%
-      #     gtable::gtable_add_rows(rowsize)
-      #  }
-      #  if(is.null(g_filter(ch_grob,"axis-l")[[1]][[1]]$width)){
-      #    ch_grob <- ch_grob %>% gtable::gtable_add_grob(axisl[[1]][[1]],2,1) %>%
-      #    gtable::gtable_add_cols(colsize,0)
-      # }
-
-       ch_grob
-             }) %>% setNames(layout$channel)
-    # #gtable::gtable_height(ch_grob)
-    # grid::heightDetails(ch_grob)
-    # grid::heightDetails(ch_grob)
-    # ch_grob$widths
-    # 
-    # # grid::heightDetails()
-     # grid::grid.newpage()
-     # grid::grid.draw(ch_grob)
-    
-    #Discard facet panels from the original plot:
-    rest_grobs <- g_filter_out(plot_grob,"panel|strip-t|axis|xlab|ylab", trim = FALSE)
-
-    # How much larger than the electrode position should the plot be?
-    cmin <- -1 - 0.3 * size
-    cmax <- 1 + 0.3 * size
-
-    new_plot <- ggplot(data.frame(x =  c(cmin,cmax), y = c(cmin,cmax)), aes_(x = ~x, y = ~y)) +
-        geom_blank() +
-        scale_x_continuous(limits = c(cmin,cmax), expand = c(0, 0)) +
-        scale_y_continuous(limits = c(cmin,cmax), expand = c(0, 0)) +
-        theme_void() +
-        annotation_custom(rest_grobs,
-                          xmin =cmin,
-                          xmax = cmax,
-                          ymin = cmin,
-                          ymax = cmax) 
-
-    if  (stringr::str_to_lower(projection) == "orthographic"){
-        project <- orthographic
-    } else if(stringr::str_to_lower(projection) == "polar" ){
-        project <- polar
-    } else if (stringr::str_to_lower(projection) == "stereographic"){
-        project <- stereographic
-    }
-
-    if(all(is.na(eeg_data$.z)) & !identical(project,orthographic)){
-        warning("Z coordinates are missing, using 'ortographic' projection ")
-        project <- orthographic
-    }
-      
-
-        for(i in seq_len(length(channel_grobs))) {
-        location <- eeg_data %>%
-            dplyr::filter(channel == names(channel_grobs)[[i]]) %>% 
-            dplyr::distinct(.x,.y,.z)
-        if(is.na(location$.x) && is.na(location$.y)){
-          new_plot
-        } else if (is.na(location$.z) & !identical(project,orthographic)){
-            warning("Z coordinates are missing for electrode ", names(channel_grobs)[[i]])
-
-        } else if (is.na(location$.x) | is.na(location$.y)){
-             warning("X or Y coordinates are missing for electrode ", names(channel_grobs)[[i]])
-
-        } else {
-            new_coord <- project(location$.x, location$.y, location$.z) 
-            new_plot<- new_plot +  annotation_custom(channel_grobs[[i]],
-                                                     xmin = new_coord$x- .13 * size,
-                                                     xmax = new_coord$x + .13 * size,
-                                                     ymin = new_coord$y - .13 * size,
-                                                     ymax = new_coord$y + .13 * size) 
-        }
-    }
-    new_plot                               
+  }  
+  new_plot
 }
-
 
