@@ -152,9 +152,9 @@ faces_segs_some %>%
                 theme(legend.position = "bottom") 
 ```
 
-We can also calculate the ERPs and then plot them:
+We can also calculate the ERPs and then plot them in their layout:
 
-```{r, fig.dim = c(10,5), out.width = "100%"}
+```{r, fig.dim = c(10,10), out.width = "100%"}
 ERP_faces <- faces_segs_some %>% group_by(.sample_id, condition) %>%
     summarize_all_ch(mean,na.rm=TRUE)
 
@@ -162,8 +162,10 @@ ERP_plot <- ERP_faces %>%
                 plot_gg() + 
                 geom_line(aes(color = condition)) +
                facet_wrap(~ channel) + 
-                theme(legend.position = "bottom") 
-ERP_plot %>% plot_in_layout()
+                theme(legend.position = "bottom") + 
+  ggtitle("ERPs for faces vs non-faces") 
+
+ERP_plot  %>% plot_in_layout() 
 ```
 
 Another possibility is to create a topographic plot of the two conditions, by

@@ -31,6 +31,6 @@ Create a default topographic plot based on an interpolation table.
 }
 \seealso{
 Other plot: \code{\link{plot.eeg_lst}},
-  \code{\link{plot_gg}}
+  \code{\link{plot_gg}}, \code{\link{plot_in_layout}}
 }
 \concept{plot}

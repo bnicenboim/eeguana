@@ -20,6 +20,7 @@ A ggplot object
 Simple plot an eeg_lst object.
 }
 \seealso{
-Other plot: \code{\link{plot_gg}}, \code{\link{plot_topo}}
+Other plot: \code{\link{plot_gg}},
+  \code{\link{plot_in_layout}}, \code{\link{plot_topo}}
 }
 \concept{plot}

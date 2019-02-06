@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Read a BrainVision file into an eeg_lst object. — read_vhdr • eeguana</title>
+<title>Place channels in a layout. — plot_in_layout • eeguana</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Read a BrainVision file into an eeg_lst object. — read_vhdr" />
+<meta property="og:title" content="Place channels in a layout. — plot_in_layout" />
 
-<meta property="og:description" content="Read a BrainVision file into an eeg_lst object." />
+<meta property="og:description" content="Reorganizes a ggplot so that the plot of each channel is in their correct position in the scalp." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -117,49 +117,55 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Read a BrainVision file into an eeg_lst object.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/read.R'><code>R/read.R</code></a></small>
-    <div class="hidden name"><code>read_vhdr.Rd</code></div>
+    <h1>Place channels in a layout.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/plot.R'><code>R/plot.R</code></a></small>
+    <div class="hidden name"><code>plot_in_layout.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Read a BrainVision file into an eeg_lst object.</p>
+    <p>Reorganizes a ggplot so that the plot of each channel is in their correct position in the scalp.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>read_vhdr</span>(<span class='no'>file</span>, <span class='kw'>sep</span> <span class='kw'>=</span> <span class='no'>type</span> <span class='kw'>==</span> <span class='st'>"New Segment"</span>, <span class='kw'>zero</span> <span class='kw'>=</span> <span class='no'>type</span> <span class='kw'>==</span> <span class='st'>"Time 0"</span>,
-  <span class='kw'>recording</span> <span class='kw'>=</span> <span class='no'>file</span>)</pre>
+    <pre class="usage"><span class='fu'>plot_in_layout</span>(<span class='no'>plot</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for gg</span>
+<span class='fu'>plot_in_layout</span>(<span class='no'>plot</span>, <span class='kw'>projection</span> <span class='kw'>=</span> <span class='st'>"polar"</span>, <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>file</th>
-      <td><p>A vhdr file in a folder that contains a .vmrk and .dat files</p></td>
+      <th>plot</th>
+      <td><p>A ggplot object with channels</p></td>
     </tr>
     <tr>
-      <th>sep</th>
-      <td><p>Segment separation marker. By default: type == "New Segment"</p></td>
+      <th>...</th>
+      <td></td>
     </tr>
     <tr>
-      <th>zero</th>
-      <td><p>Time zero marker. By default: type == "Time 0"</p></td>
+      <th>projection</th>
+      <td><p>"polar" (default), "orthographic", or  "stereographic"</p></td>
     </tr>
     <tr>
-      <th>recording</th>
-      <td><p>Recording name (file name, by default).</p></td>
+      <th>size</th>
+      <td></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An <code>eeg_lst</code> object with signal_tbl and event from file_name.dat,
-file_name.vhdr, and file_name.vmrk.</p>
+    <p>A ggplot object</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other read: <code><a href='read_edf.html'>read_edf</a></code>, <code><a href='read_ft.html'>read_ft</a></code></p></div>
+    <div class='dont-index'><p>Other plot: <code><a href='plot.eeg_lst.html'>plot.eeg_lst</a></code>,
+  <code><a href='plot_gg.html'>plot_gg</a></code>, <code><a href='plot_topo.html'>plot_topo</a></code></p></div>
     
 
   </div>
