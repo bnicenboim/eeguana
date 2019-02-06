@@ -90,7 +90,7 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 #' Create a default topographic plot based on an interpolation table.
 #'
 #'
-#' @param data A table of interpolated electrodes as produced by [interpolate_tbl]
+#' @param data A table of interpolated electrodes as produced by [interpolate_tbl], or an eeg_lst appropiately grouped. 
 #' @param ... Others.
 #'
 #' @family plot
@@ -102,12 +102,10 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 plot_topo <- function(data,  ...) {
   UseMethod("plot_topo")
 }
-
 #' @param x x
 #' @param y y
 #' @param value value 
 #' @param label label, generally channel
-
 #' @rdname plot_topo
 #' @export
 plot_topo.tbl_df <- function(data, x = .x, y =.y, value= amplitude,  label=channel, ...) {
@@ -139,6 +137,18 @@ plot_topo.tbl_df <- function(data, x = .x, y =.y, value= amplitude,  label=chann
   plot
 
 }
+
+#' @rdname plot_topo
+#' @export
+plot_topo.eeg_lst <- function(data, x = .x, y =.y, value= amplitude,  label=channel, ...) {
+  
+  .x <- rlang::enquo(x)
+  .y <- rlang::enquo(y)
+  amplitude <- rlang::enquo(value)
+  channel <- rlang::enquo(label)
+  data <- interpolate_tbl(data)
+  plot_topo(data, x = .x, y =.y, value= amplitude,  label=channel, ...)
+  }
 
 #' Place channels in a layout.
 #'

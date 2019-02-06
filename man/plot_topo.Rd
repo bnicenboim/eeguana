@@ -3,15 +3,19 @@
 \name{plot_topo}
 \alias{plot_topo}
 \alias{plot_topo.tbl_df}
+\alias{plot_topo.eeg_lst}
 \title{A topographic plot.}
 \usage{
 plot_topo(data, ...)
 
 \method{plot_topo}{tbl_df}(data, x = .x, y = .y, value = amplitude,
   label = channel, ...)
+
+\method{plot_topo}{eeg_lst}(data, x = .x, y = .y, value = amplitude,
+  label = channel, ...)
 }
 \arguments{
-\item{data}{A table of interpolated electrodes as produced by \link{interpolate_tbl}}
+\item{data}{A table of interpolated electrodes as produced by \link{interpolate_tbl}, or an eeg_lst appropiately grouped.}
 
 \item{...}{Others.}
 

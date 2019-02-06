@@ -176,7 +176,6 @@ of the stimuli, creating a table with interpolated amplitudes and using the ggpl
 faces_segs_some %>% filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) %>% 
                     group_by(condition) %>%
                     summarize_all_ch(mean, na.rm = TRUE) %>%
-                    interpolate_tbl() %>%
                     plot_topo() + facet_grid(~condition)
 ```
 
