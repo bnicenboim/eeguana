@@ -154,7 +154,7 @@ faces_segs_some %>%
 
 We can also calculate the ERPs and then plot them in their layout:
 
-```{r, fig.dim = c(10,10), out.width = "100%"}
+```{r layout, fig.dim = c(10,10), out.width = "100%"}
 ERP_faces <- faces_segs_some %>% group_by(.sample_id, condition) %>%
     summarize_all_ch(mean,na.rm=TRUE)
 
@@ -181,7 +181,6 @@ faces_segs_some %>% filter(between(as_time(.sample_id, unit = "milliseconds"),10
                     geom_contour() +
                     geom_text(colour = "black") +
                     facet_grid(~condition)
-
 
 ```
 

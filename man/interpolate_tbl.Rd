@@ -8,11 +8,11 @@
 \usage{
 interpolate_tbl(.data, ...)
 
-\method{interpolate_tbl}{eeg_lst}(.data, x = .x, y = .y,
+\method{interpolate_tbl}{eeg_lst}(.data, size = 1.25, x = .x, y = .y,
   value = amplitude, label = channel, diam_points = 200,
   method = "MBA", ...)
 
-\method{interpolate_tbl}{tbl_df}(.data, x = .x, y = .y,
+\method{interpolate_tbl}{tbl_df}(.data, size = 1.25, x = .x, y = .y,
   value = amplitude, label = channel, diam_points = 200,
   method = "MBA", ...)
 }
@@ -31,7 +31,7 @@ interpolate_tbl(.data, ...)
 
 \item{diam_points}{Density of the interpolation (number of points that are interpolated in the diameter of the scalp).}
 
-\item{method}{Method of interpolation (Only \code{"MBA"} Multilevel B-splines using the function \code{mba.surf} of the package \code{MBA}.).}
+\item{method}{Method of interpolation (\code{"MBA"} Multilevel B-splines using the function \code{mba.surf} of the package \code{MBA} or (\code{"akima"} bicubic spline Akima interpolation algorithm using the function \code{interp} of the package \code{akima}.)..).}
 }
 \description{
 Create a default topographic plot based on the segments of the \code{eeg_lst} object.

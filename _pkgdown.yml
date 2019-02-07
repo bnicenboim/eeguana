@@ -50,6 +50,7 @@ reference:
       to create a long table, and then wrap `ggplot` functions.
     contents: 
     - starts_with("plot")
+    - starts_with("annotate")
 
   - title: "'base'-inspired functions"
     desc: >

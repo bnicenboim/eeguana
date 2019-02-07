@@ -12,14 +12,14 @@ interpolate_tbl <- function(.data, ...) {
   UseMethod("interpolate_tbl")
 }
 #' @rdname interpolate_tbl
-#' @param method Method of interpolation (Only `"MBA"` Multilevel B-splines using the function `mba.surf` of the package `MBA`.).
+#' @param method Method of interpolation (`"MBA"` Multilevel B-splines using the function `mba.surf` of the package `MBA` or (`"akima"` bicubic spline Akima interpolation algorithm using the function `interp` of the package `akima`.)..).
 #' @param x Coordinate x
 #' @param y Coordinate y
 #' @param value amplitude (default)
 #' @param label channel (default)
 #' @param diam_points Density of the interpolation (number of points that are interpolated in the diameter of the scalp).
 #' @export
-interpolate_tbl.eeg_lst <- function(.data, x = .x, y = .y, value = amplitude, label = channel, diam_points = 200, method = "MBA", ...) {
+interpolate_tbl.eeg_lst <- function(.data, size = 1.25, x = .x, y = .y, value = amplitude, label = channel, diam_points = 200, method = "MBA", ...) {
   grouping <- group_chr(.data)
   .data <- dplyr::as_tibble(.data) %>% dplyr::group_by_at(dplyr::vars(grouping))
   x <- rlang::enquo(x)
@@ -28,11 +28,11 @@ interpolate_tbl.eeg_lst <- function(.data, x = .x, y = .y, value = amplitude, la
   label <- rlang::enquo(label)
   dots <- rlang::enquos(...)
   # NextMethod()
-  interpolate_tbl(.data, !!x, !!y, !!value, !!label, diam_points, method, !!!dots)
+  interpolate_tbl(.data, size = size, !!x, !!y, !!value, !!label, diam_points, method, !!!dots)
 }
 #' @rdname interpolate_tbl
 #' @export
-interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, label = channel, diam_points = 200,
+interpolate_tbl.tbl_df <- function(.data, size = 1.25, x = .x, y = .y, value = amplitude, label = channel, diam_points = 200,
                                    method = "MBA", ...) {
   # x <- rlang::quo(.x)
   # y <- rlang::quo(.y)
@@ -60,40 +60,67 @@ interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, lab
     stop("Data needs to grouped or summarized so that each label appears one per group.")
   }
 
-  # .data %>% summarize(L = length(!!label)) %>% print(n=100)
-  #    if(is.null(dplyr::groups(.data) && "channel" %in% colnames) {
-  #     message("Grouping by channel")
-  #     .data <- .data %>% dplyr::group_by(!!x,!!y, channel)
-  #    } else if(!is.null(dplyr::groups(.data)){
-  #    } else {
-  #     stop("The table needs to be grouped.")
-  #    }
-
-  #   l <- .data %>%  dplyr::summarize(!!value := mean(!!value))
 
   l <- .data %>% dplyr::ungroup() %>% dplyr::select(dplyr::one_of(group_vars)) # %>%
-  # dplyr::distinct()
 
   if (!identical(na.omit(l), l)) {
     stop("Data cannot be grouped by a column that contains NAs.")
   }
 
-  if (method == "MBA") {
+  if (stringr::str_to_lower(method) == "mba") {
     if (!"MBA" %in% rownames(utils::installed.packages())) {
       stop("Package MBA needs to be installed to interpolate using multilevel B-splines ")
     }
-    # change to sp = FALSE and adapt, so that I remove the sp package
-    interpolation_alg <- function(xyz, ...) MBA::mba.surf(
+    interpolation_alg <- function(xyz, ...) {
+      results <- MBA::mba.surf(
         xyz = xyz,
         diam_points,
         diam_points,
         sp = FALSE,
         extend = TRUE,
-        b.box = c(-1.1, 1.1, -1.1, 1.1)
+        b.box = c(
+          min(xyz[[1]], na.rm = TRUE) * size,
+          max(xyz[[1]], na.rm = TRUE) * size,
+          min(xyz[[2]], na.rm = TRUE) * size,
+          max(xyz[[2]], na.rm = TRUE) * size
+        ),
+        ...
       )
+
+      dplyr::tibble(
+        !!rlang::quo_name(x) := rep(results$xyz$x, times = results$no.Y),
+        # eq to mba_interp$xyz.est@coords[,1] with sp = TRUE, which requires an extra package
+        !!rlang::quo_name(y) := rep(results$xyz$y, each = results$no.X),
+        # eq to mba_interp$xyz.est@coords[,2]
+        !!rlang::quo_name(value) := c(results$xyz$z)
+      )
+    }
+  } else if (stringr::str_to_lower(method) == "akima") {
+    if (!"akima" %in% rownames(utils::installed.packages())) {
+      stop("Package akima needs to be installed to interpolate using bicubic spline Akima interpolation algorithm.")
+    }
+    interpolation_alg <- function(xyz, ...) {
+      results <- akima::interp(
+        x = xyz[[1]], y = xyz[[2]], z = xyz[[3]],
+        xo = seq(min(xyz[[1]], na.rm = TRUE) * size, max(xyz[[1]], na.rm = TRUE) * size, length = diam_points),
+        yo = seq(min(xyz[[2]], na.rm = TRUE) * size, max(xyz[[2]], na.rm = TRUE) * size, length = diam_points),
+        extrap = TRUE,
+        linear = FALSE,
+        duplicate = "error",
+        ...
+      ) 
+        dplyr::tibble(
+          !!rlang::quo_name(x) := rep(results$x, times = diam_points),
+          # eq to mba_interp$xyz.est@coords[,1] with sp = TRUE, which requires an extra package
+          !!rlang::quo_name(y) := rep(results$y, each = diam_points),
+          # eq to mba_interp$xyz.est@coords[,2]
+          !!rlang::quo_name(value) := c(results$z)
+        )
+    }
   } else {
     stop("Non supported method.")
   }
+
 
   # if there are no groups, it will just create a list with the entire df
   grid <- {
@@ -122,17 +149,10 @@ interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, lab
         dplyr::filter(!is.na(!!x) | !is.na(!!y))
 
       if (nrow(interpolate_from) == 1) stop("Interpolation is not possible from only one point.")
-      mba_interp <- interpolation_alg(interpolate_from)
 
-      dplyr::tibble(
-        !!rlang::quo_name(x) := rep(mba_interp$xyz$x, times = mba_interp$no.Y),
-        # eq to mba_interp$xyz.est@coords[,1] with sp = TRUE, which requires an extra package
-        !!rlang::quo_name(y) := rep(mba_interp$xyz$y, each = mba_interp$no.X),
-        # eq to mba_interp$xyz.est@coords[,2]
-        !!rlang::quo_name(value) := c(mba_interp$xyz$z)
-      ) %>%
+      interpolation_alg(interpolate_from) %>%
         # eq to mba_interp$xyz.est@data$z
-        dplyr::filter(((!!x)^2 + (!!y)^2 <= 1.1)) %>%
+        dplyr::filter(((!!x)^2 + (!!y)^2 <= 1 * size)) %>%
         {
           dplyr::bind_cols(dplyr::slice(common, rep(1, each = nrow(.))), .)
         }
@@ -143,10 +163,10 @@ interpolate_tbl.tbl_df <- function(.data, x = .x, y = .y, value = amplitude, lab
 
 #' Looks for grobs matching a pattern. Almost identical to gtable::gtable_filter
 #'
-#' @param x
-#' @param pattern
+#' Looks for grobs matching a pattern. Almost identical to gtable::gtable_filter
+#' @param x gtable
+#' @param pattern regex
 #' @noRd
-#'
 g_filter <-
   function(x, pattern, trim = TRUE) {
     matches <- grepl(pattern, x$layout$name)
@@ -160,10 +180,10 @@ g_filter <-
   }
 #' Looks for grobs not matching a pattern. Opposite of gtable::gtable_filter
 #'
-#' @param x
-#' @param pattern
+#' Looks for grobs not matching a pattern. Opposite of gtable::gtable_filter
+#' @param x gtable
+#' @param pattern regex
 #' @noRd
-#'
 g_filter_out <- function(x, pattern, trim) {
   matches <- grepl(pattern, x$layout$name)
   x$layout <- x$layout[!matches, , drop = FALSE]
@@ -177,6 +197,7 @@ g_filter_out <- function(x, pattern, trim) {
 
 
 #' identical to gtable::gtable_trim
+#' @param x gtable
 #' @noRd
 gtable_trim <-
   function(x) {
@@ -193,9 +214,9 @@ gtable_trim <-
 
 #' stereographic projection over a 2d plane
 #'
-#' @param x
-#' @param y
-#' @param z
+#' @param x x
+#' @param y y
+#' @param z z
 #' @noRd
 stereographic <- function(x, y, z) {
   mu <- 1 / (sqrt(x^2 + y^2 + z^2) + z)
@@ -205,9 +226,9 @@ stereographic <- function(x, y, z) {
 }
 #' polar projection over a 2d plane
 #'
-#' @param x
-#' @param y
-#' @param z
+#' @param x x
+#' @param y y
+#' @param z z
 #' @noRd
 polar <- function(x, y, z, scale = TRUE) {
   az <- atan2(y, x)
@@ -223,9 +244,9 @@ polar <- function(x, y, z, scale = TRUE) {
 }
 #' orthographic projection over a 2d plane
 #'
-#' @param x
-#' @param y
-#' @param z
+#' @param x x
+#' @param y y
+#' @param z z
 #' @noRd
 orthographic <- function(x, y, z) {
   list(x = x, y = y)
@@ -233,10 +254,10 @@ orthographic <- function(x, y, z) {
 
 #' change coordinate system from 3d to 2d
 #'
-#' @param data 
-#' @param projection 
+#' @param data a tbl created with channels_tbl
+#' @param projection projection type
 #'
-#' @return
+#' @return a modified channels_tbl
 #'
 #' @noRd
 change_coord <- function(data, projection) {

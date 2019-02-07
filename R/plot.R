@@ -111,9 +111,6 @@ plot_topo.tbl_df <- function(data, value= amplitude,  label=channel, ...) {
   value <- rlang::enquo(value)
   label <- rlang::enquo(label)
   
-  # Matlab palette from https://www.mattcraddock.com/blog/2017/02/25/erp-visualization-creating-topographical-scalp-maps-part-1/
-  jet.colors <- colorRampPalette(c("#00007F", "blue", "#007FFF", "cyan", "#7FFF7F", "yellow", "#FF7F00", "red", "#7F0000"))
-  
   # Labels positions mess up with geom_raster, they need to be excluded 
   # and then add the labels to the data that was interpolated
   d <- dplyr::filter(data, !is.na(.x), !is.na(.y), is.na(!!label)) %>%
@@ -138,26 +135,26 @@ plot_topo.tbl_df <- function(data, value= amplitude,  label=channel, ...) {
     ggplot2::ggplot(d, ggplot2::aes(x = .x, y = .y, 
                                  fill = !!value, z = !!value, label =  dplyr::if_else(!is.na(!!label), !!label, ""))) +
     ggplot2::geom_raster(interpolate = TRUE, hjust = 0.5, vjust = 0.5)  +
-    scale_fill_gradientn(colours = jet.colors(10),guide = "colourbar",oob = scales::squish)+ 
-    # scale_fill_distiller(palette = "Spectral", guide = "colourbar", oob = scales::squish) + #, oob = scales::squish
-    # ggplot2::scale_fill_gradientn(
-    #   colours = c("darkred", "yellow", "green", "darkblue"),
-    #   values = c(1.0, 0.75, 0.5, 0.25, 0)
-    # ) +
+    # Non recommended "rainbow" Matlab palette from https://www.mattcraddock.com/blog/2017/02/25/erp-visualization-creating-topographical-scalp-maps-part-1/
+    #    scale_fill_gradientn(colours = colorRampPalette(c("#00007F", "blue", "#007FFF", "cyan", "#7FFF7F", "yellow", "#FF7F00", "red", "#7F0000")),guide = "colourbar",oob = scales::squish)+ 
+    # Not that bad scale:
+    #    scale_fill_distiller(palette = "Spectral", guide = "colourbar", oob = scales::squish) + #
+    scale_fill_distiller(type = "div",palette = "RdBu",guide = "colourbar",  oob = scales::squish) +
     theme_eeguana_empty
   plot
 
 }
 
 #' @inheritParams plot_in_layout
+#' @param ... passed to the interpolation method
 #' @rdname plot_topo
 #' @export
-plot_topo.eeg_lst <- function(data, value= amplitude,  label=channel, projection = "polar", ...) {
+plot_topo.eeg_lst <- function(data, size= 1.25, value= amplitude,  label=channel, projection = "polar", ...) {
   
   amplitude <- rlang::enquo(value)
   channel <- rlang::enquo(label)
   channels_tbl(data)  <- change_coord(channels_tbl(data), projection) 
-  interpolate_tbl(data) %>%
+  interpolate_tbl(data, size,...) %>%
     plot_topo(value= amplitude,  label=channel,...)
   }
 
@@ -311,12 +308,21 @@ plot_in_layout.gg <- function(plot, projection = "polar", size = 1, ...) {
   new_plot
 }
 
-annotate_head <- function(size = 1, color ="black") {
-  head <- dplyr::tibble(angle = seq(-pi, pi, length = 50), x = sin(angle)*.95*size, y = cos(angle)*.95*size)
-  nose <- data.frame(x = c(-0.15,0,.15),y=c(.95*size,1.15*size,.95*size))
-  
-  list(ggplot2::annotate("polygon",x =head$x, y =head$y, color = color, fill =NA),
-   ggplot2::annotate("line", x = nose$x, y =nose$y, color = color))
+
+#' Annotates a head in a ggplot
+#'
+#' @param size Size of the head
+#' @param color Color of the head
+#' @param stroke Line thickness
+#'
+#' @return A layer for a ggplot
+#' @export
+#'
+#' @examples
+annotate_head <- function(size = .9, color ="black", stroke=1) {
+  head <- dplyr::tibble(angle = seq(-pi, pi, length = 50), x = sin(angle)*size, y = cos(angle)*size)
+  nose <- data.frame(x = c(size*sin(-pi/18),0, size*sin(pi/18)),y=c(size*cos(-pi/18),1.15*size,size*cos(pi/18)))
+  list(ggplot2::annotate("polygon",x =head$x, y =head$y, color = color, fill =NA, size = 1* stroke),
+   ggplot2::annotate("line", x = nose$x, y =nose$y, color = color, size = 1* stroke))
   
 } 
-
