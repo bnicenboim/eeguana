@@ -111,11 +111,45 @@ plot_topo.tbl_df <- function(data, value= amplitude,  label=channel, ...) {
   value <- rlang::enquo(value)
   label <- rlang::enquo(label)
 
-    plot <- dplyr::filter(data, !is.na(.x), !is.na(.y), is.na(!!label)) %>%
-    ggplot2::ggplot(ggplot2::aes(x = .x, y = .y, label = !!label)) +
-    ggplot2::geom_raster(ggplot2::aes(fill = !!value), interpolate = TRUE, hjust = 0.5, vjust = 0.5) +
-    ggplot2::geom_contour(ggplot2::aes(z = !!value)) +
-    ggplot2::geom_text(data = dplyr::filter(data, !is.na(.x), !is.na(.y), !is.na(!!label)), colour = "black") +
+    # plot <- dplyr::filter(data, !is.na(.x), !is.na(.y), is.na(!!label)) %>%
+    # ggplot2::ggplot(ggplot2::aes(x = .x, y = .y, label = !!label)) +
+    # ggplot2::geom_raster(ggplot2::aes(fill = !!value), interpolate = TRUE, hjust = 0.5, vjust = 0.5) +
+    # ggplot2::geom_contour(ggplot2::aes(z = !!value)) +
+    # ggplot2::geom_text(data = dplyr::filter(data, !is.na(.x), !is.na(.y), !is.na(!!label)), colour = "black") +
+    # # scale_fill_distiller(palette = "Spectral", guide = "colourbar", oob = scales::squish) + #, oob = scales::squish
+    # ggplot2::scale_fill_gradientn(
+    #   colours = c("darkred", "yellow", "green", "darkblue"),
+    #   values = c(1.0, 0.75, 0.5, 0.25, 0)
+    # ) +
+    # theme_eeguana_empty
+  
+  
+  # Labels positions mess up with geom_raster, they need to be excluded 
+  # and then add the labels to the data that was interpolated
+  d <- dplyr::filter(data, !is.na(.x), !is.na(.y), is.na(!!label)) %>%
+    dplyr::select(-!!label)
+  label_pos <- dplyr::filter(data, !is.na(.x), !is.na(.y), !is.na(!!label)) %>% 
+        dplyr::distinct(.x,.y, !!label)
+  label_corrected_pos <- purrr::map_df(label_pos %>% dplyr::select(.x,.y,!!label) %>% purrr::transpose(), function(l){ 
+    d %>% dplyr::select(-!!value) %>%    
+      dplyr::filter((.x - l$.x)^2 + (.y - l$.y)^2 == min((.x - l$.x)^2 + (.y - l$.y)^2) )  %>%
+      # does the original grouping so that I add a label to each group
+      dplyr::group_by_at(vars(colnames(.)[!colnames(.) %in% c(".x",".y")]) ) %>%
+      slice(1) %>%
+      dplyr::mutate(!!label := l[[3]])
+            }
+                )
+  d <- suppressMessages(dplyr::left_join(d, label_corrected_pos))
+  
+  
+  #remove all the AES from the geoms, to remove later the geoms
+  #see if geom_text can work with NA or something
+  plot <- 
+    ggplot2::ggplot(d, ggplot2::aes(x = .x, y = .y, 
+                                 fill = !!value, z = !!value, label =  dplyr::if_else(!is.na(!!label), !!label, ""))) +
+    ggplot2::geom_raster(interpolate = TRUE, hjust = 0.5, vjust = 0.5) +
+    ggplot2::geom_contour() +
+    ggplot2::geom_text(colour = "black") +
     # scale_fill_distiller(palette = "Spectral", guide = "colourbar", oob = scales::squish) + #, oob = scales::squish
     ggplot2::scale_fill_gradientn(
       colours = c("darkred", "yellow", "green", "darkblue"),
