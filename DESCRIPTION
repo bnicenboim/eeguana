@@ -28,8 +28,10 @@ Imports:
     MBA,
     tibble,
     data.table (>= 1.9.8),
-    edfReader
+    edfReader,
+    gtable
 Suggests:
+    akima,
     testthat,
     roxygen2,
     knitr,

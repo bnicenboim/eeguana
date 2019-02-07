@@ -3,25 +3,31 @@
 \name{plot_topo}
 \alias{plot_topo}
 \alias{plot_topo.tbl_df}
+\alias{plot_topo.eeg_lst}
 \title{A topographic plot.}
 \usage{
 plot_topo(data, ...)
 
-\method{plot_topo}{tbl_df}(data, x = .x, y = .y, value = amplitude,
-  label = channel, ...)
+\method{plot_topo}{tbl_df}(data, value = amplitude, label = channel,
+  ...)
+
+\method{plot_topo}{eeg_lst}(data, size = 1.25, value = amplitude,
+  label = channel, projection = "polar", ...)
 }
 \arguments{
-\item{data}{A table of interpolated electrodes as produced by \link{interpolate_tbl}}
+\item{data}{A table of interpolated electrodes as produced by \link{interpolate_tbl}, or an eeg_lst appropiately grouped.}
 
 \item{...}{Others.}
-
-\item{x}{x}
-
-\item{y}{y}
 
 \item{value}{value}
 
 \item{label}{label, generally channel}
+
+\item{size}{}
+
+\item{projection}{"polar" (default), "orthographic", or  "stereographic"}
+
+\item{...}{passed to the interpolation method}
 }
 \value{
 A ggplot object

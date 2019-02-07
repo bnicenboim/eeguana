@@ -360,8 +360,11 @@ faces_segs_some
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces_segs_some <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/filter">filter</a></span>(<span class="kw"><a href="reference/between.html">between</a></span>(<span class="kw"><a href="reference/as_time.html">as_time</a></span>(.sample_id, <span class="dt">unit =</span> <span class="st">"milliseconds"</span>),<span class="dv">100</span>,<span class="dv">200</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">                    </span><span class="kw">group_by</span>(condition) <span class="op">%&gt;%</span>
 <span class="st">                    </span><span class="kw"><a href="reference/summarize_ch.html">summarize_all_ch</a></span>(mean, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span>
-<span class="st">                    </span><span class="kw"><a href="reference/interpolate_tbl.html">interpolate_tbl</a></span>() <span class="op">%&gt;%</span>
-<span class="st">                    </span><span class="kw"><a href="reference/plot_topo.html">plot_topo</a></span>() <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(<span class="op">~</span>condition)</code></pre></div>
+<span class="st">                    </span><span class="kw"><a href="reference/plot_topo.html">plot_topo</a></span>() <span class="op">+</span>
+<span class="st">                    </span><span class="kw"><a href="reference/annotate_head.html">annotate_head</a></span>(<span class="dt">size =</span> <span class="fl">.9</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">                    </span><span class="kw">geom_contour</span>() <span class="op">+</span>
+<span class="st">                    </span><span class="kw">geom_text</span>(<span class="dt">colour =</span> <span class="st">"black"</span>) <span class="op">+</span>
+<span class="st">                    </span><span class="kw">facet_grid</span>(<span class="op">~</span>condition)</code></pre></div>
 <p><img src="reference/figures/README-topo-1.png" width="100%"></p>
 </div>
 <div id="see-also" class="section level2">

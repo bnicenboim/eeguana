@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>A topographic plot. — plot_topo • eeguana</title>
+<title>Annotates a head in a ggplot — annotate_head • eeguana</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="A topographic plot. — plot_topo" />
+<meta property="og:title" content="Annotates a head in a ggplot — annotate_head" />
 
-<meta property="og:description" content="Create a default topographic plot based on an interpolation table." />
+<meta property="og:description" content="Annotates a head in a ggplot" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -117,68 +117,39 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>A topographic plot.</h1>
+    <h1>Annotates a head in a ggplot</h1>
     <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/plot.R'><code>R/plot.R</code></a></small>
-    <div class="hidden name"><code>plot_topo.Rd</code></div>
+    <div class="hidden name"><code>annotate_head.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Create a default topographic plot based on an interpolation table.</p>
+    <p>Annotates a head in a ggplot</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>plot_topo</span>(<span class='no'>data</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for tbl_df</span>
-<span class='fu'>plot_topo</span>(<span class='no'>data</span>, <span class='kw'>value</span> <span class='kw'>=</span> <span class='no'>amplitude</span>, <span class='kw'>label</span> <span class='kw'>=</span> <span class='no'>channel</span>,
-  <span class='no'>...</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>plot_topo</span>(<span class='no'>data</span>, <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>1.25</span>, <span class='kw'>value</span> <span class='kw'>=</span> <span class='no'>amplitude</span>,
-  <span class='kw'>label</span> <span class='kw'>=</span> <span class='no'>channel</span>, <span class='kw'>projection</span> <span class='kw'>=</span> <span class='st'>"polar"</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>annotate_head</span>(<span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>0.9</span>, <span class='kw'>color</span> <span class='kw'>=</span> <span class='st'>"black"</span>, <span class='kw'>stroke</span> <span class='kw'>=</span> <span class='fl'>1</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>data</th>
-      <td><p>A table of interpolated electrodes as produced by <a href='interpolate_tbl.html'>interpolate_tbl</a>, or an eeg_lst appropiately grouped.</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Others.</p></td>
-    </tr>
-    <tr>
-      <th>value</th>
-      <td><p>value</p></td>
-    </tr>
-    <tr>
-      <th>label</th>
-      <td><p>label, generally channel</p></td>
-    </tr>
-    <tr>
       <th>size</th>
-      <td></td>
+      <td><p>Size of the head</p></td>
     </tr>
     <tr>
-      <th>projection</th>
-      <td><p>"polar" (default), "orthographic", or  "stereographic"</p></td>
+      <th>color</th>
+      <td><p>Color of the head</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>passed to the interpolation method</p></td>
+      <th>stroke</th>
+      <td><p>Line thickness</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A ggplot object</p>
-    
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>Other plot: <code><a href='plot.eeg_lst.html'>plot.eeg_lst</a></code>,
-  <code><a href='plot_gg.html'>plot_gg</a></code>, <code><a href='plot_in_layout.html'>plot_in_layout</a></code></p></div>
+    <p>A layer for a ggplot</p>
     
 
   </div>
@@ -188,8 +159,6 @@
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-
-      <li><a href="#see-also">See also</a></li>
           </ul>
 
   </div>
