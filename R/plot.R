@@ -110,19 +110,9 @@ plot_topo.tbl_df <- function(data, value= amplitude,  label=channel, ...) {
 
   value <- rlang::enquo(value)
   label <- rlang::enquo(label)
-
-    # plot <- dplyr::filter(data, !is.na(.x), !is.na(.y), is.na(!!label)) %>%
-    # ggplot2::ggplot(ggplot2::aes(x = .x, y = .y, label = !!label)) +
-    # ggplot2::geom_raster(ggplot2::aes(fill = !!value), interpolate = TRUE, hjust = 0.5, vjust = 0.5) +
-    # ggplot2::geom_contour(ggplot2::aes(z = !!value)) +
-    # ggplot2::geom_text(data = dplyr::filter(data, !is.na(.x), !is.na(.y), !is.na(!!label)), colour = "black") +
-    # # scale_fill_distiller(palette = "Spectral", guide = "colourbar", oob = scales::squish) + #, oob = scales::squish
-    # ggplot2::scale_fill_gradientn(
-    #   colours = c("darkred", "yellow", "green", "darkblue"),
-    #   values = c(1.0, 0.75, 0.5, 0.25, 0)
-    # ) +
-    # theme_eeguana_empty
   
+  # Matlab palette from https://www.mattcraddock.com/blog/2017/02/25/erp-visualization-creating-topographical-scalp-maps-part-1/
+  jet.colors <- colorRampPalette(c("#00007F", "blue", "#007FFF", "cyan", "#7FFF7F", "yellow", "#FF7F00", "red", "#7F0000"))
   
   # Labels positions mess up with geom_raster, they need to be excluded 
   # and then add the labels to the data that was interpolated
@@ -148,11 +138,12 @@ plot_topo.tbl_df <- function(data, value= amplitude,  label=channel, ...) {
     ggplot2::ggplot(d, ggplot2::aes(x = .x, y = .y, 
                                  fill = !!value, z = !!value, label =  dplyr::if_else(!is.na(!!label), !!label, ""))) +
     ggplot2::geom_raster(interpolate = TRUE, hjust = 0.5, vjust = 0.5)  +
+    scale_fill_gradientn(colours = jet.colors(10),guide = "colourbar",oob = scales::squish)+ 
     # scale_fill_distiller(palette = "Spectral", guide = "colourbar", oob = scales::squish) + #, oob = scales::squish
-    ggplot2::scale_fill_gradientn(
-      colours = c("darkred", "yellow", "green", "darkblue"),
-      values = c(1.0, 0.75, 0.5, 0.25, 0)
-    ) +
+    # ggplot2::scale_fill_gradientn(
+    #   colours = c("darkred", "yellow", "green", "darkblue"),
+    #   values = c(1.0, 0.75, 0.5, 0.25, 0)
+    # ) +
     theme_eeguana_empty
   plot
 
