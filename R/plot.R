@@ -147,9 +147,7 @@ plot_topo.tbl_df <- function(data, value= amplitude,  label=channel, ...) {
   plot <- 
     ggplot2::ggplot(d, ggplot2::aes(x = .x, y = .y, 
                                  fill = !!value, z = !!value, label =  dplyr::if_else(!is.na(!!label), !!label, ""))) +
-    ggplot2::geom_raster(interpolate = TRUE, hjust = 0.5, vjust = 0.5) +
-    ggplot2::geom_contour() +
-    ggplot2::geom_text(colour = "black") +
+    ggplot2::geom_raster(interpolate = TRUE, hjust = 0.5, vjust = 0.5)  +
     # scale_fill_distiller(palette = "Spectral", guide = "colourbar", oob = scales::squish) + #, oob = scales::squish
     ggplot2::scale_fill_gradientn(
       colours = c("darkred", "yellow", "green", "darkblue"),
@@ -321,4 +319,13 @@ plot_in_layout.gg <- function(plot, projection = "polar", size = 1, ...) {
   }  
   new_plot
 }
+
+annotate_head <- function(size = 1, color ="black") {
+  head <- dplyr::tibble(angle = seq(-pi, pi, length = 50), x = sin(angle)*.95*size, y = cos(angle)*.95*size)
+  nose <- data.frame(x = c(-0.15,0,.15),y=c(.95*size,1.15*size,.95*size))
+  
+  list(ggplot2::annotate("polygon",x =head$x, y =head$y, color = color, fill =NA),
+   ggplot2::annotate("line", x = nose$x, y =nose$y, color = color))
+  
+} 
 

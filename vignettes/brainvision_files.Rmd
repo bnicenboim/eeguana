@@ -172,11 +172,17 @@ Another possibility is to create a topographic plot of the two conditions, by
 first making segments that include only the interval .1-.2 *s* after the onset
 of the stimuli, creating a table with interpolated amplitudes and using the ggplot wrapper `plot_topo()`.
 
-```{r, fig.dim = c(10,5), out.width = "100%"}
+```{r topo, fig.dim = c(10,5), out.width = "100%"}
 faces_segs_some %>% filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) %>% 
                     group_by(condition) %>%
                     summarize_all_ch(mean, na.rm = TRUE) %>%
-                    plot_topo() + facet_grid(~condition)
+                    plot_topo() +
+                    annotate_head() + 
+                    geom_contour() +
+                    geom_text(colour = "black") +
+                    facet_grid(~condition)
+
+
 ```
 
 
