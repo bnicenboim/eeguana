@@ -267,8 +267,8 @@ plot_in_layout.gg <- function(plot, projection = "polar", size = 1, ...) {
   # ch_grob$widths
   #
   # # grid::heightDetails()
-    grid::grid.newpage()
-    grid::grid.draw(channel_grobs[[4]])
+    # grid::grid.newpage()
+    # grid::grid.draw(channel_grobs[[4]])
     # grid::grid.draw(ch_grob)
    # 
   # Discard facet panels from the original plot:
