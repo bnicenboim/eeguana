@@ -189,7 +189,7 @@ plot_in_layout.gg <- function(plot, projection = "polar", size = 1, ...) {
   if (!all(c(".x", ".y", ".z") %in% colnames(eeg_data))) {
     stop("Coordinates are missing from the data.")
   }
-  plot <- plot + facet_wrap(~channel)
+  plot <- plot  + ggplot2::facet_wrap(.~channel)
   plot_grob <- ggplot2::ggplotGrob(plot)
   layout <- ggplot2::ggplot_build(plot)$layout$layout
 
@@ -221,20 +221,27 @@ plot_in_layout.gg <- function(plot, projection = "polar", size = 1, ...) {
 
   rowsize <- full_facet_grob$heights[3] # bottom
   colsize <- full_facet_grob$widths[1] # left
-
+  
+  #THESE ARE NOT IN ORDER!!!
+  panels <- subset(plot_grob$layout, grepl("panel", plot_grob$layout$name)) %>%
+    dplyr::arrange(b,l)
+  strips <- subset(plot_grob$layout, grepl("strip", plot_grob$layout$name))%>%
+    dplyr::arrange(b,l)
+  
   # won't work for free scales, need to add an if-else inside
-
+  
   channel_grobs <- purrr::map(layout$channel, function(ch) {
     ## pos <- which(facet_names==ch, arr.ind =  TRUE)
     ch_pos <- layout %>% dplyr::filter(channel == ch)
-    panel_txt <- paste0("panel-", ch_pos$ROW, "-", ch_pos$COL)
-    strip_txt <- paste0("strip-t-", ch_pos$COL, "-", ch_pos$ROW)
-    axisl_txt <- paste0("axis-l-", ch_pos$ROW, "-", ch_pos$COL)
-    axisb_txt <- paste0("axis-b-", ch_pos$COL, "-", ch_pos$ROW)
-    # pattern_txt <- paste0(c(panel_txt,strip_txt,axisl_txt,axisb_txt), collapse = "|")
-    pattern_txt <- paste0(c(panel_txt, strip_txt), collapse = "|")
-    # plot_grob[[1]][[which(plot_grob$layout$name == axisl_txt)]] <- axisl[[1]][[1]]
-    # plot_grob[[1]][[which(plot_grob$layout$name == axisb_txt)]] <- axisb[[1]][[1]]
+    # panel_txt <- paste0("panel-", ch_pos$ROW, "-", ch_pos$COL)
+    # strip_txt <- paste0("strip-t-", ch_pos$COL, "-", ch_pos$ROW)
+    # axisl_txt <- paste0("axis-l-", ch_pos$ROW, "-", ch_pos$COL)
+    # axisb_txt <- paste0("axis-b-", ch_pos$COL, "-", ch_pos$ROW)
+    # # pattern_txt <- paste0(c(panel_txt,strip_txt,axisl_txt,axisb_txt), collapse = "|")
+    # pattern_txt <- paste0(c(panel_txt, strip_txt), collapse = "|")
+    # # plot_grob[[1]][[which(plot_grob$layout$name == axisl_txt)]] <- axisl[[1]][[1]]
+    # # plot_grob[[1]][[which(plot_grob$layout$name == axisb_txt)]] <- axisb[[1]][[1]]
+    pattern_txt <- paste0(panels[ch_pos$PANEL,]$name,"|",strips[ch_pos$PANEL,]$name)
     ch_grob <- g_filter(plot_grob, pattern_txt, trim = TRUE) %>%
       gtable::gtable_add_rows(rowsize) %>%
       gtable::gtable_add_grob(axisb[[1]][[1]], 3, 1) %>%
@@ -260,9 +267,10 @@ plot_in_layout.gg <- function(plot, projection = "polar", size = 1, ...) {
   # ch_grob$widths
   #
   # # grid::heightDetails()
-  # grid::grid.newpage()
-  # grid::grid.draw(ch_grob)
-
+    grid::grid.newpage()
+    grid::grid.draw(channel_grobs[[4]])
+    # grid::grid.draw(ch_grob)
+   # 
   # Discard facet panels from the original plot:
   rest_grobs <- g_filter_out(plot_grob, "panel|strip-t|axis|xlab|ylab", trim = FALSE)
 
@@ -318,7 +326,6 @@ plot_in_layout.gg <- function(plot, projection = "polar", size = 1, ...) {
 #' @return A layer for a ggplot
 #' @export
 #'
-#' @examples
 annotate_head <- function(size = .9, color ="black", stroke=1) {
   head <- dplyr::tibble(angle = seq(-pi, pi, length = 50), x = sin(angle)*size, y = cos(angle)*size)
   nose <- data.frame(x = c(size*sin(-pi/18),0, size*sin(pi/18)),y=c(size*cos(-pi/18),1.15*size,size*cos(pi/18)))
