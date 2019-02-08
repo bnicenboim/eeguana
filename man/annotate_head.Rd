@@ -4,7 +4,7 @@
 \alias{annotate_head}
 \title{Annotates a head in a ggplot}
 \usage{
-annotate_head(size = 0.9, color = "black", stroke = 1)
+annotate_head(size = 1.1, color = "black", stroke = 1)
 }
 \arguments{
 \item{size}{Size of the head}

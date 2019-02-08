@@ -181,7 +181,9 @@ plot_in_layout <- function(plot,  ...) {
 #'
 #' @rdname plot_in_layout
 #' @export
-plot_in_layout.gg <- function(plot, projection = "polar", size = 1, ...) {
+plot_in_layout.gg <- function(plot, projection = "polar", size = c(1,1), ...) {
+  size_x <- size[[1]]
+  size_y <- size[[2]]
   eeg_data <- plot$data
   if (!"channel" %in% colnames(eeg_data)) {
     stop("Channels are missing from the data.")
@@ -279,10 +281,10 @@ plot_in_layout.gg <- function(plot, projection = "polar", size = 1, ...) {
 
   eeg_data <- change_coord(eeg_data, projection)
 
-  xmin <- min(eeg_data$.x,na.rm=TRUE) - 0.3 * size
-  xmax <- max(eeg_data$.x,na.rm=TRUE) + 0.3 * size
-  ymin <- min(eeg_data$.y,na.rm=TRUE) - 0.3 * size
-  ymax <- max(eeg_data$.y,na.rm=TRUE) + 0.3 * size
+  xmin <- min(eeg_data$.x,na.rm=TRUE) - 0.3 #* size
+  xmax <- max(eeg_data$.x,na.rm=TRUE) + 0.3 #* size
+  ymin <- min(eeg_data$.y,na.rm=TRUE) - 0.3 #* size
+  ymax <- max(eeg_data$.y,na.rm=TRUE) + 0.3 #* size
   new_plot <- ggplot(data.frame(x = c(xmin, xmax), y = c(ymin, ymax)), aes_(x = ~x, y = ~y)) +
     geom_blank() +
     scale_x_continuous(limits = c(xmin, xmax), expand = c(0, 0)) +
@@ -308,12 +310,11 @@ plot_in_layout.gg <- function(plot, projection = "polar", size = 1, ...) {
     } else {
     
     new_plot <- new_plot + annotation_custom(channel_grobs[[i]],
-      xmin = new_coord$.x - .13 * size,
-      xmax = new_coord$.x + .13 * size,
-      ymin = new_coord$.y - .13 * size,
-      ymax = new_coord$.y + .13 * size
-  
-    )
+      xmin = new_coord$.x - .13 * size_x,
+      xmax = new_coord$.x + .13 * size_x,
+      ymin = new_coord$.y - .13 * size_y,
+      ymax = new_coord$.y + .13 * size_y
+      )
     }
   }  
   new_plot
@@ -329,7 +330,7 @@ plot_in_layout.gg <- function(plot, projection = "polar", size = 1, ...) {
 #' @return A layer for a ggplot
 #' @export
 #'
-annotate_head <- function(size = .9, color ="black", stroke=1) {
+annotate_head <- function(size = 1.1, color ="black", stroke=1) {
   head <- dplyr::tibble(angle = seq(-pi, pi, length = 50), x = sin(angle)*size, y = cos(angle)*size)
   nose <- data.frame(x = c(size*sin(-pi/18),0, size*sin(pi/18)),y=c(size*cos(-pi/18),1.15*size,size*cos(pi/18)))
   list(ggplot2::annotate("polygon",x =head$x, y =head$y, color = color, fill =NA, size = 1* stroke),

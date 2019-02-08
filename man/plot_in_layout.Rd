@@ -7,7 +7,8 @@
 \usage{
 plot_in_layout(plot, ...)
 
-\method{plot_in_layout}{gg}(plot, projection = "polar", size = 1, ...)
+\method{plot_in_layout}{gg}(plot, projection = "polar", size = c(1, 1),
+  ...)
 }
 \arguments{
 \item{plot}{A ggplot object with channels}
