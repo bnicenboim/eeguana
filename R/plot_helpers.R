@@ -252,15 +252,16 @@ orthographic <- function(x, y, z) {
   list(x = x, y = y)
 }
 
-#' change coordinate system from 3d to 2d
+#' Change coordinate system from 3D to 2D
 #'
-#' @param data a tbl created with channels_tbl
+#'
+#' @param data A tbl created with channels_tbl
 #' @param projection projection type
 #'
-#' @return a modified channels_tbl
+#' @return A modified channels_tbl
 #'
-#' @noRd
-change_coord <- function(data, projection) {
+#' @export
+change_coord <- function(data, projection = "polar") {
   if (stringr::str_to_lower(projection) == "orthographic") {
     project <- orthographic
   } else if (stringr::str_to_lower(projection) == "polar") {

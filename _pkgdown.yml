@@ -77,3 +77,9 @@ reference:
     - '`sample_int`'
     - '`channel_dbl`'
     - '`signal_tbl`'
+    
+  - title: "Others"
+    desc: >
+      Some other useful functions.
+    contents:
+    - '`change_coord`'

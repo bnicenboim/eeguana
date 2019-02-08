@@ -275,22 +275,25 @@ plot_in_layout.gg <- function(plot, projection = "polar", size = 1, ...) {
   rest_grobs <- g_filter_out(plot_grob, "panel|strip-t|axis|xlab|ylab", trim = FALSE)
 
   # How much larger than the electrode position should the plot be?
-  cmin <- -1 - 0.3 * size
-  cmax <- 1 + 0.3 * size
-
-  new_plot <- ggplot(data.frame(x = c(cmin, cmax), y = c(cmin, cmax)), aes_(x = ~x, y = ~y)) +
-    geom_blank() +
-    scale_x_continuous(limits = c(cmin, cmax), expand = c(0, 0)) +
-    scale_y_continuous(limits = c(cmin, cmax), expand = c(0, 0)) +
-    theme_void() +
-    annotation_custom(rest_grobs,
-      xmin = cmin,
-      xmax = cmax,
-      ymin = cmin,
-      ymax = cmax
-    )
+ 
 
   eeg_data <- change_coord(eeg_data, projection)
+
+  xmin <- min(eeg_data$.x,na.rm=TRUE) - 0.3 * size
+  xmax <- max(eeg_data$.x,na.rm=TRUE) + 0.3 * size
+  ymin <- min(eeg_data$.y,na.rm=TRUE) - 0.3 * size
+  ymax <- max(eeg_data$.y,na.rm=TRUE) + 0.3 * size
+  new_plot <- ggplot(data.frame(x = c(xmin, xmax), y = c(ymin, ymax)), aes_(x = ~x, y = ~y)) +
+    geom_blank() +
+    scale_x_continuous(limits = c(xmin, xmax), expand = c(0, 0)) +
+    scale_y_continuous(limits = c(ymin, ymax), expand = c(0, 0)) +
+    theme_void() +
+    annotation_custom(rest_grobs,
+                      xmin = xmin,
+                      xmax = xmax,
+                      ymin = ymin,
+                      ymax = ymax
+    )
   
   for (i in seq_len(length(channel_grobs))) {
     new_coord <- eeg_data %>%
