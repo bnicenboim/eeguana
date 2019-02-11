@@ -1,6 +1,43 @@
 authors:
   Bruno Nicenboim:
     href: "http://www.ling.uni-potsdam.de/~nicenboim/"
+development:
+  mode: auto
+  
+navbar:
+  structure:
+    left:
+    - home
+    - intro
+    - reference
+    - articles
+    - tutorials
+    - news
+    right: github
+  components:
+    home:
+      icon: fa-home fa-lg
+      href: index.html
+    reference:
+      text: Reference
+      href: reference/index.html
+    articles:
+      text: Articles
+      menu:
+      - text: Introduction - Manipulating a clean EEG file exported from BrainVision
+          2.0
+        href: articles/brainvision_files.html
+      - text: Preprocessing of EEG data and computing ERPs (Fieldtrip tutorial)
+        href: articles/preprocessing_erp.html
+    news:
+      text: Changelog
+      href: news/index.html
+    github:
+      icon: fa-github fa-lg
+      href: https://github.com/bnicenboim/eeguana
+
+
+
 reference:
   - title: About
     contents:
