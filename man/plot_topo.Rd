@@ -11,7 +11,7 @@ plot_topo(data, ...)
 \method{plot_topo}{tbl_df}(data, value = amplitude, label = channel,
   ...)
 
-\method{plot_topo}{eeg_lst}(data, size = 1.25, value = amplitude,
+\method{plot_topo}{eeg_lst}(data, size = 1.2, value = amplitude,
   label = channel, projection = "polar", ...)
 }
 \arguments{

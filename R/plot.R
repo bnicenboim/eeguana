@@ -149,7 +149,7 @@ plot_topo.tbl_df <- function(data, value= amplitude,  label=channel, ...) {
 #' @param ... passed to the interpolation method
 #' @rdname plot_topo
 #' @export
-plot_topo.eeg_lst <- function(data, size= 1.25, value= amplitude,  label=channel, projection = "polar", ...) {
+plot_topo.eeg_lst <- function(data, size= 1.2, value= amplitude,  label=channel, projection = "polar", ...) {
   
   amplitude <- rlang::enquo(value)
   channel <- rlang::enquo(label)

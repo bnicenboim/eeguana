@@ -1,11 +1,11 @@
 Package: eeguana
 Type: Package
 Title: A package for flexible manipulation of EEG data
-Version: 0.0.5.9000
+Version: 0.0.6.9000
 Authors@R: c(
     person("Bruno", "Nicenboim", email = "bruno.nicenboim@uni-potsdam.de", role = c("aut", "cre")),
     person("Kate", "Stone", email = "kate.stone@uni-potsdam.de", role = "ctb"))
-Description: Flexible data manipulation of EEG data.
+Description: Flexible manipulation of EEG data.
 URL: https://github.com/bnicenboim/eeguana
 BugReports: https://github.com/bnicenboim/eeguana/issues
 License: MIT + file LICENSE

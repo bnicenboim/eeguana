@@ -8,11 +8,11 @@
 \usage{
 interpolate_tbl(.data, ...)
 
-\method{interpolate_tbl}{eeg_lst}(.data, size = 1.25, x = .x, y = .y,
+\method{interpolate_tbl}{eeg_lst}(.data, size = 1.2, x = .x, y = .y,
   value = amplitude, label = channel, diam_points = 200,
   method = "MBA", ...)
 
-\method{interpolate_tbl}{tbl_df}(.data, size = 1.25, x = .x, y = .y,
+\method{interpolate_tbl}{tbl_df}(.data, size = 1.2, x = .x, y = .y,
   value = amplitude, label = channel, diam_points = 200,
   method = "MBA", ...)
 }

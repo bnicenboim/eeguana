@@ -1,5 +1,5 @@
 
-[![Travis build status](https://travis-ci.org/bnicenboim/eeguana.svg?branch=master)](https://travis-ci.org/bnicenboim/eeguana) [![Codecov test coverage](https://codecov.io/gh/bnicenboim/eeguana/branch/master/graph/badge.svg)](https://codecov.io/gh/bnicenboim/eeguana?branch=master) [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/bnicenboim/eeguana?branch=master&svg=true)](https://ci.appveyor.com/project/bnicenboim/eeguana)
+[![Travis build status](https://travis-ci.org/bnicenboim/eeguana.svg?branch=master)](https://travis-ci.org/bnicenboim/eeguana) [![Codecov test coverage](https://codecov.io/gh/bnicenboim/eeguana/branch/master/graph/badge.svg)](https://codecov.io/gh/bnicenboim/eeguana?branch=master) [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/bnicenboim/eeguana?branch=master&svg=true)](https://ci.appveyor.com/project/bnicenboim/eeguana) [![DOI](https://zenodo.org/badge/153299577.svg)](https://zenodo.org/badge/latestdoi/153299577)
 
 eeguana <img src="man/figures/logo.png" align="right" height=140/>
 ==================================================================
@@ -312,7 +312,7 @@ faces_segs_some %>% filter(between(as_time(.sample_id, unit = "milliseconds"),10
                     group_by(condition) %>%
                     summarize_all_ch(mean, na.rm = TRUE) %>%
                     plot_topo() +
-                    annotate_head(size = .9) + 
+                    annotate_head() + 
                     geom_contour() +
                     geom_text(colour = "black") +
                     facet_grid(~condition)

@@ -70,7 +70,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">0.0.5.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">0.0.6.9000</span>
       </span>
     </div>
 
@@ -128,39 +128,85 @@
       <small>Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="eeguana-0-0-6-900" class="section level1">
+<h1 class="page-header">
+<a href="#eeguana-0-0-6-900" class="anchor"></a>eeguana 0.0.6.900</h1>
+<ul>
+<li>Changes
+<ul>
+<li>There is a logo!</li>
+<li>Doi was added.</li>
+<li>
+<code><a href="../reference/plot_in_layout.html">plot_in_layout()</a></code> to place facets in the electrode layout was added.</li>
+<li>
+<code><a href="../reference/plot_topo.html">plot_topo()</a></code> has improved colors, and does “less”, <code>geom_contour</code> and <code>geom_text</code> need to be added.</li>
+<li>
+<code><a href="../reference/annotate_head.html">annotate_head()</a></code> was added to the plot functions.</li>
+<li>
+<code><a href="../reference/change_coord.html">change_coord()</a></code> was added as an auxiliary function to change the coordinate system for topographic or layout plots.</li>
+</ul>
+</li>
+<li>Bugs
+<ul>
+<li>Various minor bugs fixed.</li>
+</ul>
+</li>
+<li>Internal changes
+<ul>
+<li>More tests were added.</li>
+</ul>
+</li>
+</ul>
+</div>
     <div id="eeguana-0-0-5-9000" class="section level1">
 <h1 class="page-header">
 <a href="#eeguana-0-0-5-9000" class="anchor"></a>eeguana 0.0.5.9000</h1>
 <ul>
-<li>Changes</li>
+<li>Changes
+<ul>
 <li>
 <code><a href="../reference/read_edf.html">read_edf()</a></code> was added.</li>
-<li>Bugs</li>
+</ul>
+</li>
+<li>Bugs
+<ul>
 <li>Bug in <code><a href="../reference/summary.html">channel_names()</a></code> was fixed.</li>
 <li>Bug <a href='https://github.com/bnicenboim/eeguana/issues/34'>#34</a> fixed.</li>
-<li>Internal changes:</li>
+</ul>
+</li>
+<li>Internal changes:
+<ul>
 <li>Better test structure.</li>
 <li>Better validation of objects.</li>
+</ul>
+</li>
 </ul>
 </div>
     <div id="eeguana-0-0-4-9000" class="section level1">
 <h1 class="page-header">
 <a href="#eeguana-0-0-4-9000" class="anchor"></a>eeguana 0.0.4.9000</h1>
 <ul>
-<li>Changes</li>
+<li>Changes
+<ul>
 <li>
 <code><a href="../reference/chs_fun.html">chs_fun()</a></code> to apply arbitrary functions to the channels.</li>
 <li>Fieldtrip tutorial added as a vignette.</li>
-<li>Bugs</li>
+</ul>
+</li>
+<li>Bugs
+<ul>
 <li>Channels appear in the right order in plots.</li>
 <li>Other minor bugs.</li>
+</ul>
+</li>
 </ul>
 </div>
     <div id="eeguana-0-0-3-9000" class="section level1">
 <h1 class="page-header">
 <a href="#eeguana-0-0-3-9000" class="anchor"></a>eeguana 0.0.3.9000</h1>
 <ul>
-<li>Changes</li>
+<li>Changes
+<ul>
 <li>ggplot2 theme improved.</li>
 <li>changed the default downsampling in plots.</li>
 <li>better handling of weird channel names.</li>
@@ -171,7 +217,10 @@
 <li>
 <code>events</code> function to visualize and edit events was added.</li>
 <li>various filters were added.</li>
-<li>Bugs</li>
+</ul>
+</li>
+<li>Bugs
+<ul>
 <li>
 <code>ch_rereference</code> updates the relevanta attributes.</li>
 <li>bugs in various reading functions were fixed (int encoding issues).</li>
@@ -179,6 +228,8 @@
 <code>mutate</code> recognize better channels.</li>
 <li>
 <code>*_join</code> functions fixed.</li>
+</ul>
+</li>
 </ul>
 </div>
     <div id="eeguana-0-0-2-9001" class="section level1">
@@ -201,6 +252,7 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
+        <li><a href="#eeguana-0-0-6-900">0.0.6.900</a></li>
         <li><a href="#eeguana-0-0-5-9000">0.0.5.9000</a></li>
         <li><a href="#eeguana-0-0-4-9000">0.0.4.9000</a></li>
         <li><a href="#eeguana-0-0-3-9000">0.0.3.9000</a></li>

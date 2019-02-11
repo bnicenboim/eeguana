@@ -19,7 +19,7 @@ interpolate_tbl <- function(.data, ...) {
 #' @param label channel (default)
 #' @param diam_points Density of the interpolation (number of points that are interpolated in the diameter of the scalp).
 #' @export
-interpolate_tbl.eeg_lst <- function(.data, size = 1.25, x = .x, y = .y, value = amplitude, label = channel, diam_points = 200, method = "MBA", ...) {
+interpolate_tbl.eeg_lst <- function(.data, size = 1.2, x = .x, y = .y, value = amplitude, label = channel, diam_points = 200, method = "MBA", ...) {
   grouping <- group_chr(.data)
   .data <- dplyr::as_tibble(.data) %>% dplyr::group_by_at(dplyr::vars(grouping))
   x <- rlang::enquo(x)
@@ -32,7 +32,7 @@ interpolate_tbl.eeg_lst <- function(.data, size = 1.25, x = .x, y = .y, value = 
 }
 #' @rdname interpolate_tbl
 #' @export
-interpolate_tbl.tbl_df <- function(.data, size = 1.25, x = .x, y = .y, value = amplitude, label = channel, diam_points = 200,
+interpolate_tbl.tbl_df <- function(.data, size = 1.2, x = .x, y = .y, value = amplitude, label = channel, diam_points = 200,
                                    method = "MBA", ...) {
   # x <- rlang::quo(.x)
   # y <- rlang::quo(.y)
