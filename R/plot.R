@@ -176,14 +176,14 @@ plot_in_layout <- function(plot,  ...) {
 
 
 #' @param projection "polar" (default), "orthographic", or  "stereographic"
-#' @param size 
+#' @param ratio Ratio
 #' @param ... 
 #'
 #' @rdname plot_in_layout
 #' @export
-plot_in_layout.gg <- function(plot, projection = "polar", size = c(1,1), ...) {
-  size_x <- size[[1]]
-  size_y <- size[[2]]
+plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
+  size_x <- ratio[[1]]
+  size_y <- ratio[[2]]
   eeg_data <- plot$data
   if (!"channel" %in% colnames(eeg_data)) {
     stop("Channels are missing from the data.")

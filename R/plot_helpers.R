@@ -57,7 +57,8 @@ interpolate_tbl.tbl_df <- function(.data, size = 1.2, x = .x, y = .y, value = am
     dplyr::pull(L) %>%
     all(. == 1)
   if (!is_grouped) {
-    stop("Data needs to grouped or summarized so that each label appears one per group.")
+    stop("Data needs to grouped or summarized so that each label appears one per group.\n",
+         "Tip: You should do probably need to do `eeg_lst %>% group_by(YOUR_GROUPS) %>% summarize_all_ch(mean)` before calling this function",call. = FALSE)
   }
 
 

@@ -23,8 +23,6 @@ plot_topo(data, ...)
 
 \item{label}{label, generally channel}
 
-\item{size}{}
-
 \item{projection}{"polar" (default), "orthographic", or  "stereographic"}
 
 \item{...}{passed to the interpolation method}
