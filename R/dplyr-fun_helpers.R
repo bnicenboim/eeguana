@@ -44,7 +44,7 @@ filter_eeg_lst <- function(.eeg_lst, dots){
   
 
     # Fix the indices in case some of them drop out
-    .eeg_lst <- redo_indices(.eeg_lst) %>% update_events_channels() 
+    .eeg_lst <- .eeg_lst %>% update_events_channels() 
     data.table::setkey(.eeg_lst$signal,.id,.sample_id)
     .eeg_lst %>% validate_eeg_lst()
   }  
@@ -173,15 +173,15 @@ scaling <- function(sampling_rate, unit) {
 }
 
 
-#' @noRd
-redo_indices <- function(.eeg_lst) {
-  .eeg_lst$signal[,.id:= as.factor(.id) %>% as.integer(.)]
-  .eeg_lst$segments <- .eeg_lst$segments %>% 
-                        dplyr::mutate(.id =  as.factor(.id) %>% as.integer(.))
-  .eeg_lst$events[,.id:= as.factor(.id) %>% as.integer(.)]
-  data.table::setkey(.eeg_lst$signal, .id, .sample_id)
-  .eeg_lst
-}
+# #' @noRd
+# redo_indices <- function(.eeg_lst) {
+#   .eeg_lst$signal[,.id:= as.factor(.id) %>% as.integer(.)]
+#   .eeg_lst$segments <- .eeg_lst$segments %>% 
+#                         dplyr::mutate(.id =  as.factor(.id) %>% as.integer(.))
+#   .eeg_lst$events[,.id:= as.factor(.id) %>% as.integer(.)]
+#   data.table::setkey(.eeg_lst$signal, .id, .sample_id)
+#   .eeg_lst
+# }
 
 #' Gives the names of segment columns except for .id included in a quosure
 #' @noRd
