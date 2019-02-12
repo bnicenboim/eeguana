@@ -137,7 +137,7 @@ anti_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".
   segments <- data.table::as.data.table(x$segments)
   x$signal <- semi_join_dt(x$signal, segments, by = ".id")
   x$events <- semi_join_dt(x$events, segments, by = ".id")
-  redo_indices(x) %>% validate_eeg_lst()
+  x %>% validate_eeg_lst()
 }
 #' @rdname join-eeguana
 left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
@@ -156,7 +156,7 @@ semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   segments <- data.table::as.data.table(x$segments)
   x$signal <- semi_join_dt(x$signal, segments, by = ".id")
   x$events <- semi_join_dt(x$events, segments, by = ".id")
-  redo_indices(x) %>% validate_eeg_lst()
+  x %>% validate_eeg_lst()
   
 }
 
