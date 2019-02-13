@@ -2,16 +2,26 @@
 % Please edit documentation in R/tables_transformation.R
 \name{eeg_segment}
 \alias{eeg_segment}
+\alias{eeg_segment.eeg_lst}
 \title{Segment an eeg_lst.}
 \usage{
 eeg_segment(x, ...)
+
+\method{eeg_segment}{eeg_lst}(x, ..., lim = c(-0.5, 0.5), end,
+  unit = "seconds", recording_col = "recording")
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
 
 \item{...}{Description of the event.}
 
+\item{lim}{Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments}
+
+\item{end}{Description of the event that indicates the end of the segment, if this is used, \code{lim} is ignored.}
+
 \item{unit}{Unit}
+
+\item{recording_col}{Column in the segments table indicating to which recording or file each segment belongs.}
 }
 \value{
 An \code{eeg_lst}.

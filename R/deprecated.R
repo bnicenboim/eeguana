@@ -10,6 +10,7 @@
 NULL
 
 #' @rdname eeguana-deprecated
+#' @inheritParams eeg_downsample
 #' @export
 downsample <- function(x, q = 2, max_sample = NULL, ...) {
   .Deprecated("eeg_downsample")
@@ -17,18 +18,21 @@ downsample <- function(x, q = 2, max_sample = NULL, ...) {
 }
 
 #' @rdname eeguana-deprecated
+#' @inheritParams eeg_segment
 #' @export
 segment <- function(x, ...) {
   .Deprecated("eeg_segment")
   UseMethod("eeg_segment")
 }
 #' @rdname eeguana-deprecated
+#' @inheritParams eeg_interpolate_tbl
 #' @export
 interpolate_tbl <- function(.data, ...) {
   .Deprecated("eeg_interpolate_tbl")
     UseMethod("eeg_interpolate_tbl")
 }
 #' @rdname eeguana-deprecated
+#' @inheritParams eeg_intervals_to_NA
 #' @export
 event_to_ch_NA <- function(x, ...) {
   .Deprecated("eeg_intervals_to_NA")

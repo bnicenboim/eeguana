@@ -2,8 +2,6 @@
 #'
 #' Create a default topographic plot based on the segments of the `eeg_lst` object.
 #'
-#' The following methods of interpolation are available :
-#'
 #'
 #' @param .data An `eeg_lst` object or a long table with amplitudes..
 #' @param ... Various arguments passed to the interpolation method.
@@ -12,11 +10,12 @@ eeg_interpolate_tbl <- function(.data, ...) {
   UseMethod("eeg_interpolate_tbl")
 }
 #' @rdname eeg_interpolate_tbl
+#' @param size Indicates how much to extrapolate, `1` indicates no extrapolation beyond the position of the electrodes.
 #' @param method Method of interpolation (`"MBA"` Multilevel B-splines using the function `mba.surf` of the package `MBA` or (`"akima"` bicubic spline Akima interpolation algorithm using the function `interp` of the package `akima`.)..).
-#' @param x Coordinate x
-#' @param y Coordinate y
-#' @param value amplitude (default)
-#' @param label channel (default)
+#' @param x Variable storing the x coordinate, generally `.x` (default).
+#' @param y Variable storing the y coordinate, generally `.y` (default).
+#' @param value Values used for the interpolation, generally `amplitude` (default). 
+#' @param label Label of the points that are used for the interpolation, generally `channel` (default).
 #' @param diam_points Density of the interpolation (number of points that are interpolated in the diameter of the scalp).
 #' @export
 eeg_interpolate_tbl.eeg_lst <- function(.data, size = 1.2, x = .x, y = .y, value = amplitude, label = channel, diam_points = 200, method = "MBA", ...) {
@@ -64,7 +63,7 @@ eeg_interpolate_tbl.tbl_df <- function(.data, size = 1.2, x = .x, y = .y, value 
 
   l <- .data %>% dplyr::ungroup() %>% dplyr::select(dplyr::one_of(group_vars)) # %>%
 
-  if (!identical(na.omit(l), l)) {
+  if (!identical(stats::na.omit(l), l)) {
     stop("Data cannot be grouped by a column that contains NAs.")
   }
 

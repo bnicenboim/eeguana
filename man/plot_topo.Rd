@@ -17,15 +17,15 @@ plot_topo(data, ...)
 \arguments{
 \item{data}{A table of interpolated electrodes as produced by \link{eeg_interpolate_tbl}, or an eeg_lst appropiately grouped.}
 
-\item{...}{Others.}
+\item{...}{Not in use.}
 
-\item{value}{value}
+\item{value}{Values used for the interpolation, generally \code{amplitude} (default).}
 
-\item{label}{label, generally channel}
+\item{label}{Label of the points that are used for the interpolation, generally \code{channel} (default).}
 
-\item{projection}{"polar" (default), "orthographic", or  "stereographic"}
+\item{size}{Indicates how much to extrapolate, \code{1} indicates no extrapolation beyond the position of the electrodes.}
 
-\item{...}{passed to the interpolation method}
+\item{projection}{Projection type for converting the 3D coordinates of the electrodes into 2d coordinates. Projection types available: "polar" (default), "orthographic", or  "stereographic"}
 }
 \value{
 A ggplot object

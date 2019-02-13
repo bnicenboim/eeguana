@@ -6,7 +6,7 @@
 \title{ERPs elicited when one subject saw faces and non-faces objects.}
 \format{An eeg_lst  with 2 conditions (faces, non-faces)}
 \source{
-See \link{https://bnicenboim.github.io/eeguana/articles/brainvision_files.html}
+See https://bnicenboim.github.io/eeguana/articles/brainvision_files.html
 }
 \usage{
 data_faces_ERPs

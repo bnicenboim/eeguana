@@ -29,7 +29,8 @@ Imports:
     tibble,
     data.table (>= 1.9.8),
     edfReader,
-    gtable
+    gtable,
+    scales
 Suggests:
     akima,
     testthat,

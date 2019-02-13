@@ -4,7 +4,7 @@
 #' 
 #'
 #' @format An eeg_lst  with 2 conditions (faces, non-faces)
-#' @source See [https://bnicenboim.github.io/eeguana/articles/brainvision_files.html]
+#' @source See https://bnicenboim.github.io/eeguana/articles/brainvision_files.html
 "data_faces_ERPs"
 
 #' EEGs elicited when one subject saw faces and non-faces objects.
@@ -23,5 +23,5 @@
 #'   * `type == "Stimulus", description == "s121` indicates 
 #'   * `type == "Stimulus", description == "s70` indicates that a face was presented.
 #'   * `type == "Stimulus", description == "s71` indicates that a non-face was presented.
-#' @source See [https://bnicenboim.github.io/eeguana/articles/brainvision_files.html]
+#' @source See https://bnicenboim.github.io/eeguana/articles/brainvision_files.html
 "data_faces_10_trials"

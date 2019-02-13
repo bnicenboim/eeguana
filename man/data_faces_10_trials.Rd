@@ -18,7 +18,7 @@
 \item \code{type == "Stimulus", description == "s71} indicates that a non-face was presented.
 }}
 \source{
-See \link{https://bnicenboim.github.io/eeguana/articles/brainvision_files.html}
+See https://bnicenboim.github.io/eeguana/articles/brainvision_files.html
 }
 \usage{
 data_faces_10_trials

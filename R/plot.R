@@ -91,7 +91,7 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 #'
 #'
 #' @param data A table of interpolated electrodes as produced by [eeg_interpolate_tbl], or an eeg_lst appropiately grouped. 
-#' @param ... Others.
+#' @param ... Not in use.
 #'
 #' @family plot
 #'
@@ -102,8 +102,6 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 plot_topo <- function(data,  ...) {
   UseMethod("plot_topo")
 }
-#' @param value value 
-#' @param label label, generally channel
 #' @rdname plot_topo
 #' @export
 plot_topo.tbl_df <- function(data, value= amplitude,  label=channel, ...) {
@@ -121,8 +119,8 @@ plot_topo.tbl_df <- function(data, value= amplitude,  label=channel, ...) {
     d %>% dplyr::select(-!!value) %>%    
       dplyr::filter((.x - l$.x)^2 + (.y - l$.y)^2 == min((.x - l$.x)^2 + (.y - l$.y)^2) )  %>%
       # does the original grouping so that I add a label to each group
-      dplyr::group_by_at(vars(colnames(.)[!colnames(.) %in% c(".x",".y")]) ) %>%
-      slice(1) %>%
+      dplyr::group_by_at(dplyr::vars(colnames(.)[!colnames(.) %in% c(".x",".y")]) ) %>%
+      dplyr::slice(1) %>%
       dplyr::mutate(!!label := l[[3]])
             }
                 )
@@ -139,14 +137,14 @@ plot_topo.tbl_df <- function(data, value= amplitude,  label=channel, ...) {
     #    scale_fill_gradientn(colours = colorRampPalette(c("#00007F", "blue", "#007FFF", "cyan", "#7FFF7F", "yellow", "#FF7F00", "red", "#7F0000")),guide = "colourbar",oob = scales::squish)+ 
     # Not that bad scale:
     #    scale_fill_distiller(palette = "Spectral", guide = "colourbar", oob = scales::squish) + #
-    scale_fill_distiller(type = "div",palette = "RdBu",guide = "colourbar",  oob = scales::squish) +
+    ggplot2::scale_fill_distiller(type = "div",palette = "RdBu",guide = "colourbar",  oob = scales::squish) +
     theme_eeguana_empty
   plot
 
 }
 
 #' @inheritParams plot_in_layout
-#' @param ... passed to the interpolation method
+#' @inheritParams eeg_interpolate_tbl
 #' @rdname plot_topo
 #' @export
 plot_topo.eeg_lst <- function(data, size= 1.2, value= amplitude,  label=channel, projection = "polar", ...) {
@@ -164,8 +162,6 @@ plot_topo.eeg_lst <- function(data, size= 1.2, value= amplitude,  label=channel,
 #'
 #' @param plot A ggplot object with channels
 #'
-#' @param ... 
-#'
 #' @family plot
 #' @return A ggplot object
 #' 
@@ -175,9 +171,9 @@ plot_in_layout <- function(plot,  ...) {
 }
 
 
-#' @param projection "polar" (default), "orthographic", or  "stereographic"
-#' @param ratio Ratio
-#' @param ... 
+#' @param projection Projection type for converting the 3D coordinates of the electrodes into 2d coordinates. Projection types available: "polar" (default), "orthographic", or  "stereographic"
+#' @param ratio Ratio of the individual panels
+#' @param ... Not in use. 
 #'
 #' @rdname plot_in_layout
 #' @export
@@ -223,7 +219,10 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
 
   rowsize <- full_facet_grob$heights[3] # bottom
   colsize <- full_facet_grob$widths[1] # left
-  
+
+  # needed for passing checks:
+  b <- NULL
+  l <- NULL
   #THESE ARE NOT IN ORDER!!!
   panels <- subset(plot_grob$layout, grepl("panel", plot_grob$layout$name)) %>%
     dplyr::arrange(b,l)
@@ -262,7 +261,7 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
     # }
 
     ch_grob
-  }) %>% setNames(layout$channel)
+  }) %>% stats::setNames(layout$channel)
   # #gtable::gtable_height(ch_grob)
   # grid::heightDetails(ch_grob)
   # grid::heightDetails(ch_grob)
@@ -285,12 +284,13 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
   xmax <- max(eeg_data$.x,na.rm=TRUE) + 0.3 #* size
   ymin <- min(eeg_data$.y,na.rm=TRUE) - 0.3 #* size
   ymax <- max(eeg_data$.y,na.rm=TRUE) + 0.3 #* size
-  new_plot <- ggplot(data.frame(x = c(xmin, xmax), y = c(ymin, ymax)), aes_(x = ~x, y = ~y)) +
-    geom_blank() +
-    scale_x_continuous(limits = c(xmin, xmax), expand = c(0, 0)) +
-    scale_y_continuous(limits = c(ymin, ymax), expand = c(0, 0)) +
-    theme_void() +
-    annotation_custom(rest_grobs,
+  new_plot <- ggplot2::ggplot(data.frame(x = c(xmin, xmax), y = c(ymin, ymax)),
+                             ggplot2::aes_(x = ~x, y = ~y)) +
+    ggplot2::geom_blank() +
+    ggplot2::scale_x_continuous(limits = c(xmin, xmax), expand = c(0, 0)) +
+    ggplot2::scale_y_continuous(limits = c(ymin, ymax), expand = c(0, 0)) +
+    ggplot2::theme_void() +
+    ggplot2::annotation_custom(rest_grobs,
                       xmin = xmin,
                       xmax = xmax,
                       ymin = ymin,
@@ -309,7 +309,7 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
 
     } else {
     
-    new_plot <- new_plot + annotation_custom(channel_grobs[[i]],
+    new_plot <- new_plot + ggplot2::annotation_custom(channel_grobs[[i]],
       xmin = new_coord$.x - .13 * size_x,
       xmax = new_coord$.x + .13 * size_x,
       ymin = new_coord$.y - .13 * size_y,
@@ -331,8 +331,12 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
 #' @export
 #'
 annotate_head <- function(size = 1.1, color ="black", stroke=1) {
-  head <- dplyr::tibble(angle = seq(-pi, pi, length = 50), x = sin(angle)*size, y = cos(angle)*size)
-  nose <- data.frame(x = c(size*sin(-pi/18),0, size*sin(pi/18)),y=c(size*cos(-pi/18),1.15*size,size*cos(pi/18)))
+  angle <- NULL # to avoid a note in the checks afterwards:
+  head <- dplyr::tibble(angle = seq(-pi, pi, length = 50),
+                        x = sin(angle)*size,
+                        y = cos(angle)*size)
+  nose <- dplyr::tibble(x = c(size*sin(-pi/18),0, size*sin(pi/18)),
+                        y=c(size*cos(-pi/18),1.15*size,size*cos(pi/18)))
   list(ggplot2::annotate("polygon",x =head$x, y =head$y, color = color, fill =NA, size = 1* stroke),
    ggplot2::annotate("line", x = nose$x, y =nose$y, color = color, size = 1* stroke))
   

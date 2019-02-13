@@ -144,7 +144,32 @@
 <span class='fu'>interpolate_tbl</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
 
 <span class='fu'>event_to_ch_NA</span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
-        
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>x</th>
+      <td><p>An eeg_lst object.</p></td>
+    </tr>
+    <tr>
+      <th>q</th>
+      <td><p>integer factor(s) to downsample by.</p></td>
+    </tr>
+    <tr>
+      <th>max_sample</th>
+      <td><p>Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total number of samples.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Not in use.</p></td>
+    </tr>
+    <tr>
+      <th>.data</th>
+      <td><p>An <code>eeg_lst</code> object or a long table with amplitudes..</p></td>
+    </tr>
+    </table>
+    
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <ul>
@@ -159,6 +184,7 @@
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#details">Details</a></li>
           </ul>

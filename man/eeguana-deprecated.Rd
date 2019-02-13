@@ -16,6 +16,17 @@ interpolate_tbl(.data, ...)
 
 event_to_ch_NA(x, ...)
 }
+\arguments{
+\item{x}{An eeg_lst object.}
+
+\item{q}{integer factor(s) to downsample by.}
+
+\item{max_sample}{Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total number of samples.}
+
+\item{...}{Not in use.}
+
+\item{.data}{An \code{eeg_lst} object or a long table with amplitudes..}
+}
 \description{
 These functions still work but will be removed (defunct) in the next version.
 }

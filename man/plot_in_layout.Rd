@@ -13,13 +13,11 @@ plot_in_layout(plot, ...)
 \arguments{
 \item{plot}{A ggplot object with channels}
 
-\item{...}{}
+\item{...}{Not in use.}
 
-\item{projection}{"polar" (default), "orthographic", or  "stereographic"}
+\item{projection}{Projection type for converting the 3D coordinates of the electrodes into 2d coordinates. Projection types available: "polar" (default), "orthographic", or  "stereographic"}
 
-\item{ratio}{Ratio}
-
-\item{...}{}
+\item{ratio}{Ratio of the individual panels}
 }
 \value{
 A ggplot object

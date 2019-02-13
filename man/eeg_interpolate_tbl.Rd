@@ -21,13 +21,15 @@ eeg_interpolate_tbl(.data, ...)
 
 \item{...}{Various arguments passed to the interpolation method.}
 
-\item{x}{Coordinate x}
+\item{size}{Indicates how much to extrapolate, \code{1} indicates no extrapolation beyond the position of the electrodes.}
 
-\item{y}{Coordinate y}
+\item{x}{Variable storing the x coordinate, generally \code{.x} (default).}
 
-\item{value}{amplitude (default)}
+\item{y}{Variable storing the y coordinate, generally \code{.y} (default).}
 
-\item{label}{channel (default)}
+\item{value}{Values used for the interpolation, generally \code{amplitude} (default).}
+
+\item{label}{Label of the points that are used for the interpolation, generally \code{channel} (default).}
 
 \item{diam_points}{Density of the interpolation (number of points that are interpolated in the diameter of the scalp).}
 
@@ -35,7 +37,4 @@ eeg_interpolate_tbl(.data, ...)
 }
 \description{
 Create a default topographic plot based on the segments of the \code{eeg_lst} object.
-}
-\details{
-The following methods of interpolation are available :
 }
