@@ -10,9 +10,9 @@ download.file("http://www.ling.uni-potsdam.de/~nicenboim/files/faces.dat",
 faces <- read_vhdr("faces.vhdr")
 
 data_faces_ERPs <- faces %>% 
-  segment(description %in% c("s70", "s71"), 
+  eeg_segment(description %in% c("s70", "s71"), 
           lim = c(-.2,.25)) %>%
-  event_to_ch_NA(type == "Bad Interval") %>% 
+  eeg_intervals_to_NA(type == "Bad Interval") %>% 
   ch_baseline() %>%  
   mutate(condition =
            if_else(description == "s70", "faces", "non-faces")) %>% 

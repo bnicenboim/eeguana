@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Changelog • eeguana</title>
+<title>EEGs elicited when one subject saw faces and non-faces objects. — data_faces_10_trials • eeguana</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -37,7 +37,9 @@
 
 
 
-<meta property="og:title" content="Changelog" />
+<meta property="og:title" content="EEGs elicited when one subject saw faces and non-faces objects. — data_faces_10_trials" />
+
+<meta property="og:description" content="A dataset containing 10 trials where  one subject either saw faces or a non-faces objects with preprocessing done in BrainVision 2.0. See also the vignette Introduction - Manipulating a clean EEG file exported from BrainVision 2.0." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -57,7 +59,7 @@
   </head>
 
   <body>
-    <div class="container template-news">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -124,153 +126,50 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Changelog <small></small></h1>
-      <small>Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
+    <h1>EEGs elicited when one subject saw faces and non-faces objects.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/data.R'><code>R/data.R</code></a></small>
+    <div class="hidden name"><code>data_faces_10_trials.Rd</code></div>
     </div>
 
-    <div id="eeguana-0-0-6-900" class="section level1">
-<h1 class="page-header">
-<a href="#eeguana-0-0-6-900" class="anchor"></a>eeguana 0.0.6.900</h1>
-<ul>
-<li>Changes
-<ul>
-<li>There is a logo!</li>
-<li>Doi was added.</li>
-<li>
-<code><a href="../reference/eeguana-deprecated.html">segment()</a></code> was renamed to <code><a href="../reference/eeg_segment.html">eeg_segment()</a></code>
-</li>
-<li>
-<code><a href="../reference/eeguana-deprecated.html">downsample()</a></code> was renamed to <code><a href="../reference/eeg_downsample.html">eeg_downsample()</a></code>
-</li>
-<li>
-<code><a href="../reference/eeguana-deprecated.html">interpolate_tbl()</a></code> was renamed to <code><a href="../reference/eeg_interpolate_tbl.html">eeg_interpolate_tbl()</a></code>
-</li>
-<li>
-<code><a href="../reference/plot_in_layout.html">plot_in_layout()</a></code> to place facets in the electrode layout was added.</li>
-<li>
-<code><a href="../reference/plot_topo.html">plot_topo()</a></code> has improved colors, and does “less”, <code>geom_contour</code> and <code>geom_text</code> need to be added.</li>
-<li>
-<code><a href="../reference/annotate_head.html">annotate_head()</a></code> was added to the plot functions.</li>
-<li>
-<code><a href="../reference/change_coord.html">change_coord()</a></code> was added as an auxiliary function to change the coordinate system for topographic or layout plots.</li>
-</ul>
-</li>
-<li>Bugs
-<ul>
-<li>Various minor bugs fixed.</li>
-</ul>
-</li>
-<li>Internal changes
-<ul>
-<li>More tests were added.</li>
-</ul>
-</li>
-</ul>
-</div>
-    <div id="eeguana-0-0-5-9000" class="section level1">
-<h1 class="page-header">
-<a href="#eeguana-0-0-5-9000" class="anchor"></a>eeguana 0.0.5.9000</h1>
-<ul>
-<li>Changes
-<ul>
-<li>
-<code><a href="../reference/read_edf.html">read_edf()</a></code> was added.</li>
-</ul>
-</li>
-<li>Bugs
-<ul>
-<li>Bug in <code><a href="../reference/summary.html">channel_names()</a></code> was fixed.</li>
-<li>Bug <a href='https://github.com/bnicenboim/eeguana/issues/34'>#34</a> fixed.</li>
-</ul>
-</li>
-<li>Internal changes:
-<ul>
-<li>Better test structure.</li>
-<li>Better validation of objects.</li>
-</ul>
-</li>
-</ul>
-</div>
-    <div id="eeguana-0-0-4-9000" class="section level1">
-<h1 class="page-header">
-<a href="#eeguana-0-0-4-9000" class="anchor"></a>eeguana 0.0.4.9000</h1>
-<ul>
-<li>Changes
-<ul>
-<li>
-<code><a href="../reference/chs_fun.html">chs_fun()</a></code> to apply arbitrary functions to the channels.</li>
-<li>Fieldtrip tutorial added as a vignette.</li>
-</ul>
-</li>
-<li>Bugs
-<ul>
-<li>Channels appear in the right order in plots.</li>
-<li>Other minor bugs.</li>
-</ul>
-</li>
-</ul>
-</div>
-    <div id="eeguana-0-0-3-9000" class="section level1">
-<h1 class="page-header">
-<a href="#eeguana-0-0-3-9000" class="anchor"></a>eeguana 0.0.3.9000</h1>
-<ul>
-<li>Changes
-<ul>
-<li>ggplot2 theme improved.</li>
-<li>changed the default downsampling in plots.</li>
-<li>better handling of weird channel names.</li>
-<li>
-<code><a href="../reference/eeguana-deprecated.html">segment()</a></code> accepts initial and final segments.</li>
-<li>
-<code>summarize</code> adds a summarize_n column.</li>
-<li>
-<code>events</code> function to visualize and edit events was added.</li>
-<li>various filters were added.</li>
-</ul>
-</li>
-<li>Bugs
-<ul>
-<li>
-<code>ch_rereference</code> updates the relevanta attributes.</li>
-<li>bugs in various reading functions were fixed (int encoding issues).</li>
-<li>
-<code>mutate</code> recognize better channels.</li>
-<li>
-<code>*_join</code> functions fixed.</li>
-</ul>
-</li>
-</ul>
-</div>
-    <div id="eeguana-0-0-2-9001" class="section level1">
-<h1 class="page-header">
-<a href="#eeguana-0-0-2-9001" class="anchor"></a>eeguana 0.0.2.9001</h1>
-<ul>
-<li>Data table is now powered by data.table.</li>
-</ul>
-</div>
-    <div id="eeguana-0-0-2-9000" class="section level1">
-<h1 class="page-header">
-<a href="#eeguana-0-0-2-9000" class="anchor"></a>eeguana 0.0.2.9000</h1>
-<ul>
-<li>Added a <code>NEWS.md</code> file to track changes to the package.</li>
-</ul>
-</div>
-  </div>
+    <div class="ref-description">
+    
+    <p>A dataset containing 10 trials where  one subject either saw faces or a non-faces objects with preprocessing done in BrainVision 2.0. See also the vignette <a href='https://bnicenboim.github.io/eeguana/articles/brainvision_files.html'>Introduction - Manipulating a clean EEG file exported from BrainVision 2.0</a>.</p>
+    
+    </div>
 
+    <pre class="usage"><span class='no'>data_faces_10_trials</span></pre>
+        
+    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
+
+    <p>An eeg_lst with the following events:</p><ul>
+<li><p><code>type == "New Segment"</code> indicates the beginning of the recording.</p></li>
+<li><p><code>type == "Bad Interval"</code> indicates an interval marked as an artifact by BrainVision 2.0.</p></li>
+<li><p><code>type == "UserDefined", description == "Blink} indicates an interval marked as a blink by BrainVision 2.0.
+\item \code{type == "Stimulus", description == "s5</code> indicates the beggining of the experiment.</p></li>
+<li><p><code>type == "Stimulus", description == "s111} indicates
+\item \code{type == "Stimulus", description == "s130</code> indicates</p></li>
+<li><p><code>type == "Stimulus", description == "s122} indicates
+\item \code{type == "Stimulus", description == "s121</code> indicates</p></li>
+<li><p><code>type == "Stimulus", description == "s70} indicates that a face was presented.
+\item \code{type == "Stimulus", description == "s71</code> indicates that a non-face was presented.</p></li>
+</ul>
+    
+    <h2 class="hasAnchor" id="source"><a class="anchor" href="#source"></a>Source</h2>
+
+    <p>See https://bnicenboim.github.io/eeguana/articles/brainvision_files.html</p>
+    
+
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <div id="tocnav">
-      <h2>Contents</h2>
-      <ul class="nav nav-pills nav-stacked">
-        <li><a href="#eeguana-0-0-6-900">0.0.6.900</a></li>
-        <li><a href="#eeguana-0-0-5-9000">0.0.5.9000</a></li>
-        <li><a href="#eeguana-0-0-4-9000">0.0.4.9000</a></li>
-        <li><a href="#eeguana-0-0-3-9000">0.0.3.9000</a></li>
-        <li><a href="#eeguana-0-0-2-9001">0.0.2.9001</a></li>
-        <li><a href="#eeguana-0-0-2-9000">0.0.2.9000</a></li>
-      </ul>
-    </div>
-  </div>
+    <h2>Contents</h2>
+    <ul class="nav nav-pills nav-stacked">
+      
+      <li><a href="#format">Format</a></li>
 
+      <li><a href="#source">Source</a></li>
+          </ul>
+
+  </div>
 </div>
 
       <footer>

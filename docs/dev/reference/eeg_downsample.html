@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Changelog • eeguana</title>
+<title>Downsample EEG data — eeg_downsample • eeguana</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -37,7 +37,12 @@
 
 
 
-<meta property="og:title" content="Changelog" />
+<meta property="og:title" content="Downsample EEG data — eeg_downsample" />
+
+<meta property="og:description" content="Downsample a signal_tbl by a factor q, using an FIR or IIR filter.
+This is a wrapper for decimate from the
+signal_tbl package, see its documentation for details. Notice that
+the code of the signal_tbl package might be outdated." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -57,7 +62,7 @@
   </head>
 
   <body>
-    <div class="container template-news">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -124,153 +129,60 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Changelog <small></small></h1>
-      <small>Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
+    <h1>Downsample EEG data</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/signal_processing.R'><code>R/signal_processing.R</code></a></small>
+    <div class="hidden name"><code>eeg_downsample.Rd</code></div>
     </div>
 
-    <div id="eeguana-0-0-6-900" class="section level1">
-<h1 class="page-header">
-<a href="#eeguana-0-0-6-900" class="anchor"></a>eeguana 0.0.6.900</h1>
-<ul>
-<li>Changes
-<ul>
-<li>There is a logo!</li>
-<li>Doi was added.</li>
-<li>
-<code><a href="../reference/eeguana-deprecated.html">segment()</a></code> was renamed to <code><a href="../reference/eeg_segment.html">eeg_segment()</a></code>
-</li>
-<li>
-<code><a href="../reference/eeguana-deprecated.html">downsample()</a></code> was renamed to <code><a href="../reference/eeg_downsample.html">eeg_downsample()</a></code>
-</li>
-<li>
-<code><a href="../reference/eeguana-deprecated.html">interpolate_tbl()</a></code> was renamed to <code><a href="../reference/eeg_interpolate_tbl.html">eeg_interpolate_tbl()</a></code>
-</li>
-<li>
-<code><a href="../reference/plot_in_layout.html">plot_in_layout()</a></code> to place facets in the electrode layout was added.</li>
-<li>
-<code><a href="../reference/plot_topo.html">plot_topo()</a></code> has improved colors, and does “less”, <code>geom_contour</code> and <code>geom_text</code> need to be added.</li>
-<li>
-<code><a href="../reference/annotate_head.html">annotate_head()</a></code> was added to the plot functions.</li>
-<li>
-<code><a href="../reference/change_coord.html">change_coord()</a></code> was added as an auxiliary function to change the coordinate system for topographic or layout plots.</li>
-</ul>
-</li>
-<li>Bugs
-<ul>
-<li>Various minor bugs fixed.</li>
-</ul>
-</li>
-<li>Internal changes
-<ul>
-<li>More tests were added.</li>
-</ul>
-</li>
-</ul>
-</div>
-    <div id="eeguana-0-0-5-9000" class="section level1">
-<h1 class="page-header">
-<a href="#eeguana-0-0-5-9000" class="anchor"></a>eeguana 0.0.5.9000</h1>
-<ul>
-<li>Changes
-<ul>
-<li>
-<code><a href="../reference/read_edf.html">read_edf()</a></code> was added.</li>
-</ul>
-</li>
-<li>Bugs
-<ul>
-<li>Bug in <code><a href="../reference/summary.html">channel_names()</a></code> was fixed.</li>
-<li>Bug <a href='https://github.com/bnicenboim/eeguana/issues/34'>#34</a> fixed.</li>
-</ul>
-</li>
-<li>Internal changes:
-<ul>
-<li>Better test structure.</li>
-<li>Better validation of objects.</li>
-</ul>
-</li>
-</ul>
-</div>
-    <div id="eeguana-0-0-4-9000" class="section level1">
-<h1 class="page-header">
-<a href="#eeguana-0-0-4-9000" class="anchor"></a>eeguana 0.0.4.9000</h1>
-<ul>
-<li>Changes
-<ul>
-<li>
-<code><a href="../reference/chs_fun.html">chs_fun()</a></code> to apply arbitrary functions to the channels.</li>
-<li>Fieldtrip tutorial added as a vignette.</li>
-</ul>
-</li>
-<li>Bugs
-<ul>
-<li>Channels appear in the right order in plots.</li>
-<li>Other minor bugs.</li>
-</ul>
-</li>
-</ul>
-</div>
-    <div id="eeguana-0-0-3-9000" class="section level1">
-<h1 class="page-header">
-<a href="#eeguana-0-0-3-9000" class="anchor"></a>eeguana 0.0.3.9000</h1>
-<ul>
-<li>Changes
-<ul>
-<li>ggplot2 theme improved.</li>
-<li>changed the default downsampling in plots.</li>
-<li>better handling of weird channel names.</li>
-<li>
-<code><a href="../reference/eeguana-deprecated.html">segment()</a></code> accepts initial and final segments.</li>
-<li>
-<code>summarize</code> adds a summarize_n column.</li>
-<li>
-<code>events</code> function to visualize and edit events was added.</li>
-<li>various filters were added.</li>
-</ul>
-</li>
-<li>Bugs
-<ul>
-<li>
-<code>ch_rereference</code> updates the relevanta attributes.</li>
-<li>bugs in various reading functions were fixed (int encoding issues).</li>
-<li>
-<code>mutate</code> recognize better channels.</li>
-<li>
-<code>*_join</code> functions fixed.</li>
-</ul>
-</li>
-</ul>
-</div>
-    <div id="eeguana-0-0-2-9001" class="section level1">
-<h1 class="page-header">
-<a href="#eeguana-0-0-2-9001" class="anchor"></a>eeguana 0.0.2.9001</h1>
-<ul>
-<li>Data table is now powered by data.table.</li>
-</ul>
-</div>
-    <div id="eeguana-0-0-2-9000" class="section level1">
-<h1 class="page-header">
-<a href="#eeguana-0-0-2-9000" class="anchor"></a>eeguana 0.0.2.9000</h1>
-<ul>
-<li>Added a <code>NEWS.md</code> file to track changes to the package.</li>
-</ul>
-</div>
-  </div>
+    <div class="ref-description">
+    
+    <p>Downsample a signal_tbl by a factor <code>q</code>, using an FIR or IIR filter.
+This is a wrapper for decimate from the
+<a href='signal_tbl.html'>signal_tbl</a> package, see its documentation for details. Notice that
+the code of the <a href='signal_tbl.html'>signal_tbl</a> package might be outdated.</p>
+    
+    </div>
 
+    <pre class="usage"><span class='fu'>eeg_downsample</span>(<span class='no'>x</span>, <span class='kw'>q</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>max_sample</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>x</th>
+      <td><p>An eeg_lst object.</p></td>
+    </tr>
+    <tr>
+      <th>q</th>
+      <td><p>integer factor(s) to downsample by.</p></td>
+    </tr>
+    <tr>
+      <th>max_sample</th>
+      <td><p>Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total number of samples.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Not in use.</p></td>
+    </tr>
+    </table>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>A factor q larger than 13 can result in NAs. To avoid this,
+the downsampling can be done in steps. For example, instead of setting
+<code>q = 20</code>, it is possible to set <code>q = c(2,10)</code>.</p>
+    
+
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <div id="tocnav">
-      <h2>Contents</h2>
-      <ul class="nav nav-pills nav-stacked">
-        <li><a href="#eeguana-0-0-6-900">0.0.6.900</a></li>
-        <li><a href="#eeguana-0-0-5-9000">0.0.5.9000</a></li>
-        <li><a href="#eeguana-0-0-4-9000">0.0.4.9000</a></li>
-        <li><a href="#eeguana-0-0-3-9000">0.0.3.9000</a></li>
-        <li><a href="#eeguana-0-0-2-9001">0.0.2.9001</a></li>
-        <li><a href="#eeguana-0-0-2-9000">0.0.2.9000</a></li>
-      </ul>
-    </div>
-  </div>
+    <h2>Contents</h2>
+    <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
+      
+      <li><a href="#details">Details</a></li>
+          </ul>
 
+  </div>
 </div>
 
       <footer>
