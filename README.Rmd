@@ -87,7 +87,7 @@ using these two triggers.
 faces_segs <- faces %>% 
                segment(description %in% c("s70", "s71"), 
                         lim = c(-.2,.25)) %>%
-               event_to_ch_NA(type == "Bad Interval") %>% 
+               eeg_intervals_to_NA(type == "Bad Interval") %>% 
                ch_baseline()
 ```
 

@@ -13,7 +13,7 @@ plot.eeg_lst <- function(x, max_sample = 64000, ...) {
   if (is.numeric(max_sample) & max_sample != 0 &
     # it will downsample if the samples are at least twice as large than the max_sample
     max(duration(x)) * sampling_rate(x) * 2 > max_sample) {
-    x <- downsample(x, max_sample = max_sample)
+    x <- eeg_downsample(x, max_sample = max_sample)
   }
 
   df <- dplyr::as_tibble(x) %>% 
@@ -54,7 +54,7 @@ plot_gg.eeg_lst <- function(.data, x = time, y = amplitude, ..., max_sample = 64
   if (!all(is.na(.data$signal$.sample_id)) && is.numeric(max_sample) && max_sample != 0 &&
     # it will downsample if the samples are at least twice as large than the max_sample
     max(duration(.data)) * sampling_rate(.data) * 2 > max_sample) {
-    .data <- downsample(.data, max_sample = max_sample)
+    .data <- eeg_downsample(.data, max_sample = max_sample)
   }
 
   dots <- rlang::enquos(...)
@@ -90,7 +90,7 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 #' Create a default topographic plot based on an interpolation table.
 #'
 #'
-#' @param data A table of interpolated electrodes as produced by [interpolate_tbl], or an eeg_lst appropiately grouped. 
+#' @param data A table of interpolated electrodes as produced by [eeg_interpolate_tbl], or an eeg_lst appropiately grouped. 
 #' @param ... Others.
 #'
 #' @family plot
@@ -154,7 +154,7 @@ plot_topo.eeg_lst <- function(data, size= 1.2, value= amplitude,  label=channel,
   amplitude <- rlang::enquo(value)
   channel <- rlang::enquo(label)
   channels_tbl(data)  <- change_coord(channels_tbl(data), projection) 
-  interpolate_tbl(data, size,...) %>%
+  eeg_interpolate_tbl(data, size,...) %>%
     plot_topo(value= amplitude,  label=channel,...)
   }
 

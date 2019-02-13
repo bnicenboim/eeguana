@@ -14,8 +14,8 @@
 #' @importFrom magrittr %>%
 #'
 #' @export
-segment <- function(x, ...) {
-  UseMethod("segment")
+eeg_segment <- function(x, ...) {
+  UseMethod("eeg_segment")
 }
 #' @rdname segment
 #' @param lim Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments
@@ -23,7 +23,7 @@ segment <- function(x, ...) {
 #' @param recording_col Column in the segments table indicating to which recording or file each segment belongs.
 #' @inheritParams as_time
 #' @export
-segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds", recording_col = "recording") {
+eeg_segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds", recording_col = "recording") {
   dots <- rlang::enquos(...)
   end <- rlang::enquo(end)
 
@@ -130,18 +130,19 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds", rec
 #' @importFrom magrittr %>%
 #'
 #' @export
-event_to_ch_NA <- function(x, ...) {
-  UseMethod("event_to_ch_NA")
+eeg_intervals_to_NA <- function(x, ...) {
+  UseMethod("eeg_intervals_to_NA")
 }
+
 
 #' @param all_chans If set to `TRUE`,
 #'     it will consider samples from all channels (Default:  `all_chans = FALSE`).
 #' @param entire_seg If set to `FALSE`, it will consider only the marked part of the segment,
 #'     otherwise it will consider the entire segment (Default: entire_seg = TRUE). Setting it to FALSE can make the function very slow.
 #' @param drop_events If set to `TRUE` (default), the events that were using for setting signals to NA, will be removed from the events table.
-#' @rdname event_to_ch_NA
+#' @rdname eeg_intervals_to_NA
 #' @export 
-event_to_ch_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
+eeg_intervals_to_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
                                    drop_events = TRUE) {
   dots <- rlang::enquos(...)
 

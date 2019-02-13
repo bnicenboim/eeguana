@@ -8,10 +8,10 @@
 #' @param .data An `eeg_lst` object or a long table with amplitudes..
 #' @param ... Various arguments passed to the interpolation method.
 #' @export
-interpolate_tbl <- function(.data, ...) {
-  UseMethod("interpolate_tbl")
+eeg_interpolate_tbl <- function(.data, ...) {
+  UseMethod("eeg_interpolate_tbl")
 }
-#' @rdname interpolate_tbl
+#' @rdname eeg_interpolate_tbl
 #' @param method Method of interpolation (`"MBA"` Multilevel B-splines using the function `mba.surf` of the package `MBA` or (`"akima"` bicubic spline Akima interpolation algorithm using the function `interp` of the package `akima`.)..).
 #' @param x Coordinate x
 #' @param y Coordinate y
@@ -19,7 +19,7 @@ interpolate_tbl <- function(.data, ...) {
 #' @param label channel (default)
 #' @param diam_points Density of the interpolation (number of points that are interpolated in the diameter of the scalp).
 #' @export
-interpolate_tbl.eeg_lst <- function(.data, size = 1.2, x = .x, y = .y, value = amplitude, label = channel, diam_points = 200, method = "MBA", ...) {
+eeg_interpolate_tbl.eeg_lst <- function(.data, size = 1.2, x = .x, y = .y, value = amplitude, label = channel, diam_points = 200, method = "MBA", ...) {
   grouping <- group_chr(.data)
   .data <- dplyr::as_tibble(.data) %>% dplyr::group_by_at(dplyr::vars(grouping))
   x <- rlang::enquo(x)
@@ -28,11 +28,11 @@ interpolate_tbl.eeg_lst <- function(.data, size = 1.2, x = .x, y = .y, value = a
   label <- rlang::enquo(label)
   dots <- rlang::enquos(...)
   # NextMethod()
-  interpolate_tbl(.data, size = size, !!x, !!y, !!value, !!label, diam_points, method, !!!dots)
+  eeg_interpolate_tbl(.data, size = size, !!x, !!y, !!value, !!label, diam_points, method, !!!dots)
 }
-#' @rdname interpolate_tbl
+#' @rdname eeg_interpolate_tbl
 #' @export
-interpolate_tbl.tbl_df <- function(.data, size = 1.2, x = .x, y = .y, value = amplitude, label = channel, diam_points = 200,
+eeg_interpolate_tbl.tbl_df <- function(.data, size = 1.2, x = .x, y = .y, value = amplitude, label = channel, diam_points = 200,
                                    method = "MBA", ...) {
   # x <- rlang::quo(.x)
   # y <- rlang::quo(.y)

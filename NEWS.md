@@ -2,6 +2,9 @@
   - Changes
       - There is a logo!
       - Doi was added.
+      - `segment()` was renamed to `eeg_segment()`
+      - `downsample()` was renamed to `eeg_downsample()`
+      - `interpolate_tbl()` was renamed to `eeg_interpolate_tbl()`
       - `plot_in_layout()` to place facets in the electrode layout was added.
       - `plot_topo()` has improved colors, and does "less", `geom_contour` and `geom_text` need to be added.
       - `annotate_head()` was added to the plot functions.

@@ -15,7 +15,7 @@ plot_topo(data, ...)
   label = channel, projection = "polar", ...)
 }
 \arguments{
-\item{data}{A table of interpolated electrodes as produced by \link{interpolate_tbl}, or an eeg_lst appropiately grouped.}
+\item{data}{A table of interpolated electrodes as produced by \link{eeg_interpolate_tbl}, or an eeg_lst appropiately grouped.}
 
 \item{...}{Others.}
 
