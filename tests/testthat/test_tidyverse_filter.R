@@ -29,6 +29,7 @@ data_1 <- eeg_lst(
     3L, "Bad", NA_character_, 2L, 1L, "Y"
   ),
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   segments = dplyr::tibble(.id = c(1L, 2L, 3L), recording = "recording1", segment = c(1L, 2L, 3L), condition = c("a", "b", "a"))
 )
 
@@ -55,6 +56,19 @@ data_2 <- mutate(data_1,
                  condition = c("b", "a", "b"))
 >>>>>>> Stashed changes
 >>>>>>> Stashed changes
+=======
+  segments = dplyr::tibble(.id = c(1L, 2L, 3L),
+                           recording = "recording1",
+                           segment = c(1L, 2L, 3L),
+                           condition = c("a", "b", "a"))
+)
+
+# just some different X and Y
+data_2 <- mutate(data_1, recording = "recording2",
+                 X = sin(X + 10),
+                 Y = cos(Y - 10),
+                 condition = c("b", "a", "b"))
+>>>>>>> Stashed changes
 
 # bind it all together
 data <- bind(data_1, data_2)
@@ -78,15 +92,35 @@ events_data <- data$events %>% left_join(data$segments)
 >>>>>>> Stashed changes
 >>>>>>> Stashed changes
 
+=======
+>>>>>>> Stashed changes
 # for checks later
 reference_data <- data.table::copy(data)
 
 
 <<<<<<< Updated upstream
 
+# create tibbles from eeg_lst to test against
 
-###  filtering by signal table variables ###
+# this is super weird - sometimes this works, sometimes i get the error (underneath)
+# sigseg_data <- left_join(data$signal, data$segments, by = ".id")
+# evtseg_data <- left_join(data$events, data$segments, by = ".id")
 
+# Error in as_tibble.signal_tbl(data, .name_repair = "check_unique") : 
+#   unused argument (.name_repair = "check_unique") 
+
+# if i get the error, this works instead, 
+# but then all of the tests fail for .id and heaps of other stuff no longer works either
+sigseg_data <- left_join(as_tibble(data$signal), data$segments, by = ".id")
+evtseg_data <- left_join(as_tibble(data$events), data$segments, by = ".id")
+
+signal_data <- as_tibble(data$signal)
+segments_data <- as_tibble(data$segments)
+events_data <-  as_tibble(data$events)
+  
+
+
+<<<<<<< Updated upstream
 filter1_sign_eeg <- filter(data, .id ==1)
 filter1_sign_tbl <- extended_data %>%
 =======
@@ -94,6 +128,9 @@ filter1_sign_tbl <- extended_data %>%
 mutate(data, time = as_time(.sample_id, unit = "milliseconds")) %>%
         filter(time == 2)
 =======
+=======
+
+>>>>>>> Stashed changes
 
 ###################################################
 ### 1. Filtering by .id (applies to all tables) ###
@@ -108,87 +145,170 @@ filter1_id_sign_tbl <- signal_data %>%
 filter1_id_segm_tbl <- segments_data %>%
   dplyr::filter(.id == 1)
 filter1_id_evts_tbl <- events_data %>%
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
   as_tibble() %>%
   dplyr::filter(.id == 1)
 
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 filter2_sign_eeg <- filter(data, .sample_id >= 2)
 filter2_sign_tbl <- extended_data %>%
+=======
+filter2_id_eeg <- filter(data, .id != 2)
+
+filter2_id_sign_tbl <- signal_data %>%
+  dplyr::filter(.id != 2)
+filter2_id_segm_tbl <- segments_data %>%
+  dplyr::filter(.id != 2)
+filter2_id_evts_tbl <- events_data %>%
+>>>>>>> Stashed changes
   as_tibble() %>%
+  dplyr::filter(.id != 2)
+
+
+filter3_id_eeg <- filter(data, .id == 3)
+
+filter3_id_sign_tbl <- signal_data %>%
+  dplyr::filter(.id == 3)
+filter3_id_segm_tbl <- segments_data %>%
+  dplyr::filter(.id == 3)
+filter3_id_evts_tbl <- events_data %>%
+  as_tibble() %>%
+  dplyr::filter(.id == 3)
+
+
+test_that("filtering within signal table returns correct values in signal table", {
+  expect_equal(as.matrix(filter1_id_eeg$signal), as.matrix(filter1_id_sign_tbl))
+  expect_equal(as.matrix(filter2_id_eeg$signal), as.matrix(filter2_id_sign_tbl))
+  expect_equal(as.matrix(filter3_id_eeg$signal), as.matrix(filter3_id_sign_tbl))
+})
+
+
+test_that("filtering within signal table returns correct values in segments table", {
+  expect_equal(as.matrix(filter1_id_eeg$segments), as.matrix(filter1_id_segm_tbl))
+  expect_equal(as.matrix(filter2_id_eeg$segments), as.matrix(filter2_id_segm_tbl))
+  expect_equal(as.matrix(filter3_id_eeg$segments), as.matrix(filter3_id_segm_tbl))
+})
+
+
+test_that("filtering within signal table returns correct values in events table", {
+  expect_equal(as.matrix(filter1_id_eeg$events), as.matrix(filter1_id_evts_tbl))
+  expect_equal(as.matrix(filter2_id_eeg$events), as.matrix(filter2_id_evts_tbl))
+  expect_equal(as.matrix(filter3_id_eeg$events), as.matrix(filter3_id_evts_tbl))
+})
+
+
+test_that("the classes of channels of signal_tbl remain after within eeg_lst table", {
+  expect_equal(is_channel_dbl(filter1_id_eeg$signal$X), TRUE)
+  expect_equal(is_channel_dbl(filter2_id_eeg$signal$X), TRUE)
+  expect_equal(is_channel_dbl(filter3_id_eeg$signal$X), TRUE)
+})
+
+
+# check against original data
+test_that("data didn't change", {
+  expect_equal(reference_data, data)
+})
+
+
+
+
+##############################################
+### 2. Filtering by signal table variables ###
+##############################################
+
+# a) Test signal/segments table by comparing eeg_lst with tibble
+
+filter1_sign_eeg <- filter(data, .sample_id >= 2) 
+filter1_sign_tbl <- sigseg_data %>%
   dplyr::filter(.sample_id >= 2) 
 
 
-filter3_sign_eeg <- filter(data, .id == 1 & .sample_id == 2)
-filter3_sign_tbl <- extended_data %>%
-  as_tibble() %>%
+filter2_sign_eeg <- filter(data, .id == 1 & .sample_id == 2)
+filter2_sign_tbl <- sigseg_data %>%
   dplyr::filter(.id == 1 & .sample_id == 2)
 
 
-test_that("filtering within eeg_lst signal table returns correct values in signal table", {
-  expect_equal(as.matrix(filter1_sign_eeg$signal), as.matrix(distinct(select(filter1_sign_tbl, .id, .sample_id, X, Y))))
-  expect_equal(as.matrix(filter2_sign_eeg$signal), as.matrix(distinct(select(filter2_sign_tbl, .id, .sample_id, X, Y))))
-  expect_equal(as.matrix(filter3_sign_eeg$signal), as.matrix(distinct(select(filter3_sign_tbl, .id, .sample_id, X, Y))))
+filter3_sign_eeg <- filter(data, X < 0 & Y < 0)
+filter3_sign_tbl <- sigseg_data %>%
+  dplyr::filter(X < 0 & Y < 0)
+
+
+test_that("filtering within signal table works in signal table", {
+  expect_equal(as.matrix(filter1_sign_eeg$signal), 
+               as.matrix(select(filter1_sign_tbl, .id, .sample_id, X, Y)))
+  expect_equal(as.matrix(filter2_sign_eeg$signal), 
+               as.matrix(select(filter2_sign_tbl, .id, .sample_id, X, Y)))
+  expect_equal(as.matrix(filter3_sign_eeg$signal), 
+               as.matrix(select(filter3_sign_tbl, .id, .sample_id, X, Y)))
 })
 
 
-test_that("filtering within eeg_lst signal table returns correct values in segments table", {
-  expect_equal(as.matrix(filter1_sign_eeg$segments), as.matrix(distinct(filter1_sign_tbl, .id, recording, segment, condition)))
-  expect_equal(as.matrix(filter2_sign_eeg$segments), as.matrix(distinct(filter2_sign_tbl, .id, recording, segment, condition)))
-  expect_equal(as.matrix(filter3_sign_eeg$segments), as.matrix(distinct(filter3_sign_tbl, .id, recording, segment, condition)))
+test_that("filtering within signal table works in segments table", {
+  expect_setequal(as.matrix(filter1_sign_eeg$segments), 
+               as.matrix(select(filter1_sign_tbl, .id, recording, segment, condition)))
+  expect_setequal(as.matrix(filter2_sign_eeg$segments), 
+               as.matrix(select(filter2_sign_tbl, .id, recording, segment, condition)))
+  expect_setequal(as.matrix(filter3_sign_eeg$segments),  
+               as.matrix(select(filter3_sign_tbl, .id, recording, segment, condition)))
 })
 
 
-test_that("filtering within eeg_lst signal table returns correct values in events table", {
-  expect_equal(as.matrix(filter1_sign_eeg$events), as.matrix(distinct(select(filter1_sign_tbl, .id, type, description, .sample_0, .size, .channel))))
-  expect_equal(as.matrix(filter2_sign_eeg$events), as.matrix(distinct(select(filter2_sign_tbl, .id, type, description, .sample_0, .size, .channel))))
-  expect_equal(as.matrix(filter3_sign_eeg$events), as.matrix(distinct(select(filter3_sign_tbl, .id, type, description, .sample_0, .size, .channel))))
+# b) To test the events table, create some opposing filters & test that they 
+# don't return same events
+
+# add events data to filtered eeg_lsts from above
+filter1a_sign <- left_join(as_tibble(filter1_sign_eeg$signal), evtseg_data)
+filter2a_sign <- left_join(as_tibble(filter2_sign_eeg$signal), evtseg_data)
+filter3a_sign <- left_join(as_tibble(filter3_sign_eeg$signal), evtseg_data)
+
+
+# apply opposite filter
+filter1b_sign_eeg <- filter(data, .sample_id < 2) 
+filter1b_sign <- left_join(as_tibble(filter1b_sign_eeg$signal), evtseg_data)
+
+filter2b_sign_eeg <- filter(data, .id != 1 & .sample_id != 2)
+filter2b_sign <- left_join(as_tibble(filter2b_sign_eeg$signal), evtseg_data)
+
+filter3b_sign_eeg <- filter(data, X >= 0 & Y >= 0)
+filter3b_sign <- left_join(as_tibble(filter3b_sign_eeg$signal), evtseg_data)
+
+
+test_that("opposite filters return no matching events", {
+  expect_true(nrow(semi_join(filter1a_sign, filter1b_sign)) == 0)
+  expect_true(nrow(semi_join(filter2a_sign, filter2b_sign)) == 0)
+  expect_true(nrow(semi_join(filter3a_sign, filter3b_sign)) == 0)
 })
 
 
-
-### filtering by eeg_list segments table variables ###
-
-filter4_segm_eeg <- filter2_eeg <- filter(data, segment != 2)
-filter4_segm_tbl <- extended_data %>%
-  as_tibble() %>%
-  dplyr::filter(segment != 2)
+# and merging xa and xb should equal original data
+filter1c_sign <- left_join(filter1_sign_eeg$events, filter1b_sign_eeg$events)
+# this only keeps .id == 1, why aren't the others merged?
+filter2c_sign <- left_join(filter2_sign_eeg$events, filter2b_sign_eeg$events)
+filter3c_sign <- left_join(filter3_sign_eeg$events, filter3b_sign_eeg$events)
 
 
-filter5_segm_eeg <- filter(data, condition == "a" & segment == 3)
-filter5_segm_tbl <- extended_data %>%
-  as_tibble() %>%
-  dplyr::filter(condition == "a" & segment == 3)
-
-
-filter6_segm_eeg <- filter(data, recording == "recording2")
-filter6_segm_tbl <- extended_data %>%
-  as_tibble() %>%
-  dplyr::filter(recording == "recording2")
-
-
-# the .id numbers are different, all else ok
-test_that("filtering within eeg_lst segments table returns correct values in signal table", {
-  expect_equal(as.matrix(filter4_segm_eeg$signal), as.matrix(distinct(select(filter4_segm_tbl, .id, .sample_id, X, Y))))
-  expect_equal(as.matrix(filter5_segm_eeg$signal), as.matrix(distinct(select(filter5_segm_tbl, .id, .sample_id, X, Y))))
-  expect_equal(as.matrix(filter6_segm_eeg$signal), as.matrix(distinct(select(filter6_segm_tbl, .id, .sample_id, X, Y))))
+test_that("merging xa and xb recovers original events table", {
+  expect_equal(as.matrix(filter1c_sign), as.matrix(data$events))
+  expect_equal(as.matrix(filter2c_sign), as.matrix(data$events))
+  expect_equal(as.matrix(filter3c_sign), as.matrix(data$events))
 })
 
 
-# .id numbers are different, all else ok
-test_that("filtering within eeg_lst segments table returns correct values in segments table", {
-  expect_equal(as.matrix(filter4_segm_eeg$segments), as.matrix(distinct(filter4_segm_tbl, .id, recording, segment, condition)))
-  expect_equal(as.matrix(filter5_segm_eeg$segments), as.matrix(distinct(filter5_segm_tbl, .id, recording, segment, condition)))
-  expect_equal(as.matrix(filter6_segm_eeg$segments), as.matrix(distinct(filter6_segm_tbl, .id, recording, segment, condition)))
-})
+# filtered eeg_lst and tibble should match
+filter1a_sign_tbl <- left_join(filter1_sign_tbl, evtseg_data)
+filter2a_sign_tbl <- left_join(filter2_sign_tbl, evtseg_data)
+filter3a_sign_tbl <- left_join(filter3_sign_tbl, evtseg_data)
 
 
-# .id numbers are different, all else ok
-test_that("filtering within eeg_lst segments table returns correct values in segments table", {
-  expect_equal(as.matrix(filter4_segm_eeg$events), as.matrix(distinct(select(filter4_segm_tbl, .id, type, description, .sample_0, .size, .channel))))
-  expect_equal(as.matrix(filter5_segm_eeg$events), as.matrix(distinct(select(filter5_segm_tbl, .id, type, description, .sample_0, .size, .channel))))
-  expect_equal(as.matrix(filter6_segm_eeg$events), as.matrix(distinct(select(filter6_segm_tbl, .id, type, description, .sample_0, .size, .channel))))
+test_that("the eeg_lst filter returns the same events as as_tibble", {
+  expect_setequal(as.matrix(filter1a_sign_tbl), as.matrix(filter1a_sign))
+  expect_setequal(as.matrix(filter2a_sign_tbl), as.matrix(filter2a_sign))
+  expect_setequal(as.matrix(filter3a_sign_tbl), as.matrix(filter3a_sign))
 })
 
 
@@ -196,6 +316,7 @@ test_that("the classes of channels of signal_tbl remain after within eeg_lst tab
   expect_equal(is_channel_dbl(filter1_sign_eeg$signal$X), TRUE)
   expect_equal(is_channel_dbl(filter2_sign_eeg$signal$X), TRUE)
   expect_equal(is_channel_dbl(filter3_sign_eeg$signal$X), TRUE)
+<<<<<<< Updated upstream
   expect_equal(is_channel_dbl(filter4_segm_eeg$signal$X), TRUE)
   expect_equal(is_channel_dbl(filter5_segm_eeg$signal$X), TRUE)
   expect_equal(is_channel_dbl(filter6_segm_eeg$signal$X), TRUE)
@@ -448,6 +569,99 @@ test_that("the classes of channels of signal_tbl remain after within eeg_lst tab
   expect_equal(is_channel_dbl(filter2_segm_eeg$signal$X), TRUE)
   expect_equal(is_channel_dbl(filter3_segm_eeg$signal$X), TRUE)
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
+})
+
+# check against original data
+test_that("data didn't change", {
+  expect_equal(reference_data, data)
+})
+
+
+
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+### test filter by variables across eeg_lst tables ###
+=======
+################################################
+### 3. Filtering by segments table variables ###
+################################################
+>>>>>>> Stashed changes
+
+# a) Test all tables by comparing eeg_lst with tibble
+
+# warnings about ids here - happens most often when filtering by segments (but not always)
+filter1_segm_eeg <- filter(data, segment != 2)
+
+filter1s_segm_tbl <- sigseg_data %>%
+  as_tibble() %>%
+  dplyr::filter(segment != 2)
+
+filter1e_segm_tbl <- evtseg_data %>%
+  as_tibble() %>%
+  dplyr::filter(segment != 2) %>%
+  dplyr::distinct(.id, type, description, .sample_0, .size, .channel)
+
+
+filter2_segm_eeg <- filter(data, condition == "a" & segment == 3)
+
+filter2s_segm_tbl <- sigseg_data %>%
+  as_tibble() %>%
+  dplyr::filter(condition == "a" & segment == 3)
+
+filter2e_segm_tbl <- evtseg_data %>%
+  as_tibble() %>%
+  dplyr::filter(condition == "a" & segment == 3) %>%
+  dplyr::distinct(.id, type, description, .sample_0, .size, .channel)
+
+
+filter3_segm_eeg <- filter(data, recording == "recording2")
+
+filter3s_segm_tbl <- sigseg_data %>%
+  as_tibble() %>%
+  filter(recording == "recording2") 
+
+filter3e_segm_tbl <- evtseg_data %>%
+  as_tibble() %>%
+  filter(recording == "recording2") %>%
+  select(.id, type, description, .sample_0, .size, .channel)
+
+
+test_that("filtering within segments table works in signal table", {
+  expect_equal(as.matrix(filter1_segm_eeg$signal), 
+               as.matrix(select(filter1s_segm_tbl, .id, .sample_id, X, Y)))
+  expect_equal(as.matrix(filter2_segm_eeg$signal), 
+               as.matrix(select(filter2s_segm_tbl, .id, .sample_id, X, Y)))
+  expect_equal(as.matrix(filter3_segm_eeg$signal), 
+               as.matrix(select(filter3s_segm_tbl, .id, .sample_id, X, Y)))
+})
+
+
+test_that("filtering within segments table works in segments table", {
+  expect_setequal(as.matrix(filter1_segm_eeg$segments), 
+               as.matrix(select(filter1s_segm_tbl, .id, recording, segment, condition)))
+  expect_setequal(as.matrix(filter2_segm_eeg$segments), 
+               as.matrix(select(filter2s_segm_tbl, .id, recording, segment, condition)))
+  expect_setequal(as.matrix(filter3_segm_eeg$segments), 
+               as.matrix(select(filter3s_segm_tbl, .id, recording, segment, condition)))
+})
+
+
+test_that("filtering within segments table returns correct values in events table", {
+  expect_equal(as.matrix(filter1_segm_eeg$events), 
+               as.matrix(filter1e_segm_tbl))
+  expect_equal(as.matrix(filter2_segm_eeg$events), 
+               as.matrix(filter2e_segm_tbl))
+  expect_equal(as.matrix(filter3_segm_eeg$events), 
+               as.matrix(filter3e_segm_tbl))
+  })
+
+
+test_that("the classes of channels of signal_tbl remain after within eeg_lst table", {
+  expect_equal(is_channel_dbl(filter1_segm_eeg$signal$X), TRUE)
+  expect_equal(is_channel_dbl(filter2_segm_eeg$signal$X), TRUE)
+  expect_equal(is_channel_dbl(filter3_segm_eeg$signal$X), TRUE)
 })
 
 
@@ -458,76 +672,147 @@ test_that("data didn't change", {
 
 
 
-<<<<<<< Updated upstream
-### test filter by variables across eeg_lst tables ###
 
-filter1_eeg <- filter(data, segment == 2 & .id == 2)
+#########################################################
+### 4. Test filter by variables across eeg_lst tables ###
+#########################################################
 
-# .ids are different
-filter1_tbl <- extended_data %>%
-  as_tibble() %>%
-  filter(segment == 2 & .id == 2)
+# a) Test signal/segments tables by comparing eeg_lst with tibble
 
-# it's not to do with the extended_data tibble because this gives the same (wrong) ids:
-filter1_tbl_test <- data %>%
-  as_tibble() %>%
-  filter(segment == 2 & .id == 2) %>%
-  dplyr::select(.id, time, recording, segment, condition, channel, amplitude) %>%
-  tidyr::spread(key = channel, value = amplitude)
+filter1_eeg <- filter(data, .sample_id == 2 & segment == 2)
 
+filter1_tbl <- sigseg_data %>% 
+  dplyr::filter(.sample_id == 2 & segment == 2)
 
-filter2_eeg <- filter(data, segment == 1 & .sample_id == 2)
-filter2_tbl <- extended_data %>%
-  as_tibble() %>%
-  dplyr::filter(segment == 1 & .sample_id == 2)
+# just checking this is the same as above
+# filter1_tbl <- data %>%
+#   as_tibble() %>%
+#   filter(time == 0.002 & segment == 2) %>%
+#   spread(key = channel, value = amplitude)
 
 
-# why does only this one work? 
-filter3_eeg <- filter(data, .sample_id == 2 & !(recording == "recording2"))
-filter3_tbl <- extended_data %>%
-  as_tibble() %>%
+filter2_eeg <- filter(data, .sample_id == 2 & !(recording == "recording2"))
+filter2_tbl <- sigseg_data %>%
   dplyr::filter(.sample_id == 2 & !(recording == "recording2"))
 
+# neither filter has worked?
+filter3_eeg <- filter(data, .sample_id == 1 | condition == "a")
+filter3_tbl <- sigseg_data %>%
+  dplyr::filter(.sample_id == 1 | condition == "a") 
 
-filter4_eeg <- filter(data, .id == 1 | condition == "a")
-filter4_tbl <- extended_data %>%
-  dplyr::as_tibble() %>%
-  dplyr::filter(.id == 1 | condition == "a") 
-
-
-filter5_eeg <- filter(data, .id == 2 | condition == "b")
-filter5_tbl <- extended_data %>%
-  dplyr::as_tibble() %>%
+# only condition filter has worked?
+filter4_eeg <- filter(data, .id == 2 | condition == "b")
+filter4_tbl <- sigseg_data %>%
   dplyr::filter(.id == 2 | condition == "b") 
 
 
-filter6_eeg <- filter(data, between(X, 0, 0.5)  & condition != "a")
-filter6_tbl <- extended_data %>%
-  as_tibble() %>%
-  dplyr::filter(between(X, 0, 0.5)  & condition != "a")
+filter5_eeg <- filter(data, between(X, 0, 0.5) & segment != 1)
+filter5_tbl <- sigseg_data %>%
+  dplyr::filter(between(X, 0, 0.5) & segment != 1)
 
 
-# ids are different except for 3
-test_that("filtering across eeg_lst tables returns the right signal table values", {
-  expect_equal(as.matrix(filter1_eeg$signal), as.matrix(distinct(select(filter1_tbl, .id, .sample_id, X, Y))))
-  expect_equal(as.matrix(filter2_eeg$signal), as.matrix(distinct(select(filter2_tbl, .id, .sample_id, X, Y))))
-  expect_equal(as.matrix(filter3_eeg$signal), as.matrix(distinct(select(filter3_tbl, .id, .sample_id, X, Y))))
-  expect_equal(as.matrix(filter4_eeg$signal), as.matrix(distinct(select(filter4_tbl, .id, .sample_id, X, Y))))
-  expect_equal(as.matrix(filter5_eeg$signal), as.matrix(distinct(select(filter5_tbl, .id, .sample_id, X, Y))))
-  expect_equal(as.matrix(filter6_eeg$signal), as.matrix(distinct(select(filter6_tbl, .id, .sample_id, X, Y))))
+filter6_eeg <- filter(data, Y > 0 & recording == "recording1")
+filter6_tbl <- sigseg_data %>%
+  dplyr::filter(Y > 0 & recording == "recording1")
+
+
+test_that("filtering across tables returns the right signal table values", {
+  expect_setequal(as.matrix(filter1_eeg$signal), 
+               as.matrix(select(filter1_tbl, .id, .sample_id, X, Y)))
+  expect_setequal(as.matrix(filter2_eeg$signal), 
+               as.matrix(select(filter2_tbl, .id, .sample_id, X, Y)))
+  expect_setequal(as.matrix(filter3_eeg$signal), 
+               as.matrix(select(filter3_tbl, .id, .sample_id, X, Y)))
+  expect_setequal(as.matrix(filter4_eeg$signal), 
+               as.matrix(select(filter4_tbl, .id, .sample_id, X, Y)))
+  expect_setequal(as.matrix(filter5_eeg$signal), 
+               as.matrix(select(filter5_tbl, .id, .sample_id, X, Y)))
+  expect_setequal(as.matrix(filter6_eeg$signal), 
+               as.matrix(select(filter6_tbl, .id, .sample_id, X, Y)))
 })
 
 
-# ids are different except for 3
-test_that("filtering across eeg_lst tables returns the right segment table values", {
-  expect_equal(as.matrix(filter1_eeg$segments), as.matrix(distinct(filter1_tbl, .id, recording, segment, condition)))
-  expect_equal(as.matrix(filter2_eeg$segments), as.matrix(distinct(filter2_tbl, .id, recording, segment, condition)))
-  expect_equal(as.matrix(filter3_eeg$segments), as.matrix(distinct(filter3_tbl, .id, recording, segment, condition)))
-  expect_equal(as.matrix(filter4_eeg$segments), as.matrix(distinct(filter4_tbl, .id, recording, segment, condition)))
-  expect_equal(as.matrix(filter5_eeg$segments), as.matrix(distinct(filter5_tbl, .id, recording, segment, condition)))
+test_that("filtering across tables returns the right segments table values", {
+  expect_setequal(as.matrix(filter1_eeg$segments), 
+               as.matrix(select(filter1_tbl, .id, recording, segment, condition)))
+  expect_setequal(as.matrix(filter2_eeg$segments), 
+               as.matrix(select(filter2_tbl, .id, recording, segment, condition)))
+  expect_setequal(as.matrix(filter3_eeg$segments), 
+               as.matrix(select(filter3_tbl, .id, recording, segment, condition)))
+  expect_setequal(as.matrix(filter4_eeg$segments), 
+               as.matrix(select(filter4_tbl, .id, recording, segment, condition)))
+  expect_setequal(as.matrix(filter5_eeg$segments), 
+               as.matrix(select(filter5_tbl, .id, recording, segment, condition)))
+  expect_setequal(as.matrix(filter6_eeg$segments), 
+               as.matrix(select(filter6_tbl, .id, recording, segment, condition)))
 })
 
 
+# b) To test the events table, create some opposing filters & test that they 
+# don't return same events
+
+# add events data to above filters
+filter1a_evts <- left_join(filter1_eeg$signal, evtseg_data, by = ".id")
+filter2a_evts <- left_join(filter2_eeg$signal, evtseg_data, by = ".id")
+filter3a_evts <- left_join(filter3_eeg$signal, evtseg_data, by = ".id")
+filter4a_evts <- left_join(filter4_eeg$signal, evtseg_data, by = ".id")
+filter5a_evts <- left_join(filter5_eeg$signal, evtseg_data, by = ".id")
+filter6a_evts <- left_join(filter6_eeg$signal, evtseg_data, by = ".id")
+
+
+# apply the opposite filter
+filter1b_evts_eeg <- filter(data, .sample_id != 2 & segment != 2) 
+filter1b_evts <- left_join(filter1b_evts_eeg$signal, evtseg_data, by = ".id")
+
+filter2b_evts_eeg <- filter(data, .sample_id != 2 & recording == "recording2")
+filter2b_evts <- left_join(filter2b_evts_eeg$signal, evtseg_data, by = ".id")
+
+filter3b_evts_eeg <- filter(data, .sample_id != 1 | condition != "a")
+filter3b_evts <- left_join(filter3b_evts_eeg$signal, evtseg_data, by = ".id")
+
+filter4b_evts_eeg <- filter(data, .id != 2 | condition != "b")
+filter4b_evts <- left_join(filter4b_evts_eeg$signal, evtseg_data, by = ".id")
+
+filter5b_evts_eeg <- filter(data, X <= 0 | X >= 0.5 & segment == 1)
+filter5b_evts <- left_join(filter5b_evts_eeg$signal, evtseg_data, by = ".id")
+
+filter6b_evts_eeg <- filter(data, Y <= 0 & recording != "recording1")
+filter6b_evts <- left_join(filter6b_evts_eeg$signal, evtseg_data, by = ".id")
+
+
+test_that("what's not in xb matches xc", {
+  expect_true(nrow(semi_join(filter1a_evts, filter1b_evts)) == 0)
+  expect_true(nrow(semi_join(filter2a_evts, filter2b_evts)) == 0)
+  # due to issue with 3a
+  expect_true(nrow(semi_join(filter3a_evts, filter3b_evts)) == 0)
+  # due to issue with 4a
+  expect_true(nrow(semi_join(filter4a_evts, filter4b_evts)) == 0)
+  expect_true(nrow(semi_join(filter5a_evts, filter5b_evts)) == 0)
+  expect_true(nrow(semi_join(filter6a_evts, filter6b_evts)) == 0)
+})
+
+
+# and merging xa and xb should equal original data
+# only the ids for x are kept, not for y (doesn't matter for 3 because first filter didn't work)
+filter1c <- left_join(filter1_eeg$events, filter1b_evts_eeg$events)
+filter2c <- left_join(filter2_eeg$events, filter2b_evts_eeg$events)
+filter3c <- left_join(filter3_eeg$events, filter3b_evts_eeg$events)
+filter4c <- left_join(filter4_eeg$events, filter4b_evts_eeg$events)
+filter5c <- left_join(filter5_eeg$events, filter5b_evts_eeg$events)
+filter6c <- left_join(filter6_eeg$events, filter6b_evts_eeg$events)
+
+
+test_that("merging opposite filters recovers original events", {
+  expect_equal(as.matrix(filter1c), as.matrix(data$events))
+  expect_equal(as.matrix(filter2c), as.matrix(data$events))
+  expect_equal(as.matrix(filter3c), as.matrix(data$events))
+  expect_equal(as.matrix(filter4c), as.matrix(data$events))
+  expect_equal(as.matrix(filter5c), as.matrix(data$events))
+  expect_equal(as.matrix(filter6c), as.matrix(data$events))
+})
+
+
+<<<<<<< Updated upstream
 # ids are different except for 3
 test_that("filtering across eeg_lst tables returns the right events table values", {
   expect_equal(as.matrix(filter1_eeg$events), as.matrix(distinct(select(filter1_tbl, .id, type, description, .sample_0, .size, .channel))))
@@ -699,6 +984,24 @@ test_that("the eeg_lst filter returns the same events as as_tibble", {
   expect_equal(select(filter6a_evts, sort(current_vars())),
                select(filter6a_tbl, sort(current_vars())))
 >>>>>>> Stashed changes
+=======
+# check that events match the as_tibble version
+filter1a_tbl <- left_join(filter1_tbl, evtseg_data)
+filter2a_tbl <- left_join(filter2_tbl, evtseg_data)
+filter3a_tbl <- left_join(filter3_tbl, evtseg_data)
+filter4a_tbl <- left_join(filter4_tbl, evtseg_data)
+filter5a_tbl <- left_join(filter5_tbl, evtseg_data)
+filter6a_tbl <- left_join(filter6_tbl, evtseg_data)
+
+
+test_that("the eeg_lst filter returns the same events as as_tibble", {
+  expect_setequal(as.matrix(filter1a_evts), as.matrix(filter1a_tbl))
+  expect_setequal(as.matrix(filter2a_evts), as.matrix(filter2a_tbl))
+  expect_setequal(as.matrix(filter3a_evts), as.matrix(filter3a_tbl))
+  expect_setequal(as.matrix(filter4a_evts), as.matrix(filter4a_tbl))
+  expect_setequal(as.matrix(filter5a_evts), as.matrix(filter5a_tbl))
+  expect_setequal(as.matrix(filter6a_evts), as.matrix(filter6a_tbl))
+>>>>>>> Stashed changes
 })
 
 
@@ -709,6 +1012,10 @@ test_that("the classes of channels of signal_tbl remain after filtering across e
   expect_equal(is_channel_dbl(filter4_eeg$signal$X), TRUE)
   expect_equal(is_channel_dbl(filter5_eeg$signal$X), TRUE)
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+  expect_equal(is_channel_dbl(filter6_eeg$signal$X), TRUE)
+>>>>>>> Stashed changes
 =======
   expect_equal(is_channel_dbl(filter6_eeg$signal$X), TRUE)
 >>>>>>> Stashed changes
@@ -724,6 +1031,7 @@ test_that("data didn't change", {
 
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 ### what's going on with the ids? ###
 tibble_data <- as_tibble(data)
 
@@ -737,19 +1045,29 @@ ext <- distinct(select(extended_data, .id, X))
 # the ids are the same, the attributes not
 expect_equal(tbl, ext)
 anti_join(tbl, ext)
+=======
+>>>>>>> Stashed changes
 
+#####################################################
+### 5. Test whether filter works on new variables ###
+#####################################################
 
+# a) Test signal/segments tables by comparing eeg_lst with tibble
 
-
-### test whether filter works on new variables ###
-
-mutate_filter1_eeg <- mutate(data, time = as_time(.sample_id, unit = "milliseconds")) %>%
+mutate_filter1_eeg <- data %>%
+  mutate(time = as_time(.sample_id, unit = "milliseconds")) %>%
   filter(time == 2)
 
+mutate_filter1_tbl <- sigseg_data %>%
+  mutate(time = as_time(.sample_id, unit = "milliseconds")) %>%
+  dplyr::filter(time == 2)
 
-mutate_filter2_eeg <- mutate(data, time = as_time(.sample_id, unit = "seconds")) %>%
+
+mutate_filter2_eeg <- data %>%
+  mutate(time = as_time(.sample_id, unit = "seconds")) %>%
   filter(time == 0.002)
 
+<<<<<<< Updated upstream
 =======
 
 #####################################################
@@ -771,10 +1089,15 @@ mutate_filter2_eeg <- data %>%
   mutate(time = as_time(.sample_id, unit = "seconds")) %>%
   filter(time == 0.002)
 
+=======
+>>>>>>> Stashed changes
 mutate_filter2_tbl <- sigseg_data %>%
   mutate(time = as_time(.sample_id, unit = "seconds")) %>%
   dplyr::filter(time == 0.002)
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 mutate_filter3_eeg <- data %>% 
@@ -782,7 +1105,11 @@ mutate_filter3_eeg <- data %>%
   filter(group == "late")
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 mutate_filter3_tbl <- extended_data %>%
+=======
+mutate_filter3_tbl <- sigseg_data %>%
+>>>>>>> Stashed changes
 =======
 mutate_filter3_tbl <- sigseg_data %>%
 >>>>>>> Stashed changes
@@ -795,7 +1122,11 @@ mutate_filter4_eeg <- data %>%
   filter(group == "neg")
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 mutate_filter4_tbl <- extended_data %>%
+=======
+mutate_filter4_tbl <- sigseg_data %>%
+>>>>>>> Stashed changes
 =======
 mutate_filter4_tbl <- sigseg_data %>%
 >>>>>>> Stashed changes
@@ -803,6 +1134,7 @@ mutate_filter4_tbl <- sigseg_data %>%
   dplyr::filter(group == "neg")
 
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 # why does the eeg_lst have fewer rows?
 transmute_filter_eeg <- transmute(data, X = X + 1) %>%
@@ -815,33 +1147,132 @@ transmute_filter_eeg <- transmute(data, X = X + 1) %>%
 
 transmute_filter_tbl <- sigseg_data %>%
 >>>>>>> Stashed changes
+=======
+transmute_filter_eeg <- transmute(data, X = X + 1) %>%
+  filter(recording == "recording1")
+
+transmute_filter_tbl <- sigseg_data %>%
+>>>>>>> Stashed changes
   dplyr::filter(recording == "recording1") %>%
   dplyr::mutate(X = X + 1) 
   
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 test_that("filtering on newly created variables returns correct values in signal table", {
   expect_equal(as.matrix(mutate_filter1_eeg$signal[, c(".id", ".sample_id", "X", "Y")]), as.matrix(mutate_filter2_eeg$signal[, c(".id", ".sample_id", "X", "Y")]))
   expect_equal(as.matrix(mutate_filter3_eeg$signal), as.matrix(distinct(select(mutate_filter3_tbl, .id, .sample_id, X, Y, group))))
   expect_equal(as.matrix(mutate_filter4_eeg$signal), as.matrix(distinct(select(mutate_filter4_tbl, .id, .sample_id, X, Y, group))))
   expect_equal(as.double(transmute_filter_eeg$signal$X), as.double(unique(transmute_filter_tbl$X)))
+=======
+test_that("filtering on newly created variables works in signal table", {
+  expect_equal(as.matrix(mutate_filter1_eeg$signal[, !c("time")]), 
+               as.matrix(mutate_filter2_eeg$signal[, !c("time")]))
+  expect_setequal(as.matrix(mutate_filter3_eeg$signal), 
+               as.matrix(select(mutate_filter3_tbl, .id, .sample_id, X, Y, group)))
+  expect_setequal(as.matrix(mutate_filter4_eeg$signal), 
+               as.matrix(select(mutate_filter4_tbl, .id, .sample_id, X, Y, group)))
+  expect_equal(as.double(transmute_filter_eeg$signal$X), 
+               as.double(unique(transmute_filter_tbl$X)))
+>>>>>>> Stashed changes
 })
 
 
-test_that("filtering on newly created variables returns correct values in segments table", {
-  expect_equal(mutate_filter1_eeg$segments, mutate_filter2_eeg$segments)
-  expect_equal(as.matrix(mutate_filter3_eeg$segments), as.matrix(distinct(select(mutate_filter3_tbl, .id, recording, segment, condition))))
-  expect_equal(as.matrix(mutate_filter4_eeg$segments), as.matrix(distinct(select(mutate_filter4_tbl, .id, recording, segment, condition))))
-  expect_equal(as.matrix(transmute_filter_eeg$segments), as.matrix(distinct(select(transmute_filter_tbl, .id, recording, segment, condition))))
+test_that("filtering on newly created variables works in segments table", {
+  expect_equal(mutate_filter1_eeg$segments, 
+               mutate_filter2_eeg$segments)
+  expect_setequal(as.matrix(mutate_filter3_eeg$segments), 
+               as.matrix(select(mutate_filter3_tbl, .id, recording, segment, condition)))
+  expect_setequal(as.matrix(mutate_filter4_eeg$segments), 
+               as.matrix(select(mutate_filter4_tbl, .id, recording, segment, condition)))
+  expect_setequal(as.matrix(transmute_filter_eeg$segments), 
+               as.matrix(select(transmute_filter_tbl, .id, recording, segment, condition)))
 })
 
 
-test_that("filtering on newly created variables returns correct values in events table", {
-  expect_equal(mutate_filter1_eeg$events, mutate_filter2_eeg$events)
-  expect_equal(as.matrix(mutate_filter3_eeg$events), as.matrix(distinct(select(mutate_filter3_tbl, .id, type, description, .sample_0, .size, .channel))))
-  expect_equal(as.matrix(mutate_filter4_eeg$events), as.matrix(distinct(select(mutate_filter4_tbl, .id, type, description, .sample_0, .size, .channel))))
-  # why does the eeg_lst have fewer rows?
-  expect_equal(as.matrix(transmute_filter_eeg$events), as.matrix(distinct(select(transmute_filter_tbl, .id, type, description, .sample_0, .size, .channel))))
+
+# b) To test the events table, create some opposing filters & test that they 
+# don't return same events
+
+# bind above mutate/filters to events table 
+mutate_filter1a <- left_join(mutate_filter1_eeg$signal, evtseg_data, by = ".id")
+mutate_filter2a <- left_join(mutate_filter2_eeg$signal, evtseg_data, by = ".id")
+mutate_filter3a <- left_join(mutate_filter3_eeg$signal, evtseg_data, by = ".id")
+mutate_filter4a <- left_join(mutate_filter4_eeg$signal, evtseg_data, by = ".id")
+transmute_filtera <- left_join(transmute_filter_eeg$signal, evtseg_data, by = ".id")
+
+# do the opposite filter
+mutate_filter1b_eeg <- data %>%
+  mutate(time = as_time(.sample_id, unit = "milliseconds")) %>%
+  filter(time != 2)
+mutate_filter1b <- left_join(mutate_filter1b_eeg$signal, evtseg_data, by = ".id")
+
+mutate_filter2b_eeg <- data %>%
+  mutate(time = as_time(.sample_id, unit = "milliseconds")) %>%
+  filter(time != 0.02)
+mutate_filter2b <- left_join(mutate_filter2b_eeg$signal, evtseg_data, by = ".id")
+
+mutate_filter3b_eeg <- data %>%
+  mutate(group = ifelse(.sample_id > 0, "late", "early")) %>%
+  filter(group != "late")
+mutate_filter3b <- left_join(mutate_filter3b_eeg$signal, evtseg_data, by = ".id")
+
+# warnings about ids
+mutate_filter4b_eeg <- data %>%
+  mutate(group = ifelse(Y > 0, "pos", "neg")) %>%
+  filter(group != "neg")
+mutate_filter4b <- left_join(mutate_filter4b_eeg$signal, evtseg_data, by = ".id")
+
+transmute_filterb_eeg <- transmute(data, X = X + 1) %>%
+  filter(recording != "recording1")
+transmute_filterb <- left_join(transmute_filterb_eeg$signal, evtseg_data, by = ".id")
+
+
+test_that("doing opposite filters returns no matching values in events table", {
+  expect_true(nrow(semi_join(mutate_filter1a, mutate_filter1b)) == 0)
+  expect_true(nrow(semi_join(mutate_filter2a, mutate_filter2b)) == 0)
+  expect_true(nrow(semi_join(mutate_filter3a, mutate_filter3b)) == 0)
+  expect_true(nrow(semi_join(mutate_filter4a, mutate_filter4b)) == 0)
+  expect_true(nrow(semi_join(transmute_filtera, transmute_filterb)) == 0)
+})
+
+
+# and merging xa and xb should equal original data
+mutate_filter1c <- left_join(mutate_filter1_eeg$events, mutate_filter1b_eeg$events)
+mutate_filter2c <- left_join(mutate_filter2_eeg$events, mutate_filter2b_eeg$events)
+mutate_filter3c <- left_join(mutate_filter3_eeg$events, mutate_filter3b_eeg$events)
+mutate_filter4c <- left_join(mutate_filter4_eeg$events, mutate_filter4b_eeg$events)
+# doesn't apply to transmute
+
+
+test_that("merging xa and xb recovers original events table", {
+  expect_equal(as.matrix(mutate_filter1c), 
+               as.matrix(data$events))
+  expect_equal(as.matrix(mutate_filter2c), 
+               as.matrix(data$events))  
+  expect_equal(as.matrix(mutate_filter3c), 
+               as.matrix(data$events))
+  expect_equal(as.matrix(mutate_filter4c), 
+               as.matrix(data$events))
+})
+
+
+# does it match as_tibble output
+mutate_filter1a_tbl <- left_join(mutate_filter1_tbl, evtseg_data)
+mutate_filter2a_tbl <- left_join(mutate_filter2_tbl, evtseg_data)
+mutate_filter3a_tbl <- left_join(mutate_filter3_tbl, evtseg_data)
+mutate_filter4a_tbl <- left_join(mutate_filter4_tbl, evtseg_data)
+transmute_filtera_tbl <- transmute_filter_tbl %>% 
+  select(-Y) %>% 
+  left_join(., evtseg_data)
+
+
+test_that("the eeg_lst filter returns the same events as as_tibble", {
+  expect_setequal(as.matrix(mutate_filter1a), as.matrix(mutate_filter1a_tbl))
+  expect_setequal(as.matrix(mutate_filter2a), as.matrix(mutate_filter2a_tbl))
+  expect_setequal(as.matrix(mutate_filter3a), as.matrix(mutate_filter3a_tbl))
+  expect_setequal(as.matrix(mutate_filter4a), as.matrix(mutate_filter4a_tbl))
+  expect_setequal(as.matrix(transmute_filtera), as.matrix(transmute_filtera_tbl))
 })
 
 
@@ -854,7 +1285,17 @@ test_that("the classes of channels of signal_tbl remain after filtering by new v
 })
 
 
+# check against original data
+test_that("data didn't change", {
+  expect_equal(reference_data, data)
+})
 
+
+################################################################################
+### 6. Test whether filter works after grouping and adding/summarizing vars  ###
+################################################################################
+
+<<<<<<< Updated upstream
 ### test whether filter works after grouping and adding vars  ###
 =======
 test_that("filtering on newly created variables works in signal table", {
@@ -994,6 +1435,9 @@ test_that("data didn't change", {
 
 # a) Test signal/segments tables by comparing eeg_lst with tibble
 >>>>>>> Stashed changes
+=======
+# a) Test signal/segments tables by comparing eeg_lst with tibble
+>>>>>>> Stashed changes
 
 mutate_all_filter_eeg <- data %>%
   group_by(.sample_id) %>%
@@ -1006,6 +1450,7 @@ mutate_at_filter_eeg <- data %>%
   filter(condition == "b")
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 # this throws too many warnings about attributes - why doesn't it do this anywhere else?
 # mutate_a_tbl <- extended_data %>%
 #   dplyr::group_by(.sample_id) %>%
@@ -1015,12 +1460,15 @@ mutate_at_filter_eeg <- data %>%
 # a different way - ids are different again
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 mutate_a_tbl <- data %>%
   as_tibble() %>%
   dplyr::group_by(time, channel) %>%
   dplyr::mutate(mean = mean(amplitude)) %>% 
   dplyr::select(.id, time, channel, mean, condition, segment, recording) %>%
   tidyr::spread(key = channel, value = mean) %>%
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
   ungroup() %>% # have to add this or it does weird stuff
   dplyr::filter(condition == "b")
@@ -1033,12 +1481,22 @@ mutate_a_tbl <- data %>%
 
 
 >>>>>>> Stashed changes
+=======
+  dplyr::ungroup() %>% # have to add this or it does weird stuff
+  dplyr::filter(condition == "b")
+
+
+>>>>>>> Stashed changes
 summarize_filter_eeg <- group_by(data, .sample_id) %>% 
   summarize(mean = mean(Y)) %>%
   filter(mean > -0.35)
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 summarize_filter_tbl <- extended_data %>%
+=======
+summarize_filter_tbl <- sigseg_data %>%
+>>>>>>> Stashed changes
 =======
 summarize_filter_tbl <- sigseg_data %>%
 >>>>>>> Stashed changes
@@ -1050,8 +1508,9 @@ summarize_filter_tbl <- sigseg_data %>%
 summarize_at_filter_eeg <- data %>% 
   group_by(.id, recording, condition) %>%
   summarize_at_ch(channel_names(data), mean) %>%
-  filter(X > 0 | Y > 0)
+  filter(X > 0 & Y > 0)
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 summarize_at_filter_tbl <- extended_data %>%
   dplyr::group_by(.id, recording, condition) %>%
@@ -1064,6 +1523,13 @@ summarize_at_filter_tbl <- sigseg_data %>%
   dplyr::ungroup() %>% # have to add this or it does weird stuff
 >>>>>>> Stashed changes
   dplyr::filter(X > 0 | Y > 0)
+=======
+summarize_at_filter_tbl <- sigseg_data %>%
+  dplyr::group_by(.id, recording, condition) %>%
+  dplyr::summarise(X = mean(X), Y = mean(Y)) %>%
+  dplyr::ungroup() %>% # have to add this or it does weird stuff
+  dplyr::filter(X > 0 & Y > 0)
+>>>>>>> Stashed changes
 
 
 summarize_all_filter_eeg <- group_by(data, .id, .sample_id) %>% 
@@ -1071,7 +1537,11 @@ summarize_all_filter_eeg <- group_by(data, .id, .sample_id) %>%
   filter(.sample_id < 0)
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 summarize_all_filter_tbl <- extended_data %>%
+=======
+summarize_all_filter_tbl <- sigseg_data %>%
+>>>>>>> Stashed changes
 =======
 summarize_all_filter_tbl <- sigseg_data %>%
 >>>>>>> Stashed changes
@@ -1081,7 +1551,11 @@ summarize_all_filter_tbl <- sigseg_data %>%
 
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 # ids are different
+=======
+# warnings about ids
+>>>>>>> Stashed changes
 =======
 # warnings about ids
 >>>>>>> Stashed changes
@@ -1090,7 +1564,11 @@ summarize_all1_filter_eeg <- group_by(data, .id, condition) %>%
   filter(condition == "a")
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 summarize_all1_filter_tbl <- extended_data %>%
+=======
+summarize_all1_filter_tbl <- sigseg_data %>%
+>>>>>>> Stashed changes
 =======
 summarize_all1_filter_tbl <- sigseg_data %>%
 >>>>>>> Stashed changes
@@ -1100,7 +1578,10 @@ summarize_all1_filter_tbl <- sigseg_data %>%
 
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 # no grouping by id: means are different  
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 summarize_all2_filter_eeg <- group_by(data, condition) %>% 
@@ -1108,7 +1589,11 @@ summarize_all2_filter_eeg <- group_by(data, condition) %>%
   filter(condition == "a")
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 summarize_all2_filter_tbl <- extended_data %>%
+=======
+summarize_all2_filter_tbl <- sigseg_data %>%
+>>>>>>> Stashed changes
 =======
 summarize_all2_filter_tbl <- sigseg_data %>%
 >>>>>>> Stashed changes
@@ -1118,6 +1603,7 @@ summarize_all2_filter_tbl <- sigseg_data %>%
 
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 test_that("filtering after grouping and summarizing returns correct values in signal table", {
   expect_equal(mutate_all_filter_eeg$signal, mutate_at_filter_eeg$signal)
   expect_equal(as.matrix(mutate_at_filter_eeg$signal[, c(".id", "X", "Y")]), as.matrix(select(mutate_a_tbl, .id, X, Y)))
@@ -1126,19 +1612,44 @@ test_that("filtering after grouping and summarizing returns correct values in si
   expect_equal(as.matrix(summarize_all_filter_eeg$signal), as.matrix(select(summarize_all_filter_tbl, .id, .sample_id, X, Y)))
   expect_equal(as.matrix(summarize_all1_filter_eeg$signal[, c(".id", "X", "Y")]), as.matrix(select(summarize_all1_filter_tbl, .id, X, Y)))
   expect_equal(as.matrix(summarize_all2_filter_eeg$signal[, c("X", "Y")]), as.matrix(select(summarize_all2_filter_tbl, X, Y)))
+=======
+
+test_that("filtering after grouping and summarizing works in signal table", {
+  expect_equal(mutate_all_filter_eeg$signal, 
+               mutate_at_filter_eeg$signal)
+  expect_equal(as.matrix(mutate_at_filter_eeg$signal[, !c(".sample_id")]), 
+               as.matrix(select(mutate_a_tbl, .id, X, Y)))
+  expect_equal(as.double(summarize_filter_eeg$signal$mean), 
+               as.double(summarize_filter_tbl$mean))
+  expect_equal(as.matrix(summarize_at_filter_eeg$signal[, !c(".sample_id")]), 
+               as.matrix(select(summarize_at_filter_tbl, .id, X, Y)))
+  expect_equal(as.matrix(summarize_all_filter_eeg$signal), 
+               as.matrix(select(summarize_all_filter_tbl, .id, .sample_id, X, Y)))
+  expect_equal(as.matrix(summarize_all1_filter_eeg$signal[, !c(".sample_id")]), 
+               as.matrix(select(summarize_all1_filter_tbl, .id, X, Y)))
+  expect_equal(as.matrix(summarize_all2_filter_eeg$signal[, c("X", "Y")]), 
+               as.matrix(select(summarize_all2_filter_tbl, X, Y)))
+>>>>>>> Stashed changes
 })
 
 
-test_that("filtering after grouping and summarizing returns correct values in segments table if, applicable", {
-  expect_equal(mutate_all_filter_eeg$segments, mutate_at_filter_eeg$segments)
-  expect_equal(as.matrix(mutate_at_filter_eeg$segments), as.matrix(distinct(select(mutate_a_tbl, .id, recording, segment, condition))))
-  expect_equal(as.matrix(summarize_at_filter_eeg$segments)[, c(".id", "recording", "condition")], as.matrix(distinct(select(summarize_at_filter_tbl, .id, recording, condition))))
-  expect_equal(as.double(summarize_all_filter_eeg$segments$.id), as.double(unique(summarize_all_filter_tbl$.id)))
-  expect_equal(as.matrix(summarize_all1_filter_eeg$segments[, c(".id", "condition")]), as.matrix(select(summarize_all1_filter_tbl, .id, condition)))
-  expect_equal(as.matrix(summarize_all2_filter_eeg$segments[, c("condition")]), as.matrix(select(summarize_all2_filter_tbl, condition)))
+test_that("filtering after grouping and summarizing works in segments table", {
+  expect_equal(mutate_all_filter_eeg$segments, 
+               mutate_at_filter_eeg$segments)
+  expect_setequal(as.matrix(mutate_at_filter_eeg$segments), 
+               as.matrix(select(mutate_a_tbl, .id, recording, segment, condition)))
+  expect_setequal(as.matrix(summarize_at_filter_eeg$segments[, c(".id", "recording", "condition")]), 
+               as.matrix(select(summarize_at_filter_tbl, .id, recording, condition)))
+  expect_setequal(as.double(summarize_all_filter_eeg$segments$.id), 
+               as.double(summarize_all_filter_tbl$.id))
+  expect_equal(as.matrix(summarize_all1_filter_eeg$segments[, c(".id", "condition")]), 
+               as.matrix(select(summarize_all1_filter_tbl, .id, condition)))
+  expect_equal(as.matrix(summarize_all2_filter_eeg$segments[, c("condition")]), 
+               as.matrix(select(summarize_all2_filter_tbl, condition)))
 })
 
 
+<<<<<<< Updated upstream
 # not relevant
 # test_that("filtering after grouping and summarizing returns correct values in events table", {
 # 
@@ -1179,12 +1690,15 @@ test_that("filtering after grouping and summarizing works in segments table", {
 })
 
 
+=======
+>>>>>>> Stashed changes
 
 
 # b) To test the events table, create some opposing filters & test that they 
 # don't return same events
 
 # join events info to above filtered data (lots of id warnings)
+<<<<<<< Updated upstream
 mutate_all_filtera <- left_join(mutate_all_filter_eeg$signal, events_data, by = ".id")
 mutate_at_filtera <- left_join(mutate_at_filter_eeg$signal, events_data, by = ".id")
 summarize_filtera<- left_join(summarize_filter_eeg$signal, events_data, by = ".id")
@@ -1195,6 +1709,22 @@ summarize_all_filtera <- left_join(summarize_all_filter_eeg$signal, events_data,
 summarize_all1_filtera <- left_join(summarize_all1_filter_eeg$signal, events_data, by = ".id")
 # ditto (i.e. only .id 1 remains in x but is being matched with 2 in y)
 summarize_all2_filtera <- left_join(summarize_all2_filter_eeg$signal, events_data, by = ".id")
+=======
+mutate_all_filtera <- left_join(mutate_all_filter_eeg$signal, 
+                                evtseg_data, by = ".id")
+mutate_at_filtera <- left_join(mutate_at_filter_eeg$signal, 
+                               evtseg_data, by = ".id")
+summarize_filtera<- left_join(summarize_filter_eeg$signal, 
+                              evtseg_data, by = ".id")
+summarize_at_filtera <- left_join(summarize_at_filter_eeg$signal, 
+                                  evtseg_data, by = ".id")
+summarize_all_filtera <- left_join(summarize_all_filter_eeg$signal, 
+                                   evtseg_data, by = ".id")
+summarize_all1_filtera <- left_join(summarize_all1_filter_eeg$signal, 
+                                    evtseg_data, by = ".id")
+summarize_all2_filtera <- left_join(summarize_all2_filter_eeg$signal, 
+                                    evtseg_data, by = ".id")
+>>>>>>> Stashed changes
 
 
 # apply opposite filter
@@ -1205,7 +1735,12 @@ mutate_all_filterb_eeg <- data %>%
   mutate_all(mean) %>%
   filter(condition != "b")
 
+<<<<<<< Updated upstream
 mutate_all_filterb <- left_join(mutate_all_filterb_eeg$signal, events_data, by = ".id")
+=======
+mutate_all_filterb <- left_join(mutate_all_filterb_eeg$signal, 
+                                evtseg_data, by = ".id")
+>>>>>>> Stashed changes
 
 
 mutate_at_filterb_eeg <- data %>%
@@ -1213,19 +1748,30 @@ mutate_at_filterb_eeg <- data %>%
   mutate_all(mean) %>%
   filter(condition != "b")
 
+<<<<<<< Updated upstream
 mutate_at_filterb <- left_join(mutate_at_filterb_eeg$signal, events_data, by = ".id")
+=======
+mutate_at_filterb <- left_join(mutate_at_filterb_eeg$signal, 
+                               evtseg_data, by = ".id")
+>>>>>>> Stashed changes
 
 
 summarize_filterb_eeg <- group_by(data, .sample_id) %>% 
   summarize(mean = mean(Y)) %>%
   filter(mean <= -0.35)
 
+<<<<<<< Updated upstream
 summarize_filterb <- left_join(summarize_filterb_eeg$signal, events_data, by = ".id")
+=======
+summarize_filterb <- left_join(summarize_filterb_eeg$signal, 
+                               evtseg_data, by = ".id")
+>>>>>>> Stashed changes
 
 
 summarize_at_filterb_eeg <- data %>% 
   group_by(.id, recording, condition) %>%
   summarize_at_ch(channel_names(data), mean) %>%
+<<<<<<< Updated upstream
   filter(X <= 0 | Y <= 0)
 
 summarize_at_filterb <- left_join(summarize_at_filterb_eeg$signal, events_data, by = ".id")
@@ -1237,18 +1783,44 @@ summarize_all_filterb_eeg <- group_by(data, .id, .sample_id) %>%
 summarize_all_filterb <- left_join(summarize_all_filterb_eeg$signal, events_data, by = ".id")
 
 # this too
+=======
+  filter(X <= 0 & Y <= 0)
+
+summarize_at_filterb <- left_join(summarize_at_filterb_eeg$signal, 
+                                  evtseg_data, by = ".id")
+
+summarize_all_filterb_eeg <- group_by(data, .id, .sample_id) %>% 
+  summarize_all_ch("mean") %>%
+  filter(.sample_id >= 0)
+summarize_all_filterb <- left_join(summarize_all_filterb_eeg$signal, 
+                                   evtseg_data, by = ".id")
+
+
+>>>>>>> Stashed changes
 summarize_all1_filterb_eeg <- group_by(data, .id, condition) %>% 
   summarize_all_ch("mean") %>%
   filter(condition != "a")
 
+<<<<<<< Updated upstream
 summarize_all1_filterb <- left_join(summarize_all1_filterb_eeg$signal, events_data, by = ".id")
 
 # this too
+=======
+summarize_all1_filterb <- left_join(summarize_all1_filterb_eeg$signal, 
+                                    evtseg_data, by = ".id")
+
+
+>>>>>>> Stashed changes
 summarize_all2_filterb_eeg <- group_by(data, condition) %>% 
   summarize_all_ch("mean") %>%
   filter(condition != "a")
 
+<<<<<<< Updated upstream
 summarize_all2_filterb <- left_join(summarize_all2_filterb_eeg$signal, events_data, by = ".id")
+=======
+summarize_all2_filterb <- left_join(summarize_all2_filterb_eeg$signal, 
+                                    evtseg_data, by = ".id")
+>>>>>>> Stashed changes
 
 
 
@@ -1289,6 +1861,7 @@ test_that("merging xa and xb recovers original events table", {
 
 # and the original filter output should be the same as when converted to tibble
 # (not relevant for summarize)
+<<<<<<< Updated upstream
 mutate_a_filtera_tbl <- left_join(mutate_a_tbl, events_data)
 
 
@@ -1299,6 +1872,17 @@ test_that("eeg_lst filter output matches tibble", {
                select(mutate_a_filtera_tbl, sort(current_vars())))
 })
 
+>>>>>>> Stashed changes
+=======
+mutate_a_filtera_tbl <- left_join(mutate_a_tbl, evtseg_data)
+
+# idk why only these tibbles need to be converted to a matrix to work, but ok:
+test_that("eeg_lst filter output matches tibble", {
+  expect_setequal(as.matrix(select(mutate_at_filtera, -.sample_id)),
+               as.matrix(select(mutate_a_filtera_tbl, -time)))
+  expect_setequal(as.matrix(select(mutate_all_filtera, -.sample_id)),
+               as.matrix(select(mutate_a_filtera_tbl, -time)))
+})
 >>>>>>> Stashed changes
 
 
@@ -1318,6 +1902,10 @@ test_that("data didn't change", {
   expect_equal(reference_data, data)
 })
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
 >>>>>>> Stashed changes
+>>>>>>> Stashed changes
+=======
+
 >>>>>>> Stashed changes
