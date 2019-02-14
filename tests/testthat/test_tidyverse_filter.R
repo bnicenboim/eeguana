@@ -67,7 +67,7 @@ segments_data <- as_tibble(data$segments)
 events_data <-  as_tibble(data$events)
   
 
-
+###
 
 
 ###################################################
