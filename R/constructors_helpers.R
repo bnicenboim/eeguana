@@ -152,29 +152,35 @@ new_eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
 #'
 #' @noRd
 validate_eeg_lst <- function(x) {
-  validate_signal_tbl(x$signal)
-  validate_events(x$events, channel_names(x))
-  validate_segments(x$segments)
-  if (!all.equal(unique(x$signal$.id), unique(x$segments$.id))) {
-    warning("The values of .ids mismatch between tables.",
-      call. = FALSE
-    )
-  }
+    x$signal <- validate_signal_tbl(x$signal)
+    x$events <- validate_events(x$events, channel_names(x))
+    x$segments <- validate_segments(x$segments)
+    if (!all.equal(unique(x$signal$.id), unique(x$segments$.id))) {
+        warning("The values of .ids mismatch between tables.",
+                call. = FALSE
+                )
+    }
 
-  if(any(!group_chr(x) %in% c(colnames(x$signal),colnames(x$segments)))){
-      warning("Grouping variables are missing.",
-      call. = FALSE
-    )
-  }
+    if(any(!group_chr(x) %in% c(colnames(x$signal),colnames(x$segments)))){
+        warning("Grouping variables are missing.",
+                call. = FALSE
+                )
+    }
 
-  x
+    x
 }
-
 #' @param signal_tbl 
 #'
 #' @noRd
 validate_signal_tbl <- function(signal_tbl) {
-  
+    if(is.null(signal_tbl)) {
+        signal_tbl <- data.table::data.table(.id= integer(0),.sample_id= integer(0))
+        data.table::setkey(signal_tbl,.id,.sample_id)
+    }
+    if(!data.table::is.data.table(signal_tbl) && is.data.frame(signal_tbl)) {
+        signal <- data.table::as.data.table(signal_tbl)
+        data.table::setkey(signal_tbl,.id,.sample_id)
+   }     
   if (!data.table::is.data.table(signal_tbl)) {
     warning("'signal' be a data.table.",
       call. = FALSE
@@ -203,8 +209,11 @@ validate_signal_tbl <- function(signal_tbl) {
   validate_sample_int(signal_tbl$.sample_id)
 
   #checks if there are channels
-  if(all(!sapply(signal_tbl, is_channel_dbl)) && nrow(signal_tbl)>0){
-    warning("No channels found.")
+    if(nrow(signal_tbl)>0){
+      nchannels <- sum(sapply(signal_tbl, is_channel_dbl))
+      ncomponents <- sum(sapply(signal_tbl, is_component_dbl))
+      if(nchannels ==0 & ncomponents ==0  )
+        warning("No channels or components found.")
   }
 
   # Validates channels 
@@ -212,13 +221,22 @@ validate_signal_tbl <- function(signal_tbl) {
 
   signal_tbl
 }
-
 #' @param events 
 #'
 #' @param channels 
 #'
 #' @noRd
 validate_events <- function(events, channels) {
+    if(is.null(events)) {
+        events <- data.table::data.table(.id= integer(0),
+                                         .sample_0= integer(0),
+                                         .size= integer(0),
+                                         .channel= integer(0))
+    }
+    if(!data.table::is.data.table(events) && is.data.frame(events)) {
+        events <- data.table::as.data.table(events)
+    }
+
 if (!data.table::is.data.table(events)) {
     warning("'events' be a data.table.",
       call. = FALSE
@@ -246,11 +264,13 @@ if (!data.table::is.data.table(events)) {
 
   events
 }
-
 #' @param segments 
 #'
 #' @noRd
 validate_segments <- function(segments) {
+    if(is.null(segments)) {
+        segments <- dplyr::tibble(.id = integer(0))
+    }
   # Validates .id
   if (length(segments$.id) >0 && all(segments$.id != seq_len(max(segments$.id)))) {
     warning("Missing .ids, some functions might fail.",

@@ -38,7 +38,9 @@ update_summarized_eeg_lst <- function(.eeg_lst){
 #' @noRd
 summarize_segments <-  function(segments, segments_groups, last_id){
     # data.table::data.table(segments)[,unique(.SD),.SDcols=c(segments_groups)][] %>% dplyr::as_tibble() %>%
-    data.table::data.table(segments)[,.(segment_n = .N),by=c(segments_groups)][] %>% dplyr::as_tibble() %>%
+    if(length(segments_groups)!=0){
+    data.table::data.table(segments)[,.(segment_n = .N),by=c(segments_groups)][] %>%
+        dplyr::as_tibble() %>%
     # segments %>% 
           # dplyr::group_by_at(vars(segments_groups)) %>%
           # dplyr::summarize() %>%
@@ -51,6 +53,9 @@ summarize_segments <-  function(segments, segments_groups, last_id){
        }
       } %>%
     dplyr::select(.id, dplyr::everything())
+    } else {
+        tibble(.id = seq_len(last_id))
+    }
 }
 
 
