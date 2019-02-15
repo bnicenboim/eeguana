@@ -168,10 +168,10 @@ subset.channel_dbl <- function(x, ... ) {
 #' This function returns  TRUE for components.
 #'
 #' @param x An object.
-#'
+#' 
 #' @family component
 #' 
-#' @return `TRUE` if the object inherits from the `sampl` class.
+#' @return `TRUE` if the object inherits from the `sample_id` class.
 #' @export
 is_component_dbl <- function(x) {
     class(x) == "component_dbl"

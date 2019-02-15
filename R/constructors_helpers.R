@@ -193,11 +193,6 @@ validate_signal_tbl <- function(signal_tbl) {
     )
   }
 
-  if (length(signal_tbl$.id) >0 && all(unique(signal_tbl$.id) != seq_len(max(signal_tbl$.id)))) {
-    warning("Missing .ids, some functions might fail.",
-      call. = FALSE
-    )
-  }
 
   if(!identical(data.table::key(signal_tbl), c(".id",".sample_id"))) {
     warning("`keys` of signal table are missing.",
@@ -271,14 +266,8 @@ validate_segments <- function(segments) {
     if(is.null(segments)) {
         segments <- dplyr::tibble(.id = integer(0))
     }
-  # Validates .id
-  if (length(segments$.id) >0 && all(segments$.id != seq_len(max(segments$.id)))) {
-    warning("Missing .ids, some functions might fail.",
-      call. = FALSE
-    )
-  }
-  if( length(segments$.id) != length(unique(segments$.id)) ){
-        warning("Some .ids are repeated in the segments table, some functions might fail.",
+   if( length(segments$.id) != length(unique(segments$.id)) ){
+     warning("Some .ids are repeated in the segments table, there is something wrong going on. Please open an issue with a reproducible example in https://github.com/bnicenboim/eeguana/issues",
       call. = FALSE
     )
   }
