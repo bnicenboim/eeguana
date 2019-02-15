@@ -51,7 +51,8 @@ reference_data <- data.table::copy(data)
 # create tibbles from eeg_lst to test against
 
 # this is super weird - sometimes this works, sometimes i get the error (underneath)
-sigseg_data <- left_join(data$signal, data$segments, by = ".id")
+sigseg_data <- eeguana::left_join_dt(data$signal, data.table::as.data.table(data$segments), by = ".id")
+
 evtseg_data <- left_join(data$events, data$segments, by = ".id")
 
 ## # Error in as_tibble.signal_tbl(data, .name_repair = "check_unique") : 

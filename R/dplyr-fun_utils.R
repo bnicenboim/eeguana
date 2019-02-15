@@ -4,7 +4,7 @@ extended_signal <- function(.eeg_lst, cond_cols){
 
  if(length(relevant_cols)>1) { #more than just .id
   segments <-  dplyr::ungroup(.eeg_lst$segments) %>% 
-               dplyr::select_if(names(.) %in% relevant_cols) %>%
+               {.[names(.) %in% relevant_cols]} %>%
                data.table::data.table()
   data.table::setkey(segments,.id)
   return(.eeg_lst$signal[segments])
