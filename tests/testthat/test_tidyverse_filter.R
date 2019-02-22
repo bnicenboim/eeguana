@@ -50,17 +50,8 @@ reference_data <- data.table::copy(data)
 
 # create tibbles from eeg_lst to test against
 
-# this is super weird - sometimes this works, sometimes i get the error (underneath)
-# sigseg_data <- left_join(data$signal, data$segments, by = ".id")
-# evtseg_data <- left_join(data$events, data$segments, by = ".id")
-
-# Error in as_tibble.signal_tbl(data, .name_repair = "check_unique") : 
-#   unused argument (.name_repair = "check_unique") 
-
-# if i get the error, this works instead, 
-# but then all of the tests fail for .id and heaps of other stuff no longer works either
-sigseg_data <- left_join(as_tibble(data$signal), data$segments, by = ".id")
-evtseg_data <- left_join(as_tibble(data$events), data$segments, by = ".id")
+sigseg_data <- left_join(data$signal, data$segments, by = ".id")
+evtseg_data <- left_join(data$events, data$segments, by = ".id")
 
 signal_data <- as_tibble(data$signal)
 segments_data <- as_tibble(data$segments)
