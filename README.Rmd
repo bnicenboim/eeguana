@@ -2,7 +2,9 @@
 output: github_document
 ---
 
-[![Travis build status](https://travis-ci.org/bnicenboim/eeguana.svg?branch=master)](https://travis-ci.org/bnicenboim/eeguana) [![Codecov test coverage](https://codecov.io/gh/bnicenboim/eeguana/branch/master/graph/badge.svg)](https://codecov.io/gh/bnicenboim/eeguana?branch=master)  [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/bnicenboim/eeguana?branch=master&svg=true)](https://ci.appveyor.com/project/bnicenboim/eeguana)
+[![Travis build status](https://travis-ci.org/bnicenboim/eeguana.svg?branch=master)](https://travis-ci.org/bnicenboim/eeguana) [![Codecov test coverage](https://codecov.io/gh/bnicenboim/eeguana/branch/master/graph/badge.svg)](https://codecov.io/gh/bnicenboim/eeguana?branch=master)  [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/bnicenboim/eeguana?branch=master&svg=true)](https://ci.appveyor.com/project/bnicenboim/eeguana) [![DOI](https://zenodo.org/badge/153299577.svg)](https://zenodo.org/badge/latestdoi/153299577)   [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+
+
 
 
 ```{r setup, include = FALSE}
@@ -13,7 +15,8 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 ```
-# eeguana
+
+# eeguana <img src="man/figures/logo.png" align="right" height=140/>
 
 ## Overview
 
@@ -84,7 +87,7 @@ using these two triggers.
 faces_segs <- faces %>% 
                segment(description %in% c("s70", "s71"), 
                         lim = c(-.2,.25)) %>%
-               event_to_ch_NA(type == "Bad Interval") %>% 
+               eeg_intervals_to_NA(type == "Bad Interval") %>% 
                ch_baseline()
 ```
 
@@ -128,8 +131,12 @@ of the stimuli, creating a table with interpolated amplitudes and using the ggpl
 faces_segs_some %>% filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) %>% 
                     group_by(condition) %>%
                     summarize_all_ch(mean, na.rm = TRUE) %>%
-                    interpolate_tbl() %>%
-                    plot_topo() + facet_grid(~condition)
+                    plot_topo() +
+                    annotate_head() + 
+                    geom_contour() +
+                    geom_text(colour = "black") +
+                    facet_grid(~condition)
+
 ```
 
 

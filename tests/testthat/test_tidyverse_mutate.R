@@ -116,7 +116,7 @@ test_that("data didn't change", {
   expect_equal(reference_data, data)
 })
 
-warning("Check that the rest of the object didn't change")
+message("Check that the rest of the object didn't change")
 
 
 ### test dplyr mutate on grouped eeg_lst ###

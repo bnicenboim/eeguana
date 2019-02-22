@@ -38,7 +38,9 @@ as_tibble.eeg_lst <- function(x, add_segments = TRUE, add_channels_info = TRUE) 
 }
 
 
-as_tibble.signal_tbl <- function(x) {
+as_tibble.signal_tbl <- function(x, ..., .rows = NULL,
+                                 .name_repair = c("check_unique","unique", "universal", "minimal"),
+                                 rownames) {
   NextMethod()
 }
 

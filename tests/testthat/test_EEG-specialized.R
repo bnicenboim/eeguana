@@ -84,8 +84,8 @@ data_XY <- eeg_lst(
 x <- data
 
 test_that("can clean files with entire_seg = FALSE", {
-  clean_data <- event_to_ch_NA(data, type == "Bad", entire_seg = FALSE)
-  clean_data_XY <- event_to_ch_NA(data_XY, type == "Bad", entire_seg = FALSE)
+  clean_data <- eeg_intervals_to_NA(data, type == "Bad", entire_seg = FALSE)
+  clean_data_XY <- eeg_intervals_to_NA(data_XY, type == "Bad", entire_seg = FALSE)
   expect_equal(clean_data, clean_data_XY)
   expect_equal(nrow(clean_data$events), 4)
   expect_equal(all(is.na(clean_data$signal[clean_data$signal$.sample_id %in% seq(-2, -3 + 3 - 1) &
@@ -104,10 +104,10 @@ test_that("can clean files with entire_seg = FALSE", {
 })
 
 test_that("can clean whole channels in files", {
-  clean_data_chan <- event_to_ch_NA(data, type == "Bad", all_chans = TRUE, entire_seg = FALSE)
-  clean_data_chan2 <- event_to_ch_NA(data_NA, type == "Bad", entire_seg = FALSE)
-  clean_data_chan3 <- event_to_ch_NA(data_NA, type == "Bad", all_chans = TRUE, entire_seg = FALSE)
-  clean_data_XY2 <- event_to_ch_NA(data_XY, type == "Bad", all_chans = TRUE, entire_seg = FALSE)
+  clean_data_chan <- eeg_intervals_to_NA(data, type == "Bad", all_chans = TRUE, entire_seg = FALSE)
+  clean_data_chan2 <- eeg_intervals_to_NA(data_NA, type == "Bad", entire_seg = FALSE)
+  clean_data_chan3 <- eeg_intervals_to_NA(data_NA, type == "Bad", all_chans = TRUE, entire_seg = FALSE)
+  clean_data_XY2 <- eeg_intervals_to_NA(data_XY, type == "Bad", all_chans = TRUE, entire_seg = FALSE)
   expect_equal(clean_data_chan, clean_data_chan2)
   expect_equal(clean_data_chan, clean_data_chan3)
   expect_equal(clean_data_chan, clean_data_XY2)
@@ -131,7 +131,7 @@ test_that("can clean whole channels in files", {
 
 
 test_that("can clean whole segments in files", {
-  clean_data_seg <- event_to_ch_NA(data, type == "Bad", entire_seg = TRUE)
+  clean_data_seg <- eeg_intervals_to_NA(data, type == "Bad", entire_seg = TRUE)
   expect_equal(nrow(clean_data_seg$events), 4)
   expect_equal(all(is.na(clean_data_seg$signal[clean_data_seg$signal$.id == 1, c("X", "Y")])), TRUE)
   expect_equal(all(is.na(clean_data_seg$signal[clean_data_seg$signal$.id == 2, c("Y")])), TRUE)
@@ -165,34 +165,34 @@ data0 <- eeg_lst(
 )
 
 test_that("can segment using lim", {
-  data_s <- segment(data, type == "Time 0")
+  data_s <- eeg_segment(data, type == "Time 0")
   expect_equal(data$signal, data_s$signal)
   expect_equal(data$events, data_s$events)
   expect_equal(data$segments, dplyr::select(data_s$segments, -type, -description))
   # expect_equal(data$segments, data_s$segments)
-  d <- segment(data, type == "Time 0")
-  d_rec <- segment(d, type == "Time 0")
+  d <- eeg_segment(data, type == "Time 0")
+  d_rec <- eeg_segment(d, type == "Time 0")
   expect_equal(d$signal, d_rec$signal)
   expect_equal(d$events, d_rec$events)
   expect_equal(dplyr::select(d$segments, -type, -description), dplyr::select(d_rec$segments, -type.x, -description.x, -type.y, -description.y))
   # expect_equal(d$segments,d_rec$segments)
-  d_0 <- segment(data, type == "Time 0", lim = c(0, Inf))
-  d_0_0 <- segment(d_0, type == "Time 0", lim = c(0, Inf))
+  d_0 <- eeg_segment(data, type == "Time 0", lim = c(0, Inf))
+  d_0_0 <- eeg_segment(d_0, type == "Time 0", lim = c(0, Inf))
   expect_equal(nrow(d_0$signal), 10)
   expect_equal(d_0$signal, d_0_0$signal)
   expect_equal(d_0$events, d_0_0$events)
   expect_equal(dplyr::select(d_0$segments, -type, -description), dplyr::select(d_0_0$segments, -type.x, -description.x, -type.y, -description.y))
   # expect_equal(d_0$segments,d_0_0$segments)
-  s1 <- segment(data0, type == "Time 0", lim = c(0, 1 / 500))
+  s1 <- eeg_segment(data0, type == "Time 0", lim = c(0, 1 / 500))
   expect_equal(s1$signal$X[1], data0$signal$X[6])
   expect_equal(nrow(s1$signal), 4)
   expect_equal(nrow(s1$segments), 2)
-  s1_u <- segment(data0, type == "Time 0", lim = c(0, 1), unit = "sample")
-  s1_u2 <- segment(data0, type == "Time 0", lim = c(0, 2), unit = "ms")
+  s1_u <- eeg_segment(data0, type == "Time 0", lim = c(0, 1), unit = "sample")
+  s1_u2 <- eeg_segment(data0, type == "Time 0", lim = c(0, 2), unit = "ms")
   expect_equal(s1, s1_u2)
-  double <- segment(data0, type == "Time 0", lim = c(-20, 20), unit = "sample")
+  double <- eeg_segment(data0, type == "Time 0", lim = c(-20, 20), unit = "sample")
   expect_equal(nrow(double$signal), 40)
-  d00 <- segment(data0, type == "Time 0", lim = c(0, 1), unit = "sample")
+  d00 <- eeg_segment(data0, type == "Time 0", lim = c(0, 1), unit = "sample")
   expect_equal(all(d00$events$.sample_0 + d00$events$.size - 1 <= max(d00$signal$.sample_id)), TRUE)
   expect_equal(all(s1$events$.sample_0 + s1$events$.size - 1 <= max(s1$signal$.sample_id)), TRUE)
   expect_equal(all(s1_u$events$.sample_0 + s1_u$events$.size - 1 <= max(s1_u$signal$.sample_id)), TRUE)
@@ -202,7 +202,7 @@ test_that("can segment using lim", {
 
 test_that("can segment using end", {
   #works I should add an expect_equal
-  data_s_e <- segment(data,type == "New Segment" , end = type == "Time 0")
+  data_s_e <- eeg_segment(data,type == "New Segment" , end = type == "Time 0")
 })
 
 baselines <- dplyr::summarize(dplyr::group_by(
@@ -223,9 +223,9 @@ test_that("baseline works", {
 
 
 
-segment(data, type == "Time 0", lim = c(-1 / 500, 0))
-segment(data0, type == "Time 0", lim = c(-1 / 500, 0))
-data0_s <- segment(data0, type == "Time 0", lim = c(-Inf, Inf))
+eeg_segment(data, type == "Time 0", lim = c(-1 / 500, 0))
+eeg_segment(data0, type == "Time 0", lim = c(-1 / 500, 0))
+data0_s <- eeg_segment(data0, type == "Time 0", lim = c(-Inf, Inf))
 
 
 
@@ -256,6 +256,6 @@ data_eeg <- eeg_lst(
 )
 
 
-data_d <- downsample(data_eeg, max_sample=2)
+data_d <- eeg_downsample(data_eeg, max_sample=2)
 
 #need to test it better

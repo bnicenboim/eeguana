@@ -54,7 +54,7 @@ summarize_segments <-  function(segments, segments_groups, last_id){
       } %>%
     dplyr::select(.id, dplyr::everything())
     } else {
-        tibble(.id = seq_len(last_id))
+        tibble::tibble(.id = seq_len(last_id))
     }
 }
 
