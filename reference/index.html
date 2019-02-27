@@ -70,7 +70,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.5.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.6.9000</span>
       </span>
     </div>
 
@@ -269,39 +269,39 @@
       <tr>
         <th colspan="2">
           <h2 id="section-eeg-specialized-functions" class="hasAnchor"><a href="#section-eeg-specialized-functions" class="anchor"></a>EEG-specialized functions</h2>
-          <p class="section-desc"><p>Functions for applying specialized actions on specific channels of the signal table or the entire <code>eeg_lst</code>. (I may add a prefix to the functions when I see that I can group them).</p></p>
+          <p class="section-desc"><p>Functions for applying specialized actions on signal table or the entire <code>eeg_lst</code>.</p></p>
         </th>
       </tr>
       <tr>
         
         <td>
-          <p><code><a href="downsample.html">downsample()</a></code> </p>
+          <p><code><a href="eeg_downsample.html">eeg_downsample()</a></code> </p>
         </td>
         <td><p>Downsample EEG data</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="segment.html">segment()</a></code> </p>
+          <p><code><a href="eeg_segment.html">eeg_segment()</a></code> </p>
         </td>
         <td><p>Segment an eeg_lst.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="event_to_ch_NA.html">event_to_ch_NA()</a></code> </p>
+          <p><code><a href="eeg_interpolate_tbl.html">eeg_interpolate_tbl()</a></code> </p>
         </td>
-        <td><p>Remove (transform to NA) problematic events from an eeg_lst.</p></td>
+        <td><p>Create a table with interpolated signals of an eeg_lst object.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="interpolate_tbl.html">interpolate_tbl()</a></code> </p>
+          <p><code><a href="eeg_intervals_to_NA.html">eeg_intervals_to_NA()</a></code> </p>
         </td>
-        <td><p>Create a table with interpolated signals of an eeg_lst object.</p></td>
+        <td><p>Remove (transform to NA) problematic events from an eeg_lst.</p></td>
       </tr>
     </tbody><tbody>
       <tr>
         <th colspan="2">
           <h2 id="section-plot-functions" class="hasAnchor"><a href="#section-plot-functions" class="anchor"></a>Plot functions</h2>
-          <p class="section-desc"><p>Functions for doing data wrangling after summarizing or downsampling the signal to create a long table, and then wrap <code>ggplot</code> functions.</p></p>
+          <p class="section-desc"><p>Wrappers to <code>ggplot</code> functions that first transform the <code>eeg_lst</code> to a wide <code>tibble</code>, together with some transformation (downsampling, interpolation, etc).</p></p>
         </th>
       </tr>
       <tr>
@@ -339,7 +339,7 @@
       <tr>
         <th colspan="2">
           <h2 id="section--base-inspired-functions" class="hasAnchor"><a href="#section--base-inspired-functions" class="anchor"></a>'base'-inspired functions</h2>
-          <p class="section-desc"><p>Functions for doing data wrangling after summarizing or downsampling the signal to create a long table, and then wrap <code>ggplot</code> functions.</p></p>
+          <p class="section-desc"><p>Functions for getting specific information about the objects that compose an <code>eeg_lst</code>.</p></p>
         </th>
       </tr>
       <tr>

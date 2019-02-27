@@ -1,7 +1,5 @@
-pandoc: 1.19.2.4
-pkgdown: 1.3.0
-pkgdown_sha: ~
-articles:
-  brainvision_files: brainvision_files.html
-  preprocessing_erp: preprocessing_erp.html
+pandoc: '2.2'
+pkgdown: 1.3.0.9000
+pkgdown_sha: 7e788c41d20ab28d4bf97556e18382391d359c9f
+articles: []
 
