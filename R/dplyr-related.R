@@ -15,6 +15,10 @@ as_time <- function(x, unit = "second") {
 
 #' @export
 as_time.sample_int <- function(x, unit = "second") {
-  time <- x / scaling(sampling_rate = attributes(x)$sampling_rate, unit)
+  time <- (x - 1) / scaling(sampling_rate = attributes(x)$sampling_rate, unit)
   time
+}
+#' @export
+as_time.default <- function(x, unit = "second") {
+  stop("`as_time()` can only be used with samples. Tip: You should probably use it with `.sample_id`.")
 }

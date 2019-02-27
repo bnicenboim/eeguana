@@ -1,6 +1,43 @@
 authors:
   Bruno Nicenboim:
     href: "http://www.ling.uni-potsdam.de/~nicenboim/"
+development:
+  mode: auto
+  
+navbar:
+  structure:
+    left:
+    - home
+    - intro
+    - reference
+    - articles
+    - tutorials
+    - news
+    right: github
+  components:
+    home:
+      icon: fa-home fa-lg
+      href: index.html
+    reference:
+      text: Reference
+      href: reference/index.html
+    articles:
+      text: Articles
+      menu:
+      - text: Introduction - Manipulating a clean EEG file exported from BrainVision
+          2.0
+        href: articles/brainvision_files.html
+      - text: Preprocessing of EEG data and computing ERPs (Fieldtrip tutorial)
+        href: articles/preprocessing_erp.html
+    news:
+      text: Changelog
+      href: news/index.html
+    github:
+      icon: fa-github fa-lg
+      href: https://github.com/bnicenboim/eeguana
+
+
+
 reference:
   - title: About
     contents:
@@ -35,26 +72,24 @@ reference:
 
   - title: "EEG-specialized functions"
     desc: >
-      Functions for applying specialized actions on specific channels of the signal 
-      table or the entire `eeg_lst`. (I may add a prefix to the functions when I see
-      that I can group them).
+      Functions for applying specialized actions on signal 
+      table or the entire `eeg_lst`. 
     contents: 
-    - '`downsample`'
-    - '`segment`'
-    - '`event_to_ch_NA`'
-    - '`interpolate_tbl`'
+    - eeg_downsample
+    - eeg_segment
+    - eeg_interpolate_tbl
+    - eeg_intervals_to_NA
 
   - title: "Plot functions"
     desc: >
-      Functions for doing data wrangling after summarizing or downsampling the signal 
-      to create a long table, and then wrap `ggplot` functions.
+      Wrappers to `ggplot` functions that first transform the `eeg_lst` to a wide `tibble`, together with some transformation (downsampling, interpolation, etc).
     contents: 
     - starts_with("plot")
+    - starts_with("annotate")
 
   - title: "'base'-inspired functions"
     desc: >
-      Functions for doing data wrangling after summarizing or downsampling the signal 
-      to create a long table, and then wrap `ggplot` functions.
+      Functions for getting specific information about the objects that compose an `eeg_lst`.
     contents: 
     - starts_with("as_")
     - starts_with("as.")
@@ -76,3 +111,9 @@ reference:
     - '`sample_int`'
     - '`channel_dbl`'
     - '`signal_tbl`'
+    
+  - title: "Others"
+    desc: >
+      Some other useful functions.
+    contents:
+    - '`change_coord`'

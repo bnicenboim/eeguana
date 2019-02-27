@@ -3,25 +3,29 @@
 \name{plot_topo}
 \alias{plot_topo}
 \alias{plot_topo.tbl_df}
+\alias{plot_topo.eeg_lst}
 \title{A topographic plot.}
 \usage{
 plot_topo(data, ...)
 
-\method{plot_topo}{tbl_df}(data, x = .x, y = .y, value = amplitude,
-  label = channel, ...)
+\method{plot_topo}{tbl_df}(data, value = amplitude, label = channel,
+  ...)
+
+\method{plot_topo}{eeg_lst}(data, size = 1.2, value = amplitude,
+  label = channel, projection = "polar", ...)
 }
 \arguments{
-\item{data}{A table of interpolated electrodes as produced by \link{interpolate_tbl}}
+\item{data}{A table of interpolated electrodes as produced by \link{eeg_interpolate_tbl}, or an eeg_lst appropiately grouped.}
 
-\item{...}{Others.}
+\item{...}{Not in use.}
 
-\item{x}{x}
+\item{value}{Values used for the interpolation, generally \code{amplitude} (default).}
 
-\item{y}{y}
+\item{label}{Label of the points that are used for the interpolation, generally \code{channel} (default).}
 
-\item{value}{value}
+\item{size}{Indicates how much to extrapolate, \code{1} indicates no extrapolation beyond the position of the electrodes.}
 
-\item{label}{label, generally channel}
+\item{projection}{Projection type for converting the 3D coordinates of the electrodes into 2d coordinates. Projection types available: "polar" (default), "orthographic", or  "stereographic"}
 }
 \value{
 A ggplot object
@@ -31,6 +35,6 @@ Create a default topographic plot based on an interpolation table.
 }
 \seealso{
 Other plot: \code{\link{plot.eeg_lst}},
-  \code{\link{plot_gg}}
+  \code{\link{plot_gg}}, \code{\link{plot_in_layout}}
 }
 \concept{plot}

@@ -35,6 +35,6 @@ ggplot object based on an eeg_lst object.
 }
 \seealso{
 Other plot: \code{\link{plot.eeg_lst}},
-  \code{\link{plot_topo}}
+  \code{\link{plot_in_layout}}, \code{\link{plot_topo}}
 }
 \concept{plot}

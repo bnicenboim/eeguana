@@ -21,7 +21,7 @@ as_fun_list <- function(.x, .quo, .env, ...) {
   args <- rlang::list2(...)
   if (is_fun_list(.x)) {
     if (!rlang::is_empty(args)) {
-      .x[] <- purrr::map(.x, call_modify, !!!args)
+      .x[] <- purrr::map(.x, rlang::call_modify, !!!args)
     }
     return(.x)
   }
@@ -53,7 +53,6 @@ as_fun <- function(.x, .env, .args) {
 
   if (rlang::is_call(expr, c("function", "~"))) {
     top_level <- rlang::as_string(expr[[1]])
-    bad_args(rlang::quo_text(expr), "must be a function name (quoted or unquoted) or an unquoted call, not `{top_level}`")
   }
 
   if (rlang::is_call(expr) && !rlang::is_call(expr, c("::", ":::"))) {

@@ -63,6 +63,10 @@ semi_join_dt <- function(x, y, by = NULL) {
   x[w]
 }
 
+#' @noRd
+left_join_dt <- function(x, y, by = NULL) {
+  y[x, on = by]
+}
 
 rowMeans_ch <- function(x, na.rm = FALSE, dims = 1L) {
   channel_dbl(rowMeans(x, na.rm, dims))
