@@ -61,7 +61,6 @@ filter1_id_sign_tbl <- as_tibble(data$signal) %>%
 filter1_id_segm_tbl <- as_tibble(data$segments) %>%
   dplyr::filter(.id == 1)
 filter1_id_evts_tbl <- as_tibble(data$events) %>%
-  as_tibble() %>%
   dplyr::filter(.id == 1)
 
 
@@ -72,7 +71,6 @@ filter2_id_sign_tbl <- as_tibble(data$signal) %>%
 filter2_id_segm_tbl <- as_tibble(data$segments) %>%
   dplyr::filter(.id != 2)
 filter2_id_evts_tbl <- as_tibble(data$events) %>%
-  as_tibble() %>%
   dplyr::filter(.id != 2)
 
 
@@ -83,7 +81,6 @@ filter3_id_sign_tbl <- as_tibble(data$signal) %>%
 filter3_id_segm_tbl <- as_tibble(data$segments) %>%
   dplyr::filter(.id == 3)
 filter3_id_evts_tbl <- as_tibble(data$events) %>%
-  as_tibble() %>%
   dplyr::filter(.id == 3)
 
 
@@ -206,11 +203,9 @@ test_that("data didn't change", {
 filter1_segm_eeg <- filter(data, segment != 2)
 
 filter1s_segm_tbl <- left_join(as_tibble(data$signal), as_tibble(data$segments)) %>%
-  as_tibble() %>%
   dplyr::filter(segment != 2)
 
 filter1e_segm_tbl <- left_join(as_tibble(data$segments), as_tibble(data$events)) %>%
-  as_tibble() %>%
   dplyr::filter(segment != 2) %>%
   dplyr::distinct(.id, type, description, .sample_0, .size, .channel)
 
@@ -218,11 +213,9 @@ filter1e_segm_tbl <- left_join(as_tibble(data$segments), as_tibble(data$events))
 filter2_segm_eeg <- filter(data, condition == "a" & segment == 3)
 
 filter2s_segm_tbl <- left_join(as_tibble(data$signal), as_tibble(data$segments)) %>%
-  as_tibble() %>%
   dplyr::filter(condition == "a" & segment == 3)
 
 filter2e_segm_tbl <- left_join(as_tibble(data$segments), as_tibble(data$events)) %>%
-  as_tibble() %>%
   dplyr::filter(condition == "a" & segment == 3) %>%
   dplyr::distinct(.id, type, description, .sample_0, .size, .channel)
 
@@ -230,11 +223,9 @@ filter2e_segm_tbl <- left_join(as_tibble(data$segments), as_tibble(data$events))
 filter3_segm_eeg <- filter(data, recording == "recording2")
 
 filter3s_segm_tbl <- left_join(as_tibble(data$signal), as_tibble(data$segments)) %>%
-  as_tibble() %>%
   filter(recording == "recording2") 
 
 filter3e_segm_tbl <- left_join(as_tibble(data$segments), as_tibble(data$events)) %>%
-  as_tibble() %>%
   filter(recording == "recording2") %>%
   select(.id, type, description, .sample_0, .size, .channel)
 
