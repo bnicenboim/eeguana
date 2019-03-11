@@ -1,7 +1,6 @@
 context("test eeg ica")
 library(eeguana)
 
-# library(MASS)
 
 # 6 independent sources
 S <- cbind(sin((1:1000)/20),

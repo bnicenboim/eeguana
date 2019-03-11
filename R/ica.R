@@ -19,24 +19,28 @@ eeg_ica <- function(.data, ...){
 #' @export
 eeg_ica.eeg_lst <- function(.data, 
                     ...,
-          method = "infomax",
-          configuration= 
-            if(method=="infomax") {
-              list(algorithm = "gradient",
-              fun = "logistic",
-              learning_rate = 0.00065/log(nchannels(.data)),
-              annealing_rate_angle = 60,
-              annealing_rate_step = 0.90,
-              max_iterations = 512) 
-           } else if(method== "fastica"){
-              list(algorithm = "parallel",
-              fun = "logcosh",
-              alpha = 1.0,
-              tolerance = 1e-04,
-              max_iterations = 512)
-             }
-                            )
+          method = "fastica",
+          config= list(), 
+                              )
 {
+    method = stringr::str_to_lower(method)
+
+    default_config = if(method=="infomax") {
+                 list(algorithm = "gradient",
+                      fun = "logistic",
+                      learning_rate = 0.00065/log(nchannels(.data)),
+                      annealing_rate_angle = 60,
+                      annealing_rate_step = 0.90,
+                      max_iterations = 512)
+             } else if(method== "fastica"){
+                 list(algorithm = "parallel",
+                      fun = "logcosh",
+                      alpha = 1.0,
+                      tolerance = 1e-04,
+                      max_iterations = 512)
+             }
+    
+    purrr::list_modify(default_config, unlist(config))
 
   ncomponents = nchannels(.data)
   dots <- rlang::enquos(...)
