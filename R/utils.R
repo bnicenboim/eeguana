@@ -1,6 +1,17 @@
-  
+
+#' purrr::list_modify that can handle NULL in the ...
 #' @noRd
-seq_len <- function(length.out) {
+list_modify2 <- function(.x,...){
+    if(list(...)==list()){
+        .x
+    } else {
+        purrr::list_modify(.x, ...)
+    }
+
+}
+
+#' @noRd
+seq_len2 <- function(length.out) {
   if (length(length.out) == 0) {
     base::seq_len(0)
   } else if (length.out == -Inf) {
