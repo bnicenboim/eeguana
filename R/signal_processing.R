@@ -17,12 +17,12 @@
 #' @family eeg
 #' 
 #' @export
-downsample <- function(x, q = 2, max_sample = NULL, ...) {
-  UseMethod("downsample")
+eeg_downsample <- function(x, q = 2, max_sample = NULL, ...) {
+  UseMethod("eeg_downsample")
 }
 
 #' @export
-downsample.eeg_lst <- function(x, q = 2L, max_sample = NULL,
+eeg_downsample.eeg_lst <- function(x, q = 2L, max_sample = NULL,
                                n = if (ftype == "iir") 8 else 30,
                                ftype = "iir", ...) {
 
@@ -94,3 +94,6 @@ decimate_fun <- function(channel) {
   x %>% #update_channels_tbl(channels_info) %>% 
       validate_eeg_lst()
 }
+
+
+

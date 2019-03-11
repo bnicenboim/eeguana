@@ -1,6 +1,17 @@
-  
+
+#' purrr::list_modify that can handle NULL in the ...
 #' @noRd
-seq_len <- function(length.out) {
+list_modify2 <- function(.x,...){
+    if(list(...)==list()){
+        .x
+    } else {
+        purrr::list_modify(.x, ...)
+    }
+
+}
+
+#' @noRd
+seq_len2 <- function(length.out) {
   if (length(length.out) == 0) {
     base::seq_len(0)
   } else if (length.out == -Inf) {
@@ -63,6 +74,10 @@ semi_join_dt <- function(x, y, by = NULL) {
   x[w]
 }
 
+#' @noRd
+left_join_dt <- function(x, y, by = NULL) {
+  y[x, on = by]
+}
 
 rowMeans_ch <- function(x, na.rm = FALSE, dims = 1L) {
   channel_dbl(rowMeans(x, na.rm, dims))

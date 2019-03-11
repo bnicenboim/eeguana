@@ -44,7 +44,7 @@ filter_eeg_lst <- function(.eeg_lst, dots){
   
 
     # Fix the indices in case some of them drop out
-    .eeg_lst <- redo_indices(.eeg_lst) %>% update_events_channels() 
+    .eeg_lst <- .eeg_lst %>% update_events_channels() 
     data.table::setkey(.eeg_lst$signal,.id,.sample_id)
     .eeg_lst %>% validate_eeg_lst()
   }  
@@ -127,8 +127,12 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
   all_vars <- vars_fun(unique(c(
     names(.eeg_lst$signal),
     names(.eeg_lst$segments)
-  )), !!!dots)
+  )), !!!dots) 
 
+  new_groups <- dplyr::group_vars(.eeg_lst) %>%
+      purrr::map_if(~ .x %in% all_vars, ~ all_vars[all_vars == .x] %>% names() ) %>%
+      rlang::syms()
+  
   #TODO in a more elegant way:
   select_in_df <- c("signal", "segments")
   if (length(intersect(all_vars, names(.eeg_lst$segments))) == 0) {
@@ -138,21 +142,47 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
     select_in_df <- select_in_df[select_in_df != "signal"]
   }
 
-  # Divide the variables into the relevant columns
+  # Divide the variables into the relevant tables
   for (dfs in select_in_df) {
-    vars_dfs <- all_vars[all_vars %in% colnames(.eeg_lst[[dfs]])]
-    # by adding these groups, select won't remove the obligatory columns
+      vars_dfs <- all_vars[all_vars %in% colnames(.eeg_lst[[dfs]])]
+                                        #add grouped vars if missing
+      groups <- group_chr(.eeg_lst)[group_chr(.eeg_lst)  %in% colnames(.eeg_lst[[dfs]])]
+      missing_grouped_vars <- setdiff(groups,vars_dfs) %>%
+          setNames(.,.)
+      vars_dfs <- c(missing_grouped_vars,vars_dfs)
+
+    # by adding these, select won't remove the obligatory columns
     vars_dfs <- c(obligatory_cols[[dfs]], vars_dfs)
 
     if (length(vars_dfs) > 0) {
       .eeg_lst[[dfs]] <- .eeg_lst[[dfs]] %>%
         dplyr::select(vars_dfs) 
     }
+
+    if(dfs == "signal"){ # if the signal tbl was modified, the events need to be updated:
+
+        #TODO: reimplement all the following directly in data table, or maybe with purrr
+        old_channels <- events(.eeg_lst)$.channel
+        new_channels <- all_vars[all_vars %in% old_channels] %>% sort()
+       #removes the old channels that do not exist anymore (needed for e.g., select(ZZ=X))
+        old_channels[!old_channels %in% new_channels] <- NA
+        events(.eeg_lst)$.channel <- old_channels %>%
+                           factor(labels = names(new_channels)) %>%
+                           as.character()
+
+
+    }
   }
   
   data.table::setkey(.eeg_lst$signal, .id, .sample_id)
-  update_events_channels(.eeg_lst) %>% validate_eeg_lst()
+
+  
+  .eeg_lst %>% dplyr::group_by(!!!new_groups) %>%
+  validate_eeg_lst()
 }
+
+
+
 
 #' @noRd
 scaling <- function(sampling_rate, unit) {
@@ -173,15 +203,15 @@ scaling <- function(sampling_rate, unit) {
 }
 
 
-#' @noRd
-redo_indices <- function(.eeg_lst) {
-  .eeg_lst$signal[,.id:= as.factor(.id) %>% as.integer(.)]
-  .eeg_lst$segments <- .eeg_lst$segments %>% 
-                        dplyr::mutate(.id =  as.factor(.id) %>% as.integer(.))
-  .eeg_lst$events[,.id:= as.factor(.id) %>% as.integer(.)]
-  data.table::setkey(.eeg_lst$signal, .id, .sample_id)
-  .eeg_lst
-}
+# #' @noRd
+# redo_indices <- function(.eeg_lst) {
+#   .eeg_lst$signal[,.id:= as.factor(.id) %>% as.integer(.)]
+#   .eeg_lst$segments <- .eeg_lst$segments %>% 
+#                         dplyr::mutate(.id =  as.factor(.id) %>% as.integer(.))
+#   .eeg_lst$events[,.id:= as.factor(.id) %>% as.integer(.)]
+#   data.table::setkey(.eeg_lst$signal, .id, .sample_id)
+#   .eeg_lst
+# }
 
 #' Gives the names of segment columns except for .id included in a quosure
 #' @noRd

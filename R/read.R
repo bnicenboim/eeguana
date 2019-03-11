@@ -248,7 +248,7 @@ read_edf <- function(file, recording = file) {
   signal_edf <- edfReader::readEdfSignals(header_edf)
   if(header_edf$nSignals == 1) {
     signal_edf <- list(signal_edf) %>% #convert to list for compatibility
-                setNames(header_edf$sHeaders[[1]])
+                stats::setNames(header_edf$sHeaders[[1]])
   }
   if(is.list(signal_edf))
   annot_item <- purrr::map_lgl(signal_edf, ~ .x$isAnnotation)

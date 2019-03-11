@@ -185,10 +185,10 @@ component_dbl <- function(values) {
 #' This function returns  TRUE for components.
 #'
 #' @param x An object.
-#'
+#' 
 #' @family component
 #' 
-#' @return `TRUE` if the object inherits from the `sampl` class.
+#' @return `TRUE` if the object inherits from the `sample_id` class.
 #' @export
 is_component_dbl <- function(x) {
 <<<<<<< HEAD

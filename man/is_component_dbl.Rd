@@ -11,7 +11,7 @@ is_component_dbl(x)
 \item{x}{An object.}
 }
 \value{
-\code{TRUE} if the object inherits from the \code{sampl} class.
+\code{TRUE} if the object inherits from the \code{sample_id} class.
 }
 \description{
 Test if the object is a component
@@ -20,4 +20,3 @@ This function returns  TRUE for components.
 \seealso{
 Other component: \code{\link{component_dbl}}
 }
-\concept{component}
