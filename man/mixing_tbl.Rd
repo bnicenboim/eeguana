@@ -4,7 +4,7 @@
 \alias{mixing_tbl}
 \title{Builds a mixing_tbl table.}
 \usage{
-mixing_tbl(mixing_matrix, components, channel_info)
+mixing_tbl(mixing_matrix, means_matrix, groups, channel_info)
 }
 \arguments{
 \item{mixing_matrix}{Matrix or table of channels with their mixing.}

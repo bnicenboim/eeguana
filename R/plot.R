@@ -50,7 +50,7 @@ plot_gg <- function(.data, ...) {
 }
 #' @rdname plot_gg
 #' @export
-plot_gg.eeg_lst <- function(.data, x = time, y = amplitude, ..., max_sample = 64000) {
+plot_gg.eeg_lst <- function(.data, x = time, y = .value, ..., max_sample = 64000) {
   x <- rlang::enquo(x)
   y <- rlang::enquo(y)
 
@@ -107,7 +107,7 @@ plot_topo <- function(data,  ...) {
 }
 #' @rdname plot_topo
 #' @export
-plot_topo.tbl_df <- function(data, value= .value,  label=channel, ...) {
+plot_topo.tbl_df <- function(data, value= .value,  label=.source, ...) {
 
   value <- rlang::enquo(value)
   label <- rlang::enquo(label)
@@ -150,14 +150,31 @@ plot_topo.tbl_df <- function(data, value= .value,  label=channel, ...) {
 #' @inheritParams eeg_interpolate_tbl
 #' @rdname plot_topo
 #' @export
-plot_topo.eeg_lst <- function(data, size= 1.2, value= amplitude,  label=channel, projection = "polar", ...) {
+plot_topo.eeg_lst <- function(data, size= 1.2, projection = "polar", ...) {
   
-  amplitude <- rlang::enquo(value)
-  channel <- rlang::enquo(label)
   channels_tbl(data)  <- change_coord(channels_tbl(data), projection) 
   eeg_interpolate_tbl(data, size,...) %>%
-    plot_topo(value= amplitude,  label=channel,...)
-  }
+    plot_topo(...)
+}
+
+#' @rdname plot_topo
+#' @export
+plot_topo.mixing_tbl <- function(data, size= 1.2, projection = "polar", ...) {
+    
+    channels_tbl(data)  <- change_coord(channels_tbl(data), projection)
+    data %>% as_long_tbl %>%
+        filter(.ICA != "mean") %>% group_by(.group,.ICA) %>%
+        eeg_interpolate_tbl(size,...) %>%
+        plot_topo(...)
+}
+
+#' @rdname plot_topo
+#' @export
+plot_topo.ica_lst <- function(data, size= 1.2, projection = "polar", ...) {
+    data <- data$mixing
+    NextMethod()
+}
+
 
 #' Place channels in a layout.
 #'

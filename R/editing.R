@@ -54,14 +54,15 @@ channels_tbl.eeg_lst <- function(x, ...) {
 
 #' @rdname channels_tbl
 #' @export
-channels_tbl.signal_tbl <- function(x, ...) {
+channels_tbl.data.frame <- function(x, ...) {
+
   channel_names <- dplyr::select_if(x,is_channel_dbl) %>% colnames()
   dplyr::tibble(channel = channel_names) %>%
     # first row is enough and it makes it faster
     dplyr::bind_cols(x[1,] %>%
                        dplyr::select(channel_names) %>%
                        purrr::map_dfr(~attributes(.x))) %>%
-    dplyr::select(-class)
+    dplyr::select(-contains("class", ignore.case = FALSE))
 }
 
 #' @rdname channels_tbl
@@ -88,12 +89,12 @@ channels_tbl.signal_tbl <- function(x, ...) {
   x
 }
 
-channels_tbl.signal_tbl <- function(x, ...) {
-    channel_names <- dplyr::select_if(x,is_channel_dbl) %>% colnames()
-    dplyr::tibble(channel = channel_names) %>%
-                                        # first row is enough and it makes it faster
-        dplyr::bind_cols(x[1,] %>%
-                         dplyr::select(channel_names) %>%
-                         purrr::map_dfr(~attributes(.x))) %>%
-            dplyr::select(-class)
+#' @rdname channels_tbl
+#' @export
+`channels_tbl<-.data.frame` <- function(x, value) {
+  orig_names <- channel_names(x)
+  channels <- dplyr::select(x, orig_names)
+  nochannels <- dplyr::select(x, -dplyr::one_of(channel_names(x)))
+  x <- dplyr::bind_cols(nochannels, update_channel_meta_data(channels, value))
+  x
 }

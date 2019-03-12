@@ -8,12 +8,11 @@
 \usage{
 eeg_interpolate_tbl(.data, ...)
 
-\method{eeg_interpolate_tbl}{eeg_lst}(.data, size = 1.2, x = .x,
-  y = .y, value = amplitude, label = channel, diam_points = 200,
-  method = "MBA", ...)
+\method{eeg_interpolate_tbl}{eeg_lst}(.data, size = 1.2,
+  diam_points = 200, method = "MBA", ...)
 
 \method{eeg_interpolate_tbl}{tbl_df}(.data, size = 1.2, x = .x,
-  y = .y, value = amplitude, label = channel, diam_points = 200,
+  y = .y, value = .value, label = .source, diam_points = 200,
   method = "MBA", ...)
 }
 \arguments{
@@ -23,17 +22,17 @@ eeg_interpolate_tbl(.data, ...)
 
 \item{size}{Indicates how much to extrapolate, \code{1} indicates no extrapolation beyond the position of the electrodes.}
 
+\item{diam_points}{Density of the interpolation (number of points that are interpolated in the diameter of the scalp).}
+
+\item{method}{Method of interpolation (\code{"MBA"} Multilevel B-splines using the function \code{mba.surf} of the package \code{MBA} or (\code{"akima"} bicubic spline Akima interpolation algorithm using the function \code{interp} of the package \code{akima}.)..).}
+
 \item{x}{Variable storing the x coordinate, generally \code{.x} (default).}
 
 \item{y}{Variable storing the y coordinate, generally \code{.y} (default).}
 
-\item{value}{Values used for the interpolation, generally \code{amplitude} (default).}
+\item{value}{Values used for the interpolation, generally \code{.value} (default).}
 
-\item{label}{Label of the points that are used for the interpolation, generally \code{channel} (default).}
-
-\item{diam_points}{Density of the interpolation (number of points that are interpolated in the diameter of the scalp).}
-
-\item{method}{Method of interpolation (\code{"MBA"} Multilevel B-splines using the function \code{mba.surf} of the package \code{MBA} or (\code{"akima"} bicubic spline Akima interpolation algorithm using the function \code{interp} of the package \code{akima}.)..).}
+\item{label}{Label of the points that are used for the interpolation, generally \code{.source} (default).}
 }
 \description{
 Create a default topographic plot based on the segments of the \code{eeg_lst} object.

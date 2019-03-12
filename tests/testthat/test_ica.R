@@ -16,21 +16,13 @@ s_tbl <- `colnames<-`(S, paste0("C", seq_len(ncol(S)))) %>%
     dplyr::as_tibble( .name_repair = "check_unique") %>%
     dplyr::mutate(x=1:n())%>%
     tidyr::gather("C", "y",-x) 
-#ggplot(s_tbl,aes(x=x,y=y)) + geom_line() + facet_grid(~C)
+ggplot(s_tbl,aes(x=x,y=y)) + geom_line() + facet_grid(~C)
 
 # eeg electrodes
 channels <- dplyr::tibble(
       channel = c("A", "B","C","D","E"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = c(-.6, .6,0,-.6,.6), .y = c(-.6, -.6,0,.6,.6), .z = NA_real_
     )
-
-# I assume that the sources are stronger in these areas of the scalp
-S_pos <- dplyr::tribble(~x, ~y,
-                  0,  0,
-                 .7,  0,
-                  0, -.7,
-                  -.7, 0,
-                  0, 0)
 
 # And they mix depending on the distance of S_pos:
 A <-structure(c(0.762492851663023, 0.572598334313868, 0.854357657716761, 
@@ -41,14 +33,6 @@ A <-structure(c(0.762492851663023, 0.572598334313868, 0.854357657716761,
                 0.854357657716761, 0.572598334313868, 0.572598334313868, 0.762492851663023
                 ), .Dim = c(5L, 5L), .Dimnames = list(c("C1", "C2", "C3", "C4", 
                                                         "C5"), NULL))
-
-## A %>% dplyr::as_tibble() %>% setNames(c("A", "B","C","D","E")) %>%
-##       dplyr::mutate(component = paste0("C",1:n())) %>%
-##        dplyr::bind_cols(S_pos) %>%
-##       tidyr::gather("channel","amplitude", -component,-x,-y) %>%
-##       dplyr::left_join(channels) %>% dplyr::group_by(component) %>%
-##       interpolate_tbl() %>% plot_topo() + facet_grid(~component) +
-##       geom_point(data= S_pos %>% mutate(component = paste0("C",1:n())), aes(x=x,y=y))
 
 
 signal_matrix <- S %*% A
@@ -69,15 +53,19 @@ data <- eeg_lst(
 )
 
 data <- data %>% group_by(recording)
-.data <- data
  
 data_ica <- eeg_ica(data,  method = "fastica")
 
+data %>% summarize_all_ch(mean) %>% eeg_interpolate_tbl() %>% plot_topo + annotate_head() + geom_text()
+data_ica$mixing %>% as_long_tbl
+
+data_ica$signal$ICA1 == S[5,]
+
 #need to implement this:
-data_ica$mixing %>% mutate(component=1:n()) %>%
-    tidyr::gather(channel, amplitude, -component)  %>%
-    left_join(channels_tbl(data_eyes))  %>%
-    group_by(component) %>% interpolate_tbl() %>% plot_topo() + facet_grid(~component)
+data_ica$mixing %>%     tidyr::gather(channel, amplitude, -.ICA, -.group)  %>%
+    left_join(channels_tbl(data))  %>% 
+group_by(.group, .ICA) %>% eeg_interpolate_tbl() %>% 
+plot_topo() + facet_grid(.group~.ICA)
 
 #I should use a more realistic example
 

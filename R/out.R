@@ -25,7 +25,16 @@ channel_names <- function(x, ...) {
 channel_names.eeg_lst <- function(x, ...) {
   colnames(x$signal)[x$signal[,purrr::map_lgl(.SD, is_channel_dbl )]]
 }
-
+#' @rdname summary
+#' @export
+channel_names.mixing_tbl <- function(x, ...) {
+  colnames(x)[x[,purrr::map_lgl(.SD, is_channel_dbl )]]
+}
+#' @rdname summary
+#' @export
+channel_names.ica_lst <- function(x, ...) {
+c(channel_names.eeg_lst(x), channel_names(x$mixing))
+  }
 #' @rdname summary
 #' @export
 nchannels <- function(x, ...) {
@@ -35,7 +44,7 @@ nchannels <- function(x, ...) {
 
 #' @rdname summary
 #' @export
-nchannels.eeg_lst <- function(x, ...) {
+nchannels.default <- function(x, ...) {
     channel_names(x) %>% length()
 }
 

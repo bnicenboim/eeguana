@@ -45,12 +45,8 @@ eeg_ica.eeg_lst <- function(.data,
     ncomponents <- nchannels(.data)
     dots <- rlang::enquos(...)
     removed_channel <- c()
-    segments <-   .data$segments %>%
-        {.[names(.) %in%  c(obligatory_cols$segments, group_chr(.data))]} %>%
-        data.table::data.table()
-    data.table::setkey(segments,.id)
-    rep_group <- .data$signal[segments, group_chr(.data), with = FALSE]
 
+    rep_group <- repeated_group_col(.data)
     signal_raw <- dplyr::select(.data$signal, channel_names(.data))
 
     if(!rlang::is_empty(dots)){
@@ -87,7 +83,7 @@ eeg_ica.eeg_lst <- function(.data,
                                                 mixing_matrix =  .$A)} )
     }
    
-    reconstr <- purrr::map2(l_ica,channel_means, ~  .x$sources %*% .x$mixing_matrix + .y) %>%
+    reconstr <- purrr::map2(l_ica,channel_means, ~  tcrossprod(.x$sources, t(.x$mixing_matrix)) + .y) %>%
         do.call("rbind", .)
     message("Absolute difference between original data and reconstructed from independent sources: ",
             mean(abs(reconstr - as.matrix(signal_raw))) %>% signif(2))
@@ -122,5 +118,28 @@ as_eeg_lst <- function(.data, ...){
 }
 
 as_eeg_lst.ica_lst <- function(.data, ...){
+
+    rep_group <- repeated_group_col(.data)
+    reconstr_signals <- map2_dtr(.data$signal %>%
+                split(rep_group),
+                .data$mixing %>%
+                split(.data$mixing$.group), function(s,m){
+
+                    source <- dplyr::select_if(s,is_component_dbl) %>% as.matrix()
+                    ## the mixing matrix won't be the huge one,
+                    ## the code above could be optimized bu it should be fine:
+                    mixing_matrix <- m[.ICA!="mean",] %>%
+                        dplyr::select_if(is_channel_dbl)  %>%
+                        as.matrix
+                    means <- m[.ICA=="mean",] %>%
+                        dplyr::select_if(is_channel_dbl)  %>%
+                        as.matrix() %>% c()
+
+                    ## source %*% mixing_matrix + means  
+                     data.table::data.table(tcrossprod(source,t(mixing_matrix)) + means)
+                })
+                                              
+
+                                                                
 
 }

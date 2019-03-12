@@ -118,3 +118,14 @@ map2_dtr <- function(.x, .y, .f,..., .id = NULL){
     res <- purrr::map2(.x,.y, .f, ...)
     data.table::rbindlist(res, fill = TRUE, idcol = .id)
 }
+
+#' @noRd
+repeated_group_col <- function(.eeg_lst){
+    group_cols <- group_chr(.eeg_lst)
+    segments <-   .eeg_lst$segments %>%
+        {.[names(.) %in%  c(obligatory_cols$segments, group_cols)]} %>%
+        data.table::data.table()
+    data.table::setkey(segments,.id)
+    .data$signal[segments, group_cols, with = FALSE] %>%
+        {.[, .group:=do.call(paste0,.SD)][,(group_cols):=NULL][]}
+}

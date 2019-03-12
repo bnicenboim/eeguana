@@ -5,28 +5,23 @@
 \alias{eeg_ica.eeg_lst}
 \title{Apply ICA}
 \usage{
-eeg_ica(.eeg_lst, ...)
+eeg_ica(.data, ...)
 
-\method{eeg_ica}{eeg_lst}(.eeg_lst, ..., method = "infomax",
-  configuration = if (method == "infomax") {     list(algorithm =
-  "gradient", fun = "logistic", learning_rate =
-  0.00065/log(nchannels(.eeg_lst)), annealing_rate_angle = 60,
-  annealing_rate_step = 0.9, max_iterations = 512) } else if (method ==
-  "fastica") {     list(algorithm = "parallel", fun = "logcosh", alpha = 1,
-  tolerance = 1e-04, max_iterations = 512) })
+\method{eeg_ica}{eeg_lst}(.data, ..., method = "fastica",
+  config = list())
 }
 \arguments{
-\item{.eeg_lst}{}
+\item{.data}{}
 
 \item{...}{}
 
 \item{method}{}
 
-\item{configuration}{}
+\item{config}{}
 
-\item{.eeg_lst}{}
+\item{.data}{}
 
-\item{...}{}
+\item{...}{Channels for the eeg_ica}
 }
 \value{
 An ica_lst object

@@ -14,7 +14,7 @@
 #'
 as_tibble.eeg_lst <- function(x, add_segments = TRUE, add_channels_info = TRUE) {
 
-    if(nchannels(x)!=0){
+    if(any(channels_names(x) %in% colnames(x$signal))){
         channels <- x$signal %>% dplyr::select_at(vars(-one_of(component_names(x)))) %>%
             .[,lapply(.SD, `attributes<-`, NULL )] %>%
             tidyr::gather(key = ".source", value = ".value", channel_names(x)) %>%
@@ -56,6 +56,14 @@ as_tibble.eeg_lst <- function(x, add_segments = TRUE, add_channels_info = TRUE) 
  
 }
 
+as_tibble.mixing_lst <- function(x, ..., .rows = NULL,
+    .name_repair = c("check_unique","unique", "universal", "minimal"),
+    rownames) {
+        NextMethod()
+}
+
+
+
 
 as_tibble.signal_tbl <- function(x, ..., .rows = NULL,
                                  .name_repair = c("check_unique","unique", "universal", "minimal"),
@@ -88,3 +96,26 @@ as.data.frame.eeg_lst <- function(...) {
 
 
 
+#' @rdname as_tibble.eeg_lst
+as_long_tbl.eeg_lst <- as_tibble.eeg_lst
+
+as_long_tbl <- function(x,...){
+    UseMethod("as_long_tbl")
+}
+
+as_long_tbl.mixing_tbl <- function(x, add_channels_info = TRUE,...){
+
+    x %>% 
+        .[,lapply(.SD, `attributes<-`, NULL )] %>%
+        tidyr::gather(key = ".source", value = ".value", channel_names(x)) %>%
+        dplyr::mutate(.type = "channel") %>% 
+     {
+      if (add_channels_info) {
+        dplyr::left_join(., channels_tbl(x), by = c(".source"="channel"))
+      } else {
+        .
+      }
+       }%>%
+        dplyr::group_by(.ICA,.group)
+
+}
