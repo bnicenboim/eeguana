@@ -18,7 +18,7 @@ as_tibble.eeg_lst <- function(x, add_segments = TRUE, add_channels_info = TRUE) 
         channels <- x$signal %>% dplyr::select_at(vars(-one_of(component_names(x)))) %>%
             .[,lapply(.SD, `attributes<-`, NULL )] %>%
             tidyr::gather(key = ".source", value = ".value", channel_names(x)) %>%
-            dplyr::mutate(type = ".channel")
+            dplyr::mutate(.type = "channel")
 
     } else {
         channels <- dplyr::tibble()
@@ -28,7 +28,7 @@ as_tibble.eeg_lst <- function(x, add_segments = TRUE, add_channels_info = TRUE) 
         components <-  x$signal %>% dplyr::select_at(vars(-one_of(channel_names(x)))) %>%
             .[,lapply(.SD, `attributes<-`, NULL )] %>%
             tidyr::gather(key = ".source", value = ".value", component_names(x)) %>%
-    dplyr::mutate(type = ".component")
+    dplyr::mutate(type = "component")
     } else {
         components = dplyr::tibble()
     }

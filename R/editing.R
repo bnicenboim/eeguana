@@ -49,7 +49,7 @@ channels_tbl.eeg_lst <- function(x, ...) {
     dplyr::bind_cols(x$signal[1,] %>%
       dplyr::select(channel_names(x)) %>%
       purrr::map_dfr(~attributes(.x))) %>%
-    dplyr::select(-class)
+    dplyr::select(-contains("class", ignore.case = FALSE))
 }
 
 #' @rdname channels_tbl

@@ -1,4 +1,7 @@
 #' Simple plot an eeg_lst object.
+#'
+#' This function first downsamples the egg_lst and then converts it into a long tibble. See [as_tibble.eeg_lst] for details.
+#' 
 #' @param x An `eeg_lst` object.
 #' @param max_sample Downsample to approximately 64000 samples by default.
 #' @param ... Not in use.
@@ -17,13 +20,13 @@ plot.eeg_lst <- function(x, max_sample = 64000, ...) {
   }
 
   df <- dplyr::as_tibble(x) %>% 
-        dplyr::mutate(channel = factor(channel, levels = unique(channel)))
+        dplyr::mutate(.source = factor(.source, levels = unique(.source)))
   plot <- ggplot2::ggplot(
     df,
-    ggplot2::aes(x = time, y = amplitude, group = .id)
+    ggplot2::aes(x = time, y = .value, group = .id)
   ) +
     ggplot2::geom_line() +
-    ggplot2::facet_grid(channel ~ .,
+    ggplot2::facet_grid(.source ~ .,
       labeller = ggplot2::label_wrap_gen(multi_line = FALSE)
     ) +
     ggplot2::scale_y_reverse() +
@@ -59,7 +62,7 @@ plot_gg.eeg_lst <- function(.data, x = time, y = amplitude, ..., max_sample = 64
 
   dots <- rlang::enquos(...)
   df <- dplyr::as_tibble(.data) %>% 
-        dplyr::mutate(channel = factor(channel, levels = unique(channel)))
+        dplyr::mutate(source = factor(source, levels = unique(source)))
 
   plot <- ggplot2::ggplot(
     df,
@@ -104,7 +107,7 @@ plot_topo <- function(data,  ...) {
 }
 #' @rdname plot_topo
 #' @export
-plot_topo.tbl_df <- function(data, value= amplitude,  label=channel, ...) {
+plot_topo.tbl_df <- function(data, value= .value,  label=channel, ...) {
 
   value <- rlang::enquo(value)
   label <- rlang::enquo(label)
