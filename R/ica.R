@@ -133,13 +133,16 @@ as_eeg_lst.ica_lst <- function(.data, ...){
                         as.matrix
                     means <- m[.ICA=="mean",] %>%
                         dplyr::select_if(is_channel_dbl)  %>%
-                        as.matrix() %>% c()
+                        data.table::data.table()
 
                     ## source %*% mixing_matrix + means  
-                     data.table::data.table(tcrossprod(source,t(mixing_matrix)) + means)
+                    prod <- data.table::data.table(tcrossprod(source,t(mixing_matrix)))
+
+                    means[rep(1,nrow(source)), purrr:::map2(.SD,prod, ~.x+.y)]
                 })
-                                              
+    signal <- .data$signal %>% dplyr::select_at(vars(-one_of(component_names(.data)))) %>%
+        cbind(reconstr_signals)
 
-                                                                
-
+    eeg_lst(signal= signal, events= .data$events, segments = .data$segments ) %>%
+        dplyr::group_by(!!!dplyr::groups(.data))
 }
