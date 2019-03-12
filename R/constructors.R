@@ -162,8 +162,7 @@ subset.channel_dbl <- function(x, ... ) {
   mostattributes(r) <- attrs
  r
 }
-<<<<<<< HEAD
-###
+
 #' Builds a component.
 #'
 #' @param values Vector of doubles indicating amplitudes.
@@ -177,9 +176,6 @@ subset.channel_dbl <- function(x, ... ) {
 component_dbl <- function(values) {
   validate_component_dbl(new_component_dbl(values))
 }
-=======
-
->>>>>>> experimental
 
 #' Test if the object is a component
 #' This function returns  TRUE for components.
@@ -191,7 +187,6 @@ component_dbl <- function(values) {
 #' @return `TRUE` if the object inherits from the `sample_id` class.
 #' @export
 is_component_dbl <- function(x) {
-<<<<<<< HEAD
   class(x) == "component_dbl"
 }
 
@@ -257,10 +252,9 @@ ica_lst <- function(signal = NULL, mixing = NULL, events = NULL, segments = NULL
 #' 
 #' @return A valid mixing_tbl table.
 #' @export
-mixing_tbl <- function(mixing_matrix, components, channel_info) {
-    validate_mixing_tbl(new_mixing_tbl(mixing_matrix, components, channel_info))
-    
-=======
-    class(x) == "component_dbl"
->>>>>>> experimental
+mixing_tbl <- function(mixing_matrix,means_matrix, groups, channel_info) {
+    validate_mixing_tbl(new_mixing_tbl(mixing_matrix = mixing_matrix,
+                                       means_matrix = means_matrix,
+                                       groups = groups,
+                                       channel_info =channel_info))
 }

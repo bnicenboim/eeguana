@@ -75,13 +75,10 @@ export(chs_mean)
 export(component_dbl)
 export(count_complete_cases_tbl)
 export(downsample)
-<<<<<<< HEAD
 export(eeg_ica)
-=======
 export(eeg_downsample)
 export(eeg_interpolate_tbl)
 export(eeg_intervals_to_NA)
->>>>>>> experimental
 export(eeg_lst)
 export(eeg_segment)
 export(event_to_ch_NA)

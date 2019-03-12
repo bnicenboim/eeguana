@@ -13,8 +13,27 @@
 #' @family tibble
 #'
 as_tibble.eeg_lst <- function(x, add_segments = TRUE, add_channels_info = TRUE) {
-   x$signal[,lapply(.SD, `attributes<-`, NULL )] %>% 
-    tidyr::gather(key = "channel", value = "amplitude", channel_names(x)) %>%
+
+    if(nchannels(x)!=0){
+        channels <- x$signal %>% dplyr::select_at(vars(-one_of(component_names(x)))) %>%
+            .[,lapply(.SD, `attributes<-`, NULL )] %>%
+            tidyr::gather(key = ".source", value = ".value", channel_names(x)) %>%
+            dplyr::mutate(type = ".channel")
+
+    } else {
+        channels <- dplyr::tibble()
+    }
+
+    if(ncomponents(x)!=0){
+        components <-  x$signal %>% dplyr::select_at(vars(-one_of(channel_names(x)))) %>%
+            .[,lapply(.SD, `attributes<-`, NULL )] %>%
+            tidyr::gather(key = ".source", value = ".value", component_names(x)) %>%
+    dplyr::mutate(type = ".component")
+    } else {
+        components = dplyr::tibble()
+    }
+
+    dplyr::bind_rows(channels,components) %>%
     {
       if (add_segments) {
         dplyr::left_join(., x$segments, by = ".id")
@@ -24,12 +43,12 @@ as_tibble.eeg_lst <- function(x, add_segments = TRUE, add_channels_info = TRUE) 
     } %>% 
      {
       if (add_channels_info) {
-        dplyr::left_join(., channels_tbl(x), by = c("channel"))
+        dplyr::left_join(., channels_tbl(x), by = c(".source"="channel"))
       } else {
         .
       }
     } %>% 
-    dplyr::group_by(.id, channel) %>%
+    dplyr::group_by(.id, .source) %>%
     dplyr::mutate(time = (unclass(.sample_id) - 1) / sampling_rate(x)) %>%
     dplyr::ungroup() %>%
     dplyr::select(time, dplyr::everything()) %>%

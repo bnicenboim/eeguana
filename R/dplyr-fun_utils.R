@@ -1,5 +1,5 @@
 #' @noRd
-extended_signal <- function(.eeg_lst, cond_cols){
+extended_signal <- function(.eeg_lst, cond_cols = NULL){
   relevant_cols <- c(obligatory_cols$segments, group_chr(.eeg_lst),cond_cols)
 
  if(length(relevant_cols)>1) { #more than just .id

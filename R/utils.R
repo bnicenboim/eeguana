@@ -1,15 +1,4 @@
 
-#' purrr::list_modify that can handle NULL in the ...
-#' @noRd
-list_modify2 <- function(.x,...){
-    if(list(...)==list()){
-        .x
-    } else {
-        purrr::list_modify(.x, ...)
-    }
-
-}
-
 #' @noRd
 seq_len2 <- function(length.out) {
   if (length(length.out) == 0) {
@@ -115,4 +104,17 @@ theme_eeguana_empty <- theme_eeguana +
 #' @export
 between <- data.table::between
 
+#' @noRd
+map_dtr <- function(.x,.f,..., .id = NULL){
+        .f <- purrr::as_mapper(.f, ...)
+        res <- purrr::map(.x, .f, ...)
+        data.table::rbindlist(res, fill = TRUE, idcol = .id)
+}
 
+
+#' @noRd
+map2_dtr <- function(.x, .y, .f,..., .id = NULL){
+    .f <- purrr::as_mapper(.f, ...)
+    res <- purrr::map2(.x,.y, .f, ...)
+    data.table::rbindlist(res, fill = TRUE, idcol = .id)
+}

@@ -151,16 +151,6 @@ new_eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
 #'
 #' @noRd
 validate_eeg_lst <- function(x) {
-<<<<<<< HEAD
-  x$signal <- validate_signal_tbl(x$signal)
-  x$events <- validate_events(x$events, channel_names(x))
-  x$segments <- validate_segments(x$segments)
-  if (!all.equal(unique(x$signal$.id), unique(x$segments$.id))) {
-    warning("The values of .ids mismatch between tables.",
-      call. = FALSE
-    )
-  }
-=======
     x$signal <- validate_signal_tbl(x$signal)
     x$events <- validate_events(x$events, channel_names(x))
     x$segments <- validate_segments(x$segments)
@@ -169,16 +159,15 @@ validate_eeg_lst <- function(x) {
                 call. = FALSE
                 )
     }
->>>>>>> experimental
 
     if(any(!group_chr(x) %in% c(colnames(x$signal),colnames(x$segments)))){
         warning("Grouping variables are missing.",
                 call. = FALSE
                 )
     }
-
-    x
+x
 }
+
 #' @param signal_tbl 
 #'
 #' @noRd
@@ -357,20 +346,24 @@ validate_mixing_tbl <- function(mixing_tbl) {
     mixing_tbl
 }
 
-#' @param mixing_matrix 
-#' @param components 
+#' @param mixing_matrix  matrix or a list o matrices
+#' @param groups 
 #' @param channel_info 
 #'
 #' @noRd
-new_mixing_tbl <- function( mixing_matrix = matrix(), components = c(), channel_info = dplyr::tibble()) {
-
-    if(!data.table::is.data.table(mixing_matrix)) {
-        mixing_matrix <- data.table::data.table(mixing_matrix)
-    }
-
-    mixing_tbl <- mixing_matrix[, (update_channel_meta_data(.SD, channel_info)),
-                                .SDcols=colnames(mixing_matrix)]
-
-    data.table::setattr(mixing_tbl, "class",c("mixing_tbl",class(mixing_tbl)))
-    mixing_tbl[]
+new_mixing_tbl <- function( mixing_matrix, means_matrix , groups, channel_info) {
+    ## if mixing_mat is not a list I convert it to always use the same map
+    if(!is.list(mixing_matrix)) mixing_matrix <- list(mixing_matrix)
+    if(!is.list(means_matrix))  means_matrix <- list(means_matrix)
+    mixing_matrix_dt <-
+        map2_dtr( mixing_matrix, means_matrix, function(mixm, meansm)  {
+            .ICA <- data.table::data.table(.ICA =c("mean",paste0("ICA",seq_len(ncol(mixm)))))
+            mm <- rbind(meansm,mixm) %>% data.table::data.table() %>%
+                .[, (update_channel_meta_data(.SD, channel_info))] %>%
+                cbind(.ICA, .)
+            mm
+        }
+                    ,.id = ".group")
+    data.table::setattr(mixing_matrix_dt, "class",c("mixing_tbl",class(mixing_matrix_dt)))
+    mixing_matrix_dt[]
 }

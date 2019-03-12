@@ -11,22 +11,24 @@ eeg_ica <- function(.data, ...){
 
 #' @rdname eeg_ica
 #' @param .data 
-#' @param ... 
+#' @param ... Channels for the eeg_ica
 #' @param method 
-#' @param configuration 
+#' @param config 
 #' 
 #' @return An ica_lst object
 #' @export
 eeg_ica.eeg_lst <- function(.data, 
                     ...,
           method = "fastica",
-          config= list(), 
+          config= list() 
                               )
 {
-    method = stringr::str_to_lower(method)
 
+    ##https://www.martinos.org/mne/stable/auto_tutorials/plot_artifacts_correction_ica.html
+    ##http://www.fieldtriptoolbox.org/example/use_independent_component_analysis_ica_to_remove_eog_artifacts/
+    method = stringr::str_to_lower(method)
     default_config = if(method=="infomax") {
-                 list(algorithm = "gradient",
+                 list(algorithm = "gradient", 
                       fun = "logistic",
                       learning_rate = 0.00065/log(nchannels(.data)),
                       annealing_rate_angle = 60,
@@ -39,94 +41,75 @@ eeg_ica.eeg_lst <- function(.data,
                       tolerance = 1e-04,
                       max_iterations = 512)
              }
-    
-    purrr::list_modify(default_config, unlist(config))
+    config <- purrr::list_modify(default_config, !!!config)
+    ncomponents <- nchannels(.data)
+    dots <- rlang::enquos(...)
+    removed_channel <- c()
+    segments <-   .data$segments %>%
+        {.[names(.) %in%  c(obligatory_cols$segments, group_chr(.data))]} %>%
+        data.table::data.table()
+    data.table::setkey(segments,.id)
+    rep_group <- .data$signal[segments, group_chr(.data), with = FALSE]
 
-  ncomponents = nchannels(.data)
-  dots <- rlang::enquos(...)
-  signal_raw <- dplyr::select(.data$signal, !!!dots)
-  group_vars <- group_chr(.data)
-    l <- signal_raw %>%
-        dplyr::ungroup() %>%
-        dplyr::select(dplyr::one_of(group_vars)) %>%
-        dplyr::distinct()
+    signal_raw <- dplyr::select(.data$signal, channel_names(.data))
 
-    if(!identical(na.omit(l),l)) { 
-        stop("Data cannot be grouped by a column that contains NAs.")
+    if(!rlang::is_empty(dots)){
+        purrr::walk(dots, ~if(!rlang::as_label(.x) %in% channel_names  ){
+                               stop(.x, " is not a channel",
+                                    "Only channels can be selected",
+                                    call. = FALSE)
+                           } )
+        removed_channel <- purrr::map_chr(dots, ~ rlang::as_label())
+        signal_raw <- dplyr::select(signal, !!!dots)
+    } 
+
+   
+    l_signal <- signal_raw %>% split(rep_group)
+    channel_means<- l_signal  %>%
+        purrr::map(colMeans, na.rm=TRUE)
+
+    if(method == "fastica"){
+        l_ica <- purrr::map(l_signal, ~ fastICA::fastICA(.x,
+                                          n.comp = ncomponents,
+                                          alg.typ = config$algorithm,
+                                          fun = config$fun,
+                                          alpha = config$alpha,
+                                          method = "C", #c("R","C"),
+                                          row.norm = FALSE,
+                                          maxit = config$max_iterations,
+                                          tol = config$tolerance,
+                                          verbose = FALSE,
+                                          w.init = NULL) %>%
+                                          {list(sources = .$S,
+                                                ncomponents = nrow(.$W),
+                                        #mix mat has a column for each channel, and
+                                                #a row for each component
+                                                mixing_matrix =  .$A)} )
     }
-     if (ncol(l) == 0) {
-       l_signal_raw <- list(.data)
-        } else {
-       l_signal_raw <- base::split(.data, l)
-        }
-       l_signal_raw <- purrr::discard(~nrow(.x) == 0) 
+   
+    reconstr <- purrr::map2(l_ica,channel_means, ~  .x$sources %*% .x$mixing_matrix + .y) %>%
+        do.call("rbind", .)
+    message("Absolute difference between original data and reconstructed from independent sources: ",
+            mean(abs(reconstr - as.matrix(signal_raw))) %>% signif(2))
 
 
-  # rest of the channels and cols of signal for the later reconstruction
-  non_ica_signal <- .data$signal[,setdiff(colnames(.data$signal), colnames(signal_raw)), with = FALSE]
-  
-  if(stringr::str_to_lower(method) %in% c("imax","infomax","im")){
+    signal_source_tbl <- l_ica %>%
+        map_dtr( ~ .x$sources %>%
+                data.table::data.table() %>%
+                {.[,lapply(.SD, component_dbl)][]} %>%
+                setNames(paste0("ICA",seq_len(ncol(.x$sources)))) 
+                ) %>%
+        cbind(.data$signal[,c(obligatory_cols$signal,removed_channel), with=FALSE],.)
 
-    #     infomax <- ica::icaimax(signal_raw,
-    #           nc = ncomponents,
-    #            rate = configuration$learning_rate,
-    #            rateanneal= c(configuration$annealing_rate_angle,configuration$annealing_rate_step),
-    #           maxit = configuration$max_iterations, 
-    #           alg  = configuration$algorithm,
-    #           fun = configuration$fun)
-    # S_ICA <- data.table::as.data.table(infomax$S)
-    # ncomponents <- nrow(infomax$W)
-    # mixing_matrix <- ica_res$M 
-    # unmixing_matrix <- ica_res$W 
-
-  } else if(stringr::str_to_lower(method) %in% c("fi","fastica","fica")){
-
-      l_ica <- purrr::map(l_signal_raw, ~ fastICA::fastICA(.x,
-                                  n.comp = ncomponents,
-                                  alg.typ = configuration$algorithm,
-                                  fun = configuration$fun,
-                                  alpha = configuration$alpha,
-                                  method = "C", #c("R","C"),
-                                  row.norm = FALSE,
-                                  maxit = configuration$max_iterations,
-                                  tol = configuration$tolerance,
-                                  verbose = FALSE,
-                                  w.init = NULL)
-#FROM HERE
-    S_ICA <- ica_res$S
-    ncomponents <- nrow(ica_res$W)
-    mixing_matrix <- ica_res$A 
-    
-  }
-warning("grouping not implemented!!!!, this might apply ICA to several subjects together")
-  component_names <- paste0("C",seq_len(ncomponents))
-  
-   channel_means<- colMeans(signal_raw)
-
-#col_info instead of channel_info and without any obligatory attribute...
-#ica_lst (signal, events, segments, mixing, unmixing with the channels info)
-
-  reconstr <- (S_ICA %*% mixing_matrix + channel_means)
-  message("Absolute difference between original data and reconstructed from independent sources: ",
-    mean(abs(reconstr - as.matrix(signal_raw))) %>% signif(2))
-
-
-  S_ICA <- data.table::as.data.table(S_ICA)
-  data.table::setnames(S_ICA, component_names)
-  S_ICA <- S_ICA[,lapply(.SD,component_dbl)]
-
-
-  mixing_tbl <- mixing_tbl(mixing_matrix = mixing_matrix,
-                           components = component_names,
-                           group_name = groupby, #group name
-                           groups = group_ids,
-                           channel_means = channel_means, 
-                           channel_info = channels_tbl(signal_raw))
-
-  ica_lst(signal = cbind(non_ica_signal, S_ICA),
+    mixing_tbl <- mixing_tbl(mixing_matrix = l_ica %>% purrr::transpose() %>% .$mixing_matrix,
+                             means_matrix= channel_means,
+                             groups = group_chr(.data),
+                             channel_info = channels_tbl(signal_raw))
+    ica <- ica_lst(signal = signal_source_tbl,
             mixing = mixing_tbl,
             events = .data$events,
             segments = .data$segments)
+   ica %>% dplyr::group_by(!!!dplyr::groups(.data))
 }
 #' to.data object
 #'

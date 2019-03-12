@@ -32,11 +32,39 @@ nchannels <- function(x, ...) {
   UseMethod("nchannels")
 }
 
+
 #' @rdname summary
 #' @export
 nchannels.eeg_lst <- function(x, ...) {
-  ncol(x$signal) - length(obligatory_cols$signal)
+    channel_names(x) %>% length()
 }
+
+####
+#' @rdname summary
+#' @export
+component_names <- function(x, ...) {
+  UseMethod("component_names")
+}
+
+#' @rdname summary
+#' @export
+component_names.eeg_lst <- function(x, ...) {
+  colnames(x$signal)[x$signal[,purrr::map_lgl(.SD, is_component_dbl )]]
+}
+
+#' @rdname summary
+#' @export
+ncomponents <- function(x, ...) {
+  UseMethod("ncomponents")
+}
+
+
+#' @rdname summary
+#' @export
+ncomponents.eeg_lst <- function(x, ...) {
+    component_names(x) %>% length()
+}
+
 
 sampling_rate <- function(x) {
   attributes(x$signal$.sample_id)$sampling_rate
