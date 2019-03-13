@@ -54,7 +54,7 @@ eeg_interpolate_tbl.ica_lst <- function(.data, size = 1.2, diam_points = 200, me
 #' @param value Values used for the interpolation, generally `.value` (default). 
 #' @param label Label of the points that are used for the interpolation, generally `.source` (default).
 #' @export
-eeg_interpolate_tbl.tbl_df <- function(.data, size = 1.2, x = .x, y = .y, value = .value, label = .source, diam_points = 200,
+eeg_interpolate_tbl.data.frame <- function(.data, size = 1.2, x = .x, y = .y, value = .value, label = .source, diam_points = 200,
                                    method = "MBA", ...) {
   # x <- rlang::quo(.x)
   # y <- rlang::quo(.y)

@@ -56,18 +56,6 @@ vec_mean <- function(..., na.rm = FALSE) {
   purrr::pmap_dbl(list(...), ~mean(c(...), na.rm = FALSE))
 }
 
-#' @noRd
-# https://github.com/mllg/batchtools/blob/master/R/Joins.R
-semi_join_dt <- function(x, y, by = NULL) {
-  w <- unique(x[y, on = by, nomatch = 0L, which = TRUE, allow.cartesian = TRUE])
-  x[w]
-}
-
-#' @noRd
-left_join_dt <- function(x, y, by = NULL) {
-  y[x, on = by]
-}
-
 rowMeans_ch <- function(x, na.rm = FALSE, dims = 1L) {
   channel_dbl(rowMeans(x, na.rm, dims))
 }
@@ -104,20 +92,6 @@ theme_eeguana_empty <- theme_eeguana +
 #' @export
 between <- data.table::between
 
-#' @noRd
-map_dtr <- function(.x,.f,..., .id = NULL){
-        .f <- purrr::as_mapper(.f, ...)
-        res <- purrr::map(.x, .f, ...)
-        data.table::rbindlist(res, fill = TRUE, idcol = .id)
-}
-
-
-#' @noRd
-map2_dtr <- function(.x, .y, .f,..., .id = NULL){
-    .f <- purrr::as_mapper(.f, ...)
-    res <- purrr::map2(.x,.y, .f, ...)
-    data.table::rbindlist(res, fill = TRUE, idcol = .id)
-}
 
 #' @noRd
 repeated_group_col <- function(.eeg_lst){
@@ -128,4 +102,17 @@ repeated_group_col <- function(.eeg_lst){
     data.table::setkey(segments,.id)
     .data$signal[segments, group_cols, with = FALSE] %>%
         {.[, .group:=do.call(paste0,.SD)][,(group_cols):=NULL][]}
+}
+
+pink_noise <- function (N, alpha = 1) {
+    ## adapted from tuneR, needs to be checked
+    f <- seq(from = 0, to = pi, length.out = (N/2 + 1))[-c(1, 
+    (N/2 + 1))]
+    f_ <- 1/f^alpha
+    RW <- sqrt(0.5 * f_) * rnorm(N/2 - 1)
+    IW <- sqrt(0.5 * f_) * rnorm(N/2 - 1)
+    fR <- complex(real = c(rnorm(1), RW, rnorm(1), RW[(N/2 - 
+                                                       1):1]), imaginary = c(0, IW, 0, -IW[(N/2 - 1):1]), length.out = N)
+    reihe <- fft(fR, inverse = TRUE)
+    return(Re(reihe))
 }

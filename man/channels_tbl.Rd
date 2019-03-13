@@ -3,6 +3,7 @@
 \name{channels_tbl}
 \alias{channels_tbl}
 \alias{channels_tbl.eeg_lst}
+\alias{channels_tbl.ica_lst}
 \alias{channels_tbl.data.frame}
 \alias{channels_tbl<-}
 \alias{channels_tbl<-.eeg_lst}
@@ -12,6 +13,8 @@
 channels_tbl(x, ...)
 
 \method{channels_tbl}{eeg_lst}(x, ...)
+
+\method{channels_tbl}{ica_lst}(x, ...)
 
 \method{channels_tbl}{data.frame}(x, ...)
 

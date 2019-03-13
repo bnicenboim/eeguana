@@ -107,7 +107,7 @@ plot_topo <- function(data,  ...) {
 }
 #' @rdname plot_topo
 #' @export
-plot_topo.tbl_df <- function(data, value= .value,  label=.source, ...) {
+plot_topo.tbl_df <- function(data, value= .value,  label=.source) {
 
   value <- rlang::enquo(value)
   label <- rlang::enquo(label)
@@ -154,7 +154,7 @@ plot_topo.eeg_lst <- function(data, size= 1.2, projection = "polar", ...) {
   
   channels_tbl(data)  <- change_coord(channels_tbl(data), projection) 
   eeg_interpolate_tbl(data, size,...) %>%
-    plot_topo(...)
+    plot_topo()
 }
 
 #' @rdname plot_topo
@@ -165,14 +165,13 @@ plot_topo.mixing_tbl <- function(data, size= 1.2, projection = "polar", ...) {
     data %>% as_long_tbl %>%
         filter(.ICA != "mean") %>% group_by(.group,.ICA) %>%
         eeg_interpolate_tbl(size,...) %>%
-        plot_topo(...)
+        plot_topo()
 }
 
 #' @rdname plot_topo
 #' @export
 plot_topo.ica_lst <- function(data, size= 1.2, projection = "polar", ...) {
-    data <- data$mixing
-    NextMethod()
+    plot_topo(data$mixing,size= 1.2, projection = "polar", ...)
 }
 
 

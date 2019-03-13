@@ -10,7 +10,7 @@
 \usage{
 plot_topo(data, ...)
 
-\method{plot_topo}{tbl_df}(data, value = .value, label = .source, ...)
+\method{plot_topo}{tbl_df}(data, value = .value, label = .source)
 
 \method{plot_topo}{eeg_lst}(data, size = 1.2, projection = "polar",
   ...)

@@ -42,7 +42,7 @@ eeg_ica.eeg_lst <- function(.data,
                       max_iterations = 512)
              }
     config <- purrr::list_modify(default_config, !!!config)
-    ncomponents <- nchannels(.data)
+    max_components <- nchannels(.data)
     dots <- rlang::enquos(...)
     removed_channel <- c()
 
@@ -61,12 +61,12 @@ eeg_ica.eeg_lst <- function(.data,
 
    
     l_signal <- signal_raw %>% split(rep_group)
-    channel_means<- l_signal  %>%
+    channel_means <- l_signal  %>%
         purrr::map(colMeans, na.rm=TRUE)
 
     if(method == "fastica"){
         l_ica <- purrr::map(l_signal, ~ fastICA::fastICA(.x,
-                                          n.comp = ncomponents,
+                                          n.comp = max_components,
                                           alg.typ = config$algorithm,
                                           fun = config$fun,
                                           alpha = config$alpha,
@@ -77,7 +77,7 @@ eeg_ica.eeg_lst <- function(.data,
                                           verbose = FALSE,
                                           w.init = NULL) %>%
                                           {list(sources = .$S,
-                                                ncomponents = nrow(.$W),
+                                                max_components = nrow(.$W),
                                         #mix mat has a column for each channel, and
                                                 #a row for each component
                                                 mixing_matrix =  .$A)} )
@@ -95,14 +95,14 @@ eeg_ica.eeg_lst <- function(.data,
                 {.[,lapply(.SD, component_dbl)][]} %>%
                 setNames(paste0("ICA",seq_len(ncol(.x$sources)))) 
                 ) %>%
-        cbind(.data$signal[,c(obligatory_cols$signal,removed_channel), with=FALSE],.)
+        bind_cols_dt(.data$signal[,c(obligatory_cols$signal,removed_channel), with=FALSE],.)
 
-    mixing_tbl <- mixing_tbl(mixing_matrix = l_ica %>% purrr::transpose() %>% .$mixing_matrix,
+    mixing <- mixing_tbl(mixing_matrix = l_ica %>% purrr::transpose() %>% .$mixing_matrix,
                              means_matrix= channel_means,
                              groups = group_chr(.data),
                              channel_info = channels_tbl(signal_raw))
     ica <- ica_lst(signal = signal_source_tbl,
-            mixing = mixing_tbl,
+                   mixing = mixing,
             events = .data$events,
             segments = .data$segments)
    ica %>% dplyr::group_by(!!!dplyr::groups(.data))
@@ -141,7 +141,7 @@ as_eeg_lst.ica_lst <- function(.data, ...){
                     means[rep(1,nrow(source)), purrr:::map2(.SD,prod, ~.x+.y)]
                 })
     signal <- .data$signal %>% dplyr::select_at(vars(-one_of(component_names(.data)))) %>%
-        cbind(reconstr_signals)
+        bind_cols_dt(reconstr_signals)
 
     eeg_lst(signal= signal, events= .data$events, segments = .data$segments ) %>%
         dplyr::group_by(!!!dplyr::groups(.data))

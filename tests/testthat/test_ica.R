@@ -56,19 +56,6 @@ data <- data %>% group_by(recording)
  
 data_ica <- eeg_ica(data,  method = "fastica")
 
-data %>% summarize_all_ch(mean) %>% eeg_interpolate_tbl() %>% plot_topo + annotate_head() + geom_text()
-data_ica$mixing %>% as_long_tbl
+data_2 <- data_ica %>% as_eeg_lst()
 
-data_ica$signal$ICA1 == S[5,]
-
-#need to implement this:
-data_ica$mixing %>%     tidyr::gather(channel, amplitude, -.ICA, -.group)  %>%
-    left_join(channels_tbl(data))  %>% 
-group_by(.group, .ICA) %>% eeg_interpolate_tbl() %>% 
-plot_topo() + facet_grid(.group~.ICA)
-
-#I should use a more realistic example
-
-data_ica %>% select(-C1) %>% as_eeg_lst()
-
-
+testthat::expect_equal(data,data_2, tolerance=.01)

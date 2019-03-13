@@ -3,7 +3,7 @@
 \name{eeg_interpolate_tbl}
 \alias{eeg_interpolate_tbl}
 \alias{eeg_interpolate_tbl.eeg_lst}
-\alias{eeg_interpolate_tbl.tbl_df}
+\alias{eeg_interpolate_tbl.data.frame}
 \title{Create a table with interpolated signals of an eeg_lst object.}
 \usage{
 eeg_interpolate_tbl(.data, ...)
@@ -11,7 +11,7 @@ eeg_interpolate_tbl(.data, ...)
 \method{eeg_interpolate_tbl}{eeg_lst}(.data, size = 1.2,
   diam_points = 200, method = "MBA", ...)
 
-\method{eeg_interpolate_tbl}{tbl_df}(.data, size = 1.2, x = .x,
+\method{eeg_interpolate_tbl}{data.frame}(.data, size = 1.2, x = .x,
   y = .y, value = .value, label = .source, diam_points = 200,
   method = "MBA", ...)
 }
