@@ -3,7 +3,7 @@
 \name{eeg_ica}
 \alias{eeg_ica}
 \alias{eeg_ica.eeg_lst}
-\title{Apply ICA}
+\title{EEG signal decomposition using Independent Component Analysis (ICA)}
 \usage{
 eeg_ica(.data, ...)
 
@@ -11,25 +11,21 @@ eeg_ica(.data, ...)
   config = list(), tolerance = 1e-06, max_iterations = 1000)
 }
 \arguments{
-\item{.data}{}
-
-\item{...}{}
-
-\item{method}{Methods from different packages: "fICA::adapt_fICA" (default), "fICA::fICA", "fICA::reloaded_fICA", "fastICA::fastICA", or a custom function that returns a list that contains S  (reconstucted sources) and A (unmixing matrix).}
-
-\item{config}{Other parameters passed in a list to the method. These are the default paramters except that when possible the method is run in C rather than in R. See the documentation of the relevant method.}
-
-\item{.data}{}
+\item{.data}{An eeg_lst object}
 
 \item{...}{Channels for the eeg_ica}
 
-\item{maxiter}{}
+\item{method}{Methods from different packages: \code{fICA::adapt_fICA} (default), \code{fICA::fICA}, \code{fICA::reloaded_fICA}, \code{fastICA::fastICA}, or a custom function that returns a list that contains \code{S}  (reconstucted sources) and \code{A} (unmixing matrix), consistent with the formulation \code{X=A \%*\% S}}
+
+\item{config}{Other parameters passed in a list to the method. These are the default parameters except that when possible the method is run in C rather than in R. See the documentation of the relevant method.}
+
+\item{tolerance}{Convergence tolerance.}
+
+\item{max_iterations}{Maximum number of iterations.}
 }
 \value{
 An ica_lst object
 }
 \description{
-Apply ICA
-
 EEG signal decomposition using Independent Component Analysis (ICA)
 }

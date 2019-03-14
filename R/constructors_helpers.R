@@ -274,7 +274,9 @@ validate_segments <- function(segments) {
   }
   segments
 }
+
 #' @param values
+#' 
 #' @noRd
 new_component_dbl <- function(values)  {
     values <- unclass(values) %>% as.double

@@ -118,7 +118,7 @@ X27_unfiltered <- data_judg_s %>%
 
 bind(X27_filtered,X27_unfiltered) %>% plot() +
                                       geom_line(aes(color = filter)) +
-                                      facet_wrap(~channel)  +
+                                      facet_wrap(~.source)  +
                                       theme(legend.position = "bottom")
                   
 ```
@@ -196,17 +196,17 @@ data_summary <- data_judg_s_p %>%
                 summarize_all_ch(var)  
 
 plot_general <- data_summary %>% 
-                   plot_gg(x = segment, y= channel, fill = amplitude) + 
+                   plot_gg(x = segment, y= .source, fill = .value) + 
                    geom_raster() + 
                    theme(legend.position ="none", axis.text.y =  element_text(size = 6))
 
 plot_channels <- data_summary %>%  ungroup() %>% summarize_all_ch(max) %>% 
-                   plot_gg(x = amplitude, y= channel) + 
+                   plot_gg(x = .value, y= .source) + 
                    geom_point()  + 
                    theme(axis.text.y =  element_text(size = 6))
 
 plot_segments <- data_summary %>%  chs_fun(max) %>% 
-                   plot_gg(x = segment, y = amplitude) + 
+                   plot_gg(x = segment, y = .source) + 
                    geom_point() + 
                    theme(axis.text.y =  element_text(size = 6))
 
@@ -220,7 +220,7 @@ see a drift in the channel 48.
 ```{r, results = "hold"}
 data_judg_s_p %>% filter(segment ==90)  %>% 
                   plot() + 
-                  facet_wrap(~channel) + 
+                  facet_wrap(~.source) + 
                   theme(axis.text.x =  element_text(angle=90)) + 
                   scale_x_continuous(breaks = seq(0,1,.2))
 ```
@@ -254,7 +254,7 @@ ERPs <- data_judg_s_p %>%
 
 ERPs   %>% plot_gg() + 
            geom_line(aes(color = factor(condition))) + 
-           facet_wrap(~channel)  + 
+           facet_wrap(~.source)  + 
            theme(axis.text.x =  element_text(angle=90)) + 
            scale_x_continuous(breaks = seq(0,1,.2))
 ```
@@ -272,7 +272,7 @@ diff_ERPs <- data_judg_s_p %>%
 
 diff_ERPs  %>% plot_gg() +
                geom_line() + 
-               facet_wrap(~channel) + 
+               facet_wrap(~.source) + 
                theme(axis.text.x =  element_text(angle=90)) + 
                scale_x_continuous(breaks = seq(0,1,.2))
           

@@ -1,25 +1,17 @@
-#' Apply ICA
+#' EEG signal decomposition using Independent Component Analysis (ICA)
 #'
-#' @param .data 
-#' @param ... 
-#' 
 #' @export
 eeg_ica <- function(.data, ...){
     UseMethod("eeg_ica")
 }
 
-#' EEG signal decomposition using Independent Component Analysis (ICA)
-#'
-#' 
-#' 
 #' @rdname eeg_ica
-#' @param .data 
+#' @param .data An eeg_lst object
 #' @param ... Channels for the eeg_ica
-#' @param method Methods from different packages: "fICA::adapt_fICA" (default), "fICA::fICA", "fICA::reloaded_fICA", "fastICA::fastICA", or a custom function that returns a list that contains S  (reconstucted sources) and A (unmixing matrix), consistent with the formulation X=A %*% S
-#' 
-#' @param config Other parameters passed in a list to the method. These are the default paramters except that when possible the method is run in C rather than in R. See the documentation of the relevant method.
-#' @param tolerance
-#' @param maxiter
+#' @param method Methods from different packages: `fICA::adapt_fICA` (default), `fICA::fICA`, `fICA::reloaded_fICA`, `fastICA::fastICA`, or a custom function that returns a list that contains `S`  (reconstucted sources) and `A` (unmixing matrix), consistent with the formulation `X=A %*% S`
+#' @param config Other parameters passed in a list to the method. These are the default parameters except that when possible the method is run in C rather than in R. See the documentation of the relevant method.
+#' @param tolerance Convergence tolerance.
+#' @param max_iterations Maximum number of iterations.
 #' 
 #' @return An ica_lst object
 #' @export

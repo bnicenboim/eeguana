@@ -62,7 +62,7 @@ plot_gg.eeg_lst <- function(.data, x = time, y = .value, ..., max_sample = 64000
 
   dots <- rlang::enquos(...)
   df <- dplyr::as_tibble(.data) %>% 
-        dplyr::mutate(source = factor(source, levels = unique(source)))
+        dplyr::mutate(.source = factor(.source, levels = unique(.source)))
 
   plot <- ggplot2::ggplot(
     df,
@@ -200,13 +200,13 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
   size_x <- ratio[[1]]
   size_y <- ratio[[2]]
   eeg_data <- plot$data
-  if (!"channel" %in% colnames(eeg_data)) {
-    stop("Channels are missing from the data.")
-  }
+  ## if (!"channel" %in% colnames(eeg_data)) {
+  ##   stop("Channels are missing from the data.")
+  ## }
   if (!all(c(".x", ".y", ".z") %in% colnames(eeg_data))) {
     stop("Coordinates are missing from the data.")
   }
-  plot <- plot  + ggplot2::facet_wrap(.~channel)
+  plot <- plot  + ggplot2::facet_wrap(.~.source)
   plot_grob <- ggplot2::ggplotGrob(plot)
   layout <- ggplot2::ggplot_build(plot)$layout$layout
 
@@ -250,9 +250,9 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
   
   # won't work for free scales, need to add an if-else inside
   
-  channel_grobs <- purrr::map(layout$channel, function(ch) {
+  channel_grobs <- purrr::map(layout$.source, function(ch) {
     ## pos <- which(facet_names==ch, arr.ind =  TRUE)
-    ch_pos <- layout %>% dplyr::filter(channel == ch)
+      ch_pos <- layout %>% dplyr::filter(.source == ch)
     # panel_txt <- paste0("panel-", ch_pos$ROW, "-", ch_pos$COL)
     # strip_txt <- paste0("strip-t-", ch_pos$COL, "-", ch_pos$ROW)
     # axisl_txt <- paste0("axis-l-", ch_pos$ROW, "-", ch_pos$COL)
@@ -280,7 +280,7 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
     # }
 
     ch_grob
-  }) %>% stats::setNames(layout$channel)
+  }) %>% stats::setNames(layout$.source)
   # #gtable::gtable_height(ch_grob)
   # grid::heightDetails(ch_grob)
   # grid::heightDetails(ch_grob)
@@ -318,7 +318,7 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
   
   for (i in seq_len(length(channel_grobs))) {
     new_coord <- eeg_data %>%
-      dplyr::filter(channel == names(channel_grobs)[[i]]) %>%
+        dplyr::filter(.source == names(channel_grobs)[[i]]) %>%
       dplyr::distinct(.x, .y)
     if(is.na(new_coord$.x) && is.na(new_coord$.y)){
       new_plot

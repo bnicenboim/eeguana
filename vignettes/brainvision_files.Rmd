@@ -123,7 +123,7 @@ faces_segs_some %>%
                   geom_line(alpha = .1, aes(group = .id, color = condition)) + 
                   stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1.5, 
                   aes(color = condition)) +
-                  facet_wrap(~ channel) + 
+                  facet_wrap(~ .source) + 
                   geom_vline(xintercept = 0, linetype = "dashed") + 
                   geom_vline(xintercept = .17, linetype = "dotted") + 
                   theme(legend.position = "bottom") 
@@ -148,7 +148,7 @@ faces_segs_some %>%
                 geom_line(alpha = .1, aes(group = .id, color = condition)) +
                 stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1, 
                   aes(color = condition)) +
-                facet_wrap(~ channel) + 
+                facet_wrap(~ .source) + 
                 theme(legend.position = "bottom") 
 ```
 
@@ -161,7 +161,7 @@ ERP_faces <- faces_segs_some %>% group_by(.sample_id, condition) %>%
 ERP_plot <- ERP_faces %>%
                 plot_gg() + 
                 geom_line(aes(color = condition)) +
-               facet_wrap(~ channel) + 
+               facet_wrap(~ .source) + 
                 theme(legend.position = "bottom") + 
   ggtitle("ERPs for faces vs non-faces") 
 
@@ -195,10 +195,10 @@ df <- faces_segs_some %>%
       select(O1, O2, P7, P8) %>%
       as_tibble %>%
         # We can use regular dplyr functions now
-      group_by(channel, time) %>% 
+      group_by(.source, time) %>% 
       summarize(
-        `t-value` = t.test(amplitude[condition == "faces"],
-          amplitude[condition == "non-faces"])$statistic)
+        `t-value` = t.test(.value[condition == "faces"],
+          .value[condition == "non-faces"])$statistic)
 
 df
 ```
@@ -207,7 +207,7 @@ Then we just load the data frame into `ggplot`.
 
 ```{r, fig.dim = c(10,10), out.width = "100%"}
 ggplot(df, aes(x = time, y = `t-value`)) + geom_line() +
-                facet_wrap(~ channel) 
+                facet_wrap(~ .source) 
 ```
 
 However, this can be also done in the without transforming the `eeg_lst` object:
@@ -223,7 +223,7 @@ faces_segs_some_t <-
   plot_gg(faces_segs_some_t) + 
                 geom_line(alpha = .1, aes(group = .id)) +
                 stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1) +
-                facet_wrap(~ channel) + 
+                facet_wrap(~ .source) + 
                 theme(legend.position = "bottom") 
 
 ```
