@@ -17,4 +17,7 @@ is_component_dbl(x)
 Test if the object is a component
 This function returns  TRUE for components.
 }
+\seealso{
+Other component: \code{\link{component_dbl}}
+}
 \concept{component}

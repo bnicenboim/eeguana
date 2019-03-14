@@ -12,31 +12,54 @@ eeg_interpolate_tbl <- function(.data, ...) {
 #' @rdname eeg_interpolate_tbl
 #' @param size Indicates how much to extrapolate, `1` indicates no extrapolation beyond the position of the electrodes.
 #' @param method Method of interpolation (`"MBA"` Multilevel B-splines using the function `mba.surf` of the package `MBA` or (`"akima"` bicubic spline Akima interpolation algorithm using the function `interp` of the package `akima`.)..).
-#' @param x Variable storing the x coordinate, generally `.x` (default).
-#' @param y Variable storing the y coordinate, generally `.y` (default).
-#' @param value Values used for the interpolation, generally `amplitude` (default). 
-#' @param label Label of the points that are used for the interpolation, generally `channel` (default).
 #' @param diam_points Density of the interpolation (number of points that are interpolated in the diameter of the scalp).
 #' @export
-eeg_interpolate_tbl.eeg_lst <- function(.data, size = 1.2, x = .x, y = .y, value = amplitude, label = channel, diam_points = 200, method = "MBA", ...) {
+eeg_interpolate_tbl.eeg_lst <- function(.data, size = 1.2, diam_points = 200, method = "MBA", ...) {
   grouping <- group_chr(.data)
   .data <- dplyr::as_tibble(.data) %>% dplyr::group_by_at(dplyr::vars(grouping))
-  x <- rlang::enquo(x)
-  y <- rlang::enquo(y)
-  value <- rlang::enquo(value)
-  label <- rlang::enquo(label)
   dots <- rlang::enquos(...)
   # NextMethod()
-  eeg_interpolate_tbl(.data, size = size, !!x, !!y, !!value, !!label, diam_points, method, !!!dots)
+  eeg_interpolate_tbl(.data,
+                      size = size,
+                      x=!!rlang::quo(.x),
+                      y=!!rlang::quo(.y),
+                      value = !!rlang::quo(.value),
+                      label = !!rlang::quo(.source),
+                      diam_points,
+                      method,
+                      !!!dots)
 }
-#' @rdname eeg_interpolate_tbl
+
 #' @export
-eeg_interpolate_tbl.tbl_df <- function(.data, size = 1.2, x = .x, y = .y, value = amplitude, label = channel, diam_points = 200,
+eeg_interpolate_tbl.ica_lst <- function(.data, size = 1.2, diam_points = 200, method = "MBA", ...) {
+    grouping <- group_chr(.data)
+    .data <- dplyr::as_tibble(.data) %>% dplyr::group_by_at(dplyr::vars(grouping))
+    dots <- rlang::enquos(...)
+                                        # NextMethod()
+    eeg_interpolate_tbl(.data,
+                        size = size,
+                        x=!!rlang::quo(.x),
+                        y=!!rlang::quo(.y),
+                        value = !!rlang::quo(.value),
+                        label = !!rlang::quo(.source),
+                        diam_points,
+                        method,
+                        !!!dots)
+}
+
+
+#' @rdname eeg_interpolate_tbl
+#' @param x Variable storing the x coordinate, generally `.x` (default).
+#' @param y Variable storing the y coordinate, generally `.y` (default).
+#' @param value Values used for the interpolation, generally `.value` (default). 
+#' @param label Label of the points that are used for the interpolation, generally `.source` (default).
+#' @export
+eeg_interpolate_tbl.data.frame <- function(.data, size = 1.2, x = .x, y = .y, value = .value, label = .source, diam_points = 200,
                                    method = "MBA", ...) {
   # x <- rlang::quo(.x)
   # y <- rlang::quo(.y)
-  # value <- rlang::quo(amplitude)
-  # label <- rlang::quo(channel)
+  # value <- rlang::quo(.value)
+  # label <- rlang::quo(.source)
   x <- rlang::enquo(x)
   y <- rlang::enquo(y)
   value <- rlang::enquo(value)
@@ -56,7 +79,7 @@ eeg_interpolate_tbl.tbl_df <- function(.data, size = 1.2, x = .x, y = .y, value 
     dplyr::pull(L) %>%
     all(. == 1)
   if (!is_grouped) {
-    stop("Data needs to grouped or summarized so that each label appears one per group.\n",
+    stop("Data need to grouped or summarized so that each label appears once per group.\n",
          "Tip: You should do probably need to do `eeg_lst %>% group_by(YOUR_GROUPS) %>% summarize_all_ch(mean)` before calling this function",call. = FALSE)
   }
 
@@ -79,10 +102,10 @@ eeg_interpolate_tbl.tbl_df <- function(.data, size = 1.2, x = .x, y = .y, value 
         sp = FALSE,
         extend = TRUE,
         b.box = c(
-          min(xyz[[1]], na.rm = TRUE) * size,
-          max(xyz[[1]], na.rm = TRUE) * size,
-          min(xyz[[2]], na.rm = TRUE) * size,
-          max(xyz[[2]], na.rm = TRUE) * size
+          min(c(-1,xyz[[1]]), na.rm = TRUE) * size,
+          max(c(1,xyz[[1]]), na.rm = TRUE) * size,
+          min(c(-1,xyz[[2]]), na.rm = TRUE) * size,
+          max(c(1, xyz[[2]]), na.rm = TRUE) * size
         ),
         ...
       )
@@ -102,8 +125,8 @@ eeg_interpolate_tbl.tbl_df <- function(.data, size = 1.2, x = .x, y = .y, value 
     interpolation_alg <- function(xyz, ...) {
       results <- akima::interp(
         x = xyz[[1]], y = xyz[[2]], z = xyz[[3]],
-        xo = seq(min(xyz[[1]], na.rm = TRUE) * size, max(xyz[[1]], na.rm = TRUE) * size, length = diam_points),
-        yo = seq(min(xyz[[2]], na.rm = TRUE) * size, max(xyz[[2]], na.rm = TRUE) * size, length = diam_points),
+        xo = seq(c(-1,min(xyz[[1]]), na.rm = TRUE) * size, max(c(1,xyz[[1]]), na.rm = TRUE) * size, length = diam_points),
+        yo = seq(min(c(-1,xyz[[2]]), na.rm = TRUE) * size, max(c(1,xyz[[2]]), na.rm = TRUE) * size, length = diam_points),
         extrap = TRUE,
         linear = FALSE,
         duplicate = "error",
@@ -255,10 +278,10 @@ orthographic <- function(x, y, z) {
 #' Change coordinate system from 3D to 2D
 #'
 #'
-#' @param data A tbl created with channels_tbl
+#' @param data A tbl created with .sources_tbl
 #' @param projection projection type
 #'
-#' @return A modified channels_tbl
+#' @return A modified .sources_tbl
 #'
 #' @export
 change_coord <- function(data, projection = "polar") {

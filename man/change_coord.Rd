@@ -7,12 +7,12 @@
 change_coord(data, projection = "polar")
 }
 \arguments{
-\item{data}{A tbl created with channels_tbl}
+\item{data}{A tbl created with .sources_tbl}
 
 \item{projection}{projection type}
 }
 \value{
-A modified channels_tbl
+A modified .sources_tbl
 }
 \description{
 Change coordinate system from 3D to 2D

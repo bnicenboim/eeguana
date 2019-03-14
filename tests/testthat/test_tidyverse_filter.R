@@ -701,10 +701,10 @@ mutate_at_filter_eeg <- data %>%
 
 mutate_a_tbl <- data %>%
   as_tibble() %>%
-  dplyr::group_by(time, channel) %>%
-  dplyr::mutate(mean = mean(amplitude)) %>% 
-  dplyr::select(.id, time, channel, mean, condition, segment, recording) %>%
-  tidyr::spread(key = channel, value = mean) %>%
+  dplyr::group_by(time, .source) %>%
+  dplyr::mutate(mean = mean(.value)) %>% 
+  dplyr::select(.id, time, .source, mean, condition, segment, recording) %>%
+  tidyr::spread(key = .source, value = mean) %>%
   dplyr::ungroup() %>% # have to add this or it does weird stuff
   dplyr::filter(condition == "b")
 

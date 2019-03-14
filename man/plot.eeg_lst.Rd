@@ -17,7 +17,7 @@
 A ggplot object
 }
 \description{
-Simple plot an eeg_lst object.
+This function first downsamples the egg_lst and then converts it into a long tibble. See \link{as_tibble.eeg_lst} for details.
 }
 \seealso{
 Other plot: \code{\link{plot_gg}},

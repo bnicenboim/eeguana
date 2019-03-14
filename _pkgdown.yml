@@ -73,11 +73,11 @@ reference:
       Functions for applying specialized actions on signal 
       table or the entire `eeg_lst`. 
     contents: 
-    - eeg_downsample
-    - eeg_segment
-    - eeg_interpolate_tbl
-    - eeg_intervals_to_NA
-
+    - '`eeg_downsample`'
+    - '`eeg_segment`'
+    - '`eeg_interpolate_tbl`'
+    - '`eeg_intervals_to_NA`'
+    - '`eeg_ica`'  
   - title: "Plot functions"
     desc: >
       Wrappers to `ggplot` functions that first transform the `eeg_lst` to a wide `tibble`, together with some transformation (downsampling, interpolation, etc).
@@ -106,12 +106,19 @@ reference:
       Internal functions for creating objects.
     contents: 
     - '`eeg_lst`'
+    - '`ica_lst`'
+    - '`signal_tbl`'
+    - '`mixing_tbl`'
+    - '`component_dbl`'
     - '`sample_int`'
     - '`channel_dbl`'
-    - '`signal_tbl`'
-    
   - title: "Others"
     desc: >
       Some other useful functions.
     contents:
     - '`change_coord`'
+  - title: "Example data sets"
+    desc: >
+      Example data sets in eeg_lst format.
+    contents: 
+    - starts_with("data_")
