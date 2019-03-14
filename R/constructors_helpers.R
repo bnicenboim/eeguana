@@ -83,12 +83,14 @@ validate_channel_dbl <- function(channel) {
 #' @param channel_info 
 #'
 #' @noRd
-new_signal_tbl <- function(signal_matrix = matrix(), ids = c(), sample_ids = c(), channel_info = dplyr::tibble()) {
+new_signal_tbl <- function(signal_matrix=NULL , ids=NULL , sample_ids=NULL , channel_info=NULL ) {
 
-  if(!data.table::is.data.table(signal_matrix)) {
-    signal_matrix <- data.table::data.table(signal_matrix)
-  }
-
+    if(!data.table::is.data.table(signal_matrix)) {
+        signal_matrix <- data.table::data.table(signal_matrix)
+    }
+    ## if(is.null(channel_info)){
+    ##   channel_info <- dplyr::tibble(channel= colnames(signal_matrix))
+    ## }
   signal_tbl <- signal_matrix[, (update_channel_meta_data(.SD, channel_info)),.SDcols=colnames(signal_matrix)]
 
   signal_tbl[, .id := ids][, .sample_id := sample_ids]
@@ -104,11 +106,11 @@ new_signal_tbl <- function(signal_matrix = matrix(), ids = c(), sample_ids = c()
 #'
 #' @noRd
 update_channel_meta_data <- function(channels, channel_info) {
-  if (nrow(channel_info) == 0 | is.null(channel_info)) {
+  if (nrow(channel_info) == 0 || is.null(channel_info)) {
     channels <- purrr::map(
       channels,
       function(sig) {
-        channel <- new_channel_dbl(values = sig)
+        channel <- new_channel_dbl(values = sig,channel_info = list(.x=NA_real_,.y= NA_real_,.z =NA_real_, .reference=NA_real_))
       }
     )
   } else {

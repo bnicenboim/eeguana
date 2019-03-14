@@ -1,50 +1,39 @@
 context("test eeg ica")
 library(eeguana)
+set.seed(123)
 
+# 3 independent sources
+## S <- cbind(rt(1000,6),
+##            rexp(1000,1),
+##            runif(1000)
+##            )
 
-# 5 independent sources
-S <- cbind(sin((1:1000)/20),
-           cos((1:1000)/20),
-           sin((1:1000)/5),
-           rep((((1:200)-100)/100), 5),
-           rep(((1:200)/100 -1), 5)
+S <- cbind(pink_noise(1000)/200,
+           pink_noise(1000)/200,
+           sin(seq_len(1000)/10)
            )
-# not correlated
+## not correlated
 cor(S) %>% .[.<1] %>%max()
 
 s_tbl <- `colnames<-`(S, paste0("C", seq_len(ncol(S)))) %>%
     dplyr::as_tibble( .name_repair = "check_unique") %>%
     dplyr::mutate(x=1:n())%>%
     tidyr::gather("C", "y",-x) 
-ggplot(s_tbl,aes(x=x,y=y)) + geom_line() + facet_grid(~C)
-
-# eeg electrodes
-channels <- dplyr::tibble(
-      channel = c("A", "B","C","D","E"), .reference = NA, theta = NA, phi = NA,
-      radius = NA, .x = c(-.6, .6,0,-.6,.6), .y = c(-.6, -.6,0,.6,.6), .z = NA_real_
-    )
+## ggplot(s_tbl,aes(x=x,y=y)) + geom_line() + facet_grid(~C)
 
 # And they mix depending on the distance of S_pos:
-A <-structure(c(0.762492851663023, 0.572598334313868, 0.854357657716761, 
-                0.854357657716761, 0.762492851663023, 0.762492851663023, 0.854357657716761, 
-                0.854357657716761, 0.572598334313868, 0.762492851663023, 1, 0.81923192051904, 
-                0.81923192051904, 0.81923192051904, 1, 0.762492851663023, 0.572598334313868, 
-                0.572598334313868, 0.854357657716761, 0.762492851663023, 0.762492851663023, 
-                0.854357657716761, 0.572598334313868, 0.572598334313868, 0.762492851663023
-                ), .Dim = c(5L, 5L), .Dimnames = list(c("C1", "C2", "C3", "C4", 
-                                                        "C5"), NULL))
-
+A <-structure(c(0.415024629739427, -0.396594233424652, 1.5500801401529, 
+                -0.199523720507532, 0.873497221011429, 0.877738604024566, -1.78779862971126, 
+                -1.28749409074682, -0.640912580158802), .Dim = c(3L, 3L))
 
 signal_matrix <- S %*% A
 
  
 data <- eeg_lst(
-  signal = signal_tbl(
-    signal_matrix = signal_matrix
-    ,
+  signal = signal_tbl( 
+    signal_matrix = signal_matrix ,
     ids = rep(seq_len(4), each = 250),
-    sample_ids = sample_int(rep(seq_len(250), times = 4), sampling_rate = 500),
-    channels
+    sample_ids = sample_int(rep(seq_len(250), times = 4), sampling_rate = 500) 
   ),
   events = dplyr::tibble(
     .id=integer(0),.sample_0 =integer(0), .size=integer(0), .channel=character(0),
@@ -53,9 +42,20 @@ data <- eeg_lst(
 )
 
 data <- data %>% group_by(recording)
+
+
+data_ica_default <- eeg_ica(data)
+data_ica_default_2ch <- eeg_ica(data, V3)
+data_ica_m <- eeg_ica(data, method = fastICA::fastICA,config = list(verbose = FALSE) )
+
+#plot(data_ica_default)+ facet_wrap(segment+.source~recording)
+
  
-data_ica <- eeg_ica(data,  method = "fastica")
+data_default_2 <- data_ica_default %>% as_eeg_lst()
+data_default_2ch_2 <- data_ica_default_2ch %>% as_eeg_lst()
+data_m_2 <- data_ica_m %>% as_eeg_lst()
 
-data_2 <- data_ica %>% as_eeg_lst()
+expect_equal(data,data_default_2, tolerance=.01)
+expect_equal(data,data_default_2ch_2, tolerance=.01)
+expect_equal(data,data_m_2, tolerance=.01)
 
-testthat::expect_equal(data,data_2, tolerance=.01)

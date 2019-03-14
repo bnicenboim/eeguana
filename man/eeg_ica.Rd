@@ -7,25 +7,29 @@
 \usage{
 eeg_ica(.data, ...)
 
-\method{eeg_ica}{eeg_lst}(.data, ..., method = "fastica",
-  config = list())
+\method{eeg_ica}{eeg_lst}(.data, ..., method = fICA::adapt_fICA,
+  config = list(), tolerance = 1e-06, max_iterations = 1000)
 }
 \arguments{
 \item{.data}{}
 
 \item{...}{}
 
-\item{method}{}
+\item{method}{Methods from different packages: "fICA::adapt_fICA" (default), "fICA::fICA", "fICA::reloaded_fICA", "fastICA::fastICA", or a custom function that returns a list that contains S  (reconstucted sources) and A (unmixing matrix).}
 
-\item{config}{}
+\item{config}{Other parameters passed in a list to the method. These are the default paramters except that when possible the method is run in C rather than in R. See the documentation of the relevant method.}
 
 \item{.data}{}
 
 \item{...}{Channels for the eeg_ica}
+
+\item{maxiter}{}
 }
 \value{
 An ica_lst object
 }
 \description{
 Apply ICA
+
+EEG signal decomposition using Independent Component Analysis (ICA)
 }
