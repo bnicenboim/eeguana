@@ -95,7 +95,7 @@ between <- data.table::between
 
 #' @noRd
 repeated_group_col <- function(.eeg_lst){
-    group_cols <- group_chr(.eeg_lst)
+    group_cols <- group_vars(.eeg_lst)
     segments <-   .eeg_lst$segments %>%
         {.[names(.) %in%  c(obligatory_cols$segments, group_cols)]} %>%
         data.table::data.table()

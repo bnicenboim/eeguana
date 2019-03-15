@@ -15,7 +15,7 @@ eeg_interpolate_tbl <- function(.data, ...) {
 #' @param diam_points Density of the interpolation (number of points that are interpolated in the diameter of the scalp).
 #' @export
 eeg_interpolate_tbl.eeg_lst <- function(.data, size = 1.2, diam_points = 200, method = "MBA", ...) {
-  grouping <- group_chr(.data)
+  grouping <- group_vars(.data)
   .data <- dplyr::as_tibble(.data) %>% dplyr::group_by_at(dplyr::vars(grouping))
   dots <- rlang::enquos(...)
   # NextMethod()
@@ -32,7 +32,7 @@ eeg_interpolate_tbl.eeg_lst <- function(.data, size = 1.2, diam_points = 200, me
 
 #' @export
 eeg_interpolate_tbl.ica_lst <- function(.data, size = 1.2, diam_points = 200, method = "MBA", ...) {
-    grouping <- group_chr(.data)
+    grouping <- group_vars(.data)
     .data <- dplyr::as_tibble(.data) %>% dplyr::group_by_at(dplyr::vars(grouping))
     dots <- rlang::enquos(...)
                                         # NextMethod()

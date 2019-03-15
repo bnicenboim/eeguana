@@ -109,7 +109,7 @@ eeg_ica.eeg_lst <- function(.data,
 
     mixing <- mixing_tbl(mixing_matrix = l_ica %>% purrr::transpose() %>% .$mixing_matrix,
                          means_matrix= channel_means,
-                         groups = group_chr(.data),
+                         groups = group_vars(.data),
                          channel_info = channels_tbl(signal_raw))
     ica <- ica_lst(signal = signal_source_tbl,
                    mixing = mixing,

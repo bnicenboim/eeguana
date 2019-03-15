@@ -20,7 +20,7 @@ update_summarized_eeg_lst <- function(.eeg_lst){
   }
 
   .eeg_lst$segments <- summarize_segments(segments = .eeg_lst$segments, 
-                                            segments_groups = group_chr_segments(.eeg_lst),
+                                            segments_groups = group_vars_segments(.eeg_lst),
                                             last_id= last_id ) 
     ## Restructure events table
     # TODO maybe I can do some type of summary of the events table, instead
@@ -149,8 +149,8 @@ update_summarized_signal <- function(extended_signal, .eeg_lst){
    extended_signal[,.id := seq_len(.N), by = .sample_id]
   }
   
-  if(length(group_chr_only_segments(.eeg_lst))>0){
-   extended_signal[, (group_chr_only_segments(.eeg_lst)) := NULL] 
+  if(length(group_vars_only_segments(.eeg_lst))>0){
+   extended_signal[, (group_vars_only_segments(.eeg_lst)) := NULL] 
   }
 
   data.table::setkey(extended_signal,.id,.sample_id)

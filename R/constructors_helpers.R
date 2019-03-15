@@ -162,7 +162,7 @@ validate_eeg_lst <- function(x) {
                 )
     }
 
-    if(any(!group_chr(x) %in% c(colnames(x$signal),colnames(x$segments)))){
+    if(any(!group_vars(x) %in% c(colnames(x$signal),colnames(x$segments)))){
         warning("Grouping variables are missing.",
                 call. = FALSE
                 )
