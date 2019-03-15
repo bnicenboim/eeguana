@@ -206,7 +206,7 @@ plot_channels <- data_summary %>%  ungroup() %>% summarize_all_ch(max) %>%
                    theme(axis.text.y =  element_text(size = 6))
 
 plot_segments <- data_summary %>%  chs_fun(max) %>% 
-                   plot_gg(x = segment, y = .source) + 
+                   plot_gg(x = segment, y = .value) + 
                    geom_point() + 
                    theme(axis.text.y =  element_text(size = 6))
 
