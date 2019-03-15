@@ -100,8 +100,12 @@ repeated_group_col <- function(.eeg_lst){
         {.[names(.) %in%  c(obligatory_cols$segments, group_cols)]} %>%
         data.table::data.table()
     data.table::setkey(segments,.id)
-    .data$signal[segments, group_cols, with = FALSE] %>%
-        {.[, .group:=do.call(paste0,.SD)][,(group_cols):=NULL][]}
+    dt <- .eeg_lst$signal[segments, group_cols, with = FALSE]  
+    if(nrow(dt)==0){
+      return(dt)
+    } else {
+        return(dt[, .group:=do.call(paste0,.SD)][,(group_cols):=NULL][])
+    }
 }
 
 pink_noise <- function (N, alpha = 1) {

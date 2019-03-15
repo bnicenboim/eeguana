@@ -48,14 +48,18 @@ data_ica_default <- eeg_ica(data)
 data_ica_default_2ch <- eeg_ica(data, V3)
 data_ica_m <- eeg_ica(data, method = fastICA::fastICA,config = list(verbose = FALSE) )
 
+data_1r <- filter(data, recording=="recording1")
+data_1r_ica <- eeg_ica(data_1r)
 #plot(data_ica_default)+ facet_wrap(segment+.source~recording)
 
  
 data_default_2 <- data_ica_default %>% as_eeg_lst()
 data_default_2ch_2 <- data_ica_default_2ch %>% as_eeg_lst()
 data_m_2 <- data_ica_m %>% as_eeg_lst()
+data_1r_2 <- data_1r_ica %>% as_eeg_lst()
 
 expect_equal(data,data_default_2, tolerance=.01)
 expect_equal(data,data_default_2ch_2, tolerance=.01)
 expect_equal(data,data_m_2, tolerance=.01)
+expect_equal(data_1r_2,data_1r, tolerance=.01)
 

@@ -82,7 +82,12 @@ eeg_ica.eeg_lst <- function(.data,
         data.table::setkey(removed_signal,.id,.sample_id)
         signal_raw <- dplyr::select(signal_raw, !!!dots)
     }
+    if(nrow(rep_group)==0){
+      l_signal <- list(signal_raw)
+    } else {
     l_signal <- signal_raw %>% split(rep_group)
+    }
+    
     channel_means <- l_signal  %>%
         purrr::map(colMeans, na.rm=TRUE)
 
@@ -124,10 +129,14 @@ as_eeg_lst <- function(.data, ...){
 }
 
 as_eeg_lst.ica_lst <- function(.data, ...){
-
-    rep_group <- repeated_group_col(.data)
-    reconstr_signals <- map2_dtr(.data$signal %>%
-                split(rep_group),
+   rep_group <- repeated_group_col(.data)
+   if(length(rep_group)==0){
+       l_signal <- list(.data$signal)
+   } else {
+       l_signal <- .data$signal %>%
+           split(rep_group)
+   }
+    reconstr_signals <- map2_dtr(l_signal,
                 .data$mixing %>%
                 split(.data$mixing$.group), function(s,m){
 
