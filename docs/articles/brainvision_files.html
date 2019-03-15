@@ -93,7 +93,7 @@
       <h1>Introduction - Manipulating a clean EEG file exported from BrainVision 2.0</h1>
                         <h4 class="author">Bruno Nicenboim</h4>
             
-            <h4 class="date">2019-03-14</h4>
+            <h4 class="date">2019-03-15</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bnicenboim/eeguana/blob/master/vignettes/brainvision_files.Rmd"><code>vignettes/brainvision_files.Rmd</code></a></small>
       <div class="hidden name"><code>brainvision_files.Rmd</code></div>
@@ -411,7 +411,7 @@ faces_segs_some
 <span class="co">#&gt; attr(,"class")</span>
 <span class="co">#&gt; [1] "eeg_lst"</span>
 <span class="co">#&gt; attr(,"vars")</span>
-<span class="co">#&gt; named character(0)</span></code></pre></div>
+<span class="co">#&gt; character(0)</span></code></pre></div>
 <p>With some <code>ggplot</code> skills, we can create customized plots. <code>plot_gg</code> downsamples the signals (by default), and converts them to a long-format data frame that is feed into <code>ggplot</code> object. This object can then be customized.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces_segs_some <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">                  </span><span class="kw">select</span>(O1, O2, P7, P8) <span class="op">%&gt;%</span><span class="st"> </span>

@@ -351,7 +351,7 @@ faces_segs_some
 <span class="co">#&gt; attr(,"class")</span>
 <span class="co">#&gt; [1] "eeg_lst"</span>
 <span class="co">#&gt; attr(,"vars")</span>
-<span class="co">#&gt; named character(0)</span></code></pre></div>
+<span class="co">#&gt; character(0)</span></code></pre></div>
 <p>With some “regular” <code>ggplot</code> skills, we can create customized plots. <code><a href="reference/plot_gg.html">plot_gg()</a></code> downsamples the signals (by default), and converts them to a long-format data frame that is feed into <code>ggplot</code> object. This object can then be customized.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces_segs_some <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">                  </span><span class="kw">select</span>(O1, O2, P7, P8) <span class="op">%&gt;%</span><span class="st"> </span>

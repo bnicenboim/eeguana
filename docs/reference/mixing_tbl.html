@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Dplyr functions for manipulating eeg_lst objects. — dplyr-eeguana • eeguana</title>
+<title>Builds a mixing_tbl table. — mixing_tbl • eeguana</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -37,9 +37,9 @@
 
 
 
-<meta property="og:title" content="Dplyr functions for manipulating eeg_lst objects. — dplyr-eeguana" />
+<meta property="og:title" content="Builds a mixing_tbl table. — mixing_tbl" />
 
-<meta property="og:description" content="Manipulate the signal_tbl and the segments table of an eeg_lst." />
+<meta property="og:description" content="Builds a mixing_tbl table." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -126,85 +126,45 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Dplyr functions for manipulating eeg_lst objects.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/dplyr.R'><code>R/dplyr.R</code></a></small>
-    <div class="hidden name"><code>dplyr-eeguana.Rd</code></div>
+    <h1>Builds a mixing_tbl table.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/constructors.R'><code>R/constructors.R</code></a></small>
+    <div class="hidden name"><code>mixing_tbl.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Manipulate the signal_tbl and the segments table of an eeg_lst.</p>
+    <p>Builds a mixing_tbl table.</p>
     
     </div>
 
-    <pre class="usage"><span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>mutate</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>transmute</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/filter'>filter</a></span>(<span class='no'>.data</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>summarise</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>group_by</span>(<span class='no'>.data</span>, <span class='no'>...</span>, <span class='kw'>add</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>.drop</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>ungroup</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>select</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>rename</span>(<span class='no'>.data</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>mixing_tbl</span>(<span class='no'>mixing_matrix</span>, <span class='no'>means_matrix</span>, <span class='no'>groups</span>, <span class='no'>channel_info</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>.data</th>
-      <td><p>An eeg_lst.</p></td>
+      <th>mixing_matrix</th>
+      <td><p>Matrix or table of channels with their mixing.</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>Name-value pairs of expressions; see  <a href='https://dplyr.tidyverse.org/reference/dplyr-package.html'>dplyr</a> for more help.</p></td>
+      <th>channel_info</th>
+      <td><p>A table with information about each channel (such as the one produced by `channels_tbl``)</p></td>
+    </tr>
+    <tr>
+      <th>ids</th>
+      <td><p>Integers indicating to which group the row of the mixing matrix belongs.</p></td>
+    </tr>
+    <tr>
+      <th>sample_ids</th>
+      <td><p>Vector of integers.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An eeg_lst object.</p>
-    
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>Wrappers for <a href='https://dplyr.tidyverse.org/reference/dplyr-package.html'>dplyr</a>'s commands that act on different parts
-<code>eggble</code> objects.
-The following wrappers have been implemented for <code>eeg_lst</code> objects:</p><ul>
-<li><p><code>mutate()</code> adds new variables and preserves existing ones. Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.</p></li>
-<li><p><code>transmute()</code> like <code>mutate</code> but drops non-used variables of the referred table, except for the obligatory columns starting with <code>.</code>.</p></li>
-<li><p><code><a href='https://www.rdocumentation.org/packages/stats/topics/filter'>filter()</a></code>: finds segments/samples where conditions are true. Segments/samples where the condition evaluates to NA are dropped.</p></li>
-<li><p><code>summarize()</code> summarizes the channel of the signal_tbl table</p></li>
-<li><p><code>group_by()</code>: allows that operations would be performed "by group".</p></li>
-<li><p><code>ungroup()</code>: removes the grouping created by group_by.</p></li>
-<li><p><code>select()</code> keeps only the mentioned variables from the referred table, except for the obligatory columns starting with <code>.</code>.</p></li>
-<li><p><code>rename()</code>: keeps all variables.</p></li>
-</ul>
-    <p>These commands always return the entire eeg_lst so that
-they can be ' piped using <a href='https://www.rdocumentation.org/packages/magrittr/topics/magrittr'>magrittr</a> 's pipe, <!-- %&gt;%. --></p>
-    
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>join, <a href='summarize_ch.html'>summarize_at_ch</a>, <a href='summarize_ch.html'>summarize_all_ch</a>, <a href='bind.html'>bind</a> for the extended dplyr-like functions.</p>
-<p>Other dplyr functions: <code><a href='summarize_ch.html'>summarize_ch</a></code></p></div>
+    <p>A valid mixing_tbl table.</p>
     
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='co'># NOT RUN {</span>
-<span class='no'>faces_segs</span> <span class='kw'>%&gt;%</span> <span class='fu'>select</span>(<span class='no'>O1</span>, <span class='no'>O2</span>, <span class='no'>P7</span>, <span class='no'>P8</span>)
-<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -212,13 +172,7 @@ they can be ' piped using <a href='https://www.rdocumentation.org/packages/magri
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-
-      <li><a href="#details">Details</a></li>
-
-      <li><a href="#see-also">See also</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
+          </ul>
 
   </div>
 </div>
