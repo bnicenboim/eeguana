@@ -41,8 +41,7 @@ as_sample_int <- function(x,...) {
 #' @export
 as_sample_int.numeric <- function(x,  sampling_rate = NULL, unit = "second") {
     samples <- (x * scaling(sampling_rate, unit = unit) + 1) %>% as.integer()
-    if(anyDuplicated(samples)) {
-    stop("Some samples are duplicated:", x[duplicated(x)], call.=FALSE)}
+
     sample_int(samples, sampling_rate)
 }
 #' @export
