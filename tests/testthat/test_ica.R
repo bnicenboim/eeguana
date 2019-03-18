@@ -8,8 +8,8 @@ set.seed(123)
 ##            runif(1000)
 ##            )
 
-S <- cbind(pink_noise(1000)/200,
-           pink_noise(1000)/200,
+S <- cbind(eeguana:::pink_noise(1000)/200,
+           eeguana:::pink_noise(1000)/200,
            sin(seq_len(1000)/10)
            )
 ## not correlated
@@ -35,9 +35,7 @@ data <- eeg_lst(
     ids = rep(seq_len(4), each = 250),
     sample_ids = sample_int(rep(seq_len(250), times = 4), sampling_rate = 500) 
   ),
-  events = dplyr::tibble(
-    .id=integer(0),.sample_0 =integer(0), .size=integer(0), .channel=character(0),
-  ),
+  events = events_tbl(), 
   segments = dplyr::tibble(.id = seq_len(4), recording = c(rep("recording1",2),rep("recording2",2)), segment =  c(1L, 2L,1L,2L))
 )
 
@@ -45,7 +43,8 @@ data <- data %>% group_by(recording)
 
 
 data_ica_default <- eeg_ica(data)
-data_ica_default_2ch <- eeg_ica(data, V3)
+data_ica_default_2ch_1 <- eeg_ica(data, V3)
+data_ica_default_2ch_2 <- eeg_ica(data, -V3)
 data_ica_m <- eeg_ica(data, method = fastICA::fastICA,config = list(verbose = FALSE) )
 
 data_1r <- filter(data, recording=="recording1")
@@ -54,12 +53,21 @@ data_1r_ica <- eeg_ica(data_1r)
 
  
 data_default_2 <- data_ica_default %>% as_eeg_lst()
-data_default_2ch_2 <- data_ica_default_2ch %>% as_eeg_lst()
+data_default_2ch_1_2 <- data_ica_default_2ch_1 %>% as_eeg_lst()
+data_default_2ch_2_2 <- data_ica_default_2ch_2 %>% as_eeg_lst()
 data_m_2 <- data_ica_m %>% as_eeg_lst()
 data_1r_2 <- data_1r_ica %>% as_eeg_lst()
 
 expect_equal(data,data_default_2, tolerance=.01)
-expect_equal(data,data_default_2ch_2, tolerance=.01)
+expect_equal(data,data_default_2ch_1_2, tolerance=.01)
+expect_equal(data,data_default_2ch_1_2, tolerance=.01)
 expect_equal(data,data_m_2, tolerance=.01)
 expect_equal(data_1r_2,data_1r, tolerance=.01)
+
+reduced_data_ica <- data_ica_default %>% select(-ICA1,  comp1=ICA2, comp2=ICA3)
+reduced_data_ica %>% as_eeg_lst
+
+warning("needs to be compared")
+
+
 

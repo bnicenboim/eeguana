@@ -7,7 +7,7 @@ eeg_ica <- function(.data, ...){
 
 #' @rdname eeg_ica
 #' @param .data An eeg_lst object
-#' @param ... Channels for the eeg_ica
+#' @param ... Channels to include in ICA transformation. All the channels by default, but eye channels and reference channels should be removed.
 #' @param method Methods from different packages: `fICA::adapt_fICA` (default), `fICA::fICA`, `fICA::reloaded_fICA`, `fastICA::fastICA`, or a custom function that returns a list that contains `S`  (reconstucted sources) and `A` (unmixing matrix), consistent with the formulation `X=A %*% S`
 #' @param config Other parameters passed in a list to the method. These are the default parameters except that when possible the method is run in C rather than in R. See the documentation of the relevant method.
 #' @param tolerance Convergence tolerance.
@@ -28,6 +28,8 @@ eeg_ica.eeg_lst <- function(.data,
     ##https://martinos.org/mne/dev/auto_tutorials/plot_ica_from_raw.html
     ##http://www.fieldtriptoolbox.org/example/use_independent_component_analysis_ica_to_remove_eog_artifacts/
     method = rlang::enquo(method)
+    dots <- rlang::enquos(...)
+    #method = rlang::quo(fICA::adapt_fICA) # for testing
     method_label = rlang::as_label(method)
 
     if(method_label== "fastICA::fastICA"){
@@ -65,7 +67,6 @@ eeg_ica.eeg_lst <- function(.data,
         do.call(rlang::eval_tidy(method), c(list(data_in(x)), config)) %>% data_out()
     }
 
-    dots <- rlang::enquos(...)
 
     rep_group <- repeated_group_col(.data)
     signal_raw <- dplyr::select(.data$signal, channel_names(.data))
@@ -78,10 +79,14 @@ eeg_ica.eeg_lst <- function(.data,
         ##                             "Only channels can be selected",
         ##                             call. = FALSE)
         ##                    } )
-        removed_signal <- bind_cols_dt(removed_signal, dplyr::select(signal_raw, -(!!!dots)))
+        removed_signal_col <- setdiff(colnames(signal_raw),
+                                      tidyselect::vars_select(colnames(signal_raw), !!!dots))
+        removed_signal <- bind_cols_dt(removed_signal,
+                                       dplyr::select(signal_raw, removed_signal_col))
         data.table::setkey(removed_signal,.id,.sample_id)
         signal_raw <- dplyr::select(signal_raw, !!!dots)
     }
+
     if(nrow(rep_group)==0){
       l_signal <- list(signal_raw)
     } else {

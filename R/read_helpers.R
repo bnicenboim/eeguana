@@ -170,8 +170,9 @@ segment_events <- function(events, .lower, .sample_0, .upper) {
                 .sample_0 := dplyr::if_else(i..sample_0 < x..lower, 
                                              as.integer(x..lower - i..sample_0 + 1L),
                                              as.integer(i..sample_0 - .sample_0 + 1L))  ]
-  new_events[,..cols_events] 
-
+  out_events <- new_events[,..cols_events] 
+  data.table::setattr(out_events, "class", c("events_tbl",class(out_events)))
+  out_events
 }
 
 

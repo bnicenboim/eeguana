@@ -17,7 +17,7 @@ cond1 <- eeg_lst(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA, -4L, 1L, NA,
     1L, "Time 0", NA, 1L, 1L, NA
-  ),
+    )%>% as_events_tbl,
   segments = dplyr::tibble(.id = 1L, recording = "recording1", segment = 1, type = "initial")
 )
 
@@ -39,7 +39,7 @@ cond2 <- eeg_lst(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA, -4L, 1L, NA,
     1L, "Time 0", NA, 1L, 1L, NA
-  ),
+  )%>% as_events_tbl,
   segments = dplyr::tibble(.id = 1L, recording = "recording2", segment = 1, type = "initial")
 )
 
@@ -61,7 +61,7 @@ cond3 <- eeg_lst(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA, -4L, 1L, "X",
     1L, "Time 0", NA, 1L, 1L, NA
-  ),
+  )%>% as_events_tbl,
   segments = dplyr::tibble(.id = 1L, recording = "recording3", segment = 1, type = "initial")
 )
 

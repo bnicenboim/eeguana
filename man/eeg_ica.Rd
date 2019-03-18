@@ -13,7 +13,7 @@ eeg_ica(.data, ...)
 \arguments{
 \item{.data}{An eeg_lst object}
 
-\item{...}{Channels for the eeg_ica}
+\item{...}{Channels to include in ICA transformation. All the channels by default, but eye channels and reference channels should be removed.}
 
 \item{method}{Methods from different packages: \code{fICA::adapt_fICA} (default), \code{fICA::fICA}, \code{fICA::reloaded_fICA}, \code{fastICA::fastICA}, or a custom function that returns a list that contains \code{S}  (reconstucted sources) and \code{A} (unmixing matrix), consistent with the formulation \code{X=A \%*\% S}}
 

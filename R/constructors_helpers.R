@@ -51,6 +51,38 @@ new_channel_dbl <- function(values, channel_info = list()) {
 }
 
 
+#' @noRd
+new_events_tbl <- function(.id=NULL, .sample_0=NULL, .size=NULL, .channel=NULL, descriptions_dt=NULL) {
+    
+    if(is.null(.id) &&
+       is.null(.sample_0) &&
+       is.null(.size) &&
+       is.null(.channel) &&
+       is.null(descriptions_dt)) {
+        events <- data.table::data.table(.id= integer(0),
+                                         .sample_0= integer(0),
+                                         .size= integer(0),
+                                         .channel= character(0))
+    } else {
+        if(is.null(.size)) .size <- 1
+        if(is.null(.channel)) .channel <- NA_character_
+
+        if(is.null(descriptions_dt)){
+        events <- data.table::data.table(.id = .id,
+                           .sample_0 = .sample_0,
+                           .size = .size,
+                           .channel = .channel)
+        } else {
+            events <- data.table::data.table(.id = .id,
+                                             descriptions_dt,
+                                             .sample_0 = .sample_0,
+                                             .size = .size,
+                                             .channel = .channel)
+        }
+    }
+    data.table::setattr(events, "class", c("events_tbl",class(events)))
+    events
+}
 
 #' @param channel 
 #'
@@ -153,9 +185,18 @@ new_eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
 #'
 #' @noRd
 validate_eeg_lst <- function(x) {
+  if(!is_eeg_lst(x)){
+    warning("Class is not eeg_lst", call. = FALSE)
+  }
     x$signal <- validate_signal_tbl(x$signal)
-    x$events <- validate_events(x$events, channel_names(x))
+    x$events <- validate_events_tbl(x$events)
     x$segments <- validate_segments(x$segments)
+    diff_channels <- setdiff(x$events$.channel, channel_names(x))
+    if (length(diff_channels) != 0 & any(!is.na(diff_channels))) {
+        warning("Unknown channel in table of events",
+                call. = FALSE
+                )
+    }
     if (!all.equal(unique(x$signal$.id), unique(x$segments$.id))) {
         warning("The values of .ids mismatch between tables.",
                 call. = FALSE
@@ -183,11 +224,13 @@ validate_signal_tbl <- function(signal_tbl) {
         data.table::setkey(signal_tbl,.id,.sample_id)
    }     
   if (!data.table::is.data.table(signal_tbl)) {
-    warning("'signal' be a data.table.",
+    warning("'signal' should be a data.table.",
       call. = FALSE
     )
   }
-
+  if(!is_signal_tbl(signal_tbl)){
+    warning("Class is not signal_tbl", call. = FALSE)
+  }
   if (!is.integer(signal_tbl$.id)) {
     warning(".id should be an integer.",
       call. = FALSE
@@ -222,19 +265,15 @@ validate_signal_tbl <- function(signal_tbl) {
 #' @param channels 
 #'
 #' @noRd
-validate_events <- function(events, channels) {
-    if(is.null(events)) {
-        events <- data.table::data.table(.id= integer(0),
-                                         .sample_0= integer(0),
-                                         .size= integer(0),
-                                         .channel= integer(0))
-    }
+validate_events_tbl <- function(events) {
     if(!data.table::is.data.table(events) && is.data.frame(events)) {
         events <- data.table::as.data.table(events)
     }
-
+  if(!is_events_tbl(events)){
+    warning("Class is not events_tbl", call. = FALSE)
+  }
 if (!data.table::is.data.table(events)) {
-    warning("'events' be a data.table.",
+    warning("'events' should be a data.table.",
       call. = FALSE
     )
   }
@@ -247,13 +286,6 @@ if (!data.table::is.data.table(events)) {
 
   if (!is.integer(events$.size)) {
     warning("Values of .size should be integers",
-      call. = FALSE
-    )
-  }
-
-  diff_channels <- setdiff(events$.channel, channels)
-  if (length(diff_channels) != 0 & any(!is.na(diff_channels))) {
-    warning("Unknown channel in table of events",
       call. = FALSE
     )
   }
@@ -318,7 +350,6 @@ new_ica_lst <- function(signal = NULL, mixing = NULL, events = NULL, segments = 
               class = c("ica_lst","eeg_lst"),
               vars = character(0)
               )
-    
 }
 
 #' @param x 
