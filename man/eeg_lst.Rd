@@ -20,6 +20,7 @@ A valid eeg_lst.
 Builds an eeg_lst.
 }
 \seealso{
-Other eeg_lst: \code{\link{is_eeg_lst}}
+Other eeg_lst: \code{\link{ica_lst}},
+  \code{\link{is_eeg_lst}}
 }
 \concept{eeg_lst}

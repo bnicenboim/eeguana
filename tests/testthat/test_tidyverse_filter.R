@@ -492,26 +492,24 @@ test_that("data didn't change", {
 
 # a) Test signal/segments tables by comparing eeg_lst with tibble
 
-# doesn't work but not really relevant to eeguana
-# mutate_all_filter_eeg <- data %>%
-#   group_by(.sample_id) %>%
-#   mutate_all(mean) %>%
-#   filter(condition == "b")
+mutate_all_filter_eeg <- data %>%
+  group_by(.sample_id) %>%
+  mutate_all(mean) %>%
+  filter(condition == "b")
 
-# # shouldn't this group by .sample_id?
-# mutate_at_filter_eeg <- data %>%
-#   group_by(.sample_id) %>%
-#   mutate_at(channel_names(data), funs(mean)) %>%
-#   filter(condition == "b")
-# 
-# # this doesn't group by time either
-# mutate_at_tbl <- data %>%
-#   as_tibble() %>%
-#   dplyr::select(.id, time, channel, amplitude, condition, segment, recording) %>%
-#   tidyr::spread(key = channel, value = amplitude) %>%
-#   dplyr::group_by(time) %>%
-#   dplyr::mutate_at(channel_names(data), funs(mean)) %>%
-#   dplyr::filter(condition == "b")
+mutate_at_filter_eeg <- data %>%
+  group_by(.sample_id) %>%
+  mutate_at(channel_names(data), mean)  %>%
+  filter(condition == "b")
+
+mutate_a_tbl <- data %>%
+  as_tibble() %>%
+  dplyr::group_by(time, .source) %>%
+  dplyr::mutate(mean = mean(.value)) %>% 
+  dplyr::select(.id, time, .source, mean, condition, segment, recording) %>%
+  tidyr::spread(key = .source, value = mean) %>%
+  dplyr::ungroup() %>% # have to add this or it does weird stuff
+  dplyr::filter(condition == "b")
 
 
 summarize_filter_eeg <- group_by(data, .sample_id) %>% 

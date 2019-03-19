@@ -4,8 +4,14 @@
 \alias{summary}
 \alias{channel_names}
 \alias{channel_names.eeg_lst}
+\alias{channel_names.mixing_tbl}
+\alias{channel_names.ica_lst}
 \alias{nchannels}
-\alias{nchannels.eeg_lst}
+\alias{nchannels.default}
+\alias{component_names}
+\alias{component_names.eeg_lst}
+\alias{ncomponents}
+\alias{ncomponents.eeg_lst}
 \alias{nsamples}
 \alias{nsamples.eeg_lst}
 \alias{summary.eeg_lst}
@@ -16,9 +22,21 @@ channel_names(x, ...)
 
 \method{channel_names}{eeg_lst}(x, ...)
 
+\method{channel_names}{mixing_tbl}(x, ...)
+
+\method{channel_names}{ica_lst}(x, ...)
+
 nchannels(x, ...)
 
-\method{nchannels}{eeg_lst}(x, ...)
+\method{nchannels}{default}(x, ...)
+
+component_names(x, ...)
+
+\method{component_names}{eeg_lst}(x, ...)
+
+ncomponents(x, ...)
+
+\method{ncomponents}{eeg_lst}(x, ...)
 
 nsamples(x, ...)
 
