@@ -69,5 +69,5 @@ reduced_data_ica %>% as_eeg_lst
 
 warning("needs to be compared")
 
-
-
+## simulate eye movements
+##https://stackoverflow.com/questions/53071709/remove-eye-blinks-from-eeg-signal-with-ica

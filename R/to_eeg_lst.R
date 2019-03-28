@@ -50,12 +50,20 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data){
     ## FIFF.FIFF_UNIT_AM    = 202  # Am
     ## FIFF.FIFF_UNIT_AM_M2 = 203  # Am/m^2
     ## FIFF.FIFF_UNIT_AM_M3 = 204 # Am/m^3
-    ch_info <- .data$info$chs %>% purrr::map_dfr(function(ch) {
+
+    rel_ch <- .data$info$chs %>% purrr::discard(~ .x$kind  == 3)
+    sti_ch_names <- .data$info$chs %>% purrr::keep(~ .x$kind  == 3) %>%
+        purrr::map_chr(~ .x$ch_name)
+    if(length(sti_ch_names) >0 ){
+        warning("Stimuli channels will be discarded")
+    }
+
+    ch_info <- rel_ch %>% purrr::map_dfr(function(ch) {
         if(ch$kind %in% c(502)) { #misc channel
             location <- rep(NA_real_,3)
         } else {
             location <- purrr::map(ch$loc[1:3], ~ round(./85,2))
-        }
+        } 
         units_list <- c("mol/m^3","hertz","newton","pascal","joule","watt","coulomb",
                         "volt","farad","ohm",
                         "S","weber","tesla","henry","celsius","lumen","lux") %>%
@@ -76,20 +84,25 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data){
                                                         )})
 
     signal_m <- .data$to_data_frame()
+    data.table::setDT(signal_m)
+    signal_m[, (sti_ch_names):=NULL]
+
     t_s <- .data$times
-    sampling_rate <- .data$info$sfreq
-    samples <- as_sample_int(t_s, sampling_rate)
+    samples <- as_sample_int(c(t_s), sampling_rate= .data$info$sfreq)
     
     new_signal <- signal_tbl(signal_m, 1L,samples,ch_info)
 
                                         #create events object
     ann <- .data$annotations$`__dict__`
+    if(length(ann$onset)==0){
+        new_events <-events_tbl()
+    } else{
     new_events <- events_tbl(.id = 1L,
                              .sample_0 = as_sample_int(ann$onset,sampling_rate) %>% as.integer,
                              .size = {as_sample_int(ann$duration,sampling_rate)-1L} %>% as.integer,
                              .channel = NA_character_,
                              descriptions_dt = data.table::data.table(description = ann$description))
-
+    }
     eeg_lst(signal = new_signal,
             events= new_events,
             segments = tibble::tibble(.id=1L,recording="recording1", segment=1L))
