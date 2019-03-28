@@ -83,12 +83,14 @@ validate_channel_dbl <- function(channel) {
 #' @param channel_info 
 #'
 #' @noRd
-new_signal_tbl <- function(signal_matrix = matrix(), ids = c(), sample_ids = c(), channel_info = dplyr::tibble()) {
+new_signal_tbl <- function(signal_matrix=NULL , ids=NULL , sample_ids=NULL , channel_info=NULL ) {
 
-  if(!data.table::is.data.table(signal_matrix)) {
-    signal_matrix <- data.table::data.table(signal_matrix)
-  }
-
+    if(!data.table::is.data.table(signal_matrix)) {
+        signal_matrix <- data.table::data.table(signal_matrix)
+    }
+    ## if(is.null(channel_info)){
+    ##   channel_info <- dplyr::tibble(channel= colnames(signal_matrix))
+    ## }
   signal_tbl <- signal_matrix[, (update_channel_meta_data(.SD, channel_info)),.SDcols=colnames(signal_matrix)]
 
   signal_tbl[, .id := ids][, .sample_id := sample_ids]
@@ -104,11 +106,11 @@ new_signal_tbl <- function(signal_matrix = matrix(), ids = c(), sample_ids = c()
 #'
 #' @noRd
 update_channel_meta_data <- function(channels, channel_info) {
-  if (nrow(channel_info) == 0 | is.null(channel_info)) {
+  if (nrow(channel_info) == 0 || is.null(channel_info)) {
     channels <- purrr::map(
       channels,
       function(sig) {
-        channel <- new_channel_dbl(values = sig)
+        channel <- new_channel_dbl(values = sig,channel_info = list(.x=NA_real_,.y= NA_real_,.z =NA_real_, .reference=NA_real_))
       }
     )
   } else {
@@ -145,7 +147,6 @@ new_eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
     class = c("eeg_lst"),
     vars = character(0)
   )
-   
 }
 
 #' @param x 
@@ -161,14 +162,14 @@ validate_eeg_lst <- function(x) {
                 )
     }
 
-    if(any(!group_chr(x) %in% c(colnames(x$signal),colnames(x$segments)))){
+    if(any(!group_vars(x) %in% c(colnames(x$signal),colnames(x$segments)))){
         warning("Grouping variables are missing.",
                 call. = FALSE
                 )
     }
-
-    x
+x
 }
+
 #' @param signal_tbl 
 #'
 #' @noRd
@@ -272,4 +273,101 @@ validate_segments <- function(segments) {
     )
   }
   segments
+}
+
+#' @param values
+#' 
+#' @noRd
+new_component_dbl <- function(values)  {
+    values <- unclass(values) %>% as.double
+    attributes(values) <- list(
+        class = "component_dbl"
+    )
+    values
+}
+
+
+
+#' @param component 
+#'
+#' @noRd
+validate_component_dbl <- function(component) {
+    if (!is.double(component)) {
+        stop("Values should be double.",
+             call. = FALSE
+             )
+    }
+    component
+}
+
+#' @param signal_tbl 
+#'
+#' @param events 
+#' @param segments 
+#'
+#' @noRd
+new_ica_lst <- function(signal = NULL, mixing = NULL, events = NULL, segments = NULL) {
+    x <- list(
+        signal = signal,
+        mixing = mixing,
+        events = events,
+        segments = segments
+    )
+    x <- unclass(x)
+    structure(x,
+              class = c("ica_lst","eeg_lst"),
+              vars = character(0)
+              )
+    
+}
+
+#' @param x 
+#'
+#' @noRd
+validate_ica_lst <- function(x) {
+    x <- validate_eeg_lst(x)
+    x$mixing <- validate_mixing_tbl(x$mixing)
+    x
+}
+
+#' @param mixing_tbl 
+#'
+#' @noRd
+validate_mixing_tbl <- function(mixing_tbl) {
+    
+    if (!data.table::is.data.table(mixing_tbl)) {
+        warning("'mixing' should be a data.table.",
+                call. = FALSE
+                )
+    }
+
+     if(all(!sapply(mixing_tbl, is_channel_dbl)) && nrow(mixing_tbl)>0){
+        warning("No channels found.")
+    }
+    # Validates channels 
+    mixing_tbl[, lapply(.SD,validate_channel_dbl), .SDcols= sapply(mixing_tbl, is_channel_dbl)] 
+
+    mixing_tbl
+}
+
+#' @param mixing_matrix  matrix or a list o matrices
+#' @param groups 
+#' @param channel_info 
+#'
+#' @noRd
+new_mixing_tbl <- function( mixing_matrix, means_matrix , groups, channel_info) {
+    ## if mixing_mat is not a list I convert it to always use the same map
+    if(!is.list(mixing_matrix)) mixing_matrix <- list(mixing_matrix)
+    if(!is.list(means_matrix))  means_matrix <- list(means_matrix)
+    mixing_matrix_dt <-
+        map2_dtr( mixing_matrix, means_matrix, function(mixm, meansm)  {
+            .ICA <- data.table::data.table(.ICA =c("mean",paste0("ICA",seq_len(ncol(mixm)))))
+            mm <- rbind(meansm,mixm) %>% data.table::data.table() %>%
+                .[, (update_channel_meta_data(.SD, channel_info))] %>%
+                cbind(.ICA, .)
+            mm
+        }
+                    ,.id = ".group")
+    data.table::setattr(mixing_matrix_dt, "class",c("mixing_tbl",class(mixing_matrix_dt)))
+    mixing_matrix_dt[]
 }

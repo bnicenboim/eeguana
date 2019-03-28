@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.5.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.6.9000</span>
       </span>
     </div>
 
@@ -93,7 +93,7 @@
       <h1>Introduction - Manipulating a clean EEG file exported from BrainVision 2.0</h1>
                         <h4 class="author">Bruno Nicenboim</h4>
             
-            <h4 class="date">2019-02-11</h4>
+            <h4 class="date">2019-03-15</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bnicenboim/eeguana/blob/master/vignettes/brainvision_files.Rmd"><code>vignettes/brainvision_files.Rmd</code></a></small>
       <div class="hidden name"><code>brainvision_files.Rmd</code></div>
@@ -291,9 +291,9 @@
 <p><img src="brainvision_files_files/figure-html/unnamed-chunk-5-1.png" width="100%"></p>
 <p>Some intervals were marked as “bad” by BrainVision, and so we’ll remove them from the data. We’ll also segment and baseline the data. In this experiment, the trigger “s70” was used for faces and “s71” for no faces. We’ll segment the data using these two triggers.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces_segs &lt;-<span class="st"> </span>faces <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">               </span><span class="kw"><a href="../reference/segment.html">segment</a></span>(description <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"s70"</span>, <span class="st">"s71"</span>), 
+<span class="st">               </span><span class="kw"><a href="../reference/eeg_segment.html">eeg_segment</a></span>(description <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"s70"</span>, <span class="st">"s71"</span>), 
                         <span class="dt">lim =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="op">-</span>.<span class="dv">2</span>,.<span class="dv">25</span>)) <span class="op">%&gt;%</span>
-<span class="st">               </span><span class="kw"><a href="../reference/event_to_ch_NA.html">event_to_ch_NA</a></span>(type <span class="op">==</span><span class="st"> "Bad Interval"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">               </span><span class="kw"><a href="../reference/eeg_intervals_to_NA.html">eeg_intervals_to_NA</a></span>(type <span class="op">==</span><span class="st"> "Bad Interval"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">               </span><span class="kw"><a href="../reference/ch_baseline.html">ch_baseline</a></span>()
 <span class="co">#&gt; # Total of 200 segments found.</span>
 <span class="co">#&gt; # Object size in memory 12.2 Mb after segmentation.</span></code></pre></div>
@@ -419,7 +419,7 @@ faces_segs_some
 <span class="st">                  </span><span class="kw">geom_line</span>(<span class="dt">alpha =</span> <span class="fl">.1</span>, <span class="kw">aes</span>(<span class="dt">group =</span> .id, <span class="dt">color =</span> condition)) <span class="op">+</span><span class="st"> </span>
 <span class="st">                  </span><span class="kw">stat_summary</span>(<span class="dt">fun.y =</span> <span class="st">"mean"</span>, <span class="dt">geom =</span><span class="st">"line"</span>, <span class="dt">alpha =</span> <span class="dv">1</span>, <span class="dt">size =</span> <span class="fl">1.5</span>, 
                   <span class="kw">aes</span>(<span class="dt">color =</span> condition)) <span class="op">+</span>
-<span class="st">                  </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>channel) <span class="op">+</span><span class="st"> </span>
+<span class="st">                  </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>.source) <span class="op">+</span><span class="st"> </span>
 <span class="st">                  </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="dv">0</span>, <span class="dt">linetype =</span> <span class="st">"dashed"</span>) <span class="op">+</span><span class="st"> </span>
 <span class="st">                  </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="fl">.17</span>, <span class="dt">linetype =</span> <span class="st">"dotted"</span>) <span class="op">+</span><span class="st"> </span>
 <span class="st">                  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>) </code></pre></div>
@@ -433,7 +433,7 @@ faces_segs_some
 <span class="st">                </span><span class="kw">geom_line</span>(<span class="dt">alpha =</span> <span class="fl">.1</span>, <span class="kw">aes</span>(<span class="dt">group =</span> .id, <span class="dt">color =</span> condition)) <span class="op">+</span>
 <span class="st">                </span><span class="kw">stat_summary</span>(<span class="dt">fun.y =</span> <span class="st">"mean"</span>, <span class="dt">geom =</span><span class="st">"line"</span>, <span class="dt">alpha =</span> <span class="dv">1</span>, <span class="dt">size =</span> <span class="dv">1</span>, 
                   <span class="kw">aes</span>(<span class="dt">color =</span> condition)) <span class="op">+</span>
-<span class="st">                </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>channel) <span class="op">+</span><span class="st"> </span>
+<span class="st">                </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>.source) <span class="op">+</span><span class="st"> </span>
 <span class="st">                </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>) </code></pre></div>
 <p><img src="brainvision_files_files/figure-html/unnamed-chunk-9-1.png" width="100%"></p>
 <p>We can also calculate the ERPs and then plot them in their layout:</p>
@@ -443,7 +443,7 @@ faces_segs_some
 ERP_plot &lt;-<span class="st"> </span>ERP_faces <span class="op">%&gt;%</span>
 <span class="st">                </span><span class="kw"><a href="../reference/plot_gg.html">plot_gg</a></span>() <span class="op">+</span><span class="st"> </span>
 <span class="st">                </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">color =</span> condition)) <span class="op">+</span>
-<span class="st">               </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>channel) <span class="op">+</span><span class="st"> </span>
+<span class="st">               </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>.source) <span class="op">+</span><span class="st"> </span>
 <span class="st">                </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>) <span class="op">+</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">"ERPs for faces vs non-faces"</span>) 
 
@@ -464,15 +464,15 @@ ERP_plot  <span class="op">%&gt;%</span><span class="st"> </span><span class="kw
 <span class="st">      </span><span class="kw">select</span>(O1, O2, P7, P8) <span class="op">%&gt;%</span>
 <span class="st">      </span>as_tibble <span class="op">%&gt;%</span>
 <span class="st">        </span><span class="co"># We can use regular dplyr functions now</span>
-<span class="st">      </span><span class="kw">group_by</span>(channel, time) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">      </span><span class="kw">group_by</span>(.source, time) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">      </span><span class="kw">summarize</span>(
-        <span class="st">`</span><span class="dt">t-value</span><span class="st">`</span> =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/t.test">t.test</a></span>(amplitude[condition <span class="op">==</span><span class="st"> "faces"</span>],
-          amplitude[condition <span class="op">==</span><span class="st"> "non-faces"</span>])<span class="op">$</span>statistic)
+        <span class="st">`</span><span class="dt">t-value</span><span class="st">`</span> =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/t.test">t.test</a></span>(.value[condition <span class="op">==</span><span class="st"> "faces"</span>],
+          .value[condition <span class="op">==</span><span class="st"> "non-faces"</span>])<span class="op">$</span>statistic)
 
 df
 <span class="co">#&gt; # A tibble: 904 x 3</span>
-<span class="co">#&gt; # Groups:   channel [?]</span>
-<span class="co">#&gt;    channel   time `t-value`</span>
+<span class="co">#&gt; # Groups:   .source [4]</span>
+<span class="co">#&gt;    .source   time `t-value`</span>
 <span class="co">#&gt;    &lt;chr&gt;    &lt;dbl&gt;     &lt;dbl&gt;</span>
 <span class="co">#&gt;  1 O1      -0.2        1.77</span>
 <span class="co">#&gt;  2 O1      -0.198      1.56</span>
@@ -487,7 +487,7 @@ df
 <span class="co">#&gt; # … with 894 more rows</span></code></pre></div>
 <p>Then we just load the data frame into <code>ggplot</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(df, <span class="kw">aes</span>(<span class="dt">x =</span> time, <span class="dt">y =</span> <span class="st">`</span><span class="dt">t-value</span><span class="st">`</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>() <span class="op">+</span>
-<span class="st">                </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>channel) </code></pre></div>
+<span class="st">                </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>.source) </code></pre></div>
 <p><img src="brainvision_files_files/figure-html/unnamed-chunk-11-1.png" width="100%"></p>
 <p>However, this can be also done in the without transforming the <code>eeg_lst</code> object:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces_segs_some_t &lt;-<span class="st"> </span>
@@ -496,11 +496,20 @@ df
 <span class="st">      </span><span class="kw">group_by</span>(.sample_id) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">      </span><span class="kw"><a href="../reference/summarize_ch.html">summarize_all_ch</a></span>(<span class="kw">funs</span>(<span class="dt">t =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/t.test">t.test</a></span>(.[condition <span class="op">==</span><span class="st"> "faces"</span>],
           .[condition <span class="op">==</span><span class="st"> "non-faces"</span>])<span class="op">$</span>statistic))
+<span class="co">#&gt; Warning: funs() is soft deprecated as of dplyr 0.8.0</span>
+<span class="co">#&gt; please use list() instead</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; # Before:</span>
+<span class="co">#&gt; funs(name = f(.)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; # After: </span>
+<span class="co">#&gt; list(name = ~f(.))</span>
+<span class="co">#&gt; This warning is displayed once per session.</span>
 
   <span class="kw"><a href="../reference/plot_gg.html">plot_gg</a></span>(faces_segs_some_t) <span class="op">+</span><span class="st"> </span>
 <span class="st">                </span><span class="kw">geom_line</span>(<span class="dt">alpha =</span> <span class="fl">.1</span>, <span class="kw">aes</span>(<span class="dt">group =</span> .id)) <span class="op">+</span>
 <span class="st">                </span><span class="kw">stat_summary</span>(<span class="dt">fun.y =</span> <span class="st">"mean"</span>, <span class="dt">geom =</span><span class="st">"line"</span>, <span class="dt">alpha =</span> <span class="dv">1</span>, <span class="dt">size =</span> <span class="dv">1</span>) <span class="op">+</span>
-<span class="st">                </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>channel) <span class="op">+</span><span class="st"> </span>
+<span class="st">                </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>.source) <span class="op">+</span><span class="st"> </span>
 <span class="st">                </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>) </code></pre></div>
 <p><img src="brainvision_files_files/figure-html/unnamed-chunk-12-1.png" width="100%"></p>
   </div>

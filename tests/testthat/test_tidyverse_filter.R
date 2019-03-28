@@ -514,6 +514,7 @@ test_that("data didn't change", {
 #   dplyr::filter(condition == "b")
 
 
+
 summarize_filter_eeg <- group_by(data, .sample_id) %>% 
   summarize(mean = mean(Y)) %>%
   filter(mean > -0.35)

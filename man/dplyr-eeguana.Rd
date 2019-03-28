@@ -20,7 +20,7 @@
 
 \method{summarise}{eeg_lst}(.data, ...)
 
-\method{group_by}{eeg_lst}(.data, ...)
+\method{group_by}{eeg_lst}(.data, ..., add = FALSE, .drop = FALSE)
 
 \method{ungroup}{eeg_lst}(.data, ...)
 

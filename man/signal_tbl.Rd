@@ -4,7 +4,8 @@
 \alias{signal_tbl}
 \title{Builds a signal_tbl table.}
 \usage{
-signal_tbl(signal_matrix, ids, sample_ids, channel_info)
+signal_tbl(signal_matrix = NULL, ids = NULL, sample_ids = NULL,
+  channel_info = NULL)
 }
 \arguments{
 \item{signal_matrix}{Matrix or table of channels with their signal.}

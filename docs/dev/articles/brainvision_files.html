@@ -94,7 +94,7 @@
       <h1>Introduction - Manipulating a clean EEG file exported from BrainVision 2.0</h1>
                         <h4 class="author">Bruno Nicenboim</h4>
             
-            <h4 class="date">2019-02-13</h4>
+            <h4 class="date">2019-02-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bnicenboim/eeguana/blob/master/vignettes/brainvision_files.Rmd"><code>vignettes/brainvision_files.Rmd</code></a></small>
       <div class="hidden name"><code>brainvision_files.Rmd</code></div>
@@ -415,7 +415,7 @@ faces_segs_some
 <span class="co">#&gt; attr(,"class")</span>
 <span class="co">#&gt; [1] "eeg_lst"</span>
 <span class="co">#&gt; attr(,"vars")</span>
-<span class="co">#&gt; character(0)</span></code></pre></div>
+<span class="co">#&gt; named character(0)</span></code></pre></div>
 <p>With some <code>ggplot</code> skills, we can create customized plots. <code>plot_gg</code> downsamples the signals (by default), and converts them to a long-format data frame that is feed into <code>ggplot</code> object. This object can then be customized.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces_segs_some <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">                  </span><span class="kw">select</span>(O1, O2, P7, P8) <span class="op">%&gt;%</span><span class="st"> </span>
@@ -475,7 +475,7 @@ ERP_plot  <span class="op">%&gt;%</span><span class="st"> </span><span class="kw
 
 df
 <span class="co">#&gt; # A tibble: 904 x 3</span>
-<span class="co">#&gt; # Groups:   channel [?]</span>
+<span class="co">#&gt; # Groups:   channel [4]</span>
 <span class="co">#&gt;    channel   time `t-value`</span>
 <span class="co">#&gt;    &lt;chr&gt;    &lt;dbl&gt;     &lt;dbl&gt;</span>
 <span class="co">#&gt;  1 O1      -0.2        1.77</span>
@@ -500,6 +500,15 @@ df
 <span class="st">      </span><span class="kw">group_by</span>(.sample_id) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">      </span><span class="kw"><a href="../reference/summarize_ch.html">summarize_all_ch</a></span>(<span class="kw">funs</span>(<span class="dt">t =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/t.test">t.test</a></span>(.[condition <span class="op">==</span><span class="st"> "faces"</span>],
           .[condition <span class="op">==</span><span class="st"> "non-faces"</span>])<span class="op">$</span>statistic))
+<span class="co">#&gt; Warning: funs() is soft deprecated as of dplyr 0.8.0</span>
+<span class="co">#&gt; please use list() instead</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; # Before:</span>
+<span class="co">#&gt; funs(name = f(.)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; # After: </span>
+<span class="co">#&gt; list(name = ~f(.))</span>
+<span class="co">#&gt; This warning is displayed once per session.</span>
 
   <span class="kw"><a href="../reference/plot_gg.html">plot_gg</a></span>(faces_segs_some_t) <span class="op">+</span><span class="st"> </span>
 <span class="st">                </span><span class="kw">geom_line</span>(<span class="dt">alpha =</span> <span class="fl">.1</span>, <span class="kw">aes</span>(<span class="dt">group =</span> .id)) <span class="op">+</span>

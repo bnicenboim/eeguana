@@ -44,13 +44,38 @@ channels_tbl <- function(x, ...) {
 #' @rdname channels_tbl
 #' @export
 channels_tbl.eeg_lst <- function(x, ...) {
-  dplyr::tibble(channel = channel_names(x)) %>%
-    # first row is enough and it makes it faster
-    dplyr::bind_cols(x$signal[1,] %>%
-      dplyr::select(channel_names(x)) %>%
-      purrr::map_dfr(~attributes(.x))) %>%
-    dplyr::select(-class)
+channels_tbl(x$signal)
 }
+
+#' @rdname channels_tbl
+#' @export
+channels_tbl.ica_lst <- function(x, ...) {
+    signal_chs <- channels_tbl(x$signal)
+     mixing_chs <- channels_tbl(x$mixing)
+    if(nrow(signal_chs)==0)  signal_chs <- NULL
+    if(nrow(mixing_chs)==0)  mixing_chs <- NULL
+   dplyr::bind_cols(signal_chs, mixing_chs)
+}
+
+
+#' @rdname channels_tbl
+#' @export
+channels_tbl.data.frame <- function(x, ...) {
+
+    channels <- dplyr::select_if(x,is_channel_dbl) %>% colnames()
+    ## first row is enough and it makes it faster
+    tbl <- x[1,] %>%
+        dplyr::select(channels) %>%
+        purrr::map_dfr(~attributes(.x)) %>%
+        dplyr::bind_cols( dplyr::tibble(channel = channels),. ) %>%
+        dplyr::select(-contains("class", ignore.case = FALSE))
+    if(tbl %>% nrow== 0) {
+        tibble()
+    } else {
+        tbl
+    }
+}
+
 #' @rdname channels_tbl
 #' @param value A channel table.
 #' @export
@@ -75,12 +100,12 @@ channels_tbl.eeg_lst <- function(x, ...) {
   x
 }
 
-channels_tbl.signal_tbl <- function(x, ...) {
-    channel_names <- dplyr::select_if(x,is_channel_dbl) %>% colnames()
-    dplyr::tibble(channel = channel_names) %>%
-                                        # first row is enough and it makes it faster
-        dplyr::bind_cols(x[1,] %>%
-                         dplyr::select(channel_names) %>%
-                         purrr::map_dfr(~attributes(.x))) %>%
-            dplyr::select(-class)
+#' @rdname channels_tbl
+#' @export
+`channels_tbl<-.data.frame` <- function(x, value) {
+  orig_names <- channel_names(x)
+  channels <- dplyr::select(x, orig_names)
+  nochannels <- dplyr::select(x, -dplyr::one_of(channel_names(x)))
+  x <- dplyr::bind_cols(nochannels, update_channel_meta_data(channels, value))
+  x
 }

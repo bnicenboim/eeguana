@@ -76,9 +76,10 @@ group_by_.eeg_lst <- function(.data, ..., .dots = list()) {
   group_by_eeg_lst(.eeg_lst = .data, dots, .add = FALSE)
 }
 #' @rdname dplyr-eeguana
-group_by.eeg_lst <- function(.data, ...) {
+group_by.eeg_lst <- function(.data, ..., add=FALSE, .drop = FALSE) {
   dots <- rlang::quos(...)
-  group_by_eeg_lst(.eeg_lst = .data, dots, .add = FALSE)
+  if(.drop==TRUE) {warning("Ignoring .drop argument. It hasn't been implemented yet.")}
+  group_by_eeg_lst(.eeg_lst = .data, dots, .add = add)
 }
 #' @rdname dplyr-eeguana
 ungroup.eeg_lst <- function(.data, ...) {
