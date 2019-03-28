@@ -1,13 +1,9 @@
 context("convert formats")
 library(eeguana)
 
-
-
-
 test_that("raw brainvision read and converted from MNE match", {
     skip_on_cran()  #it needs MNE installed
     skip_on_travis() #it needs MNE installed
-    stop("AA")
     ##reference
     bvfile <- system.file("testdata","bv_export_bv_txt_bin_vector.vhdr",package="eeguana")
     eeg_read <- read_vhdr(bvfile, recording = "recording1")
