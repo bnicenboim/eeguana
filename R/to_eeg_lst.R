@@ -58,11 +58,9 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data){
         warning("Stimuli channels will be discarded")
     }
 
-    scale_head <- purrr::map(rel_ch, ~ .$loc) %>%
-        unlist() %>%
-        range(na.rm = TRUE) %>%
-        abs() %>%
-        max()
+    scale_head <- purrr::map_dbl(rel_ch, ~ sqrt(sum((0 - .x$loc)^2)) ) %>%
+        min(na.rm = TRUE) 
+        
     ch_info <- rel_ch %>% purrr::map_dfr(function(ch) {
         if(ch$kind %in% c(502)) { #misc channel
             location <- rep(NA_real_,3)
