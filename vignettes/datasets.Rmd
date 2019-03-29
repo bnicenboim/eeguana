@@ -19,3 +19,5 @@ knitr::opts_chunk$set(
 )
 ```
 The website of DRYAD (https://datadryad.org/) provides many EEG datasets see for example [here](https://datadryad.org/discover?query=&submit=Go&fq=dc.subject_filter%3Aeeg%5C%7C%5C%7C%5C%7CEEG&filtertype=*&filter=&rpp=20&sort_by=score&order=DESC).
+
+http://bnci-horizon-2020.eu/database/data-sets
