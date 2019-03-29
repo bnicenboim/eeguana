@@ -40,6 +40,7 @@ mutate.eeg_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
   mutate_eeg_lst(.data, dots, keep_cols = TRUE)
 }
+
 mutate_.eeg_lst <- function(.data, ..., .dots = list()) {
   dots <- compat_lazy_dots(.dots, rlang::caller_env(), ...)
   mutate_eeg_lst(.data, dots, keep_cols = TRUE)
@@ -98,9 +99,38 @@ group_vars.eeg_lst <- function(x) {
 select.eeg_lst <- function(.data, ...) {
   select_rename(.data, select = TRUE, ...)
 }
+select.ica_lst <- function(.data, ...){
+    sel <- tidyselect::vars_select(component_names(.data),...)
+    .data <- NextMethod()
+    .data$mixing <- rename_sel_comp(.data$mixing, sel)
+    .data
+}
+
 #' @rdname dplyr-eeguana
 rename.eeg_lst <- function(.data, ...) {
-  select_rename(.data, select = FALSE, ...)
+    select_rename(.data, select = FALSE, ...)
+
+}
+#' @rdname dplyr-eeguana
+rename.ica_lst <- function(.data, ...) {
+    sel <- tidyselect::vars_rename(component_names(.data),...)
+    .data <- NextMethod()
+    .data$mixing <- rename_sel_comp(.data$mixing, sel)
+    .data
+}
+
+#' @noRd
+rename_sel_comp <- function(mixing, sel){
+mixing <- mixing[ .ICA %in% c("mean",sel),] 
+mixing[,.ICA := purrr::map_chr(.ICA, function(r){
+    new_name <- names(sel[sel==r])
+    if(length(new_name)!=0){
+        return(new_name)
+    } else {
+        return(r)
+    }
+})][]
+
 }
 
 #' Dplyr functions for joining data frames to the segments of  eeg_lst objects.

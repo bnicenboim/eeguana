@@ -210,7 +210,8 @@ scaling <- function(sampling_rate, unit) {
   } else {
     stop("Incorrect unit. Please use 'ms', 's', or 'sample'")
   }
-}
+scaling
+  }
 
 
 # #' @noRd

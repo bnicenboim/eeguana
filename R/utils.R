@@ -1,4 +1,7 @@
 
+
+mu_raw <- list(charToRaw("μ"), charToRaw("µ"))
+
 #' @noRd
 seq_len2 <- function(length.out) {
   if (length(length.out) == 0) {
