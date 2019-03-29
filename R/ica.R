@@ -167,3 +167,40 @@ as_eeg_lst.ica_lst <- function(.data, ...){
 }
 
 
+#' @export
+as_mixing_matrix_lst <- function(.data){
+    UseMethod("as_mixing_matrix_lst")
+}
+
+
+#' @export
+as_unmixing_matrix_lst <- function(.data){
+    UseMethod("as_unmixing_matrix_lst")
+}
+
+as_mixing_matrix_lst.ica_lst <- function(.data, ...){
+ 
+    purrr::map(.data$mixing %>%
+                    split(.data$mixing$.group), function(m){
+
+                    ## the mixing matrix won't be the huge one,
+                    ## the code above could be optimized bu it should be fine:
+                    m[.ICA!="mean",] %>%
+                        dplyr::select_if(is_channel_dbl)  %>%
+                        as.matrix
+                })
+}
+
+
+as_unmixing_matrix_lst.ica_lst <- function(.data, ...){
+    
+    purrr::map(.data$mixing %>%
+               split(.data$mixing$.group), function(m){
+
+                   ## the mixing matrix won't be the huge one,
+                   ## the code above could be optimized bu it should be fine:
+                   m[.ICA!="mean",] %>%
+                       dplyr::select_if(is_channel_dbl)  %>%
+                       as.matrix %>% MASS::ginv()
+               })
+}

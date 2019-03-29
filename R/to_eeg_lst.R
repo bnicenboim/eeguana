@@ -60,7 +60,7 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data){
 
     scale_head <- purrr::map(rel_ch, ~ .$loc) %>%
         unlist() %>%
-        range() %>%
+        range(na.rm = TRUE) %>%
         abs() %>%
         max()
     ch_info <- rel_ch %>% purrr::map_dfr(function(ch) {
@@ -90,7 +90,9 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data){
 
     signal_m <- .data$to_data_frame()
     data.table::setDT(signal_m)
-    signal_m[, (sti_ch_names):=NULL]
+    if(length(sti_ch_names)>0){
+        signal_m[, (sti_ch_names):=NULL]
+    }
 
     t_s <- .data$times
     samples <- as_sample_int(c(t_s), sampling_rate= .data$info$sfreq)
