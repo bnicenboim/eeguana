@@ -18,9 +18,6 @@ new_sample_int <- function(values, sampling_rate) {
   )
 }
 
-
-
-
 #' @param sample_id 
 #'
 #' @noRd
@@ -386,13 +383,13 @@ validate_mixing_tbl <- function(mixing_tbl) {
 #' @param channel_info 
 #'
 #' @noRd
-new_mixing_tbl <- function( mixing_matrix, means_matrix , groups, channel_info) {
+new_mixing_tbl <- function(mixing_matrix, means_matrix , groups, channel_info) {
     ## if mixing_mat is not a list I convert it to always use the same map
     if(!is.list(mixing_matrix)) mixing_matrix <- list(mixing_matrix)
     if(!is.list(means_matrix))  means_matrix <- list(means_matrix)
     mixing_matrix_dt <-
         map2_dtr( mixing_matrix, means_matrix, function(mixm, meansm)  {
-            .ICA <- data.table::data.table(.ICA =c("mean",paste0("ICA",seq_len(ncol(mixm)))))
+            .ICA <- data.table::data.table(.ICA =c("mean",paste0("ICA",seq_len(nrow(mixm)))))
             mm <- rbind(meansm,mixm) %>% data.table::data.table() %>%
                 .[, (update_channel_meta_data(.SD, channel_info))] %>%
                 cbind(.ICA, .)

@@ -92,7 +92,7 @@ eeg_ica.eeg_lst <- function(.data,
     } else {
     l_signal <- signal_raw %>% split(rep_group)
     }
-    
+
     channel_means <- l_signal  %>%
         purrr::map(colMeans, na.rm=TRUE)
 
@@ -102,7 +102,6 @@ eeg_ica.eeg_lst <- function(.data,
         do.call("rbind", .)
     message("Absolute difference between original data and reconstructed from independent sources: ",
             mean(abs(reconstr - as.matrix(signal_raw))) %>% signif(2))
-    
 
     signal_source_tbl <- l_ica %>%
         map_dtr( ~ .x$sources %>%
