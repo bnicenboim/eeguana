@@ -8,7 +8,7 @@ eeg_ica <- function(.data, ...){
 #' @rdname eeg_ica
 #' @param .data An eeg_lst object
 #' @param ... Channels to include in ICA transformation. All the channels by default, but eye channels and reference channels should be removed.
-#' @param method Methods from different packages: `fICA::adapt_fICA` (default), `fICA::fICA`, `fICA::reloaded_fICA`, `fastICA::fastICA`, or a custom function that returns a list that contains `S`  (reconstucted sources) and `A` (unmixing matrix), consistent with the formulation `X=A %*% S`
+#' @param method Methods from different packages: `fICA::adapt_fICA` (default), `fICA::fICA`, `fICA::reloaded_fICA`, `fastICA::fastICA`, or a custom function that returns a list that contains `S`  (reconstucted sources) and `A` (mixing matrix), consistent with the formulation `X=A %*% S` or `W` (unmixing matrix), consistent with the formulation `X %*% W = S` (i.e., W == solve(X)).
 #' @param config Other parameters passed in a list to the method. These are the default parameters except that when possible the method is run in C rather than in R. See the documentation of the relevant method.
 #' @param tolerance Convergence tolerance.
 #' @param max_iterations Maximum number of iterations.
@@ -57,7 +57,16 @@ eeg_ica.eeg_lst <- function(.data,
         message("Using custom ICA function: ", method_label)
         default_config <- list()
         data_in <- function(x) x
-        data_out <- function(x) x
+        data_out <- function(x)      {
+            out <- list()
+            out$sources = x$S
+            if(!is.null(x$A)) {
+                out$mixing_matrix = x$A
+            } else {
+                out$mixing_matrix = MASS::ginv(x$W)
+            }
+            out
+        }
     }
 
     config <- purrr::list_modify(default_config, !!!config)
@@ -132,6 +141,7 @@ as_eeg_lst <- function(.data, ...){
     UseMethod("as_eeg_lst")
 }
 
+#' @export
 as_eeg_lst.ica_lst <- function(.data, ...){
    rep_group <- repeated_group_col(.data)
    if(length(rep_group)==0){
@@ -178,6 +188,7 @@ as_unmixing_matrix_lst <- function(.data){
     UseMethod("as_unmixing_matrix_lst")
 }
 
+#' @export
 as_mixing_matrix_lst.ica_lst <- function(.data, ...){
  
     purrr::map(.data$mixing %>%
@@ -192,6 +203,7 @@ as_mixing_matrix_lst.ica_lst <- function(.data, ...){
 }
 
 
+#' @export
 as_unmixing_matrix_lst.ica_lst <- function(.data, ...){
     
     purrr::map(.data$mixing %>%
