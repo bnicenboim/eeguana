@@ -58,11 +58,16 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data){
         warning("Stimuli channels will be discarded")
     }
 
+    scale_head <- purrr::map(rel_ch, ~ .$loc) %>%
+        unlist() %>%
+        range() %>%
+        abs() %>%
+        max()
     ch_info <- rel_ch %>% purrr::map_dfr(function(ch) {
         if(ch$kind %in% c(502)) { #misc channel
             location <- rep(NA_real_,3)
         } else {
-            location <- purrr::map(ch$loc[1:3], ~ round(./85,2))
+            location <- purrr::map(ch$loc[1:3], ~ round(./scale_head,2))
         } 
         units_list <- c("mol/m^3","hertz","newton","pascal","joule","watt","coulomb",
                         "volt","farad","ohm",
@@ -98,8 +103,11 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data){
         new_events <-events_tbl()
     } else{
     new_events <- events_tbl(.id = 1L,
-                             .sample_0 = as_sample_int(ann$onset,sampling_rate) %>% as.integer,
-                             .size = {as_sample_int(ann$duration,sampling_rate)-1L} %>% as.integer,
+                             .sample_0 = ann$onset %>%
+                                 as_sample_int(sampling_rate = .data$info$sfreq) %>% as.integer,
+                             .size = ann$duration %>%
+                                 {as_sample_int(. ,sampling_rate = .data$info$sfreq)-1L} %>%
+                                 as.integer,
                              .channel = NA_character_,
                              descriptions_dt = data.table::data.table(description = ann$description))
     }
