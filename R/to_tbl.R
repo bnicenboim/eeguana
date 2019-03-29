@@ -17,7 +17,8 @@ as_tibble.eeg_lst <- function(x, add_segments = TRUE, add_channels_info = TRUE) 
     if(any(channel_names(x) %in% colnames(x$signal))){
         channels <- x$signal %>% dplyr::select_at(vars(-one_of(component_names(x)))) %>%
             .[,lapply(.SD, `attributes<-`, NULL )] %>%
-            tidyr::gather(key = ".source", value = ".value", channel_names(x)) %>%
+            tidyr::gather(key = ".source", value = ".value",
+                          (intersect(colnames(x$signal), channel_names(x)))) %>%
             dplyr::mutate(.type = "channel")
 
     } else {

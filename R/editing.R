@@ -51,10 +51,10 @@ channels_tbl(x$signal)
 #' @export
 channels_tbl.ica_lst <- function(x, ...) {
     signal_chs <- channels_tbl(x$signal)
-     mixing_chs <- channels_tbl(x$mixing)
+    mixing_chs <- channels_tbl(x$mixing)
     if(nrow(signal_chs)==0)  signal_chs <- NULL
     if(nrow(mixing_chs)==0)  mixing_chs <- NULL
-   dplyr::bind_cols(signal_chs, mixing_chs)
+   dplyr::bind_rows(signal_chs, mixing_chs)
 }
 
 
