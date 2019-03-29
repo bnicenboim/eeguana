@@ -28,6 +28,45 @@ signal_tbl <- function(signal_matrix = NULL, ids=NULL, sample_ids=NULL, channel_
   validate_signal_tbl(new_signal_tbl(signal_matrix, ids, sample_ids, channel_info))
 }
 
+#' Builds an events_tbl table.
+#'
+#' @param ids Integers indicating to which group the row of the signal matrix belongs.
+#' @param sample_0s Vector of integers that indicate at which sample an events starts.
+#' @param sizes Vector of integers that indicate at which sample an events starts.
+#' @param channels Vector of characters that indicate to which channel the event is relevant or NA for all the channels.
+#' 
+#' @family events_tbl
+#' 
+#' @return A valid events_tbl table.
+#' @export
+events_tbl <- function(.id = NULL, .sample_0=NULL, .size=NULL, .channel=NULL, descriptions_dt=NULL) {
+    validate_events_tbl(new_events_tbl(.id, .sample_0, .size, .channel, descriptions_dt))
+}
+
+#' @export
+as_events_tbl <- function(.data,...){
+    UseMethod("as_events_tbl")
+}
+
+#' @export
+as_events_tbl.data.table <- function(.data){
+    class(.data) <- c("events_tbl",class(.data))
+    validate_events_tbl(.data)
+}
+
+#' @export
+as_events_tbl.events_tbl <- function(.data){
+    validate_events_tbl(.data)
+}
+
+
+#' @export
+as_events_tbl.data.frame <- function(.data){
+    .data <- data.table::as.data.table(.data)
+    class(.data) <- c("events_tbl",class(.data))
+    validate_events_tbl(.data)
+}
+
 #' Test if the object is a  signal_tbl
 #' This function returns  TRUE for signals.
 #'
@@ -41,6 +80,19 @@ is_signal_tbl <- function(x) {
   "signal_tbl" %in% class(x) 
 }
 
+#' Test if the object is an events_tbl 
+#' This function returns  TRUE for events_tbl.
+#'
+#' @param x An object.
+#' 
+#' @family events_tbl
+#'
+#' @return `TRUE` if the object inherits from the `events_tbl` class.
+#' @export
+is_events_tbl <- function(x) {
+    "events_tbl" %in% class(x) 
+}
+
 
 #' Test if the object is an eeg_lst.
 #' This function returns  TRUE for eeg_lsts.
@@ -52,7 +104,7 @@ is_signal_tbl <- function(x) {
 #' @family eeg_lst
 #' @export
 is_eeg_lst <- function(x) {
-  class(x) == "eeg_lst"
+    "eeg_lst" %in% class(x)
 }
 
 

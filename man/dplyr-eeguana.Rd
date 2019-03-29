@@ -10,6 +10,7 @@
 \alias{ungroup.eeg_lst}
 \alias{select.eeg_lst}
 \alias{rename.eeg_lst}
+\alias{rename.ica_lst}
 \title{Dplyr functions for manipulating eeg_lst objects.}
 \usage{
 \method{mutate}{eeg_lst}(.data, ...)
@@ -27,6 +28,8 @@
 \method{select}{eeg_lst}(.data, ...)
 
 \method{rename}{eeg_lst}(.data, ...)
+
+\method{rename}{ica_lst}(.data, ...)
 }
 \arguments{
 \item{.data}{An eeg_lst.}

@@ -23,7 +23,7 @@ data <- eeg_lst(
     2L, "New Segment", NA_character_, -4L, 1L, NA,
     2L, "Time 0", NA_character_, 1L, 1L, NA,
     2L, "Bad", NA_character_, 2L, 1L, "Y"
-  ),
+  ) %>% as_events_tbl,
   segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
 )
 
@@ -49,7 +49,7 @@ data_NA <- eeg_lst(
     2L, "New Segment", NA_character_, -4L, 1L, NA,
     2L, "Time 0", NA_character_, 1L, 1L, NA,
     2L, "Bad", NA_character_, 2L, 1L, NA
-  ),
+    )%>% as_events_tbl,
   segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
 )
 
@@ -75,7 +75,7 @@ data_XY <- eeg_lst(
     2L, "New Segment", NA_character_, -4L, 1L, NA,
     2L, "Time 0", NA_character_, 1L, 1L, NA,
     2L, "Bad", NA_character_, 2L, 1L, "Y"
-  ),
+    )%>% as_events_tbl,
   segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
 )
 
@@ -160,7 +160,7 @@ data0 <- eeg_lst(
     1L, "New Segment", NA, 11L, 1L, NA,
     1L, "Time 0", NA, 16L, 1L, NA,
     1L, "Bad", NA, 17L, 1L, "Y"
-  ),
+    )%>% as_events_tbl,
   segments = dplyr::tibble(.id = 1L, recording = "recording1", segment = 1)
 )
 
@@ -251,7 +251,7 @@ data_eeg <- eeg_lst(
     2L, "New Segment", NA_character_, -4L, 1L, NA,
     2L, "Time 0", NA_character_, 1L, 1L, NA,
     2L, "Bad", NA_character_, 2L, 1L, "Y"
-  ),
+    )%>% as_events_tbl,
   segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
 )
 
