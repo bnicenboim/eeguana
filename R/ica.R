@@ -27,9 +27,36 @@ eeg_ica.eeg_lst <- function(.data,
     ##https://www.martinos.org/mne/stable/auto_tutorials/plot_artifacts_correction_ica.html
     ##https://martinos.org/mne/dev/auto_tutorials/plot_ica_from_raw.html
     ##http://www.fieldtriptoolbox.org/example/use_independent_component_analysis_ica_to_remove_eog_artifacts/
+    ##method = rlang::quo(fICA::adapt_fICA) # for testing
     method = rlang::enquo(method)
     dots <- rlang::enquos(...)
-    #method = rlang::quo(fICA::adapt_fICA) # for testing
+
+    ## creates a DT with length length(signal_tbl) where the grouping var is repeated,
+    ## This is used to split the signal_tbl, in case that there are many recordings together
+    rep_group <- repeated_group_col(.data)
+    signal_raw <- dplyr::select(.data$signal, channel_names(.data))
+    ## cols from signal_tbl that are not channels:
+    removed_signal <- dplyr::select(.data$signal, -one_of(channel_names(.data)))
+    ## remove more if dots are used
+    if(!rlang::is_empty(dots)){
+        removed_signal_col <- setdiff(colnames(signal_raw),
+                                      tidyselect::vars_select(colnames(signal_raw), !!!dots))
+        removed_signal <- bind_cols_dt(removed_signal,
+                                       dplyr::select(signal_raw, removed_signal_col))
+        data.table::setkey(removed_signal,.id,.sample_id)
+        signal_raw <- dplyr::select(signal_raw, !!!dots)
+    }
+
+    if(nrow(rep_group)==0){
+      l_signal <- list(signal_raw)
+    } else {
+    l_signal <- signal_raw %>% split(rep_group)
+    }
+
+    channel_means <- l_signal  %>%
+        purrr::map(colMeans, na.rm=TRUE)
+
+  
     method_label = rlang::as_label(method)
 
     if(method_label== "fastICA::fastICA"){
@@ -75,35 +102,6 @@ eeg_ica.eeg_lst <- function(.data,
       ##method needs to be evaluated in the package env, and the parameters are passed in alist with do.call
         do.call(rlang::eval_tidy(method), c(list(data_in(x)), config)) %>% data_out()
     }
-
-
-    rep_group <- repeated_group_col(.data)
-    signal_raw <- dplyr::select(.data$signal, channel_names(.data))
-    removed_signal <- dplyr::select(.data$signal, -one_of(channel_names(.data)))
-
-    if(!rlang::is_empty(dots)){
-        ##  selection <- tidyselect::vars_select(colnames(signal_raw),!!!dots)
-        ## purrr::walk(selection, ~if(!.x %in% channel_names(.data)  ){
-        ##                        stop(.x, " is not a channel",
-        ##                             "Only channels can be selected",
-        ##                             call. = FALSE)
-        ##                    } )
-        removed_signal_col <- setdiff(colnames(signal_raw),
-                                      tidyselect::vars_select(colnames(signal_raw), !!!dots))
-        removed_signal <- bind_cols_dt(removed_signal,
-                                       dplyr::select(signal_raw, removed_signal_col))
-        data.table::setkey(removed_signal,.id,.sample_id)
-        signal_raw <- dplyr::select(signal_raw, !!!dots)
-    }
-
-    if(nrow(rep_group)==0){
-      l_signal <- list(signal_raw)
-    } else {
-    l_signal <- signal_raw %>% split(rep_group)
-    }
-
-    channel_means <- l_signal  %>%
-        purrr::map(colMeans, na.rm=TRUE)
 
     l_ica <- purrr::map(l_signal, ICA_fun)
 
