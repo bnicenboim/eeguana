@@ -13,11 +13,8 @@
 #'
 #' @export
 plot.eeg_lst <- function(x, max_sample = 64000, ...) {
-  if (is.numeric(max_sample) & max_sample != 0 &
-    # it will downsample if the samples are at least twice as large than the max_sample
-    max(duration(x)) * sampling_rate(x) * 2 > max_sample) {
-    x <- eeg_downsample(x, max_sample = max_sample)
-  }
+
+  x <- try_to_downsample(x, max_sample)
 
   df <- dplyr::as_tibble(x) %>% 
         dplyr::mutate(.source = factor(.source, levels = unique(.source)))
@@ -54,11 +51,7 @@ plot_gg.eeg_lst <- function(.data, x = time, y = .value, ..., max_sample = 64000
   x <- rlang::enquo(x)
   y <- rlang::enquo(y)
 
-  if (!all(is.na(.data$signal$.sample_id)) && is.numeric(max_sample) && max_sample != 0 &&
-    # it will downsample if the samples are at least twice as large than the max_sample
-    max(duration(.data)) * sampling_rate(.data) * 2 > max_sample) {
-    .data <- eeg_downsample(.data, max_sample = max_sample)
-  }
+  .data <- try_to_downsample(.data, max_sample)
 
   dots <- rlang::enquos(...)
   df <- dplyr::as_tibble(.data) %>% 
