@@ -154,9 +154,12 @@ plot_topo.eeg_lst <- function(data, size= 1.2, projection = "polar", ...) {
 #' @export
 plot_topo.mixing_tbl <- function(data, size= 1.2, projection = "polar", ...) {
     
-    channels_tbl(data)  <- change_coord(channels_tbl(data), projection)
-    data %>% as_long_tbl %>%
-        filter(.ICA != "mean") %>% group_by(.group,.ICA) %>%
+    channels_tbl(data)  <- change_coord(channels_tbl(data), projection)  
+
+    data %>% as_long_tbl %>% 
+        filter(.ICA != "mean") %>%
+        dplyr::mutate(.ICA = factor(.ICA, levels = unique(.ICA)))%>%
+        group_by(.group,.ICA) %>%
         eeg_interpolate_tbl(size,...) %>%
         plot_topo()
 }

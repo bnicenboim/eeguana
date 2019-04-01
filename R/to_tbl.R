@@ -116,7 +116,6 @@ as_long_tbl.mixing_tbl <- function(x, add_channels_info = TRUE,...){
       } else {
         .
       }
-       }%>%
-        dplyr::group_by(.ICA,.group)
+       }
 
 }
