@@ -88,10 +88,12 @@ ungroup.eeg_lst <- function(.data, ...) {
   validate_eeg_lst(.data)
 }
 
+#' @rdname dplyr-eeguana
 groups.eeg_lst <- function(x) {
 attributes(x)$vars %>% purrr::map(as.name)
 }
 
+#' @rdname dplyr-eeguana
 group_vars.eeg_lst <- function(x) {
   attributes(x)$vars
 }
@@ -99,6 +101,8 @@ group_vars.eeg_lst <- function(x) {
 select.eeg_lst <- function(.data, ...) {
   select_rename(.data, select = TRUE, ...)
 }
+#' @rdname dplyr-eeguana
+#' @export
 select.ica_lst <- function(.data, ...){
     sel <- tidyselect::vars_select(component_names(.data),...)
     .data <- NextMethod()

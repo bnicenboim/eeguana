@@ -111,19 +111,6 @@ repeated_group_col <- function(.eeg_lst){
     }
 }
 
-pink_noise <- function (N, alpha = 1) {
-    ## adapted from tuneR, needs to be checked
-    f <- seq(from = 0, to = pi, length.out = (N/2 + 1))[-c(1, 
-    (N/2 + 1))]
-    f_ <- 1/f^alpha
-    RW <- sqrt(0.5 * f_) * rnorm(N/2 - 1)
-    IW <- sqrt(0.5 * f_) * rnorm(N/2 - 1)
-    fR <- complex(real = c(rnorm(1), RW, rnorm(1), RW[(N/2 - 
-                                                       1):1]), imaginary = c(0, IW, 0, -IW[(N/2 - 1):1]), length.out = N)
-    reihe <- fft(fR, inverse = TRUE)
-    return(Re(reihe))
-}
-
 
 try_to_downsample <- function(x, max_sample){ 
     if (is.numeric(max_sample) & max_sample != 0 &&

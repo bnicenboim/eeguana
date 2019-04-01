@@ -24,6 +24,10 @@ eeg_ica.eeg_lst <- function(.data,
                               )
 {
 
+    if(unique(.data$segment$recording) %>% length() != 1 && !"recording" %in% group_vars(.data)) {
+        warning("It seems that there is more than one recording. It may be appropriate to do 'data %>% group_by(recording)' before applying 'eeg_ica()' ")
+    }
+
     ##https://www.martinos.org/mne/stable/auto_tutorials/plot_artifacts_correction_ica.html
     ##https://martinos.org/mne/dev/auto_tutorials/plot_ica_from_raw.html
     ##http://www.fieldtriptoolbox.org/example/use_independent_component_analysis_ica_to_remove_eog_artifacts/

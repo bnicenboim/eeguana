@@ -27,7 +27,7 @@ data <- eeg_lst(
   segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
 )
 
-table0 <- tibble(.id = 1, condition = "BLUE") 
+table0 <- tibble(.id = 1L, condition = "BLUE") 
 
 data_l <- left_join(data,table0)
 data_s <- semi_join(data,table0)

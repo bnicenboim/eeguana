@@ -296,6 +296,9 @@ validate_segments <- function(segments) {
     if(is.null(segments)) {
         segments <- dplyr::tibble(.id = integer(0))
     }
+  if(!is.integer(segments$.id)){
+    warning("Column .id of segments table is not an integer.")
+  }
    if( length(segments$.id) != length(unique(segments$.id)) ){
      warning("Some .ids are repeated in the segments table, there is something wrong going on. Please open an issue with a reproducible example in https://github.com/bnicenboim/eeguana/issues",
       call. = FALSE
