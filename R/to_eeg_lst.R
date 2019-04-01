@@ -59,6 +59,7 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data){
     }
 
     scale_head <- purrr::map_dbl(rel_ch, ~ sqrt(sum((0 - .x$loc)^2)) ) %>%
+        .[.!=0] %>% # remove the ones that have all 0
         min(na.rm = TRUE) 
         
     ch_info <- rel_ch %>% purrr::map_dfr(function(ch) {
