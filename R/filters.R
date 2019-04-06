@@ -46,15 +46,15 @@ ch_filt_band_pass <- function(x, band_edge = NULL, order = 6, direction = "twopa
 }
 #' @rdname filt
 #' @export
-ch_filt_stop_pass <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
-  UseMethod("ch_filt_stop_pass")
+ch_filt_band_stop <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
+  UseMethod("ch_filt_band_stop")
 }
 
 
 #' @export
 ch_filt_low_pass.channel_dbl <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
-  if(length(band_edge)>1) stop("band_edge should contain only one frequency.")
-  type <- "low"
+    if(length(band_edge)>1) stop("band_edge should contain only one frequency.", call.=FALSE)
+      type <- "low"
   ch_filt(channel = x, band_edge = band_edge, order = order, type = type, direction = "twopass",...)
 }
 
@@ -72,7 +72,7 @@ ch_filt_high_pass.channel_dbl <- function(x, band_edge = NULL, order = 6, direct
 ch_filt_band_pass.channel_dbl <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
   if(length(band_edge) != 2) stop("band_edge should contain two frequencies.")
   if(band_edge[1] >= band_edge[2]) {
-    stop("The first argument of band_edge should be larger than the second one.")
+    stop("The first argument of band_edge should be smaller than the second one.")
   }
   type <- "pass"
   centered_channel <- x - mean(x)
@@ -81,10 +81,10 @@ ch_filt_band_pass.channel_dbl <- function(x, band_edge = NULL, order = 6, direct
 
 #' @rdname filt
 #' @export
-ch_filt_stop_pass.channel_dbl <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
+ch_filt_band_stop.channel_dbl <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
   if(length(band_edge) != 2) stop("band_edge should contain two frequency.")
   if(band_edge[1] <= band_edge[2]) {
-    stop("The second argument of band_edge should be larger than the first one.")  }
+    stop("The first argument of band_edge should be larger than the second one.")  }
   type <- "stop"
   centered_channel <- x - mean(x)
   ch_filt(channel = centered_channel, band_edge = band_edge, order = order, type = type, direction = "twopass",...)
@@ -111,23 +111,13 @@ ch_filt_high_pass.eeg_lst <- function(x, band_edge = NULL, order = 6, direction 
                           order = order, direction = direction, 
                           sampling_rate = sampling_rate(x)), 
                           .SDcols = channel_names(x), by = ".id"]
-  x                       
-}
-#' @rdname filt
-#' @export
-ch_filt_high_pass.eeg_lst <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
-  x$signal <- data.table::copy(x$signal)
-  x$signal[, (channel_names(x)) := lapply(.SD, ch_filt_high_pass.channel_dbl, band_edge = band_edge, 
-                          order = order, direction = direction, 
-                          sampling_rate = sampling_rate(x)), 
-                          .SDcols = channel_names(x), by = ".id"]
   x                         
 }
 #' @rdname filt
 #' @export
-ch_filt_stop_pass.eeg_lst <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
+ch_filt_band_stop.eeg_lst <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
    x$signal <- data.table::copy(x$signal)
-  x$signal[, (channel_names(x)) := lapply(.SD, ch_filt_stop_pass.channel_dbl, band_edge = band_edge, 
+  x$signal[, (channel_names(x)) := lapply(.SD, ch_filt_band_stop.channel_dbl, band_edge = band_edge, 
                           order = order, direction = direction, 
                           sampling_rate = sampling_rate(x)), 
                           .SDcols = channel_names(x), by = ".id"]
@@ -158,8 +148,14 @@ ch_filt <- function(channel, band_edge = NULL, order = 6, type, direction = "two
     } else {
       sampling_rate <- args$sampling_rate
     }
-  W <- band_edge / (sampling_rate / 2)
-
+  Nyquist <- sampling_rate / 2
+  W <- band_edge / Nyquist
+  if(type != "high") {
+       band_edge[length(band_edge)]/2
+       if(band_edge[length(band_edge)]/2 > Nyquist) {
+           stop("'band_edge[", length(band_edge), "]' cannot be larger than Nyquist frequency, ", Nyquist,call.=FALSE)
+       }
+  }
   # filtfilt filters twice, so effectively doubles filt_order - we half it here
   # so that it corresponds to the expectation of the user
   order <- round(order / 2)
@@ -171,3 +167,8 @@ ch_filt <- function(channel, band_edge = NULL, order = 6, type, direction = "two
 # https://github.com/fieldtrip/fieldtrip/blob/f67c00431828af4777ac27b464d6adfd9d4ac884/external/signal/filtfilt.m
 # butter:
 # https://github.com/fieldtrip/fieldtrip/blob/f67c00431828af4777ac27b464d6adfd9d4ac884/external/signal/butter.m
+
+# maybe from here:
+## https://github.com/mne-tools/mne-python/blob/master/mne/filter.py#L708-L851
+## https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py
+## https://martinos.org/mne/dev/auto_tutorials/plot_artifacts_correction_filtering.html#sphx-glr-auto-tutorials-plot-artifacts-correction-filtering-py

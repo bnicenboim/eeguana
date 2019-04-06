@@ -112,6 +112,7 @@ repeated_group_col <- function(.eeg_lst){
 }
 
 
+#' @noRd
 try_to_downsample <- function(x, max_sample){ 
     if (is.numeric(max_sample) & max_sample != 0 &&
                                         # it will downsample if the samples are at least twice as large than the max_sample
@@ -120,4 +121,11 @@ try_to_downsample <- function(x, max_sample){
     } else {
         x
     }
+}
+
+#' @noRd
+map_matr <- function(.x,.f,..., .id = NULL){
+    .f <- purrr::as_mapper(.f, ...)
+    res <- purrr::map(.x, .f, ...)
+    do.call("rbind", res)
 }

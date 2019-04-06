@@ -7,12 +7,6 @@ map_dtr <- function(.x,.f,..., .id = NULL){
 
 
 #' @noRd
-map2_dtr <- function(.x, .y, .f,..., .id = NULL){
-    .f <- purrr::as_mapper(.f, ...)
-    res <- purrr::map2(.x,.y, .f, ...)
-    data.table::rbindlist(res, fill = TRUE, idcol = .id)
-}
-#' @noRd
                                         # https://github.com/mllg/batchtools/blob/master/R/Joins.R
 semi_join_dt <- function(x, y, by = NULL) {
     w <- unique(x[y, on = by, nomatch = 0L, which = TRUE, allow.cartesian = TRUE])
