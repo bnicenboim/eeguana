@@ -1,10 +1,29 @@
-#' Simple plot an eeg_lst object.
+#' Create a basic signal plot
+#' 
+#' \code{plot} creates a ggplot object in which the EEG signal over the whole 
+#' recording is plotted by electrode. Useful as a quick visual check for major
+#' noise issues in the recording.
+#' 
+#' Note that for normal-size datasets, the plot may take several minutes to compile.
+#' 
+#' 
 #' @param x An `eeg_lst` object.
 #' @param max_sample Downsample to approximately 64000 samples by default.
 #' @param ... Not in use.
 #' @family plot
 #' 
 #' @return A ggplot object
+#' 
+#' @examples 
+#' # Download and load the data as per 
+#' https://bnicenboim.github.io/eeguana/articles/brainvision_files.html
+#' 
+#' # Basic plot
+#' plot(faces)
+#' 
+#' # Add ggplot layers
+#' plot(faces) + 
+#'     coord_cartesian(ylim = c(-500,500))
 #'
 #' @importFrom magrittr %>%
 #'
@@ -31,13 +50,34 @@ plot.eeg_lst <- function(x, max_sample = 64000, ...) {
   plot
 }
 
-#' ggplot object based on an eeg_lst object.
+#' Create an ERP plot
+#' 
+#' \code{plot_gg} initializes a ggplot object which takes an eeg_lst object as
+#' its input data. Layers can then be added in the same way as for a ggplot2
+#' \code{\link[ggplot2]{ggplot}} object.
+#' 
 #' @param .data An `eeg_lst` object.
 #' @inheritParams  ggplot2::aes
 #' @param max_sample Downsample to approximately 64000 samples by default.
 #'
 #' @family plot
 #' @return A ggplot object
+#' 
+#' @examples 
+#' # Download and segment data as per 
+#' https://bnicenboim.github.io/eeguana/articles/brainvision_files.html
+#' 
+#' # Plot grand averages over raw data in selected channels
+#' faces_segs_some %>% 
+#'   select(O1, O2, P7, P8) %>% 
+#'   plot_gg() + 
+#'       geom_line(alpha = .1, aes(group = .id, color = condition)) + 
+#'       stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1.5, 
+#'                aes(color = condition)) +
+#'       facet_wrap(~ channel) + 
+#'       geom_vline(xintercept = 0, linetype = "dashed") + 
+#'       geom_vline(xintercept = .17, linetype = "dotted") + 
+#'       theme(legend.position = "bottom") 
 #'
 #' @importFrom magrittr %>%
 #'
@@ -85,9 +125,25 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 }
 
 
-#' A topographic plot.
+#' Create a topographic plot
 #'
-#' Create a default topographic plot based on an interpolation table.
+#' \code{plot_topo} initializes a ggplot object which takes an eeg_lst object
+#' as its input data. Layers can then be added in the same way as for a ggplot2
+#' \code{\link[ggplot2]{ggplot}} object.
+#' 
+#' Before calling \code{plot_topo}, the eeg_lst object must be appropriately 
+#' grouped (e.g. by condition) and/or 
+#' summarized into mean values such that each .x .y coordinate has only one 
+#' amplitude value. These values can then be interpolated using 
+#' \code{\link{eeg_interpolate_tbl}}, which will display the electrodes 
+#' stereographically, or plotted as-is, which will use the default polar display.
+#' \code{plot_topo} called alone 
+#' without any further layers will create an unannotated topographical plot. 
+#' To add a head and nose, add the layer \code{\link{annotate_head}}. Add 
+#' contour lines with \code{\link[ggplot2]{geom_contour}} and electrode labels 
+#' with \code{\link[ggplot2]{geom_text}}. These arguments are deliberately not
+#' built into the function so as to allow flexibility in choosing colour, font 
+#' size, and even head size, etc.
 #'
 #'
 #' @param data A table of interpolated electrodes as produced by [eeg_interpolate_tbl], or an eeg_lst appropiately grouped. 
@@ -96,7 +152,33 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 #' @family plot
 #'
 #' @return A ggplot object
+#' 
+#' @examples 
+#' # Download and segment data as per 
+#' https://bnicenboim.github.io/eeguana/articles/brainvision_files.html
+#' 
+#' # Calculate mean amplitude between 100-200 ms and plot the topography
+#' faces_segs_some %>% 
+#'     filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) %>% 
+#'     group_by(condition) %>%
+#'     summarize_all_ch(mean, na.rm = TRUE) %>%
+#'     plot_topo() +
+#'         annotate_head() + 
+#'         geom_contour() +
+#'         geom_text(colour = "black") +
+#'         facet_grid(~condition)
 #'
+#' # The same but with interpolation
+#' faces_segs_some %>% 
+#'     filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) %>% 
+#'     group_by(condition) %>%
+#'     summarize_all_ch(mean, na.rm = TRUE) %>%
+#'       eeg_interpolate_tbl() %>%
+#'       plot_topo() +
+#'         annotate_head() + 
+#'         geom_contour() +
+#'         geom_text(colour = "black") +
+#'         facet_grid(~condition)
 #'
 #' @export
 plot_topo <- function(data,  ...) {
@@ -156,14 +238,37 @@ plot_topo.eeg_lst <- function(data, size= 1.2, value= amplitude,  label=channel,
     plot_topo(value= amplitude,  label=channel,...)
   }
 
-#' Place channels in a layout.
+#' Arrange ERP plots according to scalp layout
 #'
-#' Reorganizes a ggplot so that the plot of each channel is in their correct position in the scalp.
+#' Arranges a ggplot so that the facet for each channel appears in its position 
+#' on the scalp.
+#' 
+#' This function requires two steps: first, a ggplot object must be created with 
+#' ERPs facetted by channel name. 
+#' Then, the ggplot object is called in \code{plot_in_layout}.
 #'
 #' @param plot A ggplot object with channels
 #'
 #' @family plot
 #' @return A ggplot object
+#' 
+#' 
+#' @examples 
+#' # Download and segment data as per 
+#' https://bnicenboim.github.io/eeguana/articles/brainvision_files.html
+#' 
+#' # Create a ggplot object with some grand averaged ERPs
+#' ERP_plot <- faces_segs_some %>% 
+#'    group_by(.sample_id, condition) %>%
+#'    summarize_all_ch(mean,na.rm=TRUE) %>%
+#'    plot_gg() + 
+#'        geom_line(aes(color = condition)) +
+#'        facet_wrap(~ channel) +  
+#'        theme(legend.position = "bottom") + 
+#'        ggtitle("ERPs for faces vs non-faces") 
+#'
+#' # Call the ggplot object with the layout function
+#' plot_in_layout(ERP_plot)
 #' 
 #' @export
 plot_in_layout <- function(plot,  ...) {
