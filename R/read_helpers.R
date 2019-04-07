@@ -170,8 +170,9 @@ segment_events <- function(events, .lower, .sample_0, .upper) {
                 .sample_0 := dplyr::if_else(i..sample_0 < x..lower, 
                                              as.integer(x..lower - i..sample_0 + 1L),
                                              as.integer(i..sample_0 - .sample_0 + 1L))  ]
-  new_events[,..cols_events] 
-
+  out_events <- new_events[,..cols_events] 
+  data.table::setattr(out_events, "class", c("events_tbl",class(out_events)))
+  out_events
 }
 
 
@@ -214,8 +215,11 @@ read_vhdr_metadata <- function(file) {
                       if(ncol(.)==4) dplyr::mutate(., empty_col = NA_real_) else .
                         } %>%
     purrr::set_names(c("type","channel", ".reference", "resolution", "unit")) %>%
-    dplyr::mutate(resolution = as.double(resolution))
-
+    dplyr::mutate(resolution = as.double(resolution),
+                  unit = "microvolt") 
+ #To avoid problems with the unicode characters, it seems that brainvision uses "mu" instead of "micro"
+ #TODO: check if the unit could be different here
+ 
   if(is.null(vhdr$Coordinates)){
 coordinates <- dplyr::tibble(type = channel_info$type,radius = NA_real_, theta = NA_real_, phi = NA_real_)
   } else {

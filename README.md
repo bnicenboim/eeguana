@@ -161,9 +161,9 @@ Some intervals were marked as "bad" by BrainVision, and so we'll remove them fro
 
 ``` r
 faces_segs <- faces %>% 
-               segment(description %in% c("s70", "s71"), 
+               eeg_segment(description %in% c("s70", "s71"), 
                         lim = c(-.2,.25)) %>%
-               event_to_ch_NA(type == "Bad Interval") %>% 
+               eeg_intervals_to_NA(type == "Bad Interval") %>% 
                ch_baseline()
 #> # Total of 200 segments found.
 #> # Object size in memory 12.2 Mb after segmentation.
@@ -285,7 +285,7 @@ faces_segs_some
 #> attr(,"class")
 #> [1] "eeg_lst"
 #> attr(,"vars")
-#> character(0)
+#> named character(0)
 ```
 
 With some "regular" `ggplot` skills, we can create customized plots. `plot_gg()` downsamples the signals (by default), and converts them to a long-format data frame that is feed into `ggplot` object. This object can then be customized.
@@ -297,7 +297,7 @@ faces_segs_some %>%
                   geom_line(alpha = .1, aes(group = .id, color = condition)) + 
                   stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1.5, 
                   aes(color = condition)) +
-                  facet_wrap(~ channel) + 
+                  facet_wrap(~ .source) + 
                   geom_vline(xintercept = 0, linetype = "dashed") + 
                   geom_vline(xintercept = .17, linetype = "dotted") + 
                   theme(legend.position = "bottom") 

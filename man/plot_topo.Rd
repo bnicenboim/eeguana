@@ -5,23 +5,30 @@
 \alias{plot_topo.tbl_df}
 \alias{plot_topo.eeg_lst}
 \title{Create a topographic plot}
+\alias{plot_topo.mixing_tbl}
+\alias{plot_topo.ica_lst}
 \usage{
 plot_topo(data, ...)
 
-\method{plot_topo}{tbl_df}(data, value = amplitude, label = channel,
+\method{plot_topo}{tbl_df}(data, value = .value, label = .source)
+
+\method{plot_topo}{eeg_lst}(data, size = 1.2, projection = "polar",
   ...)
 
-\method{plot_topo}{eeg_lst}(data, size = 1.2, value = amplitude,
-  label = channel, projection = "polar", ...)
+\method{plot_topo}{mixing_tbl}(data, size = 1.2, projection = "polar",
+  ...)
+
+\method{plot_topo}{ica_lst}(data, size = 1.2, projection = "polar",
+  ...)
 }
 \arguments{
 \item{data}{A table of interpolated electrodes as produced by \link{eeg_interpolate_tbl}, or an eeg_lst appropiately grouped.}
 
 \item{...}{Not in use.}
 
-\item{value}{Values used for the interpolation, generally \code{amplitude} (default).}
+\item{value}{Values used for the interpolation, generally \code{.value} (default).}
 
-\item{label}{Label of the points that are used for the interpolation, generally \code{channel} (default).}
+\item{label}{Label of the points that are used for the interpolation, generally \code{.source} (default).}
 
 \item{size}{Indicates how much to extrapolate, \code{1} indicates no extrapolation beyond the position of the electrodes.}
 

@@ -7,7 +7,7 @@
 \usage{
 plot_gg(.data, ...)
 
-\method{plot_gg}{eeg_lst}(.data, x = time, y = amplitude, ...,
+\method{plot_gg}{eeg_lst}(.data, x = time, y = .value, ...,
   max_sample = 64000)
 }
 \arguments{

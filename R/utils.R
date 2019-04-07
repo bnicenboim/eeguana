@@ -1,6 +1,9 @@
-  
+
+
+mu_raw <- list(charToRaw("μ"), charToRaw("µ"))
+
 #' @noRd
-seq_len <- function(length.out) {
+seq_len2 <- function(length.out) {
   if (length(length.out) == 0) {
     base::seq_len(0)
   } else if (length.out == -Inf) {
@@ -56,18 +59,6 @@ vec_mean <- function(..., na.rm = FALSE) {
   purrr::pmap_dbl(list(...), ~mean(c(...), na.rm = FALSE))
 }
 
-#' @noRd
-# https://github.com/mllg/batchtools/blob/master/R/Joins.R
-semi_join_dt <- function(x, y, by = NULL) {
-  w <- unique(x[y, on = by, nomatch = 0L, which = TRUE, allow.cartesian = TRUE])
-  x[w]
-}
-
-#' @noRd
-left_join_dt <- function(x, y, by = NULL) {
-  y[x, on = by]
-}
-
 rowMeans_ch <- function(x, na.rm = FALSE, dims = 1L) {
   channel_dbl(rowMeans(x, na.rm, dims))
 }
@@ -105,3 +96,28 @@ theme_eeguana_empty <- theme_eeguana +
 between <- data.table::between
 
 
+#' @noRd
+repeated_group_col <- function(.eeg_lst){
+    group_cols <- group_vars(.eeg_lst)
+    segments <-   .eeg_lst$segments %>%
+        {.[names(.) %in%  c(obligatory_cols$segments, group_cols)]} %>%
+        data.table::data.table()
+    data.table::setkey(segments,.id)
+    dt <- .eeg_lst$signal[segments, group_cols, with = FALSE]  
+    if(nrow(dt)==0){
+      return(dt)
+    } else {
+        return(dt[, .group:=do.call(paste0,.SD)][,(group_cols):=NULL][])
+    }
+}
+
+
+try_to_downsample <- function(x, max_sample){ 
+    if (is.numeric(max_sample) & max_sample != 0 &&
+                                        # it will downsample if the samples are at least twice as large than the max_sample
+        nsamples(x)/ 2 > max_sample) {
+        x <- eeg_downsample(x, max_sample = max_sample)
+    } else {
+        x
+    }
+}

@@ -27,7 +27,7 @@ data_1 <- eeg_lst(
     3L, "New Segment", NA_character_, -4L, 1L, NA,
     3L, "Time 0", NA_character_, 1L, 1L, NA,
     3L, "Bad", NA_character_, 2L, 1L, "Y"
-  ),
+    )%>% as_events_tbl(),
   segments = dplyr::tibble(.id = c(1L, 2L, 3L),
                            recording = "recording1",
                            segment = c(1L, 2L, 3L),
@@ -64,52 +64,50 @@ test_that("selecting non-existent variables returns error", {
 select1_eeg <- select(data, X)
 select1_tbl <- data %>%
   as_tibble() %>%
-  tidyr::spread(key = channel, value = amplitude) %>%
+  tidyr::spread(key = .source, value = .value) %>%
   dplyr::select(X)
 
 
 select2_eeg <- select(data, -Y)
 select2_tbl <- data %>%
   as_tibble() %>%
-  tidyr::spread(key = channel, value = amplitude) %>%
+  tidyr::spread(key = .source, value = .value) %>%
   dplyr::select(-Y)
 
 
 select3_eeg <- select(data, starts_with("Y"))
 select3_tbl <- data %>%
   as_tibble() %>%
-  tidyr::spread(key = channel, value = amplitude) %>%
+  tidyr::spread(key = .source, value = .value) %>%
   dplyr::select(starts_with("Y"))
 
 select4_eeg <- select(data, ends_with("X"))
 select4_tbl <- data %>%
     as_tibble(add_channels_info=FALSE) %>%
-    tidyr::spread(key = channel, value = amplitude) %>%
+    tidyr::spread(key = .source, value = .value) %>%
     dplyr::select(ends_with("X"))
 
 select4.1_eeg <- select(data, one_of("X"))
 select4.1_tbl <- data %>%
     as_tibble(add_channels_info=FALSE) %>%
-  tidyr::spread(key = channel, value = amplitude) %>%
+  tidyr::spread(key = .source, value = .value) %>%
   dplyr::select(one_of("X"))
 
 select5_eeg <- select(data, contains("Y"))
-select5_tbl <- data %>%
-    as_tibble(add_channels_info=FALSE) %>%
-  tidyr::spread(key = channel, value = amplitude) %>%
+select5_tbl <- data$signal %>%
   dplyr::select(contains("Y"))
 
 select5.1_eeg <- select(data, one_of("Y"))
 select5.1_tbl <- data %>%
     as_tibble(add_channels_info=FALSE) %>%
-  tidyr::spread(key = channel, value = amplitude) %>%
+  tidyr::spread(key = .source, value = .value) %>%
   dplyr::select(one_of("Y"))
 
 
 select6_eeg <- select(data, tidyselect::matches("X"))
 select6_tbl <- data %>%
     as_tibble(add_channels_info=FALSE) %>%
-  tidyr::spread(key = channel, value = amplitude) %>%
+  tidyr::spread(key = .source, value = .value) %>%
   dplyr::select(tidyselect::matches("X"))
 
 
@@ -181,21 +179,21 @@ test_that("data didn't change", {
 select9_eeg <- select(data, recording)
 select9_tbl <- data %>%
   as_tibble() %>%
-  tidyr::spread(key = channel, value = amplitude) %>%
+  tidyr::spread(key = .source, value = .value) %>%
   dplyr::select(recording)
 
 
 select10_eeg <- select(data, segment)
 select10_tbl <- data %>%
   as_tibble() %>%
-  tidyr::spread(key = channel, value = amplitude) %>%
+  tidyr::spread(key = .source, value = .value) %>%
   dplyr::select(segment)
 
 
 select11_eeg <- select(data, condition)
 select11_tbl <- data %>%
   as_tibble() %>%
-  tidyr::spread(key = channel, value = amplitude) %>%
+  tidyr::spread(key = .source, value = .value) %>%
   dplyr::select(condition)
 
 
@@ -255,14 +253,14 @@ test_that("data didn't change", {
 ## select_all1_eeg <- select_all(data, toupper) 
 ## select_all1_tbl <- data %>%
 ##   as_tibble() %>%
-##   tidyr::spread(key = channel, value = amplitude) %>%
+##   tidyr::spread(key = .source, value = .value) %>%
 ##   dplyr::select_all(toupper)
 
 
 ## select_all2_eeg <- select_all(data, tolower) 
 ## select_all2_tbl <- data %>%
 ##   as_tibble() %>%
-##   tidyr::spread(key = channel, value = amplitude) %>%
+##   tidyr::spread(key = .source, value = .value) %>%
 ##   dplyr::select_all(tolower)
 
 
@@ -321,7 +319,7 @@ mutate_select_eeg <- mutate(data, Z = Y + 1) %>%
   select(Z)
 mutate_select_tbl <- data %>%
   as_tibble() %>%
-  tidyr::spread(key = channel, value = amplitude) %>%
+  tidyr::spread(key = .source, value = .value) %>%
   dplyr::mutate(Z = Y + 1) %>%
   dplyr::select(Z)
 
@@ -330,7 +328,7 @@ summarize_all_select_eeg <- summarize_all_ch(data, mean) %>%
   select(Y)
 summarize_all_select_tbl <- data %>%
   as_tibble() %>%
-  tidyr::spread(key = channel, value = amplitude) %>%
+  tidyr::spread(key = .source, value = .value) %>%
   dplyr::summarise(X = mean(X), Y = mean(Y)) %>%
   dplyr::select(Y)
 
@@ -380,7 +378,7 @@ group_select_eeg <- data %>%
 
 group_select_tbl <- data %>%
   as_tibble() %>%
-  tidyr::spread(key = channel, value = amplitude) %>%
+  tidyr::spread(key = .source, value = .value) %>%
   dplyr::group_by(condition) %>%
   dplyr::select(Y)
 
@@ -392,7 +390,7 @@ group_select_summarize_eeg <- data %>%
 
 group_select_summarize_tbl <- data %>%
   as_tibble() %>%
-  tidyr::spread(key = channel, value = amplitude) %>%
+  tidyr::spread(key = .source, value = .value) %>%
   dplyr::group_by(time) %>%
   dplyr::summarise(X = mean(X)) %>%
   dplyr::select(X)
