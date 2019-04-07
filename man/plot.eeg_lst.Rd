@@ -2,9 +2,9 @@
 % Please edit documentation in R/plot.R
 \name{plot.eeg_lst}
 \alias{plot.eeg_lst}
-\title{Simple plot an eeg_lst object.}
+\title{Create a basic signal plot}
 \usage{
-\method{plot}{eeg_lst}(x, max_sample = 64000, ...)
+plot.eeg_lst(x, max_sample = 64000, ...)
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
@@ -17,7 +17,24 @@
 A ggplot object
 }
 \description{
-Simple plot an eeg_lst object.
+\code{plot} creates a ggplot object in which the EEG signal over the whole
+recording is plotted by electrode. Useful as a quick visual check for major
+noise issues in the recording.
+}
+\details{
+Note that for normal-size datasets, the plot may take several minutes to compile.
+}
+\examples{
+# Download and load the data as per 
+https://bnicenboim.github.io/eeguana/articles/brainvision_files.html
+
+# Basic plot
+plot(faces)
+
+# Add ggplot layers
+plot(faces) + 
+    coord_cartesian(ylim = c(-500,500))
+
 }
 \seealso{
 Other plot: \code{\link{plot_gg}},

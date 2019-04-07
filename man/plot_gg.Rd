@@ -3,7 +3,7 @@
 \name{plot_gg}
 \alias{plot_gg}
 \alias{plot_gg.eeg_lst}
-\title{ggplot object based on an eeg_lst object.}
+\title{Create an ERP plot}
 \usage{
 plot_gg(.data, ...)
 
@@ -31,7 +31,26 @@ they are so common; all other aesthetics must be named.}
 A ggplot object
 }
 \description{
-ggplot object based on an eeg_lst object.
+\code{plot_gg} initializes a ggplot object which takes an eeg_lst object as
+its input data. Layers can then be added in the same way as for a ggplot2
+\code{\link[ggplot2]{ggplot}} object.
+}
+\examples{
+# Download and segment data as per 
+https://bnicenboim.github.io/eeguana/articles/brainvision_files.html
+
+# Plot grand averages over raw data in selected channels
+faces_segs_some \%>\% 
+  select(O1, O2, P7, P8) \%>\% 
+  plot_gg() + 
+      geom_line(alpha = .1, aes(group = .id, color = condition)) + 
+      stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1.5, 
+               aes(color = condition)) +
+      facet_wrap(~ channel) + 
+      geom_vline(xintercept = 0, linetype = "dashed") + 
+      geom_vline(xintercept = .17, linetype = "dotted") + 
+      theme(legend.position = "bottom") 
+
 }
 \seealso{
 Other plot: \code{\link{plot.eeg_lst}},
