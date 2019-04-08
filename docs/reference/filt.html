@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Apply a Butterworth IIR filter. — filt • eeguana</title>
+<title>Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter. — filt • eeguana</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -37,10 +37,9 @@
 
 
 
-<meta property="og:title" content="Apply a Butterworth IIR filter. — filt" />
+<meta property="og:title" content="Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter. — filt" />
 
-<meta property="og:description" content="Apply a Butterworth IIR filter using signal::filt_filt. Based on
-Matt Craddock's code of eegUtils matt@mattcraddock.com." />
+<meta property="og:description" content="Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter of the  FIR (finite impulse response) class. These filters are adapted from the default filters in MNE package (v 0.0.17.1)  of python. For background information about the FIR vs IIR filters, see (here)https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py,." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -127,61 +126,45 @@ Matt Craddock's code of eegUtils matt@mattcraddock.com." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Apply a Butterworth IIR filter.</h1>
+    <h1>Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter.</h1>
     <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/filters.R'><code>R/filters.R</code></a></small>
     <div class="hidden name"><code>filt.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Apply a Butterworth IIR filter using <code>signal::filt_filt</code>. Based on
-Matt Craddock's code of <code>eegUtils</code> <a href='mailto:matt@mattcraddock.com'>matt@mattcraddock.com</a>.</p>
+    <p>Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter of the  FIR (finite impulse response) class. These filters are adapted from the default filters in <a href='https://mne-tools.github.io'>MNE package</a> (v 0.0.17.1)  of <a href='https://www.python.org/'>python</a>. For background information about the FIR vs IIR filters, see (here)https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py,.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>ch_filt_low_pass</span>(<span class='no'>x</span>, <span class='kw'>band_edge</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>order</span> <span class='kw'>=</span> <span class='fl'>6</span>,
-  <span class='kw'>direction</span> <span class='kw'>=</span> <span class='st'>"twopass"</span>, <span class='no'>...</span>)
+    <pre class="usage"><span class='fu'>ch_filt_low_pass</span>(<span class='no'>x</span>, <span class='kw'>freq</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
 
-<span class='fu'>ch_filt_high_pass</span>(<span class='no'>x</span>, <span class='kw'>band_edge</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>order</span> <span class='kw'>=</span> <span class='fl'>6</span>,
-  <span class='kw'>direction</span> <span class='kw'>=</span> <span class='st'>"twopass"</span>, <span class='no'>...</span>)
+<span class='fu'>ch_filt_high_pass</span>(<span class='no'>x</span>, <span class='kw'>freq</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
 
-<span class='fu'>ch_filt_band_pass</span>(<span class='no'>x</span>, <span class='kw'>band_edge</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>order</span> <span class='kw'>=</span> <span class='fl'>6</span>,
-  <span class='kw'>direction</span> <span class='kw'>=</span> <span class='st'>"twopass"</span>, <span class='no'>...</span>)
+<span class='fu'>ch_filt_band_pass</span>(<span class='no'>x</span>, <span class='kw'>freq</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
 
-<span class='fu'>ch_filt_stop_pass</span>(<span class='no'>x</span>, <span class='kw'>band_edge</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>order</span> <span class='kw'>=</span> <span class='fl'>6</span>,
-  <span class='kw'>direction</span> <span class='kw'>=</span> <span class='st'>"twopass"</span>, <span class='no'>...</span>)
+<span class='fu'>ch_filt_band_stop</span>(<span class='no'>x</span>, <span class='kw'>freq</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for channel_dbl</span>
-<span class='fu'>ch_filt_high_pass</span>(<span class='no'>x</span>, <span class='kw'>band_edge</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>order</span> <span class='kw'>=</span> <span class='fl'>6</span>,
-  <span class='kw'>direction</span> <span class='kw'>=</span> <span class='st'>"twopass"</span>, <span class='no'>...</span>)
+<span class='fu'>ch_filt_high_pass</span>(<span class='no'>x</span>, <span class='kw'>freq</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for channel_dbl</span>
-<span class='fu'>ch_filt_band_pass</span>(<span class='no'>x</span>, <span class='kw'>band_edge</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>order</span> <span class='kw'>=</span> <span class='fl'>6</span>,
-  <span class='kw'>direction</span> <span class='kw'>=</span> <span class='st'>"twopass"</span>, <span class='no'>...</span>)
+<span class='fu'>ch_filt_band_pass</span>(<span class='no'>x</span>, <span class='kw'>freq</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for channel_dbl</span>
-<span class='fu'>ch_filt_stop_pass</span>(<span class='no'>x</span>, <span class='kw'>band_edge</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>order</span> <span class='kw'>=</span> <span class='fl'>6</span>,
-  <span class='kw'>direction</span> <span class='kw'>=</span> <span class='st'>"twopass"</span>, <span class='no'>...</span>)
+<span class='fu'>ch_filt_band_stop</span>(<span class='no'>x</span>, <span class='kw'>freq</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>ch_filt_low_pass</span>(<span class='no'>x</span>, <span class='kw'>band_edge</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>order</span> <span class='kw'>=</span> <span class='fl'>6</span>,
-  <span class='kw'>direction</span> <span class='kw'>=</span> <span class='st'>"twopass"</span>, <span class='no'>...</span>)
+<span class='fu'>ch_filt_low_pass</span>(<span class='no'>x</span>, <span class='kw'>freq</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>ch_filt_high_pass</span>(<span class='no'>x</span>, <span class='kw'>band_edge</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>order</span> <span class='kw'>=</span> <span class='fl'>6</span>,
-  <span class='kw'>direction</span> <span class='kw'>=</span> <span class='st'>"twopass"</span>, <span class='no'>...</span>)
+<span class='fu'>ch_filt_high_pass</span>(<span class='no'>x</span>, <span class='kw'>freq</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>ch_filt_high_pass</span>(<span class='no'>x</span>, <span class='kw'>band_edge</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>order</span> <span class='kw'>=</span> <span class='fl'>6</span>,
-  <span class='kw'>direction</span> <span class='kw'>=</span> <span class='st'>"twopass"</span>, <span class='no'>...</span>)
+<span class='fu'>ch_filt_band_stop</span>(<span class='no'>x</span>, <span class='kw'>freq</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>ch_filt_stop_pass</span>(<span class='no'>x</span>, <span class='kw'>band_edge</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>order</span> <span class='kw'>=</span> <span class='fl'>6</span>,
-  <span class='kw'>direction</span> <span class='kw'>=</span> <span class='st'>"twopass"</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>ch_filt_band_pass</span>(<span class='no'>x</span>, <span class='kw'>band_edge</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>order</span> <span class='kw'>=</span> <span class='fl'>6</span>,
-  <span class='kw'>direction</span> <span class='kw'>=</span> <span class='st'>"twopass"</span>, <span class='no'>...</span>)</pre>
+<span class='fu'>ch_filt_band_pass</span>(<span class='no'>x</span>, <span class='no'>freq</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -191,16 +174,8 @@ Matt Craddock's code of <code>eegUtils</code> <a href='mailto:matt@mattcraddock.
       <td><p>A channel or an eeg_lst.</p></td>
     </tr>
     <tr>
-      <th>band_edge</th>
-      <td><p>A single cut frequency for <code>filt_low_pass_ch</code> and <code>filt_high_pass_ch</code>, two edges for  <code>filt_band_pass_ch</code> and <code>filt_stop_pass_ch</code>.</p></td>
-    </tr>
-    <tr>
-      <th>order</th>
-      <td><p>Filter order (default is 6).</p></td>
-    </tr>
-    <tr>
-      <th>direction</th>
-      <td><p>"twopass" (default) filters the signal twice (once forwards, then again backwards).</p></td>
+      <th>freq</th>
+      <td><p>A single cut frequency for <code>ch_filt_low_pass</code> and <code>filt_high_pass_ch</code>, two edges for  <code>filt_band_pass_ch</code> and <code>filt_stop_pass_ch</code>.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -215,16 +190,16 @@ Matt Craddock's code of <code>eegUtils</code> <a href='mailto:matt@mattcraddock.
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <ul>
-<li><p><code>filt_low_pass_ch()</code> Low-pass or high-cut filter.</p></li>
-<li><p><code>filt_high_pass_ch()</code> High-pass or low-cut filter.</p></li>
-<li><p><code>filt_band_pass_ch()</code> Band-pass filter.</p></li>
-<li><p><code>filt_stop_pass_ch()</code> Stop-pass filter.</p></li>
+<li><p><code>ch_filt_low_pass()</code> Low-pass or high-cut filter.</p></li>
+<li><p><code>ch_filt_high_pass()</code> High-pass or low-cut filter.</p></li>
+<li><p><code>ch_filt_band_pass()</code> Band-pass filter.</p></li>
+<li><p><code>ch_filt_stop_pass()</code> Stop-pass filter.</p></li>
 </ul>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><span class='co'># NOT RUN {</span>
-<span class='no'>faces_segs</span> <span class='kw'>%&gt;%</span> <span class='fu'>filt_low_pass_ch</span>(<span class='kw'>band_edge</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>order</span> <span class='kw'>=</span> <span class='fl'>4</span>)
+<span class='no'>faces_segs</span> <span class='kw'>%&gt;%</span> <span class='fu'>filt_low_pass_ch</span>(<span class='kw'>freq</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>order</span> <span class='kw'>=</span> <span class='fl'>4</span>)
 <span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

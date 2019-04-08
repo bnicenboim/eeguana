@@ -5,60 +5,42 @@
 \alias{ch_filt_low_pass}
 \alias{ch_filt_high_pass}
 \alias{ch_filt_band_pass}
-\alias{ch_filt_stop_pass}
+\alias{ch_filt_band_stop}
 \alias{ch_filt_high_pass.channel_dbl}
 \alias{ch_filt_band_pass.channel_dbl}
-\alias{ch_filt_stop_pass.channel_dbl}
+\alias{ch_filt_band_stop.channel_dbl}
 \alias{ch_filt_low_pass.eeg_lst}
 \alias{ch_filt_high_pass.eeg_lst}
-\alias{ch_filt_stop_pass.eeg_lst}
+\alias{ch_filt_band_stop.eeg_lst}
 \alias{ch_filt_band_pass.eeg_lst}
-\title{Apply a Butterworth IIR filter.}
+\title{Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter.}
 \usage{
-ch_filt_low_pass(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
+ch_filt_low_pass(x, freq = NULL, ...)
 
-ch_filt_high_pass(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
+ch_filt_high_pass(x, freq = NULL, ...)
 
-ch_filt_band_pass(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
+ch_filt_band_pass(x, freq = NULL, ...)
 
-ch_filt_stop_pass(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
+ch_filt_band_stop(x, freq = NULL, ...)
 
-\method{ch_filt_high_pass}{channel_dbl}(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
+\method{ch_filt_high_pass}{channel_dbl}(x, freq = NULL, ...)
 
-\method{ch_filt_band_pass}{channel_dbl}(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
+\method{ch_filt_band_pass}{channel_dbl}(x, freq = NULL, ...)
 
-\method{ch_filt_stop_pass}{channel_dbl}(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
+\method{ch_filt_band_stop}{channel_dbl}(x, freq = NULL, ...)
 
-\method{ch_filt_low_pass}{eeg_lst}(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
+\method{ch_filt_low_pass}{eeg_lst}(x, freq = NULL, ...)
 
-\method{ch_filt_high_pass}{eeg_lst}(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
+\method{ch_filt_high_pass}{eeg_lst}(x, freq = NULL, ...)
 
-\method{ch_filt_high_pass}{eeg_lst}(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
+\method{ch_filt_band_stop}{eeg_lst}(x, freq = NULL, ...)
 
-\method{ch_filt_stop_pass}{eeg_lst}(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
-
-\method{ch_filt_band_pass}{eeg_lst}(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
+\method{ch_filt_band_pass}{eeg_lst}(x, freq, ...)
 }
 \arguments{
 \item{x}{A channel or an eeg_lst.}
 
-\item{band_edge}{A single cut frequency for \code{filt_low_pass_ch} and \code{filt_high_pass_ch}, two edges for  \code{filt_band_pass_ch} and \code{filt_stop_pass_ch}.}
-
-\item{order}{Filter order (default is 6).}
-
-\item{direction}{"twopass" (default) filters the signal twice (once forwards, then again backwards).}
+\item{freq}{A single cut frequency for \code{ch_filt_low_pass} and \code{filt_high_pass_ch}, two edges for  \code{filt_band_pass_ch} and \code{filt_stop_pass_ch}.}
 
 \item{...}{The sample rate can be included as \code{sampling_rate}, when the function is called outside mutate/summarize.}
 }
@@ -66,20 +48,19 @@ ch_filt_stop_pass(x, band_edge = NULL, order = 6,
 A channel or an eeg_lst.
 }
 \description{
-Apply a Butterworth IIR filter using \code{signal::filt_filt}. Based on
-Matt Craddock's code of \code{eegUtils} \email{matt@mattcraddock.com}.
+Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter of the  FIR (finite impulse response) class. These filters are adapted from the default filters in \href{https://mne-tools.github.io}{MNE package} (v 0.0.17.1)  of \href{https://www.python.org/}{python}. For background information about the FIR vs IIR filters, see (here)\link{https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py},.
 }
 \details{
 \itemize{
-\item \code{filt_low_pass_ch()} Low-pass or high-cut filter.
-\item \code{filt_high_pass_ch()} High-pass or low-cut filter.
-\item \code{filt_band_pass_ch()} Band-pass filter.
-\item \code{filt_stop_pass_ch()} Stop-pass filter.
+\item \code{ch_filt_low_pass()} Low-pass or high-cut filter.
+\item \code{ch_filt_high_pass()} High-pass or low-cut filter.
+\item \code{ch_filt_band_pass()} Band-pass filter.
+\item \code{ch_filt_stop_pass()} Stop-pass filter.
 }
 }
 \examples{
 \dontrun{
 
-faces_segs \%>\% filt_low_pass_ch(band_edge = 100, order = 4)
+faces_segs \%>\% filt_low_pass_ch(freq = 100, order = 4)
 }
 }
