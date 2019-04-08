@@ -32,50 +32,54 @@ A ggplot object
 }
 \description{
 \code{plot_topo} initializes a ggplot object which takes an eeg_lst object
-as its input data. Layers can then be added in the same way as for a ggplot2
-\code{\link[ggplot2]{ggplot}} object.
+as its input data. Layers can then be added in the same way as for a
+\code{\link[ggplot2:ggplot]{ggplot2::ggplot()}} object.
 }
 \details{
 Before calling \code{plot_topo}, the eeg_lst object must be appropriately
 grouped (e.g. by condition) and/or
 summarized into mean values such that each .x .y coordinate has only one
 amplitude value. These values can then be interpolated using
-\code{\link{eeg_interpolate_tbl}}, which will display the electrodes
+\code{\link[=eeg_interpolate_tbl]{eeg_interpolate_tbl()}}, which will display the electrodes
 stereographically, or plotted as-is, which will use the default polar display.
 \code{plot_topo} called alone
 without any further layers will create an unannotated topographical plot.
-To add a head and nose, add the layer \code{\link{annotate_head}}. Add
-contour lines with \code{\link[ggplot2]{geom_contour}} and electrode labels
-with \code{\link[ggplot2]{geom_text}}. These arguments are deliberately not
+To add a head and nose, add the layer \code{\link[=annotate_head]{annotate_head()}}. Add
+contour lines with \code{\link[ggplot2:geom_contour]{ggplot2::geom_contour()}} and electrode labels
+with \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}}. These arguments are deliberately not
 built into the function so as to allow flexibility in choosing colour, font
 size, and even head size, etc.
 }
 \examples{
-# Download and segment data as per 
-https://bnicenboim.github.io/eeguana/articles/brainvision_files.html
-
+```
 # Calculate mean amplitude between 100-200 ms and plot the topography
-faces_segs_some \%>\% 
+data_faces_ERPs \%>\% 
+    # select the time window of interest
+    filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) \%>\% 
+    # compute mean amplitude per condition
+    group_by(condition) \%>\%
+    summarize_all_ch(mean, na.rm = TRUE) \%>\%
+    plot_topo() +
+        # add a head and nose shape
+        annotate_head() + 
+        # add contour lines
+        geom_contour() +
+        # add electrode labels
+        geom_text(colour = "black") +
+        facet_grid(~condition)
+
+# The same but with interpolation
+data_faces_ERPs \%>\% 
     filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) \%>\% 
     group_by(condition) \%>\%
     summarize_all_ch(mean, na.rm = TRUE) \%>\%
+    eeg_interpolate_tbl() \%>\%
     plot_topo() +
         annotate_head() + 
         geom_contour() +
         geom_text(colour = "black") +
         facet_grid(~condition)
-
-# The same but with interpolation
-faces_segs_some \%>\% 
-    filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) \%>\% 
-    group_by(condition) \%>\%
-    summarize_all_ch(mean, na.rm = TRUE) \%>\%
-      eeg_interpolate_tbl() \%>\%
-      plot_topo() +
-        annotate_head() + 
-        geom_contour() +
-        geom_text(colour = "black") +
-        facet_grid(~condition)
+```
 
 }
 \seealso{

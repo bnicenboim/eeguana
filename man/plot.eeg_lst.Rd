@@ -4,7 +4,7 @@
 \alias{plot.eeg_lst}
 \title{Create a basic signal plot}
 \usage{
-plot.eeg_lst(x, max_sample = 64000, ...)
+\method{plot}{eeg_lst}(x, max_sample = 64000, ...)
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
@@ -25,15 +25,14 @@ noise issues in the recording.
 Note that for normal-size datasets, the plot may take several minutes to compile.
 }
 \examples{
-# Download and load the data as per 
-https://bnicenboim.github.io/eeguana/articles/brainvision_files.html
-
+```
 # Basic plot
-plot(faces)
+plot(data_faces_ERPs)
 
 # Add ggplot layers
-plot(faces) + 
+plot(data_faces_ERPs) + 
     coord_cartesian(ylim = c(-500,500))
+```
 
 }
 \seealso{

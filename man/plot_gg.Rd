@@ -32,24 +32,25 @@ A ggplot object
 }
 \description{
 \code{plot_gg} initializes a ggplot object which takes an eeg_lst object as
-its input data. Layers can then be added in the same way as for a ggplot2
-\code{\link[ggplot2]{ggplot}} object.
+its input data. Layers can then be added in the same way as for a
+\code{\link[ggplot2:ggplot]{ggplot2::ggplot()}} object.
 }
 \examples{
-# Download and segment data as per 
-https://bnicenboim.github.io/eeguana/articles/brainvision_files.html
-
+``` 
 # Plot grand averages over raw data in selected channels
-faces_segs_some \%>\% 
+data_faces_ERPs \%>\% 
+  # select the desired electrodes
   select(O1, O2, P7, P8) \%>\% 
   plot_gg() + 
+      # plot the raw ERP waves
       geom_line(alpha = .1, aes(group = .id, color = condition)) + 
+      # add a grand average wave
       stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1.5, 
                aes(color = condition)) +
-      facet_wrap(~ channel) + 
-      geom_vline(xintercept = 0, linetype = "dashed") + 
-      geom_vline(xintercept = .17, linetype = "dotted") + 
+      # facet by channel
+      facet_wrap(~ .source) + 
       theme(legend.position = "bottom") 
+```
 
 }
 \seealso{

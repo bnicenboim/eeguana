@@ -28,25 +28,29 @@ on the scalp.
 }
 \details{
 This function requires two steps: first, a ggplot object must be created with
-ERPs facetted by channel name.
+ERPs facetted by channel (\link{.source}).
 Then, the ggplot object is called in \code{plot_in_layout}.
 }
 \examples{
-# Download and segment data as per 
-https://bnicenboim.github.io/eeguana/articles/brainvision_files.html
-
+```
 # Create a ggplot object with some grand averaged ERPs
-ERP_plot <- faces_segs_some \%>\% 
+ERP_plot <- data_faces_ERPs \%>\% 
+   # group by time point and condition
    group_by(.sample_id, condition) \%>\%
+   # compute averages
    summarize_all_ch(mean,na.rm=TRUE) \%>\%
    plot_gg() + 
+       # plot the averaged waveforms
        geom_line(aes(color = condition)) +
-       facet_wrap(~ channel) +  
+       # facet by channel
+       facet_wrap(~ .source) +  
+       # add a legend and title
        theme(legend.position = "bottom") + 
        ggtitle("ERPs for faces vs non-faces") 
 
 # Call the ggplot object with the layout function
 plot_in_layout(ERP_plot)
+```
 
 }
 \seealso{
