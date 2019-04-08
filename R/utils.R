@@ -114,9 +114,9 @@ repeated_group_col <- function(.eeg_lst){
 
 #' @noRd
 try_to_downsample <- function(x, max_sample){ 
-    if (is.numeric(max_sample) & max_sample != 0 &&
+    if (all(!is.na(nsamples(x))) && (is.numeric(max_sample) && max_sample != 0 &&
                                         # it will downsample if the samples are at least twice as large than the max_sample
-        nsamples(x)/ 2 > max_sample) {
+        max(nsamples(x))/ 2 > max_sample)) {
         x <- eeg_downsample(x, max_sample = max_sample)
     } else {
         x
