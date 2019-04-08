@@ -1,6 +1,16 @@
 #' @noRd
 group_by_eeg_lst <- function(.eeg_lst, dots, .add = FALSE){
-  attributes(.eeg_lst)$vars <- purrr::map_chr(dots, rlang::quo_text)
+  if(length(dots)!=0) {
+    new_groups <- purrr::map_chr(dots, rlang::quo_text)
+  } else {
+    new_groups <- character(0)
+  }
+  names(new_groups) <- NULL
+  if(.add == FALSE){
+    attributes(.eeg_lst)$vars <- new_groups
+  } else {
+    attributes(.eeg_lst)$vars <- unique(c(attributes(.eeg_lst)$vars,new_groups))
+  }
   allcols <- c(colnames(.eeg_lst$signal), colnames(.eeg_lst$segments))
   if(length(setdiff(attributes(.eeg_lst)$vars, allcols))>0) {
     notfound <- paste0(setdiff(attributes(.eeg_lst)$vars, allcols), collapse = ", ")
@@ -33,7 +43,7 @@ filter_eeg_lst <- function(.eeg_lst, dots){
 
     # filter the segments and update the signal_tbl
     if (length(new_dots$segments) > 0) {
-      grouping <- group_chr(.eeg_lst)[group_chr(.eeg_lst) %in% colnames(.eeg_lst$segments)]
+      grouping <- group_vars(.eeg_lst)[group_vars(.eeg_lst) %in% colnames(.eeg_lst$segments)]
       .eeg_lst$segments <- .eeg_lst$segments %>% 
                            dplyr::group_by_at(dplyr::vars(grouping)) %>% 
                            dplyr::filter(!!!new_dots$segments) %>%
@@ -146,7 +156,7 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
   for (dfs in select_in_df) {
       vars_dfs <- all_vars[all_vars %in% colnames(.eeg_lst[[dfs]])]
                                         #add grouped vars if missing
-      groups <- group_chr(.eeg_lst)[group_chr(.eeg_lst)  %in% colnames(.eeg_lst[[dfs]])]
+      groups <- group_vars(.eeg_lst)[group_vars(.eeg_lst)  %in% colnames(.eeg_lst[[dfs]])]
       missing_grouped_vars <- setdiff(groups,vars_dfs) %>%
           setNames(.,.)
       vars_dfs <- c(missing_grouped_vars,vars_dfs)
@@ -200,7 +210,8 @@ scaling <- function(sampling_rate, unit) {
   } else {
     stop("Incorrect unit. Please use 'ms', 's', or 'sample'")
   }
-}
+scaling
+  }
 
 
 # #' @noRd

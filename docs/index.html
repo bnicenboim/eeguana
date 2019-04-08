@@ -231,13 +231,10 @@
 <span class="co">#&gt; character(0)</span></code></pre></div>
 <p>Some intervals were marked as “bad” by BrainVision, and so we’ll remove them from the data. We’ll also segment and baseline the data. In this experiment, the trigger “s70” was used for faces and “s71” for no faces. We’ll segment the data using these two triggers.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces_segs &lt;-<span class="st"> </span>faces <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">               </span><span class="kw"><a href="reference/eeguana-deprecated.html">segment</a></span>(description <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"s70"</span>, <span class="st">"s71"</span>), 
+<span class="st">               </span><span class="kw"><a href="reference/eeg_segment.html">eeg_segment</a></span>(description <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"s70"</span>, <span class="st">"s71"</span>), 
                         <span class="dt">lim =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="op">-</span>.<span class="dv">2</span>,.<span class="dv">25</span>)) <span class="op">%&gt;%</span>
 <span class="st">               </span><span class="kw"><a href="reference/eeg_intervals_to_NA.html">eeg_intervals_to_NA</a></span>(type <span class="op">==</span><span class="st"> "Bad Interval"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">               </span><span class="kw"><a href="reference/ch_baseline.html">ch_baseline</a></span>()
-<span class="co">#&gt; Warning: 'segment' is deprecated.</span>
-<span class="co">#&gt; Use 'eeg_segment' instead.</span>
-<span class="co">#&gt; See help("Deprecated")</span>
 <span class="co">#&gt; # Total of 200 segments found.</span>
 <span class="co">#&gt; # Object size in memory 12.2 Mb after segmentation.</span></code></pre></div>
 <p>We can also edit the segmentation information and add more descriptive labels. <em>eeguana</em> has wrappers for many <code>dplyr</code> commands for the EEG data. These commands always return an entire <code>eeg_lst</code> object so that they can be piped using <code>magrittr</code>’s pipe, <code>%&gt;%</code>.</p>
@@ -354,7 +351,7 @@ faces_segs_some
 <span class="co">#&gt; attr(,"class")</span>
 <span class="co">#&gt; [1] "eeg_lst"</span>
 <span class="co">#&gt; attr(,"vars")</span>
-<span class="co">#&gt; named character(0)</span></code></pre></div>
+<span class="co">#&gt; character(0)</span></code></pre></div>
 <p>With some “regular” <code>ggplot</code> skills, we can create customized plots. <code><a href="reference/plot_gg.html">plot_gg()</a></code> downsamples the signals (by default), and converts them to a long-format data frame that is feed into <code>ggplot</code> object. This object can then be customized.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces_segs_some <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">                  </span><span class="kw">select</span>(O1, O2, P7, P8) <span class="op">%&gt;%</span><span class="st"> </span>
@@ -362,7 +359,7 @@ faces_segs_some
 <span class="st">                  </span><span class="kw">geom_line</span>(<span class="dt">alpha =</span> <span class="fl">.1</span>, <span class="kw">aes</span>(<span class="dt">group =</span> .id, <span class="dt">color =</span> condition)) <span class="op">+</span><span class="st"> </span>
 <span class="st">                  </span><span class="kw">stat_summary</span>(<span class="dt">fun.y =</span> <span class="st">"mean"</span>, <span class="dt">geom =</span><span class="st">"line"</span>, <span class="dt">alpha =</span> <span class="dv">1</span>, <span class="dt">size =</span> <span class="fl">1.5</span>, 
                   <span class="kw">aes</span>(<span class="dt">color =</span> condition)) <span class="op">+</span>
-<span class="st">                  </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>channel) <span class="op">+</span><span class="st"> </span>
+<span class="st">                  </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>.source) <span class="op">+</span><span class="st"> </span>
 <span class="st">                  </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="dv">0</span>, <span class="dt">linetype =</span> <span class="st">"dashed"</span>) <span class="op">+</span><span class="st"> </span>
 <span class="st">                  </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="fl">.17</span>, <span class="dt">linetype =</span> <span class="st">"dotted"</span>) <span class="op">+</span><span class="st"> </span>
 <span class="st">                  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>) </code></pre></div>

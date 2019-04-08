@@ -97,7 +97,8 @@ eeg_segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds",
                                            i..sample_0 - .sample_0 + 1L)  ][, 
                .id := .new_id]
 
-  x$events <- new_events[,..cols_events] 
+  x$events <- new_events[,..cols_events]
+  data.table::setattr(x$events,"class",c("events_tbl",class(x$events)))
 
 
   message(paste0("# Total of ", max(x$signal$.id), " segments found."))
@@ -204,6 +205,6 @@ eeg_intervals_to_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = 
   x$signal <- data.table::data.table(signal)
   data.table::setattr(x$signal, "class", c("signal_tbl", class(x$signal))) 
   data.table::setkey(x$signal,.id,.sample_id)
-  x$events <- data.table::data.table(x$events)
+  x$events <- as_events_tbl(x$events)
   validate_eeg_lst(x)
 }

@@ -19,7 +19,9 @@ A ggplot object
 \description{
 \code{plot} creates a ggplot object in which the EEG signal over the whole
 recording is plotted by electrode. Useful as a quick visual check for major
-noise issues in the recording.
+noise issues in the recording. This function first downsamples the eeg_lst 
+and then converts it into a long tibble. See \link{as_tibble.eeg_lst} for details.
+
 }
 \details{
 Note that for normal-size datasets, the plot may take several minutes to compile.
@@ -36,7 +38,7 @@ plot(data_faces_ERPs) +
 
 }
 \seealso{
-Other plot: \code{\link{plot_gg}},
+Other plots: \code{\link{plot_gg}},
   \code{\link{plot_in_layout}}, \code{\link{plot_topo}}
 }
 \concept{plot}

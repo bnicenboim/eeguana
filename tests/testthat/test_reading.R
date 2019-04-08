@@ -43,6 +43,8 @@ ch_tbl <- channels_tbl(multiplexed_bin_bv2)
 max_sample <- max(multiplexed_bin_bv2$signal$.sample_id)
 edf_f <- dplyr::filter(edf, .sample_id <=  4722)
 channels_tbl(edf_f) <- ch_tbl
+
+
 channels_tbl(edf) <- channels_tbl(edf_bv)
 channels_tbl(edf_plus_bv) <- channels_tbl(edf_bv)
 events_bv <- events(multiplexed_bin_bv2) %>% dplyr::select(-type) %>% dplyr::rename(annotation=description) %>% 

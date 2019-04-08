@@ -28,20 +28,17 @@
 #'
 #' @export
 plot.eeg_lst <- function(x, max_sample = 64000, ...) {
-  if (is.numeric(max_sample) & max_sample != 0 &
-    # it will downsample if the samples are at least twice as large than the max_sample
-    max(duration(x)) * sampling_rate(x) * 2 > max_sample) {
-    x <- eeg_downsample(x, max_sample = max_sample)
-  }
+
+  x <- try_to_downsample(x, max_sample)
 
   df <- dplyr::as_tibble(x) %>% 
-        dplyr::mutate(channel = factor(channel, levels = unique(channel)))
+        dplyr::mutate(.source = factor(.source, levels = unique(.source)))
   plot <- ggplot2::ggplot(
     df,
-    ggplot2::aes(x = time, y = amplitude, group = .id)
+    ggplot2::aes(x = time, y = .value, group = .id)
   ) +
     ggplot2::geom_line() +
-    ggplot2::facet_grid(channel ~ .,
+    ggplot2::facet_grid(.source ~ .,
       labeller = ggplot2::label_wrap_gen(multi_line = FALSE)
     ) +
     ggplot2::scale_y_reverse() +
@@ -87,19 +84,15 @@ plot_gg <- function(.data, ...) {
 }
 #' @rdname plot_gg
 #' @export
-plot_gg.eeg_lst <- function(.data, x = time, y = amplitude, ..., max_sample = 64000) {
+plot_gg.eeg_lst <- function(.data, x = time, y = .value, ..., max_sample = 64000) {
   x <- rlang::enquo(x)
   y <- rlang::enquo(y)
 
-  if (!all(is.na(.data$signal$.sample_id)) && is.numeric(max_sample) && max_sample != 0 &&
-    # it will downsample if the samples are at least twice as large than the max_sample
-    max(duration(.data)) * sampling_rate(.data) * 2 > max_sample) {
-    .data <- eeg_downsample(.data, max_sample = max_sample)
-  }
+  .data <- try_to_downsample(.data, max_sample)
 
   dots <- rlang::enquos(...)
   df <- dplyr::as_tibble(.data) %>% 
-        dplyr::mutate(channel = factor(channel, levels = unique(channel)))
+        dplyr::mutate(.source = factor(.source, levels = unique(.source)))
 
   plot <- ggplot2::ggplot(
     df,
@@ -190,7 +183,7 @@ plot_topo <- function(data,  ...) {
 }
 #' @rdname plot_topo
 #' @export
-plot_topo.tbl_df <- function(data, value= amplitude,  label=channel, ...) {
+plot_topo.tbl_df <- function(data, value= .value,  label=.source) {
 
   value <- rlang::enquo(value)
   label <- rlang::enquo(label)
@@ -233,14 +226,33 @@ plot_topo.tbl_df <- function(data, value= amplitude,  label=channel, ...) {
 #' @inheritParams eeg_interpolate_tbl
 #' @rdname plot_topo
 #' @export
-plot_topo.eeg_lst <- function(data, size= 1.2, value= amplitude,  label=channel, projection = "polar", ...) {
+plot_topo.eeg_lst <- function(data, size= 1.2, projection = "polar", ...) {
   
-  amplitude <- rlang::enquo(value)
-  channel <- rlang::enquo(label)
   channels_tbl(data)  <- change_coord(channels_tbl(data), projection) 
   eeg_interpolate_tbl(data, size,...) %>%
-    plot_topo(value= amplitude,  label=channel,...)
-  }
+    plot_topo()
+}
+
+#' @rdname plot_topo
+#' @export
+plot_topo.mixing_tbl <- function(data, size= 1.2, projection = "polar", ...) {
+    
+    channels_tbl(data)  <- change_coord(channels_tbl(data), projection)  
+
+    data %>% as_long_tbl %>% 
+        filter(.ICA != "mean") %>%
+        dplyr::mutate(.ICA = factor(.ICA, levels = unique(.ICA)))%>%
+        group_by(.group,.ICA) %>%
+        eeg_interpolate_tbl(size,...) %>%
+        plot_topo()
+}
+
+#' @rdname plot_topo
+#' @export
+plot_topo.ica_lst <- function(data, size= 1.2, projection = "polar", ...) {
+    plot_topo(data$mixing,size= 1.2, projection = "polar", ...)
+}
+
 
 #' Arrange ERP plots according to scalp layout
 #'
@@ -294,13 +306,13 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
   size_x <- ratio[[1]]
   size_y <- ratio[[2]]
   eeg_data <- plot$data
-  if (!"channel" %in% colnames(eeg_data)) {
-    stop("Channels are missing from the data.")
-  }
+  ## if (!"channel" %in% colnames(eeg_data)) {
+  ##   stop("Channels are missing from the data.")
+  ## }
   if (!all(c(".x", ".y", ".z") %in% colnames(eeg_data))) {
     stop("Coordinates are missing from the data.")
   }
-  plot <- plot  + ggplot2::facet_wrap(.~channel)
+  plot <- plot  + ggplot2::facet_wrap(.~.source)
   plot_grob <- ggplot2::ggplotGrob(plot)
   layout <- ggplot2::ggplot_build(plot)$layout$layout
 
@@ -344,9 +356,9 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
   
   # won't work for free scales, need to add an if-else inside
   
-  channel_grobs <- purrr::map(layout$channel, function(ch) {
+  channel_grobs <- purrr::map(layout$.source, function(ch) {
     ## pos <- which(facet_names==ch, arr.ind =  TRUE)
-    ch_pos <- layout %>% dplyr::filter(channel == ch)
+      ch_pos <- layout %>% dplyr::filter(.source == ch)
     # panel_txt <- paste0("panel-", ch_pos$ROW, "-", ch_pos$COL)
     # strip_txt <- paste0("strip-t-", ch_pos$COL, "-", ch_pos$ROW)
     # axisl_txt <- paste0("axis-l-", ch_pos$ROW, "-", ch_pos$COL)
@@ -374,7 +386,7 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
     # }
 
     ch_grob
-  }) %>% stats::setNames(layout$channel)
+  }) %>% stats::setNames(layout$.source)
   # #gtable::gtable_height(ch_grob)
   # grid::heightDetails(ch_grob)
   # grid::heightDetails(ch_grob)
@@ -412,7 +424,7 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
   
   for (i in seq_len(length(channel_grobs))) {
     new_coord <- eeg_data %>%
-      dplyr::filter(channel == names(channel_grobs)[[i]]) %>%
+        dplyr::filter(.source == names(channel_grobs)[[i]]) %>%
       dplyr::distinct(.x, .y)
     if(is.na(new_coord$.x) && is.na(new_coord$.y)){
       new_plot
