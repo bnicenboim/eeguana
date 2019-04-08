@@ -173,7 +173,7 @@ filter5_sign_eeg <- data %>% filter(.id == 1 & .sample_id < 0)
 filter5_sign_tbl <- as_tibble(data$events) %>%
   group_by(.id, .sample_0) %>%
   filter(.id == 1 & any(seq(.sample_0, by = 1, length.out = .size) < 0))
- 
+
 # this might be impossible to test?
 # filter6_sign_eeg <- data %>% filter(X < 0)
 # filter6_sign_tbl <- as_tibble(data$events) %>%
@@ -349,6 +349,7 @@ test_that("filtering across tables returns the right segments table values", {
 })
 
 
+
 ## # b) A couple of tests of the events table from the above filters
 
 ## filter1_evts_tbl <- left_join(as_tibble(data$segments), as_tibble(data$events)) %>%
@@ -386,6 +387,7 @@ mutate_filter1_eeg <- data %>%
   mutate(time = as_time(.sample_id, unit = "milliseconds")) %>%
   filter(time == 2)
 
+
 mutate_filter1_tbl <-  data$signal %>%
   mutate(time = as_time(.sample_id, unit = "milliseconds")) %>%
     dplyr::filter(time == 2) %>%
@@ -395,6 +397,7 @@ mutate_filter1_tbl <-  data$signal %>%
 mutate_filter2_eeg <- data %>%
   mutate(time = as_time(.sample_id, unit = "seconds")) %>%
   filter(time == 0.002)
+
 
 mutate_filter2_tbl <- data$signal %>%
   mutate(time = as_time(.sample_id, unit = "seconds")) %>%
@@ -449,6 +452,7 @@ test_that("filtering on newly created variables works in segments table", {
   expect_setequal(as.matrix(transmute_filter_eeg$segments), 
                as.matrix(select(transmute_filter_tbl, .id, recording, segment, condition)))
 })
+
 
 
 

@@ -3,7 +3,7 @@
 \name{plot_gg}
 \alias{plot_gg}
 \alias{plot_gg.eeg_lst}
-\title{ggplot object based on an eeg_lst object.}
+\title{Create an ERP plot}
 \usage{
 plot_gg(.data, ...)
 
@@ -31,7 +31,27 @@ they are so common; all other aesthetics must be named.}
 A ggplot object
 }
 \description{
-ggplot object based on an eeg_lst object.
+\code{plot_gg} initializes a ggplot object which takes an eeg_lst object as
+its input data. Layers can then be added in the same way as for a
+\code{\link[ggplot2:ggplot]{ggplot2::ggplot()}} object.
+}
+\examples{
+``` 
+# Plot grand averages over raw data in selected channels
+data_faces_ERPs \%>\% 
+  # select the desired electrodes
+  select(O1, O2, P7, P8) \%>\% 
+  plot_gg() + 
+      # plot the raw ERP waves
+      geom_line(alpha = .1, aes(group = .id, color = condition)) + 
+      # add a grand average wave
+      stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1.5, 
+               aes(color = condition)) +
+      # facet by channel
+      facet_wrap(~ .source) + 
+      theme(legend.position = "bottom") 
+```
+
 }
 \seealso{
 Other plot: \code{\link{plot.eeg_lst}},

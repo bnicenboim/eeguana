@@ -3,7 +3,7 @@
 \name{plot_in_layout}
 \alias{plot_in_layout}
 \alias{plot_in_layout.gg}
-\title{Place channels in a layout.}
+\title{Arrange ERP plots according to scalp layout}
 \usage{
 plot_in_layout(plot, ...)
 
@@ -23,7 +23,35 @@ plot_in_layout(plot, ...)
 A ggplot object
 }
 \description{
-Reorganizes a ggplot so that the plot of each channel is in their correct position in the scalp.
+Arranges a ggplot so that the facet for each channel appears in its position
+on the scalp.
+}
+\details{
+This function requires two steps: first, a ggplot object must be created with
+ERPs facetted by channel (\link{.source}).
+Then, the ggplot object is called in \code{plot_in_layout}.
+}
+\examples{
+```
+# Create a ggplot object with some grand averaged ERPs
+ERP_plot <- data_faces_ERPs \%>\% 
+   # group by time point and condition
+   group_by(.sample_id, condition) \%>\%
+   # compute averages
+   summarize_all_ch(mean,na.rm=TRUE) \%>\%
+   plot_gg() + 
+       # plot the averaged waveforms
+       geom_line(aes(color = condition)) +
+       # facet by channel
+       facet_wrap(~ .source) +  
+       # add a legend and title
+       theme(legend.position = "bottom") + 
+       ggtitle("ERPs for faces vs non-faces") 
+
+# Call the ggplot object with the layout function
+plot_in_layout(ERP_plot)
+```
+
 }
 \seealso{
 Other plot: \code{\link{plot.eeg_lst}},

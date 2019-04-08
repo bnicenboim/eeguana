@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot.R
 \name{annotate_head}
 \alias{annotate_head}
-\title{Annotates a head in a ggplot}
+\title{Add a head shape to a ggplot}
 \usage{
 annotate_head(size = 1.1, color = "black", stroke = 1)
 }
@@ -17,5 +17,16 @@ annotate_head(size = 1.1, color = "black", stroke = 1)
 A layer for a ggplot
 }
 \description{
-Annotates a head in a ggplot
+Adds the outline of a head and nose to a ggplot.
+}
+\examples{
+```
+data_faces_ERPs \%>\% 
+    filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) \%>\% 
+    group_by(condition) \%>\%
+    summarize_all_ch(mean, na.rm = TRUE) \%>\%
+    plot_topo() +
+    annotate_head(size = 1, color = "black", stroke = 2)
+```
+
 }
