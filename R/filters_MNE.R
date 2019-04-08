@@ -362,7 +362,6 @@ create_filter <- function(data, sampling_rate=NULL, l_freq=NULL, h_freq=NULL, fi
             gain = c(0, gain)
         }
    } else if (type =="bandpass"){
-        if (any(l_freq < h_freq)){
             message("Setting up band-pass filter from ",l_freq," - " , h_freq ," Hz")
             f_pass <- f_stop <- c(l_freq,h_freq)  #iir
             freq = c(l_stop, l_freq, h_freq, h_stop) #f_s1, f_p1, f_p2, f_s2
@@ -375,7 +374,7 @@ create_filter <- function(data, sampling_rate=NULL, l_freq=NULL, h_freq=NULL, fi
                     freq = c(0, freq)
                     gain = c(0, gain)
             }
-        }   else if(type == "bandstop") {
+   }   else if(type == "bandstop") {
             ## This could possibly be removed after 0.14 release, but might
             ## as well leave it in to sanity check notch_filter
             if (length(l_freq) != length(h_freq)){
@@ -415,8 +414,7 @@ create_filter <- function(data, sampling_rate=NULL, l_freq=NULL, h_freq=NULL, fi
                 stop("Stop bands are not sufficiently ",
                      "separated.")
             }
-        }
-   }   
+   }
     ## if method == "iir":
     ## construct_iir_filter(iir_params, f_pass, f_stop, sampling_rate, type)
     ## if method == "fir":
