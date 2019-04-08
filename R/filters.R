@@ -51,8 +51,7 @@ ch_filt_band_stop <- function(x, freq = NULL,  ...) {
 #' @export
 ch_filt_low_pass.channel_dbl <- function(x, freq = NULL,  ...) {
     if(length(freq)>1) stop("freq should contain only one frequency.", call.=FALSE)
-      type <- "low"
-    filt_custom(channel = channel, h_freq = freq,...)
+    filt_custom(x = x, h_freq = freq,...)
 }
 
 #' @rdname filt
@@ -60,7 +59,7 @@ ch_filt_low_pass.channel_dbl <- function(x, freq = NULL,  ...) {
 ch_filt_high_pass.channel_dbl <- function(x, freq = NULL,  ...) {
   if(length(freq)>1) stop("freq should contain only one frequency.")
 
-  filt_custom(channel = channel, l_freq = freq,...)
+  filt_custom(x = x, l_freq = freq,...)
 }
 
 #' @rdname filt
@@ -70,7 +69,7 @@ ch_filt_band_pass.channel_dbl <- function(x, freq = NULL,  ...) {
   if(freq[1] >= freq[2]) {
     stop("The first argument of freq should be smaller than the second one.")
   }
-  filt_custom(channel = channel, l_freq = freq[1], h_freq = freq[2],...)
+  filt_custom(x = x, l_freq = freq[1], h_freq = freq[2],...)
 }
 
 #' @rdname filt
@@ -80,7 +79,7 @@ ch_filt_band_stop.channel_dbl <- function(x, freq = NULL,  ...) {
   if(freq[1] <= freq[2]) {
     stop("The first argument of freq should be larger than the second one.")  }
   type <- "stop"
-  filt_custom(channel = channel, l_freq = freq[1], h_freq = freq[2],...)
+  filt_custom(x = x, l_freq = freq[1], h_freq = freq[2],...)
 }
 
 
@@ -88,46 +87,54 @@ ch_filt_band_stop.channel_dbl <- function(x, freq = NULL,  ...) {
 #' @rdname filt
 #' @export
 ch_filt_low_pass.eeg_lst <- function(x, freq = NULL,  ...) {
-  x$signal <- data.table::copy(x$signal)
-  x$signal[, (channel_names(x)) := lapply(.SD, ch_filt_low_pass.channel_dbl,
-                                          freq= freq,
-                          sampling_rate = sampling_rate(x)), 
-                          .SDcols = channel_names(x), by = ".id"]
-  x                          
+    h <- create_filter(l_freq = NULL,
+                       h_freq = freq,
+                       sampling_rate = sampling_rate(x),...)
+    filt_eeg_lst(x,h)
 }
 
 #' @rdname filt
 #' @export
 ch_filt_high_pass.eeg_lst <- function(x, freq = NULL,  ...) {
-  x$signal <- data.table::copy(x$signal)
-  x$signal[, (channel_names(x)) := lapply(.SD, ch_filt_high_pass.channel_dbl,
-                                         freq= freq,
-                          sampling_rate = sampling_rate(x)), 
-                          .SDcols = channel_names(x), by = ".id"]
-  x                         
+    h <- create_filter(l_freq = freq,
+                       h_freq = NULL,
+                       sampling_rate = sampling_rate(x),...)
+    filt_eeg_lst(x,h)
 }
 #' @rdname filt
 #' @export
 ch_filt_band_stop.eeg_lst <- function(x, freq = NULL,  ...) {
-   x$signal <- data.table::copy(x$signal)
-   x$signal[, (channel_names(x)) := lapply(.SD, ch_filt_band_stop.channel_dbl,
-                                           freq = freq,
-                           sampling_rate = sampling_rate(x)), 
-                          .SDcols = channel_names(x), by = ".id"]
-  x                       
+    if(length(freq) != 2) stop("freq should contain two frequencies.")
+    if(freq[1] <= freq[2]) {
+        stop("The first argument of freq should be larger than the second one.")  }
+
+    h <- create_filter(l_freq = freq[1],
+                       h_freq= freq[2],
+                       sampling_rate = sampling_rate(x),...)
+    filt_eeg_lst(x,h)
 }
 #' @rdname filt
 #' @export
 ch_filt_band_pass.eeg_lst <- function(x, freq, ...) {
-   x$signal <- data.table::copy(x$signal)
-   x$signal[, (channel_names(x)) := lapply(.SD, ch_filt_band_pass.channel_dbl,
-                                           l_freq = freq[1],
-                                           h_freq= freq[2],
-                          sampling_rate = sampling_rate(x)), 
-                          .SDcols = channel_names(x), by = ".id"]
-  x                        
+    if(length(freq) != 2) stop("freq should contain two frequencies.")
+    if(freq[1] >= freq[2]) {
+        stop("The first argument of freq should be smaller than the second one.")
+    }
+
+    h <- create_filter(l_freq = freq[1],
+                       h_freq= freq[2],
+                       sampling_rate = sampling_rate(x),...)
+    filt_eeg_lst(x,h)
 }
 
+
+filt_eeg_lst <- function(.eeg_lst, h){
+    .eeg_lst$signal <- data.table::copy(.eeg_lst$signal)
+    .eeg_lst$signal[, (channel_names(.eeg_lst)) := lapply(.SD, overlap_add_filter,h), 
+                    .SDcols = channel_names(.eeg_lst), by = ".id"]
+    .eeg_lst
+
+}
 
 filt_custom <- function(x, freq = NULL, type, ... ){
   args <- list(...)
@@ -137,12 +144,11 @@ filt_custom <- function(x, freq = NULL, type, ... ){
       ## .sample_id <- rlang::env_get(signal_env, ".sample_id")
       ## sampling_rate <- attributes(.sample_id)$sampling_rate
       # print(sampling_rate)
-      sampling_rate <- attributes(extended_signal$.sample_id)$sampling_rate
-    } else {
-      sampling_rate <- args$sampling_rate
-    }
-
-  h <-  create_filter(sampling_rate = sampling_rate, ...)
+      args$sampling_rate <- attributes(extended_signal$.sample_id)$sampling_rate
+    } ## else {
+    ##   sampling_rate <- args$sampling_rate
+    ## }
+  h <-  do.call(create_filter, args)
   overlap_add_filter(x, h)
 }
 

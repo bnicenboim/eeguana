@@ -325,14 +325,14 @@ create_filter <- function(data, sampling_rate=NULL, l_freq=NULL, h_freq=NULL, fi
     if(h_trans_bandwidth == "auto"){
         h_trans_bandwidth = min(max(0.25 * h_freq, 2.),sampling_rate / 2. - h_freq)
     }
-    if(!is.null(l_trans_bandwidth)) message("'l_trans_bandwidth' chosen to be ",l_trans_bandwidth, " Hz" )
-    if(!is.null(h_trans_bandwidth)) message("'h_trans_bandwidth' chosen to be ",h_trans_bandwidth, " Hz" )
+    ## if(!is.null(l_trans_bandwidth)) message("'l_trans_bandwidth' chosen to be ",l_trans_bandwidth, " Hz" )
+    ## if(!is.null(h_trans_bandwidth)) message("'h_trans_bandwidth' chosen to be ",h_trans_bandwidth, " Hz" )
     h_check = if(!is.null(h_freq)) h_trans_bandwidth  else Inf
     l_check =if(!is.null(l_freq)) l_trans_bandwidth  else Inf
 
     mult_fact = if(fir_design == "firwin2") 2 else 1
     length_factor <- list(hann =3.1, hamming = 3.3, blackman = 5)
-    filter_length = max(as.integer(round(length_factor[[window]] * sampling_rate * mult_fact /
+    filter_length = max(as.integer(round(length_factor[[fir_window]] * sampling_rate * mult_fact /
                                          min(h_check, l_check))), 1)
     if(fir_design == "firwin"){
         filter_length <- filter_length  + (filter_length - 1) %% 2
@@ -603,7 +603,7 @@ overlap_add_filter <- function(x, h, n_fft=NULL, phase="zero",
         }
     }
     n_edge = max(min(length(h), length(x)) - 1, 0)
-    message("Smart-padding with,",n_edge," samples")
+    ## message("Smart-padding with,",n_edge," samples")
     n_x = length(x) + 2 * n_edge
     
     if (phase == "zero-double"){
@@ -632,7 +632,7 @@ overlap_add_filter <- function(x, h, n_fft=NULL, phase="zero",
             n_fft = next_fast_len(as.integer(min_fft))
         }
     }
-    message("FFT block length :", n_fft)
+    ## message("FFT block length :", n_fft)
     if (n_fft < min_fft){
         stop("n_fft is too short, has to be at least ",
              "2 * len(h) - 1,", min_fft, ", got", n_fft)

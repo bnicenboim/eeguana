@@ -66,7 +66,7 @@ The triggers were defined such that the trigger "S131" indicates condition 1 (po
 events(data_judg)
 ```
 
-However, we want the ERP based on the trigger "S141" that precedes any of these two triggers. We edit the events table (using dplyr functions: `mutate`, `case_when`, `lead`) to indicate to which condition each trigger "S141" belongs, and then we can segment based on these conditions using *eeguana*'s `eeg_segment()` (We are going to create a segment slightly bigger than what we want, between -0.2 and 1 seconds, in order to discard the artifacts at edges that will be created by the low-pass filter):
+However, we want the ERP based on the trigger "S141" that precedes any of these two triggers. We edit the events table (using dplyr functions: `mutate`, `case_when`, `lead`) to indicate to which condition each trigger "S141" belongs, and then we can segment based on these conditions using *eeguana*'s `eeg_segment()`:
 
 
 ```{r}
@@ -76,7 +76,7 @@ events(data_judg) <- mutate(events(data_judg),
                                                   description == "S141" & 
                                                   lead(description) == "S132" ~ 2, 
                                                                          TRUE ~ 0))
-data_judg_s <- data_judg %>% eeg_segment(condition %in% c(1,2), lim = c(-0.3,1.1))
+data_judg_s <- data_judg %>% eeg_segment(condition %in% c(1,2), lim = c(-0.2,1))
 ```
 
 
@@ -123,15 +123,7 @@ bind(X27_filtered,X27_unfiltered) %>% plot() +
                   
 ```
 
-We see that the edges of the segment are slightly distorted. Then we remove
-the samples that might be distorted by the low-pass filter, by keeping the
-samples between 0.2 and 1 seconds.
 
-```{r , fig.dim = c(10,10)}
-data_judg_s_p <- data_judg_s_p %>% 
-                 filter(as_time(.sample_id) %>% between(-.2,1)) 
-
-```
 
 ## Extracting the EOG signals
 
