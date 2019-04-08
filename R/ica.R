@@ -152,7 +152,7 @@ as_eeg_lst.ica_lst <- function(.data, ...){
        l_signal <- .data$signal %>%
            split(rep_group)
    }
-    reconstr_signals <- map_dtr(l_signal,
+    reconstr_signals <- map2_dtr(l_signal,
                 .data$mixing %>%
                 split(.data$mixing$.group), function(s,m){
 
