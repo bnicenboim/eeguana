@@ -1,3 +1,48 @@
+# this functions are adapted from python scipy
+sinc <- function(x){
+    ifelse(x==0, 1, sin(pi * x)/(pi*x))
+}
+
+ifft <- function(x, N = NULL){
+    if(is.null(N) || N==length(x)){
+        x
+    }    else if(N < length(x)){
+        x <- x[seq.int(1,N)]
+    } else {
+        x <- c(x, rep(0, N-length(x)))
+    }
+    fft(x, inverse = TRUE) / length(x)
+}
+
+
+rfft <- function(x,N=NULL){
+    if(is.null(N) || N==length(x)){
+        x
+    }    else if(N < length(x)){
+        x <- x[seq.int(1,N)]
+    } else {
+        x <- c(x, rep(0, N-length(x)))
+    }
+
+    fft(x)[1:(floor(length(x)/2)+1)]
+}
+
+irfft <- function(x,N=NULL){
+    n <- 2 * (length(x) - 1 )
+    if(is.null(N) ){
+        N <- n
+    }    else if(N < n){
+        lenx <- N/2+1
+        x <- x[seq_len(lenx)]
+    } 
+    xn <- vector("numeric", N)
+    xn[seq_len(length(x))] <- x
+    s <-N - length(x) + 1
+    xn[seq.int(length(x)+1,N, by=1)] <- Conj(xn[seq(s,to=2, by=-1)])
+    Re(ifft(xn))
+}
+
+
 hamming <- function(M, sym=TRUE){
     ## """Return a Hamming window.
     ## The Hamming window is a taper formed by using a raised cosine with
@@ -94,9 +139,6 @@ get_window <- function(N, window="hamming", fftbins=TRUE){
     winfunc(N, sym)
 }
 
-sinc <- function(x){
-    ifelse(x==0, 1, sin(pi * x)/(pi*x))
-}
 
 kaiser_beta <- function(a){
     ##  """Compute the Kaiser parameter `beta`, given the attenuation `a`.
