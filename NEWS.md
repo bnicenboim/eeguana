@@ -1,3 +1,8 @@
+# eeguana 0.0.7.900
+  - Changes
+      - fastICA was implemented.
+      - filters were greatly improved and checked, only FIR filters are supported for now.
+      - Better documentation (mostly [Kate Stone](https://github.com/auskate))
 # eeguana 0.0.6.900
   - Changes
       - There is a logo!
