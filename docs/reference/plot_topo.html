@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>A topographic plot. — plot_topo • eeguana</title>
+<title>Create a topographic plot — plot_topo • eeguana</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -37,9 +37,11 @@
 
 
 
-<meta property="og:title" content="A topographic plot. — plot_topo" />
+<meta property="og:title" content="Create a topographic plot — plot_topo" />
 
-<meta property="og:description" content="Create a default topographic plot based on an interpolation table." />
+<meta property="og:description" content="plot_topo initializes a ggplot object which takes an eeg_lst object
+as its input data. Layers can then be added in the same way as for a
+ggplot2::ggplot() object." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -126,14 +128,16 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>A topographic plot.</h1>
+    <h1>Create a topographic plot</h1>
     <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/plot.R'><code>R/plot.R</code></a></small>
     <div class="hidden name"><code>plot_topo.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Create a default topographic plot based on an interpolation table.</p>
+    <p><code>plot_topo</code> initializes a ggplot object which takes an eeg_lst object
+as its input data. Layers can then be added in the same way as for a
+<code><a href='https://www.rdocumentation.org/packages/ggplot2/topics/ggplot'>ggplot2::ggplot()</a></code> object.</p>
     
     </div>
 
@@ -187,12 +191,58 @@
 
     <p>A ggplot object</p>
     
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Before calling <code>plot_topo</code>, the eeg_lst object must be appropriately
+grouped (e.g. by condition) and/or
+summarized into mean values such that each .x .y coordinate has only one
+amplitude value. These values can then be interpolated using
+<code>eeg_interpolate_tbl()</code>, which will display the electrodes
+stereographically, or plotted as-is, which will use the default polar display.
+<code>plot_topo</code> called alone
+without any further layers will create an unannotated topographical plot.
+To add a head and nose, add the layer <code>annotate_head()</code>. Add
+contour lines with <code><a href='https://www.rdocumentation.org/packages/ggplot2/topics/geom_contour'>ggplot2::geom_contour()</a></code> and electrode labels
+with <code><a href='https://www.rdocumentation.org/packages/ggplot2/topics/geom_text'>ggplot2::geom_text()</a></code>. These arguments are deliberately not
+built into the function so as to allow flexibility in choosing colour, font
+size, and even head size, etc.</p>
+    
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other plot: <code>plot.eeg_lst</code>,
   <code>plot_gg</code>, <code>plot_in_layout</code></p></div>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'>
+<span class='co'># Calculate mean amplitude between 100-200 ms and plot the topography</span>
+<span class='no'>data_faces_ERPs</span> <span class='kw'>%&gt;%</span>
+    <span class='co'># select the time window of interest</span>
+    <span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/filter'>filter</a></span>(<span class='fu'>between</span>(<span class='fu'>as_time</span>(<span class='no'>.sample_id</span>, <span class='kw'>unit</span> <span class='kw'>=</span> <span class='st'>"milliseconds"</span>),<span class='fl'>100</span>,<span class='fl'>200</span>)) <span class='kw'>%&gt;%</span>
+    <span class='co'># compute mean amplitude per condition</span>
+    <span class='fu'>group_by</span>(<span class='no'>condition</span>) <span class='kw'>%&gt;%</span>
+    <span class='fu'>summarize_all_ch</span>(<span class='no'>mean</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>) <span class='kw'>%&gt;%</span>
+    <span class='fu'>plot_topo</span>() +
+        <span class='co'># add a head and nose shape</span>
+        <span class='fu'>annotate_head</span>() +
+        <span class='co'># add contour lines</span>
+        <span class='fu'>geom_contour</span>() +
+        <span class='co'># add electrode labels</span>
+        <span class='fu'>geom_text</span>(<span class='kw'>colour</span> <span class='kw'>=</span> <span class='st'>"black"</span>) +
+        <span class='fu'>facet_grid</span>(~<span class='no'>condition</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Class is not events_tbl</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Class is not events_tbl</span></div><div class='img'><img src='plot_topo-1.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='co'># The same but with interpolation</span>
+<span class='no'>data_faces_ERPs</span> <span class='kw'>%&gt;%</span>
+    <span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/filter'>filter</a></span>(<span class='fu'>between</span>(<span class='fu'>as_time</span>(<span class='no'>.sample_id</span>, <span class='kw'>unit</span> <span class='kw'>=</span> <span class='st'>"milliseconds"</span>),<span class='fl'>100</span>,<span class='fl'>200</span>)) <span class='kw'>%&gt;%</span>
+    <span class='fu'>group_by</span>(<span class='no'>condition</span>) <span class='kw'>%&gt;%</span>
+    <span class='fu'>summarize_all_ch</span>(<span class='no'>mean</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>) <span class='kw'>%&gt;%</span>
+    <span class='fu'>eeg_interpolate_tbl</span>() <span class='kw'>%&gt;%</span>
+    <span class='fu'>plot_topo</span>() +
+        <span class='fu'>annotate_head</span>() +
+        <span class='fu'>geom_contour</span>() +
+        <span class='fu'>geom_text</span>(<span class='kw'>colour</span> <span class='kw'>=</span> <span class='st'>"black"</span>) +
+        <span class='fu'>facet_grid</span>(~<span class='no'>condition</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Class is not events_tbl</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Class is not events_tbl</span></div><div class='img'><img src='plot_topo-2.png' alt='' width='700' height='433' /></div><div class='input'>
+
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -201,8 +251,12 @@
       
       <li><a href="#value">Value</a></li>
 
+      <li><a href="#details">Details</a></li>
+
       <li><a href="#see-also">See also</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

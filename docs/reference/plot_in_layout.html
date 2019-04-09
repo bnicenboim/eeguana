@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Place channels in a layout. — plot_in_layout • eeguana</title>
+<title>Arrange ERP plots according to scalp layout — plot_in_layout • eeguana</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -37,9 +37,10 @@
 
 
 
-<meta property="og:title" content="Place channels in a layout. — plot_in_layout" />
+<meta property="og:title" content="Arrange ERP plots according to scalp layout — plot_in_layout" />
 
-<meta property="og:description" content="Reorganizes a ggplot so that the plot of each channel is in their correct position in the scalp." />
+<meta property="og:description" content="Arranges a ggplot so that the facet for each channel appears in its position
+on the scalp." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -126,14 +127,15 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Place channels in a layout.</h1>
+    <h1>Arrange ERP plots according to scalp layout</h1>
     <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/plot.R'><code>R/plot.R</code></a></small>
     <div class="hidden name"><code>plot_in_layout.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Reorganizes a ggplot so that the plot of each channel is in their correct position in the scalp.</p>
+    <p>Arranges a ggplot so that the facet for each channel appears in its position
+on the scalp.</p>
     
     </div>
 
@@ -168,12 +170,36 @@
 
     <p>A ggplot object</p>
     
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This function requires two steps: first, a ggplot object must be created with
+ERPs facetted by channel (.source).
+Then, the ggplot object is called in <code>plot_in_layout</code>.</p>
+    
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other plot: <code>plot.eeg_lst</code>,
   <code>plot_gg</code>, <code>plot_topo</code></p></div>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'>
+<span class='co'># Create a ggplot object with some grand averaged ERPs</span>
+<span class='no'>ERP_plot</span> <span class='kw'>&lt;-</span> <span class='no'>data_faces_ERPs</span> <span class='kw'>%&gt;%</span>
+   <span class='co'># group by time point and condition</span>
+   <span class='fu'>group_by</span>(<span class='no'>.sample_id</span>, <span class='no'>condition</span>) <span class='kw'>%&gt;%</span>
+   <span class='co'># compute averages</span>
+   <span class='fu'>summarize_all_ch</span>(<span class='no'>mean</span>,<span class='kw'>na.rm</span><span class='kw'>=</span><span class='fl'>TRUE</span>) <span class='kw'>%&gt;%</span>
+   <span class='fu'>plot_gg</span>() +
+       <span class='co'># plot the averaged waveforms</span>
+       <span class='fu'>geom_line</span>(<span class='fu'>aes</span>(<span class='kw'>color</span> <span class='kw'>=</span> <span class='no'>condition</span>)) +
+       <span class='co'># facet by channel</span>
+       <span class='fu'>facet_wrap</span>(~ <span class='no'>.source</span>) +
+       <span class='co'># add a legend and title</span>
+       <span class='fu'>theme</span>(<span class='kw'>legend.position</span> <span class='kw'>=</span> <span class='st'>"bottom"</span>) +
+       <span class='fu'>ggtitle</span>(<span class='st'>"ERPs for faces vs non-faces"</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Class is not events_tbl</span></div><div class='input'>
+<span class='co'># Call the ggplot object with the layout function</span>
+<span class='fu'>plot_in_layout</span>(<span class='no'>ERP_plot</span>)</div><div class='img'><img src='plot_in_layout-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -182,8 +208,12 @@
       
       <li><a href="#value">Value</a></li>
 
+      <li><a href="#details">Details</a></li>
+
       <li><a href="#see-also">See also</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

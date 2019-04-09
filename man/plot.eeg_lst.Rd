@@ -19,26 +19,23 @@ A ggplot object
 \description{
 \code{plot} creates a ggplot object in which the EEG signal over the whole
 recording is plotted by electrode. Useful as a quick visual check for major
-noise issues in the recording. This function first downsamples the eeg_lst 
-and then converts it into a long tibble. See \link{as_tibble.eeg_lst} for details.
-
+noise issues in the recording.
 }
 \details{
 Note that for normal-size datasets, the plot may take several minutes to compile.
 }
 \examples{
-```
+
 # Basic plot
 plot(data_faces_ERPs)
 
 # Add ggplot layers
 plot(data_faces_ERPs) + 
     coord_cartesian(ylim = c(-500,500))
-```
 
 }
 \seealso{
-Other plots: \code{\link{plot_gg}},
+Other plot: \code{\link{plot_gg}},
   \code{\link{plot_in_layout}}, \code{\link{plot_topo}}
 }
 \concept{plot}

@@ -11,12 +11,13 @@ between(x, lower, upper, incbounds = TRUE)
 \code{`<=`}, such as \code{numeric}, \code{character}, \code{Date}, etc. in
 case of \code{between} and a numeric vector in case of \code{inrange}.}
 
-\item{lower}{ Lower range bound. Either length 1 or same length as \code{x}.}
+\item{lower}{ Lower range bound.}
 
-\item{upper}{ Upper range bound. Either length 1 or same length as \code{x}.}
+\item{upper}{ Upper range bound.}
 
 \item{incbounds}{ \code{TRUE} means inclusive bounds, i.e., [lower,upper].
 \code{FALSE} means exclusive bounds, i.e., (lower,upper).
+
 It is set to \code{TRUE} by default for infix notations.}
 }
 \description{

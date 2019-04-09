@@ -32,7 +32,7 @@ ERPs facetted by channel (\link{.source}).
 Then, the ggplot object is called in \code{plot_in_layout}.
 }
 \examples{
-```
+
 # Create a ggplot object with some grand averaged ERPs
 ERP_plot <- data_faces_ERPs \%>\% 
    # group by time point and condition
@@ -50,8 +50,6 @@ ERP_plot <- data_faces_ERPs \%>\%
 
 # Call the ggplot object with the layout function
 plot_in_layout(ERP_plot)
-```
-
 }
 \seealso{
 Other plot: \code{\link{plot.eeg_lst}},
