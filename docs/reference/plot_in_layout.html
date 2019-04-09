@@ -173,8 +173,16 @@ on the scalp.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This function requires two steps: first, a ggplot object must be created with
-ERPs facetted by channel (.source).
-Then, the ggplot object is called in <code>plot_in_layout</code>.</p>
+ERPs facetted by channel (<code>.source</code>).
+Then, the ggplot object is called in <code>plot_in_layout</code>. The function uses grobs
+arranged according to .x .y coordinates extracted from the <code>eeg_lst</code> object, by
+default in polar arrangement. The arrangement can be changed with the <code>projection</code>
+argument. White space in the plot can be reduced by changing <code>ratio</code>.</p>
+<p>Additional components such as titles and annotations should be added to the
+plot object using <code>+</code> exactly as you would for <code>ggplot::ggplot</code>.
+Title and legend adjustments will be treated as applying to the
+whole plot object, while other theme adjustments will be treated as applying
+to individual facets. x-axis and y-axis labels cannot be added at this stage.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -186,6 +194,8 @@ Then, the ggplot object is called in <code>plot_in_layout</code>.</p>
     <pre class="examples"><div class='input'>
 <span class='co'># Create a ggplot object with some grand averaged ERPs</span>
 <span class='no'>ERP_plot</span> <span class='kw'>&lt;-</span> <span class='no'>data_faces_ERPs</span> <span class='kw'>%&gt;%</span>
+   <span class='co'># select a few electrodes</span>
+   <span class='fu'>select</span>(<span class='no'>Fz</span>, <span class='no'>FC1</span>, <span class='no'>FC2</span>, <span class='no'>C3</span>, <span class='no'>Cz</span>, <span class='no'>C4</span>, <span class='no'>CP1</span>, <span class='no'>CP2</span>, <span class='no'>Pz</span>) <span class='kw'>%&gt;%</span>
    <span class='co'># group by time point and condition</span>
    <span class='fu'>group_by</span>(<span class='no'>.sample_id</span>, <span class='no'>condition</span>) <span class='kw'>%&gt;%</span>
    <span class='co'># compute averages</span>
@@ -197,7 +207,8 @@ Then, the ggplot object is called in <code>plot_in_layout</code>.</p>
        <span class='fu'>facet_wrap</span>(~ <span class='no'>.source</span>) +
        <span class='co'># add a legend and title</span>
        <span class='fu'>theme</span>(<span class='kw'>legend.position</span> <span class='kw'>=</span> <span class='st'>"bottom"</span>) +
-       <span class='fu'>ggtitle</span>(<span class='st'>"ERPs for faces vs non-faces"</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Class is not events_tbl</span></div><div class='input'>
+       <span class='fu'>ggtitle</span>(<span class='st'>"ERPs for faces vs non-faces"</span>)
+
 <span class='co'># Call the ggplot object with the layout function</span>
 <span class='fu'>plot_in_layout</span>(<span class='no'>ERP_plot</span>)</div><div class='img'><img src='plot_in_layout-1.png' alt='' width='700' height='433' /></div></pre>
   </div>

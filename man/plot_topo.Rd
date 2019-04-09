@@ -22,7 +22,7 @@ plot_topo(data, ...)
   ...)
 }
 \arguments{
-\item{data}{A table of interpolated electrodes as produced by \link{eeg_interpolate_tbl}, or an eeg_lst appropiately grouped.}
+\item{data}{A table of interpolated electrodes as produced by \code{eeg_interpolate_tbl}, or an \code{eeg_lst} appropiately grouped.}
 
 \item{...}{Not in use.}
 
@@ -38,24 +38,33 @@ plot_topo(data, ...)
 A ggplot object
 }
 \description{
-\code{plot_topo} initializes a ggplot object which takes an eeg_lst object
+\code{plot_topo} initializes a ggplot object which takes an \code{eeg_lst} object
 as its input data. Layers can then be added in the same way as for a
-\code{\link[ggplot2:ggplot]{ggplot2::ggplot()}} object.
+\code{ggplot2::ggplot} object.
 }
 \details{
-Before calling \code{plot_topo}, the eeg_lst object must be appropriately
+Before calling \code{plot_topo}, the \code{eeg_lst} object object must be appropriately
 grouped (e.g. by condition) and/or
 summarized into mean values such that each .x .y coordinate has only one
-amplitude value. These values can then be interpolated using
-\code{\link[=eeg_interpolate_tbl]{eeg_interpolate_tbl()}}, which will display the electrodes
-stereographically, or plotted as-is, which will use the default polar display.
+amplitude value. By default, \code{plot_topo} interpolates amplitude values via
+\code{eeg_interpolate_tbl}, which generates a tibble with \code{.source} (channel),
+\code{.value} (amplitude), and .x .y coordinate variables. .x .y coordinates are
+extracted from the \code{eeg_lst} object, which in turn reads the coordinates logged
+by your EEG recording software. By default, \code{plot_topo} will display electrodes
+in polar arrangement, but can be changed with the \code{projection}
+argument. Alternatively, if \code{eeg_interpolate_tbl} is called after grouping/summarizing
+but before \code{plot_topo}, the resulting electrode layout will be stereographic.
+
 \code{plot_topo} called alone
 without any further layers will create an unannotated topographical plot.
-To add a head and nose, add the layer \code{\link[=annotate_head]{annotate_head()}}. Add
-contour lines with \code{\link[ggplot2:geom_contour]{ggplot2::geom_contour()}} and electrode labels
-with \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}}. These arguments are deliberately not
+To add a head and nose, add the layer \code{annotate_head}. Add
+contour lines with \code{ggplot2::geom_contour} and electrode labels
+with \code{ggplot2::geom_text}. These arguments are deliberately not
 built into the function so as to allow flexibility in choosing colour, font
 size, and even head size, etc.
+
+To add additional components to the plot such as titles and annotations, simply
+use the \code{+} symbol and add layers exactly as you would for \code{ggplot::ggplot}.
 }
 \examples{
 
