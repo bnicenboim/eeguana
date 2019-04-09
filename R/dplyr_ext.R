@@ -122,7 +122,7 @@ bind <- function(...) {
   data.table::setattr(signal,"class",c("signal_tbl",class(signal)))
   events <- purrr::map(eeg_lsts, ~.x$events) %>% data.table::rbindlist(idcol=".sid", fill = TRUE)
   events[, .id := .GRP, by = .(.sid,.id)][,.sid := NULL]
-
+  events <- as_events_tbl(events)
 
   segments <- purrr::map(eeg_lsts, ~data.table::data.table(.x$segments)) %>% data.table::rbindlist(idcol=".sid", fill = TRUE)
   segments[, .id := .GRP, by = .(.sid,.id)][,.sid := NULL] 

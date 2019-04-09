@@ -17,12 +17,12 @@
 #' @family eeg
 #' 
 #' @export
-downsample <- function(x, q = 2, max_sample = NULL, ...) {
-  UseMethod("downsample")
+eeg_downsample <- function(x, q = 2, max_sample = NULL, ...) {
+  UseMethod("eeg_downsample")
 }
 
 #' @export
-downsample.eeg_lst <- function(x, q = 2L, max_sample = NULL,
+eeg_downsample.eeg_lst <- function(x, q = 2L, max_sample = NULL,
                                n = if (ftype == "iir") 8 else 30,
                                ftype = "iir", ...) {
 
@@ -57,18 +57,22 @@ downsample.eeg_lst <- function(x, q = 2L, max_sample = NULL,
     new_sampling_rate, "Hz."
   ))
 
-  list_of_attr <- purrr::map(x$signal, ~attributes(.x))
+    list_of_attr <- purrr::map(x$signal, ~attributes(.x))
+    channels_to_decimate <- purrr::map_lgl(x$signal, ~ is_channel_dbl(.x) ||
+                                                         is_component_dbl(.x)) %>%
+        {colnames(x$signal)[.]}
   channels_info <- channels_tbl(x)
 
-decimate_fun <- function(channel) {
-  attrs <- attributes(channel)
-  decimated_chan <- purrr::reduce(c(list(channel), as.list(q)), ~
+decimate_fun <- function(s) {
+  attrs <- attributes(s)
+  decimated_s <- purrr::reduce(c(list(s), as.list(q)), ~
             signal::decimate(x = .x, q = .y, n = n, ftype = ftype))
-  mostattributes(decimated_chan) <- attrs 
-  decimated_chan
+  mostattributes(decimated_s) <- attrs 
+  decimated_s
 }
 
-  x$signal <- x$signal[,lapply(.SD, decimate_fun), .SDcols = c(channel_names(x)),by = c(".id")][
+    x$signal <- x$signal[,lapply(.SD, decimate_fun),
+                         .SDcols = c(channels_to_decimate),by = c(".id")][
             ,.sample_id := sample_int(seq_len(.N), new_sampling_rate),by = c(".id")][]
 
   data.table::setkey(x$signal,.id,.sample_id)
@@ -94,3 +98,6 @@ decimate_fun <- function(channel) {
   x %>% #update_channels_tbl(channels_info) %>% 
       validate_eeg_lst()
 }
+
+
+

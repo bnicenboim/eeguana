@@ -14,16 +14,16 @@
 #' @importFrom magrittr %>%
 #'
 #' @export
-segment <- function(x, ...) {
-  UseMethod("segment")
+eeg_segment <- function(x, ...) {
+  UseMethod("eeg_segment")
 }
-#' @rdname segment
+#' @rdname eeg_segment
 #' @param lim Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments
 #' @param end Description of the event that indicates the end of the segment, if this is used, `lim` is ignored.
 #' @param recording_col Column in the segments table indicating to which recording or file each segment belongs.
 #' @inheritParams as_time
 #' @export
-segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds", recording_col = "recording") {
+eeg_segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds", recording_col = "recording") {
   dots <- rlang::enquos(...)
   end <- rlang::enquo(end)
 
@@ -97,7 +97,8 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds", rec
                                            i..sample_0 - .sample_0 + 1L)  ][, 
                .id := .new_id]
 
-  x$events <- new_events[,..cols_events] 
+  x$events <- new_events[,..cols_events]
+  data.table::setattr(x$events,"class",c("events_tbl",class(x$events)))
 
 
   message(paste0("# Total of ", max(x$signal$.id), " segments found."))
@@ -130,18 +131,19 @@ segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds", rec
 #' @importFrom magrittr %>%
 #'
 #' @export
-event_to_ch_NA <- function(x, ...) {
-  UseMethod("event_to_ch_NA")
+eeg_intervals_to_NA <- function(x, ...) {
+  UseMethod("eeg_intervals_to_NA")
 }
+
 
 #' @param all_chans If set to `TRUE`,
 #'     it will consider samples from all channels (Default:  `all_chans = FALSE`).
 #' @param entire_seg If set to `FALSE`, it will consider only the marked part of the segment,
 #'     otherwise it will consider the entire segment (Default: entire_seg = TRUE). Setting it to FALSE can make the function very slow.
 #' @param drop_events If set to `TRUE` (default), the events that were using for setting signals to NA, will be removed from the events table.
-#' @rdname event_to_ch_NA
+#' @rdname eeg_intervals_to_NA
 #' @export 
-event_to_ch_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
+eeg_intervals_to_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
                                    drop_events = TRUE) {
   dots <- rlang::enquos(...)
 
@@ -203,6 +205,6 @@ event_to_ch_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
   x$signal <- data.table::data.table(signal)
   data.table::setattr(x$signal, "class", c("signal_tbl", class(x$signal))) 
   data.table::setkey(x$signal,.id,.sample_id)
-  x$events <- data.table::data.table(x$events)
+  x$events <- as_events_tbl(x$events)
   validate_eeg_lst(x)
 }

@@ -25,18 +25,55 @@ channel_names <- function(x, ...) {
 channel_names.eeg_lst <- function(x, ...) {
   colnames(x$signal)[x$signal[,purrr::map_lgl(.SD, is_channel_dbl )]]
 }
-
+#' @rdname summary
+#' @export
+channel_names.mixing_tbl <- function(x, ...) {
+  colnames(x)[x[,purrr::map_lgl(.SD, is_channel_dbl )]]
+}
+#' @rdname summary
+#' @export
+channel_names.ica_lst <- function(x, ...) {
+c(channel_names.eeg_lst(x), channel_names(x$mixing))
+  }
 #' @rdname summary
 #' @export
 nchannels <- function(x, ...) {
   UseMethod("nchannels")
 }
 
+
 #' @rdname summary
 #' @export
-nchannels.eeg_lst <- function(x, ...) {
-  ncol(x$signal) - length(obligatory_cols$signal)
+nchannels.default <- function(x, ...) {
+    channel_names(x) %>% length()
 }
+
+####
+#' @rdname summary
+#' @export
+component_names <- function(x, ...) {
+  UseMethod("component_names")
+}
+
+#' @rdname summary
+#' @export
+component_names.eeg_lst <- function(x, ...) {
+  colnames(x$signal)[x$signal[,purrr::map_lgl(.SD, is_component_dbl )]]
+}
+
+#' @rdname summary
+#' @export
+ncomponents <- function(x, ...) {
+  UseMethod("ncomponents")
+}
+
+
+#' @rdname summary
+#' @export
+ncomponents.eeg_lst <- function(x, ...) {
+    component_names(x) %>% length()
+}
+
 
 sampling_rate <- function(x) {
   attributes(x$signal$.sample_id)$sampling_rate

@@ -1,11 +1,11 @@
 Package: eeguana
 Type: Package
 Title: A package for flexible manipulation of EEG data
-Version: 0.0.5.9000
+Version: 0.0.6.9000
 Authors@R: c(
     person("Bruno", "Nicenboim", email = "bruno.nicenboim@uni-potsdam.de", role = c("aut", "cre")),
     person("Kate", "Stone", email = "kate.stone@uni-potsdam.de", role = "ctb"))
-Description: Flexible data manipulation of EEG data.
+Description: Flexible manipulation of EEG data.
 URL: https://github.com/bnicenboim/eeguana
 BugReports: https://github.com/bnicenboim/eeguana/issues
 License: MIT + file LICENSE
@@ -13,29 +13,35 @@ Encoding: UTF-8
 RoxygenNote: 6.1.1
 Depends:
     R (>= 3.1.0),
-    ggplot2 (>= 3.0.0),
-    dplyr (>= 0.7.5)
+    ggplot2 (>= 3.1.0),
+    dplyr (>= 0.8.0)
 Imports:
-    tidyr,
-    ini,
+    tidyr (>= 0.8.2),
+    ini (>= 0.3.1),
     purrr (>= 0.2.5),
-    tidyselect,
+    tidyselect (>= 0.2.5),
     stringr (>= 1.3.1),
     tools,
     magrittr (>= 1.5),
-    rlang,
+    rlang  (>= 0.3.1),
     signal,
     MBA,
     tibble,
-    data.table (>= 1.9.8),
-    edfReader
+    data.table (>= 1.11.8),
+    edfReader,
+    gtable,
+    scales,
+    fICA (>= 1.1)
 Suggests:
+    akima,
+    plotly,
+    R.matlab,
+    fastICA (>= 1.2),
+    reticulate  (>= 1.11.1),
     testthat,
     roxygen2,
     knitr,
     rmarkdown,
-    R.matlab,
-    plotly,
     spelling,
     covr
 LazyData: true

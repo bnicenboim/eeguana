@@ -30,18 +30,18 @@ tbl_at_syms <- function(tbl, vars) {
 # Requires tbl_vars(), `[[`() and length() methods
 tbl_if_vars <- function(.tbl, .p, .env, ..., .include_group_vars = FALSE) {
   if (.include_group_vars) {
-    tibble_vars <- tbl_vars(.tbl)
+    tibble_vars <- dplyr::tbl_vars(.tbl)
   } else {
-    tibble_vars <- tbl_nongroup_vars(.tbl)
+    tibble_vars <- dplyr::tbl_nongroup_vars(.tbl)
   }
 
-  if (is_logical(.p)) {
+  if (rlang::is_logical(.p)) {
     stopifnot(length(.p) == length(tibble_vars))
     return(rlang::syms(tibble_vars[.p]))
   }
 
   if (inherits(.tbl, "tbl_lazy")) {
-    inform("Applying predicate on the first 100 rows")
+    rlang::inform("Applying predicate on the first 100 rows")
     .tbl <- dplyr::collect(.tbl, n = 100)
   }
 

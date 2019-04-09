@@ -196,7 +196,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
     add_event_channel(channel_names) %>%
     segment_events(.lower = slengths$V1, .sample_0 = slengths$V1 - slengths$V3, .upper= slengths$V2)
   } else {
-    events <- data.table::data.table(.id= integer(0), .sample_0 = integer(0), .size= integer(0), .channel= character(0))
+    events <- events_tbl()
   }
   
   segments <- tibble::tibble(
@@ -248,7 +248,7 @@ read_edf <- function(file, recording = file) {
   signal_edf <- edfReader::readEdfSignals(header_edf)
   if(header_edf$nSignals == 1) {
     signal_edf <- list(signal_edf) %>% #convert to list for compatibility
-                setNames(header_edf$sHeaders[[1]])
+                stats::setNames(header_edf$sHeaders[[1]])
   }
   if(is.list(signal_edf))
   annot_item <- purrr::map_lgl(signal_edf, ~ .x$isAnnotation)
@@ -281,15 +281,17 @@ read_edf <- function(file, recording = file) {
                       sample_ids = sample_id, 
                       channel_info = channel_info)
   if(length(l_annot)==0){
-    events <- data.table::data.table(.id= integer(0), .sample_0 = integer(0), .size= integer(0), .channel= character(0))
+    events <- events_tbl()
   } else {
     edf_events <- l_annot[[1]]$annotations
-    events <- data.table::data.table(.id=1L, 
-                                     .sample_0 = round(edf_events$onset * sampling_rate) %>% as.integer + 1L,
-                                     annotation = edf_events$annotation,
-                                     .size = dplyr::case_when(!is.na(edf_events$duration) ~ round(edf_events$duration* sampling_rate) %>% as.integer,
-                                                              !is.na(edf_events$end) ~  round((edf_events$end - edf_events$onset + 1)* sampling_rate) %>% as.integer, 
-                                                              TRUE ~ 1L),
+    events <- events_tbl(.id=1L, 
+                         .sample_0 = round(edf_events$onset * sampling_rate) %>%
+                             as.integer + 1L,
+                         descriptions_dt = edf_events["annotation"],
+                         .size = dplyr::case_when(!is.na(edf_events$duration) ~ round(edf_events$duration* sampling_rate) %>%
+                                                      as.integer,
+                                                  !is.na(edf_events$end) ~  round((edf_events$end - edf_events$onset + 1)* sampling_rate) %>% as.integer, 
+                                                  TRUE ~ 1L),
                                      .channel= NA_character_)
 
   }

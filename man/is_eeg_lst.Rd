@@ -18,6 +18,6 @@ Test if the object is an eeg_lst.
 This function returns  TRUE for eeg_lsts.
 }
 \seealso{
-Other eeg_lst: \code{\link{eeg_lst}}
+Other eeg_lst: \code{\link{eeg_lst}}, \code{\link{ica_lst}}
 }
 \concept{eeg_lst}

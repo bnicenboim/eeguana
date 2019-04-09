@@ -9,23 +9,6 @@
 #' @return A valid eeg_lst.
 #' @export
 eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
-  if(is.null(signal)) {
-    signal <- data.table::data.table(.id= integer(0),.sample_id= integer(0))
-    data.table::setkey(signal,.id,.sample_id)
-  }
-  if(!data.table::is.data.table(signal) && is.data.frame(signal)) {
-   signal <- data.table::as.data.table(signal)
-   data.table::setkey(signal,.id,.sample_id)
- }
-  if(is.null(events)) {
-    events <- data.table::data.table(.id= integer(0),.sample_0= integer(0),.size= integer(0),.channel= integer(0))
-  }
-  if(!data.table::is.data.table(events) && is.data.frame(events)) {
-   events <- data.table::as.data.table(events)
- }
- if(is.null(segments)) {
-    segments <- dplyr::tibble(.id = integer(0))
-  }
   validate_eeg_lst(new_eeg_lst(signal, events, segments))
 }
 
@@ -41,8 +24,47 @@ eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
 #' 
 #' @return A valid signal_tbl table.
 #' @export
-signal_tbl <- function(signal_matrix, ids, sample_ids, channel_info) {
+signal_tbl <- function(signal_matrix = NULL, ids=NULL, sample_ids=NULL, channel_info=NULL) {
   validate_signal_tbl(new_signal_tbl(signal_matrix, ids, sample_ids, channel_info))
+}
+
+#' Builds an events_tbl table.
+#'
+#' @param ids Integers indicating to which group the row of the signal matrix belongs.
+#' @param sample_0s Vector of integers that indicate at which sample an events starts.
+#' @param sizes Vector of integers that indicate at which sample an events starts.
+#' @param channels Vector of characters that indicate to which channel the event is relevant or NA for all the channels.
+#' 
+#' @family events_tbl
+#' 
+#' @return A valid events_tbl table.
+#' @export
+events_tbl <- function(.id = NULL, .sample_0=NULL, .size=NULL, .channel=NULL, descriptions_dt=NULL) {
+    validate_events_tbl(new_events_tbl(.id, .sample_0, .size, .channel, descriptions_dt))
+}
+
+#' @export
+as_events_tbl <- function(.data,...){
+    UseMethod("as_events_tbl")
+}
+
+#' @export
+as_events_tbl.data.table <- function(.data){
+    class(.data) <- c("events_tbl",class(.data))
+    validate_events_tbl(.data)
+}
+
+#' @export
+as_events_tbl.events_tbl <- function(.data){
+    validate_events_tbl(.data)
+}
+
+
+#' @export
+as_events_tbl.data.frame <- function(.data){
+    .data <- data.table::as.data.table(.data)
+    class(.data) <- c("events_tbl",class(.data))
+    validate_events_tbl(.data)
 }
 
 #' Test if the object is a  signal_tbl
@@ -58,6 +80,19 @@ is_signal_tbl <- function(x) {
   "signal_tbl" %in% class(x) 
 }
 
+#' Test if the object is an events_tbl 
+#' This function returns  TRUE for events_tbl.
+#'
+#' @param x An object.
+#' 
+#' @family events_tbl
+#'
+#' @return `TRUE` if the object inherits from the `events_tbl` class.
+#' @export
+is_events_tbl <- function(x) {
+    "events_tbl" %in% class(x) 
+}
+
 
 #' Test if the object is an eeg_lst.
 #' This function returns  TRUE for eeg_lsts.
@@ -69,7 +104,7 @@ is_signal_tbl <- function(x) {
 #' @family eeg_lst
 #' @export
 is_eeg_lst <- function(x) {
-  class(x) == "eeg_lst"
+    "eeg_lst" %in% class(x)
 }
 
 
@@ -178,4 +213,100 @@ subset.channel_dbl <- function(x, ... ) {
   r <- NextMethod("subset")
   mostattributes(r) <- attrs
  r
+}
+
+#' Builds a component.
+#'
+#' @param values Vector of doubles indicating amplitudes.
+#'
+#' @family component
+#'
+#' @export
+#' @examples
+#'
+#' Cz <- component_dbl(runif(100,-5))
+component_dbl <- function(values) {
+  validate_component_dbl(new_component_dbl(values))
+}
+
+#' Test if the object is a component
+#' This function returns  TRUE for components.
+#'
+#' @param x An object.
+#' 
+#' @family component
+#' 
+#' @return `TRUE` if the object inherits from the `sample_id` class.
+#' @export
+is_component_dbl <- function(x) {
+  class(x) == "component_dbl"
+}
+
+
+#' @export
+`[.component_dbl` <- function(x,i,...) {
+  attrs <- attributes(x)
+  class(x) <- NULL
+  r <- NextMethod("[")
+  mostattributes(r) <- attrs
+  r
+}
+
+#' @export
+`[[.component_dbl` <- function(x,i,...) {
+  attrs <- attributes(x)
+  r <- NextMethod("[[")
+  mostattributes(r) <- attrs
+  r
+}
+
+#' @export
+mean.component_dbl <- function(x,...) {
+  attrs <- attributes(x)
+  class(x) <- NULL
+  r <- NextMethod("mean")
+  mostattributes(r) <-attrs
+  r
+}
+
+
+
+#' @export
+subset.component_dbl <- function(x, ... ) {
+  attrs <- attributes(x)
+  class(x) <- NULL
+  r <- NextMethod("subset")
+  mostattributes(r) <- attrs
+  r
+}
+#' Builds an eeg_lst.
+#'
+#' @param signal signal
+#' @param events events
+#' @param segments segments
+#' 
+#' @family eeg_lst
+#'
+#' @return A valid eeg_lst.
+#' @export
+ica_lst <- function(signal = NULL, mixing = NULL, events = NULL, segments = NULL) {
+    validate_ica_lst(new_ica_lst(signal, mixing, events, segments))
+}
+
+#' Builds a mixing_tbl table.
+#'
+#' @param mixing_matrix Matrix or table of channels with their mixing.
+#' @param ids Integers indicating to which group the row of the mixing matrix belongs.
+#' @param sample_ids Vector of integers.
+#' @param channel_info A table with information about each channel (such as the one produced by `channels_tbl``)
+#' 
+#' @family mixing_tbl
+#' 
+#' @return A valid mixing_tbl table.
+#' @export
+mixing_tbl <- function(mixing_matrix,means_matrix, groups, channel_info) {
+    validate_mixing_tbl(new_mixing_tbl(mixing_matrix = mixing_matrix,
+                                       means_matrix = means_matrix,
+                                       groups = groups,
+                                       channel_info =channel_info))
 }

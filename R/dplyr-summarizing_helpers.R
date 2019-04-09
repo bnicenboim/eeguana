@@ -20,14 +20,11 @@ update_summarized_eeg_lst <- function(.eeg_lst){
   }
 
   .eeg_lst$segments <- summarize_segments(segments = .eeg_lst$segments, 
-                                            segments_groups = group_chr_segments(.eeg_lst),
+                                            segments_groups = group_vars_segments(.eeg_lst),
                                             last_id= last_id ) 
     ## Restructure events table
     # TODO maybe I can do some type of summary of the events table, instead
-  .eeg_lst$events <- .eeg_lst$events %>% 
-                      dplyr::filter(FALSE) %>% 
-                      data.table::data.table() 
-
+  .eeg_lst$events <- .eeg_lst$events[FALSE,]
     #update channels in the events and the meta data (summarize deletes the metadata of the channels)
   .eeg_lst <- update_events_channels(.eeg_lst) #%>% update_channels_tbl(channels_info)
 
@@ -38,7 +35,9 @@ update_summarized_eeg_lst <- function(.eeg_lst){
 #' @noRd
 summarize_segments <-  function(segments, segments_groups, last_id){
     # data.table::data.table(segments)[,unique(.SD),.SDcols=c(segments_groups)][] %>% dplyr::as_tibble() %>%
-    data.table::data.table(segments)[,.(segment_n = .N),by=c(segments_groups)][] %>% dplyr::as_tibble() %>%
+    if(length(segments_groups)!=0){
+    data.table::data.table(segments)[,.(segment_n = .N),by=c(segments_groups)][] %>%
+        dplyr::as_tibble() %>%
     # segments %>% 
           # dplyr::group_by_at(vars(segments_groups)) %>%
           # dplyr::summarize() %>%
@@ -51,6 +50,9 @@ summarize_segments <-  function(segments, segments_groups, last_id){
        }
       } %>%
     dplyr::select(.id, dplyr::everything())
+    } else {
+        tibble::tibble(.id = seq_len(last_id))
+    }
 }
 
 
@@ -144,8 +146,8 @@ update_summarized_signal <- function(extended_signal, .eeg_lst){
    extended_signal[,.id := seq_len(.N), by = .sample_id]
   }
   
-  if(length(group_chr_only_segments(.eeg_lst))>0){
-   extended_signal[, (group_chr_only_segments(.eeg_lst)) := NULL] 
+  if(length(group_vars_only_segments(.eeg_lst))>0){
+   extended_signal[, (group_vars_only_segments(.eeg_lst)) := NULL] 
   }
 
   data.table::setkey(extended_signal,.id,.sample_id)

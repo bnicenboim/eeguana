@@ -3,12 +3,15 @@
 \name{as_tibble.eeg_lst}
 \alias{as_tibble.eeg_lst}
 \alias{as_data_frame.eeg_lst}
+\alias{as_long_tbl.eeg_lst}
 \title{Convert an eeg_lst to a wide table.}
 \usage{
 \method{as_tibble}{eeg_lst}(x, add_segments = TRUE,
   add_channels_info = TRUE)
 
-\method{as_data_frame}{eeg_lst}(x, add_segments = TRUE,
+as_data_frame.eeg_lst(x, add_segments = TRUE, add_channels_info = TRUE)
+
+\method{as_long_tbl}{eeg_lst}(x, add_segments = TRUE,
   add_channels_info = TRUE)
 }
 \arguments{
