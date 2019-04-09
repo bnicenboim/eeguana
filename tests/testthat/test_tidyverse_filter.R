@@ -609,7 +609,6 @@ test_that("filtering after grouping and summarizing works in segments table", {
 
 # b) A couple of events table tests
 
-
 test_that("summarizes don't have any individual events", {
   expect_true(nrow(summarize_filter_eeg$events) == 0)
   expect_true(nrow(summarize_at_filter_eeg$events) == 0)
@@ -618,8 +617,6 @@ test_that("summarizes don't have any individual events", {
   expect_true(nrow(summarize_all2_filter_eeg$events) == 0)
 })
   
-
-
 
 test_that("the classes of channels of signal_tbl remain after filtering by new variables", {
   # expect_equal(is_channel_dbl(mutate_at_filter_eeg$signal$X), TRUE)
