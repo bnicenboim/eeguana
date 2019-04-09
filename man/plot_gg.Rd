@@ -36,7 +36,7 @@ its input data. Layers can then be added in the same way as for a
 \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}} object.
 }
 \examples{
-``` 
+
 # Plot grand averages over raw data in selected channels
 data_faces_ERPs \%>\% 
   # select the desired electrodes
@@ -50,7 +50,6 @@ data_faces_ERPs \%>\%
       # facet by channel
       facet_wrap(~ .source) + 
       theme(legend.position = "bottom") 
-```
 
 }
 \seealso{

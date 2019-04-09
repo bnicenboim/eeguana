@@ -4,9 +4,9 @@
 \alias{plot_topo}
 \alias{plot_topo.tbl_df}
 \alias{plot_topo.eeg_lst}
-\title{Create a topographic plot}
 \alias{plot_topo.mixing_tbl}
 \alias{plot_topo.ica_lst}
+\title{Create a topographic plot}
 \usage{
 plot_topo(data, ...)
 
@@ -58,7 +58,7 @@ built into the function so as to allow flexibility in choosing colour, font
 size, and even head size, etc.
 }
 \examples{
-```
+
 # Calculate mean amplitude between 100-200 ms and plot the topography
 data_faces_ERPs \%>\% 
     # select the time window of interest
@@ -86,7 +86,7 @@ data_faces_ERPs \%>\%
         geom_contour() +
         geom_text(colour = "black") +
         facet_grid(~condition)
-```
+
 
 }
 \seealso{

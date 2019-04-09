@@ -5,13 +5,13 @@ map_dtr <- function(.x,.f,..., .id = NULL){
     data.table::rbindlist(res, fill = TRUE, idcol = .id)
 }
 
-
 #' @noRd
-map2_dtr <- function(.x, .y, .f,..., .id = NULL){
+map2_dtr <- function(.x,.y, .f,..., .id = NULL){
     .f <- purrr::as_mapper(.f, ...)
-    res <- purrr::map2(.x,.y, .f, ...)
+    res <- purrr::map2(.x, .y, .f, ...)
     data.table::rbindlist(res, fill = TRUE, idcol = .id)
 }
+
 #' @noRd
                                         # https://github.com/mllg/batchtools/blob/master/R/Joins.R
 semi_join_dt <- function(x, y, by = NULL) {

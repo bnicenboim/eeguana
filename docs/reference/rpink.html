@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>EEG signal decomposition using Independent Component Analysis (ICA) — eeg_ica • eeguana</title>
+<title>Generates pink noise — rpink • eeguana</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -37,9 +37,9 @@
 
 
 
-<meta property="og:title" content="EEG signal decomposition using Independent Component Analysis (ICA) — eeg_ica" />
+<meta property="og:title" content="Generates pink noise — rpink" />
 
-<meta property="og:description" content="EEG signal decomposition using Independent Component Analysis (ICA)" />
+<meta property="og:description" content="Adapted from Matlab code of Smith ()2011)" />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -126,55 +126,38 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>EEG signal decomposition using Independent Component Analysis (ICA)</h1>
-    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/ica.R'><code>R/ica.R</code></a></small>
-    <div class="hidden name"><code>eeg_ica.Rd</code></div>
+    <h1>Generates pink noise</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/simul.R'><code>R/simul.R</code></a></small>
+    <div class="hidden name"><code>rpink.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>EEG signal decomposition using Independent Component Analysis (ICA)</p>
+    <p>Adapted from Matlab code of Smith ()2011)</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>eeg_ica</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>eeg_ica</span>(<span class='no'>.data</span>, <span class='no'>...</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='kw pkg'>fICA</span><span class='kw ns'>::</span><span class='no'><a href='https://www.rdocumentation.org/packages/fICA/topics/adapt_fICA'>adapt_fICA</a></span>,
-  <span class='kw'>config</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(), <span class='kw'>tolerance</span> <span class='kw'>=</span> <span class='fl'>1e-06</span>, <span class='kw'>max_iterations</span> <span class='kw'>=</span> <span class='fl'>1000</span>)</pre>
+    <pre class="usage"><span class='fu'>rpink</span>(<span class='no'>N</span>, <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fl'>1</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>.data</th>
-      <td><p>An eeg_lst object</p></td>
+      <th>N</th>
+      <td></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>Channels to include in ICA transformation. All the channels by default, but eye channels and reference channels should be removed.</p></td>
-    </tr>
-    <tr>
-      <th>method</th>
-      <td><p>Methods from different packages: <code><a href='https://www.rdocumentation.org/packages/fICA/topics/adapt_fICA'>fICA::adapt_fICA</a></code> (default), <code><a href='https://www.rdocumentation.org/packages/fICA/topics/fICA'>fICA::fICA</a></code>, <code><a href='https://www.rdocumentation.org/packages/fICA/topics/reloaded_fICA'>fICA::reloaded_fICA</a></code>, <code><a href='https://www.rdocumentation.org/packages/fastICA/topics/fastICA'>fastICA::fastICA</a></code>, or a custom function that returns a list that contains <code>S</code>  (reconstucted sources) and <code>A</code> (mixing matrix), consistent with the formulation <code>X=A %*% S</code> or <code>W</code> (unmixing matrix), consistent with the formulation <code>X %*% W = S</code> (i.e., W == solve(X)).</p></td>
-    </tr>
-    <tr>
-      <th>config</th>
-      <td><p>Other parameters passed in a list to the method. These are the default parameters except that when possible the method is run in C rather than in R. See the documentation of the relevant method.</p></td>
-    </tr>
-    <tr>
-      <th>tolerance</th>
-      <td><p>Convergence tolerance.</p></td>
-    </tr>
-    <tr>
-      <th>max_iterations</th>
-      <td><p>Maximum number of iterations.</p></td>
+      <th>scale</th>
+      <td></td>
     </tr>
     </table>
     
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>An ica_lst object</p>
+    <p>Reference:
+Smith, J.O. Spectral Audio Signal Processing,
+http://ccrma.stanford.edu/~jos/sasp/, online book,
+2011 edition.</p>
     
 
   </div>
@@ -183,7 +166,7 @@
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#value">Value</a></li>
+      <li><a href="#details">Details</a></li>
           </ul>
 
   </div>

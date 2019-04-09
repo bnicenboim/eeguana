@@ -20,13 +20,13 @@ A layer for a ggplot
 Adds the outline of a head and nose to a ggplot.
 }
 \examples{
-```
+
 data_faces_ERPs \%>\% 
     filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) \%>\% 
     group_by(condition) \%>\%
     summarize_all_ch(mean, na.rm = TRUE) \%>\%
     plot_topo() +
     annotate_head(size = 1, color = "black", stroke = 2)
-```
+
 
 }

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>EEG signal decomposition using Independent Component Analysis (ICA) — eeg_ica • eeguana</title>
+<title>Builds an events_tbl table. — events_tbl • eeguana</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -37,9 +37,9 @@
 
 
 
-<meta property="og:title" content="EEG signal decomposition using Independent Component Analysis (ICA) — eeg_ica" />
+<meta property="og:title" content="Builds an events_tbl table. — events_tbl" />
 
-<meta property="og:description" content="EEG signal decomposition using Independent Component Analysis (ICA)" />
+<meta property="og:description" content="Builds an events_tbl table." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -126,55 +126,48 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>EEG signal decomposition using Independent Component Analysis (ICA)</h1>
-    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/ica.R'><code>R/ica.R</code></a></small>
-    <div class="hidden name"><code>eeg_ica.Rd</code></div>
+    <h1>Builds an events_tbl table.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/constructors.R'><code>R/constructors.R</code></a></small>
+    <div class="hidden name"><code>events_tbl.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>EEG signal decomposition using Independent Component Analysis (ICA)</p>
+    <p>Builds an events_tbl table.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>eeg_ica</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>eeg_ica</span>(<span class='no'>.data</span>, <span class='no'>...</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='kw pkg'>fICA</span><span class='kw ns'>::</span><span class='no'><a href='https://www.rdocumentation.org/packages/fICA/topics/adapt_fICA'>adapt_fICA</a></span>,
-  <span class='kw'>config</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(), <span class='kw'>tolerance</span> <span class='kw'>=</span> <span class='fl'>1e-06</span>, <span class='kw'>max_iterations</span> <span class='kw'>=</span> <span class='fl'>1000</span>)</pre>
+    <pre class="usage"><span class='fu'>events_tbl</span>(<span class='kw'>.id</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>.sample_0</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>.size</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>.channel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>descriptions_dt</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>.data</th>
-      <td><p>An eeg_lst object</p></td>
+      <th>ids</th>
+      <td><p>Integers indicating to which group the row of the signal matrix belongs.</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>Channels to include in ICA transformation. All the channels by default, but eye channels and reference channels should be removed.</p></td>
+      <th>sample_0s</th>
+      <td><p>Vector of integers that indicate at which sample an events starts.</p></td>
     </tr>
     <tr>
-      <th>method</th>
-      <td><p>Methods from different packages: <code><a href='https://www.rdocumentation.org/packages/fICA/topics/adapt_fICA'>fICA::adapt_fICA</a></code> (default), <code><a href='https://www.rdocumentation.org/packages/fICA/topics/fICA'>fICA::fICA</a></code>, <code><a href='https://www.rdocumentation.org/packages/fICA/topics/reloaded_fICA'>fICA::reloaded_fICA</a></code>, <code><a href='https://www.rdocumentation.org/packages/fastICA/topics/fastICA'>fastICA::fastICA</a></code>, or a custom function that returns a list that contains <code>S</code>  (reconstucted sources) and <code>A</code> (mixing matrix), consistent with the formulation <code>X=A %*% S</code> or <code>W</code> (unmixing matrix), consistent with the formulation <code>X %*% W = S</code> (i.e., W == solve(X)).</p></td>
+      <th>sizes</th>
+      <td><p>Vector of integers that indicate at which sample an events starts.</p></td>
     </tr>
     <tr>
-      <th>config</th>
-      <td><p>Other parameters passed in a list to the method. These are the default parameters except that when possible the method is run in C rather than in R. See the documentation of the relevant method.</p></td>
-    </tr>
-    <tr>
-      <th>tolerance</th>
-      <td><p>Convergence tolerance.</p></td>
-    </tr>
-    <tr>
-      <th>max_iterations</th>
-      <td><p>Maximum number of iterations.</p></td>
+      <th>channels</th>
+      <td><p>Vector of characters that indicate to which channel the event is relevant or NA for all the channels.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An ica_lst object</p>
+    <p>A valid events_tbl table.</p>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p>Other events_tbl: <code>is_events_tbl</code></p></div>
     
 
   </div>
@@ -184,6 +177,8 @@
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#see-also">See also</a></li>
           </ul>
 
   </div>

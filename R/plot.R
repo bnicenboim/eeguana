@@ -1,6 +1,6 @@
 #' Create a basic signal plot
 #' 
-#' \code{plot} creates a ggplot object in which the EEG signal over the whole 
+#' `plot` creates a ggplot object in which the EEG signal over the whole 
 #' recording is plotted by electrode. Useful as a quick visual check for major
 #' noise issues in the recording.
 #' 
@@ -15,15 +15,14 @@
 #' @return A ggplot object
 #' 
 #' @examples 
-#' ```
+#' 
 #' # Basic plot
 #' plot(data_faces_ERPs)
 #' 
 #' # Add ggplot layers
 #' plot(data_faces_ERPs) + 
 #'     coord_cartesian(ylim = c(-500,500))
-#' ```
-#'
+#' 
 #' @importFrom magrittr %>%
 #'
 #' @export
@@ -48,7 +47,7 @@ plot.eeg_lst <- function(x, max_sample = 64000, ...) {
 
 #' Create an ERP plot
 #' 
-#' \code{plot_gg} initializes a ggplot object which takes an eeg_lst object as
+#' `plot_gg` initializes a ggplot object which takes an eeg_lst object as
 #' its input data. Layers can then be added in the same way as for a 
 #' [ggplot2::ggplot()] object.
 #' 
@@ -60,7 +59,7 @@ plot.eeg_lst <- function(x, max_sample = 64000, ...) {
 #' @return A ggplot object
 #' 
 #' @examples 
-#' ``` 
+#' 
 #' # Plot grand averages over raw data in selected channels
 #' data_faces_ERPs %>% 
 #'   # select the desired electrodes
@@ -74,9 +73,6 @@ plot.eeg_lst <- function(x, max_sample = 64000, ...) {
 #'       # facet by channel
 #'       facet_wrap(~ .source) + 
 #'       theme(legend.position = "bottom") 
-#' ```
-#' 
-#' @importFrom magrittr %>%
 #'
 #' @export
 plot_gg <- function(.data, ...) {
@@ -120,17 +116,17 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 
 #' Create a topographic plot
 #'
-#' \code{plot_topo} initializes a ggplot object which takes an eeg_lst object
+#' `plot_topo` initializes a ggplot object which takes an eeg_lst object
 #' as its input data. Layers can then be added in the same way as for a 
 #' [ggplot2::ggplot()] object.
 #' 
-#' Before calling \code{plot_topo}, the eeg_lst object must be appropriately 
+#' Before calling `plot_topo`, the eeg_lst object must be appropriately 
 #' grouped (e.g. by condition) and/or 
 #' summarized into mean values such that each .x .y coordinate has only one 
 #' amplitude value. These values can then be interpolated using 
 #' [eeg_interpolate_tbl()], which will display the electrodes 
 #' stereographically, or plotted as-is, which will use the default polar display.
-#' \code{plot_topo} called alone 
+#' `plot_topo` called alone 
 #' without any further layers will create an unannotated topographical plot. 
 #' To add a head and nose, add the layer [annotate_head()]. Add 
 #' contour lines with [ggplot2::geom_contour()] and electrode labels 
@@ -147,7 +143,7 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 #' @return A ggplot object
 #' 
 #' @examples 
-#' ```
+#' 
 #' # Calculate mean amplitude between 100-200 ms and plot the topography
 #' data_faces_ERPs %>% 
 #'     # select the time window of interest
@@ -175,7 +171,7 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 #'         geom_contour() +
 #'         geom_text(colour = "black") +
 #'         facet_grid(~condition)
-#' ```
+#' 
 #' 
 #' @export
 plot_topo <- function(data,  ...) {
@@ -261,7 +257,7 @@ plot_topo.ica_lst <- function(data, size= 1.2, projection = "polar", ...) {
 #' 
 #' This function requires two steps: first, a ggplot object must be created with 
 #' ERPs facetted by channel ([.source]). 
-#' Then, the ggplot object is called in \code{plot_in_layout}.
+#' Then, the ggplot object is called in `plot_in_layout`.
 #'
 #' @param plot A ggplot object with channels
 #'
@@ -270,7 +266,7 @@ plot_topo.ica_lst <- function(data, size= 1.2, projection = "polar", ...) {
 #' 
 #' 
 #' @examples 
-#' ```
+#' 
 #' # Create a ggplot object with some grand averaged ERPs
 #' ERP_plot <- data_faces_ERPs %>% 
 #'    # group by time point and condition
@@ -288,8 +284,6 @@ plot_topo.ica_lst <- function(data, size= 1.2, projection = "polar", ...) {
 #'
 #' # Call the ggplot object with the layout function
 #' plot_in_layout(ERP_plot)
-#' ```
-#' 
 #' @export
 plot_in_layout <- function(plot,  ...) {
     UseMethod("plot_in_layout")
@@ -457,14 +451,14 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
 #' @return A layer for a ggplot
 #' 
 #' @examples
-#' ```
+#' 
 #' data_faces_ERPs %>% 
 #'     filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) %>% 
 #'     group_by(condition) %>%
 #'     summarize_all_ch(mean, na.rm = TRUE) %>%
 #'     plot_topo() +
 #'     annotate_head(size = 1, color = "black", stroke = 2)
-#' ```
+#' 
 #' 
 #' @export
 #'
