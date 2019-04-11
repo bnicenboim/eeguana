@@ -26,7 +26,7 @@ data_faces_ERPs \%>\%
     group_by(condition) \%>\%
     summarize_all_ch(mean, na.rm = TRUE) \%>\%
     plot_topo() +
-    annotate_head(size = 1, color = "black", stroke = 2)
+    annotate_head(size = .9, color = "black", stroke = 1)
 
 
 }
