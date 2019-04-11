@@ -74,7 +74,7 @@ noise issues in the recording." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.6.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.7.9000</span>
       </span>
     </div>
 
@@ -167,7 +167,16 @@ noise issues in the recording.</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Note that for normal-size datasets, the plot may take several minutes to compile.</p>
+    <p>Note that for normal-size datasets, the plot may take several minutes to compile.
+If necessary, <code>plot</code> will first downsample the <code>eeg_lst</code> object so that there is a
+maximum of 64,000 samples. The <code>eeg_lst</code> object is then converted to a long-format
+tibble via <code>as_tibble</code>. In this tibble, the <code>.source</code> variable is the
+channel/component name and <code>.value</code> its respective amplitude. The sample
+number (<code>.sample_id</code> in the <code>eeg_lst</code> object) is automatically converted to milliseconds
+to create the variable <code>time</code>. By default, time is then plotted on the
+x-axis and amplitude on the y-axis.</p>
+<p>To add additional components to the plot such as titles and annotations, simply
+use the <code>+</code> symbol and add layers exactly as you would for <code>ggplot::ggplot</code>.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
