@@ -41,7 +41,7 @@
 
 <meta property="og:description" content="plot_topo initializes a ggplot object which takes an eeg_lst object
 as its input data. Layers can then be added in the same way as for a
-ggplot2::ggplot() object." />
+ggplot2::ggplot object." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -135,9 +135,9 @@ ggplot2::ggplot() object." />
 
     <div class="ref-description">
     
-    <p><code>plot_topo</code> initializes a ggplot object which takes an eeg_lst object
+    <p><code>plot_topo</code> initializes a ggplot object which takes an <code>eeg_lst</code> object
 as its input data. Layers can then be added in the same way as for a
-<code><a href='https://www.rdocumentation.org/packages/ggplot2/topics/ggplot'>ggplot2::ggplot()</a></code> object.</p>
+<code><a href='https://www.rdocumentation.org/packages/ggplot2/topics/ggplot'>ggplot2::ggplot</a></code> object.</p>
     
     </div>
 
@@ -163,7 +163,7 @@ as its input data. Layers can then be added in the same way as for a
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>data</th>
-      <td><p>A table of interpolated electrodes as produced by eeg_interpolate_tbl, or an eeg_lst appropiately grouped.</p></td>
+      <td><p>A table of interpolated electrodes as produced by <code>eeg_interpolate_tbl</code>, or an <code>eeg_lst</code> appropiately grouped.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -193,19 +193,26 @@ as its input data. Layers can then be added in the same way as for a
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Before calling <code>plot_topo</code>, the eeg_lst object must be appropriately
+    <p>Before calling <code>plot_topo</code>, the <code>eeg_lst</code> object object must be appropriately
 grouped (e.g. by condition) and/or
 summarized into mean values such that each .x .y coordinate has only one
-amplitude value. These values can then be interpolated using
-<code>eeg_interpolate_tbl()</code>, which will display the electrodes
-stereographically, or plotted as-is, which will use the default polar display.
-<code>plot_topo</code> called alone
+amplitude value. By default, <code>plot_topo</code> interpolates amplitude values via
+<code>eeg_interpolate_tbl</code>, which generates a tibble with <code>.source</code> (channel),
+<code>.value</code> (amplitude), and .x .y coordinate variables. .x .y coordinates are
+extracted from the <code>eeg_lst</code> object, which in turn reads the coordinates logged
+by your EEG recording software. By default, <code>plot_topo</code> will display electrodes
+in polar arrangement, but can be changed with the <code>projection</code>
+argument. Alternatively, if <code>eeg_interpolate_tbl</code> is called after grouping/summarizing
+but before <code>plot_topo</code>, the resulting electrode layout will be stereographic.</p>
+<p><code>plot_topo</code> called alone
 without any further layers will create an unannotated topographical plot.
-To add a head and nose, add the layer <code>annotate_head()</code>. Add
-contour lines with <code><a href='https://www.rdocumentation.org/packages/ggplot2/topics/geom_contour'>ggplot2::geom_contour()</a></code> and electrode labels
-with <code><a href='https://www.rdocumentation.org/packages/ggplot2/topics/geom_text'>ggplot2::geom_text()</a></code>. These arguments are deliberately not
+To add a head and nose, add the layer <code>annotate_head</code>. Add
+contour lines with <code><a href='https://www.rdocumentation.org/packages/ggplot2/topics/geom_contour'>ggplot2::geom_contour</a></code> and electrode labels
+with <code><a href='https://www.rdocumentation.org/packages/ggplot2/topics/geom_text'>ggplot2::geom_text</a></code>. These arguments are deliberately not
 built into the function so as to allow flexibility in choosing colour, font
 size, and even head size, etc.</p>
+<p>To add additional components to the plot such as titles and annotations, simply
+use the <code>+</code> symbol and add layers exactly as you would for <code>ggplot::ggplot</code>.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 

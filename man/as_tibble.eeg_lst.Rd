@@ -4,7 +4,7 @@
 \alias{as_tibble.eeg_lst}
 \alias{as_data_frame.eeg_lst}
 \alias{as_long_tbl.eeg_lst}
-\title{Convert an eeg_lst to a wide table.}
+\title{Convert an eeg_lst to a long table.}
 \usage{
 \method{as_tibble}{eeg_lst}(x, add_segments = TRUE,
   add_channels_info = TRUE)

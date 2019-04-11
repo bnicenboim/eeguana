@@ -5,6 +5,16 @@
 #' noise issues in the recording.
 #' 
 #' Note that for normal-size datasets, the plot may take several minutes to compile.
+#' If necessary, `plot` will first downsample the `eeg_lst` object so that there is a 
+#' maximum of 64,000 samples. The `eeg_lst` object is then converted to a long-format
+#' tibble via `as_tibble`. In this tibble, the `.source` variable is the 
+#' channel/component name and `.value` its respective amplitude. The sample 
+#' number (`.sample_id` in the `eeg_lst` object) is automatically converted to milliseconds
+#' to create the variable `time`. By default, time is then plotted on the 
+#' x-axis and amplitude on the y-axis.
+#' 
+#' To add additional components to the plot such as titles and annotations, simply
+#' use the `+` symbol and add layers exactly as you would for `ggplot::ggplot`.
 #' 
 #' 
 #' @param x An `eeg_lst` object.
@@ -47,9 +57,20 @@ plot.eeg_lst <- function(x, max_sample = 64000, ...) {
 
 #' Create an ERP plot
 #' 
-#' `plot_gg` initializes a ggplot object which takes an eeg_lst object as
+#' `plot_gg` initializes a ggplot object which takes an `eeg_lst` object as
 #' its input data. Layers can then be added in the same way as for a 
-#' [ggplot2::ggplot()] object.
+#' `ggplot2::ggplot` object.
+#' 
+#' If necessary, `plot_gg` will first downsample the `eeg_lst` object so that there is a 
+#' maximum of 64,000 samples. The `eeg_lst` object is then converted to a long-format
+#' tibble via `as_tibble`. In this tibble, the `.source` variable is the 
+#' channel/component name and `.value` its respective amplitude. The sample 
+#' number (`.sample_id` in the `eeg_lst` object) is automatically converted to milliseconds
+#' to create the variable `time`. By default, time is plotted on the 
+#' x-axis and amplitude on the y-axis.
+#' 
+#' To add additional components to the plot such as titles and annotations, simply
+#' use the `+` symbol and add layers exactly as you would for `ggplot::ggplot`.
 #' 
 #' @param .data An `eeg_lst` object.
 #' @inheritParams  ggplot2::aes
@@ -60,13 +81,11 @@ plot.eeg_lst <- function(x, max_sample = 64000, ...) {
 #' 
 #' @examples 
 #' 
-#' # Plot grand averages over raw data in selected channels
+#' # Plot grand averages for selected channels
 #' data_faces_ERPs %>% 
 #'   # select the desired electrodes
 #'   select(O1, O2, P7, P8) %>% 
 #'   plot_gg() + 
-#'       # plot the raw ERP waves
-#'       geom_line(alpha = .1, aes(group = .id, color = condition)) + 
 #'       # add a grand average wave
 #'       stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1.5, 
 #'                aes(color = condition)) +
@@ -116,26 +135,35 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 
 #' Create a topographic plot
 #'
-#' `plot_topo` initializes a ggplot object which takes an eeg_lst object
+#' `plot_topo` initializes a ggplot object which takes an `eeg_lst` object
 #' as its input data. Layers can then be added in the same way as for a 
-#' [ggplot2::ggplot()] object.
+#' `ggplot2::ggplot` object.
 #' 
-#' Before calling `plot_topo`, the eeg_lst object must be appropriately 
+#' Before calling `plot_topo`, the `eeg_lst` object object must be appropriately 
 #' grouped (e.g. by condition) and/or 
 #' summarized into mean values such that each .x .y coordinate has only one 
-#' amplitude value. These values can then be interpolated using 
-#' [eeg_interpolate_tbl()], which will display the electrodes 
-#' stereographically, or plotted as-is, which will use the default polar display.
+#' amplitude value. By default, `plot_topo` interpolates amplitude values via
+#' `eeg_interpolate_tbl`, which generates a tibble with `.source` (channel), 
+#'  `.value` (amplitude), and .x .y coordinate variables. .x .y coordinates are 
+#' extracted from the `eeg_lst` object, which in turn reads the coordinates logged
+#' by your EEG recording software. By default, `plot_topo` will display electrodes 
+#' in polar arrangement, but can be changed with the `projection` 
+#' argument. Alternatively, if `eeg_interpolate_tbl` is called after grouping/summarizing
+#' but before `plot_topo`, the resulting electrode layout will be stereographic.
+#' 
 #' `plot_topo` called alone 
 #' without any further layers will create an unannotated topographical plot. 
-#' To add a head and nose, add the layer [annotate_head()]. Add 
-#' contour lines with [ggplot2::geom_contour()] and electrode labels 
-#' with [ggplot2::geom_text()]. These arguments are deliberately not
+#' To add a head and nose, add the layer `annotate_head`. Add 
+#' contour lines with `ggplot2::geom_contour` and electrode labels 
+#' with `ggplot2::geom_text`. These arguments are deliberately not
 #' built into the function so as to allow flexibility in choosing colour, font 
 #' size, and even head size, etc.
+#' 
+#' To add additional components to the plot such as titles and annotations, simply
+#' use the `+` symbol and add layers exactly as you would for `ggplot::ggplot`.
 #'
 #'
-#' @param data A table of interpolated electrodes as produced by [eeg_interpolate_tbl], or an eeg_lst appropiately grouped. 
+#' @param data A table of interpolated electrodes as produced by `eeg_interpolate_tbl`, or an `eeg_lst` appropiately grouped. 
 #' @param ... Not in use.
 #'
 #' @family plot
@@ -256,8 +284,17 @@ plot_topo.ica_lst <- function(data, size= 1.2, projection = "polar", ...) {
 #' on the scalp.
 #' 
 #' This function requires two steps: first, a ggplot object must be created with 
-#' ERPs facetted by channel ([.source]). 
-#' Then, the ggplot object is called in `plot_in_layout`.
+#' ERPs facetted by channel (`.source`). 
+#' Then, the ggplot object is called in `plot_in_layout`. The function uses grobs
+#' arranged according to .x .y coordinates extracted from the `eeg_lst` object, by
+#' default in polar arrangement. The arrangement can be changed with the `projection`
+#' argument. White space in the plot can be reduced by changing `ratio`.
+#' 
+#' Additional components such as titles and annotations should be added to the 
+#' plot object using `+` exactly as you would for `ggplot::ggplot`.
+#' Title and legend adjustments will be treated as applying to the 
+#' whole plot object, while other theme adjustments will be treated as applying 
+#' to individual facets. x-axis and y-axis labels cannot be added at this stage.
 #'
 #' @param plot A ggplot object with channels
 #'
@@ -269,6 +306,8 @@ plot_topo.ica_lst <- function(data, size= 1.2, projection = "polar", ...) {
 #' 
 #' # Create a ggplot object with some grand averaged ERPs
 #' ERP_plot <- data_faces_ERPs %>% 
+#'    # select a few electrodes
+#'    select(Fz, FC1, FC2, C3, Cz, C4, CP1, CP2, Pz) %>%
 #'    # group by time point and condition
 #'    group_by(.sample_id, condition) %>%
 #'    # compute averages
@@ -457,7 +496,7 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
 #'     group_by(condition) %>%
 #'     summarize_all_ch(mean, na.rm = TRUE) %>%
 #'     plot_topo() +
-#'     annotate_head(size = 1, color = "black", stroke = 2)
+#'     annotate_head(size = .9, color = "black", stroke = 1)
 #' 
 #' 
 #' @export

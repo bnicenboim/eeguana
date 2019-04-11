@@ -28,13 +28,24 @@ on the scalp.
 }
 \details{
 This function requires two steps: first, a ggplot object must be created with
-ERPs facetted by channel (\link{.source}).
-Then, the ggplot object is called in \code{plot_in_layout}.
+ERPs facetted by channel (\code{.source}).
+Then, the ggplot object is called in \code{plot_in_layout}. The function uses grobs
+arranged according to .x .y coordinates extracted from the \code{eeg_lst} object, by
+default in polar arrangement. The arrangement can be changed with the \code{projection}
+argument. White space in the plot can be reduced by changing \code{ratio}.
+
+Additional components such as titles and annotations should be added to the
+plot object using \code{+} exactly as you would for \code{ggplot::ggplot}.
+Title and legend adjustments will be treated as applying to the
+whole plot object, while other theme adjustments will be treated as applying
+to individual facets. x-axis and y-axis labels cannot be added at this stage.
 }
 \examples{
 
 # Create a ggplot object with some grand averaged ERPs
 ERP_plot <- data_faces_ERPs \%>\% 
+   # select a few electrodes
+   select(Fz, FC1, FC2, C3, Cz, C4, CP1, CP2, Pz) \%>\%
    # group by time point and condition
    group_by(.sample_id, condition) \%>\%
    # compute averages
