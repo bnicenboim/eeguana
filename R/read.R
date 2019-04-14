@@ -6,36 +6,6 @@
 #' relatively straightforward to export .dat files from BrainVision. All three 
 #' files must be in the same directory. 
 #' 
-#' The resulting eeg_lst object is composed of two `data.table::data.table` 
-#' objects and one  `tibble::tibble`. All three are linked by a unique
-#' identifier `.id`. Amplitude values and timestamps are read into the `signal`
-#' table. Triggers, blinks, BrainVision artefact rejection markings, and other
-#' logged events are read into the `events` table. Segment information and 
-#' recording IDs are read into the `segments` tibble. 
-#' 
-#' The `signal` table is organised into columns representing timestamps 
-#' (`.sample_id`) and individual electrodes. Each `.sample_id` corresponds to
-#' 1 sample in the original recording, i.e. if the sampling rate of the EEG
-#' recording is 500 Hz, then each `.sample_id` corresponds to 2 milliseconds. 
-#' These timestamps correspond to `.sample_0` in the `events` table, which 
-#' displays only the timestamps where logged events began.
-#' 
-#' The `events` table is organised into columns representing the `type` of event
-#' associated with the trigger listed under `description`. The timestamp marking
-#' the beginning of the event is listed under `.sample_0` and the length of the
-#' event (in timestamps) is listed under `.size`. The `.channel` column is a
-#' linking variable only, so will generally only contain NAs, unless the 
-#' event is specific to a certain channel.
-#' 
-#' The `segments` tibble contains the subject ID under `recording`, which is 
-#' the file name unless otherwise specified. If the data has been segmented in 
-#' BrainVision, the segment number will be listed under `segment`. The data can
-#' also be segmented according to trigger labels in `eeguana`, see `segment`. 
-#' `segment` will be place the segment number under `segment`, the trigger name 
-#' under `type.x`, and the trigger label under `description.x`. Other information 
-#' such as condition labels or response times can be added by the user by merging
-#' into the `segments` tibble using non-eeguana merge functions, e.g. the `dplyr`
-#' join series.
 #' 
 #'
 #' @param file A vhdr file in a folder that contains a .vmrk and .dat files
@@ -130,38 +100,8 @@ read_vhdr <- function(file, sep = type == "New Segment", zero = type == "Time 0"
 #' Creates an eeg_lst object from Matlab exported files.The function reads a .mat 
 #' file using `R.matlab`. If you do not already have
 #' `R.matlab` installed in R, you will need to install it yourself. The .mat file 
-#' should have the structure described in this [Fieldtrip reference article](http://www.fieldtriptoolbox.org/reference/ft_datatype_raw).
-#' 
-#' The resulting eeg_lst object is composed of two `data.table::data.table` 
-#' objects and one  `tibble::tibble`. All three are linked by a unique
-#' identifier `.id`. Amplitude values and timestamps are read into the `signal`
-#' table. Triggers, blinks, BrainVision artefact rejection markings, and other
-#' logged events are read into the `events` table. Segment information and 
-#' recording IDs are read into the `segments` tibble. 
-#' 
-#' The `signal` table is organised into columns representing timestamps 
-#' (`.sample_id`) and individual electrodes. Each `.sample_id` corresponds to
-#' 1 sample in the original recording, i.e. if the sampling rate of the EEG
-#' recording is 500 Hz, then each `.sample_id` corresponds to 2 milliseconds. 
-#' These timestamps correspond to `.sample_0` in the `events` table, which 
-#' displays only the timestamps where logged events began.
-#' 
-#' The `events` table is organised into columns representing the `type` of event
-#' associated with the trigger listed under `description`. The timestamp marking
-#' the beginning of the event is listed under `.sample_0` and the length of the
-#' event (in timestamps) is listed under `.size`. The `.channel` column is a
-#' linking variable only, so will generally only contain NAs, unless the 
-#' event is specific to a certain channel.
-#' 
-#' The `segments` tibble contains the subject ID under `recording`, which is 
-#' the file name unless otherwise specified. If the data has been segmented in 
-#' BrainVision, the segment number will be listed under `segment`. The data can
-#' also be segmented according to trigger labels in `eeguana`, see `segment`. 
-#' `segment` will be place the segment number under `segment`, the trigger name 
-#' under `type.x`, and the trigger label under `description.x`. Other information 
-#' such as condition labels or response times can be added by the user by merging
-#' into the `segments` tibble using non-eeguana merge functions, e.g. the `dplyr`
-#' join series.
+#' should have the structure described in 
+#' this [Fieldtrip reference article](http://www.fieldtriptoolbox.org/reference/ft_datatype_raw).
 #' 
 #' @param file A .mat file containing a fieldtrip struct.
 #' @param recording Recording name, by default is the file name.
@@ -319,36 +259,6 @@ read_ft <- function(file, layout = NULL, recording = file) {
 #' 
 #' Creates an eeg_lst object from edf, edf+, and bdf file export formats.
 #' 
-#' The resulting eeg_lst object is composed of two `data.table::data.table` 
-#' objects and one  `tibble::tibble`. All three are linked by a unique
-#' identifier `.id`. Amplitude values and timestamps are read into the `signal`
-#' table. Triggers, blinks, BrainVision artefact rejection markings, and other
-#' logged events are read into the `events` table. Segment information and 
-#' recording IDs are read into the `segments` tibble. 
-#' 
-#' The `signal` table is organised into columns representing timestamps 
-#' (`.sample_id`) and individual electrodes. Each `.sample_id` corresponds to
-#' 1 sample in the original recording, i.e. if the sampling rate of the EEG
-#' recording is 500 Hz, then each `.sample_id` corresponds to 2 milliseconds. 
-#' These timestamps correspond to `.sample_0` in the `events` table, which 
-#' displays only the timestamps where logged events began.
-#' 
-#' The `events` table is organised into columns representing the `type` of event
-#' associated with the trigger listed under `description`. The timestamp marking
-#' the beginning of the event is listed under `.sample_0` and the length of the
-#' event (in timestamps) is listed under `.size`. The `.channel` column is a
-#' linking variable only, so will generally only contain NAs, unless the 
-#' event is specific to a certain channel.
-#' 
-#' The `segments` tibble contains the subject ID under `recording`, which is 
-#' the file name unless otherwise specified. If the data has been segmented in 
-#' BrainVision, the segment number will be listed under `segment`. The data can
-#' also be segmented according to trigger labels in `eeguana`, see `segment`. 
-#' `segment` will be place the segment number under `segment`, the trigger name 
-#' under `type.x`, and the trigger label under `description.x`. Other information 
-#' such as condition labels or response times can be added by the user by merging
-#' into the `segments` tibble using non-eeguana merge functions, e.g. the `dplyr`
-#' join series.
 #'
 #' @param file A edf/bdf file
 #' @param recording Recording name (file name, by default). If set to NULL or NA, the patient name will be used.
