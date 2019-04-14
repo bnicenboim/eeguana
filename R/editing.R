@@ -23,7 +23,7 @@ events.eeg_lst <- function(x,...){
 #' @rdname events
 #' @export
 `events<-.eeg_lst` <- function(x, value) {
-  x$events <- data.table::data.table(value)
+  x$events <- as_events_tbl(value)
   x
 }
 
@@ -51,10 +51,10 @@ channels_tbl(x$signal)
 #' @export
 channels_tbl.ica_lst <- function(x, ...) {
     signal_chs <- channels_tbl(x$signal)
-     mixing_chs <- channels_tbl(x$mixing)
+    mixing_chs <- channels_tbl(x$mixing)
     if(nrow(signal_chs)==0)  signal_chs <- NULL
     if(nrow(mixing_chs)==0)  mixing_chs <- NULL
-   dplyr::bind_cols(signal_chs, mixing_chs)
+   dplyr::bind_rows(signal_chs, mixing_chs)
 }
 
 
@@ -93,8 +93,10 @@ channels_tbl.data.frame <- function(x, ...) {
   new_names <- channel_names(x)
 
   for (i in seq_len(nchannels(x))) {
-    x$events <- dplyr::mutate(x$events, .channel = dplyr::if_else(.channel == orig_names[i], new_names[i], .channel)) %>%
-                data.table::as.data.table()
+    #TODO do it in data.table
+    x$events <- dplyr::mutate(x$events, 
+                              .channel = dplyr::if_else(.channel == orig_names[i], new_names[i], .channel)) %>%
+                as_events_tbl()
   }
 
   x

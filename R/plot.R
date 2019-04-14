@@ -1,6 +1,21 @@
-#' Simple plot an eeg_lst object.
-#'
-#' This function first downsamples the egg_lst and then converts it into a long tibble. See [as_tibble.eeg_lst] for details.
+#' Create a basic signal plot
+#' 
+#' `plot` creates a ggplot object in which the EEG signal over the whole 
+#' recording is plotted by electrode. Useful as a quick visual check for major
+#' noise issues in the recording.
+#' 
+#' Note that for normal-size datasets, the plot may take several minutes to compile.
+#' If necessary, `plot` will first downsample the `eeg_lst` object so that there is a 
+#' maximum of 64,000 samples. The `eeg_lst` object is then converted to a long-format
+#' tibble via `as_tibble`. In this tibble, the `.source` variable is the 
+#' channel/component name and `.value` its respective amplitude. The sample 
+#' number (`.sample_id` in the `eeg_lst` object) is automatically converted to milliseconds
+#' to create the variable `time`. By default, time is then plotted on the 
+#' x-axis and amplitude on the y-axis.
+#' 
+#' To add additional components to the plot such as titles and annotations, simply
+#' use the `+` symbol and add layers exactly as you would for `ggplot::ggplot`.
+#' 
 #' 
 #' @param x An `eeg_lst` object.
 #' @param max_sample Downsample to approximately 64000 samples by default.
@@ -8,16 +23,22 @@
 #' @family plot
 #' 
 #' @return A ggplot object
-#'
+#' 
+#' @examples 
+#' 
+#' # Basic plot
+#' plot(data_faces_ERPs)
+#' 
+#' # Add ggplot layers
+#' plot(data_faces_ERPs) + 
+#'     coord_cartesian(ylim = c(-500,500))
+#' 
 #' @importFrom magrittr %>%
 #'
 #' @export
 plot.eeg_lst <- function(x, max_sample = 64000, ...) {
-  if (is.numeric(max_sample) & max_sample != 0 &
-    # it will downsample if the samples are at least twice as large than the max_sample
-    max(duration(x)) * sampling_rate(x) * 2 > max_sample) {
-    x <- eeg_downsample(x, max_sample = max_sample)
-  }
+
+  x <- try_to_downsample(x, max_sample)
 
   df <- dplyr::as_tibble(x) %>% 
         dplyr::mutate(.source = factor(.source, levels = unique(.source)))
@@ -34,15 +55,43 @@ plot.eeg_lst <- function(x, max_sample = 64000, ...) {
   plot
 }
 
-#' ggplot object based on an eeg_lst object.
+#' Create an ERP plot
+#' 
+#' `plot_gg` initializes a ggplot object which takes an `eeg_lst` object as
+#' its input data. Layers can then be added in the same way as for a 
+#' `ggplot2::ggplot` object.
+#' 
+#' If necessary, `plot_gg` will first downsample the `eeg_lst` object so that there is a 
+#' maximum of 64,000 samples. The `eeg_lst` object is then converted to a long-format
+#' tibble via `as_tibble`. In this tibble, the `.source` variable is the 
+#' channel/component name and `.value` its respective amplitude. The sample 
+#' number (`.sample_id` in the `eeg_lst` object) is automatically converted to milliseconds
+#' to create the variable `time`. By default, time is plotted on the 
+#' x-axis and amplitude on the y-axis.
+#' 
+#' To add additional components to the plot such as titles and annotations, simply
+#' use the `+` symbol and add layers exactly as you would for `ggplot::ggplot`.
+#' 
 #' @param .data An `eeg_lst` object.
 #' @inheritParams  ggplot2::aes
 #' @param max_sample Downsample to approximately 64000 samples by default.
 #'
 #' @family plot
 #' @return A ggplot object
-#'
-#' @importFrom magrittr %>%
+#' 
+#' @examples 
+#' 
+#' # Plot grand averages for selected channels
+#' data_faces_ERPs %>% 
+#'   # select the desired electrodes
+#'   select(O1, O2, P7, P8) %>% 
+#'   plot_gg() + 
+#'       # add a grand average wave
+#'       stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1.5, 
+#'                aes(color = condition)) +
+#'       # facet by channel
+#'       facet_wrap(~ .source) + 
+#'       theme(legend.position = "bottom") 
 #'
 #' @export
 plot_gg <- function(.data, ...) {
@@ -54,11 +103,7 @@ plot_gg.eeg_lst <- function(.data, x = time, y = .value, ..., max_sample = 64000
   x <- rlang::enquo(x)
   y <- rlang::enquo(y)
 
-  if (!all(is.na(.data$signal$.sample_id)) && is.numeric(max_sample) && max_sample != 0 &&
-    # it will downsample if the samples are at least twice as large than the max_sample
-    max(duration(.data)) * sampling_rate(.data) * 2 > max_sample) {
-    .data <- eeg_downsample(.data, max_sample = max_sample)
-  }
+  .data <- try_to_downsample(.data, max_sample)
 
   dots <- rlang::enquos(...)
   df <- dplyr::as_tibble(.data) %>% 
@@ -88,19 +133,74 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 }
 
 
-#' A topographic plot.
+#' Create a topographic plot
 #'
-#' Create a default topographic plot based on an interpolation table.
+#' `plot_topo` initializes a ggplot object which takes an `eeg_lst` object
+#' as its input data. Layers can then be added in the same way as for a 
+#' `ggplot2::ggplot` object.
+#' 
+#' Before calling `plot_topo`, the `eeg_lst` object object must be appropriately 
+#' grouped (e.g. by condition) and/or 
+#' summarized into mean values such that each .x .y coordinate has only one 
+#' amplitude value. By default, `plot_topo` interpolates amplitude values via
+#' `eeg_interpolate_tbl`, which generates a tibble with `.source` (channel), 
+#'  `.value` (amplitude), and .x .y coordinate variables. .x .y coordinates are 
+#' extracted from the `eeg_lst` object, which in turn reads the coordinates logged
+#' by your EEG recording software. By default, `plot_topo` will display electrodes 
+#' in polar arrangement, but can be changed with the `projection` 
+#' argument. Alternatively, if `eeg_interpolate_tbl` is called after grouping/summarizing
+#' but before `plot_topo`, the resulting electrode layout will be stereographic.
+#' 
+#' `plot_topo` called alone 
+#' without any further layers will create an unannotated topographical plot. 
+#' To add a head and nose, add the layer `annotate_head`. Add 
+#' contour lines with `ggplot2::geom_contour` and electrode labels 
+#' with `ggplot2::geom_text`. These arguments are deliberately not
+#' built into the function so as to allow flexibility in choosing colour, font 
+#' size, and even head size, etc.
+#' 
+#' To add additional components to the plot such as titles and annotations, simply
+#' use the `+` symbol and add layers exactly as you would for `ggplot::ggplot`.
 #'
 #'
-#' @param data A table of interpolated electrodes as produced by [eeg_interpolate_tbl], or an eeg_lst appropiately grouped. 
+#' @param data A table of interpolated electrodes as produced by `eeg_interpolate_tbl`, or an `eeg_lst` appropiately grouped. 
 #' @param ... Not in use.
 #'
 #' @family plot
 #'
 #' @return A ggplot object
+#' 
+#' @examples 
+#' 
+#' # Calculate mean amplitude between 100-200 ms and plot the topography
+#' data_faces_ERPs %>% 
+#'     # select the time window of interest
+#'     filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) %>% 
+#'     # compute mean amplitude per condition
+#'     group_by(condition) %>%
+#'     summarize_all_ch(mean, na.rm = TRUE) %>%
+#'     plot_topo() +
+#'         # add a head and nose shape
+#'         annotate_head() + 
+#'         # add contour lines
+#'         geom_contour() +
+#'         # add electrode labels
+#'         geom_text(colour = "black") +
+#'         facet_grid(~condition)
 #'
-#'
+#' # The same but with interpolation
+#' data_faces_ERPs %>% 
+#'     filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) %>% 
+#'     group_by(condition) %>%
+#'     summarize_all_ch(mean, na.rm = TRUE) %>%
+#'     eeg_interpolate_tbl() %>%
+#'     plot_topo() +
+#'         annotate_head() + 
+#'         geom_contour() +
+#'         geom_text(colour = "black") +
+#'         facet_grid(~condition)
+#' 
+#' 
 #' @export
 plot_topo <- function(data,  ...) {
   UseMethod("plot_topo")
@@ -150,21 +250,24 @@ plot_topo.tbl_df <- function(data, value= .value,  label=.source) {
 #' @inheritParams eeg_interpolate_tbl
 #' @rdname plot_topo
 #' @export
-plot_topo.eeg_lst <- function(data, size= 1.2, projection = "polar", ...) {
+plot_topo.eeg_lst <- function(data, radius= 1.2, projection = "polar", ...) {
   
   channels_tbl(data)  <- change_coord(channels_tbl(data), projection) 
-  eeg_interpolate_tbl(data, size,...) %>%
+    eeg_interpolate_tbl(data, radius,...) %>%
     plot_topo()
 }
 
 #' @rdname plot_topo
 #' @export
-plot_topo.mixing_tbl <- function(data, size= 1.2, projection = "polar", ...) {
+plot_topo.mixing_tbl <- function(data, radius= 1.2, projection = "polar", ...) {
     
-    channels_tbl(data)  <- change_coord(channels_tbl(data), projection)
-    data %>% as_long_tbl %>%
-        filter(.ICA != "mean") %>% group_by(.group,.ICA) %>%
-        eeg_interpolate_tbl(size,...) %>%
+    channels_tbl(data)  <- change_coord(channels_tbl(data), projection)  
+
+    data %>% as_long_tbl %>% 
+        filter(.ICA != "mean") %>%
+        dplyr::mutate(.ICA = factor(.ICA, levels = unique(.ICA)))%>%
+        group_by(.group,.ICA) %>%
+        eeg_interpolate_tbl(radius=radius,...) %>%
         plot_topo()
 }
 
@@ -175,15 +278,51 @@ plot_topo.ica_lst <- function(data, size= 1.2, projection = "polar", ...) {
 }
 
 
-#' Place channels in a layout.
+#' Arrange ERP plots according to scalp layout
 #'
-#' Reorganizes a ggplot so that the plot of each channel is in their correct position in the scalp.
+#' Arranges a ggplot so that the facet for each channel appears in its position 
+#' on the scalp.
+#' 
+#' This function requires two steps: first, a ggplot object must be created with 
+#' ERPs facetted by channel (`.source`). 
+#' Then, the ggplot object is called in `plot_in_layout`. The function uses grobs
+#' arranged according to .x .y coordinates extracted from the `eeg_lst` object, by
+#' default in polar arrangement. The arrangement can be changed with the `projection`
+#' argument. White space in the plot can be reduced by changing `ratio`.
+#' 
+#' Additional components such as titles and annotations should be added to the 
+#' plot object using `+` exactly as you would for `ggplot::ggplot`.
+#' Title and legend adjustments will be treated as applying to the 
+#' whole plot object, while other theme adjustments will be treated as applying 
+#' to individual facets. x-axis and y-axis labels cannot be added at this stage.
 #'
 #' @param plot A ggplot object with channels
 #'
 #' @family plot
 #' @return A ggplot object
 #' 
+#' 
+#' @examples 
+#' 
+#' # Create a ggplot object with some grand averaged ERPs
+#' ERP_plot <- data_faces_ERPs %>% 
+#'    # select a few electrodes
+#'    select(Fz, FC1, FC2, C3, Cz, C4, CP1, CP2, Pz) %>%
+#'    # group by time point and condition
+#'    group_by(.sample_id, condition) %>%
+#'    # compute averages
+#'    summarize_all_ch(mean,na.rm=TRUE) %>%
+#'    plot_gg() + 
+#'        # plot the averaged waveforms
+#'        geom_line(aes(color = condition)) +
+#'        # facet by channel
+#'        facet_wrap(~ .source) +  
+#'        # add a legend and title
+#'        theme(legend.position = "bottom") + 
+#'        ggtitle("ERPs for faces vs non-faces") 
+#'
+#' # Call the ggplot object with the layout function
+#' plot_in_layout(ERP_plot)
 #' @export
 plot_in_layout <- function(plot,  ...) {
     UseMethod("plot_in_layout")
@@ -340,13 +479,26 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
 }
 
 
-#' Annotates a head in a ggplot
+#' Add a head shape to a ggplot
+#' 
+#' Adds the outline of a head and nose to a ggplot.
 #'
 #' @param size Size of the head
 #' @param color Color of the head
 #' @param stroke Line thickness
 #'
 #' @return A layer for a ggplot
+#' 
+#' @examples
+#' 
+#' data_faces_ERPs %>% 
+#'     filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) %>% 
+#'     group_by(condition) %>%
+#'     summarize_all_ch(mean, na.rm = TRUE) %>%
+#'     plot_topo() +
+#'     annotate_head(size = .9, color = "black", stroke = 1)
+#' 
+#' 
 #' @export
 #'
 annotate_head <- function(size = 1.1, color ="black", stroke=1) {

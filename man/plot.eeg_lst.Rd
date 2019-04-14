@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot.R
 \name{plot.eeg_lst}
 \alias{plot.eeg_lst}
-\title{Simple plot an eeg_lst object.}
+\title{Create a basic signal plot}
 \usage{
 \method{plot}{eeg_lst}(x, max_sample = 64000, ...)
 }
@@ -17,7 +17,32 @@
 A ggplot object
 }
 \description{
-This function first downsamples the egg_lst and then converts it into a long tibble. See \link{as_tibble.eeg_lst} for details.
+\code{plot} creates a ggplot object in which the EEG signal over the whole
+recording is plotted by electrode. Useful as a quick visual check for major
+noise issues in the recording.
+}
+\details{
+Note that for normal-size datasets, the plot may take several minutes to compile.
+If necessary, \code{plot} will first downsample the \code{eeg_lst} object so that there is a
+maximum of 64,000 samples. The \code{eeg_lst} object is then converted to a long-format
+tibble via \code{as_tibble}. In this tibble, the \code{.source} variable is the
+channel/component name and \code{.value} its respective amplitude. The sample
+number (\code{.sample_id} in the \code{eeg_lst} object) is automatically converted to milliseconds
+to create the variable \code{time}. By default, time is then plotted on the
+x-axis and amplitude on the y-axis.
+
+To add additional components to the plot such as titles and annotations, simply
+use the \code{+} symbol and add layers exactly as you would for \code{ggplot::ggplot}.
+}
+\examples{
+
+# Basic plot
+plot(data_faces_ERPs)
+
+# Add ggplot layers
+plot(data_faces_ERPs) + 
+    coord_cartesian(ylim = c(-500,500))
+
 }
 \seealso{
 Other plot: \code{\link{plot_gg}},

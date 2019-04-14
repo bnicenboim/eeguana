@@ -7,8 +7,8 @@ eeg_ica <- function(.data, ...){
 
 #' @rdname eeg_ica
 #' @param .data An eeg_lst object
-#' @param ... Channels for the eeg_ica
-#' @param method Methods from different packages: `fICA::adapt_fICA` (default), `fICA::fICA`, `fICA::reloaded_fICA`, `fastICA::fastICA`, or a custom function that returns a list that contains `S`  (reconstucted sources) and `A` (unmixing matrix), consistent with the formulation `X=A %*% S`
+#' @param ... Channels to include in ICA transformation. All the channels by default, but eye channels and reference channels should be removed.
+#' @param method Methods from different packages: `fICA::adapt_fICA` (default), `fICA::fICA`, `fICA::reloaded_fICA`, `fastICA::fastICA`, or a custom function that returns a list that contains `S`  (reconstucted sources) and `A` (mixing matrix), consistent with the formulation `X=A %*% S` or `W` (unmixing matrix), consistent with the formulation `X %*% W = S` (i.e., W == solve(X)).
 #' @param config Other parameters passed in a list to the method. These are the default parameters except that when possible the method is run in C rather than in R. See the documentation of the relevant method.
 #' @param tolerance Convergence tolerance.
 #' @param max_iterations Maximum number of iterations.
@@ -24,10 +24,43 @@ eeg_ica.eeg_lst <- function(.data,
                               )
 {
 
+    if(unique(.data$segment$recording) %>% length() != 1 && !"recording" %in% group_vars(.data)) {
+        warning("It seems that there is more than one recording. It may be appropriate to do 'data %>% group_by(recording)' before applying 'eeg_ica()' ")
+    }
+
     ##https://www.martinos.org/mne/stable/auto_tutorials/plot_artifacts_correction_ica.html
     ##https://martinos.org/mne/dev/auto_tutorials/plot_ica_from_raw.html
     ##http://www.fieldtriptoolbox.org/example/use_independent_component_analysis_ica_to_remove_eog_artifacts/
+    ##method = rlang::quo(fICA::adapt_fICA) # for testing
     method = rlang::enquo(method)
+    dots <- rlang::enquos(...)
+
+    ## creates a DT with length length(signal_tbl) where the grouping var is repeated,
+    ## This is used to split the signal_tbl, in case that there are many recordings together
+    rep_group <- repeated_group_col(.data)
+    signal_raw <- dplyr::select(.data$signal, channel_names(.data))
+    ## cols from signal_tbl that are not channels:
+    removed_signal <- dplyr::select(.data$signal, -one_of(channel_names(.data)))
+    ## remove more if dots are used
+    if(!rlang::is_empty(dots)){
+        removed_signal_col <- setdiff(colnames(signal_raw),
+                                      tidyselect::vars_select(colnames(signal_raw), !!!dots))
+        removed_signal <- bind_cols_dt(removed_signal,
+                                       dplyr::select(signal_raw, removed_signal_col))
+        data.table::setkey(removed_signal,.id,.sample_id)
+        signal_raw <- dplyr::select(signal_raw, !!!dots)
+    }
+
+    if(nrow(rep_group)==0){
+      l_signal <- list(signal_raw)
+    } else {
+    l_signal <- signal_raw %>% split(rep_group)
+    }
+
+    channel_means <- l_signal  %>%
+        purrr::map(colMeans, na.rm=TRUE)
+
+  
     method_label = rlang::as_label(method)
 
     if(method_label== "fastICA::fastICA"){
@@ -55,7 +88,16 @@ eeg_ica.eeg_lst <- function(.data,
         message("Using custom ICA function: ", method_label)
         default_config <- list()
         data_in <- function(x) x
-        data_out <- function(x) x
+        data_out <- function(x)      {
+            out <- list()
+            out$sources = x$S
+            if(!is.null(x$A)) {
+                out$mixing_matrix = x$A
+            } else {
+                out$mixing_matrix = MASS::ginv(x$W)
+            }
+            out
+        }
     }
 
     config <- purrr::list_modify(default_config, !!!config)
@@ -65,39 +107,12 @@ eeg_ica.eeg_lst <- function(.data,
         do.call(rlang::eval_tidy(method), c(list(data_in(x)), config)) %>% data_out()
     }
 
-    dots <- rlang::enquos(...)
-
-    rep_group <- repeated_group_col(.data)
-    signal_raw <- dplyr::select(.data$signal, channel_names(.data))
-    removed_signal <- dplyr::select(.data$signal, -one_of(channel_names(.data)))
-
-    if(!rlang::is_empty(dots)){
-        ##  selection <- tidyselect::vars_select(colnames(signal_raw),!!!dots)
-        ## purrr::walk(selection, ~if(!.x %in% channel_names(.data)  ){
-        ##                        stop(.x, " is not a channel",
-        ##                             "Only channels can be selected",
-        ##                             call. = FALSE)
-        ##                    } )
-        removed_signal <- bind_cols_dt(removed_signal, dplyr::select(signal_raw, -(!!!dots)))
-        data.table::setkey(removed_signal,.id,.sample_id)
-        signal_raw <- dplyr::select(signal_raw, !!!dots)
-    }
-    if(nrow(rep_group)==0){
-      l_signal <- list(signal_raw)
-    } else {
-    l_signal <- signal_raw %>% split(rep_group)
-    }
-    
-    channel_means <- l_signal  %>%
-        purrr::map(colMeans, na.rm=TRUE)
-
     l_ica <- purrr::map(l_signal, ICA_fun)
 
     reconstr <- purrr::map2(l_ica,channel_means, ~  tcrossprod(.x$sources, t(.x$mixing_matrix)) + rep(.y, nrow(.x$sources)) ) %>%
         do.call("rbind", .)
     message("Absolute difference between original data and reconstructed from independent sources: ",
             mean(abs(reconstr - as.matrix(signal_raw))) %>% signif(2))
-    
 
     signal_source_tbl <- l_ica %>%
         map_dtr( ~ .x$sources %>%
@@ -128,6 +143,7 @@ as_eeg_lst <- function(.data, ...){
     UseMethod("as_eeg_lst")
 }
 
+#' @export
 as_eeg_lst.ica_lst <- function(.data, ...){
    rep_group <- repeated_group_col(.data)
    if(length(rep_group)==0){
@@ -163,3 +179,42 @@ as_eeg_lst.ica_lst <- function(.data, ...){
 }
 
 
+#' @export
+as_mixing_matrix_lst <- function(.data){
+    UseMethod("as_mixing_matrix_lst")
+}
+
+
+#' @export
+as_unmixing_matrix_lst <- function(.data){
+    UseMethod("as_unmixing_matrix_lst")
+}
+
+#' @export
+as_mixing_matrix_lst.ica_lst <- function(.data, ...){
+ 
+    purrr::map(.data$mixing %>%
+                    split(.data$mixing$.group), function(m){
+
+                    ## the mixing matrix won't be the huge one,
+                    ## the code above could be optimized bu it should be fine:
+                    m[.ICA!="mean",] %>%
+                        dplyr::select_if(is_channel_dbl)  %>%
+                        as.matrix
+                })
+}
+
+
+#' @export
+as_unmixing_matrix_lst.ica_lst <- function(.data, ...){
+    
+    purrr::map(.data$mixing %>%
+               split(.data$mixing$.group), function(m){
+
+                   ## the mixing matrix won't be the huge one,
+                   ## the code above could be optimized bu it should be fine:
+                   m[.ICA!="mean",] %>%
+                       dplyr::select_if(is_channel_dbl)  %>%
+                       as.matrix %>% MASS::ginv()
+               })
+}

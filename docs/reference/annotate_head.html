@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Annotates a head in a ggplot — annotate_head • eeguana</title>
+<title>Add a head shape to a ggplot — annotate_head • eeguana</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -37,9 +37,9 @@
 
 
 
-<meta property="og:title" content="Annotates a head in a ggplot — annotate_head" />
+<meta property="og:title" content="Add a head shape to a ggplot — annotate_head" />
 
-<meta property="og:description" content="Annotates a head in a ggplot" />
+<meta property="og:description" content="Adds the outline of a head and nose to a ggplot." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.6.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.7.9000</span>
       </span>
     </div>
 
@@ -126,14 +126,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Annotates a head in a ggplot</h1>
+    <h1>Add a head shape to a ggplot</h1>
     <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/plot.R'><code>R/plot.R</code></a></small>
     <div class="hidden name"><code>annotate_head.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Annotates a head in a ggplot</p>
+    <p>Adds the outline of a head and nose to a ggplot.</p>
     
     </div>
 
@@ -161,6 +161,16 @@
     <p>A layer for a ggplot</p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'>
+<span class='no'>data_faces_ERPs</span> <span class='kw'>%&gt;%</span>
+    <span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/filter'>filter</a></span>(<span class='fu'>between</span>(<span class='fu'>as_time</span>(<span class='no'>.sample_id</span>, <span class='kw'>unit</span> <span class='kw'>=</span> <span class='st'>"milliseconds"</span>),<span class='fl'>100</span>,<span class='fl'>200</span>)) <span class='kw'>%&gt;%</span>
+    <span class='fu'>group_by</span>(<span class='no'>condition</span>) <span class='kw'>%&gt;%</span>
+    <span class='fu'>summarize_all_ch</span>(<span class='no'>mean</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>) <span class='kw'>%&gt;%</span>
+    <span class='fu'>plot_topo</span>() +
+    <span class='fu'>annotate_head</span>(<span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>.9</span>, <span class='kw'>color</span> <span class='kw'>=</span> <span class='st'>"black"</span>, <span class='kw'>stroke</span> <span class='kw'>=</span> <span class='fl'>1</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Class is not events_tbl</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Class is not events_tbl</span></div><div class='img'><img src='annotate_head-1.png' alt='' width='700' height='433' /></div><div class='input'>
+
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -168,7 +178,9 @@
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

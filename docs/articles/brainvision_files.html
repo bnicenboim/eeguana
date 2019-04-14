@@ -93,7 +93,7 @@
       <h1>Introduction - Manipulating a clean EEG file exported from BrainVision 2.0</h1>
                         <h4 class="author">Bruno Nicenboim</h4>
             
-            <h4 class="date">2019-03-15</h4>
+            <h4 class="date">2019-04-09</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bnicenboim/eeguana/blob/master/vignettes/brainvision_files.Rmd"><code>vignettes/brainvision_files.Rmd</code></a></small>
       <div class="hidden name"><code>brainvision_files.Rmd</code></div>
@@ -113,13 +113,14 @@
 <span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/download.file">download.file</a></span>(<span class="st">"http://www.ling.uni-potsdam.de/~nicenboim/files/faces.dat"</span>, 
                <span class="dt">mode=</span><span class="st">"wb"</span>, <span class="dt">destfile=</span><span class="st">"faces.dat"</span>)</code></pre></div>
 <p>BrainVision 2.0 exports three files: <code>faces.vhdr</code>, <code>faces.vmrk</code>, and <code>faces.dat</code>. The file <code>faces.vhdr</code> contains the metadata and links to the other two files, <code>faces.vmrk</code> contains the triggers and other events in the samples, and <code>faces.dat</code> contains the signals at every sample for every channel recorded.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(eeguana)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(eeguana)
+<span class="co">#&gt; Warning: package 'dplyr' was built under R version 3.5.3</span></code></pre></div>
 <p>We first need to read the data:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces &lt;-<span class="st"> </span><span class="kw"><a href="../reference/read_vhdr.html">read_vhdr</a></span>(<span class="st">"faces.vhdr"</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces &lt;-<span class="st"> </span><span class="kw">read_vhdr</span>(<span class="st">"faces.vhdr"</span>)
 <span class="co">#&gt; # Data from faces.dat was read.</span>
 <span class="co">#&gt; # Data from 1 segment(s) and 34 channels was loaded.</span>
 <span class="co">#&gt; # Object size in memory 140.5 Mb</span></code></pre></div>
-<p>The function <code><a href="../reference/read_vhdr.html">read_vhdr()</a></code> creates a list with data frames for the signal, events, segments information, and incorporates in its attributes generic EEG information.</p>
+<p>The function <code>read_vhdr()</code> creates a list with data frames for the signal, events, segments information, and incorporates in its attributes generic EEG information.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces
 <span class="co">#&gt; $signal</span>
 <span class="co">#&gt;         .id .sample_id        Fp1        Fpz        Fp2         F7         F3</span>
@@ -220,44 +221,80 @@
 <span class="co">#&gt; attr(,"vars")</span>
 <span class="co">#&gt; character(0)</span></code></pre></div>
 <p>It provides a summary:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/summary.html">summary</a></span>(faces)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary</a></span>(faces)
 <span class="co">#&gt; # EEG data (eeg_lst) from the following channels:</span>
-<span class="co">#&gt;     channel type .reference resolution unit radius theta phi    .x    .y   .z</span>
-<span class="co">#&gt;  1:     Fp1  Ch1     avim12         NA   µV      1   -90 -72 -0.31  0.95 0.00</span>
-<span class="co">#&gt;  2:     Fpz  Ch2     avim12         NA   µV      1    90  90  0.00  1.00 0.00</span>
-<span class="co">#&gt;  3:     Fp2  Ch3     avim12         NA   µV      1    90  72  0.31  0.95 0.00</span>
-<span class="co">#&gt;  4:      F7  Ch4     avim12         NA   µV      1   -90 -36 -0.81  0.59 0.00</span>
-<span class="co">#&gt;  5:      F3  Ch5     avim12         NA   µV      1   -60 -51 -0.55  0.67 0.50</span>
-<span class="co">#&gt;  6:      Fz  Ch6     avim12         NA   µV      1    45  90  0.00  0.71 0.71</span>
-<span class="co">#&gt;  7:      F4  Ch7     avim12         NA   µV      1    60  51  0.55  0.67 0.50</span>
-<span class="co">#&gt;  8:      F8  Ch8     avim12         NA   µV      1    90  36  0.81  0.59 0.00</span>
-<span class="co">#&gt;  9:     FC5  Ch9     avim12         NA   µV      1   -69 -21 -0.87  0.33 0.36</span>
-<span class="co">#&gt; 10:     FC1 Ch10     avim12         NA   µV      1   -31 -46 -0.36  0.37 0.86</span>
-<span class="co">#&gt; 11:     FC2 Ch11     avim12         NA   µV      1    31  46  0.36  0.37 0.86</span>
-<span class="co">#&gt; 12:     FC6 Ch12     avim12         NA   µV      1    69  21  0.87  0.33 0.36</span>
-<span class="co">#&gt; 13:      M1 Ch13     avim12         NA   µV      0     0   0    NA    NA   NA</span>
-<span class="co">#&gt; 14:      T7 Ch14     avim12         NA   µV      1   -90   0 -1.00  0.00 0.00</span>
-<span class="co">#&gt; 15:      C3 Ch15     avim12         NA   µV      1   -45   0 -0.71  0.00 0.71</span>
-<span class="co">#&gt; 16:      Cz Ch16     avim12         NA   µV      1     0   0  0.00  0.00 1.00</span>
-<span class="co">#&gt; 17:      C4 Ch17     avim12         NA   µV      1    45   0  0.71  0.00 0.71</span>
-<span class="co">#&gt; 18:      T8 Ch18     avim12         NA   µV      1    90   0  1.00  0.00 0.00</span>
-<span class="co">#&gt; 19:      M2 Ch19     avim12         NA   µV      0     0   0    NA    NA   NA</span>
-<span class="co">#&gt; 20:     CP5 Ch20     avim12         NA   µV      1   -69  21 -0.87 -0.33 0.36</span>
-<span class="co">#&gt; 21:     CP1 Ch21     avim12         NA   µV      1   -31  46 -0.36 -0.37 0.86</span>
-<span class="co">#&gt; 22:     CP2 Ch22     avim12         NA   µV      1    31 -46  0.36 -0.37 0.86</span>
-<span class="co">#&gt; 23:     CP6 Ch23     avim12         NA   µV      1    69 -21  0.87 -0.33 0.36</span>
-<span class="co">#&gt; 24:      P7 Ch24     avim12         NA   µV      1   -90  36 -0.81 -0.59 0.00</span>
-<span class="co">#&gt; 25:      P3 Ch25     avim12         NA   µV      1   -60  51 -0.55 -0.67 0.50</span>
-<span class="co">#&gt; 26:      Pz Ch26     avim12         NA   µV      1    45 -90  0.00 -0.71 0.71</span>
-<span class="co">#&gt; 27:      P4 Ch27     avim12         NA   µV      1    60 -51  0.55 -0.67 0.50</span>
-<span class="co">#&gt; 28:      P8 Ch28     avim12         NA   µV      1    90 -36  0.81 -0.59 0.00</span>
-<span class="co">#&gt; 29:     POz Ch29     avim12         NA   µV      1    67 -90  0.00 -0.92 0.39</span>
-<span class="co">#&gt; 30:      O1 Ch30     avim12         NA   µV      1   -90  72 -0.31 -0.95 0.00</span>
-<span class="co">#&gt; 31:      Oz Ch31     avim12         NA   µV      1    90 -90  0.00 -1.00 0.00</span>
-<span class="co">#&gt; 32:      O2 Ch32     avim12         NA   µV      1    90 -72  0.31 -0.95 0.00</span>
-<span class="co">#&gt; 33:    EOGV Ch33                    NA   µV      0     0   0    NA    NA   NA</span>
-<span class="co">#&gt; 34:    EOGH Ch34                    NA   µV      0     0   0    NA    NA   NA</span>
-<span class="co">#&gt;     channel type .reference resolution unit radius theta phi    .x    .y   .z</span>
+<span class="co">#&gt;     channel type .reference resolution      unit radius theta phi    .x    .y</span>
+<span class="co">#&gt;  1:     Fp1  Ch1     avim12         NA microvolt      1   -90 -72 -0.31  0.95</span>
+<span class="co">#&gt;  2:     Fpz  Ch2     avim12         NA microvolt      1    90  90  0.00  1.00</span>
+<span class="co">#&gt;  3:     Fp2  Ch3     avim12         NA microvolt      1    90  72  0.31  0.95</span>
+<span class="co">#&gt;  4:      F7  Ch4     avim12         NA microvolt      1   -90 -36 -0.81  0.59</span>
+<span class="co">#&gt;  5:      F3  Ch5     avim12         NA microvolt      1   -60 -51 -0.55  0.67</span>
+<span class="co">#&gt;  6:      Fz  Ch6     avim12         NA microvolt      1    45  90  0.00  0.71</span>
+<span class="co">#&gt;  7:      F4  Ch7     avim12         NA microvolt      1    60  51  0.55  0.67</span>
+<span class="co">#&gt;  8:      F8  Ch8     avim12         NA microvolt      1    90  36  0.81  0.59</span>
+<span class="co">#&gt;  9:     FC5  Ch9     avim12         NA microvolt      1   -69 -21 -0.87  0.33</span>
+<span class="co">#&gt; 10:     FC1 Ch10     avim12         NA microvolt      1   -31 -46 -0.36  0.37</span>
+<span class="co">#&gt; 11:     FC2 Ch11     avim12         NA microvolt      1    31  46  0.36  0.37</span>
+<span class="co">#&gt; 12:     FC6 Ch12     avim12         NA microvolt      1    69  21  0.87  0.33</span>
+<span class="co">#&gt; 13:      M1 Ch13     avim12         NA microvolt      0     0   0    NA    NA</span>
+<span class="co">#&gt; 14:      T7 Ch14     avim12         NA microvolt      1   -90   0 -1.00  0.00</span>
+<span class="co">#&gt; 15:      C3 Ch15     avim12         NA microvolt      1   -45   0 -0.71  0.00</span>
+<span class="co">#&gt; 16:      Cz Ch16     avim12         NA microvolt      1     0   0  0.00  0.00</span>
+<span class="co">#&gt; 17:      C4 Ch17     avim12         NA microvolt      1    45   0  0.71  0.00</span>
+<span class="co">#&gt; 18:      T8 Ch18     avim12         NA microvolt      1    90   0  1.00  0.00</span>
+<span class="co">#&gt; 19:      M2 Ch19     avim12         NA microvolt      0     0   0    NA    NA</span>
+<span class="co">#&gt; 20:     CP5 Ch20     avim12         NA microvolt      1   -69  21 -0.87 -0.33</span>
+<span class="co">#&gt; 21:     CP1 Ch21     avim12         NA microvolt      1   -31  46 -0.36 -0.37</span>
+<span class="co">#&gt; 22:     CP2 Ch22     avim12         NA microvolt      1    31 -46  0.36 -0.37</span>
+<span class="co">#&gt; 23:     CP6 Ch23     avim12         NA microvolt      1    69 -21  0.87 -0.33</span>
+<span class="co">#&gt; 24:      P7 Ch24     avim12         NA microvolt      1   -90  36 -0.81 -0.59</span>
+<span class="co">#&gt; 25:      P3 Ch25     avim12         NA microvolt      1   -60  51 -0.55 -0.67</span>
+<span class="co">#&gt; 26:      Pz Ch26     avim12         NA microvolt      1    45 -90  0.00 -0.71</span>
+<span class="co">#&gt; 27:      P4 Ch27     avim12         NA microvolt      1    60 -51  0.55 -0.67</span>
+<span class="co">#&gt; 28:      P8 Ch28     avim12         NA microvolt      1    90 -36  0.81 -0.59</span>
+<span class="co">#&gt; 29:     POz Ch29     avim12         NA microvolt      1    67 -90  0.00 -0.92</span>
+<span class="co">#&gt; 30:      O1 Ch30     avim12         NA microvolt      1   -90  72 -0.31 -0.95</span>
+<span class="co">#&gt; 31:      Oz Ch31     avim12         NA microvolt      1    90 -90  0.00 -1.00</span>
+<span class="co">#&gt; 32:      O2 Ch32     avim12         NA microvolt      1    90 -72  0.31 -0.95</span>
+<span class="co">#&gt; 33:    EOGV Ch33                    NA microvolt      0     0   0    NA    NA</span>
+<span class="co">#&gt; 34:    EOGH Ch34                    NA microvolt      0     0   0    NA    NA</span>
+<span class="co">#&gt;     channel type .reference resolution      unit radius theta phi    .x    .y</span>
+<span class="co">#&gt;       .z</span>
+<span class="co">#&gt;  1: 0.00</span>
+<span class="co">#&gt;  2: 0.00</span>
+<span class="co">#&gt;  3: 0.00</span>
+<span class="co">#&gt;  4: 0.00</span>
+<span class="co">#&gt;  5: 0.50</span>
+<span class="co">#&gt;  6: 0.71</span>
+<span class="co">#&gt;  7: 0.50</span>
+<span class="co">#&gt;  8: 0.00</span>
+<span class="co">#&gt;  9: 0.36</span>
+<span class="co">#&gt; 10: 0.86</span>
+<span class="co">#&gt; 11: 0.86</span>
+<span class="co">#&gt; 12: 0.36</span>
+<span class="co">#&gt; 13:   NA</span>
+<span class="co">#&gt; 14: 0.00</span>
+<span class="co">#&gt; 15: 0.71</span>
+<span class="co">#&gt; 16: 1.00</span>
+<span class="co">#&gt; 17: 0.71</span>
+<span class="co">#&gt; 18: 0.00</span>
+<span class="co">#&gt; 19:   NA</span>
+<span class="co">#&gt; 20: 0.36</span>
+<span class="co">#&gt; 21: 0.86</span>
+<span class="co">#&gt; 22: 0.86</span>
+<span class="co">#&gt; 23: 0.36</span>
+<span class="co">#&gt; 24: 0.00</span>
+<span class="co">#&gt; 25: 0.50</span>
+<span class="co">#&gt; 26: 0.71</span>
+<span class="co">#&gt; 27: 0.50</span>
+<span class="co">#&gt; 28: 0.00</span>
+<span class="co">#&gt; 29: 0.39</span>
+<span class="co">#&gt; 30: 0.00</span>
+<span class="co">#&gt; 31: 0.00</span>
+<span class="co">#&gt; 32: 0.00</span>
+<span class="co">#&gt; 33:   NA</span>
+<span class="co">#&gt; 34:   NA</span>
+<span class="co">#&gt;       .z</span>
 <span class="co">#&gt; # Sampling rate: 500 Hz.</span>
 <span class="co">#&gt; # Size in memory: 140.5 Mb.</span>
 <span class="co">#&gt; # Total duration: 00:17:30.</span>
@@ -291,13 +328,13 @@
 <p><img src="brainvision_files_files/figure-html/unnamed-chunk-5-1.png" width="100%"></p>
 <p>Some intervals were marked as “bad” by BrainVision, and so we’ll remove them from the data. We’ll also segment and baseline the data. In this experiment, the trigger “s70” was used for faces and “s71” for no faces. We’ll segment the data using these two triggers.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces_segs &lt;-<span class="st"> </span>faces <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">               </span><span class="kw"><a href="../reference/eeg_segment.html">eeg_segment</a></span>(description <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"s70"</span>, <span class="st">"s71"</span>), 
+<span class="st">               </span><span class="kw">eeg_segment</span>(description <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"s70"</span>, <span class="st">"s71"</span>), 
                         <span class="dt">lim =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="op">-</span>.<span class="dv">2</span>,.<span class="dv">25</span>)) <span class="op">%&gt;%</span>
-<span class="st">               </span><span class="kw"><a href="../reference/eeg_intervals_to_NA.html">eeg_intervals_to_NA</a></span>(type <span class="op">==</span><span class="st"> "Bad Interval"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">               </span><span class="kw"><a href="../reference/ch_baseline.html">ch_baseline</a></span>()
+<span class="st">               </span><span class="kw">eeg_intervals_to_NA</span>(type <span class="op">==</span><span class="st"> "Bad Interval"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">               </span><span class="kw">ch_baseline</span>()
 <span class="co">#&gt; # Total of 200 segments found.</span>
 <span class="co">#&gt; # Object size in memory 12.2 Mb after segmentation.</span></code></pre></div>
-<p>We can also edit the segmentation information and add more descriptive labels. <em>eeguana</em> has wrappers for many <code>dplyr</code> commands for the EEG data (see <code><a href="../reference/dplyr-eeguana.html">?`dplyr-eeguana`</a></code>). These commands always return an entire <code>eeg_lst</code> object so that they can be piped using <code>magrittr</code>’s pipe, <code>%&gt;%</code>.</p>
+<p>We can also edit the segmentation information and add more descriptive labels. <em>eeguana</em> has wrappers for many <code>dplyr</code> commands for the EEG data (see <code>?`dplyr-eeguana`</code>). These commands always return an entire <code>eeg_lst</code> object so that they can be piped using <code>magrittr</code>’s pipe, <code>%&gt;%</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces_segs_some &lt;-<span class="st"> </span>faces_segs <span class="op">%&gt;%</span><span class="st">  </span>
 <span class="st">                  </span><span class="kw">mutate</span>(<span class="dt">condition =</span>
                   <span class="kw">if_else</span>(description <span class="op">==</span><span class="st"> "s70"</span>, <span class="st">"faces"</span>, <span class="st">"non-faces"</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
@@ -406,7 +443,7 @@ faces_segs_some
 <span class="co">#&gt;  8     8 faces.vhdr       8 s70         faces    </span>
 <span class="co">#&gt;  9     9 faces.vhdr       9 s70         faces    </span>
 <span class="co">#&gt; 10    10 faces.vhdr      10 s70         faces    </span>
-<span class="co">#&gt; # … with 190 more rows</span>
+<span class="co">#&gt; # ... with 190 more rows</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; attr(,"class")</span>
 <span class="co">#&gt; [1] "eeg_lst"</span>
@@ -415,22 +452,22 @@ faces_segs_some
 <p>With some <code>ggplot</code> skills, we can create customized plots. <code>plot_gg</code> downsamples the signals (by default), and converts them to a long-format data frame that is feed into <code>ggplot</code> object. This object can then be customized.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces_segs_some <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">                  </span><span class="kw">select</span>(O1, O2, P7, P8) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">                  </span><span class="kw"><a href="../reference/plot_gg.html">plot_gg</a></span>() <span class="op">+</span><span class="st"> </span>
-<span class="st">                  </span><span class="kw">geom_line</span>(<span class="dt">alpha =</span> <span class="fl">.1</span>, <span class="kw">aes</span>(<span class="dt">group =</span> .id, <span class="dt">color =</span> condition)) <span class="op">+</span><span class="st"> </span>
+<span class="st">                  </span><span class="kw">plot_gg</span>() <span class="op">+</span><span class="st"> </span>
+<span class="st">                  </span><span class="kw">geom_line</span>(<span class="dt">alpha =</span> .<span class="dv">1</span>, <span class="kw">aes</span>(<span class="dt">group =</span> .id, <span class="dt">color =</span> condition)) <span class="op">+</span><span class="st"> </span>
 <span class="st">                  </span><span class="kw">stat_summary</span>(<span class="dt">fun.y =</span> <span class="st">"mean"</span>, <span class="dt">geom =</span><span class="st">"line"</span>, <span class="dt">alpha =</span> <span class="dv">1</span>, <span class="dt">size =</span> <span class="fl">1.5</span>, 
                   <span class="kw">aes</span>(<span class="dt">color =</span> condition)) <span class="op">+</span>
 <span class="st">                  </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>.source) <span class="op">+</span><span class="st"> </span>
 <span class="st">                  </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="dv">0</span>, <span class="dt">linetype =</span> <span class="st">"dashed"</span>) <span class="op">+</span><span class="st"> </span>
-<span class="st">                  </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="fl">.17</span>, <span class="dt">linetype =</span> <span class="st">"dotted"</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">                  </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> .<span class="dv">17</span>, <span class="dt">linetype =</span> <span class="st">"dotted"</span>) <span class="op">+</span><span class="st"> </span>
 <span class="st">                  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>) </code></pre></div>
 <p><img src="brainvision_files_files/figure-html/unnamed-chunk-8-1.png" width="100%"></p>
 <p>The motivation for manipulating the data in the <code>eeg_lst</code> format and not transforming them directly to a data frame has to do with size considerations. In this case, the original file was 149 MB, converting it to a long format entails a lot of repetition and generates an object of 786 MB. While this will still work here, a long format quickly becomes prohibitive in real settings with longer recordings and with several subjects.</p>
-<p>We can see here the N170 component in the faces condition for the average trial on a single participant. We can investigate the signal by averaging the channels of the occipital and parietal lobes using the capabilities inherited from <code>dplyr</code>, and the special function, <code><a href="../reference/chs_mean.html">chs_mean()</a></code>, a wrapper for <code><a href="https://www.rdocumentation.org/packages/base/topics/colSums">rowMeans()</a></code>, which takes as arguments the relevant channels and whether missing values should be omitted from the calculations.</p>
+<p>We can see here the N170 component in the faces condition for the average trial on a single participant. We can investigate the signal by averaging the channels of the occipital and parietal lobes using the capabilities inherited from <code>dplyr</code>, and the special function, <code>chs_mean()</code>, a wrapper for <code><a href="https://www.rdocumentation.org/packages/base/topics/colSums">rowMeans()</a></code>, which takes as arguments the relevant channels and whether missing values should be omitted from the calculations.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces_segs_some <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">                </span><span class="kw">transmute</span>(<span class="dt">Occipital =</span> <span class="kw"><a href="../reference/chs_mean.html">chs_mean</a></span>(O1, O2, Oz, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>),
-                          <span class="dt">Parietal =</span> <span class="kw"><a href="../reference/chs_mean.html">chs_mean</a></span>(P3, P4, P7,  P8, Pz, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">                </span><span class="kw"><a href="../reference/plot_gg.html">plot_gg</a></span>() <span class="op">+</span><span class="st"> </span>
-<span class="st">                </span><span class="kw">geom_line</span>(<span class="dt">alpha =</span> <span class="fl">.1</span>, <span class="kw">aes</span>(<span class="dt">group =</span> .id, <span class="dt">color =</span> condition)) <span class="op">+</span>
+<span class="st">                </span><span class="kw">transmute</span>(<span class="dt">Occipital =</span> <span class="kw">chs_mean</span>(O1, O2, Oz, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>),
+                          <span class="dt">Parietal =</span> <span class="kw">chs_mean</span>(P3, P4, P7,  P8, Pz, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">                </span><span class="kw">plot_gg</span>() <span class="op">+</span><span class="st"> </span>
+<span class="st">                </span><span class="kw">geom_line</span>(<span class="dt">alpha =</span> .<span class="dv">1</span>, <span class="kw">aes</span>(<span class="dt">group =</span> .id, <span class="dt">color =</span> condition)) <span class="op">+</span>
 <span class="st">                </span><span class="kw">stat_summary</span>(<span class="dt">fun.y =</span> <span class="st">"mean"</span>, <span class="dt">geom =</span><span class="st">"line"</span>, <span class="dt">alpha =</span> <span class="dv">1</span>, <span class="dt">size =</span> <span class="dv">1</span>, 
                   <span class="kw">aes</span>(<span class="dt">color =</span> condition)) <span class="op">+</span>
 <span class="st">                </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>.source) <span class="op">+</span><span class="st"> </span>
@@ -438,23 +475,23 @@ faces_segs_some
 <p><img src="brainvision_files_files/figure-html/unnamed-chunk-9-1.png" width="100%"></p>
 <p>We can also calculate the ERPs and then plot them in their layout:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ERP_faces &lt;-<span class="st"> </span>faces_segs_some <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(.sample_id, condition) <span class="op">%&gt;%</span>
-<span class="st">    </span><span class="kw"><a href="../reference/summarize_ch.html">summarize_all_ch</a></span>(mean,<span class="dt">na.rm=</span><span class="ot">TRUE</span>)
+<span class="st">    </span><span class="kw">summarize_all_ch</span>(mean,<span class="dt">na.rm=</span><span class="ot">TRUE</span>)
 
 ERP_plot &lt;-<span class="st"> </span>ERP_faces <span class="op">%&gt;%</span>
-<span class="st">                </span><span class="kw"><a href="../reference/plot_gg.html">plot_gg</a></span>() <span class="op">+</span><span class="st"> </span>
+<span class="st">                </span><span class="kw">plot_gg</span>() <span class="op">+</span><span class="st"> </span>
 <span class="st">                </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">color =</span> condition)) <span class="op">+</span>
 <span class="st">               </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>.source) <span class="op">+</span><span class="st"> </span>
 <span class="st">                </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>) <span class="op">+</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">"ERPs for faces vs non-faces"</span>) 
 
-ERP_plot  <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="../reference/plot_in_layout.html">plot_in_layout</a></span>() </code></pre></div>
+ERP_plot  <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">plot_in_layout</span>() </code></pre></div>
 <p><img src="brainvision_files_files/figure-html/layout-1.png" width="100%"></p>
-<p>Another possibility is to create a topographic plot of the two conditions, by first making segments that include only the interval .1-.2 <em>s</em> after the onset of the stimuli, creating a table with interpolated amplitudes and using the ggplot wrapper <code><a href="../reference/plot_topo.html">plot_topo()</a></code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces_segs_some <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/filter">filter</a></span>(<span class="kw"><a href="../reference/between.html">between</a></span>(<span class="kw"><a href="../reference/as_time.html">as_time</a></span>(.sample_id, <span class="dt">unit =</span> <span class="st">"milliseconds"</span>),<span class="dv">100</span>,<span class="dv">200</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
+<p>Another possibility is to create a topographic plot of the two conditions, by first making segments that include only the interval .1-.2 <em>s</em> after the onset of the stimuli, creating a table with interpolated amplitudes and using the ggplot wrapper <code>plot_topo()</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">faces_segs_some <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/filter">filter</a></span>(<span class="kw">between</span>(<span class="kw">as_time</span>(.sample_id, <span class="dt">unit =</span> <span class="st">"milliseconds"</span>),<span class="dv">100</span>,<span class="dv">200</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">                    </span><span class="kw">group_by</span>(condition) <span class="op">%&gt;%</span>
-<span class="st">                    </span><span class="kw"><a href="../reference/summarize_ch.html">summarize_all_ch</a></span>(mean, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span>
-<span class="st">                    </span><span class="kw"><a href="../reference/plot_topo.html">plot_topo</a></span>() <span class="op">+</span>
-<span class="st">                    </span><span class="kw"><a href="../reference/annotate_head.html">annotate_head</a></span>() <span class="op">+</span><span class="st"> </span>
+<span class="st">                    </span><span class="kw">summarize_all_ch</span>(mean, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span>
+<span class="st">                    </span><span class="kw">plot_topo</span>() <span class="op">+</span>
+<span class="st">                    </span><span class="kw">annotate_head</span>() <span class="op">+</span><span class="st"> </span>
 <span class="st">                    </span><span class="kw">geom_contour</span>() <span class="op">+</span>
 <span class="st">                    </span><span class="kw">geom_text</span>(<span class="dt">colour =</span> <span class="st">"black"</span>) <span class="op">+</span>
 <span class="st">                    </span><span class="kw">facet_grid</span>(<span class="op">~</span>condition)</code></pre></div>
@@ -484,7 +521,7 @@ df
 <span class="co">#&gt;  8 O1      -0.186      1.12</span>
 <span class="co">#&gt;  9 O1      -0.184      1.10</span>
 <span class="co">#&gt; 10 O1      -0.182      1.20</span>
-<span class="co">#&gt; # … with 894 more rows</span></code></pre></div>
+<span class="co">#&gt; # ... with 894 more rows</span></code></pre></div>
 <p>Then we just load the data frame into <code>ggplot</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(df, <span class="kw">aes</span>(<span class="dt">x =</span> time, <span class="dt">y =</span> <span class="st">`</span><span class="dt">t-value</span><span class="st">`</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>() <span class="op">+</span>
 <span class="st">                </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>.source) </code></pre></div>
@@ -494,7 +531,7 @@ df
 <span class="st">  </span>faces_segs_some <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">      </span><span class="kw">select</span>(O1, O2, P7, P8) <span class="op">%&gt;%</span>
 <span class="st">      </span><span class="kw">group_by</span>(.sample_id) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">      </span><span class="kw"><a href="../reference/summarize_ch.html">summarize_all_ch</a></span>(<span class="kw">funs</span>(<span class="dt">t =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/t.test">t.test</a></span>(.[condition <span class="op">==</span><span class="st"> "faces"</span>],
+<span class="st">      </span><span class="kw">summarize_all_ch</span>(<span class="kw">funs</span>(<span class="dt">t =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/t.test">t.test</a></span>(.[condition <span class="op">==</span><span class="st"> "faces"</span>],
           .[condition <span class="op">==</span><span class="st"> "non-faces"</span>])<span class="op">$</span>statistic))
 <span class="co">#&gt; Warning: funs() is soft deprecated as of dplyr 0.8.0</span>
 <span class="co">#&gt; please use list() instead</span>
@@ -506,8 +543,8 @@ df
 <span class="co">#&gt; list(name = ~f(.))</span>
 <span class="co">#&gt; This warning is displayed once per session.</span>
 
-  <span class="kw"><a href="../reference/plot_gg.html">plot_gg</a></span>(faces_segs_some_t) <span class="op">+</span><span class="st"> </span>
-<span class="st">                </span><span class="kw">geom_line</span>(<span class="dt">alpha =</span> <span class="fl">.1</span>, <span class="kw">aes</span>(<span class="dt">group =</span> .id)) <span class="op">+</span>
+  <span class="kw">plot_gg</span>(faces_segs_some_t) <span class="op">+</span><span class="st"> </span>
+<span class="st">                </span><span class="kw">geom_line</span>(<span class="dt">alpha =</span> .<span class="dv">1</span>, <span class="kw">aes</span>(<span class="dt">group =</span> .id)) <span class="op">+</span>
 <span class="st">                </span><span class="kw">stat_summary</span>(<span class="dt">fun.y =</span> <span class="st">"mean"</span>, <span class="dt">geom =</span><span class="st">"line"</span>, <span class="dt">alpha =</span> <span class="dv">1</span>, <span class="dt">size =</span> <span class="dv">1</span>) <span class="op">+</span>
 <span class="st">                </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>.source) <span class="op">+</span><span class="st"> </span>
 <span class="st">                </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>) </code></pre></div>

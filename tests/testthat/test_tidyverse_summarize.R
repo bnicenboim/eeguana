@@ -28,7 +28,7 @@ data_1 <- eeg_lst(
     3L, "New Segment", NA_character_, -4L, 1L, NA,
     3L, "Time 0", NA_character_, 1L, 1L, NA,
     3L, "Bad", NA_character_, 2L, 1L, "Y"
-  ),
+    )%>% as_events_tbl(),
   segments = dplyr::tibble(.id = c(1L, 2L, 3L),
                            recording = "recording1",
                            segment = c(1L, 2L, 3L),

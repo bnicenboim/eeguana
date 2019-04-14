@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>ggplot object based on an eeg_lst object. — plot_gg • eeguana</title>
+<title>Create an ERP plot — plot_gg • eeguana</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -37,9 +37,11 @@
 
 
 
-<meta property="og:title" content="ggplot object based on an eeg_lst object. — plot_gg" />
+<meta property="og:title" content="Create an ERP plot — plot_gg" />
 
-<meta property="og:description" content="ggplot object based on an eeg_lst object." />
+<meta property="og:description" content="plot_gg initializes a ggplot object which takes an eeg_lst object as
+its input data. Layers can then be added in the same way as for a
+ggplot2::ggplot object." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -72,7 +74,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.6.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.7.9000</span>
       </span>
     </div>
 
@@ -126,14 +128,16 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>ggplot object based on an eeg_lst object.</h1>
+    <h1>Create an ERP plot</h1>
     <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/plot.R'><code>R/plot.R</code></a></small>
     <div class="hidden name"><code>plot_gg.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>ggplot object based on an eeg_lst object.</p>
+    <p><code>plot_gg</code> initializes a ggplot object which takes an <code>eeg_lst</code> object as
+its input data. Layers can then be added in the same way as for a
+<code><a href='https://www.rdocumentation.org/packages/ggplot2/topics/ggplot'>ggplot2::ggplot</a></code> object.</p>
     
     </div>
 
@@ -178,12 +182,38 @@ they are so common; all other aesthetics must be named.</p></td>
 
     <p>A ggplot object</p>
     
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>If necessary, <code>plot_gg</code> will first downsample the <code>eeg_lst</code> object so that there is a
+maximum of 64,000 samples. The <code>eeg_lst</code> object is then converted to a long-format
+tibble via <code>as_tibble</code>. In this tibble, the <code>.source</code> variable is the
+channel/component name and <code>.value</code> its respective amplitude. The sample
+number (<code>.sample_id</code> in the <code>eeg_lst</code> object) is automatically converted to milliseconds
+to create the variable <code>time</code>. By default, time is plotted on the
+x-axis and amplitude on the y-axis.</p>
+<p>To add additional components to the plot such as titles and annotations, simply
+use the <code>+</code> symbol and add layers exactly as you would for <code>ggplot::ggplot</code>.</p>
+    
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other plot: <code><a href='plot.eeg_lst.html'>plot.eeg_lst</a></code>,
-  <code><a href='plot_in_layout.html'>plot_in_layout</a></code>, <code><a href='plot_topo.html'>plot_topo</a></code></p></div>
+    <div class='dont-index'><p>Other plot: <code>plot.eeg_lst</code>,
+  <code>plot_in_layout</code>, <code>plot_topo</code></p></div>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'>
+<span class='co'># Plot grand averages for selected channels</span>
+<span class='no'>data_faces_ERPs</span> <span class='kw'>%&gt;%</span>
+  <span class='co'># select the desired electrodes</span>
+  <span class='fu'>select</span>(<span class='no'>O1</span>, <span class='no'>O2</span>, <span class='no'>P7</span>, <span class='no'>P8</span>) <span class='kw'>%&gt;%</span>
+  <span class='fu'>plot_gg</span>() +
+      <span class='co'># add a grand average wave</span>
+      <span class='fu'>stat_summary</span>(<span class='kw'>fun.y</span> <span class='kw'>=</span> <span class='st'>"mean"</span>, <span class='kw'>geom</span> <span class='kw'>=</span><span class='st'>"line"</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>1.5</span>,
+               <span class='fu'>aes</span>(<span class='kw'>color</span> <span class='kw'>=</span> <span class='no'>condition</span>)) +
+      <span class='co'># facet by channel</span>
+      <span class='fu'>facet_wrap</span>(~ <span class='no'>.source</span>) +
+      <span class='fu'>theme</span>(<span class='kw'>legend.position</span> <span class='kw'>=</span> <span class='st'>"bottom"</span>)</div><div class='img'><img src='plot_gg-1.png' alt='' width='700' height='433' /></div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -192,8 +222,12 @@ they are so common; all other aesthetics must be named.</p></td>
       
       <li><a href="#value">Value</a></li>
 
+      <li><a href="#details">Details</a></li>
+
       <li><a href="#see-also">See also</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

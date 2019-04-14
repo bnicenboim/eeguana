@@ -1,4 +1,4 @@
-#' Convert an eeg_lst to a wide table.
+#' Convert an eeg_lst to a long table.
 #'
 #' Convert the signal_tbl table from wide to long format, and optionally `left_join`s the segment table
 #'
@@ -17,7 +17,8 @@ as_tibble.eeg_lst <- function(x, add_segments = TRUE, add_channels_info = TRUE) 
     if(any(channel_names(x) %in% colnames(x$signal))){
         channels <- x$signal %>% dplyr::select_at(vars(-one_of(component_names(x)))) %>%
             .[,lapply(.SD, `attributes<-`, NULL )] %>%
-            tidyr::gather(key = ".source", value = ".value", channel_names(x)) %>%
+            tidyr::gather(key = ".source", value = ".value",
+                          (intersect(colnames(x$signal), channel_names(x)))) %>%
             dplyr::mutate(.type = "channel")
 
     } else {
@@ -115,7 +116,6 @@ as_long_tbl.mixing_tbl <- function(x, add_channels_info = TRUE,...){
       } else {
         .
       }
-       }%>%
-        dplyr::group_by(.ICA,.group)
+       }
 
 }

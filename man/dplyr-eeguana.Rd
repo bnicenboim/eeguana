@@ -8,8 +8,12 @@
 \alias{summarise.eeg_lst}
 \alias{group_by.eeg_lst}
 \alias{ungroup.eeg_lst}
+\alias{groups.eeg_lst}
+\alias{group_vars.eeg_lst}
 \alias{select.eeg_lst}
+\alias{select.ica_lst}
 \alias{rename.eeg_lst}
+\alias{rename.ica_lst}
 \title{Dplyr functions for manipulating eeg_lst objects.}
 \usage{
 \method{mutate}{eeg_lst}(.data, ...)
@@ -24,9 +28,17 @@
 
 \method{ungroup}{eeg_lst}(.data, ...)
 
+\method{groups}{eeg_lst}(x)
+
+\method{group_vars}{eeg_lst}(x)
+
 \method{select}{eeg_lst}(.data, ...)
 
+\method{select}{ica_lst}(.data, ...)
+
 \method{rename}{eeg_lst}(.data, ...)
+
+\method{rename}{ica_lst}(.data, ...)
 }
 \arguments{
 \item{.data}{An eeg_lst.}

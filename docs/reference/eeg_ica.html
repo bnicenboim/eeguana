@@ -152,11 +152,11 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Channels for the eeg_ica</p></td>
+      <td><p>Channels to include in ICA transformation. All the channels by default, but eye channels and reference channels should be removed.</p></td>
     </tr>
     <tr>
       <th>method</th>
-      <td><p>Methods from different packages: <code><a href='https://www.rdocumentation.org/packages/fICA/topics/adapt_fICA'>fICA::adapt_fICA</a></code> (default), <code><a href='https://www.rdocumentation.org/packages/fICA/topics/fICA'>fICA::fICA</a></code>, <code><a href='https://www.rdocumentation.org/packages/fICA/topics/reloaded_fICA'>fICA::reloaded_fICA</a></code>, <code><a href='https://www.rdocumentation.org/packages/fastICA/topics/fastICA'>fastICA::fastICA</a></code>, or a custom function that returns a list that contains <code>S</code>  (reconstucted sources) and <code>A</code> (unmixing matrix), consistent with the formulation <code>X=A %*% S</code></p></td>
+      <td><p>Methods from different packages: <code><a href='https://www.rdocumentation.org/packages/fICA/topics/adapt_fICA'>fICA::adapt_fICA</a></code> (default), <code><a href='https://www.rdocumentation.org/packages/fICA/topics/fICA'>fICA::fICA</a></code>, <code><a href='https://www.rdocumentation.org/packages/fICA/topics/reloaded_fICA'>fICA::reloaded_fICA</a></code>, <code>fastICA::fastICA</code>, or a custom function that returns a list that contains <code>S</code>  (reconstucted sources) and <code>A</code> (mixing matrix), consistent with the formulation <code>X=A %*% S</code> or <code>W</code> (unmixing matrix), consistent with the formulation <code>X %*% W = S</code> (i.e., W == solve(X)).</p></td>
     </tr>
     <tr>
       <th>config</th>

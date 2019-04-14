@@ -15,7 +15,7 @@ data_1 <- eeg_lst(
       radius = NA, .x = c(1, -10), .y = c(1, 1), .z = c(1, 10)
     )
   ),
-  events = dplyr::tribble(
+  events = as_events_tbl(dplyr::tribble(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA_character_, -4L, 1L, NA,
     1L, "Bad", NA_character_, -2L, 3L, NA,
@@ -27,22 +27,15 @@ data_1 <- eeg_lst(
     3L, "New Segment", NA_character_, -4L, 1L, NA,
     3L, "Time 0", NA_character_, 1L, 1L, NA,
     3L, "Bad", NA_character_, 2L, 1L, "Y"
-  ),
+  )),
   segments = dplyr::tibble(.id = c(1L, 2L, 3L),
                            recording = "recording1",
                            segment = c(1L, 2L, 3L),
                            condition = c("a", "b", "a"))
 )
 
-# just some different X and Y
-data_2 <- mutate(data_1, recording = "recording2",
-                 X = sin(X),
-                 Y = sin(Y - .5),
-                 condition = c("b", "a", "b"))
 
-# bind it all together
-data <- bind(data_1, data_2)
-
+data("data_faces_ERPs")
 
 
 # helper functions (borrowed from github.com/stan-dev/bayesplot/R/helpers-testthat.R)
@@ -58,7 +51,7 @@ expect_gg <- function(x) {
 test_that("plotting functions don't throw errors", {
   
   # line plot
-  expect_silent(data %>%
+    expect_silent(data_faces_ERPs %>%
                   plot_gg() +
                   geom_line(aes(group = .id, colour = condition), alpha = .5) +
                   stat_summary(fun.y = "mean", geom = "line",
@@ -68,7 +61,7 @@ test_that("plotting functions don't throw errors", {
                 ) 
   
   # topo plot
-  expect_silent(data %>%
+    expect_silent(data_faces_ERPs %>%
                   group_by(condition) %>%
                   summarise_all_ch(mean, na.rm = TRUE) %>%
                   plot_topo() + 
@@ -81,17 +74,17 @@ test_that("plotting functions don't throw errors", {
 
 
 # create line plot
-lineplot_eeg <- data %>%
+lineplot_eeg <- data_faces_ERPs %>%
   plot_gg() +
   geom_line(aes(group = .id, colour = condition), alpha = .5) +
   stat_summary(fun.y = "mean", geom = "line",
                aes(colour = condition), alpha = 1, size = 1) +
   # only .source works dynamically but only channel works with test()!
-    facet_wrap(~ channel) +
+    facet_wrap(~ .source) +
   theme(legend.position = "bottom")
 
 # create topo plot
-topoplot_eeg <- data %>%
+topoplot_eeg <- data_faces_ERPs %>%
   group_by(condition) %>%
   summarise_all_ch(mean, na.rm = TRUE) %>%
   plot_topo() + 
@@ -102,15 +95,34 @@ topoplot_eeg <- data %>%
 
 test_that("plotting doesn't change data", {
   # channel is factor in the plot and character in tibble, is that ok?
-  expect_equal(as.matrix(lineplot_eeg$data), as.matrix(as_tibble(data)))
-  # lengths are very different
+  expect_equal(as.matrix(lineplot_eeg$data), as.matrix(as_tibble(data_faces_ERPs)))
+  # lengths are very different 
   expect_equal(as.matrix(topoplot_eeg$data), 
-               as.matrix(data %>%
+               as.matrix(data_faces_ERPs %>%
                            group_by(condition) %>%
                            summarise_all_ch(mean, na.rm = TRUE) %>%
                            eeg_interpolate_tbl()))
 })
 
+## d1 <- data_faces_ERPs %>%
+##     group_by(condition) %>%
+##     summarise_all_ch(mean, na.rm = TRUE) 
+
+## d1 %>% eeg_interpolate_tbl() %>% distinct(.x) %>% arrange(desc(.x))  ->x1
+
+## %>% arrange(.x) %>% print(n=100)
+
+## d2 <- d1
+## channels_tbl(d2) <- change_coord(channels_tbl(d2), "orthographic")
+
+## d2 %>% eeg_interpolate_tbl() %>% distinct(.x) %>% arrange(desc(.x)) ->x2
+
+## setdiff(x1,x2)
+
+## d1 %>%  as_tibble %>%group_by(condition) %>% eeg_interpolate_tbl()
+## d2 %>%  as_tibble  %>%group_by(condition) %>% eeg_interpolate_tbl()
+
+## .data <- d1 %>%  as_tibble %>%group_by(condition) 
 
 test_that("plot functions create ggplots", {
   expect_gg(lineplot_eeg)

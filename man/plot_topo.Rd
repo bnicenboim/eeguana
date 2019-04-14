@@ -6,23 +6,23 @@
 \alias{plot_topo.eeg_lst}
 \alias{plot_topo.mixing_tbl}
 \alias{plot_topo.ica_lst}
-\title{A topographic plot.}
+\title{Create a topographic plot}
 \usage{
 plot_topo(data, ...)
 
 \method{plot_topo}{tbl_df}(data, value = .value, label = .source)
 
-\method{plot_topo}{eeg_lst}(data, size = 1.2, projection = "polar",
+\method{plot_topo}{eeg_lst}(data, radius = 1.2, projection = "polar",
   ...)
 
-\method{plot_topo}{mixing_tbl}(data, size = 1.2, projection = "polar",
-  ...)
+\method{plot_topo}{mixing_tbl}(data, radius = 1.2,
+  projection = "polar", ...)
 
 \method{plot_topo}{ica_lst}(data, size = 1.2, projection = "polar",
   ...)
 }
 \arguments{
-\item{data}{A table of interpolated electrodes as produced by \link{eeg_interpolate_tbl}, or an eeg_lst appropiately grouped.}
+\item{data}{A table of interpolated electrodes as produced by \code{eeg_interpolate_tbl}, or an \code{eeg_lst} appropiately grouped.}
 
 \item{...}{Not in use.}
 
@@ -30,7 +30,7 @@ plot_topo(data, ...)
 
 \item{label}{Label of the points that are used for the interpolation, generally \code{.source} (default).}
 
-\item{size}{Indicates how much to extrapolate, \code{1} indicates no extrapolation beyond the position of the electrodes.}
+\item{radius}{Indicates the radius of the extrapolation, for standard locations of electrodes,  \code{1} indicates no extrapolation beyond the position of the electrodes, \code{1.2} is the default}
 
 \item{projection}{Projection type for converting the 3D coordinates of the electrodes into 2d coordinates. Projection types available: "polar" (default), "orthographic", or  "stereographic"}
 }
@@ -38,7 +38,65 @@ plot_topo(data, ...)
 A ggplot object
 }
 \description{
-Create a default topographic plot based on an interpolation table.
+\code{plot_topo} initializes a ggplot object which takes an \code{eeg_lst} object
+as its input data. Layers can then be added in the same way as for a
+\code{ggplot2::ggplot} object.
+}
+\details{
+Before calling \code{plot_topo}, the \code{eeg_lst} object object must be appropriately
+grouped (e.g. by condition) and/or
+summarized into mean values such that each .x .y coordinate has only one
+amplitude value. By default, \code{plot_topo} interpolates amplitude values via
+\code{eeg_interpolate_tbl}, which generates a tibble with \code{.source} (channel),
+\code{.value} (amplitude), and .x .y coordinate variables. .x .y coordinates are
+extracted from the \code{eeg_lst} object, which in turn reads the coordinates logged
+by your EEG recording software. By default, \code{plot_topo} will display electrodes
+in polar arrangement, but can be changed with the \code{projection}
+argument. Alternatively, if \code{eeg_interpolate_tbl} is called after grouping/summarizing
+but before \code{plot_topo}, the resulting electrode layout will be stereographic.
+
+\code{plot_topo} called alone
+without any further layers will create an unannotated topographical plot.
+To add a head and nose, add the layer \code{annotate_head}. Add
+contour lines with \code{ggplot2::geom_contour} and electrode labels
+with \code{ggplot2::geom_text}. These arguments are deliberately not
+built into the function so as to allow flexibility in choosing colour, font
+size, and even head size, etc.
+
+To add additional components to the plot such as titles and annotations, simply
+use the \code{+} symbol and add layers exactly as you would for \code{ggplot::ggplot}.
+}
+\examples{
+
+# Calculate mean amplitude between 100-200 ms and plot the topography
+data_faces_ERPs \%>\% 
+    # select the time window of interest
+    filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) \%>\% 
+    # compute mean amplitude per condition
+    group_by(condition) \%>\%
+    summarize_all_ch(mean, na.rm = TRUE) \%>\%
+    plot_topo() +
+        # add a head and nose shape
+        annotate_head() + 
+        # add contour lines
+        geom_contour() +
+        # add electrode labels
+        geom_text(colour = "black") +
+        facet_grid(~condition)
+
+# The same but with interpolation
+data_faces_ERPs \%>\% 
+    filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) \%>\% 
+    group_by(condition) \%>\%
+    summarize_all_ch(mean, na.rm = TRUE) \%>\%
+    eeg_interpolate_tbl() \%>\%
+    plot_topo() +
+        annotate_head() + 
+        geom_contour() +
+        geom_text(colour = "black") +
+        facet_grid(~condition)
+
+
 }
 \seealso{
 Other plot: \code{\link{plot.eeg_lst}},

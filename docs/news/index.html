@@ -70,7 +70,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.6.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.7.9000</span>
       </span>
     </div>
 
@@ -128,31 +128,41 @@
       <small>Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="eeguana-0-0-6-900" class="section level1">
+    <div id="eeguana-0-0-7-900" class="section level1">
 <h1 class="page-header">
-<a href="#eeguana-0-0-6-900" class="anchor"></a>eeguana 0.0.6.900</h1>
+<a href="#eeguana-0-0-7-900" class="anchor"></a>eeguana 0.0.7.900</h1>
 <ul>
+<li>Changes
+<ul>
+<li>fastICA was implemented.</li>
+<li>filters were greatly improved and checked, only FIR filters are supported for now.</li>
+<li>
+<p>Better documentation (mostly <a href="https://github.com/auskate">Kate Stone</a>)</p>
+<h1 id="eeguana-0.0.6.900" class="page-header">eeguana 0.0.6.900</h1>
+</li>
+</ul>
+</li>
 <li>Changes
 <ul>
 <li>There is a logo!</li>
 <li>Doi was added.</li>
 <li>
-<code><a href="../reference/eeguana-deprecated.html">segment()</a></code> was renamed to <code><a href="../reference/eeg_segment.html">eeg_segment()</a></code>
+<code>segment()</code> was renamed to <code>eeg_segment()</code>
 </li>
 <li>
-<code><a href="../reference/eeguana-deprecated.html">downsample()</a></code> was renamed to <code><a href="../reference/eeg_downsample.html">eeg_downsample()</a></code>
+<code>downsample()</code> was renamed to <code>eeg_downsample()</code>
 </li>
 <li>
-<code><a href="../reference/eeguana-deprecated.html">interpolate_tbl()</a></code> was renamed to <code><a href="../reference/eeg_interpolate_tbl.html">eeg_interpolate_tbl()</a></code>
+<code>interpolate_tbl()</code> was renamed to <code>eeg_interpolate_tbl()</code>
 </li>
 <li>
-<code><a href="../reference/plot_in_layout.html">plot_in_layout()</a></code> to place facets in the electrode layout was added.</li>
+<code>plot_in_layout()</code> to place facets in the electrode layout was added.</li>
 <li>
-<code><a href="../reference/plot_topo.html">plot_topo()</a></code> has improved colors, and does “less”, <code>geom_contour</code> and <code>geom_text</code> need to be added.</li>
+<code>plot_topo()</code> has improved colors, and does “less”, <code>geom_contour</code> and <code>geom_text</code> need to be added.</li>
 <li>
-<code><a href="../reference/annotate_head.html">annotate_head()</a></code> was added to the plot functions.</li>
+<code>annotate_head()</code> was added to the plot functions.</li>
 <li>
-<code><a href="../reference/change_coord.html">change_coord()</a></code> was added as an auxiliary function to change the coordinate system for topographic or layout plots.</li>
+<code>change_coord()</code> was added as an auxiliary function to change the coordinate system for topographic or layout plots.</li>
 </ul>
 </li>
 <li>Bugs
@@ -174,12 +184,12 @@
 <li>Changes
 <ul>
 <li>
-<code><a href="../reference/read_edf.html">read_edf()</a></code> was added.</li>
+<code>read_edf()</code> was added.</li>
 </ul>
 </li>
 <li>Bugs
 <ul>
-<li>Bug in <code><a href="../reference/summary.html">channel_names()</a></code> was fixed.</li>
+<li>Bug in <code>channel_names()</code> was fixed.</li>
 <li>Bug <a href='https://github.com/bnicenboim/eeguana/issues/34'>#34</a> fixed.</li>
 </ul>
 </li>
@@ -198,7 +208,7 @@
 <li>Changes
 <ul>
 <li>
-<code><a href="../reference/chs_fun.html">chs_fun()</a></code> to apply arbitrary functions to the channels.</li>
+<code>chs_fun()</code> to apply arbitrary functions to the channels.</li>
 <li>Fieldtrip tutorial added as a vignette.</li>
 </ul>
 </li>
@@ -220,7 +230,7 @@
 <li>changed the default downsampling in plots.</li>
 <li>better handling of weird channel names.</li>
 <li>
-<code><a href="../reference/eeguana-deprecated.html">segment()</a></code> accepts initial and final segments.</li>
+<code>segment()</code> accepts initial and final segments.</li>
 <li>
 <code>summarize</code> adds a summarize_n column.</li>
 <li>
@@ -261,7 +271,7 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-        <li><a href="#eeguana-0-0-6-900">0.0.6.900</a></li>
+        <li><a href="#eeguana-0-0-7-900">0.0.7.900</a></li>
         <li><a href="#eeguana-0-0-5-9000">0.0.5.9000</a></li>
         <li><a href="#eeguana-0-0-4-9000">0.0.4.9000</a></li>
         <li><a href="#eeguana-0-0-3-9000">0.0.3.9000</a></li>

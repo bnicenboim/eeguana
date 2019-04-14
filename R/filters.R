@@ -1,20 +1,17 @@
-#' Apply a Butterworth IIR filter.
+#' Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter.
 #'
-#' Apply a Butterworth IIR filter using \code{signal::filt_filt}. Based on
-#' Matt Craddock's code of \code{eegUtils} \email{matt@mattcraddock.com}.
+#' Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter of the  FIR (finite impulse response) class. These filters are adapted from the default filters in [MNE package](https://mne-tools.github.io) (v 0.0.17.1)  of [python](https://www.python.org/). For background information about the FIR vs IIR filters, see (here)[https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py],.
 #'
 #' \itemize{
-#' \item \code{filt_low_pass_ch()} Low-pass or high-cut filter.
-#' \item \code{filt_high_pass_ch()} High-pass or low-cut filter.
-#' \item \code{filt_band_pass_ch()} Band-pass filter.
-#' \item \code{filt_stop_pass_ch()} Stop-pass filter.
+#' \item \code{ch_filt_low_pass()} Low-pass or high-cut filter.
+#' \item \code{ch_filt_high_pass()} High-pass or low-cut filter.
+#' \item \code{ch_filt_band_pass()} Band-pass filter.
+#' \item \code{ch_filt_stop_pass()} Stop-pass filter.
 #' }
 #'
 #' @param x A channel or an eeg_lst.
-#' @param band_edge A single cut frequency for \code{filt_low_pass_ch} and \code{filt_high_pass_ch}, two edges for  \code{filt_band_pass_ch} and \code{filt_stop_pass_ch}.
-#' @param order Filter order (default is 6).
-#' @param direction "twopass" (default) filters the signal twice (once forwards, then again backwards).
-#' @param ... The sample rate can be included as \code{sampling_rate}, when the function is called outside mutate/summarize. 
+#' @param freq A single cut frequency for \code{ch_filt_low_pass} and \code{filt_high_pass_ch}, two edges for  \code{filt_band_pass_ch} and \code{filt_stop_pass_ch}.
+#' @param ... The sample rate can be included as `sampling_rate`, when the function is called outside mutate/summarize. 
 #'
 #' @return A channel or an eeg_lst.
 #'
@@ -22,152 +19,146 @@
 #' @examples
 #' \dontrun{
 #'
-#' faces_segs %>% filt_low_pass_ch(band_edge = 100, order = 4)
+#' faces_segs %>% filt_low_pass_ch(freq = 100, order = 4)
 #' }
 #' @name filt
 NULL
-#> NULL
+#> NULL 
 
 #' @rdname filt
 #' @export
-ch_filt_low_pass <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
+ch_filt_low_pass <- function(x, freq = NULL,  ...) {
   UseMethod("ch_filt_low_pass")
 }
 
 #' @rdname filt
 #' @export
-ch_filt_high_pass <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
+ch_filt_high_pass <- function(x, freq = NULL,  ...) {
   UseMethod("ch_filt_high_pass")
 }
 #' @rdname filt
 #' @export
-ch_filt_band_pass <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
+ch_filt_band_pass <- function(x, freq = NULL,  ...) {
   UseMethod("ch_filt_band_pass")
 }
 #' @rdname filt
 #' @export
-ch_filt_stop_pass <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
-  UseMethod("ch_filt_stop_pass")
+ch_filt_band_stop <- function(x, freq = NULL,  ...) {
+  UseMethod("ch_filt_band_stop")
 }
 
 
 #' @export
-ch_filt_low_pass.channel_dbl <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
-  if(length(band_edge)>1) stop("band_edge should contain only one frequency.")
-  type <- "low"
-  ch_filt(channel = x, band_edge = band_edge, order = order, type = type, direction = "twopass",...)
-}
-
-#' @rdname filt
-#' @export
-ch_filt_high_pass.channel_dbl <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
-  if(length(band_edge)>1) stop("band_edge should contain only one frequency.")
-  type <- "high"
-  centered_channel <- x - mean(x)
-  ch_filt(channel = centered_channel, band_edge = band_edge, order = order, type = type, direction = "twopass",...)
+ch_filt_low_pass.channel_dbl <- function(x, freq = NULL,  ...) {
+    if(length(freq)>1) stop("freq should contain only one frequency.", call.=FALSE)
+    filt_custom(x = x, h_freq = freq,...)
 }
 
 #' @rdname filt
 #' @export
-ch_filt_band_pass.channel_dbl <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
-  if(length(band_edge) != 2) stop("band_edge should contain two frequencies.")
-  if(band_edge[1] >= band_edge[2]) {
-    stop("The first argument of band_edge should be larger than the second one.")
+ch_filt_high_pass.channel_dbl <- function(x, freq = NULL,  ...) {
+  if(length(freq)>1) stop("freq should contain only one frequency.")
+
+  filt_custom(x = x, l_freq = freq,...)
+}
+
+#' @rdname filt
+#' @export
+ch_filt_band_pass.channel_dbl <- function(x, freq = NULL,  ...) {
+  if(length(freq) != 2) stop("freq should contain two frequencies.")
+  if(freq[1] >= freq[2]) {
+    stop("The first argument of freq should be smaller than the second one.")
   }
-  type <- "pass"
-  centered_channel <- x - mean(x)
-  ch_filt(channel = centered_channel, band_edge = band_edge, order = order, type = type, direction = "twopass",...)
+  filt_custom(x = x, l_freq = freq[1], h_freq = freq[2],...)
 }
 
 #' @rdname filt
 #' @export
-ch_filt_stop_pass.channel_dbl <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
-  if(length(band_edge) != 2) stop("band_edge should contain two frequency.")
-  if(band_edge[1] <= band_edge[2]) {
-    stop("The second argument of band_edge should be larger than the first one.")  }
+ch_filt_band_stop.channel_dbl <- function(x, freq = NULL,  ...) {
+  if(length(freq) != 2) stop("freq should contain two frequencies.")
+  if(freq[1] <= freq[2]) {
+    stop("The first argument of freq should be larger than the second one.")  }
   type <- "stop"
-  centered_channel <- x - mean(x)
-  ch_filt(channel = centered_channel, band_edge = band_edge, order = order, type = type, direction = "twopass",...)
+  filt_custom(x = x, l_freq = freq[1], h_freq = freq[2],...)
 }
 
 
 
 #' @rdname filt
 #' @export
-ch_filt_low_pass.eeg_lst <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
-  x$signal <- data.table::copy(x$signal)
-  x$signal[, (channel_names(x)) := lapply(.SD, ch_filt_low_pass.channel_dbl, band_edge = band_edge, 
-                          order = order, direction = direction, 
-                          sampling_rate = sampling_rate(x)), 
-                          .SDcols = channel_names(x), by = ".id"]
-  x                          
+ch_filt_low_pass.eeg_lst <- function(x, freq = NULL,  ...) {
+    h <- create_filter(l_freq = NULL,
+                       h_freq = freq,
+                       sampling_rate = sampling_rate(x),...)
+    filt_eeg_lst(x,h)
 }
 
 #' @rdname filt
 #' @export
-ch_filt_high_pass.eeg_lst <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
-  x$signal <- data.table::copy(x$signal)
-  x$signal[, (channel_names(x)) := lapply(.SD, ch_filt_high_pass.channel_dbl, band_edge = band_edge, 
-                          order = order, direction = direction, 
-                          sampling_rate = sampling_rate(x)), 
-                          .SDcols = channel_names(x), by = ".id"]
-  x                       
+ch_filt_high_pass.eeg_lst <- function(x, freq = NULL,  ...) {
+    h <- create_filter(l_freq = freq,
+                       h_freq = NULL,
+                       sampling_rate = sampling_rate(x),...)
+    filt_eeg_lst(x,h)
 }
 #' @rdname filt
 #' @export
-ch_filt_high_pass.eeg_lst <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
-  x$signal <- data.table::copy(x$signal)
-  x$signal[, (channel_names(x)) := lapply(.SD, ch_filt_high_pass.channel_dbl, band_edge = band_edge, 
-                          order = order, direction = direction, 
-                          sampling_rate = sampling_rate(x)), 
-                          .SDcols = channel_names(x), by = ".id"]
-  x                         
+ch_filt_band_stop.eeg_lst <- function(x, freq = NULL,  ...) {
+    if(length(freq) != 2) stop("freq should contain two frequencies.")
+    if(freq[1] <= freq[2]) {
+        stop("The first argument of freq should be larger than the second one.")  }
+
+    h <- create_filter(l_freq = freq[1],
+                       h_freq= freq[2],
+                       sampling_rate = sampling_rate(x),...)
+    filt_eeg_lst(x,h)
 }
 #' @rdname filt
 #' @export
-ch_filt_stop_pass.eeg_lst <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
-   x$signal <- data.table::copy(x$signal)
-  x$signal[, (channel_names(x)) := lapply(.SD, ch_filt_stop_pass.channel_dbl, band_edge = band_edge, 
-                          order = order, direction = direction, 
-                          sampling_rate = sampling_rate(x)), 
-                          .SDcols = channel_names(x), by = ".id"]
-  x                       
-}
-#' @rdname filt
-#' @export
-ch_filt_band_pass.eeg_lst <- function(x, band_edge = NULL, order = 6, direction = "twopass", ...) {
-   x$signal <- data.table::copy(x$signal)
-  x$signal[, (channel_names(x)) := lapply(.SD, ch_filt_band_pass.channel_dbl, band_edge = band_edge, 
-                          order = order, direction = direction, 
-                          sampling_rate = sampling_rate(x)), 
-                          .SDcols = channel_names(x), by = ".id"]
-  x                        
+ch_filt_band_pass.eeg_lst <- function(x, freq, ...) {
+    if(length(freq) != 2) stop("freq should contain two frequencies.")
+    if(freq[1] >= freq[2]) {
+        stop("The first argument of freq should be smaller than the second one.")
+    }
+
+    h <- create_filter(l_freq = freq[1],
+                       h_freq= freq[2],
+                       sampling_rate = sampling_rate(x),...)
+    filt_eeg_lst(x,h)
 }
 
 
-ch_filt <- function(channel, band_edge = NULL, order = 6, type, direction = "twopass", ...){
+filt_eeg_lst <- function(.eeg_lst, h){
+    .eeg_lst$signal <- data.table::copy(.eeg_lst$signal)
+    .eeg_lst$signal[, (channel_names(.eeg_lst)) := lapply(.SD, overlap_add_filter,h), 
+                    .SDcols = channel_names(.eeg_lst), by = ".id"]
+    .eeg_lst
+
+}
+
+filt_custom <- function(x, freq = NULL, type, ... ){
   args <- list(...)
   if(!"sampling_rate" %in% names(args)){ #if it's empty it will be taken from the attributes of sample
-      # #Black magic to extract sample columns and its attribute sampling_rate that has the sampling_rate of the eeg_lst object:  
-      # signal_env <- rlang::env_get(env = parent.frame(2), '.top_env', inherit = TRUE)
-      # .sample_id <- rlang::env_get(signal_env, ".sample_id")
-
-      # sampling_rate <- attributes(.sample_id)$sampling_rate
+      ## Black magic to extract sample columns and its attribute sampling_rate that has the sampling_rate of the eeg_lst object:  
+      ## signal_env <- rlang::env_get(env = parent.frame(2), '.top_env', inherit = TRUE)
+      ## .sample_id <- rlang::env_get(signal_env, ".sample_id")
+      ## sampling_rate <- attributes(.sample_id)$sampling_rate
       # print(sampling_rate)
-      sampling_rate <- attributes(extended_signal$.sample_id)$sampling_rate
-    } else {
-      sampling_rate <- args$sampling_rate
-    }
-  W <- band_edge / (sampling_rate / 2)
-
-  # filtfilt filters twice, so effectively doubles filt_order - we half it here
-  # so that it corresponds to the expectation of the user
-  order <- round(order / 2)
-  filt <- signal::butter(n = order, W = W, type = type)
-  signal::filtfilt(filt, channel)
+      args$sampling_rate <- attributes(extended_signal$.sample_id)$sampling_rate
+    } ## else {
+    ##   sampling_rate <- args$sampling_rate
+    ## }
+  h <-  do.call(create_filter, args)
+  overlap_add_filter(x, h)
 }
+
 
 # filtfilt in matlab
 # https://github.com/fieldtrip/fieldtrip/blob/f67c00431828af4777ac27b464d6adfd9d4ac884/external/signal/filtfilt.m
 # butter:
 # https://github.com/fieldtrip/fieldtrip/blob/f67c00431828af4777ac27b464d6adfd9d4ac884/external/signal/butter.m
+
+# maybe from here:
+## https://github.com/mne-tools/mne-python/blob/master/mne/filter.py#L708-L851
+## https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py
+## https://martinos.org/mne/dev/auto_tutorials/plot_artifacts_correction_filtering.html#sphx-glr-auto-tutorials-plot-artifacts-correction-filtering-py

@@ -3,7 +3,7 @@
 \name{plot_gg}
 \alias{plot_gg}
 \alias{plot_gg.eeg_lst}
-\title{ggplot object based on an eeg_lst object.}
+\title{Create an ERP plot}
 \usage{
 plot_gg(.data, ...)
 
@@ -31,7 +31,36 @@ they are so common; all other aesthetics must be named.}
 A ggplot object
 }
 \description{
-ggplot object based on an eeg_lst object.
+\code{plot_gg} initializes a ggplot object which takes an \code{eeg_lst} object as
+its input data. Layers can then be added in the same way as for a
+\code{ggplot2::ggplot} object.
+}
+\details{
+If necessary, \code{plot_gg} will first downsample the \code{eeg_lst} object so that there is a
+maximum of 64,000 samples. The \code{eeg_lst} object is then converted to a long-format
+tibble via \code{as_tibble}. In this tibble, the \code{.source} variable is the
+channel/component name and \code{.value} its respective amplitude. The sample
+number (\code{.sample_id} in the \code{eeg_lst} object) is automatically converted to milliseconds
+to create the variable \code{time}. By default, time is plotted on the
+x-axis and amplitude on the y-axis.
+
+To add additional components to the plot such as titles and annotations, simply
+use the \code{+} symbol and add layers exactly as you would for \code{ggplot::ggplot}.
+}
+\examples{
+
+# Plot grand averages for selected channels
+data_faces_ERPs \%>\% 
+  # select the desired electrodes
+  select(O1, O2, P7, P8) \%>\% 
+  plot_gg() + 
+      # add a grand average wave
+      stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1.5, 
+               aes(color = condition)) +
+      # facet by channel
+      facet_wrap(~ .source) + 
+      theme(legend.position = "bottom") 
+
 }
 \seealso{
 Other plot: \code{\link{plot.eeg_lst}},
