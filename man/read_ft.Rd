@@ -2,7 +2,7 @@
 % Please edit documentation in R/read.R
 \name{read_ft}
 \alias{read_ft}
-\title{Read a Fieldtrip file into an eeg_lst object (requires R.matlab).}
+\title{Read a Fieldtrip file into R}
 \usage{
 read_ft(file, layout = NULL, recording = file)
 }
@@ -17,7 +17,48 @@ read_ft(file, layout = NULL, recording = file)
 An \code{eeg_lst} object with signal_tbl and event from a matlab file.
 }
 \description{
-Read a Fieldtrip file into an eeg_lst object (requires R.matlab).
+Creates an eeg_lst object from Matlab exported files.The function reads a .mat
+file using \code{R.matlab}. If you do not already have
+\code{R.matlab} installed in R, you will need to install it yourself. The .mat file
+should have the structure described in this \href{http://www.fieldtriptoolbox.org/reference/ft_datatype_raw}{Fieldtrip reference article}
+}
+\details{
+The resulting eeg_lst object is composed of two \code{data.table::data.table}
+objects and one  \code{tibble::tibble}. All three are linked by a unique
+identifier \code{.id}. Amplitude values and timestamps are read into the \code{signal}
+table. Triggers, blinks, BrainVision artefact rejection markings, and other
+logged events are read into the \code{events} table. Segment information and
+recording IDs are read into the \code{segments} tibble.
+
+The \code{signal} table is organised into columns representing timestamps
+(\code{.sample_id}) and individual electrodes. Each \code{.sample_id} corresponds to
+1 sample in the original recording, i.e. if the sampling rate of the EEG
+recording is 500 Hz, then each \code{.sample_id} corresponds to 2 milliseconds.
+These timestamps correspond to \code{.sample_0} in the \code{events} table, which
+displays only the timestamps where logged events began.
+
+The \code{events} table is organised into columns representing the \code{type} of event
+associated with the trigger listed under \code{description}. The timestamp marking
+the beginning of the event is listed under \code{.sample_0} and the length of the
+event (in timestamps) is listed under \code{.size}. The \code{.channel} column is a
+linking variable only (?), so will generally only contain NAs, unless the
+event is specific to a certain channel (???!).
+
+The \code{segments} tibble contains the subject ID under \code{recording}, which is
+the file name unless otherwise specified. If the data has been segmented in
+BrainVision, the segment number will be listed under \code{segment}. The data can
+also be segmented according to trigger labels in \code{eeguana}, see \code{segment}.
+\code{segment} will be place the segment number under \code{segment}, the trigger name
+under \code{type.x}, and the trigger label under \code{description.x}. Other information
+such as condition labels or response times can be added by the user by merging
+into the \code{segments} tibble using non-eeguana merge functions, e.g. the \code{dplyr}
+join series.
+}
+\examples{
+\dontrun{
+s1 <- read_ft("./subject1.mat", layout = "easycapM25.mat", recording = 1)
+}
+
 }
 \seealso{
 Other read: \code{\link{read_edf}}, \code{\link{read_vhdr}}

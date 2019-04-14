@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Read a BrainVision file into an eeg_lst object. — read_vhdr • eeguana</title>
+<title>Read a BrainVision file into R — read_vhdr • eeguana</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -37,9 +37,13 @@
 
 
 
-<meta property="og:title" content="Read a BrainVision file into an eeg_lst object. — read_vhdr" />
+<meta property="og:title" content="Read a BrainVision file into R — read_vhdr" />
 
-<meta property="og:description" content="Read a BrainVision file into an eeg_lst object." />
+<meta property="og:description" content="Creates an eeg_lst object from BrainVision exported files.The function reads
+metadata from the .vhdr BrainVision file, which draws on
+the .vmrk and .dat files. .eeg files are not recognised at present, but it is
+relatively straightforward to export .dat files from BrainVision. All three
+files must be in the same directory." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -72,7 +76,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.6.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.7.9000</span>
       </span>
     </div>
 
@@ -126,14 +130,18 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Read a BrainVision file into an eeg_lst object.</h1>
+    <h1>Read a BrainVision file into R</h1>
     <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/read.R'><code>R/read.R</code></a></small>
     <div class="hidden name"><code>read_vhdr.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Read a BrainVision file into an eeg_lst object.</p>
+    <p>Creates an eeg_lst object from BrainVision exported files.The function reads
+metadata from the .vhdr BrainVision file, which draws on
+the .vmrk and .dat files. .eeg files are not recognised at present, but it is
+relatively straightforward to export .dat files from BrainVision. All three
+files must be in the same directory.</p>
     
     </div>
 
@@ -166,11 +174,52 @@
     <p>An <code>eeg_lst</code> object with signal_tbl and event from file_name.dat,
 file_name.vhdr, and file_name.vmrk.</p>
     
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The resulting eeg_lst object is composed of two <code><a href='https://www.rdocumentation.org/packages/data.table/topics/data.table'>data.table::data.table</a></code>
+objects and one  <code><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble::tibble</a></code>. All three are linked by a unique
+identifier <code>.id</code>. Amplitude values and timestamps are read into the <code>signal</code>
+table. Triggers, blinks, BrainVision artefact rejection markings, and other
+logged events are read into the <code>events</code> table. Segment information and
+recording IDs are read into the <code>segments</code> tibble.</p>
+<p>The <code>signal</code> table is organised into columns representing timestamps
+(<code>.sample_id</code>) and individual electrodes. Each <code>.sample_id</code> corresponds to
+1 sample in the original recording, i.e. if the sampling rate of the EEG
+recording is 500 Hz, then each <code>.sample_id</code> corresponds to 2 milliseconds.
+These timestamps correspond to <code>.sample_0</code> in the <code>events</code> table, which
+displays only the timestamps where logged events began.</p>
+<p>The <code>events</code> table is organised into columns representing the <code>type</code> of event
+associated with the trigger listed under <code>description</code>. The timestamp marking
+the beginning of the event is listed under <code>.sample_0</code> and the length of the
+event (in timestamps) is listed under <code>.size</code>. The <code>.channel</code> column is a
+linking variable only (?), so will generally only contain NAs, unless the
+event is specific to a certain channel (???!).</p>
+<p>The <code>segments</code> tibble contains the subject ID under <code>recording</code>, which is
+the file name unless otherwise specified. If the data has been segmented in
+BrainVision, the segment number will be listed under <code>segment</code>. The data can
+also be segmented according to trigger labels in <code>eeguana</code>, see <code>segment</code>.
+<code>segment</code> will be place the segment number under <code>segment</code>, the trigger name
+under <code>type.x</code>, and the trigger label under <code>description.x</code>. Other information
+such as condition labels or response times can be added by the user by merging
+into the <code>segments</code> tibble using non-eeguana merge functions, e.g. the <code>dplyr</code>
+join series.</p>
+    
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other read: <code>read_edf</code>, <code>read_ft</code></p></div>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"># NOT RUN {
+# load a single subject
+s1 <- read_vhdr("./faces.vhdr", recording = 1)
+
+# load multiple subjects using purrr::map, extracting subject IDs from file names
+faces <- purrr::map(list.files("./","vhdr"), ~
+    read_vhdr(.x, recording = parse_number(.x, na = character()))
+# }
+<div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -179,8 +228,12 @@ file_name.vhdr, and file_name.vmrk.</p>
       
       <li><a href="#value">Value</a></li>
 
+      <li><a href="#details">Details</a></li>
+
       <li><a href="#see-also">See also</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>
