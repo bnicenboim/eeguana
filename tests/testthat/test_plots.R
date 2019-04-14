@@ -97,32 +97,20 @@ test_that("plotting doesn't change data", {
   # channel is factor in the plot and character in tibble, is that ok?
   expect_equal(as.matrix(lineplot_eeg$data), as.matrix(as_tibble(data_faces_ERPs)))
   # lengths are very different 
-  expect_equal(as.matrix(topoplot_eeg$data), 
-               as.matrix(data_faces_ERPs %>%
+  expect_equal(nrow(topoplot_eeg$data), 
+               nrow(data_faces_ERPs %>%
                            group_by(condition) %>%
                            summarise_all_ch(mean, na.rm = TRUE) %>%
-                           eeg_interpolate_tbl()))
+                         eeg_interpolate_tbl() %>%
+                         filter(is.na(.source))))
 })
 
-## d1 <- data_faces_ERPs %>%
-##     group_by(condition) %>%
-##     summarise_all_ch(mean, na.rm = TRUE) 
-
-## d1 %>% eeg_interpolate_tbl() %>% distinct(.x) %>% arrange(desc(.x))  ->x1
-
-## %>% arrange(.x) %>% print(n=100)
-
-## d2 <- d1
-## channels_tbl(d2) <- change_coord(channels_tbl(d2), "orthographic")
-
-## d2 %>% eeg_interpolate_tbl() %>% distinct(.x) %>% arrange(desc(.x)) ->x2
-
-## setdiff(x1,x2)
-
-## d1 %>%  as_tibble %>%group_by(condition) %>% eeg_interpolate_tbl()
-## d2 %>%  as_tibble  %>%group_by(condition) %>% eeg_interpolate_tbl()
-
-## .data <- d1 %>%  as_tibble %>%group_by(condition) 
+test_that("warnings", {
+ expect_warning(data_1 %>%
+    group_by(condition) %>%
+    summarise_all_ch(mean, na.rm = TRUE) %>%
+     plot_topo(projection = "orthographic"))
+})
 
 test_that("plot functions create ggplots", {
   expect_gg(lineplot_eeg)

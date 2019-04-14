@@ -12,25 +12,20 @@ plot_topo(data, ...)
 
 \method{plot_topo}{tbl_df}(data, value = .value, label = .source)
 
-\method{plot_topo}{eeg_lst}(data, radius = 1.2, projection = "polar",
-  ...)
+\method{plot_topo}{eeg_lst}(data, projection = "polar", ...)
 
-\method{plot_topo}{mixing_tbl}(data, radius = 1.2,
-  projection = "polar", ...)
+\method{plot_topo}{mixing_tbl}(data, projection = "polar", ...)
 
-\method{plot_topo}{ica_lst}(data, size = 1.2, projection = "polar",
-  ...)
+\method{plot_topo}{ica_lst}(data, projection = "polar", ...)
 }
 \arguments{
-\item{data}{A table of interpolated electrodes as produced by \code{eeg_interpolate_tbl}, or an \code{eeg_lst} appropiately grouped.}
+\item{data}{A table of interpolated electrodes as produced by \code{eeg_interpolate_tbl}, or an \code{eeg_lst}, or \code{ica_lst} appropiately grouped.}
 
-\item{...}{Not in use.}
+\item{...}{If data are an \code{eeg_lst} or \code{ica_lst}, these are arguments passed to \code{eeg_interpolate_tbl}, such as, radius, size, etc.}
 
 \item{value}{Values used for the interpolation, generally \code{.value} (default).}
 
 \item{label}{Label of the points that are used for the interpolation, generally \code{.source} (default).}
-
-\item{radius}{Indicates the radius of the extrapolation, for standard locations of electrodes,  \code{1} indicates no extrapolation beyond the position of the electrodes, \code{1.2} is the default}
 
 \item{projection}{Projection type for converting the 3D coordinates of the electrodes into 2d coordinates. Projection types available: "polar" (default), "orthographic", or  "stereographic"}
 }

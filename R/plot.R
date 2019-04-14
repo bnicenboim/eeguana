@@ -163,8 +163,8 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 #' use the `+` symbol and add layers exactly as you would for `ggplot::ggplot`.
 #'
 #'
-#' @param data A table of interpolated electrodes as produced by `eeg_interpolate_tbl`, or an `eeg_lst` appropiately grouped. 
-#' @param ... Not in use.
+#' @param data A table of interpolated electrodes as produced by `eeg_interpolate_tbl`, or an `eeg_lst`, or `ica_lst` appropiately grouped. 
+#' @param ... If data are an `eeg_lst` or `ica_lst`, these are arguments passed to `eeg_interpolate_tbl`, such as, radius, size, etc.
 #'
 #' @family plot
 #'
@@ -250,16 +250,16 @@ plot_topo.tbl_df <- function(data, value= .value,  label=.source) {
 #' @inheritParams eeg_interpolate_tbl
 #' @rdname plot_topo
 #' @export
-plot_topo.eeg_lst <- function(data, radius= 1.2, projection = "polar", ...) {
+plot_topo.eeg_lst <- function(data, projection = "polar", ...) {
   
   channels_tbl(data)  <- change_coord(channels_tbl(data), projection) 
-    eeg_interpolate_tbl(data, radius,...) %>%
+    eeg_interpolate_tbl(data,...) %>%
     plot_topo()
 }
 
 #' @rdname plot_topo
 #' @export
-plot_topo.mixing_tbl <- function(data, radius= 1.2, projection = "polar", ...) {
+plot_topo.mixing_tbl <- function(data,  projection = "polar", ...) {
     
     channels_tbl(data)  <- change_coord(channels_tbl(data), projection)  
 
@@ -267,14 +267,14 @@ plot_topo.mixing_tbl <- function(data, radius= 1.2, projection = "polar", ...) {
         filter(.ICA != "mean") %>%
         dplyr::mutate(.ICA = factor(.ICA, levels = unique(.ICA)))%>%
         group_by(.group,.ICA) %>%
-        eeg_interpolate_tbl(radius=radius,...) %>%
+        eeg_interpolate_tbl(...) %>%
         plot_topo()
 }
 
 #' @rdname plot_topo
 #' @export
-plot_topo.ica_lst <- function(data, size= 1.2, projection = "polar", ...) {
-    plot_topo(data$mixing,size= 1.2, projection = "polar", ...)
+plot_topo.ica_lst <- function(data, projection = "polar", ...) {
+    plot_topo(data$mixing, projection = "polar", ...)
 }
 
 

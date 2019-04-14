@@ -134,5 +134,5 @@ map_matr <- function(.x,.f,..., .id = NULL){
 #' @noRd
 message_obj <- function(msg, obj){
     outp <- paste(capture.output({print(obj)}), collapse = "\n")
-    cat(paste0(msg,"\n",outp,"\n"))
+    paste0(msg,"\n",outp,"\n")
 }
