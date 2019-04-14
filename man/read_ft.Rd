@@ -2,7 +2,7 @@
 % Please edit documentation in R/read.R
 \name{read_ft}
 \alias{read_ft}
-\title{Read a Fieldtrip file into an eeg_lst object (requires R.matlab).}
+\title{Read a Fieldtrip file into R}
 \usage{
 read_ft(file, layout = NULL, recording = file)
 }
@@ -17,7 +17,15 @@ read_ft(file, layout = NULL, recording = file)
 An \code{eeg_lst} object with signal_tbl and event from a matlab file.
 }
 \description{
-Read a Fieldtrip file into an eeg_lst object (requires R.matlab).
+Creates an eeg_lst object from Matlab exported files.The function reads a .mat
+file using \code{R.matlab}. If you do not already have
+\code{R.matlab} installed in R, you will need to install it yourself. The .mat file
+should have the structure described in
+this \href{http://www.fieldtriptoolbox.org/reference/ft_datatype_raw}{Fieldtrip reference article}.
+}
+\examples{
+\dontrun{s1 <- read_ft("./subject1.mat", layout = "easycapM25.mat", recording = 1)}
+#'
 }
 \seealso{
 Other read: \code{\link{read_edf}}, \code{\link{read_vhdr}}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/read.R
 \name{read_vhdr}
 \alias{read_vhdr}
-\title{Read a BrainVision file into an eeg_lst object.}
+\title{Read a BrainVision file into R}
 \usage{
 read_vhdr(file, sep = type == "New Segment", zero = type == "Time 0",
   recording = file)
@@ -21,7 +21,22 @@ An \code{eeg_lst} object with signal_tbl and event from file_name.dat,
 file_name.vhdr, and file_name.vmrk.
 }
 \description{
-Read a BrainVision file into an eeg_lst object.
+Creates an eeg_lst object from BrainVision exported files.The function reads
+metadata from the .vhdr BrainVision file, which draws on
+the .vmrk and .dat files. .eeg files are not recognised at present, but it is
+relatively straightforward to export .dat files from BrainVision. All three
+files must be in the same directory.
+}
+\examples{
+\dontrun{
+# load a single subject
+s1 <- read_vhdr("./faces.vhdr", recording = 1)
+
+# load multiple subjects using purrr::map, extracting subject IDs from file names
+faces <- purrr::map(list.files("./","vhdr"), ~
+    read_vhdr(.x, recording = parse_number(.x, na = character()))
+}
+
 }
 \seealso{
 Other read: \code{\link{read_edf}}, \code{\link{read_ft}}
