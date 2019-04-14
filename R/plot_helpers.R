@@ -10,17 +10,18 @@ eeg_interpolate_tbl <- function(.data, ...) {
   UseMethod("eeg_interpolate_tbl")
 }
 #' @rdname eeg_interpolate_tbl
-#' @param size Indicates how much to extrapolate, `1` indicates no extrapolation beyond the position of the electrodes.
+#' @param radius Indicates the radius of the extrapolation, for standard locations of electrodes,  `1` indicates no extrapolation beyond the position of the electrodes, `1.2` is the default
 #' @param method Method of interpolation (`"MBA"` Multilevel B-splines using the function `mba.surf` of the package `MBA` or (`"akima"` bicubic spline Akima interpolation algorithm using the function `interp` of the package `akima`.)..).
 #' @param diam_points Density of the interpolation (number of points that are interpolated in the diameter of the scalp).
 #' @export
-eeg_interpolate_tbl.eeg_lst <- function(.data, size = 1.2, diam_points = 200, method = "MBA", ...) {
+eeg_interpolate_tbl.eeg_lst <- function(.data, radius = 1.2, diam_points = 200, method = "MBA", ...) {
   grouping <- group_vars(.data)
-  .data <- dplyr::as_tibble(.data) %>% dplyr::group_by_at(dplyr::vars(grouping))
+  .data <- dplyr::as_tibble(.data) %>% 
+    dplyr::group_by_at(dplyr::vars(grouping))
   dots <- rlang::enquos(...)
   # NextMethod()
   eeg_interpolate_tbl(.data,
-                      size = size,
+                      radius = radius,
                       x=!!rlang::quo(.x),
                       y=!!rlang::quo(.y),
                       value = !!rlang::quo(.value),
@@ -31,13 +32,13 @@ eeg_interpolate_tbl.eeg_lst <- function(.data, size = 1.2, diam_points = 200, me
 }
 
 #' @export
-eeg_interpolate_tbl.ica_lst <- function(.data, size = 1.2, diam_points = 200, method = "MBA", ...) {
+eeg_interpolate_tbl.ica_lst <- function(.data, radius = 1.2, diam_points = 200, method = "MBA", ...) {
     grouping <- group_vars(.data)
     .data <- dplyr::as_tibble(.data) %>% dplyr::group_by_at(dplyr::vars(grouping))
     dots <- rlang::enquos(...)
                                         # NextMethod()
     eeg_interpolate_tbl(.data,
-                        size = size,
+                        radius = radius,
                         x=!!rlang::quo(.x),
                         y=!!rlang::quo(.y),
                         value = !!rlang::quo(.value),
@@ -54,8 +55,14 @@ eeg_interpolate_tbl.ica_lst <- function(.data, size = 1.2, diam_points = 200, me
 #' @param value Values used for the interpolation, generally `.value` (default). 
 #' @param label Label of the points that are used for the interpolation, generally `.source` (default).
 #' @export
-eeg_interpolate_tbl.data.frame <- function(.data, size = 1.2, x = .x, y = .y, value = .value, label = .source, diam_points = 200,
-                                   method = "MBA", ...) {
+eeg_interpolate_tbl.data.frame <- function(.data, 
+                                           radius = 1.2,
+                                           x = .x,
+                                           y = .y, 
+                                           value = .value, 
+                                           label = .source, 
+                                           diam_points = 200,
+                                           method = "MBA", ...) {
   # x <- rlang::quo(.x)
   # y <- rlang::quo(.y)
   # value <- rlang::quo(.value)
@@ -65,7 +72,15 @@ eeg_interpolate_tbl.data.frame <- function(.data, size = 1.2, x = .x, y = .y, va
   value <- rlang::enquo(value)
   label <- rlang::enquo(label)
 
-  .data <- dplyr::select(.data, dplyr::one_of(dplyr::group_vars(.data)), !!x, !!y, !!value, !!label)
+   outside <-  .data %>%  ungroup %>%
+        distinct(!!label, !!x, !!y) %>%
+       dplyr::filter(sqrt((!!x)^2 + (!!y)^2) >= 1 * radius)
+  
+    if(nrow(outside)>0){
+        warning(message_obj(paste0("Some points were outside the radius, '", radius,"', of interpolation:"),outside), call. = FALSE)
+}
+
+    .data <- dplyr::select(.data, dplyr::one_of(dplyr::group_vars(.data)), !!x, !!y, !!value, !!label)
   group_vars <- dplyr::group_vars(.data)
   group_vars <- group_vars[!group_vars %in%
     c(rlang::quo_text(x), rlang::quo_text(y), rlang::quo_text(value), rlang::quo_text(label))]
@@ -102,10 +117,10 @@ eeg_interpolate_tbl.data.frame <- function(.data, size = 1.2, x = .x, y = .y, va
         sp = FALSE,
         extend = TRUE,
         b.box = c(
-          min(c(-1,xyz[[1]]), na.rm = TRUE) * size,
-          max(c(1,xyz[[1]]), na.rm = TRUE) * size,
-          min(c(-1,xyz[[2]]), na.rm = TRUE) * size,
-          max(c(1, xyz[[2]]), na.rm = TRUE) * size
+          min(c(-1,xyz[[1]]), na.rm = TRUE) * radius,
+          max(c(1,xyz[[1]]), na.rm = TRUE) * radius,
+          min(c(-1,xyz[[2]]), na.rm = TRUE) * radius,
+          max(c(1, xyz[[2]]), na.rm = TRUE) * radius
         ),
         ...
       )
@@ -125,8 +140,8 @@ eeg_interpolate_tbl.data.frame <- function(.data, size = 1.2, x = .x, y = .y, va
     interpolation_alg <- function(xyz, ...) {
       results <- akima::interp(
         x = xyz[[1]], y = xyz[[2]], z = xyz[[3]],
-        xo = seq(c(-1,min(xyz[[1]]), na.rm = TRUE) * size, max(c(1,xyz[[1]]), na.rm = TRUE) * size, length = diam_points),
-        yo = seq(min(c(-1,xyz[[2]]), na.rm = TRUE) * size, max(c(1,xyz[[2]]), na.rm = TRUE) * size, length = diam_points),
+        xo = seq(c(-1,min(xyz[[1]]), na.rm = TRUE) * radius, max(c(1,xyz[[1]]), na.rm = TRUE) * radius, length = diam_points),
+        yo = seq(min(c(-1,xyz[[2]]), na.rm = TRUE) * radius, max(c(1,xyz[[2]]), na.rm = TRUE) * radius, length = diam_points),
         extrap = TRUE,
         linear = FALSE,
         duplicate = "error",
@@ -175,7 +190,7 @@ eeg_interpolate_tbl.data.frame <- function(.data, size = 1.2, x = .x, y = .y, va
 
       interpolation_alg(interpolate_from) %>%
         # eq to mba_interp$xyz.est@data$z
-        dplyr::filter(((!!x)^2 + (!!y)^2 <= 1 * size)) %>%
+        dplyr::filter(sqrt((!!x)^2 + (!!y)^2) <= 1 * radius) %>%
         {
           dplyr::bind_cols(dplyr::slice(common, rep(1, each = nrow(.))), .)
         }
