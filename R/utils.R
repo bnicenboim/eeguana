@@ -129,3 +129,10 @@ map_matr <- function(.x,.f,..., .id = NULL){
     res <- purrr::map(.x, .f, ...)
     do.call("rbind", res)
 }
+
+#' Cat a message and then a printable object 
+#' @noRd
+message_obj <- function(msg, obj){
+    outp <- paste(capture.output({print(obj)}), collapse = "\n")
+    paste0(msg,"\n",outp,"\n")
+}

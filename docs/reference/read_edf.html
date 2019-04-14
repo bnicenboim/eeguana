@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Read a edf/edf+/bdf file into an eeg_lst object. — read_edf • eeguana</title>
+<title>Read an edf/edf+/bdf file into R — read_edf • eeguana</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -37,9 +37,9 @@
 
 
 
-<meta property="og:title" content="Read a edf/edf+/bdf file into an eeg_lst object. — read_edf" />
+<meta property="og:title" content="Read an edf/edf+/bdf file into R — read_edf" />
 
-<meta property="og:description" content="Read a edf/edf+/bdf file into an eeg_lst object." />
+<meta property="og:description" content="Creates an eeg_lst object from edf, edf+, and bdf file export formats." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.6.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.7.9000</span>
       </span>
     </div>
 
@@ -126,14 +126,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Read a edf/edf+/bdf file into an eeg_lst object.</h1>
+    <h1>Read an edf/edf+/bdf file into R</h1>
     <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/read.R'><code>R/read.R</code></a></small>
     <div class="hidden name"><code>read_edf.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Read a edf/edf+/bdf file into an eeg_lst object.</p>
+    <p>Creates an eeg_lst object from edf, edf+, and bdf file export formats.</p>
     
     </div>
 
@@ -161,6 +161,11 @@
     <div class='dont-index'><p>Other read: <code>read_ft</code>, <code>read_vhdr</code></p></div>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='no'>s1</span> <span class='kw'>&lt;-</span> <span class='fu'>read_edf</span>(<span class='st'>"./faces.edf"</span>, <span class='kw'>recording</span> <span class='kw'>=</span> <span class='fl'>1</span>)
+<span class='co'># }</span><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -170,7 +175,9 @@
       <li><a href="#value">Value</a></li>
 
       <li><a href="#see-also">See also</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

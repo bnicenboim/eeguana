@@ -8,10 +8,10 @@
 \usage{
 eeg_interpolate_tbl(.data, ...)
 
-\method{eeg_interpolate_tbl}{eeg_lst}(.data, size = 1.2,
+\method{eeg_interpolate_tbl}{eeg_lst}(.data, radius = 1.2,
   diam_points = 200, method = "MBA", ...)
 
-\method{eeg_interpolate_tbl}{data.frame}(.data, size = 1.2, x = .x,
+\method{eeg_interpolate_tbl}{data.frame}(.data, radius = 1.2, x = .x,
   y = .y, value = .value, label = .source, diam_points = 200,
   method = "MBA", ...)
 }
@@ -20,7 +20,7 @@ eeg_interpolate_tbl(.data, ...)
 
 \item{...}{Various arguments passed to the interpolation method.}
 
-\item{size}{Indicates how much to extrapolate, \code{1} indicates no extrapolation beyond the position of the electrodes.}
+\item{radius}{Indicates the radius of the extrapolation, for standard locations of electrodes,  \code{1} indicates no extrapolation beyond the position of the electrodes, \code{1.2} is the default}
 
 \item{diam_points}{Density of the interpolation (number of points that are interpolated in the diameter of the scalp).}
 

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Read a Fieldtrip file into an eeg_lst object (requires R.matlab). — read_ft • eeguana</title>
+<title>Read a Fieldtrip file into R — read_ft • eeguana</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -37,9 +37,13 @@
 
 
 
-<meta property="og:title" content="Read a Fieldtrip file into an eeg_lst object (requires R.matlab). — read_ft" />
+<meta property="og:title" content="Read a Fieldtrip file into R — read_ft" />
 
-<meta property="og:description" content="Read a Fieldtrip file into an eeg_lst object (requires R.matlab)." />
+<meta property="og:description" content="Creates an eeg_lst object from Matlab exported files.The function reads a .mat
+file using R.matlab. If you do not already have
+R.matlab installed in R, you will need to install it yourself. The .mat file
+should have the structure described in
+this Fieldtrip reference article." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -72,7 +76,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.6.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.7.9000</span>
       </span>
     </div>
 
@@ -126,14 +130,18 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Read a Fieldtrip file into an eeg_lst object (requires R.matlab).</h1>
+    <h1>Read a Fieldtrip file into R</h1>
     <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/read.R'><code>R/read.R</code></a></small>
     <div class="hidden name"><code>read_ft.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Read a Fieldtrip file into an eeg_lst object (requires R.matlab).</p>
+    <p>Creates an eeg_lst object from Matlab exported files.The function reads a .mat
+file using <code>R.matlab</code>. If you do not already have
+<code>R.matlab</code> installed in R, you will need to install it yourself. The .mat file
+should have the structure described in
+this <a href='http://www.fieldtriptoolbox.org/reference/ft_datatype_raw'>Fieldtrip reference article</a>.</p>
     
     </div>
 
@@ -165,6 +173,11 @@
     <div class='dont-index'><p>Other read: <code>read_edf</code>, <code>read_vhdr</code></p></div>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='no'>s1</span> <span class='kw'>&lt;-</span> <span class='fu'>read_ft</span>(<span class='st'>"./subject1.mat"</span>, <span class='kw'>layout</span> <span class='kw'>=</span> <span class='st'>"easycapM25.mat"</span>, <span class='kw'>recording</span> <span class='kw'>=</span> <span class='fl'>1</span>)
+<span class='co'># }</span><div class='input'>#'
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -174,7 +187,9 @@
       <li><a href="#value">Value</a></li>
 
       <li><a href="#see-also">See also</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

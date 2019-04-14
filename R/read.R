@@ -1,4 +1,12 @@
-#' Read a BrainVision file into an eeg_lst object.
+#' Read a BrainVision file into R
+#' 
+#' Creates an eeg_lst object from BrainVision exported files.The function reads 
+#' metadata from the .vhdr BrainVision file, which draws on 
+#' the .vmrk and .dat files. .eeg files are not recognised at present, but it is
+#' relatively straightforward to export .dat files from BrainVision. All three 
+#' files must be in the same directory. 
+#' 
+#' 
 #'
 #' @param file A vhdr file in a folder that contains a .vmrk and .dat files
 #' @param sep Segment separation marker. By default: type == "New Segment"
@@ -7,6 +15,17 @@
 #' 
 #' @return An `eeg_lst` object with signal_tbl and event from file_name.dat,
 #' file_name.vhdr, and file_name.vmrk.
+#' 
+#' @examples 
+#' \dontrun{
+#' # load a single subject
+#' s1 <- read_vhdr("./faces.vhdr", recording = 1)
+#' 
+#' # load multiple subjects using purrr::map, extracting subject IDs from file names
+#' faces <- purrr::map(list.files("./","vhdr"), ~
+#'     read_vhdr(.x, recording = parse_number(.x, na = character()))
+#' }
+#' 
 #' @family read
 #' @importFrom magrittr %>%
 #'
@@ -76,13 +95,22 @@ read_vhdr <- function(file, sep = type == "New Segment", zero = type == "Time 0"
 
 
 
-#' Read a Fieldtrip file into an eeg_lst object (requires R.matlab).
-#'
+#' Read a Fieldtrip file into R
+#' 
+#' Creates an eeg_lst object from Matlab exported files.The function reads a .mat 
+#' file using `R.matlab`. If you do not already have
+#' `R.matlab` installed in R, you will need to install it yourself. The .mat file 
+#' should have the structure described in 
+#' this [Fieldtrip reference article](http://www.fieldtriptoolbox.org/reference/ft_datatype_raw).
+#' 
 #' @param file A .mat file containing a fieldtrip struct.
 #' @param recording Recording name, by default is the file name.
 #' @param layout A .mat [layout from Fieldtrip](http://www.fieldtriptoolbox.org/template/layout)
 #' @return An `eeg_lst` object with signal_tbl and event from a matlab file.
-#'
+#' 
+#' @examples 
+#' \dontrun{s1 <- read_ft("./subject1.mat", layout = "easycapM25.mat", recording = 1)}
+#' #'
 #' @family read
 #' 
 #' @importFrom magrittr %>%
@@ -225,12 +253,21 @@ read_ft <- function(file, layout = NULL, recording = file) {
   validate_eeg_lst(eeg_lst)
 }
 
-#' Read a edf/edf+/bdf file into an eeg_lst object.
+
+
+#' Read an edf/edf+/bdf file into R
+#' 
+#' Creates an eeg_lst object from edf, edf+, and bdf file export formats.
+#' 
 #'
 #' @param file A edf/bdf file
 #' @param recording Recording name (file name, by default). If set to NULL or NA, the patient name will be used.
 #'
 #' @return An `eeg_lst` object.
+#' 
+#' @examples 
+#' \dontrun{s1 <- read_edf("./faces.edf", recording = 1)}
+#' 
 #' @family read
 #'
 #' @export
