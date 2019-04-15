@@ -107,10 +107,10 @@ test_that("mutate functions work correctly on ungrouped data", {
 # mutate_at_eeg_lst <- mutate_at(data, channel_names(data), mean)
 
 
-# won't work for now
-test_that("new channels appear in the events table", {
-  expect_true(nrow(filter(mutate2_eeg_lst$events, .channel == "ZZ")) > 0)
-})
+# This shouldn't work, the transformed channel is a new channel, and it shouldn't be part of the events
+ test_that("new channels shouldn't appear in the events table", {
+   expect_true(nrow(filter(mutate2_eeg_lst$events, .channel == "ZZ")) == 0)
+ })
 
 
 test_that("new channels appear in the channels table", {
@@ -253,10 +253,10 @@ test_that("mutate works correctly on data grouped by .sample_id", {
                as.matrix(select(mutate_a_tbl, X, Y)))
 })
 
-# won't work for now
-test_that("new channels appear in the events table", {
-  expect_true(nrow(filter(mutate2_g_signal_eeg$events, .channel == "ZZ")) > 0)
-  expect_true(nrow(filter(mutate5_g_signal_eeg$events, .channel == "ZZ")) > 0)
+
+test_that("new channels created by mutate shouldn't appear in the events table", {
+  expect_true(nrow(filter(mutate2_g_signal_eeg$events, .channel == "ZZ")) == 0)
+  expect_true(nrow(filter(mutate5_g_signal_eeg$events, .channel == "ZZ")) == 0)
   })
 
 
