@@ -2,7 +2,7 @@
 % Please edit documentation in R/constructors.R
 \name{signal_tbl}
 \alias{signal_tbl}
-\title{Builds a signal_tbl table.}
+\title{Builds a signal_tbl table}
 \usage{
 signal_tbl(signal_matrix = NULL, ids = NULL, sample_ids = NULL,
   channel_info = NULL)
@@ -20,7 +20,12 @@ signal_tbl(signal_matrix = NULL, ids = NULL, sample_ids = NULL,
 A valid signal_tbl table.
 }
 \description{
-Builds a signal_tbl table.
+The eeg_lst \code{signal} table is organised into columns representing timestamps
+(\code{.sample_id}) and individual electrodes. Each \code{.sample_id} corresponds to
+1 sample in the original recording, i.e. if the sampling rate of the EEG
+recording is 500 Hz, then each \code{.sample_id} corresponds to 2 milliseconds.
+These timestamps correspond to \code{.sample_0} in the \code{events} table, which
+displays only the timestamps where logged events began.
 }
 \seealso{
 Other signal_tbl: \code{\link{is_signal_tbl}}
