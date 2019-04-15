@@ -1,8 +1,39 @@
-#' Builds an eeg_lst.
+#' Create an eeg_lst
+#' 
+#' Builds an eeg_lst object composed of two `data.table::data.table` 
+#' objects and one  `tibble::tibble`. All three are linked by a unique
+#' identifier `.id`. Amplitude values and timestamps appear in the `signal`
+#' table. Triggers, blinks, artefact rejection markings, and other
+#' events logged by the EEG recording software appear in the `events` table. 
+#' Segment information and recording IDs appear in the `segments` tibble. 
+#' 
+#' The `signal` table is organised into columns representing timestamps 
+#' (`.sample_id`) and individual electrodes. Each `.sample_id` corresponds to
+#' 1 sample in the original recording, i.e. if the sampling rate of the EEG
+#' recording is 500 Hz, then each `.sample_id` corresponds to 2 milliseconds. 
+#' These timestamps correspond to `.sample_0` in the `events` table, which 
+#' displays only the timestamps where logged events began.
+#' 
+#' The `events` table is organised into columns representing the `type` of event
+#' associated with the trigger listed under `description`. The timestamp marking
+#' the beginning of the event is listed under `.sample_0` and the length of the
+#' event (in timestamps) is listed under `.size`. The `.channel` column will 
+#' generally only contain NAs, unless the 
+#' event is specific to a certain channel.
+#' 
+#' The `segments` tibble contains the subject ID under `recording`, which is 
+#' the file name unless otherwise specified. If the data has been segmented in 
+#' BrainVision, the segment number will be listed under `segment`. The data can
+#' also be segmented according to trigger labels in `eeguana`, see `segment`. 
+#' `segment` will be place the segment number under `segment`, the trigger name 
+#' under `type.x`, and the trigger label under `description.x`. Other information 
+#' such as condition labels or response times can be added by the user by merging
+#' into the `segments` tibble using non-eeguana merge functions, e.g. the `dplyr`
+#' join series.
 #'
-#' @param signal signal
-#' @param events events
-#' @param segments segments
+#' @param signal See [signal_tbl()].
+#' @param events See [events_tbl()].
+#' @param segments A tibble of segment numbers and related information. 
 #' 
 #' @family eeg_lst
 #'
@@ -13,7 +44,14 @@ eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
 }
 
 
-#' Builds a signal_tbl table.
+#' Builds a signal_tbl table
+#' 
+#' The eeg_lst `signal` table is organised into columns representing timestamps 
+#' (`.sample_id`) and individual electrodes. Each `.sample_id` corresponds to
+#' 1 sample in the original recording, i.e. if the sampling rate of the EEG
+#' recording is 500 Hz, then each `.sample_id` corresponds to 2 milliseconds. 
+#' These timestamps correspond to `.sample_0` in the `events` table, which 
+#' displays only the timestamps where logged events began.
 #'
 #' @param signal_matrix Matrix or table of channels with their signal.
 #' @param ids Integers indicating to which group the row of the signal matrix belongs.
@@ -28,7 +66,14 @@ signal_tbl <- function(signal_matrix = NULL, ids=NULL, sample_ids=NULL, channel_
   validate_signal_tbl(new_signal_tbl(signal_matrix, ids, sample_ids, channel_info))
 }
 
-#' Builds an events_tbl table.
+#' Builds an events_tbl table
+#' 
+#' The eeg_lst `events` table is organised into columns representing the `type` of event
+#' associated with the trigger listed under `description`. The timestamp marking
+#' the beginning of the event is listed under `.sample_0` and the length of the
+#' event (in timestamps) is listed under `.size`. The `.channel` column is a
+#' linking variable only, so will generally only contain NAs, unless the 
+#' event is specific to a certain channel.
 #'
 #' @param ids Integers indicating to which group the row of the signal matrix belongs.
 #' @param sample_0s Vector of integers that indicate at which sample an events starts.
