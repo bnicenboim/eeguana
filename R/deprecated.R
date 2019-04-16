@@ -32,10 +32,18 @@ interpolate_tbl <- function(.data, ...) {
     UseMethod("eeg_interpolate_tbl")
 }
 #' @rdname eeguana-deprecated
-#' @inheritParams eeg_intervals_to_NA
+#' @inheritParams eeg_events_to_NA
 #' @export
 event_to_ch_NA <- function(x, ...) {
-  .Deprecated("eeg_intervals_to_NA")
-    UseMethod("eeg_intervals_to_NA")
+  .Deprecated("eeg_events_to_NA")
+    UseMethod("eeg_events_to_NA")
 }
  
+#' @rdname eeguana-deprecated
+#' @inheritParams eeg_events_to_NA
+#' @export
+eeg_intervals_to_NA <- function(x, ...) {
+    .Deprecated("eeg_events_to_NA")
+    UseMethod("eeg_events_to_NA")
+}
+

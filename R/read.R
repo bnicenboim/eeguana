@@ -109,8 +109,10 @@ read_vhdr <- function(file, sep = type == "New Segment", zero = type == "Time 0"
 #' @return An `eeg_lst` object with signal_tbl and event from a matlab file.
 #' 
 #' @examples 
-#' \dontrun{s1 <- read_ft("./subject1.mat", layout = "easycapM25.mat", recording = 1)}
-#' #'
+#' \dontrun{
+#' s1 <- read_ft("./subject1.mat", layout = "easycapM25.mat", recording = 1)
+#' }
+#' 
 #' @family read
 #' 
 #' @importFrom magrittr %>%

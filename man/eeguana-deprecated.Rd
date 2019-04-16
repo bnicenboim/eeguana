@@ -6,6 +6,7 @@
 \alias{segment}
 \alias{interpolate_tbl}
 \alias{event_to_ch_NA}
+\alias{eeg_intervals_to_NA}
 \title{Deprecated functions in eeguana}
 \usage{
 downsample(x, q = 2, max_sample = NULL, ...)
@@ -15,6 +16,8 @@ segment(x, ...)
 interpolate_tbl(.data, ...)
 
 event_to_ch_NA(x, ...)
+
+eeg_intervals_to_NA(x, ...)
 }
 \arguments{
 \item{x}{An eeg_lst object.}
