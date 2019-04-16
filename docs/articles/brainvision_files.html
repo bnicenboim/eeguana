@@ -93,7 +93,7 @@
       <h1>Introduction - Manipulating a clean EEG file exported from BrainVision 2.0</h1>
                         <h4 class="author">Bruno Nicenboim</h4>
             
-            <h4 class="date">2019-04-15</h4>
+            <h4 class="date">2019-04-16</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bnicenboim/eeguana/blob/master/vignettes/brainvision_files.Rmd"><code>vignettes/brainvision_files.Rmd</code></a></small>
       <div class="hidden name"><code>brainvision_files.Rmd</code></div>
@@ -329,7 +329,7 @@
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">faces_segs &lt;-<span class="st"> </span>faces <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb8-2" data-line-number="2"><span class="st">               </span><span class="kw"><a href="https://www.rdocumentation.org/packages/eeguana/topics/eeg_segment">eeg_segment</a></span>(description <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"s70"</span>, <span class="st">"s71"</span>), </a>
 <a class="sourceLine" id="cb8-3" data-line-number="3">                        <span class="dt">lim =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="op">-</span>.<span class="dv">2</span>,.<span class="dv">25</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="st">               </span><span class="kw"><a href="https://www.rdocumentation.org/packages/eeguana/topics/eeg_intervals_to_NA">eeg_intervals_to_NA</a></span>(type <span class="op">==</span><span class="st"> "Bad Interval"</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="st">               </span><span class="kw"><a href="https://www.rdocumentation.org/packages/eeguana/topics/eeg_events_to_NA">eeg_events_to_NA</a></span>(type <span class="op">==</span><span class="st"> "Bad Interval"</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb8-5" data-line-number="5"><span class="st">               </span><span class="kw"><a href="https://www.rdocumentation.org/packages/eeguana/topics/ch_baseline">ch_baseline</a></span>()</a>
 <a class="sourceLine" id="cb8-6" data-line-number="6"><span class="co">#&gt; # Total of 200 segments found.</span></a>
 <a class="sourceLine" id="cb8-7" data-line-number="7"><span class="co">#&gt; # Object size in memory 12.2 Mb after segmentation.</span></a></code></pre></div>

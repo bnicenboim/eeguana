@@ -15,6 +15,7 @@ eeg_grad_artifact <- function(.data, ...) {
 #' @param step Maximum permissible difference in voltage between two consecutive data points.
 #' @param lim Vector indicating the time before and after the event.
 #' @inheritParams as_time
+#' @rdname eeg_events_to_NA
 #' @export 
 eeg_grad_artifact.eeg_lst <- function(.data, ..., step = 50 , lim = c(-200, 200), unit = "ms" ) {
     ## eeg_grad_artifact
