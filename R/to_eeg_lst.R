@@ -94,7 +94,7 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data){
     }
 
     t_s <- .data$times
-    samples <- as_sample_int(c(t_s), sampling_rate= .data$info$sfreq)
+    samples <- as_sample_int(c(t_s), sampling_rate= .data$info$sfreq, unit = "s")
     
     new_signal <- signal_tbl(signal_m, 1L,samples,ch_info)
 
@@ -105,9 +105,9 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data){
     } else{
     new_events <- events_tbl(.id = 1L,
                              .sample_0 = ann$onset %>%
-                                 as_sample_int(sampling_rate = .data$info$sfreq) %>% as.integer,
+                                 as_sample_int(sampling_rate = .data$info$sfreq, unit="s") %>% as.integer,
                              .size = ann$duration %>%
-                                 {as_sample_int(. ,sampling_rate = .data$info$sfreq)-1L} %>%
+                                 {as_sample_int(. ,sampling_rate = .data$info$sfreq,unit="s")-1L} %>%
                                  as.integer,
                              .channel = NA_character_,
                              descriptions_dt = data.table::data.table(description = ann$description))
