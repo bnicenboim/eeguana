@@ -60,7 +60,7 @@ eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
 #' 
 #' @family signal_tbl
 #' 
-#' @return A valid signal_tbl table.
+#' @return A valid `signal_tbl` table.
 #' @export
 signal_tbl <- function(signal_matrix = NULL, ids=NULL, sample_ids=NULL, channel_info=NULL) {
   validate_signal_tbl(new_signal_tbl(signal_matrix, ids, sample_ids, channel_info))
@@ -82,7 +82,7 @@ signal_tbl <- function(signal_matrix = NULL, ids=NULL, sample_ids=NULL, channel_
 #' 
 #' @family events_tbl
 #' 
-#' @return A valid events_tbl table.
+#' @return A valid `events_tbl` table.
 #' @export
 events_tbl <- function(.id = NULL, .sample_0=NULL, .size=NULL, .channel=NULL, descriptions_dt=NULL) {
     validate_events_tbl(new_events_tbl(.id, .sample_0, .size, .channel, descriptions_dt))

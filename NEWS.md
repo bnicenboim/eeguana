@@ -3,6 +3,7 @@
       - fastICA was implemented.
       - filters were greatly improved and checked, only FIR filters are supported for now.
       - Better documentation (mostly [Kate Stone](https://github.com/auskate))
+      - `eeg_intervals_to_NA()` was renamed to `eeg_events_to_NA()`
 # eeguana 0.0.6.900
   - Changes
       - There is a logo!
@@ -54,7 +55,7 @@
    
 # eeguana 0.0.2.9001
 
-- Data table is now powered by data.table.
+- Signals table is now powered by data.table.
 
 
 # eeguana 0.0.2.9000

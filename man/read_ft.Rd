@@ -24,8 +24,10 @@ should have the structure described in
 this \href{http://www.fieldtriptoolbox.org/reference/ft_datatype_raw}{Fieldtrip reference article}.
 }
 \examples{
-\dontrun{s1 <- read_ft("./subject1.mat", layout = "easycapM25.mat", recording = 1)}
-#'
+\dontrun{
+s1 <- read_ft("./subject1.mat", layout = "easycapM25.mat", recording = 1)
+}
+
 }
 \seealso{
 Other read: \code{\link{read_edf}}, \code{\link{read_vhdr}}

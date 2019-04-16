@@ -17,7 +17,7 @@ signal_tbl(signal_matrix = NULL, ids = NULL, sample_ids = NULL,
 \item{channel_info}{A table with information about each channel (such as the one produced by `channels_tbl``)}
 }
 \value{
-A valid signal_tbl table.
+A valid \code{signal_tbl} table.
 }
 \description{
 The eeg_lst \code{signal} table is organised into columns representing timestamps
