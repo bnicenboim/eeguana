@@ -1,10 +1,9 @@
 #' Annotate artifacts in the  events table of an eeg_lst.
 #'
-#' @param x An `eeg_lst` object.
-#' @param ... Description of the problematic event.
+#' @param .data An `eeg_lst` object.
 #'
 #'
-#' @return An eeg_lst.
+#' @return An `eeg_lst`.
 #'
 #' @importFrom magrittr %>%
 #'
@@ -12,11 +11,14 @@
 eeg_grad_artifact <- function(.data, ...) {
     UseMethod("eeg_grad_artifact")
 }
-
+#' @param ... Channels to include in the artifact detection. All the channels by default, but eye channels should be removed.
+#' @param step Maximum permissible difference in voltage between two consecutive data points.
+#' @param lim Vector indicating the time before and after the event.
+#' @inheritParams as_time
 #' @export 
 eeg_grad_artifact.eeg_lst <- function(.data, ..., step = 50 , lim = c(-200, 200), unit = "ms" ) {
     ## eeg_grad_artifact
-    sample_range = as_sample_int(x=lim,sampling_rate = sampling_rate(.data),unit = unit )
+    sample_range = as.integer(lim * scaling(sampling_rate = sampling_rate(.data),unit = unit ))
     dots <- rlang::enquos(...)
     if(rlang::is_empty(dots)) {
       ch_sel <- channel_names(.data)
@@ -37,24 +39,25 @@ eeg_grad_artifact.eeg_lst <- function(.data, ..., step = 50 , lim = c(-200, 200)
                 } else {
                     ## left and right values of the window of bad values (respecting the min max samples)
                     left <-  .eeg$.sample_id[.x] + sample_range[[1]]
-                    left[left < min(.eeg$.sample_id)] <- min(.eeg$.sample_id)
+                    ## the smallest sample is one less than the present one because diff() in artifact_found reduces the vector by 1
+                    left[left < (min(.eeg$.sample_id)-1L)] <- (min(.eeg$.sample_id) -1L) 
                     right <-  .eeg$.sample_id[.x] + sample_range[[2]]
                     right[right > max(.eeg$.sample_id)] <- max(.eeg$.sample_id)
-                      
-                  ##merge if there are steps closer than the window for removal 
-                    left_merge <- c(TRUE, diff(left) > abs(sample_range[[1]]))
-                    right_merge <- c(diff(right) > abs(sample_range[[2]]), TRUE)
-                    .sample_0 <- left[left_merge] 
-                    .size <-   right[right_merge] - .sample_0 +1L
+                    ##merge if there are steps closer than the window for removal 
+                    intervals <- data.table::data.table(start=left, stop=right) %>%
+                      .[, .(start=min(start), stop=max(stop)),
+                       by=.(group=cumsum(c(1, tail(start, -1) > head(stop, -1))))] 
                     data.table::data.table(type = "artifact",
                                            description="gradient",
-                                           .sample_0 = .sample_0,
-                                           .size = .size,
+                                           .sample_0 = intervals$start,
+                                           .size = intervals$stop + 1L - intervals$start,
                                            .channel = .y)
                 }
             }),.id = TRUE
             )
+    events_found[,.id:= as.integer(.id)]
     new_events <- rbind(events_found, events(.data), fill = TRUE)
+    
     data.table::setorder(new_events,.id, .sample_0, .channel)
 
     events(.data) <- new_events

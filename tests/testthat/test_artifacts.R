@@ -2,31 +2,17 @@ context("test eeg artifacts")
 library(eeguana)
 set.seed(123)
 
-## simulate eye movements
-##https://stackoverflow.com/questions/53071709/remove-eye-blinks-from-eeg-signal-with-ica
+N <- 1000
+signal <- tibble(Fz = rep(0,N),
+                 Cz = rep(0,N),
+                 Pz = rep(0,N))
 
-N <- 4000
-fs = 100
-blink <-  rbinom(N, 1, .003) %>%
-    signal::filter(signal::butter(2, c(1*2/fs, 10*2/fs), 'pass'), .)
-noise <- rpink(N)
-alpha <- (abs(sin(10 * seq_len(N) / fs)) - 0.5)/2
+signal$Fz[c(1,2,3, 500,502, 700)] <- 10
+signal$Cz[c(200,700,710,999,1000)] <- 10
 
-s_tbl <- tibble(sample = rep(seq_len(N),times=3), A = c(blink, noise, alpha), component = rep(c("blink","noise", "alpha"), each = N) ) 
-                                        #ggplot(s_tbl,aes(x=sample,y=A)) + geom_line() + facet_grid(component~.)
-
-                                        # And they mix depending on the distance of S_pos:
-
-signal_blinks <- tibble(Fz = blink * 2 + alpha *.1 + noise,
-                        Cz = blink * 1 + alpha * .15 + noise,
-                        Pz = blink * .1 + alpha * .1 + noise)
-
-signal <- tibble(Fz =  alpha *.1 + noise,
-                 Cz =  alpha * .15 + noise,
-                 Pz =  alpha * .1 + noise)
-data_blinks <- eeg_lst(
+data <- eeg_lst(
     signal = signal_tbl( 
-        signal_matrix = signal_blinks ,
+        signal_matrix = signal ,
         ids = 1L,
         sample_ids = sample_int(seq_len(N), sampling_rate = 500) 
     ),
@@ -35,9 +21,9 @@ data_blinks <- eeg_lst(
 )
 
 
-data_blinks_more <- eeg_lst(
+data_more <- eeg_lst(
     signal = signal_tbl( 
-        signal_matrix = signal_blinks ,
+        signal_matrix = signal ,
         ids = rep(1:4, each =N/4),
         sample_ids = sample_int(rep(seq_len(N/4),times= 4), sampling_rate = 500) 
     ),
@@ -46,80 +32,39 @@ data_blinks_more <- eeg_lst(
 )
 
 
-data_blinks %>% eeg_grad_artifact(step = .01)
+test_that("window of 1 element",{
+    art_events <- data %>%
+        eeg_grad_artifact(step = .01, lim=c(-1/500,0/500), unit = "second") %>%
+        events()
+    expect_equal(art_events[.channel=="Fz",]$.sample_0,c(3,499,699) )
+    expect_equal(art_events[.channel=="Fz",]$.size,c(2, #1 sample is no length, one to the left
+                                                     5, # 503 - 499 +1 =5  steps 499-500,500-501,501-502,502-503
+                                                     3)) # 701-699 +1 )
+    expect_equal(art_events[.channel=="Cz",]$.sample_0,c(199,699, 709,998) )
+    expect_equal(art_events[.channel=="Cz",]$.size,c(3,3,3,2) )
+    expect_equal(nrow(art_events[.channel == "Pz",]), 0)
+})
+
+test_that("window of 22 element",{
+    art_events <- data %>%
+        eeg_grad_artifact(step = .01, lim=c(-10/500,10/500), unit = "second") %>%
+        events()
+    expect_equal(art_events[.channel=="Fz",]$.sample_0,c(1,490,690) )
+    expect_equal(art_events[.channel=="Fz",]$.size,c(14,24,22))
+    expect_equal(art_events[.channel=="Cz",]$.sample_0,c(190,690,989) )
+    expect_equal(art_events[.channel=="Cz",]$.size,c(22,32,12) )
+    expect_equal(nrow(art_events[.channel == "Pz",]), 0)
+})
+
+test_that("window of 22 elements with different ids", {
+    art_events <- data_more %>%
+        eeg_grad_artifact(step = .01, lim=c(-10/500,10/500), unit = "second") %>% events()
+    expect_equal(art_events[.channel=="Fz",]$.sample_0,c(1,490 -250,1,690-500) )
+    expect_equal(art_events[.channel=="Fz",]$.size,c(14,11,13,22))
+    expect_equal(art_events[.channel=="Cz",]$.sample_0,c(190,690-500,989-750) )
+    expect_equal(art_events[.channel=="Cz",]$.size,c(22,32,12) )
+    expect_equal(nrow(art_events[.channel == "Pz",]), 0)
+    expect_equal(art_events$.id, c(1L,1L,2L,3L,3L,3L,4L))
+})
 
 
-plot(data_blinks)
-x <- c(1,2,3,4,5,10,7)
-
-ch_sel=  channel_names(data_blinks)
-amp_step = .2
-sample_range = c(-100,100) %>% as.integer
-.eeg_lst <- data_blinks
-   ## a<- data_blinks$signal[,purrr::map(.SD, ~ abs(.x - data.table::shift(.x, n = 1)) > amp_step ), .SDcols =ch_sel][-1,]
-
-artifact_found <- .eeg_lst$signal[,c(list(.sample_id = .sample_id[-1]), purrr::map(.SD, ~ abs(diff(.x)) > amp_step)) , .SDcols = (ch_sel), by = .id]
-
-events_found <- artifact_found %>%
-    split(.,.$.id) %>%
-    map_dtr( function(.eeg)
-        .eeg %>% dplyr::select_at(dplyr::vars(ch_sel)) %>%
-        imap_dtr( ~{
-            if(all(.x==FALSE)){
-                data.table::data.table()
-            } else {
-                left <-  .eeg$.sample_id[.x] + sample_range[[1]]
-                right <-  .eeg$.sample_id[.x] + sample_range[[2]]
-                ##merge if there are steps closer than the window for removal 
-                left_merge <- c(TRUE, diff(left) > abs(sample_range[[1]]))
-                right_merge <- c(diff(right) > abs(sample_range[[2]]), TRUE)
-                .sample_0 <- left[left_merge] %>% .[.>= min(.eeg$.sample_id) ]
-                cut_right <- right[right_merge] %>% .[.<= max(.eeg$.sample_id) ]
-                .size <-   cut_right - .sample_0 +1L
-                data.table::data.table(type = "artifact",
-                                       description="gradient",
-                                       .sample_0 = .sample_0,
-                                       .size = .size,
-                                       .channel = .y)
-            }
-        }),.id = TRUE
-        )
-new_events <- rbind(events_found, events(.eeg_lst), fill = TRUE)
-data.table::setorder(new_events,.id, .sample_0, .channel)
-
-
-imap_dtr(.x, ~ data.frame(a=.x))
-
-events(.eeg_lst)
-$events
-.id         type description .sample_0 .size .channel
-1:   1  New Segment                     1     1     <NA>
-                                                  2:   1 Bad Interval Bad Min-Max      2158   738      Fp1
-3:   1 Bad Interval Bad Min-Max      2161   731      Fp2
-4:   1 Bad Interval Bad Min-Max      2162   729      Fpz
-5:   1 Bad Interval Bad Min-Max      2173   689       F8
----                                                      
-    4272:   1 Bad Interval Bad Min-Max    524692   204       P8
-4273:   1 Bad Interval Bad Min-Max    524725   268      FC5
-4274:   1 Bad Interval Bad Min-Max    524777   346       P7
-4275:   1 Bad Interval Bad Min-Max    524983   173       Cz
-4276:   1 Bad Interval Bad Min-Max    525073   135       O2
-
-{split(.,.$.id)}
-
-.x <- c(FALSE,FALSE,TRUE, TRUE, FALSE, TRUE, FALSE, FALSE,FALSE,TRUE, FALSE,FALSE, FALSE, FALSE, TRUE )
-.y <- seq_along(.x)
-r <- c(-2,2)
-
-w1 <- {.y[.x] + r[1]}
-s_merge <-c(TRUE, diff(w1) > abs(r[1]))
-w1[s_merge]
-
-w2 <- .y[.x] + r[2]
-?rle
-data.table::shift(.y, n = r)
-
-{.[[1]][.x]}
-?data.table::shift
-
-diff

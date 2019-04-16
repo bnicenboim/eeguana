@@ -84,8 +84,8 @@ data_XY <- eeg_lst(
 x <- data
 
 test_that("can clean files with entire_seg = FALSE", {
-  clean_data <- eeg_intervals_to_NA(data, type == "Bad", entire_seg = FALSE)
-  clean_data_XY <- eeg_intervals_to_NA(data_XY, type == "Bad", entire_seg = FALSE)
+  clean_data <- eeg_events_to_NA(data, type == "Bad", entire_seg = FALSE)
+  clean_data_XY <- eeg_events_to_NA(data_XY, type == "Bad", entire_seg = FALSE)
   expect_equal(clean_data, clean_data_XY)
   expect_equal(nrow(clean_data$events), 4)
   expect_equal(all(is.na(clean_data$signal[clean_data$signal$.sample_id %in% seq(-2, -3 + 3 - 1) &
@@ -104,10 +104,10 @@ test_that("can clean files with entire_seg = FALSE", {
 })
 
 test_that("can clean whole channels in files", {
-  clean_data_chan <- eeg_intervals_to_NA(data, type == "Bad", all_chans = TRUE, entire_seg = FALSE)
-  clean_data_chan2 <- eeg_intervals_to_NA(data_NA, type == "Bad", entire_seg = FALSE)
-  clean_data_chan3 <- eeg_intervals_to_NA(data_NA, type == "Bad", all_chans = TRUE, entire_seg = FALSE)
-  clean_data_XY2 <- eeg_intervals_to_NA(data_XY, type == "Bad", all_chans = TRUE, entire_seg = FALSE)
+  clean_data_chan <- eeg_events_to_NA(data, type == "Bad", all_chans = TRUE, entire_seg = FALSE)
+  clean_data_chan2 <- eeg_events_to_NA(data_NA, type == "Bad", entire_seg = FALSE)
+  clean_data_chan3 <- eeg_events_to_NA(data_NA, type == "Bad", all_chans = TRUE, entire_seg = FALSE)
+  clean_data_XY2 <- eeg_events_to_NA(data_XY, type == "Bad", all_chans = TRUE, entire_seg = FALSE)
   expect_equal(clean_data_chan, clean_data_chan2)
   expect_equal(clean_data_chan, clean_data_chan3)
   expect_equal(clean_data_chan, clean_data_XY2)
@@ -131,7 +131,7 @@ test_that("can clean whole channels in files", {
 
 
 test_that("can clean whole segments in files", {
-  clean_data_seg <- eeg_intervals_to_NA(data, type == "Bad", entire_seg = TRUE)
+  clean_data_seg <- eeg_events_to_NA(data, type == "Bad", entire_seg = TRUE)
   expect_equal(nrow(clean_data_seg$events), 4)
   expect_equal(all(is.na(clean_data_seg$signal[clean_data_seg$signal$.id == 1, c("X", "Y")])), TRUE)
   expect_equal(all(is.na(clean_data_seg$signal[clean_data_seg$signal$.id == 2, c("Y")])), TRUE)
