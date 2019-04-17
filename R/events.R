@@ -8,17 +8,55 @@
 #' @importFrom magrittr %>%
 #'
 #' @export
-eeg_grad_artifact <- function(.data, ...) {
-    UseMethod("eeg_grad_artifact")
+eeg_artif_minmax <- function(.data,...){
+    UseMethod("eeg_artif_minmax")
 }
+
+eeg_artif_minmax.eeg_lst <- function(.data, ..., difference = 100 , lim = c(-200, 200), window = (lim[2]-lim[1])/2, unit = "ms" ) {
+    sample_range <- as.integer(lim * scaling(sampling_rate = sampling_rate(.data),unit = unit ))
+    dots <- rlang::enquos(...)
+    if(rlang::is_empty(dots)) {
+        ch_sel <- channel_names(.data)
+    } else {
+        ch_sel <- tidyselect::vars_select(channel_names(.data), !!!dots)
+    }
+
+    win_sample  <- as.integer(window * scaling(sampling_rate = sampling_rate(.data),unit = unit ))
+    if(window >= (lim[2]-lim[1])){
+        warning("`window` should be smaller than the range of `lim`")
+    }
+
+    search_artifacts <- function(signal, fun){
+
+    }
+
+    artifact_found <- .data$signal[,c(list(.sample_id = .sample_id),
+                                      c(rep(FALSE, win_sample - .N + 1) ,purrr::map(.SD, ~ {
+                                          rmin <- RcppRoll::roll_min(x,n=win_sample, align = "left")
+                                          rmax <- RcppRoll::roll_max(x,n=win_sample, align = "left")
+                                      abs(rmin-rmax) > difference
+                                      }))),
+                                   .SDcols = (ch_sel), by = .id]
+
+    
+    events(.data) <- add_intervals_from_artifacts( events(.data), artifact_found, sample_range)
+    validate_eeg_lst(.data)
+}
+
+
+
+#' @export
+eeg_artif_step <- function(.data, ...) {
+    UseMethod("eeg_artif_step")
+}
+
 #' @param ... Channels to include in the artifact detection. All the channels by default, but eye channels should be removed.
 #' @param step Maximum permissible difference in voltage between two consecutive data points.
 #' @param lim Vector indicating the time before and after the event.
 #' @inheritParams as_time
 #' @rdname eeg_events_to_NA
 #' @export 
-eeg_grad_artifact.eeg_lst <- function(.data, ..., step = 50 , lim = c(-200, 200), unit = "ms" ) {
-    ## eeg_grad_artifact
+eeg_artif_step.eeg_lst <- function(.data, ..., step = 50 , lim = c(-200, 200), unit = "ms" ) {
     sample_range = as.integer(lim * scaling(sampling_rate = sampling_rate(.data),unit = unit ))
     dots <- rlang::enquos(...)
     if(rlang::is_empty(dots)) {
@@ -26,11 +64,20 @@ eeg_grad_artifact.eeg_lst <- function(.data, ..., step = 50 , lim = c(-200, 200)
     } else {
       ch_sel <- tidyselect::vars_select(channel_names(.data), !!!dots)
     }
-    artifact_found <- .data$signal[,c(list(.sample_id = .sample_id[-1]),
-                                      purrr::map(.SD, ~ abs(diff(.x)) > step)),
+
+    artifact_found <- .data$signal[,c(list(.sample_id = .sample_id),
+                                      c(FALSE,purrr::map(.SD, ~ abs(diff(.x)) > step))),
                                    .SDcols = (ch_sel), by = .id]
 
-    events_found <- artifact_found %>%
+       
+    events(.data) <- add_intervals_from_artifacts( events(.data), artifact_found, sample_range)
+    validate_eeg_lst(.data)
+}
+
+#' add events from a table similar to signal, but with TRUE/FALSE depending if an artifact was detected.
+#' @noRd 
+add_intervals_from_artifacts <- function(old_events, artifact_found, sample_range){
+    artifact_found %>%
         split(.,.$.id) %>%
         map_dtr( function(.eeg)
             .eeg %>% dplyr::select_at(dplyr::vars(ch_sel)) %>%
@@ -41,7 +88,7 @@ eeg_grad_artifact.eeg_lst <- function(.data, ..., step = 50 , lim = c(-200, 200)
                     ## left and right values of the window of bad values (respecting the min max samples)
                     left <-  .eeg$.sample_id[.x] + sample_range[[1]]
                     ## the smallest sample is one less than the present one because diff() in artifact_found reduces the vector by 1
-                    left[left < (min(.eeg$.sample_id)-1L)] <- (min(.eeg$.sample_id) -1L) 
+                    left[left < (min(.eeg$.sample_id)-1L)] <- (min(.eeg$.sample_id)) 
                     right <-  .eeg$.sample_id[.x] + sample_range[[2]]
                     right[right > max(.eeg$.sample_id)] <- max(.eeg$.sample_id)
                     ##merge if there are steps closer than the window for removal 
@@ -57,12 +104,10 @@ eeg_grad_artifact.eeg_lst <- function(.data, ..., step = 50 , lim = c(-200, 200)
             }),.id = TRUE
             )
     events_found[,.id:= as.integer(.id)]
-    new_events <- rbind(events_found, events(.data), fill = TRUE)
+    new_events <- rbind(events_found, old_events, fill = TRUE)
     
     data.table::setorder(new_events,.id, .sample_0, .channel)
-
-    events(.data) <- new_events
-    validate_eeg_lst(.data)
+    new_events
 }
 
 
