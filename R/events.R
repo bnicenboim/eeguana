@@ -1,17 +1,32 @@
 #' Annotate artifacts in the  events table of an eeg_lst.
 #'
+#'   * `eeg_artif_step()`
+#'   * `eeg_artif_minmax()`
+#' 
 #' @param .data An `eeg_lst` object.
-#'
-#'
+#' @param ... Channels to include in the artifact detection. All the channels by default, but eye channels should be removed.
+#' @param difference Maximum permissible difference in voltage. This is between two consecutive data points for `eeg_artif_step`, and in a `window` for `eeg_artif_minmax`.
+#' @param window Sliding window for min-max artifact detection (same unit as `lim`).
+#' @param lim Vector indicating the time before and after the event.
+#' @inheritParams as_time
 #' @return An `eeg_lst`.
 #'
 #' @importFrom magrittr %>%
 #'
+#' @name eeg_artif
+#' 
+NULL
+#' > NULL
+
+
+#' @rdname eeg_artif_minmax
 #' @export
 eeg_artif_minmax <- function(.data,...){
     UseMethod("eeg_artif_minmax")
 }
 
+#' @rdname eeg_artif_minmax
+#' @export
 eeg_artif_minmax.eeg_lst <- function(.data, ..., difference = 100 , lim = c(-200, 200), window = (lim[2]-lim[1])/2, unit = "ms" ) {
     sample_range <- as.integer(lim * scaling(sampling_rate = sampling_rate(.data),unit = unit ))
     dots <- rlang::enquos(...)
@@ -24,10 +39,6 @@ eeg_artif_minmax.eeg_lst <- function(.data, ..., difference = 100 , lim = c(-200
     win_sample  <- as.integer(window * scaling(sampling_rate = sampling_rate(.data),unit = unit ))
     if(window >= (lim[2]-lim[1])){
         warning("`window` should be smaller than the range of `lim`")
-    }
-
-    search_artifacts <- function(signal, fun){
-
     }
 
     artifact_found <- .data$signal[,c(list(.sample_id = .sample_id),
@@ -45,16 +56,13 @@ eeg_artif_minmax.eeg_lst <- function(.data, ..., difference = 100 , lim = c(-200
 
 
 
+#' @rdname eeg_artif_minmax
 #' @export
 eeg_artif_step <- function(.data, ...) {
     UseMethod("eeg_artif_step")
 }
 
-#' @param ... Channels to include in the artifact detection. All the channels by default, but eye channels should be removed.
-#' @param step Maximum permissible difference in voltage between two consecutive data points.
-#' @param lim Vector indicating the time before and after the event.
-#' @inheritParams as_time
-#' @rdname eeg_events_to_NA
+#' @rdname eeg_artif_minmax
 #' @export 
 eeg_artif_step.eeg_lst <- function(.data, ..., step = 50 , lim = c(-200, 200), unit = "ms" ) {
     sample_range = as.integer(lim * scaling(sampling_rate = sampling_rate(.data),unit = unit ))

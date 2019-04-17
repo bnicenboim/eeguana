@@ -34,7 +34,7 @@ data_more <- eeg_lst(
 
 test_that("window of 1 element",{
     art_events <- data %>%
-        eeg_grad_artifact(step = .01, lim=c(-1/500,0/500), unit = "second") %>%
+        eeg_artifact_grad(step = .01, lim=c(-1/500,0/500), unit = "second") %>%
         events()
     expect_equal(art_events[.channel=="Fz",]$.sample_0,c(3,499,699) )
     expect_equal(art_events[.channel=="Fz",]$.size,c(2, #1 sample is no length, one to the left
@@ -47,7 +47,7 @@ test_that("window of 1 element",{
 
 test_that("window of 22 element",{
     art_events <- data %>%
-        eeg_grad_artifact(step = .01, lim=c(-10/500,10/500), unit = "second") %>%
+        eeg_artifact_grad(step = .01, lim=c(-10/500,10/500), unit = "second") %>%
         events()
     expect_equal(art_events[.channel=="Fz",]$.sample_0,c(1,490,690) )
     expect_equal(art_events[.channel=="Fz",]$.size,c(14,24,22))
@@ -58,7 +58,7 @@ test_that("window of 22 element",{
 
 test_that("window of 22 elements with different ids", {
     art_events <- data_more %>%
-        eeg_grad_artifact(step = .01, lim=c(-10/500,10/500), unit = "second") %>% events()
+        eeg_artifact_grad(step = .01, lim=c(-10/500,10/500), unit = "second") %>% events()
     expect_equal(art_events[.channel=="Fz",]$.sample_0,c(1,490 -250,1,690-500) )
     expect_equal(art_events[.channel=="Fz",]$.size,c(14,11,13,22))
     expect_equal(art_events[.channel=="Cz",]$.sample_0,c(190,690-500,989-750) )
