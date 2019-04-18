@@ -16,7 +16,7 @@ map2_dtr <- function(.x,.f,..., .id = NULL){
 #' @noRd
 imap_dtr <- function(.x,.f,..., .id = NULL){
     .f <- purrr::as_mapper(.f, ...)
-    map2_dtr(.x, names(.x), .f,  ...)
+    map2_dtr(.x, names(.x), .f,  ..., .id=.id)
 }
 
 
