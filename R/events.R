@@ -36,21 +36,24 @@ eeg_artif_minmax.eeg_lst <- function(.data, ..., difference = 100 , lim = c(-200
         ch_sel <- tidyselect::vars_select(channel_names(.data), !!!dots)
     }
 
-    win_sample  <- as.integer(window * scaling(sampling_rate = sampling_rate(.data),unit = unit ))
-    if(window >= (lim[2]-lim[1])){
-        warning("`window` should be smaller than the range of `lim`")
+    win_sample  <- as.integer(window * scaling(sampling_rate = sampling_rate(.data),unit = unit )) + 1L
+    if(win_sample == 0) stop("The `window` needs to contain at least one sample.")
+    if(win_sample >= (sample_range[2]-sample_range[1])){
+        warning("The number of samples in `window` (",win_sample,
+                ") should be smaller than half of the samples contained in  `lim` (", (sample_range[2]-sample_range[1])/2, ").")
     }
-
     artifact_found <- .data$signal[,c(list(.sample_id = .sample_id),
-                                      c(rep(FALSE, win_sample - .N + 1) ,purrr::map(.SD, ~ {
-                                          rmin <- RcppRoll::roll_min(x,n=win_sample, align = "left")
-                                          rmax <- RcppRoll::roll_max(x,n=win_sample, align = "left")
-                                      abs(rmin-rmax) > difference
-                                      }))),
+                                      purrr::map(.SD, ~ {
+                                          rmin <- RcppRoll::roll_minr(.x,n=win_sample)
+                                          rmax <- RcppRoll::roll_maxr(.x,n=win_sample)
+                                       abs(rmin-rmax) >= difference
+                                      })),
                                    .SDcols = (ch_sel), by = .id]
 
-    
-    events(.data) <- add_intervals_from_artifacts( events(.data), artifact_found, sample_range)
+  
+    events(.data) <- add_intervals_from_artifacts( old_events = events(.data), 
+                                                   artifact_found, 
+                                                   sample_range,"minmax")
     validate_eeg_lst(.data)
 }
 
@@ -64,8 +67,8 @@ eeg_artif_step <- function(.data, ...) {
 
 #' @name eeg_artif
 #' @export 
-eeg_artif_step.eeg_lst <- function(.data, ..., step = 50 , lim = c(-200, 200), unit = "ms" ) {
-    sample_range = as.integer(lim * scaling(sampling_rate = sampling_rate(.data),unit = unit ))
+eeg_artif_step.eeg_lst <- function(.data, ..., difference = 50 , lim = c(-200, 200), unit = "ms" ) {
+    sample_range <- as.integer(lim * scaling(sampling_rate = sampling_rate(.data),unit = unit )) 
     dots <- rlang::enquos(...)
     if(rlang::is_empty(dots)) {
       ch_sel <- channel_names(.data)
@@ -74,19 +77,20 @@ eeg_artif_step.eeg_lst <- function(.data, ..., step = 50 , lim = c(-200, 200), u
     }
 
     artifact_found <- .data$signal[,c(list(.sample_id = .sample_id),
-                                      purrr::map(.SD, ~ c(NA, abs(diff(.x)) > step))),
+                                      purrr::map(.SD, ~ c(NA, abs(diff(.x)) > difference))),
                                    .SDcols = (ch_sel), by = .id]
 
        
     events(.data) <- add_intervals_from_artifacts( old_events = events(.data), 
                                                    artifact_found, 
-                                                   sample_range)
+                                                   sample_range,
+                                                   "step")
     validate_eeg_lst(.data)
 }
 
 #' add events from a table similar to signal, but with TRUE/FALSE depending if an artifact was detected.
 #' @noRd 
-add_intervals_from_artifacts <- function(old_events, artifact_found, sample_range){
+add_intervals_from_artifacts <- function(old_events, artifact_found, sample_range, type){
     events_found <-artifact_found %>%
         split(.,.$.id) %>%
         map_dtr( function(.eeg)
@@ -94,7 +98,7 @@ add_intervals_from_artifacts <- function(old_events, artifact_found, sample_rang
             imap_dtr( ~{
                 if(all(.x[!is.na(.x)]==FALSE)){
                   out <- events_tbl()  
-                    out[,.id:=NULL][]  ## I need to remove it because it gets added by map  
+                    out[,.id:=NULL][]  ## I need to remove .id because it gets added by map  
                 } else {
                     ## left and right values of the window of bad values (respecting the min max samples)
                     left <-  .eeg$.sample_id[.x] + sample_range[[1]]
@@ -108,7 +112,7 @@ add_intervals_from_artifacts <- function(old_events, artifact_found, sample_rang
                       .[, .(start=min(start), stop=max(stop)),
                        by=.(group=cumsum(c(1, tail(start, -1) > head(stop, -1))))] 
                     data.table::data.table(type = "artifact",
-                                           description="gradient",
+                                           description=type,
                                            .sample_0 = intervals$start,
                                            .size = intervals$stop + 1L - intervals$start,
                                            .channel = .y)
