@@ -2,15 +2,14 @@
 #'
 #' Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter of the  FIR (finite impulse response) class to every segment of an `eeg_lst`. These filters are adapted from the default filters in [MNE package](https://mne-tools.github.io) (v 0.0.17.1)  of [python](https://www.python.org/). For background information about the FIR vs IIR filters, see (here)[https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py],.
 #'
-#' \itemize{
-#' \item \code{eeg_filt_low_pass()} Low-pass or high-cut filter.
-#' \item \code{eeg_filt_high_pass()} High-pass or low-cut filter.
-#' \item \code{eeg_filt_band_pass()} Band-pass filter.
-#' \item \code{eeg_filt_stop_pass()} Stop-pass filter.
-#' }
+#'   * `eeg_filt_low_pass()` Low-pass or high-cut filter.
+#'   * `eeg_filt_high_pass()` High-pass or low-cut filter.
+#'   * `eeg_filt_band_pass()` Band-pass filter.
+#'   * `eeg_filt_stop_pass()` Stop-pass filter.
+#' 
 #'
 #' @param .data A channel or an eeg_lst.
-#' @param freq A single cut frequency for \code{eeg_filt_low_pass} and \code{filt_high_pass_ch}, two edges for  \code{filt_band_pass_ch} and \code{filt_stop_pass_ch}.
+#' @param freq A single cut frequency for `eeg_filt_low_pass` and `eeg_filt_high_pass`, two edges for  `eeg_filt_band_pass` and `eeg_filt_stop_pass`.
 #' @param ... Channels to apply the filters to. All the channels by default.
 #' @param config Other parameters passed in a list to the ICA method. (Not implemented)
 #'

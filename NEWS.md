@@ -3,8 +3,9 @@
       - FastICA was implemented in `eeg_ica()`.
       - Artifact detection based on voltage steps implemented in `eeg_grad_artifact()`.
       - Filters were greatly improved and checked, only FIR filters are supported for now.
-      - Better documentation (mostly [Kate Stone](https://github.com/auskate))
-      - `eeg_intervals_to_NA()` was renamed to `eeg_events_to_NA()`
+      - Better documentation (mostly [Kate Stone](https://github.com/auskate)).
+      - `eeg_intervals_to_NA()` was renamed to `eeg_events_to_NA()`.
+      - `ch_filt_*` functions were renamed to `eeg_filt_*` and they get a `...` argument to select the relevant channels.
 # eeguana 0.0.6.900
   - Changes
       - There is a logo!
