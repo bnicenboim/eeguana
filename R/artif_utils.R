@@ -16,7 +16,10 @@ search_artifacts <- function(signal,..., fun, args = list()){
     } else {
         ch_sel <- tidyselect::vars_select(channel_names(signal), !!!dots)
     }
-    signal[,c(list(.sample_id = .sample_id),
+    ##in case there are missing .sample_ids
+    samples <- seq.int(min(signal$.sample_id), max(signal$.sample_id))
+    left_join_dt(signal, data.table::data.table(.sample_id = samples),by=".sample_id" ) %>%
+        .[,c(list(.sample_id = .sample_id),
               lapply(.SD,fun, args)),
            .SDcols = (ch_sel), by = .id]
 

@@ -135,24 +135,33 @@ test_that("window of 22 element, with NAs",{
 
 ###### voltage minmax ######################3
 test_that("minmax: window of 1 step",{
-    art_eventsp1 <- data_1step %>%
-        eeg_artif_minmax(difference = .01, lim=c(0/500,1/500),window=1/500, unit = "second") %>%
+    art_eventsp1 <- suppressWarnings(  #the window is too small, but it's ok for the test
+        data_1step %>%
+        eeg_artif_minmax(difference = .01, lim=c(0/500,1/500),window=1/500, unit = "second")
+    ) %>%
         events()
     expect_equal(art_eventsp1[.channel=="X",]$.sample_0,c(5) )
     expect_equal(art_eventsp1[.channel=="X",]$.size,2)
-    art_events0 <- data_1step %>%
-        eeg_artif_minmax(difference = .01, lim=c(0/500,0/500), window = 1/500, unit = "second") %>%
+
+    art_events0 <- suppressWarnings(
+        data_1step %>%
+        eeg_artif_minmax(difference = .01, lim=c(0/500,0/500), window = 1/500, unit = "second")
+    )%>%
         events()
     expect_equal(art_events0[.channel=="X",]$.sample_0,5)
     expect_equal(art_events0[.channel=="X",]$.size,1)
-    art_eventsm1 <- data_1step %>%
-        eeg_artif_minmax(difference = .01, lim=c(-1/500,0/500), window = 1/500, unit = "second") %>%
+    art_eventsm1 <- suppressWarnings(
+        data_1step %>%
+        eeg_artif_minmax(difference = .01, lim=c(-1/500,0/500), window = 1/500, unit = "second")
+    )%>%
         events()
     expect_equal(art_eventsm1[.channel=="X",]$.sample_0,4)
     expect_equal(art_eventsm1[.channel=="X",]$.size,2)
     
-    art_eventsl <- data_1step %>%
-        eeg_artif_minmax(difference = .01, lim=c(-1000/500,1000/500), window =1/500, unit = "second") %>%
+    art_eventsl <- suppressWarnings(
+        data_1step %>%
+        eeg_artif_minmax(difference = .01, lim=c(-1000/500,1000/500), window =1/500, unit = "second")
+    )%>%
         events()
     expect_equal(art_eventsl[.channel=="X",]$.sample_0,1)
     expect_equal(art_eventsl[.channel=="X",]$.size,9)
