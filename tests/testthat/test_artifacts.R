@@ -134,7 +134,7 @@ test_that("window of 22 element, with NAs",{
 
 
 ###### voltage minmax ######################3
-test_that("window of 1 step",{
+test_that("minmax: window of 1 step",{
     art_eventsp1 <- data_1step %>%
         eeg_artif_minmax(difference = .01, lim=c(0/500,1/500),window=1/500, unit = "second") %>%
         events()
@@ -157,6 +157,17 @@ test_that("window of 1 step",{
     expect_equal(art_eventsl[.channel=="X",]$.sample_0,1)
     expect_equal(art_eventsl[.channel=="X",]$.size,9)
 })
+
+test_that("NAs",{
+  data_1step$signal$X[1:2] <- NA
+  data_1step$signal$X[5] <- NA
+ art_eventsl <- data_1step %>%
+        eeg_artif_minmax(difference = .01, lim=c(-1000/500,1000/500), window =3/500, unit = "second") %>%
+        events()
+    expect_equal(art_eventsl[.channel=="X",]$.sample_0,1)
+    expect_equal(art_eventsl[.channel=="X",]$.size,9)
+})
+
 
 test_that("simple window",{
     art_events <- data_1minmax %>%

@@ -19,11 +19,15 @@ NULL
 channel_names <- function(x, ...) {
   UseMethod("channel_names")
 }
-
+#' @rdname summary
+#' @export
+channel_names.signal_tbl <- function(x, ...) {
+  colnames(x)[x[,purrr::map_lgl(.SD, is_channel_dbl )]]
+}
 #' @rdname summary
 #' @export
 channel_names.eeg_lst <- function(x, ...) {
-  colnames(x$signal)[x$signal[,purrr::map_lgl(.SD, is_channel_dbl )]]
+  channel_names(x$signal)
 }
 #' @rdname summary
 #' @export
