@@ -1,7 +1,10 @@
 #' @noRd 
 detect_minmax <- function(x, args = list(win_sample=NULL, difference=NULL)) {
-    rmin <- RcppRoll::roll_minr(x,n=args$win_sample, na.rm =TRUE)
+    rmin <- RcppRoll::roll_minr(x,n=args$win_sample, na.rm =TRUE) #na.rm  allows for comparing vectors that include some NA
     rmax <- RcppRoll::roll_maxr(x,n=args$win_sample, na.rm = TRUE)
+    ## If there is only one non NA value, there should be an NA
+    rmin[rmin==Inf] <- NA
+    rmax[rmax==-Inf] <- NA 
     abs(rmin-rmax) >= args$difference
 }
 #' @noRd 
@@ -17,8 +20,8 @@ search_artifacts <- function(signal,..., fun, args = list()){
         ch_sel <- tidyselect::vars_select(channel_names(signal), !!!dots)
     }
     ##in case there are missing .sample_ids
-    samples <- seq.int(min(signal$.sample_id), max(signal$.sample_id))
-    left_join_dt(signal, data.table::data.table(.sample_id = samples),by=".sample_id" ) %>%
+    signal[,list(.sample_id = seq.int(min(.sample_id),max(.sample_id))) ,by=.id] %>%
+    left_join_dt(signal,by=c(".id",".sample_id")) %>%
         .[,c(list(.sample_id = .sample_id),
               lapply(.SD,fun, args)),
            .SDcols = (ch_sel), by = .id]

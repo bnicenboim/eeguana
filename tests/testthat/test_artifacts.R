@@ -116,8 +116,23 @@ test_that("window of 22 elements with different ids", {
     expect_equal(art_events[.channel=="Cz",]$.size,c(22,32,12) )
     expect_equal(nrow(art_events[.channel == "Pz",]), 0)
     expect_equal(art_events$.id, c(1L,1L,2L,3L,3L,3L,4L))
+    
+    art_events <- data_more %>%
+        eeg_artif_step(Fz, difference = .01, lim=c(-10/500,10/500), unit = "second") %>% events()
+      expect_equal(art_events[.channel=="Fz",]$.sample_0,c(1,490 -250,1,690-500) )
+    expect_equal(art_events[.channel=="Fz",]$.size,c(14,11,13,22))
+    expect_equal(art_events[.channel=="Cz",]$.sample_0,integer(0) )
+    expect_equal(art_events[.channel=="Cz",]$.size,integer(0) )
+    expect_equal(nrow(art_events[.channel == "Pz",]), 0)
 })
 
+test_that("missing samples",{
+  data_1skip <- data_1step %>% filter(!.sample_id %in% c(4,5))
+    art_events_skipped1 <- data_1skip %>%
+        eeg_artif_step(difference = .01, lim=c(-1000/500,1000/500), unit = "second") %>%
+        events()
+    expect_equal(nrow(art_events_skipped1),0)
+})
 
 test_that("window of 22 element, with NAs",{
     data$signal$Fz[5] <- NA
@@ -177,6 +192,18 @@ test_that("NAs",{
     expect_equal(art_eventsl[.channel=="X",]$.size,9)
 })
 
+test_that("missing samples",{
+  data_1skip <- data_1step %>% filter(!.sample_id %in% c(4,5))
+    art_events_skipped1 <- data_1skip %>%
+        eeg_artif_minmax(difference = .01, lim=c(-1000/500,1000/500), window =1/500, unit = "second") %>%
+        events()
+    expect_equal(nrow(art_events_skipped1[.channel=="X",]),0)
+     art_events_skipped1w <- data_1skip %>%
+        eeg_artif_minmax(difference = .01, lim=c(-1000/500,1000/500), window =3/500, unit = "second") %>%
+        events()
+    expect_equal(art_events_skipped1w[.channel=="X",]$.sample_0,1)
+    expect_equal(art_events_skipped1w[.channel=="X",]$.size,9)
+})
 
 test_that("simple window",{
     art_events <- data_1minmax %>%
