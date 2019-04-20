@@ -17,7 +17,7 @@ eeg_ica(.data, ...)
 
 \item{method}{Methods from different packages: \code{fICA::adapt_fICA} (default), \code{fICA::fICA}, \code{fICA::reloaded_fICA}, \code{fastICA::fastICA}, or a custom function that returns a list that contains \code{S}  (reconstucted sources) and \code{A} (mixing matrix), consistent with the formulation \code{X=A \%*\% S} or \code{W} (unmixing matrix), consistent with the formulation \code{X \%*\% W = S} (i.e., W == solve(X)).}
 
-\item{config}{Other parameters passed in a list to the method. These are the default parameters except that when possible the method is run in C rather than in R. See the documentation of the relevant method.}
+\item{config}{Other parameters passed in a list to the ICA method. These are the default parameters except that when possible the method is run in C rather than in R. See the documentation of the relevant method.}
 
 \item{tolerance}{Convergence tolerance.}
 
