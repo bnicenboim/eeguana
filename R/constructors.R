@@ -39,32 +39,14 @@
 #'
 #' @return A valid eeg_lst.
 #' @export
-eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
-  validate_eeg_lst(new_eeg_lst(signal, events, segments))
-}
+eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL) {
+  validate_eeg_lst(new_eeg_lst(as_signal_tbl(signal_tbl), events_tbl, segments_tbl))
+} 
 
 
-#' Builds a signal_tbl table
-#' 
-#' The eeg_lst `signal` table is organised into columns representing timestamps 
-#' (`.sample_id`) and individual electrodes. Each `.sample_id` corresponds to
-#' 1 sample in the original recording, i.e. if the sampling rate of the EEG
-#' recording is 500 Hz, then each `.sample_id` corresponds to 2 milliseconds. 
-#' These timestamps correspond to `.sample_0` in the `events` table, which 
-#' displays only the timestamps where logged events began.
-#'
-#' @param signal_matrix Matrix or table of channels with their signal.
-#' @param ids Integers indicating to which group the row of the signal matrix belongs.
-#' @param sample_ids Vector of integers.
-#' @param channel_info A table with information about each channel (such as the one produced by `channels_tbl``)
-#' 
-#' @family signal_tbl
-#' 
-#' @return A valid `signal_tbl` table.
-#' @export
-signal_tbl <- function(signal_matrix = NULL, ids=NULL, sample_ids=NULL, channel_info=NULL) {
-  validate_signal_tbl(new_signal_tbl(signal_matrix, ids, sample_ids, channel_info))
-}
+## signal_tbl <- function(signal_matrix = NULL, ids=NULL, sample_ids=NULL, channel_info=NULL) {
+##   validate_signal_tbl(new_signal_tbl(signal_matrix, ids, sample_ids, channel_info))
+## }
 
 #' Builds an events_tbl table
 #' 

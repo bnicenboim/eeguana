@@ -1,3 +1,23 @@
+#' @param signal_tbl 
+#'
+#' @param events 
+#' @param segments 
+#'
+#' @noRd
+new_eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
+    x <- list(
+        signal = signal, events = events,
+        segments = segments
+    )
+    x <- unclass(x)
+    structure(x,
+              class = c("eeg_lst"),
+              vars = character(0)
+              )
+}
+
+
+
 #' @param values 
 #'
 #' @param sampling_rate 
@@ -18,23 +38,23 @@ new_sample_int <- function(values, sampling_rate) {
   )
 }
 
-#' @param sample_id 
+#' @param .sample_id 
 #'
 #' @noRd
-validate_sample_int <- function(sample_id) {
-  if (!is.integer(sample_id)) {
+validate_sample_int <- function(.sample_id) {
+  if (!is.integer(.sample_id)) {
     stop("Values should be integers.",
       call. = FALSE
     )
   }
-  if (length(sample_id) > 0) {
-    if (attributes(sample_id)$sampling_rate <= 0) {
+  if (length(.sample_id) > 0) {
+    if (attributes(.sample_id)$sampling_rate <= 0) {
       warning("Attribute sampling_rate should be a positive value.",
         call. = FALSE
       )
     }
   }
-  sample_id
+  .sample_id
 }
 
 #' @noRd
@@ -105,46 +125,23 @@ validate_channel_dbl <- function(channel) {
   channel
 }
 
-#' @param signal_matrix 
-#'
-#' @param ids 
-#' @param sample_ids 
-#' @param channel_info 
-#'
-#' @noRd
-new_signal_tbl <- function(signal_matrix=NULL , ids=NULL , sample_ids=NULL , channel_info=NULL ) {
-
-    if(!data.table::is.data.table(signal_matrix)) {
-        signal_matrix <- data.table::data.table(signal_matrix)
-    }
-    ## if(is.null(channel_info)){
-    ##   channel_info <- dplyr::tibble(channel= colnames(signal_matrix))
-    ## }
-  signal_tbl <- signal_matrix[, (update_channel_meta_data(.SD, channel_info)),.SDcols=colnames(signal_matrix)]
-
-  signal_tbl[, .id := ids][, .sample_id := sample_ids]
-  data.table::setcolorder(signal_tbl, c(".id", ".sample_id"))
-  data.table::setattr(signal_tbl, "class",c("signal_tbl",class(signal_tbl)))
-  data.table::setkey(signal_tbl, .id, .sample_id)
-  signal_tbl[]
-}
 
 #' @param channels 
 #'
-#' @param channel_info 
+#' @param channels_tbl 
 #'
 #' @noRd
-update_channel_meta_data <- function(channels, channel_info) {
-  if (nrow(channel_info) == 0 || is.null(channel_info)) {
+update_channel_meta_data <- function(channels, channels_tbl) {
+  if (nrow(channels_tbl) == 0 || is.null(channels_tbl)) {
     channels <- purrr::map(
       channels,
       function(sig) {
-        channel <- new_channel_dbl(values = sig,channel_info = list(.x=NA_real_,.y= NA_real_,.z =NA_real_, .reference=NA_real_))
+        channel <- new_channel_dbl(values = sig,channels_tbl = list(.x=NA_real_,.y= NA_real_,.z =NA_real_, .reference=NA_real_))
       }
     )
   } else {
     channels <- purrr::map2(
-      channels %>% stats::setNames(make.names(channel_info$channel)), purrr::transpose(dplyr::select(channel_info, -channel)),
+      channels %>% stats::setNames(make.names(channels_tbl$channel)), purrr::transpose(dplyr::select(channels_tbl, -channel)),
       function(sig, chan_info) {
         channel <- new_channel_dbl(values = sig, as.list(chan_info))
       }
@@ -154,29 +151,12 @@ update_channel_meta_data <- function(channels, channel_info) {
 }
 
 # purrr::map2(
-#       channels , purrr::transpose(channel_info),
+#       channels , purrr::transpose(channels_tbl),
 #       function(sig, chan_info) {
 #         channel <- new_channel_dbl(value = sig, as.list(chan_info))
 #       }
 # )
 
-#' @param signal_tbl 
-#'
-#' @param events 
-#' @param segments 
-#'
-#' @noRd
-new_eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
-  x <- list(
-    signal = signal, events = events,
-    segments = segments
-  )
-  x <- unclass(x)
-  structure(x,
-    class = c("eeg_lst"),
-    vars = character(0)
-  )
-}
 
 #' @param x 
 #'
@@ -185,7 +165,7 @@ validate_eeg_lst <- function(x) {
   if(!is_eeg_lst(x)){
     warning("Class is not eeg_lst", call. = FALSE)
   }
-    x$signal <- validate_signal_tbl(x$signal)
+    ## x$signal <- validate_signal_tbl(x$signal)
     x$events <- validate_events_tbl(x$events)
     x$segments <- validate_segments(x$segments)
     diff_channels <- setdiff(x$events$.channel, channel_names(x))
@@ -195,7 +175,7 @@ validate_eeg_lst <- function(x) {
                 )
     }
     if (!all.equal(unique(x$signal$.id), unique(x$segments$.id))) {
-        warning("The values of .ids mismatch between tables.",
+        warning("The values of .id mismatch between tables.",
                 call. = FALSE
                 )
     }
@@ -208,55 +188,6 @@ validate_eeg_lst <- function(x) {
 x
 }
 
-#' @param signal_tbl 
-#'
-#' @noRd
-validate_signal_tbl <- function(signal_tbl) {
-    if(is.null(signal_tbl)) {
-        signal_tbl <- data.table::data.table(.id= integer(0),.sample_id= integer(0))
-        data.table::setkey(signal_tbl,.id,.sample_id)
-    }
-    if(!data.table::is.data.table(signal_tbl) && is.data.frame(signal_tbl)) {
-        signal <- data.table::as.data.table(signal_tbl)
-        data.table::setkey(signal_tbl,.id,.sample_id)
-   }     
-  if (!data.table::is.data.table(signal_tbl)) {
-    warning("'signal' should be a data.table.",
-      call. = FALSE
-    )
-  }
-  if(!is_signal_tbl(signal_tbl)){
-    warning("Class is not signal_tbl", call. = FALSE)
-  }
-  if (!is.integer(signal_tbl$.id)) {
-    warning(".id should be an integer.",
-      call. = FALSE
-    )
-  }
-
-
-  if(!identical(data.table::key(signal_tbl), c(".id",".sample_id"))) {
-    warning("`keys` of signal table are missing.",
-      call. = FALSE
-    )
-  }
-
-  # Validates sample_id
-  validate_sample_int(signal_tbl$.sample_id)
-
-  #checks if there are channels
-    if(nrow(signal_tbl)>0){
-      nchannels <- sum(sapply(signal_tbl, is_channel_dbl))
-      ncomponents <- sum(sapply(signal_tbl, is_component_dbl))
-      if(nchannels ==0 & ncomponents ==0  )
-        warning("No channels or components found.")
-  }
-
-  # Validates channels 
-  signal_tbl[, lapply(.SD,validate_channel_dbl), .SDcols= sapply(signal_tbl, is_channel_dbl)] 
-
-  signal_tbl
-}
 #' @param events 
 #'
 #' @param channels 
@@ -300,7 +231,7 @@ validate_segments <- function(segments) {
     warning("Column .id of segments table is not an integer.")
   }
    if( length(segments$.id) != length(unique(segments$.id)) ){
-     warning("Some .ids are repeated in the segments table, there is something wrong going on. Please open an issue with a reproducible example in https://github.com/bnicenboim/eeguana/issues",
+     warning("Some .id are repeated in the segments table, there is something wrong going on. Please open an issue with a reproducible example in https://github.com/bnicenboim/eeguana/issues",
       call. = FALSE
     )
   }
@@ -383,10 +314,10 @@ validate_mixing_tbl <- function(mixing_tbl) {
 
 #' @param mixing_matrix  matrix or a list o matrices
 #' @param groups 
-#' @param channel_info 
+#' @param channels_tbl 
 #'
 #' @noRd
-new_mixing_tbl <- function(mixing_matrix, means_matrix , groups, channel_info) {
+new_mixing_tbl <- function(mixing_matrix, means_matrix , groups, channels_tbl) {
     ## if mixing_mat is not a list I convert it to always use the same map
     if(!is.list(mixing_matrix)) mixing_matrix <- list(mixing_matrix)
     if(!is.list(means_matrix))  means_matrix <- list(means_matrix)
@@ -394,7 +325,7 @@ new_mixing_tbl <- function(mixing_matrix, means_matrix , groups, channel_info) {
         map2_dtr( mixing_matrix, means_matrix, function(mixm, meansm)  {
             .ICA <- data.table::data.table(.ICA =c("mean",paste0("ICA",seq_len(nrow(mixm)))))
             mm <- rbind(meansm,mixm) %>% data.table::data.table() %>%
-                .[, (update_channel_meta_data(.SD, channel_info))] %>%
+                .[, (update_channel_meta_data(.SD, channels_tbl))] %>%
                 cbind(.ICA, .)
             mm
         }

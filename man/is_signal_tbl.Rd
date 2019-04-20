@@ -17,7 +17,4 @@ is_signal_tbl(x)
 Test if the object is a  signal_tbl
 This function returns  TRUE for signals.
 }
-\seealso{
-Other signal_tbl: \code{\link{signal_tbl}}
-}
 \concept{signal_tbl}

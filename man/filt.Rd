@@ -41,8 +41,13 @@ Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter of the  F
 }
 \examples{
 data("data_faces_ERPs")
-data_ERPs_filtered <- data_faces_ERPs \%>\% eeg_filt_low_pass(freq = 5)
+data_ERPs_filtered <- data_faces_ERPs \%>\%
+                      eeg_filt_low_pass(freq = 5)
 # Compare the ERPs
-data_faces_ERPs \%>\% select(O1, O2, P7, P8) \%>\% plot() + facet_wrap(~.source)
-data_ERPs_filtered \%>\% select(O1, O2, P7, P8) \%>\% plot() + facet_wrap(~.source)
+data_faces_ERPs \%>\% select(O1, O2, P7, P8) \%>\%
+                    plot() +
+                    facet_wrap(~.source)
+data_ERPs_filtered \%>\% select(O1, O2, P7, P8) \%>\%
+                       plot() +
+                       facet_wrap(~.source)
 }

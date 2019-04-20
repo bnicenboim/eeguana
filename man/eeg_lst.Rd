@@ -4,7 +4,7 @@
 \alias{eeg_lst}
 \title{Create an eeg_lst}
 \usage{
-eeg_lst(signal = NULL, events = NULL, segments = NULL)
+eeg_lst(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL)
 }
 \arguments{
 \item{signal}{See \code{\link[=signal_tbl]{signal_tbl()}}.}

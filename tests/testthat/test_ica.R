@@ -29,8 +29,8 @@ signal <- tibble(Fz =  alpha *.1 + noise,
 data <- eeg_lst(
     signal = signal_tbl( 
         signal_matrix = signal ,
-        ids = 1L,
-        sample_ids = sample_int(seq_len(N), sampling_rate = 500) 
+        .id = 1L,
+        .sample_id = sample_int(seq_len(N), sampling_rate = 500) 
     ),
     events = events_tbl(), 
     segments = dplyr::tibble(.id = 1L, recording = "recording1", segment =  1L)
@@ -39,8 +39,8 @@ data <- eeg_lst(
 data_blinks <- eeg_lst(
     signal = signal_tbl( 
         signal_matrix = signal_blinks ,
-        ids = 1L,
-        sample_ids = sample_int(seq_len(N), sampling_rate = 500) 
+        .id = 1L,
+        .sample_id = sample_int(seq_len(N), sampling_rate = 500) 
     ),
     events = events_tbl(), 
     segments = dplyr::tibble(.id = 1L, recording = "recording1", segment =  1L)
@@ -50,8 +50,8 @@ data_blinks <- eeg_lst(
 data_blinks_more <- eeg_lst(
     signal = signal_tbl( 
         signal_matrix = signal_blinks ,
-        ids = rep(1:4, each =N/4),
-        sample_ids = sample_int(rep(seq_len(N/4),times= 4), sampling_rate = 500) 
+        .id = rep(1:4, each =N/4),
+        .sample_id = sample_int(rep(seq_len(N/4),times= 4), sampling_rate = 500) 
     ),
     events = events_tbl(), 
     segments = dplyr::tibble(.id = seq.int(4), recording = paste0("recording",c(1,1,2,2)), segment =  seq.int(4))
@@ -60,8 +60,8 @@ data_blinks_more <- eeg_lst(
 data_more <- eeg_lst(
     signal = signal_tbl( 
         signal_matrix = signal,
-        ids = rep(1:4, each =N/4),
-        sample_ids = sample_int(rep(seq_len(N/4),times= 4), sampling_rate = 500) 
+        .id = rep(1:4, each =N/4),
+        .sample_id = sample_int(rep(seq_len(N/4),times= 4), sampling_rate = 500) 
     ),
     events = events_tbl(), 
     segments = dplyr::tibble(.id = seq.int(4), recording = paste0("recording",c(1,1,2,2)), segment =  seq.int(4))

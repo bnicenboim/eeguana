@@ -3,50 +3,45 @@ library(eeguana)
 set.seed(123)
 
 N <- 1000
-signal <- tibble(Fz = rep(0,N),
-                 Cz = rep(0,N),
-                 Pz = rep(0,N))
+signal <- dplyr::tibble(.id = 1L,
+                        .sample_id = sample_int(seq_len(N), sampling_rate = 500), 
+                        Fz = channel_dbl(rep(0,N)),
+                        Cz = channel_dbl(rep(0,N)),
+                        Pz = channel_dbl(rep(0,N)))
 
 signal$Fz[c(3, 500, 700)] <- 10
 signal$Fz[c(1,2, 502 )] <- -10
 signal$Cz[c(200,700,710,999,1000)] <- 10
-
 data <- eeg_lst(
-    signal = signal_tbl( 
-        signal_matrix = signal ,
-        ids = 1L,
-        sample_ids = sample_int(seq_len(N), sampling_rate = 500) 
-    ),
+    signal_tbl = signal,
     events = events_tbl(), 
     segments = dplyr::tibble(.id = 1L, recording = "recording1", segment =  1L)
 )
-
 data_1minmax <- eeg_lst(
-    signal = signal_tbl( 
-        signal_matrix = tibble(X=c(0,0,0,-10,10,0,0,0,0)),
-        ids = 1L,
-        sample_ids = sample_int(1:9, sampling_rate = 500) 
+    signal_tbl = dplyr::tibble( 
+        X = channel_dbl(c(0,0,0,-10,10,0,0,0,0)),
+        .id = 1L,
+        .sample_id = sample_int(1:9, sampling_rate = 500) 
     ),
     events = events_tbl(), 
     segments = dplyr::tibble(.id = 1L, recording = "recording1", segment =  1L)
 )
 
 data_1step <- eeg_lst(
-    signal = signal_tbl( 
-        signal_matrix = tibble(X=c(0,0,0,0,10,10,10,10,10)),
-        ids = 1L,
-        sample_ids = sample_int(1:9, sampling_rate = 500) 
+    signal_tbl = dplyr::tibble( 
+        X = channel_dbl(c(0,0,0,0,10,10,10,10,10)),
+        .id = 1L,
+        .sample_id = sample_int(1:9, sampling_rate = 500) 
     ),
     events = events_tbl(), 
     segments = dplyr::tibble(.id = 1L, recording = "recording1", segment =  1L)
 )
 
 data_more <- eeg_lst(
-    signal = signal_tbl( 
-        signal_matrix = signal ,
-        ids = rep(1:4, each =N/4),
-        sample_ids = sample_int(rep(seq_len(N/4),times= 4), sampling_rate = 500) 
-    ),
+    signal_tbl =  signal %>%
+        mutate(.id = rep(1:4, each =N/4),
+        .sample_id = sample_int(rep(seq_len(N/4),times= 4), sampling_rate = 500)) 
+    ,
     events = events_tbl(), 
     segments = dplyr::tibble(.id = seq.int(4), recording = paste0("recording",c(1,1,2,2)), segment =  seq.int(4))
 )
@@ -107,7 +102,7 @@ test_that("No artifacts",{
         events()
     expect_equal(art_events,events_tbl())
 })
-test_that("window of 22 elements with different ids", {
+test_that("window of 22 elements with different .id", {
     art_events <- data_more %>%
         eeg_artif_step(difference = .01, lim=c(-10/500,10/500), unit = "second") %>% events()
     expect_equal(art_events[.channel=="Fz",]$.sample_0,c(1,490 -250,1,690-500) )
