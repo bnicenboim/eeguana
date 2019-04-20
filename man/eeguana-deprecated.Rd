@@ -7,6 +7,10 @@
 \alias{interpolate_tbl}
 \alias{event_to_ch_NA}
 \alias{eeg_intervals_to_NA}
+\alias{ch_filt_low_pass}
+\alias{ch_filt_high_pass}
+\alias{ch_filt_band_pass}
+\alias{ch_filt_stop_pass}
 \title{Deprecated functions in eeguana}
 \usage{
 downsample(x, q = 2, max_sample = NULL, ...)
@@ -18,6 +22,14 @@ interpolate_tbl(.data, ...)
 event_to_ch_NA(x, ...)
 
 eeg_intervals_to_NA(x, ...)
+
+ch_filt_low_pass(x, ...)
+
+ch_filt_high_pass(x, ...)
+
+ch_filt_band_pass(x, ...)
+
+ch_filt_stop_pass(x, ...)
 }
 \arguments{
 \item{x}{An eeg_lst object.}

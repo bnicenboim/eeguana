@@ -9,7 +9,7 @@ eeg_ica <- function(.data, ...){
 #' @param .data An eeg_lst object
 #' @param ... Channels to include in ICA transformation. All the channels by default, but eye channels and reference channels should be removed.
 #' @param method Methods from different packages: `fICA::adapt_fICA` (default), `fICA::fICA`, `fICA::reloaded_fICA`, `fastICA::fastICA`, or a custom function that returns a list that contains `S`  (reconstucted sources) and `A` (mixing matrix), consistent with the formulation `X=A %*% S` or `W` (unmixing matrix), consistent with the formulation `X %*% W = S` (i.e., W == solve(X)).
-#' @param config Other parameters passed in a list to the method. These are the default parameters except that when possible the method is run in C rather than in R. See the documentation of the relevant method.
+#' @param config Other parameters passed in a list to the ICA method. These are the default parameters except that when possible the method is run in C rather than in R. See the documentation of the relevant method.
 #' @param tolerance Convergence tolerance.
 #' @param max_iterations Maximum number of iterations.
 #' 
