@@ -6,11 +6,7 @@
 \alias{eeg_filt_high_pass}
 \alias{eeg_filt_band_pass}
 \alias{eeg_filt_band_stop}
-\alias{eeg_filt_low_pass.eeg_lst}
-\alias{eeg_filt_high_pass.eeg_lst}
-\alias{eeg_filt_band_stop.eeg_lst}
-\alias{eeg_filt_band_pass.eeg_lst}
-\title{Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter.}
+\title{Apply a zero-phase low-pass, high-pass, band-pass, or band-stop FIR filter.}
 \usage{
 eeg_filt_low_pass(.data, ..., freq = NULL, config = list())
 
@@ -19,25 +15,13 @@ eeg_filt_high_pass(.data, ..., freq = NULL, config = list())
 eeg_filt_band_pass(.data, ..., freq = NULL, config = list())
 
 eeg_filt_band_stop(.data, ..., freq = NULL, config = list())
-
-\method{eeg_filt_low_pass}{eeg_lst}(.data, ..., freq = NULL,
-  config = list())
-
-\method{eeg_filt_high_pass}{eeg_lst}(.data, ..., freq = NULL,
-  config = list())
-
-\method{eeg_filt_band_stop}{eeg_lst}(.data, ..., freq = NULL,
-  config = list())
-
-\method{eeg_filt_band_pass}{eeg_lst}(.data, ..., freq = NULL,
-  config = list())
 }
 \arguments{
 \item{.data}{A channel or an eeg_lst.}
 
 \item{...}{Channels to apply the filters to. All the channels by default.}
 
-\item{freq}{A single cut frequency for \code{eeg_filt_low_pass} and \code{filt_high_pass_ch}, two edges for  \code{filt_band_pass_ch} and \code{filt_stop_pass_ch}.}
+\item{freq}{A single cut frequency for \code{eeg_filt_low_pass} and \code{eeg_filt_high_pass}, two edges for  \code{eeg_filt_band_pass} and \code{eeg_filt_stop_pass}.}
 
 \item{config}{Other parameters passed in a list to the ICA method. (Not implemented)}
 }
@@ -45,7 +29,7 @@ eeg_filt_band_stop(.data, ..., freq = NULL, config = list())
 A channel or an eeg_lst.
 }
 \description{
-Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter of the  FIR (finite impulse response) class to every segment of an \code{eeg_lst}. These filters are adapted from the default filters in \href{https://mne-tools.github.io}{MNE package} (v 0.0.17.1)  of \href{https://www.python.org/}{python}. For background information about the FIR vs IIR filters, see (here)\link{https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py},.
+Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter of the  FIR (finite impulse response) class to every segment of an \code{eeg_lst}. These filters are adapted from the default filters in \href{https://mne-tools.github.io}{MNE package} (v 0.0.17.1)  of \href{https://www.python.org/}{python}. For background information about the FIR vs IIR filters, see \href{https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py}{here}.
 }
 \details{
 \itemize{
