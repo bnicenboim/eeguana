@@ -6,6 +6,7 @@
       - Better documentation (mostly [Kate Stone](https://github.com/auskate)).
       - `eeg_intervals_to_NA()` was renamed to `eeg_events_to_NA()`.
       - `ch_filt_*` functions were renamed to `eeg_filt_*` and they get a `...` argument to select the relevant channels.
+      - Changes in the creation of `eeg_lst` objects.
 # eeguana 0.0.6.9000
   - Changes
       - There is a logo!
