@@ -4,16 +4,16 @@
 \alias{mixing_tbl}
 \title{Builds a mixing_tbl table.}
 \usage{
-mixing_tbl(mixing_matrix, means_matrix, groups, channel_info)
+mixing_tbl(mixing_matrix, means_matrix, groups, channels_tbl)
 }
 \arguments{
 \item{mixing_matrix}{Matrix or table of channels with their mixing.}
 
-\item{channel_info}{A table with information about each channel (such as the one produced by `channels_tbl``)}
-
 \item{ids}{Integers indicating to which group the row of the mixing matrix belongs.}
 
 \item{sample_ids}{Vector of integers.}
+
+\item{channel_info}{A table with information about each channel (such as the one produced by `channels_tbl``)}
 }
 \value{
 A valid mixing_tbl table.

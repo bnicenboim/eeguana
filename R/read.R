@@ -150,29 +150,30 @@ read_ft <- function(file, layout = NULL, recording = file) {
             new_sample_int(sampling_rate = sampling_rate)
   
   
-  signal_raw <- purrr::map_dfr(mat[[1]][, , 1]$trial,
+  signal_raw <- map_dtr(mat[[1]][, , 1]$trial,
     function(lsegment) {
-      lsegment[[1]] %>% t() %>% dplyr::as_tibble()
+      lsegment[[1]] %>% t() %>% data.table::as.data.table()
     },
     .id = ".id"
-  ) %>% dplyr::mutate(.id = as.integer(.id))
+  ) 
+  signal_raw[,.id := as.integer(.id)]
   
 
   # channel info:
   channels <- dplyr::tibble(
-    channel = make.unique(channel_names) %>% make.names()
+    .channel = make.unique(channel_names) %>% make.names()
   )
 
   if (!is.null(layout)) {
     chan_layout <- R.matlab::readMat(layout) %>%
       {
         dplyr::mutate(.$lay[, , 1]$pos %>% as.data.frame(),
-          channel = unlist(.$lay[, , 1]$label)
+          .channel = unlist(.$lay[, , 1]$label)
         )
       } %>%
       dplyr::rename(.x = V1, .y = V2)
-    not_layout <- setdiff(chan_layout$channel, channels$channel)
-    not_channel <- setdiff(channels$channel, chan_layout$channel)
+    not_layout <- setdiff(chan_layout$channel, channels$.channel)
+    not_channel <- setdiff(channels$channel, chan_layout$.channel)
     warning(paste0(
       "The following channels are not in the layout file: ",
       paste(not_layout, collapse = ", "), "."
@@ -181,7 +182,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
       "The following channels are not in the data: ",
       paste(not_channel, collapse = ", "), "."
     ))
-    channels <- dplyr::left_join(channels, dplyr::as_tibble(chan_layout), by = "channel") %>%
+    channels <- dplyr::left_join(channels, dplyr::as_tibble(chan_layout), by = ".channel") %>%
       dplyr::mutate(.z = NA_real_, .reference = NA)
   } else {
     channels <- channels %>%
@@ -193,7 +194,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
   # signal_tbl <- dplyr::mutate(signal_tbl, .sample = sample, .id = as.integer(.id)) %>%
   #   dplyr::select(.id, .sample, dplyr::everything())
   signal_tbl <- new_signal_tbl(signal_matrix = dplyr::select(signal_raw, -.id),
-    ids = dplyr::pull(signal_raw,.id), sample_ids = sample, channel_info = channels
+    .id = signal_raw$.id, .sample_id = sample, channels_tbl = channels
   )
 
 
@@ -226,7 +227,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
     add_event_channel(channel_names) %>%
     segment_events(.lower = slengths$V1, .sample_0 = slengths$V1 - slengths$V3, .upper= slengths$V2)
   } else {
-    events <- events_tbl()
+    events <- new_events_tbl()
   }
   
   segments <- tibble::tibble(
@@ -313,17 +314,17 @@ read_edf <- function(file, recording = file) {
     stop("Non continuous edf/bdf files are not supported yet.")
   }
 
-  channel_info <- dplyr::tibble(channel=   channel_names, 
+  channel_info <- dplyr::tibble(.channel=   channel_names, 
                                 .x = NA_real_, .y = NA_real_, .z = NA_real_,
                                 .reference = NA_character_)
-  signal <- new_signal_tbl(signal_matrix = signal_dt,ids = s_id,
-                      sample_ids = sample_id, 
-                      channel_info = channel_info)
+  signal <- new_signal_tbl(signal_matrix = signal_dt,.id = s_id,
+                      .sample_id = sample_id, 
+                      channels_tbl = channel_info)
   if(length(l_annot)==0){
-    events <- events_tbl()
+    events <- new_events_tbl()
   } else {
     edf_events <- l_annot[[1]]$annotations
-    events <- events_tbl(.id=1L, 
+    events <- new_events_tbl(.id=1L, 
                          .sample_0 = round(edf_events$onset * sampling_rate) %>%
                              as.integer + 1L,
                          descriptions_dt = edf_events["annotation"],

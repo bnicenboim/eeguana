@@ -12,59 +12,57 @@ blink <-  rbinom(N, 1, .003) %>%
 noise <- rpink(N)
 alpha <- (abs(sin(10 * seq_len(N) / fs)) - 0.5)/2
 
-s_tbl <- tibble(sample = rep(seq_len(N),times=3), A = c(blink, noise, alpha), component = rep(c("blink","noise", "alpha"), each = N) ) 
+s_tbl <- dplyr::tibble(sample = rep(seq_len(N),times=3), A = c(blink, noise, alpha), component = rep(c("blink","noise", "alpha"), each = N) ) 
 #ggplot(s_tbl,aes(x=sample,y=A)) + geom_line() + facet_grid(component~.)
 
 # And they mix depending on the distance of S_pos:
 
-signal_blinks <- tibble(Fz = blink * 2 + alpha *.1 + noise,
+signal_blinks <- dplyr::tibble(Fz = blink * 2 + alpha *.1 + noise,
                  Cz = blink * 1 + alpha * .15 + noise,
-                 Pz = blink * .1 + alpha * .1 + noise)
+                 Pz = blink * .1 + alpha * .1 + noise)  %>%
+    dplyr::mutate_all(channel_dbl)
 
-signal <- tibble(Fz =  alpha *.1 + noise,
+
+signal <- dplyr::tibble(Fz =  alpha *.1 + noise,
                         Cz =  alpha * .15 + noise,
-                        Pz =  alpha * .1 + noise)
-
+                        Pz =  alpha * .1 + noise) %>%
+    dplyr::mutate_all(channel_dbl)
 
 data <- eeg_lst(
-    signal = signal_tbl( 
-        signal_matrix = signal ,
+    signal_tbl = signal  %>%
+dplyr::mutate(
         .id = 1L,
         .sample_id = sample_int(seq_len(N), sampling_rate = 500) 
     ),
-    events = events_tbl(), 
-    segments = dplyr::tibble(.id = 1L, recording = "recording1", segment =  1L)
+    segments_tbl = dplyr::tibble(.id = 1L, recording = "recording1", segment =  1L)
 )
 
 data_blinks <- eeg_lst(
-    signal = signal_tbl( 
-        signal_matrix = signal_blinks ,
+    signal_tbl = signal_blinks  %>%
+dplyr::mutate(
         .id = 1L,
         .sample_id = sample_int(seq_len(N), sampling_rate = 500) 
     ),
-    events = events_tbl(), 
-    segments = dplyr::tibble(.id = 1L, recording = "recording1", segment =  1L)
+    segments_tbl = dplyr::tibble(.id = 1L, recording = "recording1", segment =  1L)
 )
 
 
 data_blinks_more <- eeg_lst(
-    signal = signal_tbl( 
-        signal_matrix = signal_blinks ,
+    signal_tbl = signal_blinks  %>%
+dplyr::mutate(
         .id = rep(1:4, each =N/4),
         .sample_id = sample_int(rep(seq_len(N/4),times= 4), sampling_rate = 500) 
     ),
-    events = events_tbl(), 
-    segments = dplyr::tibble(.id = seq.int(4), recording = paste0("recording",c(1,1,2,2)), segment =  seq.int(4))
+    segments_tbl = dplyr::tibble(.id = seq.int(4), recording = paste0("recording",c(1,1,2,2)), segment =  seq.int(4))
 )
 
 data_more <- eeg_lst(
-    signal = signal_tbl( 
-        signal_matrix = signal,
+    signal_tbl = signal %>%
+dplyr::mutate(
         .id = rep(1:4, each =N/4),
         .sample_id = sample_int(rep(seq_len(N/4),times= 4), sampling_rate = 500) 
     ),
-    events = events_tbl(), 
-    segments = dplyr::tibble(.id = seq.int(4), recording = paste0("recording",c(1,1,2,2)), segment =  seq.int(4))
+    segments_tbl = dplyr::tibble(.id = seq.int(4), recording = paste0("recording",c(1,1,2,2)), segment =  seq.int(4))
 )
 
 
@@ -114,6 +112,4 @@ test_that("ica grouped works",{
     expect_equal(data_blinks_more,data_b_m_rec_Fz)
     expect_equal(data_more,data_blinks_more_no_blinks %>% ungroup() , tolerance = .01) 
 })
-
-
 

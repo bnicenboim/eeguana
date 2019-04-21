@@ -4,30 +4,27 @@ set.seed(123)
 
 
 N <- 1000
-signal <- tibble(X1 =  sin(seq_len(N)),  # f = 1/(2* pi)
+signal <- dplyr::tibble(X1 = sin(seq_len(N)),  # f = 1/(2* pi)
                  X2 = sin(seq_len(N) *2), # f = 3/(2*pi)
-                 X3 =  sin(seq_len(N) *3), # f = 5/(2*pi)
-                 X4 = X1+X2+X3)
+                 X3 = sin(seq_len(N) *3), # f = 5/(2*pi)
+                 X4 = X1+X2+X3) %>%
+    dplyr::mutate_all(channel_dbl)
 
 data_sin <- eeg_lst(
-    signal = signal_tbl( 
-        signal_matrix = signal ,
-        .id = 1L,
+    signal_tbl = signal %>%
+        dplyr::mutate(.id = 1L,
         .sample_id = sample_int(seq_len(N), sampling_rate = 500) 
     ),
-    events = events_tbl(), 
-    segments = dplyr::tibble(.id = 1L, recording = "recording1", segment =  1L)
+    segments_tbl = dplyr::tibble(.id = 1L, recording = "recording1", segment =  1L)
 )
 
 
 data_sin_more <- eeg_lst(
-    signal = signal_tbl( 
-        signal_matrix = signal,
-        .id = rep(1:4, each =N/4),
+    signal_tbl = signal %>%
+        dplyr::mutate(.id = rep(1:4, each =N/4),
         .sample_id = sample_int(rep(seq_len(N/4),times= 4), sampling_rate = 500) 
     ),
-    events = events_tbl(), 
-    segments = dplyr::tibble(.id = seq.int(4), recording = paste0("recording",c(1,1,2,2)), segment =  seq.int(4))
+    segments_tbl = dplyr::tibble(.id = seq.int(4), recording = paste0("recording",c(1,1,2,2)), segment =  seq.int(4))
 )
 
 
@@ -139,3 +136,4 @@ test_that("band pass signal, sel",{
     ## expect_lte(max(data_sin_more_X2$signal$X3, data_sin_more_X2$signal$X1),.004)
 })
 
+ 

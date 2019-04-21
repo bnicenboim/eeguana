@@ -83,9 +83,3 @@ test_that("seg matches", {
   expect_equal(events(seg_bin_bv2)[type=="Stimulus"],events(seged_bin))
   expect_equal(seg_bin_bv2$segments,dplyr::select(seged_bin$segments,-type,-description))
 })
-
-
-
-#add sample as a possible unit
-
-

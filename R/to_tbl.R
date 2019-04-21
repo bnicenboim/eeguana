@@ -44,7 +44,7 @@ as_tibble.eeg_lst <- function(x, add_segments = TRUE, add_channels_info = TRUE) 
     } %>% 
      {
       if (add_channels_info) {
-        dplyr::left_join(., channels_tbl(x), by = c(".source"="channel"))
+        dplyr::left_join(., channels_tbl(x), by = c(".source"=".channel"))
       } else {
         .
       }
@@ -109,10 +109,10 @@ as_long_tbl.mixing_tbl <- function(x, add_channels_info = TRUE,...){
     x %>% 
         .[,lapply(.SD, `attributes<-`, NULL )] %>%
         tidyr::gather(key = ".source", value = ".value", channel_names(x)) %>%
-        dplyr::mutate(.type = "channel") %>% 
+        dplyr::mutate(.type = ".channel") %>% 
      {
       if (add_channels_info) {
-        dplyr::left_join(., channels_tbl(x), by = c(".source"="channel"))
+        dplyr::left_join(., channels_tbl(x), by = c(".source"=".channel"))
       } else {
         .
       }

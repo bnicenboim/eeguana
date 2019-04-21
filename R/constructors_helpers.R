@@ -68,38 +68,6 @@ new_channel_dbl <- function(values, channel_info = list()) {
 }
 
 
-#' @noRd
-new_events_tbl <- function(.id=NULL, .sample_0=NULL, .size=NULL, .channel=NULL, descriptions_dt=NULL) {
-    
-    if(is.null(.id) &&
-       is.null(.sample_0) &&
-       is.null(.size) &&
-       is.null(.channel) &&
-       is.null(descriptions_dt)) {
-        events <- data.table::data.table(.id= integer(0),
-                                         .sample_0= integer(0),
-                                         .size= integer(0),
-                                         .channel= character(0))
-    } else {
-        if(is.null(.size)) .size <- 1
-        if(is.null(.channel)) .channel <- NA_character_
-
-        if(is.null(descriptions_dt)){
-        events <- data.table::data.table(.id = .id,
-                           .sample_0 = .sample_0,
-                           .size = .size,
-                           .channel = .channel)
-        } else {
-            events <- data.table::data.table(.id = .id,
-                                             descriptions_dt,
-                                             .sample_0 = .sample_0,
-                                             .size = .size,
-                                             .channel = .channel)
-        }
-    }
-    data.table::setattr(events, "class", c("events_tbl",class(events)))
-    events
-}
 
 #' @param channel 
 #'
@@ -136,14 +104,19 @@ update_channel_meta_data <- function(channels, channels_tbl) {
     channels <- purrr::map(
       channels,
       function(sig) {
-        channel <- new_channel_dbl(values = sig,channels_tbl = list(.x=NA_real_,.y= NA_real_,.z =NA_real_, .reference=NA_real_))
+        .channel <- new_channel_dbl(values = sig,
+                                    channels_tbl = list(.x=NA_real_,
+                                                        .y= NA_real_,
+                                                        .z =NA_real_,
+                                                        .reference=NA_real_))
       }
     )
   } else {
     channels <- purrr::map2(
-      channels %>% stats::setNames(make.names(channels_tbl$channel)), purrr::transpose(dplyr::select(channels_tbl, -channel)),
+      channels %>% stats::setNames(make.names(channels_tbl$.channel)),
+                  purrr::transpose(dplyr::select(channels_tbl, -.channel)),
       function(sig, chan_info) {
-        channel <- new_channel_dbl(values = sig, as.list(chan_info))
+        .channel <- new_channel_dbl(values = sig, as.list(chan_info))
       }
     )
   }
@@ -161,13 +134,16 @@ update_channel_meta_data <- function(channels, channels_tbl) {
 #' @param x 
 #'
 #' @noRd
-validate_eeg_lst <- function(x) {
+validate_eeg_lst <- function(x, recursive = TRUE) {
   if(!is_eeg_lst(x)){
     warning("Class is not eeg_lst", call. = FALSE)
   }
-    ## x$signal <- validate_signal_tbl(x$signal)
+
+  if(recursive){
+    x$signal <- validate_signal_tbl(x$signal)
     x$events <- validate_events_tbl(x$events)
     x$segments <- validate_segments(x$segments)
+  }
     diff_channels <- setdiff(x$events$.channel, channel_names(x))
     if (length(diff_channels) != 0 & any(!is.na(diff_channels))) {
         warning("Unknown channel in table of events",
@@ -188,38 +164,6 @@ validate_eeg_lst <- function(x) {
 x
 }
 
-#' @param events 
-#'
-#' @param channels 
-#'
-#' @noRd
-validate_events_tbl <- function(events) {
-    if(!data.table::is.data.table(events) && is.data.frame(events)) {
-        events <- data.table::as.data.table(events)
-    }
-  if(!is_events_tbl(events)){
-    warning("Class is not events_tbl", call. = FALSE)
-  }
-if (!data.table::is.data.table(events)) {
-    warning("'events' should be a data.table.",
-      call. = FALSE
-    )
-  }
-
-  if (!is.integer(events$.sample_0)) {
-    warning("Values of .sample_0 should be integers",
-      call. = FALSE
-    )
-  }
-
-  if (!is.integer(events$.size)) {
-    warning("Values of .size should be integers",
-      call. = FALSE
-    )
-  }
-
-  events
-}
 #' @param segments 
 #'
 #' @noRd

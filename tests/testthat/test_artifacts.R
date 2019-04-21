@@ -13,8 +13,7 @@ signal$Fz[c(3, 500, 700)] <- 10
 signal$Fz[c(1,2, 502 )] <- -10
 signal$Cz[c(200,700,710,999,1000)] <- 10
 data <- eeg_lst(
-    signal_tbl = signal,
-    events = events_tbl(), 
+    signal_tbl = signal, 
     segments = dplyr::tibble(.id = 1L, recording = "recording1", segment =  1L)
 )
 data_1minmax <- eeg_lst(
@@ -23,7 +22,6 @@ data_1minmax <- eeg_lst(
         .id = 1L,
         .sample_id = sample_int(1:9, sampling_rate = 500) 
     ),
-    events = events_tbl(), 
     segments = dplyr::tibble(.id = 1L, recording = "recording1", segment =  1L)
 )
 
@@ -33,7 +31,6 @@ data_1step <- eeg_lst(
         .id = 1L,
         .sample_id = sample_int(1:9, sampling_rate = 500) 
     ),
-    events = events_tbl(), 
     segments = dplyr::tibble(.id = 1L, recording = "recording1", segment =  1L)
 )
 
@@ -42,7 +39,6 @@ data_more <- eeg_lst(
         mutate(.id = rep(1:4, each =N/4),
         .sample_id = sample_int(rep(seq_len(N/4),times= 4), sampling_rate = 500)) 
     ,
-    events = events_tbl(), 
     segments = dplyr::tibble(.id = seq.int(4), recording = paste0("recording",c(1,1,2,2)), segment =  seq.int(4))
 )
 
@@ -100,7 +96,7 @@ test_that("No artifacts",{
     art_events <- data %>%
         eeg_artif_step(difference = 100, lim=c(-10/500,10/500), unit = "second") %>%
         events()
-    expect_equal(art_events,events_tbl())
+    expect_equal(art_events,eeguana:::new_events_tbl())
 })
 test_that("window of 22 elements with different .id", {
     art_events <- data_more %>%

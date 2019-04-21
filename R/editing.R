@@ -67,7 +67,7 @@ channels_tbl.data.frame <- function(x, ...) {
     tbl <- x[1,] %>%
         dplyr::select(channels) %>%
         purrr::map_dfr(~attributes(.x)) %>%
-        dplyr::bind_cols( dplyr::tibble(channel = channels),. ) %>%
+        dplyr::bind_cols( dplyr::tibble(.channel = channels),. ) %>%
         dplyr::select(-contains("class", ignore.case = FALSE))
     if(tbl %>% nrow== 0) {
         tibble()

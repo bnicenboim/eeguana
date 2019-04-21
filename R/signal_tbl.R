@@ -71,41 +71,56 @@ validate_signal_tbl <- function(signal_tbl) {
    ##  if(!data.table::is.data.table(signal_tbl) && is.data.frame(signal_tbl)) {
    ##      signal <- data.table::as.data.table(signal_tbl)
    ##      data.table::setkey(signal_tbl,.id,.sample_id)
-   ## }     
-  if (!data.table::is.data.table(signal_tbl)) {
-    warning("'signal' should be a data.table.",
-      call. = FALSE
-    )
-  }
-  if(!is_signal_tbl(signal_tbl)){
-    warning("Class is not signal_tbl", call. = FALSE)
-  }
-  if (!is.integer(signal_tbl$.id)) {
-    warning(".id should be an integer.",
-      call. = FALSE
-    )
-  }
+    # fs# }     
+    if (!data.table::is.data.table(signal_tbl)) {
+        warning("'signal' should be a data.table.",
+                call. = FALSE
+                )
+    }
+    if(!is_signal_tbl(signal_tbl)){
+        warning("Class is not signal_tbl", call. = FALSE)
+    }
+    if (!is.integer(signal_tbl$.id)) {
+        warning(".id should be an integer.",
+                call. = FALSE
+                )
+    }
 
 
-  if(!identical(data.table::key(signal_tbl), c(".id",".sample_id"))) {
-    warning("`keys` of signal table are missing.",
-      call. = FALSE
-    )
-  }
+    if(!identical(data.table::key(signal_tbl), c(".id",".sample_id"))) {
+        warning("`keys` of signal table are missing.",
+                call. = FALSE
+                )
+    }
 
-  # Validates .sample_id
-  validate_sample_int(signal_tbl$.sample_id)
+    ## Validates .sample_id
+    validate_sample_int(signal_tbl$.sample_id)
 
-  #checks if there are channels
+    ##checks if there are channels
     if(nrow(signal_tbl)>0){
-      nchannels <- sum(sapply(signal_tbl, is_channel_dbl))
-      ncomponents <- sum(sapply(signal_tbl, is_component_dbl))
-      if(nchannels ==0 & ncomponents ==0  )
-        warning("No channels or components found.")
-  }
-
-  # Validates channels 
-  signal_tbl[, lapply(.SD,validate_channel_dbl), .SDcols= sapply(signal_tbl, is_channel_dbl)] 
-
-  signal_tbl
+        nchannels <- sum(sapply(signal_tbl, is_channel_dbl))
+        ncomponents <- sum(sapply(signal_tbl, is_component_dbl))
+        if(nchannels ==0 & ncomponents ==0  )
+            warning("No channels or components found.")
+    }
+    
+    ## Validates channels 
+    signal_tbl[, lapply(.SD,validate_channel_dbl), .SDcols= sapply(signal_tbl, is_channel_dbl)] 
+    ## reorders
+    dplyr::select(signal_tbl, obligatory_cols[["signal"]], dplyr::everything())
 }
+
+
+#' Test if the object is a  signal_tbl
+#' This function returns  TRUE for signals.
+#'
+#' @param x An object.
+#' 
+#' @family signal_tbl
+#'
+#' @return `TRUE` if the object inherits from the `signal_tbl` class.
+#' @export
+is_signal_tbl <- function(x) {
+    "signal_tbl" %in% class(x) 
+}
+

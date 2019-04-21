@@ -37,7 +37,7 @@ add_intervals_from_artifacts <- function(old_events, artifact_found, sample_rang
             .eeg %>% dplyr::select(- dplyr::one_of(obligatory_cols[["signal"]])) %>%
             imap_dtr( ~{
                 if(all(.x[!is.na(.x)]==FALSE)){
-                  out <- events_tbl()  
+                  out <- new_events_tbl()  
                     out[,.id:=NULL][]  ## I need to remove .id because it gets added by map  
                 } else {
                     ## left and right values of the window of bad values (respecting the min max samples)

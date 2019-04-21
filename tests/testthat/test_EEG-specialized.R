@@ -3,44 +3,41 @@ library(eeguana)
 
 
 data <- eeg_lst(
-  signal = signal_tbl(
-    signal_matrix = as.matrix(
-      data.frame(X = sin(1:20), Y = cos(1:20))
-    ),
-    .id = rep(c(1L, 2L), each = 10),
-    .sample_id = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500),
-    dplyr::tibble(
-      channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
-      radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
-    )
-  ),
-  events = dplyr::tribble(
-    ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
-    1L, "New Segment", NA_character_, -4L, 1L, NA,
-    1L, "Bad", NA_character_, -2L, 3L, NA,
-    1L, "Time 0", NA_character_, 1L, 1L, NA,
-    1L, "Bad", NA_character_, 2L, 2L, "X",
-    2L, "New Segment", NA_character_, -4L, 1L, NA,
-    2L, "Time 0", NA_character_, 1L, 1L, NA,
-    2L, "Bad", NA_character_, 2L, 1L, "Y"
-  ) %>% as_events_tbl,
-  segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
+    signal_tbl = tibble::tibble( 
+                            X = sin(1:20),
+                            Y = cos(1:20),
+                            .id = rep(c(1L, 2L), each = 10),
+                            .sample_id = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500)),
+    channels_tbl = 
+        dplyr::tibble(
+                   .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+                   radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
+               ),
+    events_tbl = dplyr::tribble(
+                            ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
+                            1L, "New Segment", NA_character_, -4L, 1L, NA,
+                            1L, "Bad", NA_character_, -2L, 3L, NA,
+                            1L, "Time 0", NA_character_, 1L, 1L, NA,
+                            1L, "Bad", NA_character_, 2L, 2L, "X",
+                            2L, "New Segment", NA_character_, -4L, 1L, NA,
+                            2L, "Time 0", NA_character_, 1L, 1L, NA,
+                            2L, "Bad", NA_character_, 2L, 1L, "Y"
+                        ),
+    segments_tbl = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
 )
 
 
 data_NA <- eeg_lst(
-  signal = signal_tbl(
-    signal_matrix = as.matrix(
-      data.frame(X = sin(1:20), Y = cos(1:20))
-    ),
+  signal_tbl =dplyr::tibble(
+                         X = sin(1:20),
+                         Y = cos(1:20),
     .id = rep(c(1L, 2L), each = 10),
-    .sample_id = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500),
-    dplyr::tibble(
-      channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+    .sample_id = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500)),
+  channels_tbl=  dplyr::tibble(
+      .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
-    )
-  ),
-  events = dplyr::tribble(
+    ),
+  events_tbl = dplyr::tribble(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA_character_, -4L, 1L, NA_character_,
     1L, "Bad", NA_character_, -2L, 3L, NA,
@@ -49,23 +46,23 @@ data_NA <- eeg_lst(
     2L, "New Segment", NA_character_, -4L, 1L, NA,
     2L, "Time 0", NA_character_, 1L, 1L, NA,
     2L, "Bad", NA_character_, 2L, 1L, NA
-    )%>% as_events_tbl,
-  segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
+    ),
+  segments_tbl = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
 )
 
 data_XY <- eeg_lst(
-  signal = signal_tbl(
-    signal_matrix = as.matrix(
-      data.frame(X = sin(1:20), Y = cos(1:20))
-    ),
-    .id = rep(c(1L, 2L), each = 10),
-    .sample_id = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500),
-    dplyr::tibble(
-      channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+    signal_tbl =dplyr::tibble(
+                           X = sin(1:20),
+                           Y = cos(1:20),
+                           .id = rep(c(1L, 2L), each = 10),
+                           .sample_id = sample_int(rep(seq(-4L, 5L), times = 2),
+                                                   sampling_rate = 500)),
+channels_tbl=    dplyr::tibble(
+      .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
-    )
+    
   ),
-  events = dplyr::tribble(
+  events_tbl = dplyr::tribble(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA_character_, -4L, 1L, NA,
     1L, "Bad", NA_character_, -2L, 3L, "X",
@@ -75,8 +72,8 @@ data_XY <- eeg_lst(
     2L, "New Segment", NA_character_, -4L, 1L, NA,
     2L, "Time 0", NA_character_, 1L, 1L, NA,
     2L, "Bad", NA_character_, 2L, 1L, "Y"
-    )%>% as_events_tbl,
-  segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
+    ),
+  segments_tbl = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
 )
 
 # TEST when the event exceeds the end of the segment
@@ -140,18 +137,16 @@ test_that("can clean whole segments in files", {
 
 
 data0 <- eeg_lst(
-  signal = signal_tbl(
-    signal_matrix = as.matrix(
-      data.frame(X = sin(1:20), Y = cos(1:20))
-    ),
+    signal_tbl =
+        dplyr::tibble(X = sin(1:20),
+                      Y = cos(1:20),
     .id = rep(c(1L, 1L), each = 10),
-    .sample_id = sample_int(seq(1L, 20L), sampling_rate = 500),
-    dplyr::tibble(
-      channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+    .sample_id = sample_int(seq(1L, 20L), sampling_rate = 500)),
+channels_tbl =     dplyr::tibble(
+      .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
-    )
-  ),
-  events = dplyr::tribble(
+    ),
+  events_tbl = dplyr::tribble(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA, 1L, 1L, NA,
     1L, "Bad", NA, 3L, 3L, NA,
@@ -160,8 +155,8 @@ data0 <- eeg_lst(
     1L, "New Segment", NA, 11L, 1L, NA,
     1L, "Time 0", NA, 16L, 1L, NA,
     1L, "Bad", NA, 17L, 1L, "Y"
-    )%>% as_events_tbl,
-  segments = dplyr::tibble(.id = 1L, recording = "recording1", segment = 1)
+    ),
+  segments_tbl = dplyr::tibble(.id = 1L, recording = "recording1", segment = 1)
 )
 
 test_that("can segment using lim", {
@@ -231,18 +226,16 @@ data0_s <- eeg_segment(data0, type == "Time 0", lim = c(-Inf, Inf))
 
 
 data_eeg <- eeg_lst(
-  signal = signal_tbl(
-    signal_matrix = as.matrix(
-      data.frame(X = sin(1:20), Y = cos(1:20))
-    ),
+  signal_tbl =  
+      dplyr::tibble(X = sin(1:20),
+                    Y = cos(1:20),
     .id = rep(c(1L, 2L), each = 10),
-    .sample_id = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500),
-    dplyr::tibble(
-      channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+    .sample_id = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500)),
+channels_tbl=    dplyr::tibble(
+      .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
-    )
-  ),
-  events = dplyr::tribble(
+    ),
+  events_tbl =  dplyr::tribble(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA_character_, -4L, 1L, NA,
     1L, "Bad", NA_character_, -2L, 3L, NA,
@@ -251,8 +244,8 @@ data_eeg <- eeg_lst(
     2L, "New Segment", NA_character_, -4L, 1L, NA,
     2L, "Time 0", NA_character_, 1L, 1L, NA,
     2L, "Bad", NA_character_, 2L, 1L, "Y"
-    )%>% as_events_tbl,
-  segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
+    ),
+  segments_tbl = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
 )
 
 

@@ -78,10 +78,10 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data){
 
         if(!ch$unit %in% as.numeric(names(units_list))) ch$unit <- 107  #default to Volts
 
-        list(channel= ch$ch_name,
-             ".x" = location[[1]],
-             ".y" = location[[2]],
-             ".z" = location[[3]],
+        list(.channel= ch$ch_name,
+             .x = location[[1]],
+             .y = location[[2]],
+             .z = location[[3]],
              unit = paste0(prefix[[log10(ch$range)%>% as.character()]],
                                    units_list[[ch$unit %>% as.character()]]) ,
              .reference = NA
@@ -96,14 +96,14 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data){
     t_s <- .data$times
     samples <- as_sample_int(c(t_s), sampling_rate= .data$info$sfreq, unit = "s")
     
-    new_signal <- signal_tbl(signal_m, 1L,samples,ch_info)
+    new_signal <- new_signal_tbl(.id = 1L, .sample_id =  samples, signal_matrix =  signal_m, channels_tbl =  ch_info)
 
                                         #create events object
     ann <- .data$annotations$`__dict__`
     if(length(ann$onset)==0){
-        new_events <-events_tbl()
+        new_events <-new_events_tbl()
     } else{
-    new_events <- events_tbl(.id = 1L,
+    new_events <- new_events_tbl(.id = 1L,
                              .sample_0 = ann$onset %>%
                                  as_sample_int(sampling_rate = .data$info$sfreq, unit="s") %>% as.integer,
                              .size = ann$duration %>%
