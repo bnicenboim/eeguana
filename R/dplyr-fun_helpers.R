@@ -172,11 +172,11 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
     if(dfs == "signal"){ # if the signal tbl was modified, the events need to be updated:
 
         #TODO: reimplement all the following directly in data table, or maybe with purrr
-        old_channels <- events(.eeg_lst)$.channel
+        old_channels <- events_tbl(.eeg_lst)$.channel
         new_channels <- all_vars[all_vars %in% old_channels] %>% sort()
        #removes the old channels that do not exist anymore (needed for e.g., select(ZZ=X))
         old_channels[!old_channels %in% new_channels] <- NA
-        events(.eeg_lst)$.channel <- old_channels %>%
+        events_tbl(.eeg_lst)$.channel <- old_channels %>%
                            factor(labels = names(new_channels)) %>%
                            as.character()
 

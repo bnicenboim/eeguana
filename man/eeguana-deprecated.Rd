@@ -11,6 +11,8 @@
 \alias{ch_filt_high_pass}
 \alias{ch_filt_band_pass}
 \alias{ch_filt_stop_pass}
+\alias{events}
+\alias{events<-}
 \title{Deprecated functions in eeguana}
 \usage{
 downsample(x, q = 2, max_sample = NULL, ...)
@@ -30,6 +32,10 @@ ch_filt_high_pass(x, ...)
 ch_filt_band_pass(x, ...)
 
 ch_filt_stop_pass(x, ...)
+
+events(x, ...)
+
+events(x, ...) <- value
 }
 \arguments{
 \item{x}{An eeg_lst object.}

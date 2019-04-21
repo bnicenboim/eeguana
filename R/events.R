@@ -44,7 +44,7 @@ eeg_artif_minmax.eeg_lst <- function(.data,
     artifacts_found <- search_artifacts(signal = .data$signal,fun = detect_minmax, ...,
                                         args = list(win_sample=win_sample,
                                                     difference=difference))
-    events(.data) <- add_intervals_from_artifacts(old_events = events(.data), 
+    events_tbl(.data) <- add_intervals_from_artifacts(old_events = events_tbl(.data), 
                                                   artifacts_found, 
                                                   sample_range,"minmax")
     validate_eeg_lst(.data)
@@ -66,7 +66,7 @@ eeg_artif_step.eeg_lst <- function(.data, ..., difference = 50 , lim = c(-200, 2
     artifacts_found <- search_artifacts(.data$signal,fun = detect_step, ...,
                                         args = list(difference = difference))
 
-    events(.data) <- add_intervals_from_artifacts( old_events = events(.data), 
+    events_tbl(.data) <- add_intervals_from_artifacts( old_events = events_tbl(.data), 
                                                   artifacts_found, 
                                                    sample_range,
                                                    "step")

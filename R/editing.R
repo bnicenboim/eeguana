@@ -7,22 +7,22 @@
 #' 
 #' @return A table.
 #' @export
-events <- function(x, ...) {
-  UseMethod("events")
+events_tbl <- function(x, ...) {
+  UseMethod("events_tbl")
 }
 #' @rdname events
 #' @export
-events.eeg_lst <- function(x,...){
+events_tbl.eeg_lst <- function(x,...){
   x$events
 }
 #' @rdname events
 #' @export
-`events<-` <- function(x, value) {
-  UseMethod("events<-")
+`events_tbl<-` <- function(x, value) {
+  UseMethod("events_tbl<-")
 }
 #' @rdname events
 #' @export
-`events<-.eeg_lst` <- function(x, value) {
+`events_tbl<-.eeg_lst` <- function(x, value) {
   x$events <- as_events_tbl(value)
   x
 }

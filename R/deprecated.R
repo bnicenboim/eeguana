@@ -78,3 +78,18 @@ ch_filt_stop_pass <- function(x, ...) {
     UseMethod("eeg_filt_stop_pass")
 }
 
+#' @rdname eeguana-deprecated
+#' @inheritParams events_tbl 
+#' @export
+events <- function(x, ...) {
+    .Deprecated("events_tbl")
+    UseMethod("events_tbl")
+}
+
+#' @rdname eeguana-deprecated
+#' @inheritParams events_tbl 
+#' @export
+`events<-` <- function(x, ...) {
+    .Deprecated("events_tbl<-")
+    UseMethod("events_tbl<-")
+}

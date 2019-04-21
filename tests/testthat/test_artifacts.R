@@ -47,23 +47,23 @@ data_more <- eeg_lst(
 test_that("window of 1 step",{
     art_eventsp1 <- data_1step %>%
         eeg_artif_step(difference = .01, lim=c(0/500,1/500), unit = "second") %>%
-        events()
+        events_tbl()
     expect_equal(art_eventsp1[.channel=="X",]$.sample_0,c(5) )
     expect_equal(art_eventsp1[.channel=="X",]$.size,2)
     art_events0 <- data_1step %>%
         eeg_artif_step(difference = .01, lim=c(0/500,0/500), unit = "second") %>%
-        events()
+        events_tbl()
     expect_equal(art_events0[.channel=="X",]$.sample_0,5)
     expect_equal(art_events0[.channel=="X",]$.size,1)
     art_eventsm1 <- data_1step %>%
         eeg_artif_step(difference = .01, lim=c(-1/500,0/500), unit = "second") %>%
-        events()
+        events_tbl()
     expect_equal(art_eventsm1[.channel=="X",]$.sample_0,4)
     expect_equal(art_eventsm1[.channel=="X",]$.size,2)
     
     art_eventsl <- data_1step %>%
         eeg_artif_step(difference = .01, lim=c(-1000/500,1000/500), unit = "second") %>%
-        events()
+        events_tbl()
     expect_equal(art_eventsl[.channel=="X",]$.sample_0,1)
     expect_equal(art_eventsl[.channel=="X",]$.size,9)
 })
@@ -71,7 +71,7 @@ test_that("window of 1 step",{
 test_that("window of 1 element",{
     art_events <- data %>%
         eeg_artif_step(difference = .01, lim=c(-1/500,0/500), unit = "second") %>%
-        events()
+        events_tbl()
     expect_equal(art_events[.channel=="Fz",]$.sample_0,c(2,499,699) )
     expect_equal(art_events[.channel=="Fz",]$.size,c(3, #1 sample is no length, one to the left
                                                      5, # 503 - 499 +1 =5  steps 499-500,500-501,501-502,502-503
@@ -84,7 +84,7 @@ test_that("window of 1 element",{
 test_that("window of 22 element",{
     art_events <- data %>%
         eeg_artif_step(difference = .01, lim=c(-10/500,10/500), unit = "second") %>%
-        events()
+        events_tbl()
     expect_equal(art_events[.channel=="Fz",]$.sample_0,c(1,490,690) )
     expect_equal(art_events[.channel=="Fz",]$.size,c(14,24,22))
     expect_equal(art_events[.channel=="Cz",]$.sample_0,c(190,690,989) )
@@ -95,12 +95,12 @@ test_that("window of 22 element",{
 test_that("No artifacts",{
     art_events <- data %>%
         eeg_artif_step(difference = 100, lim=c(-10/500,10/500), unit = "second") %>%
-        events()
+        events_tbl()
     expect_equal(art_events,eeguana:::new_events_tbl())
 })
 test_that("window of 22 elements with different .id", {
     art_events <- data_more %>%
-        eeg_artif_step(difference = .01, lim=c(-10/500,10/500), unit = "second") %>% events()
+        eeg_artif_step(difference = .01, lim=c(-10/500,10/500), unit = "second") %>% events_tbl()
     expect_equal(art_events[.channel=="Fz",]$.sample_0,c(1,490 -250,1,690-500) )
     expect_equal(art_events[.channel=="Fz",]$.size,c(14,11,13,22))
     expect_equal(art_events[.channel=="Cz",]$.sample_0,c(190,690-500,989-750) )
@@ -109,7 +109,7 @@ test_that("window of 22 elements with different .id", {
     expect_equal(art_events$.id, c(1L,1L,2L,3L,3L,3L,4L))
     
     art_events <- data_more %>%
-        eeg_artif_step(Fz, difference = .01, lim=c(-10/500,10/500), unit = "second") %>% events()
+        eeg_artif_step(Fz, difference = .01, lim=c(-10/500,10/500), unit = "second") %>% events_tbl()
       expect_equal(art_events[.channel=="Fz",]$.sample_0,c(1,490 -250,1,690-500) )
     expect_equal(art_events[.channel=="Fz",]$.size,c(14,11,13,22))
     expect_equal(art_events[.channel=="Cz",]$.sample_0,integer(0) )
@@ -121,7 +121,7 @@ test_that("missing samples",{
   data_1skip <- data_1step %>% filter(!.sample_id %in% c(4,5))
     art_events_skipped1 <- data_1skip %>%
         eeg_artif_step(difference = .01, lim=c(-1000/500,1000/500), unit = "second") %>%
-        events()
+        events_tbl()
     expect_equal(nrow(art_events_skipped1),0)
 })
 
@@ -129,7 +129,7 @@ test_that("window of 22 element, with NAs",{
     data$signal$Fz[5] <- NA
     art_events <- data %>%
         eeg_artif_step(difference = .01, lim=c(-10/500,10/500), unit = "second") %>%
-        events()
+        events_tbl()
     expect_equal(art_events[.channel=="Fz",]$.sample_0,c(1,490,690) )
     expect_equal(art_events[.channel=="Fz",]$.size,c(14,24,22))
     expect_equal(art_events[.channel=="Cz",]$.sample_0,c(190,690,989) )
@@ -145,7 +145,7 @@ test_that("minmax: window of 1 step",{
         data_1step %>%
         eeg_artif_minmax(difference = .01, lim=c(0/500,1/500),window=1/500, unit = "second")
     ) %>%
-        events()
+        events_tbl()
     expect_equal(art_eventsp1[.channel=="X",]$.sample_0,c(5) )
     expect_equal(art_eventsp1[.channel=="X",]$.size,2)
 
@@ -153,14 +153,14 @@ test_that("minmax: window of 1 step",{
         data_1step %>%
         eeg_artif_minmax(difference = .01, lim=c(0/500,0/500), window = 1/500, unit = "second")
     )%>%
-        events()
+        events_tbl()
     expect_equal(art_events0[.channel=="X",]$.sample_0,5)
     expect_equal(art_events0[.channel=="X",]$.size,1)
     art_eventsm1 <- suppressWarnings(
         data_1step %>%
         eeg_artif_minmax(difference = .01, lim=c(-1/500,0/500), window = 1/500, unit = "second")
     )%>%
-        events()
+        events_tbl()
     expect_equal(art_eventsm1[.channel=="X",]$.sample_0,4)
     expect_equal(art_eventsm1[.channel=="X",]$.size,2)
     
@@ -168,7 +168,7 @@ test_that("minmax: window of 1 step",{
         data_1step %>%
         eeg_artif_minmax(difference = .01, lim=c(-1000/500,1000/500), window =1/500, unit = "second")
     )%>%
-        events()
+        events_tbl()
     expect_equal(art_eventsl[.channel=="X",]$.sample_0,1)
     expect_equal(art_eventsl[.channel=="X",]$.size,9)
 })
@@ -178,7 +178,7 @@ test_that("NAs",{
   data_1step$signal$X[5] <- NA
  art_eventsl <- data_1step %>%
         eeg_artif_minmax(difference = .01, lim=c(-1000/500,1000/500), window =3/500, unit = "second") %>%
-        events()
+        events_tbl()
     expect_equal(art_eventsl[.channel=="X",]$.sample_0,1)
     expect_equal(art_eventsl[.channel=="X",]$.size,9)
 })
@@ -187,11 +187,11 @@ test_that("missing samples",{
   data_1skip <- data_1step %>% filter(!.sample_id %in% c(4,5))
     art_events_skipped1 <- data_1skip %>%
         eeg_artif_minmax(difference = .01, lim=c(-1000/500,1000/500), window =1/500, unit = "second") %>%
-        events()
+        events_tbl()
     expect_equal(nrow(art_events_skipped1[.channel=="X",]),0)
      art_events_skipped1w <- data_1skip %>%
         eeg_artif_minmax(difference = .01, lim=c(-1000/500,1000/500), window =3/500, unit = "second") %>%
-        events()
+        events_tbl()
     expect_equal(art_events_skipped1w[.channel=="X",]$.sample_0,1)
     expect_equal(art_events_skipped1w[.channel=="X",]$.size,9)
 })
@@ -199,7 +199,7 @@ test_that("missing samples",{
 test_that("simple window",{
     art_events <- data_1minmax %>%
         eeg_artif_minmax(difference = 19, lim=c(0/500,4/500), unit = "second") %>%
-        events()
+        events_tbl()
     expect_equal(art_events[.channel=="X",]$.sample_0,c(5) )
     expect_equal(art_events[.channel=="X",]$.size,c(5) )
 })
