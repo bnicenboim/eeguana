@@ -58,7 +58,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
   #TODO maybe convert to data.table directly
   # Adding the channel names to event table
-  events <- add_event_channel(events, header_info$chan_info$channel) %>% data.table::as.data.table()
+  events <- add_event_channel(events, header_info$chan_info$.channel) %>% data.table::as.data.table()
 
   # Initial samples as in Brainvision
   max_sample <- nrow(raw_signal)
@@ -98,9 +98,9 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
   signal_tbl <- new_signal_tbl(
     signal_matrix = raw_signal,
-     ids = as.integer(seg_sample_id$.id),
-    sample_ids = new_sample_int(seg_sample_id$.sample_id, sampling_rate = common_info$sampling_rate),
-    channel_info = header_info$chan_info
+     .id = as.integer(seg_sample_id$.id),
+    .sample_id = new_sample_int(seg_sample_id$.sample_id, sampling_rate = common_info$sampling_rate),
+    channels_tbl = header_info$chan_info
   )
 
   seg_events <- segment_events(events, .lower, .sample_0, .upper)
@@ -214,7 +214,7 @@ read_vhdr_metadata <- function(file) {
                       t() %>% dplyr::as_tibble()) %>% {
                       if(ncol(.)==4) dplyr::mutate(., empty_col = NA_real_) else .
                         } %>%
-    purrr::set_names(c("type","channel", ".reference", "resolution", "unit")) %>%
+    purrr::set_names(c("type",".channel", ".reference", "resolution", "unit")) %>%
     dplyr::mutate(resolution = as.double(resolution),
                   unit = "microvolt") 
  #To avoid problems with the unicode characters, it seems that brainvision uses "mu" instead of "micro"

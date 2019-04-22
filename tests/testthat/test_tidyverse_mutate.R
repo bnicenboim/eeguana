@@ -3,21 +3,16 @@ library(eeguana)
 
 # tests when factors are used should be done.
 
-
-# create fake dataset
 data_1 <- eeg_lst(
-  signal = signal_tbl(
-    signal_matrix = as.matrix(
-      data.frame(X = sin(1:30), Y = cos(1:30))
-    ),
-    ids = rep(c(1L, 2L, 3L), each = 10),
-    sample_ids = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500),
-    dplyr::tibble(
-      channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+  signal_tbl =
+ dplyr::tibble(X = sin(1:30), Y = cos(1:30),
+    .id = rep(c(1L, 2L, 3L), each = 10),
+.sample_id = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500)),
+   channels_tbl = dplyr::tibble(
+      .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = c(1, 1), .y = NA_real_, .z = NA_real_
-    )
   ),
-  events = dplyr::tribble(
+   events_tbl = dplyr::tribble(
     ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
     1L, "New Segment", NA_character_, -4L, 1L, NA,
     1L, "Bad", NA_character_, -2L, 3L, NA,
@@ -28,13 +23,14 @@ data_1 <- eeg_lst(
     2L, "Bad", NA_character_, 2L, 1L, "Y",
     3L, "New Segment", NA_character_, -4L, 1L, NA,
     3L, "Time 0", NA_character_, 1L, 1L, NA,
-    3L, "Bad", NA_character_, 2L, 1L, "Y" 
-    )%>% as_events_tbl(),
-  segments = dplyr::tibble(.id = c(1L, 2L, 3L),
+    3L, "Bad", NA_character_, 2L, 1L, "Y"
+    ),
+  segments_tbl = dplyr::tibble(.id = c(1L, 2L, 3L),
                            recording = "recording1",
                            segment = c(1L, 2L, 3L),
                            condition = c("a", "b", "a"))
 )
+
 
 # just some different X and Y
 data_2 <- mutate(data_1, recording = "recording2",
@@ -114,7 +110,7 @@ test_that("mutate functions work correctly on ungrouped data", {
 
 
 test_that("new channels appear in the channels table", {
-  expect_true(nrow(filter(channels_tbl(mutate2_eeg_lst), channel == "ZZ")) > 0)
+  expect_true(nrow(filter(channels_tbl(mutate2_eeg_lst), .channel == "ZZ")) > 0)
 })
 
 
@@ -261,8 +257,8 @@ test_that("new channels created by mutate shouldn't appear in the events table",
 
 
 test_that("new channels appear in the channels table", {
-  expect_true(nrow(filter(channels_tbl(mutate2_g_signal_eeg), channel == "ZZ")) > 0)
-  expect_true(nrow(filter(channels_tbl(mutate5_g_signal_eeg), channel == "ZZ")) > 0)
+  expect_true(nrow(filter(channels_tbl(mutate2_g_signal_eeg), .channel == "ZZ")) > 0)
+  expect_true(nrow(filter(channels_tbl(mutate5_g_signal_eeg), .channel == "ZZ")) > 0)
   })
 
 

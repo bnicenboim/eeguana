@@ -21,8 +21,7 @@ eeg_ica.eeg_lst <- function(.data,
                     config= list(),
                     tolerance = 1e-06,
                     max_iterations = 1000
-                              )
-{
+                              ){
 
     if(unique(.data$segment$recording) %>% length() != 1 && !"recording" %in% group_vars(.data)) {
         warning("It seems that there is more than one recording. It may be appropriate to do 'data %>% group_by(recording)' before applying 'eeg_ica()' ")
@@ -122,10 +121,11 @@ eeg_ica.eeg_lst <- function(.data,
                 ) %>%
         bind_cols_dt(removed_signal,.)
 
-    mixing <- mixing_tbl(mixing_matrix = l_ica %>% purrr::transpose() %>% .$mixing_matrix,
+    mixing <- new_mixing_tbl(mixing_matrix = l_ica %>% purrr::transpose() %>% .$mixing_matrix,
                          means_matrix= channel_means,
                          groups = group_vars(.data),
-                         channel_info = channels_tbl(signal_raw))
+                         channels_tbl = channels_tbl(signal_raw)) %>%
+        validate_mixing_tbl
     ica <- ica_lst(signal = signal_source_tbl,
                    mixing = mixing,
                    events = .data$events,
@@ -174,7 +174,7 @@ as_eeg_lst.ica_lst <- function(.data, ...){
     signal <- .data$signal %>% dplyr::select_at(vars(-one_of(component_names(.data)))) %>%
         bind_cols_dt(reconstr_signals)
 
-    eeg_lst(signal= signal, events= .data$events, segments = .data$segments ) %>%
+    eeg_lst(signal_tbl= signal, events_tbl= .data$events, segments_tbl = .data$segments ) %>%
         dplyr::group_by(!!!dplyr::groups(.data))
 }
 

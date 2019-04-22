@@ -31,112 +31,31 @@
 #' into the `segments` tibble using non-eeguana merge functions, e.g. the `dplyr`
 #' join series.
 #'
-#' @param signal See [signal_tbl()].
-#' @param events See [events_tbl()].
-#' @param segments A tibble of segment numbers and related information. 
+#' @param signal_tbl See [signal_tbl()].
+#' @param events_tbl See [events_tbl()].
+#' @param segments_tbl A tibble of segment numbers and related information. 
 #' 
 #' @family eeg_lst
 #'
 #' @return A valid eeg_lst.
 #' @export
-eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
-  validate_eeg_lst(new_eeg_lst(signal, events, segments))
-}
+eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, channels_tbl = NULL) {
+    signal_tbl <- data.table::as.data.table(signal_tbl) 
+    if(!is.null(channels_tbl)){
+        data.table::set(signal_tbl,
+                        ##columns with channels
+                        j = channels_tbl$.channel,
+                        ## columns that need to be updated with attributes
+                        value=  signal_tbl[, (update_channel_meta_data(.SD, channels_tbl)),
+                                           .SDcols=(channels_tbl$.channel)])
+    }
+    validate_eeg_lst(new_eeg_lst(as_signal_tbl(signal_tbl),
+                                 as_events_tbl(events_tbl),
+                                 validate_segments(segments_tbl)),
+                     recursive = FALSE)
+} 
 
 
-#' Builds a signal_tbl table
-#' 
-#' The eeg_lst `signal` table is organised into columns representing timestamps 
-#' (`.sample_id`) and individual electrodes. Each `.sample_id` corresponds to
-#' 1 sample in the original recording, i.e. if the sampling rate of the EEG
-#' recording is 500 Hz, then each `.sample_id` corresponds to 2 milliseconds. 
-#' These timestamps correspond to `.sample_0` in the `events` table, which 
-#' displays only the timestamps where logged events began.
-#'
-#' @param signal_matrix Matrix or table of channels with their signal.
-#' @param ids Integers indicating to which group the row of the signal matrix belongs.
-#' @param sample_ids Vector of integers.
-#' @param channel_info A table with information about each channel (such as the one produced by `channels_tbl``)
-#' 
-#' @family signal_tbl
-#' 
-#' @return A valid `signal_tbl` table.
-#' @export
-signal_tbl <- function(signal_matrix = NULL, ids=NULL, sample_ids=NULL, channel_info=NULL) {
-  validate_signal_tbl(new_signal_tbl(signal_matrix, ids, sample_ids, channel_info))
-}
-
-#' Builds an events_tbl table
-#' 
-#' The eeg_lst `events` table is organised into columns representing the `type` of event
-#' associated with the trigger listed under `description`. The timestamp marking
-#' the beginning of the event is listed under `.sample_0` and the length of the
-#' event (in timestamps) is listed under `.size`. The `.channel` column is a
-#' linking variable only, so will generally only contain NAs, unless the 
-#' event is specific to a certain channel.
-#'
-#' @param ids Integers indicating to which group the row of the signal matrix belongs.
-#' @param sample_0s Vector of integers that indicate at which sample an events starts.
-#' @param sizes Vector of integers that indicate at which sample an events starts.
-#' @param channels Vector of characters that indicate to which channel the event is relevant or NA for all the channels.
-#' 
-#' @family events_tbl
-#' 
-#' @return A valid `events_tbl` table.
-#' @export
-events_tbl <- function(.id = NULL, .sample_0=NULL, .size=NULL, .channel=NULL, descriptions_dt=NULL) {
-    validate_events_tbl(new_events_tbl(.id, .sample_0, .size, .channel, descriptions_dt))
-}
-
-#' @export
-as_events_tbl <- function(.data,...){
-    UseMethod("as_events_tbl")
-}
-
-#' @export
-as_events_tbl.data.table <- function(.data){
-    class(.data) <- c("events_tbl",class(.data))
-    validate_events_tbl(.data)
-}
-
-#' @export
-as_events_tbl.events_tbl <- function(.data){
-    validate_events_tbl(.data)
-}
-
-
-#' @export
-as_events_tbl.data.frame <- function(.data){
-    .data <- data.table::as.data.table(.data)
-    class(.data) <- c("events_tbl",class(.data))
-    validate_events_tbl(.data)
-}
-
-#' Test if the object is a  signal_tbl
-#' This function returns  TRUE for signals.
-#'
-#' @param x An object.
-#' 
-#' @family signal_tbl
-#'
-#' @return `TRUE` if the object inherits from the `signal_tbl` class.
-#' @export
-is_signal_tbl <- function(x) {
-  "signal_tbl" %in% class(x) 
-}
-
-#' Test if the object is an events_tbl 
-#' This function returns  TRUE for events_tbl.
-#'
-#' @param x An object.
-#' 
-#' @family events_tbl
-#'
-#' @return `TRUE` if the object inherits from the `events_tbl` class.
-#' @export
-is_events_tbl <- function(x) {
-    "events_tbl" %in% class(x) 
-}
 
 
 #' Test if the object is an eeg_lst.
@@ -338,20 +257,3 @@ ica_lst <- function(signal = NULL, mixing = NULL, events = NULL, segments = NULL
     validate_ica_lst(new_ica_lst(signal, mixing, events, segments))
 }
 
-#' Builds a mixing_tbl table.
-#'
-#' @param mixing_matrix Matrix or table of channels with their mixing.
-#' @param ids Integers indicating to which group the row of the mixing matrix belongs.
-#' @param sample_ids Vector of integers.
-#' @param channel_info A table with information about each channel (such as the one produced by `channels_tbl``)
-#' 
-#' @family mixing_tbl
-#' 
-#' @return A valid mixing_tbl table.
-#' @export
-mixing_tbl <- function(mixing_matrix,means_matrix, groups, channel_info) {
-    validate_mixing_tbl(new_mixing_tbl(mixing_matrix = mixing_matrix,
-                                       means_matrix = means_matrix,
-                                       groups = groups,
-                                       channel_info =channel_info))
-}

@@ -2,66 +2,54 @@ context("base functions: as_tibble")
 library(eeguana)
 
 cond1 <- eeg_lst(
-  signal = signal_tbl(
-    signal_matrix = as.matrix(
-      data.frame(X = sin(1:10), Y = cos(1:10))
-    ),
-    ids = rep(1L, 10),
-    sample_ids = sample_int(seq(-4L, 5L), sampling_rate = 500),
-    dplyr::tibble(
-      channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+  signal_tbl =
+ dplyr::tibble(X = sin(1:10), Y = cos(1:10),
+    .id = rep(1L, 10),
+    .sample_id = sample_int(seq(-4L, 5L), sampling_rate = 500)),
+   channels_tbl = dplyr::tibble(
+      .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
-    )
-  ),
-  events = dplyr::tribble(
-    ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
+),   events_tbl = dplyr::tribble(
+    ~.id, ~type, ~description, ~.sample_0, ~.size, ~..channel,
     1L, "New Segment", NA, -4L, 1L, NA,
     1L, "Time 0", NA, 1L, 1L, NA
-    )%>% as_events_tbl,
+    ),
   segments = dplyr::tibble(.id = 1L, recording = "recording1", segment = 1, type = "initial")
 )
 
 
 cond2 <- eeg_lst(
-  signal = signal_tbl(
-    signal_matrix = as.matrix(
-      data.frame(X = sin(1:10) + .1, Y = cos(1:10) + .1)
-    ),
-    ids = rep(1L, 10),
-    sample_ids = sample_int(seq(-4L, 5L), sampling_rate = 500),
-    dplyr::tibble(
-      channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+  signal_tbl =
+ dplyr::tibble(X = sin(1:10) + .1, Y = cos(1:10) + .1,
+    .id = rep(1L, 10),
+    .sample_id = sample_int(seq(-4L, 5L), sampling_rate = 500)),
+   channels_tbl = dplyr::tibble(
+      .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
-    )
-  ),
-
-  events = dplyr::tribble(
-    ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
+),
+   events_tbl = dplyr::tribble(
+    ~.id, ~type, ~description, ~.sample_0, ~.size, ~..channel,
     1L, "New Segment", NA, -4L, 1L, NA,
     1L, "Time 0", NA, 1L, 1L, NA
-  )%>% as_events_tbl,
+  ),
   segments = dplyr::tibble(.id = 1L, recording = "recording2", segment = 1, type = "initial")
 )
 
 
 cond3 <- eeg_lst(
-  signal = signal_tbl(
-    signal_matrix = as.matrix(
-      data.frame(X = sin(1:10) + .1, Y = cos(1:10) + .1)
-    ),
-    ids = rep(1L, 10),
-    sample_ids = sample_int(seq(-4L, 5L), sampling_rate = 500),
-    dplyr::tibble(
-      channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
-      radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
-    )
-  ),
-
-  events = dplyr::tribble(
-    ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
+  signal_tbl =
+ dplyr::tibble(X = sin(1:10) + .1, Y = cos(1:10) + .1,
+    .id = rep(1L, 10),
+    .sample_id = sample_int(seq(-4L, 5L), sampling_rate = 500)),
+   channels_tbl = dplyr::tibble(
+      .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+      radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_)
+ ,
+   events_tbl = dplyr::tribble(
+    ~.id, ~type, ~description, ~.sample_0, ~.size, ~..channel,
     1L, "New Segment", NA, -4L, 1L, "X",
     1L, "Time 0", NA, 1L, 1L, NA
-  )%>% as_events_tbl,
+  ),
   segments = dplyr::tibble(.id = 1L, recording = "recording3", segment = 1, type = "initial")
 )
 

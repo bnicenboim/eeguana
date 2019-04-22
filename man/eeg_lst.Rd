@@ -4,14 +4,15 @@
 \alias{eeg_lst}
 \title{Create an eeg_lst}
 \usage{
-eeg_lst(signal = NULL, events = NULL, segments = NULL)
+eeg_lst(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL,
+  channels_tbl = NULL)
 }
 \arguments{
-\item{signal}{See \code{\link[=signal_tbl]{signal_tbl()}}.}
+\item{signal_tbl}{See \code{\link[=signal_tbl]{signal_tbl()}}.}
 
-\item{events}{See \code{\link[=events_tbl]{events_tbl()}}.}
+\item{events_tbl}{See \code{\link[=events_tbl]{events_tbl()}}.}
 
-\item{segments}{A tibble of segment numbers and related information.}
+\item{segments_tbl}{A tibble of segment numbers and related information.}
 }
 \value{
 A valid eeg_lst.
