@@ -256,10 +256,14 @@ validate_mixing_tbl <- function(mixing_tbl) {
     mixing_tbl
 }
 
-#' @param mixing_matrix  matrix or a list o matrices
-#' @param groups 
-#' @param channels_tbl 
+#' Builds a mixing_tbl table.
 #'
+#' @param mixing_matrix Matrix or table of channels with their mixing.
+#' @param ids Integers indicating to which group the row of the mixing matrix belongs.
+#' @param sample_ids Vector of integers.
+#' @param channel_info A table with information about each channel (such as the one produced by `channels_tbl``)
+#' 
+#' @return A valid mixing_tbl table.
 #' @noRd
 new_mixing_tbl <- function(mixing_matrix, means_matrix , groups, channels_tbl) {
     ## if mixing_mat is not a list I convert it to always use the same map

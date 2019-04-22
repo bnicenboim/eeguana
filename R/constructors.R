@@ -257,20 +257,3 @@ ica_lst <- function(signal = NULL, mixing = NULL, events = NULL, segments = NULL
     validate_ica_lst(new_ica_lst(signal, mixing, events, segments))
 }
 
-#' Builds a mixing_tbl table.
-#'
-#' @param mixing_matrix Matrix or table of channels with their mixing.
-#' @param ids Integers indicating to which group the row of the mixing matrix belongs.
-#' @param sample_ids Vector of integers.
-#' @param channel_info A table with information about each channel (such as the one produced by `channels_tbl``)
-#' 
-#' @family mixing_tbl
-#' 
-#' @return A valid mixing_tbl table.
-#' @export
-mixing_tbl <- function(mixing_matrix,means_matrix, groups, channels_tbl) {
-    validate_mixing_tbl(new_mixing_tbl(mixing_matrix = mixing_matrix,
-                                       means_matrix = means_matrix,
-                                       groups = groups,
-                                       channels_tbl =channels_tbl))
-}

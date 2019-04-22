@@ -121,10 +121,11 @@ eeg_ica.eeg_lst <- function(.data,
                 ) %>%
         bind_cols_dt(removed_signal,.)
 
-    mixing <- mixing_tbl(mixing_matrix = l_ica %>% purrr::transpose() %>% .$mixing_matrix,
+    mixing <- new_mixing_tbl(mixing_matrix = l_ica %>% purrr::transpose() %>% .$mixing_matrix,
                          means_matrix= channel_means,
                          groups = group_vars(.data),
-                         channels_tbl = channels_tbl(signal_raw))
+                         channels_tbl = channels_tbl(signal_raw)) %>%
+        validate_mixing_tbl
     ica <- ica_lst(signal = signal_source_tbl,
                    mixing = mixing,
                    events = .data$events,

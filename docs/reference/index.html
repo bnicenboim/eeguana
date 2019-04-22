@@ -93,6 +93,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/N400.html">Preprocessing and analysis of a simple N400 experiment</a>
+    </li>
+    <li>
       <a href="../articles/brainvision_files.html">Introduction - Manipulating a clean EEG file exported from BrainVision 2.0</a>
     </li>
     <li>
@@ -249,9 +252,9 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="filt.html">ch_filt_low_pass()</a></code> <code><a href="filt.html">ch_filt_high_pass()</a></code> <code><a href="filt.html">ch_filt_band_pass()</a></code> <code><a href="filt.html">ch_filt_band_stop()</a></code> </p>
+          <p><code><a href="eeguana-deprecated.html">downsample()</a></code> <code><a href="eeguana-deprecated.html">segment()</a></code> <code><a href="eeguana-deprecated.html">interpolate_tbl()</a></code> <code><a href="eeguana-deprecated.html">event_to_ch_NA()</a></code> <code><a href="eeguana-deprecated.html">eeg_intervals_to_NA()</a></code> <code><a href="eeguana-deprecated.html">ch_filt_low_pass()</a></code> <code><a href="eeguana-deprecated.html">ch_filt_high_pass()</a></code> <code><a href="eeguana-deprecated.html">ch_filt_band_pass()</a></code> <code><a href="eeguana-deprecated.html">ch_filt_stop_pass()</a></code> <code><a href="eeguana-deprecated.html">events()</a></code> <code><a href="eeguana-deprecated.html">`events<-`()</a></code> </p>
         </td>
-        <td><p>Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter.</p></td>
+        <td><p>Deprecated functions in eeguana</p></td>
       </tr><tr>
         
         <td>
@@ -275,15 +278,27 @@
       <tr>
         
         <td>
+          <p><code><a href="eeg_artif.html">eeg_artif_minmax()</a></code> <code><a href="eeg_artif.html">eeg_artif_step()</a></code> </p>
+        </td>
+        <td><p>Annotate artifacts in the  events table of an eeg_lst.</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="eeg_downsample.html">eeg_downsample()</a></code> </p>
         </td>
         <td><p>Downsample EEG data</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="eeg_segment.html">eeg_segment()</a></code> </p>
+          <p><code><a href="eeg_events_to_NA.html">eeg_events_to_NA()</a></code> </p>
         </td>
-        <td><p>Segment an eeg_lst.</p></td>
+        <td><p>Remove (transform to NA) problematic events from an eeg_lst.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="eeg_ica.html">eeg_ica()</a></code> </p>
+        </td>
+        <td><p>EEG signal decomposition using Independent Component Analysis (ICA)</p></td>
       </tr><tr>
         
         <td>
@@ -293,21 +308,27 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="eeg_events_to_NA.html">eeg_grad_artifact(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="eeg_events_to_NA.html">eeg_events_to_NA()</a></code> </p>
+          <p><code><a href="eeg_lst.html">eeg_lst()</a></code> </p>
         </td>
-        <td><p>Remove (transform to NA) problematic events from an eeg_lst.</p></td>
+        <td><p>Create an eeg_lst</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="eeg_grad_artifact.html">eeg_grad_artifact()</a></code> </p>
+          <p><code><a href="eeg_segment.html">eeg_segment()</a></code> </p>
         </td>
-        <td><p>Annotate artifacts in the  events table of an eeg_lst.</p></td>
+        <td><p>Segment an eeg_lst.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="eeg_ica.html">eeg_ica()</a></code> </p>
+          <p><code><a href="eeguana-deprecated.html">downsample()</a></code> <code><a href="eeguana-deprecated.html">segment()</a></code> <code><a href="eeguana-deprecated.html">interpolate_tbl()</a></code> <code><a href="eeguana-deprecated.html">event_to_ch_NA()</a></code> <code><a href="eeguana-deprecated.html">eeg_intervals_to_NA()</a></code> <code><a href="eeguana-deprecated.html">ch_filt_low_pass()</a></code> <code><a href="eeguana-deprecated.html">ch_filt_high_pass()</a></code> <code><a href="eeguana-deprecated.html">ch_filt_band_pass()</a></code> <code><a href="eeguana-deprecated.html">ch_filt_stop_pass()</a></code> <code><a href="eeguana-deprecated.html">events()</a></code> <code><a href="eeguana-deprecated.html">`events<-`()</a></code> </p>
         </td>
-        <td><p>EEG signal decomposition using Independent Component Analysis (ICA)</p></td>
+        <td><p>Deprecated functions in eeguana</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="filt.html">eeg_filt_low_pass()</a></code> <code><a href="filt.html">eeg_filt_high_pass()</a></code> <code><a href="filt.html">eeg_filt_band_pass()</a></code> <code><a href="filt.html">eeg_filt_band_stop()</a></code> </p>
+        </td>
+        <td><p>Apply a zero-phase low-pass, high-pass, band-pass, or band-stop FIR filter.</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -443,7 +464,7 @@ This function returns  TRUE for signals.</p></td>
       <tr>
         
         <td>
-          <p><code><a href="events.html">events()</a></code> <code><a href="events.html">`events<-`()</a></code> </p>
+          <p><code><a href="events_tbl.html">events_tbl()</a></code> </p>
         </td>
         <td><p>Functions to get or set the events table of an eeg_lst object.</p></td>
       </tr><tr>
@@ -472,24 +493,6 @@ This function returns  TRUE for signals.</p></td>
           <p><code><a href="ica_lst.html">ica_lst()</a></code> </p>
         </td>
         <td><p>Builds an eeg_lst.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="signal_tbl.html">signal_tbl()</a></code> </p>
-        </td>
-        <td><p>Builds a signal_tbl table</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="events_tbl.html">events_tbl()</a></code> </p>
-        </td>
-        <td><p>Builds an events_tbl table</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="mixing_tbl.html">mixing_tbl()</a></code> </p>
-        </td>
-        <td><p>Builds a mixing_tbl table.</p></td>
       </tr><tr>
         
         <td>
