@@ -21,7 +21,11 @@ NULL
 
 #' @name eeg_artif
 #' @export
-eeg_artif_minmax <- function(.data,...){
+eeg_artif_minmax <- function(.data,...,
+                                     difference = 100,
+                                     lim = c(-200, 200),
+                                     window = (lim[2]-lim[1])/2,
+                                     unit = "ms"){
     UseMethod("eeg_artif_minmax")
 }
 
@@ -54,7 +58,7 @@ eeg_artif_minmax.eeg_lst <- function(.data,
 
 #' @name eeg_artif
 #' @export
-eeg_artif_step <- function(.data, ...) {
+eeg_artif_step <- function(.data,..., difference = 50 , lim = c(-200, 200), unit = "ms" ) {
     UseMethod("eeg_artif_step")
 }
 
