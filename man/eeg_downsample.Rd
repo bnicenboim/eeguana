@@ -17,9 +17,9 @@ eeg_downsample(x, q = 2, max_sample = NULL, ...)
 }
 \description{
 Downsample a signal_tbl by a factor \code{q}, using an FIR or IIR filter.
-This is a wrapper for \link{decimate} from the
-\link{signal_tbl} package, see its documentation for details. Notice that
-the code of the \link{signal_tbl} package might be outdated.
+This is a wrapper for \code{\link[signal:decimate]{decimate}} from the
+\code{\link[signal:signal]{signal}} package, see its documentation for details. Notice that
+the code of the signal package might be outdated.
 }
 \details{
 A factor q larger than 13 can result in NAs. To avoid this,
