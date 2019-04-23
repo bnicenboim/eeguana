@@ -42,7 +42,7 @@ events(x, ...) <- value
 
 \item{q}{integer factor(s) to downsample by.}
 
-\item{max_sample}{Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total number of samples.}
+\item{max_sample}{Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total number of samples}
 
 \item{...}{Not in use.}
 
