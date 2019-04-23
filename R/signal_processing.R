@@ -11,20 +11,22 @@
 #'
 #' @param x An eeg_lst object.
 #' @param q integer factor(s) to downsample by.
-#' @param max_sample Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total number of samples.
+#' @param max_sample Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total number of samples
+#' @param multiple_times Indicates whether to factorize `q`` and apply the downsampling in steps.
+#' @inheritParams signal::decimate
 #' @param ... Not in use.
 #' 
 #' @family eeg
 #' 
 #' @export
-eeg_downsample <- function(x, q = 2, max_sample = NULL, ...) {
+eeg_downsample <- function(x, q = 2, max_sample = NULL,
+                           n = if (ftype == "iir") 8 else 30,
+                           ftype = "iir", multiple_times = FALSE, ...) {
   UseMethod("eeg_downsample")
 }
 
-#' multiple_times Indicates whether to factorize `q`` and apply the downsampling in steps.
-#' @inheritParams signal::decimate
 #' @export
-eeg_downsample.eeg_lst <- function(x, q = 2L, max_sample = NULL,
+eeg_downsample.eeg_lst <- function(x, q = 2, max_sample = NULL,
                                n = if (ftype == "iir") 8 else 30,
                                ftype = "iir", multiple_times = FALSE, ...) {
 
