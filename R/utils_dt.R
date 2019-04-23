@@ -37,7 +37,18 @@ semi_join_dt <- function(x, y, by = NULL) {
 
 #' @noRd
 left_join_dt <- function(x, y, by = NULL) {
-    y[x, on = by]
+    ##need to be reversed:
+    if(!is.null(names(by))) {
+        by_names <- names(by)
+        by_content <- unname(by)
+        by <- by_names
+        names(by) <- by_content
+    } else {
+        names(by) <- by
+    }
+    out <- y[x, on = by]
+    data.table::setnames(out, names(by), by)[]
+
 }
 
 #' binds cols of dt and adds the class of the first object

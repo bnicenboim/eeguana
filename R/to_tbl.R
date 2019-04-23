@@ -1,61 +1,92 @@
-#' Convert an eeg_lst to a long table.
+#' Convert an eeg_lst to a long table in [`data.table`][data.table::data.table] format.
 #'
-#' Convert the signal_tbl table from wide to long format, and optionally `left_join`s the segment table
+#' Convert the signal_tbl table from wide to long format.
 #'
 #' @param x An `eeg_lst` object.
 #' @param add_segments Whether the segments table is included.
 #' @param add_channels_info Whether the channels information (`channels_tbl`) is included. 
-#' `as_data_frame` is an alias.
-#' @return A tibble.
+#' @return  A [`data.table`][data.table::data.table].
+#' 
+#'
+#'
+as.data.table.eeg_lst <- function(x, unit = "second", add_segments = TRUE, add_channels_info = TRUE) {
+    ## check if there are channels in the signal tbl (in ica_lst they may not be there)
+    if(any(channel_names(x) %in% colnames(x$signal))){
+        ## channels <- x$signal %>% dplyr::select_at(vars(-one_of(component_names(x)))) %>%
+        ##     .[,lapply(.SD, `attributes<-`, NULL )] %>%
+        ##     tidyr::gather(key = ".source", value = ".value",
+        ##                   (intersect(colnames(x$signal), channel_names(x)))) %>%
+        ##     dplyr::mutate(.type = "channel")
+
+        channels <- x$signal %>% dplyr::select_at(vars(-one_of(component_names(x)))) %>%
+            data.table::melt(variable.name = ".source",
+                             measure.vars = intersect(colnames(x$signal), channel_names(x)),
+                             value.name = ".value")
+                channels[,.type := "channel"]
+    } else {
+        channels <- data.table::data.table()
+    }
+
+    if(ncomponents(x)!=0){
+        ## components <-  x$signal %>% dplyr::select_if(purrr::negate(is_channel_dbl)) %>%
+        ##     .[,lapply(.SD, `attributes<-`, NULL )] %>%
+        ##     tidyr::gather(key = ".source", value = ".value", component_names(x)) %>%
+        ##     dplyr::mutate(.type = "component")
+        components <- x$signal %>% dplyr::select_at(vars(one_of(component_names(x)))) %>%
+            data.table::melt(variable.name = ".source",
+                             measure.vars = component_names(x),
+                             value.name = ".value")
+        components[,.type := "component"]
+    } else {
+        components =  data.table::data.table()
+    }
+
+    long_table <- rbind(channels,components) %>%
+        {
+            if (add_segments) {
+                left_join_dt(., data.table::as.data.table(x$segments), by = ".id")
+            } else {
+                .
+            }
+        } %>% 
+        {
+            if (add_channels_info) {
+                left_join_dt(., data.table::as.data.table(channels_tbl(x)), by = c(".source"=".channel"))
+            } else {
+                .
+            }
+        }
+
+    ## inf_events <- setdiff(colnames(events_tbl(x)),  obligatory_cols[["events"]])
+    ## events_all_ch <- data.table::copy(events_tbl(x))[is.na(.channel), ends := .sample_0 + .size]
+
+    ## events_all_ch[long_table ,on = .(.id, .sample_0 <= .sample_id, ends > .sample_id), c(colnames(long_table),inf_events), with = FALSE]
+
+    ##unit inside the data.table was creating problems, I rename it to .unit
+    .unit <- unit
+    long_table[, time := as_time(.sample_id, unit = .unit)]
+    long_table[, .sample_id := NULL]
+    long_table %>% dplyr::select(time, dplyr::everything()) 
+}
+
+
+#' Convert an eeg_lst to a long table in [`tibble`][tibble::tibble] format.
+#'
+#' Convert the signal_tbl table from wide to long format.
+#'
+#' @param x An `eeg_lst` object.
+#' @inheritParams as.data.table
+#' @return A [`tibble`][tibble::tibble]
 #'
 #' @importFrom magrittr %>%
 #'
 #' @family tibble
 #'
-as_tibble.eeg_lst <- function(x, add_segments = TRUE, add_channels_info = TRUE) {
-
-    if(any(channel_names(x) %in% colnames(x$signal))){
-        channels <- x$signal %>% dplyr::select_at(vars(-one_of(component_names(x)))) %>%
-            .[,lapply(.SD, `attributes<-`, NULL )] %>%
-            tidyr::gather(key = ".source", value = ".value",
-                          (intersect(colnames(x$signal), channel_names(x)))) %>%
-            dplyr::mutate(.type = "channel")
-
-    } else {
-        channels <- dplyr::tibble()
-    }
-
-    if(ncomponents(x)!=0){
-        components <-  x$signal %>% dplyr::select_if(purrr::negate(is_channel_dbl)) %>%
-            .[,lapply(.SD, `attributes<-`, NULL )] %>%
-            tidyr::gather(key = ".source", value = ".value", component_names(x)) %>%
-    dplyr::mutate(type = "component")
-    } else {
-        components = dplyr::tibble()
-    }
-
-    dplyr::bind_rows(channels,components) %>%
-    {
-      if (add_segments) {
-        dplyr::left_join(., x$segments, by = ".id")
-      } else {
-        .
-      }
-    } %>% 
-     {
-      if (add_channels_info) {
-        dplyr::left_join(., channels_tbl(x), by = c(".source"=".channel"))
-      } else {
-        .
-      }
-    } %>% 
-    dplyr::group_by(.id, .source) %>%
-    dplyr::mutate(time = (unclass(.sample_id) - 1) / sampling_rate(x)) %>%
-    dplyr::ungroup() %>%
-    dplyr::select(time, dplyr::everything()) %>%
-    dplyr::select(-.sample_id) 
- 
+as_tibble.eeg_lst <- function(x, unit = "second", add_segments = TRUE, add_channels_info = TRUE) {
+    data.table::as.data.table(x, unit, add_segments, add_channels_info) %>%
+        dplyr::as_tibble()
 }
+
 
 as_tibble.mixing_lst <- function(x, ..., .rows = NULL,
     .name_repair = c("check_unique","unique", "universal", "minimal"),

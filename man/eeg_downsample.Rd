@@ -4,8 +4,8 @@
 \alias{eeg_downsample}
 \title{Downsample EEG data}
 \usage{
-eeg_downsample(x, q = 2L, max_sample = NULL, n = if (ftype == "iir")
-  8 else 30, ftype = "iir", multiple_times = FALSE, ...)
+eeg_downsample(x, q = 2, max_sample = NULL, n = if (ftype == "iir") 8
+  else 30, ftype = "iir", multiple_times = FALSE, ...)
 }
 \arguments{
 \item{x}{An eeg_lst object.}

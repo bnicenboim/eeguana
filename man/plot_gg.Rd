@@ -8,7 +8,7 @@
 plot_gg(.data, ...)
 
 \method{plot_gg}{eeg_lst}(.data, x = time, y = .value, ...,
-  max_sample = 64000)
+  max_sample = 6400)
 }
 \arguments{
 \item{.data}{An \code{eeg_lst} object.}
@@ -25,7 +25,7 @@ they are so common; all other aesthetics must be named.}
 variables. The names for x and y aesthetics are typically omitted because
 they are so common; all other aesthetics must be named.}
 
-\item{max_sample}{Downsample to approximately 64000 samples by default.}
+\item{max_sample}{Downsample to approximately 6400 samples by default.}
 }
 \value{
 A ggplot object
@@ -37,8 +37,8 @@ its input data. Layers can then be added in the same way as for a
 }
 \details{
 If necessary, \code{plot_gg} will first downsample the \code{eeg_lst} object so that there is a
-maximum of 64,000 samples. The \code{eeg_lst} object is then converted to a long-format
-tibble via \code{as_tibble}. In this tibble, the \code{.source} variable is the
+maximum of 6400 samples. The \code{eeg_lst} object is then converted to a long-format
+tibble via \link{as_tibble}. In this tibble, the \code{.source} variable is the
 channel/component name and \code{.value} its respective amplitude. The sample
 number (\code{.sample_id} in the \code{eeg_lst} object) is automatically converted to milliseconds
 to create the variable \code{time}. By default, time is plotted on the
