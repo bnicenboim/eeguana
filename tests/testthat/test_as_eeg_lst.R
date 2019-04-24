@@ -23,6 +23,3 @@ test_that("raw brainvision read and converted from MNE match", {
 
     expect_equal(eeg_read,eeg_mne)
 })
-
-
-sampling_rate(eeg_read$events)
