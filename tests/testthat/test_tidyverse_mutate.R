@@ -41,7 +41,6 @@ data_2 <- mutate(data_1, recording = "recording2",
 # bind it all together
 data <- bind(data_1, data_2)
 
-data$events %>% class()
 # for checks later
 reference_data <- data.table::copy(data)
 
