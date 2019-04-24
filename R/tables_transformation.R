@@ -23,7 +23,8 @@ eeg_segment <- function(x, ...) {
 #' @param recording_col Column in the segments table indicating to which recording or file each segment belongs.
 #' @inheritParams as_time
 #' @export
-eeg_segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds", recording_col = "recording") {
+eeg_segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds",
+                                recording_col = "recording") {
   dots <- rlang::enquos(...)
   end <- rlang::enquo(end)
 
@@ -63,7 +64,7 @@ eeg_segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds",
   }
 
   segmentation <- data.table::as.data.table(segmentation_info)
-
+  segmentation[,.sample_0 := sample_int(.sample_0, sampling_rate = sampling_rate(x))]
   # update the signal tbl:
   cols_signal <- colnames(x$signal)
   cols_signal_temp <- c(".new_id",".sample_0","x..sample_id",cols_signal[cols_signal!=".id"])
@@ -87,18 +88,18 @@ eeg_segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds",
   new_events <- segmentation[x$events, on = .(.id), ..cols_events_temp, allow.cartesian=TRUE][
                                 data.table::between(i..sample_0,.lower - .size + 1 , .upper)]
 
-  new_events[,.size := dplyr::if_else(i..sample_0 < .lower,
-                                      as.integer(.size - (.lower - i..sample_0) + 1L),
-                                      # adjust the size so that it doesn't spillover after the segment
-                                      .size) %>% 
-                        pmin(., .upper + 1L - i..sample_0 )][,
-               .sample_0 := dplyr::if_else(i..sample_0 < .lower, 
-                                           .lower - .sample_0 + 1L,
-                                           i..sample_0 - .sample_0 + 1L)  ][, 
-               .id := .new_id]
+  new_events[i..sample_0 < .lower, .size := as.integer(.size - (.lower - i..sample_0)) + 1L]
+             ## adjust the size so that it doesn't spillover after the segment
+  new_events[,  .size := pmin(.size, .upper + 1L - i..sample_0 )]
 
-  x$events <- new_events[,..cols_events]
-  data.table::setattr(x$events,"class",c("events_tbl",class(x$events)))
+  ## faster way to do an ifelse, and dplyr::if_else is problematic with my own class
+  new_events[, .sample_0 := .lower * (i..sample_0 < .lower)
+             + i..sample_0 * (!i..sample_0 < .lower) - .sample_0 + 1L]
+
+  new_events[, .id := .new_id]
+
+  x$events <- new_events[,..cols_events] %>% as_events_tbl(sampling_rate = sampling_rate(x))
+  ## data.table::setattr(x$events,"class",c("events_tbl",class(x$events)))
 
 
   message(paste0("# Total of ", max(x$signal$.id), " segments found."))

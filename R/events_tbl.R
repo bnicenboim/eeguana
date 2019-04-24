@@ -16,22 +16,22 @@
 #' 
 #' @return A valid `events_tbl` table.
 #' @noRd
-new_events_tbl <- function(.id=NULL, .sample_0=NULL, .size=NULL, .channel=NULL, descriptions_dt=NULL) {
+new_events_tbl <- function(.id=integer(0), 
+                           .sample_0=sample_int(integer(0), integer(0)),
+                           .size=integer(0),
+                           .channel=character(0), 
+                           descriptions_dt=data.table::data.table()) {
     
-    if(is.null(.id) &&
-       is.null(.sample_0) &&
-       is.null(.size) &&
-       is.null(.channel) &&
-       is.null(descriptions_dt)) {
-        events <- data.table::data.table(.id= integer(0),
-                                         .sample_0= integer(0),
-                                         .size= integer(0),
-                                         .channel= character(0))
+    if(length(c(.id, .sample_0,.size, .channel, descriptions_dt))==0) {
+        events <- data.table::data.table(.id= .id,
+                                         .sample_0= .sample_0,
+                                         .size= .size,
+                                         .channel= .channel)
     } else {
-        if(is.null(.size)) .size <- 1
-        if(is.null(.channel)) .channel <- NA_character_
+        if(length(.size)==0) .size <- 1
+        if(length(.channel)==0) .channel <- NA_character_
 
-        if(is.null(descriptions_dt)){
+        if(length(descriptions_dt)==0){
         events <- data.table::data.table(.id = .id,
                            .sample_0 = .sample_0,
                            .size = .size,
@@ -51,28 +51,35 @@ as_events_tbl <- function(.data,...){
     UseMethod("as_events_tbl")
 }
 
-as_events_tbl.data.table <- function(.data){
+as_events_tbl.data.table <- function(.data, sampling_rate = NULL){
     .data <- data.table::copy(.data)
     .data[,.id := as.integer(.id)]
     .data[,.size := as.integer(.size)]
-    .data[,.sample_0 := as.integer(.sample_0)]
+    if(!is.null(sampling_rate)){
+     .data[, .sample_0 := sample_int(as.integer(.sample_0),
+                                             sampling_rate =sampling_rate )]
+    }
     data.table::setattr(.data, "class", c("events_tbl",class(.data)))
     validate_events_tbl(.data)
 }
 
-as_events_tbl.events_tbl <- function(.data){
-    validate_events_tbl(.data)
+as_events_tbl.events_tbl <- function(.data, sampling_rate = NULL){
+  if(!is.null(sampling_rate) && sampling_rate != sampling_rate(.data)){
+    .data <- data.table::copy(.data)
+    .data[, .sample_0 := sample_int(as.numeric(.sample_0), sampling_rate = sampling_rate)]
+  }  
+  validate_events_tbl(.data)
 }
 
 
-as_events_tbl.data.frame <- function(.data){
+as_events_tbl.data.frame <- function(.data, sampling_rate = NULL){
     .data <- data.table::as.data.table(.data)
-    as_events_tbl(.data)
+    as_events_tbl(.data, sampling_rate =  sampling_rate)
 }
 
 #' @noRd
-as_events_tbl.NULL <- function(.data){
-    new_events_tbl()
+as_events_tbl.NULL <- function(.data, sampling_rate = NULL){
+    new_events_tbl(.sample_0 = sample_int(integer(0), sampling_rate = sampling_rate))
 }
 
 #' Test if the object is an events_tbl 
@@ -102,8 +109,8 @@ validate_events_tbl <- function(events) {
                 )
     }
 
-    if (!is.integer(events$.sample_0)) {
-        warning("Values of .sample_0 should be integers",
+    if (!is_sample_int(events$.sample_0)) {
+        warning("Values of .sample_0 should be samples",
                 call. = FALSE
                 )
     }

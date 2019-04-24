@@ -70,10 +70,11 @@ eeg_artif_step.eeg_lst <- function(.data, ..., difference = 50 , lim = c(-200, 2
     artifacts_found <- search_artifacts(.data$signal,fun = detect_step, ...,
                                         args = list(difference = difference))
 
-    events_tbl(.data) <- add_intervals_from_artifacts( old_events = events_tbl(.data), 
+    events_tbl(.data) <- add_intervals_from_artifacts(old_events = events_tbl(.data), 
                                                   artifacts_found, 
-                                                   sample_range,
-                                                   "step")
+                                                  sample_range,
+                                                  type = "step")
+
     validate_eeg_lst(.data)
 }
 

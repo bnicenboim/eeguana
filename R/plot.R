@@ -515,7 +515,7 @@ annotate_head <- function(size = 1.1, color ="black", stroke=1) {
 
 #' @export
 annotate_events <- function(events_tbl, alpha = .8){
-    info_events    setdiff(colnames(events), obligatory_cols[["events"]])
+    info_events   <- setdiff(colnames(events), obligatory_cols[["events"]])
 
     geom_rect(data= events_tbl,
               aes(xmin = as_time(events_tbl$.sample_0),

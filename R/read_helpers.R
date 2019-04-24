@@ -111,12 +111,11 @@ read_dat <- function(file, header_info = NULL, events = NULL,
     recording = recording, segment = .id
   )
 
-  eeg_lst <- new_eeg_lst(
-    signal = signal_tbl,
-    events = seg_events,
-    segments = segments
-  ) %>% validate_eeg_lst()
-
+  eeg_lst <- eeg_lst(
+    signal_tbl = signal_tbl,
+    events_tbl = seg_events,
+    segments_tbl = segments
+  ) 
 
   message(paste0(
     "# Data from ", file,
@@ -171,7 +170,7 @@ segment_events <- function(events, .lower, .sample_0, .upper) {
                                              as.integer(x..lower - i..sample_0 + 1L),
                                              as.integer(i..sample_0 - .sample_0 + 1L))  ]
   out_events <- new_events[,..cols_events] 
-  data.table::setattr(out_events, "class", c("events_tbl",class(out_events)))
+  ## data.table::setattr(out_events, "class", c("events_tbl",class(out_events)))
   out_events
 }
 

@@ -227,7 +227,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
     add_event_channel(channel_names) %>%
     segment_events(.lower = slengths$V1, .sample_0 = slengths$V1 - slengths$V3, .upper= slengths$V2)
   } else {
-    events <- new_events_tbl()
+    events <- NULL 
   }
   
   segments <- tibble::tibble(
@@ -239,7 +239,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
     segments <- segments %>% dplyr::bind_cols(dplyr::as_tibble(mat[[1]][, , 1]$trialinfo))
   }
 
-  eeg_lst <- new_eeg_lst(
+  eeg_lst <- eeg_lst(
     signal = signal_tbl, events = events, segments = segments
   )
 
@@ -321,25 +321,22 @@ read_edf <- function(file, recording = file) {
                       .sample_id = sample_id, 
                       channels_tbl = channel_info)
   if(length(l_annot)==0){
-    events <- new_events_tbl()
+      events <- new_events_tbl(.sample_0 =  sample_int(integer(0), sampling_rate = sampling_rate))
   } else {
     edf_events <- l_annot[[1]]$annotations
     events <- new_events_tbl(.id=1L, 
-                         .sample_0 = round(edf_events$onset * sampling_rate) %>%
-                             as.integer + 1L,
+                             .sample_0 = sample_int(round(edf_events$onset * sampling_rate) + 1L, sampling_rate = sampling_rate),
                          descriptions_dt = edf_events["annotation"],
-                         .size = dplyr::case_when(!is.na(edf_events$duration) ~ round(edf_events$duration* sampling_rate) %>%
-                                                      as.integer,
-                                                  !is.na(edf_events$end) ~  round((edf_events$end - edf_events$onset + 1)* sampling_rate) %>% as.integer, 
+                         .size = dplyr::case_when(!is.na(edf_events$duration) ~ round(edf_events$duration* sampling_rate) %>% as.integer, !is.na(edf_events$end) ~  round((edf_events$end - edf_events$onset + 1)* sampling_rate) %>% as.integer, 
                                                   TRUE ~ 1L),
                                      .channel= NA_character_)
 
   }
-  segments <- tibble::tibble(.id = seq_len(max(s_id)),
+    segments <- tibble::tibble(.id = seq_len(max(s_id)),
                             recording = recording, 
                             segment = .id)
   
-  eeg_lst <- new_eeg_lst(
+  eeg_lst <- eeg_lst(
     signal = signal, events = events, segments = segments
   )
 
@@ -352,5 +349,5 @@ read_edf <- function(file, recording = file) {
     " segment(s) and ", nchannels(eeg_lst), " channels was loaded."
   ))
   message(say_size(eeg_lst))
-  validate_eeg_lst(eeg_lst)
+  eeg_lst
 }

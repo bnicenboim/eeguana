@@ -86,7 +86,6 @@ validate_signal_tbl <- function(signal_tbl) {
                 )
     }
 
-
     if(!identical(data.table::key(signal_tbl), c(".id",".sample_id"))) {
         warning("`keys` of signal table are missing.",
                 call. = FALSE
@@ -94,7 +93,11 @@ validate_signal_tbl <- function(signal_tbl) {
     }
 
     ## Validates .sample_id
-    validate_sample_int(signal_tbl$.sample_id)
+    if (!is_sample_int(signal_tbl$.sample_id)) {
+        warning("Values of .sample_0 should be samples",
+                call. = FALSE
+                )
+    }
 
     ##checks if there are channels
     if(nrow(signal_tbl)>0){

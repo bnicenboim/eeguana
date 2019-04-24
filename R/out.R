@@ -78,9 +78,17 @@ ncomponents.eeg_lst <- function(x, ...) {
     component_names(x) %>% length()
 }
 
-
-sampling_rate <- function(x) {
+sampling_rate <- function(x, ...) {
+  UseMethod("sampling_rate")
+}
+sampling_rate.eeg_lst <- function(x) {
   attributes(x$signal$.sample_id)$sampling_rate
+}
+sampling_rate.signal_tbl<- function(x) {
+  attributes(x$.sample_id)$sampling_rate
+}
+sampling_rate.events_tbl<- function(x) {
+  attributes(x$.sample_0)$sampling_rate
 }
 
 duration <- function(x) {

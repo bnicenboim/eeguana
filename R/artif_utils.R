@@ -38,8 +38,10 @@ add_intervals_from_artifacts <- function(old_events, artifact_found, sample_rang
             imap_dtr( ~{
                 if(all(.x[!is.na(.x)]==FALSE)){
                   out <- new_events_tbl()  
-                    out[,.id:=NULL]  ## I need to remove .id because it gets added by map 
-                    out
+                    out[,.id:=NULL][  ## I need to remove .id because it gets added by map 
+                       ,.sample_0 :=  sample_int(integer(0),
+                                                  sampling_rate =
+                                                      sampling_rate(old_events))][]
                 } else {
                     ## left and right values of the window of bad values (respecting the min max samples)
                     left <-  .eeg$.sample_id[.x] + sample_range[[1]]
@@ -54,15 +56,17 @@ add_intervals_from_artifacts <- function(old_events, artifact_found, sample_rang
                        by=.(group=cumsum(c(1, tail(start, -1) > head(stop, -1))))] 
                     data.table::data.table(type = "artifact",
                                            description=type,
-                                           .sample_0 = intervals$start,
+                                           .sample_0 = sample_int(intervals$start,
+                                                                  sampling_rate =
+                                                                      sampling_rate(old_events)),
                                            .size = intervals$stop + 1L - intervals$start,
                                            .channel = .y)
                 }
             }),.id = TRUE
             )
     events_found[,.id:= as.integer(.id)]
+
     new_events <- rbind(events_found, old_events, fill = TRUE)
-    
     data.table::setorder(new_events,.id, .sample_0, .channel)
     new_events
 }

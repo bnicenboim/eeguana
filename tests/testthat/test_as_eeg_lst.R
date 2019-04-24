@@ -16,9 +16,13 @@ test_that("raw brainvision read and converted from MNE match", {
 
     eeg_mne <- as_eeg_lst(eeg_mne_obj)
 
-    events_tbl(eeg_read) <- events_tbl(eeg_read) %>% mutate(description=paste0(type,"/",description)) %>% select(-type) 
+    events_tbl(eeg_read) <- events_tbl(eeg_read) %>%
+        mutate(description=paste0(type,"/",description)) %>% select(-type)
     channels_tbl(eeg_read) <- channels_tbl(eeg_read) %>% select(.channel,.x,.y,.z,unit, .reference) %>% mutate(.reference=NA)
     channels_tbl(eeg_mne)
 
     expect_equal(eeg_read,eeg_mne)
 })
+
+
+sampling_rate(eeg_read$events)
