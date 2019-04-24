@@ -85,7 +85,7 @@ eeg_downsample.eeg_lst <- function(x, q = 2, max_sample = NULL,
 
   # even table needs to be adapted, starts from 1,
   # and the size is divided by two with a min of 1
-  x$events <- data.table::copy(x$events)[, .sample_0 := as.integer(round(.sample_0 / factor))][, .size := round(.size / factor) %>%
+  x$events <- data.table::copy(x$events)[, .sample_0 := sample_int(round(.sample_0 / factor), new_sampling_rate)][, .size := round(.size / factor) %>%
                                        as.integer() %>%
                                        purrr::map_int(~max(.x, 1L)) ][]
  

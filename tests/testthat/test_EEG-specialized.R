@@ -76,9 +76,8 @@ channels_tbl=    dplyr::tibble(
   segments_tbl = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
 )
 
-# TEST when the event exceeds the end of the segment
+## TODO: TEST when the event exceeds the end of the segment
 
-x <- data
 
 test_that("can clean files with entire_seg = FALSE", {
   clean_data <- eeg_events_to_NA(data, type == "Bad", entire_seg = FALSE)
@@ -196,7 +195,7 @@ test_that("can segment using lim", {
 })
 
 test_that("can segment using end", {
-  #works I should add an expect_equal
+  #TODO:  I should add an expect_equal
   data_s_e <- eeg_segment(data,type == "New Segment" , end = type == "Time 0")
 })
 

@@ -65,7 +65,16 @@ anti_join_dt <- function(x,y,by = NULL){
     x[!y, on = by]
 }
 
-
+#' @noRd
+filter_dt <- function(.data, ... ){
+    dots <- rlang::enquos(...)
+    cnds <- lapply(dots, rlang::quo_name) %>% paste0(collapse = " & ")
+    envs <- lapply(dots, rlang::quo_get_env) %>% unique()
+    if(length(envs)!=1) stop("Need to fix filter_dt")
+    ##TODO: check why this happens: for some reason if I don't do that, I modify the index of .data
+    .data <- data.table::copy(.data)  
+       .data[eval(parse(text = cnds), envir =envs[[1]]),]
+}
 #' binds cols of dt and adds the class of the first object
 #' @noRd
 bind_cols_dt<- function(...){
@@ -74,12 +83,5 @@ bind_cols_dt<- function(...){
     new_dt
 }
 
-#' @noRd
-filter_dt <- function(.data, ... ){
-    dots <- rlang::enquos(...)
-    cnds <- lapply(dots, rlang::quo_name) %>% paste0(collapse = " & ")
-    envs <- lapply(dots, rlang::quo_get_env) %>% unique()
-    if(length(envs)!=1) stop("Need to fix filter_dt")
-    .data[eval(parse(text = cnds), envir =envs[[1]]),]
-}
+
  
