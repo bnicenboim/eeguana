@@ -262,7 +262,7 @@ test_that("the signal after downsampling remains similar; sample0 = -100 ", {
 
 test_that("times remain similar; sample0 = -100", {
     expect_equal(as_time(data_d$signal$.sample_id),  as_time(data_eeg$signal$.sample_id)[seq(1, N, by = 2)], tolerance = 1/500 +.00001)
-    expect_equal(events_tbl(data_d)$.sample_0/250, events_tbl(data_eeg)$.sample_0/500, tolerance = 1/500 + .00001)
+    expect_equal(as.numeric(events_tbl(data_d)$.sample_0/250 ), as.numeric(events_tbl(data_eeg)$.sample_0/500)  , tolerance = 1/500 + .00001)
     expect_equal(events_tbl(data_d)$.size/250, events_tbl(data_eeg)$.size/500, tolerance = 1/500 + .00001)
 })
 
@@ -281,7 +281,7 @@ test_that("the signal after downsampling remains similar; sample0 = 0 ", {
 
 test_that("times remain similar; sample0 = 0", {
     expect_equal(as_time(data_dm1$signal$.sample_id),  as_time(data_eegm1$signal$.sample_id)[seq(1, N, by = 2)], tolerance = 1/500 +.00001)
-    expect_equal(events_tbl(data_dm1)$.sample_0/250, events_tbl(data_eegm1)$.sample_0/500, tolerance = 1/500 + .00001)
+    expect_equal(as.numeric(events_tbl(data_dm1)$.sample_0/250 ), as.numeric(events_tbl(data_eegm1)$.sample_0/500 ), tolerance = 1/500 + .00001)
 })
 
 
@@ -300,7 +300,7 @@ test_that("the signal after downsampling remains similar; sample0 = 0 ", {
 
 test_that("times remain similar; sample0 = 0", {
     expect_equal(as_time(data_d0$signal$.sample_id),  as_time(data_eeg0$signal$.sample_id)[seq(1, N, by = 2)], tolerance = 1/500 +.00001)
-    expect_equal(events_tbl(data_d0)$.sample_0/250, events_tbl(data_eeg0)$.sample_0/500, tolerance = 1/500 + .00001)
+    expect_equal(as.numeric(events_tbl(data_d0)$.sample_0/250 ), as.numeric(events_tbl(data_eeg0)$.sample_0/500 ), tolerance = 1/500 + .00001)
 })
 
 
@@ -318,7 +318,7 @@ test_that("the signal after downsampling remains similar ; sample0 = 1", {
 
 test_that("times remain similar; sample0 = 1", {
     expect_equal(as_time(data_d1$signal$.sample_id),  as_time(data_eeg1$signal$.sample_id)[seq(1, N, by = 2)], tolerance = 1/500 +.00001)
-    expect_equal(events_tbl(data_d1)$.sample_0/250, events_tbl(data_eeg1)$.sample_0/500, tolerance = 1/500 + .00001)
+    expect_equal(as.numeric(events_tbl(data_d1)$.sample_0/250 ), as.numeric(events_tbl(data_eeg1)$.sample_0/500 ), tolerance = 1/500 + .00001)
 })
 
 data_eeg2 <- data_eeg
@@ -335,7 +335,7 @@ test_that("the signal after downsampling remains similar ; sample0 = 2", {
 
 test_that("times remain similar; sample0 = 2", {
     expect_equal(as_time(data_d2$signal$.sample_id),  as_time(data_eeg2$signal$.sample_id)[seq(1, N, by = 2)], tolerance = 1/500 +.00001)
-    expect_equal(events_tbl(data_d2)$.sample_0/250, events_tbl(data_eeg2)$.sample_0/500, tolerance = 1/500 + .00001)
+    expect_equal(as.numeric(events_tbl(data_d2)$.sample_0/250), as.numeric(events_tbl(data_eeg2)$.sample_0/500), tolerance = 1/500 + .00001)
 })
 
 
@@ -354,7 +354,7 @@ test_that("the signal after downsampling remains similar ; sample0 = 101", {
 
 test_that("times remain similar; sample0 = 101", {
     expect_equal(as_time(data_d100$signal$.sample_id),  as_time(data_eeg100$signal$.sample_id)[seq(1, N, by = 2)], tolerance = 1/500 +.00001)
-    expect_equal(events_tbl(data_d100)$.sample_0/250, events_tbl(data_eeg100)$.sample_0/500, tolerance = 1/500 + .00001)
+    expect_equal(as.numeric(events_tbl(data_d100)$.sample_0/250 ), as.numeric(events_tbl(data_eeg100)$.sample_0/500 ), tolerance = 1/500 + .00001)
 })
 
 
@@ -374,7 +374,7 @@ test_that("the signal after downsampling remains similar;q=20 ", {
 
 test_that("times remain similar; q=20", {
     expect_equal(as_time(data_d$signal$.sample_id),  as_time(data_eeg$signal$.sample_id)[seq(1, N, by = 20)], tolerance = 1/20)
-    expect_equal(events_tbl(data_d)$.sample_0/25, events_tbl(data_eeg)$.sample_0/500, tolerance = 1/20)
+    expect_equal(as.numeric(events_tbl(data_d)$.sample_0/25 ), as.numeric(events_tbl(data_eeg)$.sample_0/500 ), tolerance = 1/20)
     expect_equal(events_tbl(data_d)$.size/25, events_tbl(data_eeg)$.size/500, tolerance = 1/20)
 })
 
@@ -394,7 +394,7 @@ test_that("the signal after downsampling remains similar; max_sample =100 ", {
 
 test_that("times remain similar; max_sample=100", {
     expect_equal(as_time(data_dmax$signal$.sample_id),  as_time(data_eeg$signal$.sample_id)[seq(1, N, by = 5)], tolerance = 1/100)
-    expect_equal(events_tbl(data_dmax)$.sample_0/100, events_tbl(data_eeg)$.sample_0/500, tolerance = 1/20)
+    expect_equal(as.numeric(events_tbl(data_dmax)$.sample_0/100 ), as.numeric(events_tbl(data_eeg)$.sample_0/500 ), tolerance = 1/20)
     expect_equal(events_tbl(data_dmax)$.size/100, events_tbl(data_eeg)$.size/500, tolerance = 1/20)
 })
 
