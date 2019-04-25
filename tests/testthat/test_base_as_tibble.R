@@ -10,7 +10,7 @@ cond1 <- eeg_lst(
       .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
 ),   events_tbl = dplyr::tribble(
-    ~.id, ~type, ~description, ~.sample_0, ~.size, ~..channel,
+    ~.id, ~type, ~description, ~.initial, ~.final, ~..channel,
     1L, "New Segment", NA, -4L, 1L, NA,
     1L, "Time 0", NA, 1L, 1L, NA
     ),
@@ -28,7 +28,7 @@ cond2 <- eeg_lst(
       radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
 ),
    events_tbl = dplyr::tribble(
-    ~.id, ~type, ~description, ~.sample_0, ~.size, ~..channel,
+    ~.id, ~type, ~description, ~.initial, ~.final, ~..channel,
     1L, "New Segment", NA, -4L, 1L, NA,
     1L, "Time 0", NA, 1L, 1L, NA
   ),
@@ -46,7 +46,7 @@ cond3 <- eeg_lst(
       radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_)
  ,
    events_tbl = dplyr::tribble(
-    ~.id, ~type, ~description, ~.sample_0, ~.size, ~..channel,
+    ~.id, ~type, ~description, ~.initial, ~.final, ~..channel,
     1L, "New Segment", NA, -4L, 1L, "X",
     1L, "Time 0", NA, 1L, 1L, NA
   ),

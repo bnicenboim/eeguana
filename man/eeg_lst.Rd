@@ -35,9 +35,8 @@ displays only the timestamps where logged events began.
 
 The \code{events} table is organised into columns representing the \code{type} of event
 associated with the trigger listed under \code{description}. The timestamp marking
-the beginning of the event is listed under \code{.initial} and the length of the
-event (in timestamps) is listed under \code{.size}. The \code{.channel} column will
-generally only contain NAs, unless the
+the beginning and the end of the event is listed under \code{.initial} and \code{.final} (in samples).
+The \code{.channel} column is a  linking variable only, so will generally only contain NAs, unless the
 event is specific to a certain channel.
 
 The \code{segments} tibble contains the subject ID under \code{recording}, which is

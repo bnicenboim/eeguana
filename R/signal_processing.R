@@ -87,9 +87,7 @@ eeg_downsample.eeg_lst <- function(x, q = 2, max_sample = NULL,
   # even table needs to be adapted, starts from 1,
   # and the size is divided by two with a min of 1
   x$events <- data.table::copy(x$events)[, .initial := 
-                                           sample_int(ceiling(.initial / factor), new_sampling_rate)][, .size := round(.size / factor) %>%
-                                       as.integer() %>%
-                                       purrr::map_int(~max(.x, 1L)) ][]
+                                               sample_int(ceiling(.initial / factor), new_sampling_rate)][, .final := sample_int(ceiling(.final / factor), new_sampling_rate) ][]
  
   # just in case I update the .id from segments table
   x$segments <- dplyr::mutate(x$segments, .id = seq_len(dplyr::n()))

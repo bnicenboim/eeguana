@@ -16,9 +16,8 @@
 #' 
 #' The `events` table is organised into columns representing the `type` of event
 #' associated with the trigger listed under `description`. The timestamp marking
-#' the beginning of the event is listed under `.initial` and the length of the
-#' event (in timestamps) is listed under `.size`. The `.channel` column will 
-#' generally only contain NAs, unless the 
+#' the beginning and the end of the event is listed under `.initial` and `.final` (in samples).
+#' The `.channel` column is a  linking variable only, so will generally only contain NAs, unless the 
 #' event is specific to a certain channel.
 #' 
 #' The `segments` tibble contains the subject ID under `recording`, which is 

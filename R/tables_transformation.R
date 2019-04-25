@@ -120,7 +120,7 @@ update_events <- function(events_tbl, segmentation){
     cols_events_temp <- unique(c(cols_events, colnames(segmentation),"i..initial"))
                                         #i..initial is the.initial of events
     new_events <- segmentation[events_tbl, on = .(.id), ..cols_events_temp, allow.cartesian=TRUE][
-        .initial <= .upper & .lower <= .final]
+       i..initial <= .upper & .lower <= .final]
     new_events[, .initial := pmax(i..initial, .lower)]
     new_events[, .final:= pmin(.final, .upper)]
     new_events[, .id := .new_id][,..cols_events] %>%

@@ -131,15 +131,9 @@ eeg_events_to_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRU
         for (i in seq(1, nrow(b))) {
             data.table::set(signal,i = which(signal$.id %in% b$.id[i] & between(
                                                                signal$.sample_id, b$.initial[i],
-                                                               b$.initial[i] + b$.size[i] - 1
+                                                               b$.final[i]
                                                            )), j = ch, NA_real_)
-        ## signal[[as.character(c)]][signal$.id %in% b$.id[i] &
-        ##   between(
-        ##     signal$.sample_id, b$.initial[i],
-        ##     b$.initial[i] + b$.size[i] - 1
-        ##   )  ] <- NA
-      }
-      # 
+       }
     } else {
      data.table::set(signal,i = which(signal$.id %in% b$.id), j = ch, value =  NA_real_)
     }
@@ -152,7 +146,7 @@ eeg_events_to_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRU
       data.table::set(signal, which(signal$.id == b_all$.id[i] &
         between(
           signal$.sample_id, b_all$.initial[i],
-          b_all$.initial[i] + b_all$.size[i] - 1
+          b_all$.final[i]
         )),  j = channel_names(x),value = NA_real_)
     }
   } else {

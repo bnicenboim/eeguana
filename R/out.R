@@ -127,7 +127,7 @@ summary.eeg_lst <- function(object, ...) {
       dplyr::count(recording) %>%
       dplyr::rename(segment_n = n) %>% data.table::data.table(),
     events = object$events %>%
-      dplyr::group_by_at(dplyr::vars(-.size, -.channel, -.initial, -.id)) %>%
+      dplyr::group_by_at(dplyr::vars(-.final, -.channel, -.initial, -.id)) %>%
       dplyr::count() %>% data.table::data.table(),
     size = utils::capture.output(print(utils::object.size(object), units = "auto")),
     duration= format(.POSIXct(nrow(object$signal) / sampling_rate(object) ,tz="GMT"), "%H:%M:%S")

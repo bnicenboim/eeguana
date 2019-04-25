@@ -59,7 +59,9 @@ add_intervals_from_artifacts <- function(old_events, artifact_found, sample_rang
                                            .initial = sample_int(intervals$start,
                                                                   sampling_rate =
                                                                       sampling_rate(old_events)),
-                                           .size = intervals$stop + 1L - intervals$start,
+                                           .final = sample_int(intervals$stop,
+                                                               sampling_rate =
+                                                                   sampling_rate(old_events)),
                                            .channel = .y)
                 }
             }),.id = TRUE

@@ -45,9 +45,9 @@ new_events_tbl <- function(.id=integer(0),
         }
     }
     if(!is.null(sampling_rate)){
-        .data[, .initial := sample_int(as.integer(.initial),
+        events[, .initial := sample_int(as.integer(.initial),
                                        sampling_rate =sampling_rate )]
-        .data[, .final := sample_int(as.integer(.final),
+        events[, .final := sample_int(as.integer(.final),
                                      sampling_rate =sampling_rate )]
     }
     data.table::setattr(events, "class", c("events_tbl",class(events)))
@@ -130,7 +130,12 @@ validate_events_tbl <- function(events) {
                  call. = FALSE
                  )
      }
+     if(any(events$.final < events$.initial)){
+         warning("Values of .final should be larger than values of .initial",
+                 call. = FALSE
+                 )
 
+     }
 
     events[]
 }
