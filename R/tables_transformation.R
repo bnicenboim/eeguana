@@ -29,18 +29,17 @@ eeg_segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds",
   end <- rlang::enquo(end)
 
   times0 <- dplyr::filter(x$events, !!!dots) %>%
-    dplyr::select(-.channel, -.size) 
-  
+    dplyr::select(-.channel, -.final)
+
   if(!rlang::quo_is_missing(end)){
     times_end <- dplyr::filter(x$events, !!end) %>%
-      dplyr::select(-.channel, -.size) 
+      dplyr::select(-.channel, -.final) 
   }
 
   if (rlang::quo_is_missing(end) && any(lim[[2]] < lim[[1]])) {
     stop("A segment needs to be of positive length and include at least 1 sample.")
   }
-  
-  
+
   if (rlang::quo_is_missing(end) && (length(lim) == 2) || ## two values or a dataframe
     (!is.null(nrow(lim)) && nrow(lim) == nrow(times0)) ) {
     scaling <- scaling(sampling_rate(x), unit = unit)
@@ -64,7 +63,7 @@ eeg_segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds",
   }
 
   segmentation <- data.table::as.data.table(segmentation_info)
-  segmentation[,.initial := sample_int(.initial, sampling_rate = sampling_rate(x))]
+  segmentation[,.first_sample := sample_int(.initial, sampling_rate = sampling_rate(x))]
   # update the signal tbl:
   cols_signal <- colnames(x$signal)
   cols_signal_temp <- c(".new_id",".initial","x..sample_id",cols_signal[cols_signal!=".id"])
@@ -118,12 +117,11 @@ update_events <- function(events_tbl, segmentation){
     segmentation[, .new_id := if(!".new_id" %in% colnames(segmentation)) .id else .new_id ]
     segmentation[, .first_sample := if(!".initial" %in% colnames(segmentation)) 1 else .first_sample]
     cols_events <- colnames(events_tbl)
-    ## cols_events_temp <- unique(c(cols_events, colnames(segmentation),"i..initial"))
-    cols_events_temp <- unique(c(cols_events, colnames(segmentation)))
+    cols_events_temp <- unique(c(cols_events, colnames(segmentation),"i..initial"))
                                         #i..initial is the.initial of events
     new_events <- segmentation[events_tbl, on = .(.id), ..cols_events_temp, allow.cartesian=TRUE][
         .initial <= .upper & .lower <= .final]
-    new_events[, .initial := pmax(.initial, .lower)]
+    new_events[, .initial := pmax(i..initial, .lower)]
     new_events[, .final:= pmin(.final, .upper)]
     new_events[, .id := .new_id][,..cols_events] %>%
     as_events_tbl(., sampling_rate = sampling_rate(events_tbl))
