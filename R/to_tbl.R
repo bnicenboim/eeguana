@@ -61,9 +61,9 @@ as.data.table.eeg_lst <- function(x, unit = "second", add_segments = TRUE, add_c
         }
 
     ## inf_events <- setdiff(colnames(events_tbl(x)),  obligatory_cols[["events"]])
-    ## events_all_ch <- data.table::copy(events_tbl(x))[is.na(.channel), ends := .sample_0 + .size]
+    ## events_all_ch <- data.table::copy(events_tbl(x))[is.na(.channel), ends := .initial + .size]
 
-    ## events_all_ch[long_table ,on = .(.id, .sample_0 <= .sample_id, ends > .sample_id), c(colnames(long_table),inf_events), with = FALSE]
+    ## events_all_ch[long_table ,on = .(.id, .initial <= .sample_id, ends > .sample_id), c(colnames(long_table),inf_events), with = FALSE]
 
     ##unit inside the data.table was creating problems, I rename it to .unit
     .unit <- unit

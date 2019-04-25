@@ -30,12 +30,12 @@ The \code{signal} table is organised into columns representing timestamps
 (\code{.sample_id}) and individual electrodes. Each \code{.sample_id} corresponds to
 1 sample in the original recording, i.e. if the sampling rate of the EEG
 recording is 500 Hz, then each \code{.sample_id} corresponds to 2 milliseconds.
-These timestamps correspond to \code{.sample_0} in the \code{events} table, which
+These timestamps correspond to \code{.initial} in the \code{events} table, which
 displays only the timestamps where logged events began.
 
 The \code{events} table is organised into columns representing the \code{type} of event
 associated with the trigger listed under \code{description}. The timestamp marking
-the beginning of the event is listed under \code{.sample_0} and the length of the
+the beginning of the event is listed under \code{.initial} and the length of the
 event (in timestamps) is listed under \code{.size}. The \code{.channel} column will
 generally only contain NAs, unless the
 event is specific to a certain channel.

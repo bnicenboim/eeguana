@@ -39,7 +39,7 @@ add_intervals_from_artifacts <- function(old_events, artifact_found, sample_rang
                 if(all(.x[!is.na(.x)]==FALSE)){
                   out <- new_events_tbl()  
                     out[,.id:=NULL][  ## I need to remove .id because it gets added by map 
-                       ,.sample_0 :=  sample_int(integer(0),
+                       ,.initial :=  sample_int(integer(0),
                                                   sampling_rate =
                                                       sampling_rate(old_events))][]
                 } else {
@@ -56,7 +56,7 @@ add_intervals_from_artifacts <- function(old_events, artifact_found, sample_rang
                        by=.(group=cumsum(c(1, tail(start, -1) > head(stop, -1))))] 
                     data.table::data.table(type = "artifact",
                                            description=type,
-                                           .sample_0 = sample_int(intervals$start,
+                                           .initial = sample_int(intervals$start,
                                                                   sampling_rate =
                                                                       sampling_rate(old_events)),
                                            .size = intervals$stop + 1L - intervals$start,
@@ -67,7 +67,7 @@ add_intervals_from_artifacts <- function(old_events, artifact_found, sample_rang
     events_found[,.id:= as.integer(.id)]
 
     new_events <- rbind(events_found, old_events, fill = TRUE)
-    data.table::setorder(new_events,.id, .sample_0, .channel)
+    data.table::setorder(new_events,.id, .initial, .channel)
     new_events
 }
 

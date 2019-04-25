@@ -101,11 +101,11 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data){
                                         #create events object
     ann <- .data$annotations$`__dict__`
     if(length(ann$onset)==0){
-        new_events <-new_events_tbl(.sample_0 =
+        new_events <-new_events_tbl(.initial =
                                         sample_int(integer(0), sampling_rate = .data$info$sfreq))
     } else{
     new_events <- new_events_tbl(.id = 1L,
-                             .sample_0 = ann$onset %>%
+                             .initial = ann$onset %>%
                                  as_sample_int(sampling_rate = .data$info$sfreq, unit="s"),
                              .size = ann$duration %>%
                                  {as_sample_int(. ,sampling_rate = .data$info$sfreq,unit="s")-1L} %>%

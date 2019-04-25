@@ -11,12 +11,12 @@
 #' (`.sample_id`) and individual electrodes. Each `.sample_id` corresponds to
 #' 1 sample in the original recording, i.e. if the sampling rate of the EEG
 #' recording is 500 Hz, then each `.sample_id` corresponds to 2 milliseconds. 
-#' These timestamps correspond to `.sample_0` in the `events` table, which 
+#' These timestamps correspond to `.initial` in the `events` table, which 
 #' displays only the timestamps where logged events began.
 #' 
 #' The `events` table is organised into columns representing the `type` of event
 #' associated with the trigger listed under `description`. The timestamp marking
-#' the beginning of the event is listed under `.sample_0` and the length of the
+#' the beginning of the event is listed under `.initial` and the length of the
 #' event (in timestamps) is listed under `.size`. The `.channel` column will 
 #' generally only contain NAs, unless the 
 #' event is specific to a certain channel.

@@ -517,8 +517,8 @@ annotate_head <- function(size = 1.1, color ="black", stroke=1) {
 annotate_events <- function(events_tbl, alpha = .8){
     info_events   <- setdiff(colnames(events_tbl), obligatory_cols[["events"]])
     events_tbl <- data.table::copy(events_tbl)
-    events_tbl[,xmin:= as_time(events_tbl$.sample_0) ]
-    events_tbl[,xmax:= as_time(events_tbl$.sample_0 + .size) ]
+    events_tbl[,xmin:= as_time(events_tbl$.initial) ]
+    events_tbl[,xmax:= as_time(events_tbl$.initial + .size) ]
     events_tbl[,description := paste0((info_events), collapse =".")]
     geom_rect(data= events_tbl,
               aes(xmin = xmin,
