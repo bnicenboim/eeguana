@@ -29,13 +29,10 @@ filter_eeg_lst <- function(.eeg_lst, dots){
      extended_signal <- extended_signal(.eeg_lst, cond_cols) 
      by <- as.character(dplyr::group_vars(.eeg_lst))
  
-    # https://stackoverflow.com/questions/16573995/subset-by-group-with-data-table
-     dots_txt <- purrr::map(dots, ~  rlang::quo_text(.x)) %>%
-     paste0(., collapse = " & ")
-     
      cols_signal <- colnames(.eeg_lst$signal)
 
-     .eeg_lst$signal <-  extended_signal[extended_signal[,.I[eval(parse(text = dots_txt))], by = c(by)]$V1][,..cols_signal]
+     .eeg_lst$signal <-filter_dt(extended_signal, !!!dots, group_by_ = by) %>%
+         .[,..cols_signal]
 
      .eeg_lst$segments <- dplyr::semi_join(.eeg_lst$segments, .eeg_lst$signal, by = ".id")
      }
