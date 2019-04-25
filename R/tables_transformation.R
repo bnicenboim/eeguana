@@ -81,24 +81,9 @@ eeg_segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds",
   data.table::setkey(new_signal, .id, .sample_id)
   x$signal <- new_signal
 
-  #update events table
-  cols_events <- colnames(x$events)
-  cols_events_temp <- unique(c(cols_events, colnames(segmentation_info),"i..sample_0"))
-  #i..sample_0 is the sample_0 of events
-  new_events <- segmentation[x$events, on = .(.id), ..cols_events_temp, allow.cartesian=TRUE][
-                                data.table::between(i..sample_0,.lower - .size + 1 , .upper)]
+  
 
-  new_events[i..sample_0 < .lower, .size := as.integer(.size - (.lower - i..sample_0)) + 1L]
-             ## adjust the size so that it doesn't spillover after the segment
-  new_events[,  .size := pmin(.size, .upper + 1L - i..sample_0 )]
-
-  ## faster way to do an ifelse, and dplyr::if_else is problematic with my own class
-  new_events[, .sample_0 := .lower * (i..sample_0 < .lower)
-             + i..sample_0 * (!i..sample_0 < .lower) - .sample_0 + 1L]
-
-  new_events[, .id := .new_id]
-
-  x$events <- new_events[,..cols_events] %>% as_events_tbl(sampling_rate = sampling_rate(x))
+  x$events <- update_events(x$events, segmentation)
   ## data.table::setattr(x$events,"class",c("events_tbl",class(x$events)))
 
 
@@ -120,4 +105,35 @@ eeg_segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds",
 
 
 
+
+#' update events table based on a segmentation table
+#' segmentation is a data.table with the following columns:
+#' * .id:.id of the events
+#' * .sample_0:sample_id 1 of the new new segmentation, 1 if left empty
+#' * .lower: lower boundary of the event (included)
+#' * .upper: upper boundary of the event, (included)
+#' * .new_id: new id for the event, current one if left empty
+#' @noRd
+update_events <- function(events_tbl, segmentation){
+    ## > segmentation
+    ## .id .sample_0 .lower .upper .new_id
+    ## 1:   1         1      1      2       1
+    segmentation[, .new_id := if(!".new_id" %in% colnames(segmentation)) .id else .new_id ]
+    segmentation[, .sample_0 := if(!".sample_0" %in% colnames(segmentation)) 1 else .sample_0]
+    cols_events <- colnames(events_tbl)
+    cols_events_temp <- unique(c(cols_events, colnames(segmentation),"i..sample_0"))
+                                        #i..sample_0 is the sample_0 of events
+    new_events <- segmentation[events_tbl, on = .(.id), ..cols_events_temp, allow.cartesian=TRUE][
+        data.table::between(i..sample_0,.lower - .size + 1 , .upper)]
+    new_events[i..sample_0 < .lower, .size := as.integer(.size - (.lower - i..sample_0)) + 1L]
+    ## adjust the size so that it doesn't spillover after the segment
+    new_events[,  .size := pmin(.size, .upper + 1L - i..sample_0 )]
+
+    ## faster way to do an ifelse, and dplyr::if_else is problematic with my own class
+    new_events[, .sample_0 := .lower * (i..sample_0 < .lower)
+               + i..sample_0 * (!i..sample_0 < .lower) - .sample_0 + 1L]
+
+    new_events[, .id := .new_id][,..cols_events] %>%
+        as_events_tbl(sampling_rate = sampling_rate(events_tbl))
+}
 

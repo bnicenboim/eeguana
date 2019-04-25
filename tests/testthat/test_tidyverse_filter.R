@@ -127,7 +127,7 @@ filter1_sign_eeg <- filter(data, .sample_id >= 0)
 filter1_sign_tbl <- left_join(as_tibble(data$signal), as_tibble(data$segments)) %>%
   dplyr::filter(.sample_id >= 0) 
 filter1_events <- events_tbl(data) %>% filter(.sample_0 >=0 | .sample_0 + .size >0) %>%
-mutate(.sample_0 = ifelse(.sample_0 < 0, 0, .sample_0))
+    mutate(.size = ifelse(.sample_0 < 0,.size +.sample_0 , .size  ), .sample_0 = ifelse(.sample_0 < 0, 0, .sample_0))
 
 
 
@@ -163,30 +163,32 @@ test_that("filtering within signal table works in segments table", {
 # b. Test the events table which will fail for now
 
 filter4_sign_eeg <- data %>% filter(.sample_id == -1)
-filter4_sign_tbl <- as_tibble(data$events) %>%
+filter4_evn_tbl <- as_tibble(data$events) %>%
   group_by(.id, .sample_0) %>%
-  filter(-1 %in% seq(.sample_0, by = 1, length.out = .size))
+    filter(-1 %in% seq(.sample_0, by = 1, length.out = .size)) %>%
+    mutate(.size = 1)
 
-
+ 
 # really want *only* the events < 0 (filter won't take a vector), but probs ok
 filter5_sign_eeg <- data %>% filter(.id == 1 & .sample_id < 0)
-filter5_sign_tbl <- as_tibble(data$events) %>%
+filter5_evn_tbl <- as_tibble(data$events) %>%
+  group_by(.id, .sample_0) %>%
+    filter(.id == 1 & any(seq(.sample_0, by = 1, length.out = .size) < 0)) %>%
+    ungroup %>%
+mutate(.size = ifelse(.sample_0 +.size > 0,.size +.sample_0 + 1, .size  ))
+
+
+filter6_sign_eeg <- data %>% filter(X < 0)
+filter6_evn_tbl <- as_tibble(data$events) %>%
   group_by(.id, .sample_0) %>%
   filter(.id == 1 & any(seq(.sample_0, by = 1, length.out = .size) < 0))
-
-## filter6_sign_eeg <- data %>% filter(X < 0)
-# filter6_sign_tbl <- as_tibble(data$events) %>%
-#   group_by(.id, .sample_0) %>%
-#   filter(.id == 1 & any(seq(.sample_0, by = 1, length.out = .size) < 0))
-
-# won't work for now
-## test_that("filtering in signal table returns the right events", {
-##   expect_setequal(as.matrix(filter4_sign_eeg$events), as.matrix(filter4_sign_tbl))
-##   expect_setequal(as.matrix(filter5_sign_eeg$events), as.matrix(filter5_sign_tbl))
-## })
-
-test_that("filtering within signal table works in events table", {
-    expect_equal(as.matrix(filter1_sign_eeg$events), 
+ 
+#won't work for now
+test_that("filtering in signal table returns the right events", {
+  expect_setequal(as.matrix(filter4_sign_eeg$events), as.matrix(filter4_evn_tbl))
+  expect_setequal(as.matrix(filter5_sign_eeg$events), as.matrix(filter5_evn_tbl))
+  expect_setequal(as.matrix(filter6_sign_eeg$events), as.matrix(filter6_evn_tbl))
+  expect_equal(as.matrix(filter1_sign_eeg$events), 
                  as.matrix(filter1_events))
 })
 
