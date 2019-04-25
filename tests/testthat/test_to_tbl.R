@@ -40,3 +40,4 @@ expect_true(unique(long2 %in% long))
 expect_true(unique(long3 %in% long))
 expect_true(unique(long4 %in% long))
 })
+

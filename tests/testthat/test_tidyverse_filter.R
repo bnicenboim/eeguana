@@ -123,9 +123,12 @@ test_that("data didn't change", {
 
 # a) Test signal/segments table by comparing eeg_lst with tibble
 
-filter1_sign_eeg <- filter(data, .sample_id >= 2) 
+filter1_sign_eeg <- filter(data, .sample_id >= 0) 
 filter1_sign_tbl <- left_join(as_tibble(data$signal), as_tibble(data$segments)) %>%
-  dplyr::filter(.sample_id >= 2) 
+  dplyr::filter(.sample_id >= 0) 
+filter1_events <- events_tbl(data) %>% filter(.sample_0 >=0 | .sample_0 + .size >0) %>%
+mutate(.sample_0 = ifelse(.sample_0 < 0, 0, .sample_0))
+
 
 
 filter2_sign_eeg <- filter(data, .id == 1 & .sample_id == 2)
@@ -171,8 +174,7 @@ filter5_sign_tbl <- as_tibble(data$events) %>%
   group_by(.id, .sample_0) %>%
   filter(.id == 1 & any(seq(.sample_0, by = 1, length.out = .size) < 0))
 
-# this might be impossible to test?
-# filter6_sign_eeg <- data %>% filter(X < 0)
+## filter6_sign_eeg <- data %>% filter(X < 0)
 # filter6_sign_tbl <- as_tibble(data$events) %>%
 #   group_by(.id, .sample_0) %>%
 #   filter(.id == 1 & any(seq(.sample_0, by = 1, length.out = .size) < 0))
@@ -182,6 +184,12 @@ filter5_sign_tbl <- as_tibble(data$events) %>%
 ##   expect_setequal(as.matrix(filter4_sign_eeg$events), as.matrix(filter4_sign_tbl))
 ##   expect_setequal(as.matrix(filter5_sign_eeg$events), as.matrix(filter5_sign_tbl))
 ## })
+
+test_that("filtering within signal table works in events table", {
+    expect_equal(as.matrix(filter1_sign_eeg$events), 
+                 as.matrix(filter1_events))
+})
+
 
 
 # check against original data

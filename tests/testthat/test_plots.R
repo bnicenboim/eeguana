@@ -33,6 +33,7 @@ data_1 <- eeg_lst(
 
 
 data("data_faces_ERPs")
+data("data_faces_10_trials")
 
 
 # helper functions (borrowed from github.com/stan-dev/bayesplot/R/helpers-testthat.R)
@@ -115,5 +116,21 @@ test_that("plot functions create ggplots", {
 })
 
 
-
-
+plot(data_faces_10_trials) + annotate_events(events_tbl(data_faces_10_trials),)
+events_tbl <- events_tbl(data_faces_10_trials)
+info_events   <- setdiff(colnames(events_tbl), obligatory_cols[["events"]])
+events_tbl <- data.table::copy(events_tbl)
+events_tbl[,xmin:= as_time(events_tbl$.sample_0, unit = "s") ]
+events_tbl[,xmax:= as_time(events_tbl$.sample_0 + .size, unit = "s") ]
+events_tbl[,description := paste0((info_events), collapse =".")]
+events_tbl
+df <- as_tibble(data_faces_10_trials)
+max(df$time)
+max(data_faces_10_trials$signal$.sample_id)
+max(events_tbl$.sample_0)
+plot(data_faces_10_trials)+ geom_rect(data= events_tbl,
+          aes(xmin = xmin,
+              xmax =  xmax ,
+              ymin = -1000, ymax= 1000,
+              fill = description, group = .id),
+          alpha = .8, inherit.aes = FALSE)
