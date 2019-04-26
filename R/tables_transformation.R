@@ -28,12 +28,14 @@ eeg_segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds",
   dots <- rlang::enquos(...)
   end <- rlang::enquo(end)
 
-  times0 <- dplyr::filter(x$events, !!!dots) %>%
+  ## x$events needs to stop being an events_tbl in order to remove stuff from it.
+  ## if not, it calls to filter.events_tbl
+  times0 <- dplyr::filter(dplyr::as_tibble(x$events), !!!dots) %>%
       dplyr::select(-.channel, -.final) %>%
       dplyr::rename(.first_sample = .initial)
 
   if(!rlang::quo_is_missing(end)){
-    times_end <- dplyr::filter(x$events, !!end) %>%
+    times_end <- dplyr::filter(dplyr::as_tibble(x$events), !!end) %>%
         dplyr::select(-.channel, -.final) %>%
         dplyr::rename(.first_sample = .initial)
   }

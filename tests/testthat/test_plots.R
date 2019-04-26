@@ -120,4 +120,4 @@ expect_gg(plot(data_faces_10_trials) +
 expect_gg(plot(data_faces_10_trials) +
     annotate_events(events_tbl(data_faces_10_trials) %>%
                     filter(type!="Stimulus") %>% select(-type)))
-}
+})

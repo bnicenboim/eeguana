@@ -23,7 +23,7 @@ events_tbl.eeg_lst <- function(x,...){
 #' @rdname events
 #' @export
 `events_tbl<-.eeg_lst` <- function(x, value) {
-  x$events <- as_events_tbl(value,sampling_rate(x$events))
+  x$events <- as_events_tbl(value)
   x
 }
 
