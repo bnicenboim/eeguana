@@ -4,14 +4,14 @@
 #' recording is plotted by electrode. Useful as a quick visual check for major
 #' noise issues in the recording.
 #' 
-#' Note that for normal-size datasets, the plot may take several minutes to compile.
+#' Note that for normal-size datasets, the plot may take some time to compile.
 #' If necessary, `plot` will first downsample the `eeg_lst` object so that there is a 
 #' maximum of 6,400 samples. The `eeg_lst` object is then converted to a long-format
 #' tibble via `as_tibble`. In this tibble, the `.source` variable is the 
 #' channel/component name and `.value` its respective amplitude. The sample 
-#' number (`.sample_id` in the `eeg_lst` object) is automatically converted to milliseconds
+#' number (`.sample_id` in the `eeg_lst` object) is automatically converted to seconds
 #' to create the variable `time`. By default, time is then plotted on the 
-#' x-axis and amplitude on the y-axis.
+#' x-axis and amplitude on the y-axis, and uses `scales = "free"`; see [ggplot2::facet_grid()].
 #' 
 #' To add additional components to the plot such as titles and annotations, simply
 #' use the `+` symbol and add layers exactly as you would for `ggplot::ggplot`.
@@ -40,17 +40,17 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
     ellipsis::check_dots_unnamed()
   x <- try_to_downsample(x, max_sample)
 
-  df <- dplyr::as_tibble(x) %>% 
-        dplyr::mutate(.source = factor(.source, levels = unique(.source)))
+    df <- data.table::as.data.table(x)
+    df[, .source := factor(.source, levels = unique(.source))]
   plot <- ggplot2::ggplot(
     df,
     ggplot2::aes(x = time, y = .value, group = .id)
   ) +
     ggplot2::geom_line() +
     ggplot2::facet_grid(.source ~ .,
-      labeller = ggplot2::label_wrap_gen(multi_line = FALSE)
+                        labeller = ggplot2::label_wrap_gen(multi_line = FALSE),
+                        scales = "free"
     ) +
-    ggplot2::scale_y_reverse() +
     theme_eeguana
   plot
 }
