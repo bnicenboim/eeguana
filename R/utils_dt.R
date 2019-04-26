@@ -29,15 +29,21 @@ map2_dtr <- function(.x,.y, .f,..., .id = NULL){
 }
 
 #' @noRd
-                                        # https://github.com/mllg/batchtools/blob/master/R/Joins.R
+## https://github.com/mllg/batchtools/blob/master/R/Joins.R
 semi_join_dt <- function(x, y, by = NULL) {
+    if(is.null(by)){
+        by <- intersect(colnames(x), colnames(y))
+    }
     w <- unique(x[y, on = by, nomatch = 0L, which = TRUE, allow.cartesian = TRUE])
     x[w]
 }
 
 #' @noRd
 left_join_dt <- function(x, y, by = NULL) {
-    ##need to be reversed:
+    if(is.null(by)){
+        by <- intersect(colnames(x), colnames(y))
+    }
+   ##need to be reversed:
     if(!is.null(names(by))) {
         by_names <- names(by)
         by_content <- unname(by)
@@ -51,10 +57,33 @@ left_join_dt <- function(x, y, by = NULL) {
 
 }
 
+anti_join_dt <- function(x,y,by = NULL){
+    if(is.null(by)){
+        by <- intersect(colnames(x), colnames(y))
+    }
+
+    x[!y, on = by]
+}
+
+#' @noRd
+filter_dt <- function(.data, ..., group_by_ = character(0) ){
+  
+    dots <- rlang::enquos(...)
+    cnds <- lapply(dots, rlang::as_label) %>% paste0(collapse = " & ")
+    env <- lapply(dots, rlang::quo_get_env) %>% unique()
+    if(length(env)!=1) stop("Need to fix filter_dt")
+    ##TODO: check why this happens: for some reason if I don't do that, I modify the index of .data
+    ## .data <- data.table::copy(.data)  
+    ## .data[eval(parse(text = cnds), envir =envs[[1]]),]
+    .data[.data[,.I[eval(parse(text = cnds), envir = env)], by = c(group_by_)]$V1]
+}
 #' binds cols of dt and adds the class of the first object
 #' @noRd
 bind_cols_dt<- function(...){
     new_dt <- cbind(...)
     class(new_dt) <- class(list(...)[[1]])
-new_dt
+    new_dt
 }
+
+
+ 

@@ -22,7 +22,8 @@ as.data.table.eeg_lst <- function(x, unit = "second", add_segments = TRUE, add_c
             data.table::melt(variable.name = ".source",
                              measure.vars = intersect(colnames(x$signal), channel_names(x)),
                              value.name = ".value")
-                channels[,.type := "channel"]
+        channels[,.type := "channel"][
+           ,.source := as.character(.source)]
     } else {
         channels <- data.table::data.table()
     }
@@ -36,12 +37,14 @@ as.data.table.eeg_lst <- function(x, unit = "second", add_segments = TRUE, add_c
             data.table::melt(variable.name = ".source",
                              measure.vars = component_names(x),
                              value.name = ".value")
-        components[,.type := "component"]
+        components[,.type := "component"][
+           ,.source := as.character(.source)]
     } else {
         components =  data.table::data.table()
     }
 
     long_table <- rbind(channels,components) %>%
+        ## remove attributes that are now problematic
         {
             if (add_segments) {
                 left_join_dt(., data.table::as.data.table(x$segments), by = ".id")
@@ -58,15 +61,16 @@ as.data.table.eeg_lst <- function(x, unit = "second", add_segments = TRUE, add_c
         }
 
     ## inf_events <- setdiff(colnames(events_tbl(x)),  obligatory_cols[["events"]])
-    ## events_all_ch <- data.table::copy(events_tbl(x))[is.na(.channel), ends := .sample_0 + .size]
+    ## events_all_ch <- data.table::copy(events_tbl(x))[is.na(.channel), ends := .initial + .size]
 
-    ## events_all_ch[long_table ,on = .(.id, .sample_0 <= .sample_id, ends > .sample_id), c(colnames(long_table),inf_events), with = FALSE]
+    ## events_all_ch[long_table ,on = .(.id, .initial <= .sample_id, ends > .sample_id), c(colnames(long_table),inf_events), with = FALSE]
 
     ##unit inside the data.table was creating problems, I rename it to .unit
     .unit <- unit
     long_table[, time := as_time(.sample_id, unit = .unit)]
     long_table[, .sample_id := NULL]
-    long_table %>% dplyr::select(time, dplyr::everything()) 
+    long_table %>% dplyr::select(time, dplyr::everything()) %>%
+    .[,lapply(.SD, `attributes<-`, NULL )]
 }
 
 

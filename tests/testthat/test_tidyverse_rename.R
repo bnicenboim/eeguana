@@ -13,17 +13,17 @@ data_1 <- eeg_lst(
       radius = NA, .x = c(1, 1), .y = NA_real_, .z = NA_real_
   ),
    events_tbl = dplyr::tribble(
-    ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
-    1L, "New Segment", NA_character_, -4L, 1L, NA,
-    1L, "Bad", NA_character_, -2L, 3L, NA,
+    ~.id, ~type, ~description, ~.initial, ~.final, ~.channel,
+    1L, "New Segment", NA_character_, -4L, -4L, NA,
+    1L, "Bad", NA_character_, -2L, 0L, NA,
     1L, "Time 0", NA_character_, 1L, 1L, NA,
-    1L, "Bad", NA_character_, 2L, 2L, "X",
-    2L, "New Segment", NA_character_, -4L, 1L, NA,
+    1L, "Bad", NA_character_, 2L, 3L, "X",
+    2L, "New Segment", NA_character_, -4L, -4L, NA,
     2L, "Time 0", NA_character_, 1L, 1L, NA,
-    2L, "Bad", NA_character_, 2L, 1L, "Y",
-    3L, "New Segment", NA_character_, -4L, 1L, NA,
+    2L, "Bad", NA_character_, 2L, 2L, "Y",
+    3L, "New Segment", NA_character_, -4L, -4L, NA,
     3L, "Time 0", NA_character_, 1L, 1L, NA,
-    3L, "Bad", NA_character_, 2L, 1L, "Y"
+    3L, "Bad", NA_character_, 2L, 2L, "Y"
     ),
   segments_tbl = dplyr::tibble(.id = c(1L, 2L, 3L),
                            recording = "recording1",
@@ -53,8 +53,8 @@ reference_data <- data.table::copy(data)
 test_that("internal (?) variables cannot be renamed", {
   expect_error(rename(data, ID = .id))
   expect_error(rename(data, time = .sample_id))
-  expect_error(rename(data, time = .sample_0))
-  expect_error(rename(data, length = .size))
+  expect_error(rename(data, time = .initial))
+  expect_error(rename(data, length = .final))
   expect_error(rename(data, electrode = .channel))
 })
 
@@ -202,10 +202,10 @@ rename7_eeg <- rename(data$events, info = description)
 
 
 test_that("renaming in events table doesn't change data", {
-  expect_equal(select(rename6_eeg, .id, .sample_0, .size, .channel), 
-               select(data$events, .id, .sample_0, .size, .channel))
-  expect_equal(select(rename7_eeg, .id, .sample_0, .size, .channel), 
-               select(data$events, .id, .sample_0, .size, .channel))
+  expect_equal(select(rename6_eeg, .id, .initial, .final, .channel), 
+               select(data$events, .id, .initial, .final, .channel))
+  expect_equal(select(rename7_eeg, .id, .initial, .final, .channel), 
+               select(data$events, .id, .initial, .final, .channel))
   expect_equal(as.character(rename6_eeg$label),
                as.character(data$events$type))
   expect_equal(as.character(rename7_eeg$info),

@@ -74,27 +74,27 @@ read_dat <- function(file, header_info = NULL, events = NULL,
     dplyr::filter(!!sep) %>%
     dplyr::slice(-1) %>%
     {
-      .$.sample_0 - 1
+      .$.initial - 1
     } %>%
     c(., max_sample)
 
-  .lower <- events %>% dplyr::filter(!!sep) %>% .$.sample_0
+  .lower <- events %>% dplyr::filter(!!sep) %>% .$.initial
 
-  .sample_0 <- events %>%
+  .first_sample <- events %>%
     dplyr::filter(!!zero) %>%
-    .$.sample_0
+    .$.initial
 
   # In case the time zero is not defined
-  if (length(.sample_0) == 0) .sample_0 <- .lower
+  if (length(.first_sample) == 0) .first_sample <- .lower
 
   # segmented id info and sample
-  segmentation <- data.table::data.table(.lower, .sample_0, .upper)
+  segmentation <- data.table::data.table(.lower, .first_sample, .upper)
   segmentation[,.id := seq_len(.N)]
   seg_sample_id <- data.table::data.table(.sample_id = sample_id) %>%
                .[segmentation, on = .(.sample_id >= .lower, .sample_id <= .upper ), 
-                              .(.id, .sample_id=x..sample_id, .sample_0)]
+                              .(.id, .sample_id=x..sample_id, .first_sample)]
 
-  seg_sample_id[,.sample_id :=  .sample_id - .sample_0 +1L]
+  seg_sample_id[,.sample_id :=  .sample_id - .first_sample +1L]
 
   signal_tbl <- new_signal_tbl(
     signal_matrix = raw_signal,
@@ -102,8 +102,9 @@ read_dat <- function(file, header_info = NULL, events = NULL,
     .sample_id = new_sample_int(seg_sample_id$.sample_id, sampling_rate = common_info$sampling_rate),
     channels_tbl = header_info$chan_info
   )
-
-  seg_events <- segment_events(events, .lower, .sample_0, .upper)
+  events[,.id:=1]
+  segmentation[,.new_id := .id][, .id := 1]
+  seg_events <- update_events(as_events_tbl(events,common_info$sampling_rate), segmentation)
          
 
   segments <- tibble::tibble(
@@ -111,12 +112,11 @@ read_dat <- function(file, header_info = NULL, events = NULL,
     recording = recording, segment = .id
   )
 
-  eeg_lst <- new_eeg_lst(
-    signal = signal_tbl,
-    events = seg_events,
-    segments = segments
-  ) %>% validate_eeg_lst()
-
+  eeg_lst <- eeg_lst(
+    signal_tbl = signal_tbl,
+    events_tbl = seg_events,
+    segments_tbl = segments
+  ) 
 
   message(paste0(
     "# Data from ", file,
@@ -147,31 +147,27 @@ add_event_channel <- function(events, labels) {
     )
 }
 
-segment_events <- function(events, .lower, .sample_0, .upper) {
-  segmentation <- data.table::data.table(.lower, .sample_0, .upper)
+segment_events <- function(events, .lower, .initial, .upper) {
+  segmentation <- data.table::data.table(.lower, .initial, .upper)
   segmentation[,.id := seq_len(.N)]
 
-  cols_events_temp <- unique(c(colnames(events), colnames(segmentation),"i..sample_0","i..size","x..lower"))
+  cols_events_temp <- unique(c(colnames(events), colnames(segmentation),"i..initial","i..final","x..lower"))
   cols_events <- c(".id",colnames(events))
   new_events <- data.table::as.data.table(events)
-  new_events[, lowerb :=.sample_0 + .size - 1L]
+  new_events[, lowerb :=.final]
 
-  # We want to capture events that span after the .lower bound ,that is .sample_0 + .size - 1L
+  # We want to capture events that span after the .lower bound ,that is .final over .lower
   # and events and that start before the .upper bound:
-  new_events <- segmentation[new_events, on = .(.lower<= lowerb, .upper >= .sample_0), 
+  new_events <- segmentation[new_events, on = .(.lower<= lowerb, .upper >= .initial), 
                               ..cols_events_temp, allow.cartesian=TRUE][!is.na(.id)]
 
-  #i..sample_0 are the original sample_0 from the events file  
-  #.sample_0 is the first sample of each segment   
-  #x..lower is the original .lower of segmentation                           
-  new_events[,.size := dplyr::if_else(i..sample_0 < x..lower, as.integer(x..lower - i..size),
-                                        # adjust the size so that it doesn't spillover after the segment
-                                        as.integer(i..size))][,
-                .sample_0 := dplyr::if_else(i..sample_0 < x..lower, 
-                                             as.integer(x..lower - i..sample_0 + 1L),
-                                             as.integer(i..sample_0 - .sample_0 + 1L))  ]
+  #i..initial are the original.initial from the events file  
+  #.initial is the first sample of each segment
+  #x..lower is the original .lower of segmentation
+  new_events[,.initial := pmax(i..initial, x..lower), by= .id]
+  new_events[,.final := pmin(i..final, x..upper), by= .id]
   out_events <- new_events[,..cols_events] 
-  data.table::setattr(out_events, "class", c("events_tbl",class(out_events)))
+  ## data.table::setattr(out_events, "class", c("events_tbl",class(out_events)))
   out_events
 }
 
@@ -190,8 +186,8 @@ read_vmrk <- function(file) {
     stringr::str_extract(stringr::regex("^Mk[0-9]*?=.*^Mk[0-9]*?=.*?$", multiline = TRUE, dotall = TRUE))
 
    col_names <- c(
-     "type", "description", ".sample_0",
-     ".size", ".channel", "date"
+     "type", "description", ".initial",
+     ".final", ".channel", "date"
    )
   events <- data.table::fread(markers, fill=TRUE,
                               header = FALSE,
@@ -199,8 +195,7 @@ read_vmrk <- function(file) {
   # splits Mk<Marker number>=<Type>, removes the Mk.., and <Date>
   events[,type := stringr::str_split(type,"=") %>%
            purrr::map_chr(~.x[[2]])][,date := NULL]
-
-  return(events)
+  events[, .final := .initial + .final - 1L][]
 }
 
 #' @importFrom magrittr %>%
