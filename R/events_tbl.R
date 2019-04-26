@@ -66,6 +66,8 @@ as_events_tbl.data.table <- function(.data, sampling_rate = NULL){
         .data[, .final := sample_int(as.integer(.final),
                                    sampling_rate =sampling_rate )]
     }
+    .data <-.data %>% dplyr::select(.id, setdiff(colnames(.data), obligatory_cols[["events"]]),
+                                    obligatory_cols[["events"]][-1])
     data.table::setattr(.data, "class", c("events_tbl",class(.data)))
     validate_events_tbl(.data)
 }

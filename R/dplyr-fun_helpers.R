@@ -33,8 +33,10 @@ filter_eeg_lst <- function(.eeg_lst, dots){
 
      .eeg_lst$signal <-filter_dt(extended_signal, !!!dots, group_by_ = by) %>%
          .[,..cols_signal]
-     range_s <- .eeg_lst$signal[,.(.lower= min(.sample_id), .upper = max(.sample_id) ), by = .id]
-     .eeg_lst$events <- update_events(.eeg_lst$events, range_s)
+     if(nrow(.eeg_lst$events)>0){
+         range_s <- .eeg_lst$signal[,.(.lower= min(.sample_id), .upper = max(.sample_id) ), by = .id]
+         .eeg_lst$events <- update_events(.eeg_lst$events, range_s)
+     }
      .eeg_lst$segments <- dplyr::semi_join(.eeg_lst$segments, .eeg_lst$signal, by = ".id")
      }
     # filter the segments and update the signal_tbl

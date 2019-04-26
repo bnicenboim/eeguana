@@ -92,7 +92,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
   segmentation[,.id := seq_len(.N)]
   seg_sample_id <- data.table::data.table(.sample_id = sample_id) %>%
                .[segmentation, on = .(.sample_id >= .lower, .sample_id <= .upper ), 
-                              .(.id, .sample_id=x..sample_id, .initial)]
+                              .(.id, .sample_id=x..sample_id, .first_sample)]
 
   seg_sample_id[,.sample_id :=  .sample_id - .first_sample +1L]
 

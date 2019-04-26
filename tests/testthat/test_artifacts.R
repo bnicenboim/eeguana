@@ -76,7 +76,7 @@ test_that("window of 1 element",{
     expect_equal(art_events[.channel=="Fz",]$.initial %>% as.numeric(), c(2,499,699) )
     expect_equal(art_events[.channel=="Fz",]$.final %>% as.numeric(),c(4,
                                                      503, # 503 - 499   steps 499-500,500-501,501-502,502-503
-                                                     701)) )
+                                                     701) )
     expect_equal(art_events[.channel=="Cz",]$.initial %>% as.numeric(), c(199,699, 709,998) )
     expect_equal(art_events[.channel=="Cz",]$.final %>% as.numeric(),c(201,701,711,999) )
     expect_equal(nrow(art_events[.channel == "Pz",]), 0)
