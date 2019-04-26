@@ -514,16 +514,34 @@ annotate_head <- function(size = 1.1, color ="black", stroke=1) {
 } 
 
 #' @export
-annotate_events <- function(events_tbl, alpha = .8){
+annotate_events <- function(events_tbl, alpha = .2){
     info_events   <- setdiff(colnames(events_tbl), obligatory_cols[["events"]])
     events_tbl <- data.table::copy(events_tbl)
-    events_tbl[,xmin:= as_time(events_tbl$.initial) ]
-    events_tbl[,xmax:= as_time(events_tbl$.final) ]
-    events_tbl[,description := paste0((info_events), collapse =".")]
-    geom_rect(data= events_tbl,
-              aes(xmin = xmin,
-                  xmax =  xmax ,
-                  fill = description, group = .id),
-              ymin = -Inf, ymax= -Inf,
-              alpha = alpha, inherit.aes = FALSE)
+    events_tbl[,xmin:= as_time(.initial) ]
+    events_tbl[,xmax:= as_time(.final) ]
+    ## events_tbl[,.source:= as.factor(.channel)]
+    events_tbl[,description := (do.call(paste,c(.SD, sep ="."))), .SDcols= c(info_events)]
+                                        #single events
+    to_plot<- list()
+    to_plot$events_all <- filter_dt(events_tbl, .initial == .final, is.na(.channel) )
+    to_plot$events_ch <- filter_dt(events_tbl, .initial == .final, !is.na(.channel) ) %>%
+        .[, .source := as.factor(.channel)]
+    to_plot$intervals_all <- filter_dt(events_tbl, .initial < .final, is.na(.channel) )
+    to_plot$intervals_ch <- filter_dt(events_tbl, .initial < .final, !is.na(.channel) )  %>%
+    .[, .source := as.factor(.channel)]
+
+    purrr::map(to_plot, ~ if(nrow(.x)>0){
+                              geom_rect(data= .x,
+                                        aes(xmin = xmin,
+                                            xmax =  xmax ,
+                                            color = description,
+                                            fill = description,
+                                            group = .id),
+                                        alpha = alpha,
+                                        ymin = -Inf, ymax= Inf,
+                                        inherit.aes = FALSE) 
+                          }
+                          else {
+                              NULL
+                          })
 }

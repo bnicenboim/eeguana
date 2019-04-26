@@ -325,18 +325,18 @@ read_edf <- function(file, recording = file) {
                       .sample_id = sample_id, 
                       channels_tbl = channel_info)
   if(length(l_annot)==0){
-      events <- new_events_tbl(.initial =  sample_int(integer(0), sampling_rate = sampling_rate))
+      events <- new_events_tbl(, sampling_rate = sampling_rate)
   } else {
       edf_events <- l_annot[[1]]$annotations
       init_events <- sample_int(round(edf_events$onset * sampling_rate) + 1L , sampling_rate = sampling_rate)
     events <- new_events_tbl(.id=1L, 
                              .initial = init_events,
                          descriptions_dt = edf_events["annotation"],
-                         .final = dplyr::case_when(!is.na(edf_events$duration) ~
+                         .final = ( dplyr::case_when(!is.na(edf_events$duration) ~
                                                       round(edf_events$duration* sampling_rate),
                                                    !is.na(edf_events$end) ~
                                                        round((edf_events$end - edf_events$onset + 1)* sampling_rate),
-                                                   TRUE ~ 0) %>% as.integer() +init_events,
+                                                   TRUE ~ 0) %>% as.integer() ) +init_events,
                                      .channel= NA_character_)
 
   }
