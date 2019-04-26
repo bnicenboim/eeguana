@@ -29,8 +29,8 @@ An eeg_lst.
 Subtract the average or baseline of the points in a defined interval from all points in the segment.
 }
 \seealso{
-Other channel: \code{\link{ch_rereference}},
-  \code{\link{channel_dbl}}, \code{\link{chs_mean}},
+Other channel: \code{\link{channel_dbl}},
+  \code{\link{chs_mean}}, \code{\link{eeg_rereference}},
   \code{\link{is_channel_dbl}}
 }
 \concept{channel}

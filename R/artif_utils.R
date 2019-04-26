@@ -13,13 +13,8 @@ detect_step <- function(x, args =list(difference=NULL)){
 }
 #' @noRd 
 search_artifacts <- function(signal,..., fun, args = list()){
-    dots <- rlang::enquos(...)
-    if(rlang::is_empty(dots)) {
-        ch_sel <- channel_names(signal)
-    } else {
-        ch_sel <- tidyselect::vars_select(channel_names(signal), !!!dots)
-    }
-    ##in case there are missing .sample_ids
+    ch_sel <- sel_ch(signal,...)
+     ##in case there are missing .sample_ids
     signal[,list(.sample_id = seq.int(min(.sample_id),max(.sample_id))) ,by=.id] %>%
     left_join_dt(signal,by=c(".id",".sample_id")) %>%
         .[,c(list(.sample_id = .sample_id),

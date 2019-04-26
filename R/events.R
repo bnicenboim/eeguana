@@ -4,7 +4,7 @@
 #'   * `eeg_artif_minmax()`
 #' 
 #' @param .data An `eeg_lst` object.
-#' @param ... Channels to include in the artifact detection. All the channels by default, but eye channels should be removed.
+#' @param ... Channels to include. All the channels by default, but eye channels should be removed.
 #' @param difference Maximum permissible difference in voltage. This is between two consecutive data points for `eeg_artif_step`, and in a `window` for `eeg_artif_minmax`.
 #' @param window Sliding window for min-max artifact detection (same unit as `lim`).
 #' @param lim Vector indicating the time before and after the event.
