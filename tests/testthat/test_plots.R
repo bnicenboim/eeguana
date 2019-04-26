@@ -113,24 +113,11 @@ test_that("warnings", {
 test_that("plot functions create ggplots", {
   expect_gg(lineplot_eeg)
   expect_gg(topoplot_eeg)
-})
-
-
-## plot(data_faces_10_trials) + annotate_events(events_tbl(data_faces_10_trials),)
-## events_tbl <- events_tbl(data_faces_10_trials)
-## info_events   <- setdiff(colnames(events_tbl), obligatory_cols[["events"]])
-## events_tbl <- data.table::copy(events_tbl)
-## events_tbl[,xmin:= as_time(events_tbl$.initial, unit = "s") ]
-## events_tbl[,xmax:= as_time(events_tbl$.initial + .size, unit = "s") ]
-## events_tbl[,description := paste0((info_events), collapse =".")]
-## events_tbl
-## df <- as_tibble(data_faces_10_trials)
-## max(df$time)
-## max(data_faces_10_trials$signal$.sample_id)
-## max(events_tbl$.initial)
-## plot(data_faces_10_trials)+ geom_rect(data= events_tbl,
-##           aes(xmin = xmin,
-##               xmax =  xmax ,
-##               ymin = -1000, ymax= 1000,
-##               fill = description, group = .id),
-##           alpha = .8, inherit.aes = FALSE)
+expect_gg(plot(data_faces_10_trials) + annotate_events(events_tbl(data_faces_10_trials)))
+expect_gg(plot(data_faces_10_trials) +
+    annotate_events(events_tbl(data_faces_10_trials) %>%
+                    filter(type=="Stimulus") %>% select(-type) ))
+expect_gg(plot(data_faces_10_trials) +
+    annotate_events(events_tbl(data_faces_10_trials) %>%
+                    filter(type!="Stimulus") %>% select(-type)))
+}
