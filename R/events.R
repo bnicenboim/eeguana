@@ -99,8 +99,8 @@ eeg_events_to_NA <- function(x, ...) {
 #' @param all_chans If set to `TRUE`,
 #'     it will consider samples from all channels (Default:  `all_chans = FALSE`).
 #' @param entire_seg If set to `FALSE`, it will consider only the marked part of the segment,
-#'     otherwise it will consider the entire segment (Default: entire_seg = TRUE). Setting it to FALSE can make the function very slow.
-#' @param drop_events If set to `TRUE` (default), the events that were using for setting signals to NA, will be removed from the events table.
+#'     otherwise it will consider the entire segment (Default: entire_seg = TRUE). 
+#' @param drop_events If set to `TRUE` (default), the events that were used for setting signals to NA, will be removed from the events table.
 #' @rdname eeg_events_to_NA
 #' @export 
 eeg_events_to_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRUE,
