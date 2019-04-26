@@ -11,14 +11,14 @@ data_eeg <- eeg_lst(
       .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
 ),   events_tbl = dplyr::tribble(
-    ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
-    1L, "New Segment", NA_character_, -4L, 1L, NA,
-    1L, "Bad", NA_character_, -2L, 3L, NA,
+    ~.id, ~type, ~description, ~.initial, ~.final, ~.channel,
+    1L, "New Segment", NA_character_, -4L, -4L, NA,
+    1L, "Bad", NA_character_, -2L, 0L, NA,
     1L, "Time 0", NA_character_, 1L, 1L, NA,
-    1L, "Bad", NA_character_, 2L, 2L, "X",
-    2L, "New Segment", NA_character_, -4L, 1L, NA,
+    1L, "Bad", NA_character_, 2L, 3L, "X",
+    2L, "New Segment", NA_character_, -4L, -4L, NA,
     2L, "Time 0", NA_character_, 1L, 1L, NA,
-    2L, "Bad", NA_character_, 2L, 1L, "Y"
+    2L, "Bad", NA_character_, 2L, 2L, "Y"
     ),
   segments = dplyr::tibble(.id = c(1L, 2L), recording = "recording1", segment = c(1L, 2L))
 )

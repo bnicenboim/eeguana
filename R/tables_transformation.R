@@ -23,30 +23,32 @@ eeg_segment <- function(x, ...) {
 #' @param recording_col Column in the segments table indicating to which recording or file each segment belongs.
 #' @inheritParams as_time
 #' @export
-eeg_segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds", recording_col = "recording") {
+eeg_segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds",
+                                recording_col = "recording") {
   dots <- rlang::enquos(...)
   end <- rlang::enquo(end)
 
   times0 <- dplyr::filter(x$events, !!!dots) %>%
-    dplyr::select(-.channel, -.size) 
-  
+      dplyr::select(-.channel, -.final) %>%
+      dplyr::rename(.first_sample = .initial)
+
   if(!rlang::quo_is_missing(end)){
     times_end <- dplyr::filter(x$events, !!end) %>%
-      dplyr::select(-.channel, -.size) 
+        dplyr::select(-.channel, -.final) %>%
+        dplyr::rename(.first_sample = .initial)
   }
 
   if (rlang::quo_is_missing(end) && any(lim[[2]] < lim[[1]])) {
     stop("A segment needs to be of positive length and include at least 1 sample.")
   }
-  
-  
+
   if (rlang::quo_is_missing(end) && (length(lim) == 2) || ## two values or a dataframe
     (!is.null(nrow(lim)) && nrow(lim) == nrow(times0)) ) {
     scaling <- scaling(sampling_rate(x), unit = unit)
     sample_lim <- round(lim * scaling) 
     seg_names <- colnames(times0)[!startsWith(colnames(times0),".")]
-    segmentation_info <- times0 %>% dplyr::mutate(.lower =.sample_0+ sample_lim[[1]] %>% as_integer(), 
-                                                  .upper = .sample_0+ sample_lim[[2]] %>% as_integer(),
+    segmentation_info <- times0 %>% dplyr::mutate(.lower =.first_sample+ sample_lim[[1]] %>% as_integer(), 
+                                                  .upper = .first_sample+ sample_lim[[2]] %>% as_integer(),
                                                   .new_id = seq_len(dplyr::n())) %>%
                                     dplyr::select(-dplyr::one_of(seg_names))
   } else if (rlang::quo_is_missing(end)) {
@@ -54,8 +56,8 @@ eeg_segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds",
   } else if(!rlang::quo_is_missing(end) && (nrow(times0) == nrow(times_end)) ) {
 
     seg_names <- colnames(times0)[!startsWith(colnames(times0),".")]
-    segmentation_info <- times0 %>% dplyr::mutate(.lower = .sample_0, 
-                                                  .upper = times_end$.sample_0,
+    segmentation_info <- times0 %>% dplyr::mutate(.lower = .first_sample, 
+                                                  .upper = times_end$.first_sample,
                                                   .new_id = seq_len(dplyr::n()))%>%
                                     dplyr::select(-dplyr::one_of(seg_names))
   } else {
@@ -63,10 +65,10 @@ eeg_segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds",
   }
 
   segmentation <- data.table::as.data.table(segmentation_info)
-
+  segmentation[,.first_sample := sample_int(.first_sample, sampling_rate = sampling_rate(x))]
   # update the signal tbl:
   cols_signal <- colnames(x$signal)
-  cols_signal_temp <- c(".new_id",".sample_0","x..sample_id",cols_signal[cols_signal!=".id"])
+  cols_signal_temp <- c(".new_id",".first_sample","x..sample_id",cols_signal[cols_signal!=".id"])
 
   new_signal <- x$signal[segmentation, on = .(.id, .sample_id >= .lower, .sample_id <= .upper), allow.cartesian=TRUE,
   ..cols_signal_temp]
@@ -74,37 +76,22 @@ eeg_segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds",
   
   #.sample_id is now the lower bound
   #x..sample_id is the original columns
-  new_signal[, .sample_id := x..sample_id - .sample_0 + 1L][,.sample_0 := NULL][, x..sample_id:=NULL ]
+  new_signal[, .sample_id := x..sample_id - .first_sample + 1L][,.first_sample := NULL][, x..sample_id:=NULL ]
   data.table::setnames(new_signal, ".new_id",".id")
   attributes(new_signal$.sample_id) <- attributes(x$signal$.sample_id)
   data.table::setkey(new_signal, .id, .sample_id)
   x$signal <- new_signal
 
-  #update events table
-  cols_events <- colnames(x$events)
-  cols_events_temp <- unique(c(cols_events, colnames(segmentation_info),"i..sample_0"))
-  #i..sample_0 is the sample_0 of events
-  new_events <- segmentation[x$events, on = .(.id), ..cols_events_temp, allow.cartesian=TRUE][
-                                data.table::between(i..sample_0,.lower - .size + 1 , .upper)]
+  
 
-  new_events[,.size := dplyr::if_else(i..sample_0 < .lower,
-                                      as.integer(.size - (.lower - i..sample_0) + 1L),
-                                      # adjust the size so that it doesn't spillover after the segment
-                                      .size) %>% 
-                        pmin(., .upper + 1L - i..sample_0 )][,
-               .sample_0 := dplyr::if_else(i..sample_0 < .lower, 
-                                           .lower - .sample_0 + 1L,
-                                           i..sample_0 - .sample_0 + 1L)  ][, 
-               .id := .new_id]
-
-  x$events <- new_events[,..cols_events]
-  data.table::setattr(x$events,"class",c("events_tbl",class(x$events)))
+  x$events <- update_events(x$events, segmentation)
+  ## data.table::setattr(x$events,"class",c("events_tbl",class(x$events)))
 
 
   message(paste0("# Total of ", max(x$signal$.id), " segments found."))
 
   x$segments <- dplyr::right_join(x$segments,
-                dplyr::select(times0, -.sample_0), by = ".id") %>%
+                dplyr::select(times0, -.first_sample), by = ".id") %>%
                 dplyr::mutate(.id = 1:n()) 
 
   if(!is.null(recording_col) && !is.na(recording_col)){
@@ -119,4 +106,27 @@ eeg_segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds",
 
 
 
+
+#' update events table based on a segmentation table
+#' segmentation is a data.table with the following columns:
+#' * .id:.id of the events
+#' * .first_sample:sample_id 1 of the new new segmentation, 1 if left empty
+#' * .lower: lower boundary of the event (included)
+#' * .upper: upper boundary of the event, (included)
+#' * .new_id: new id for the event, current one if left empty
+#' @noRd
+update_events <- function(events_tbl, segmentation){
+    segmentation <- data.table::as.data.table(segmentation)
+    segmentation[, .new_id := if(!".new_id" %in% colnames(segmentation)) .id else .new_id ]
+    segmentation[, .first_sample := if(!".first_sample" %in% colnames(segmentation)) 1 else .first_sample]
+    cols_events <- colnames(events_tbl)
+    cols_events_temp <- unique(c(cols_events, colnames(segmentation),"i..initial"))
+                                        #i..initial is the.initial of events
+    new_events <- segmentation[events_tbl, on = .(.id), ..cols_events_temp, allow.cartesian=TRUE][
+       i..initial <= .upper & .lower <= .final]
+    new_events[, .initial := pmax(i..initial, .lower) - .first_sample + 1L]
+    new_events[, .final:= pmin(.final, .upper) - .first_sample + 1L]
+    new_events[, .id := .new_id][,..cols_events] %>%
+    as_events_tbl(., sampling_rate = sampling_rate(events_tbl))
+}
 

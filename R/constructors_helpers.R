@@ -161,6 +161,12 @@ validate_eeg_lst <- function(x, recursive = TRUE) {
                 call. = FALSE
                 )
     }
+  ## nulls should be caught by the recursive=TRUE
+  if(!is.null(sampling_rate(x$events)) && !is.null(sampling_rate(x$signal)) &&
+     sampling_rate(x$events)!= sampling_rate(x$signal)){
+      warning("Sampling rates in events and signal table are different",
+              call. = FALSE)
+    }
 x
 }
 

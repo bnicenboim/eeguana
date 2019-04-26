@@ -21,7 +21,11 @@ NULL
 
 #' @name eeg_artif
 #' @export
-eeg_artif_minmax <- function(.data,...){
+eeg_artif_minmax <- function(.data,...,
+                                     difference = 100,
+                                     lim = c(-200, 200),
+                                     window = (lim[2]-lim[1])/2,
+                                     unit = "ms"){
     UseMethod("eeg_artif_minmax")
 }
 
@@ -54,7 +58,7 @@ eeg_artif_minmax.eeg_lst <- function(.data,
 
 #' @name eeg_artif
 #' @export
-eeg_artif_step <- function(.data, ...) {
+eeg_artif_step <- function(.data,..., difference = 50 , lim = c(-200, 200), unit = "ms" ) {
     UseMethod("eeg_artif_step")
 }
 
@@ -66,10 +70,11 @@ eeg_artif_step.eeg_lst <- function(.data, ..., difference = 50 , lim = c(-200, 2
     artifacts_found <- search_artifacts(.data$signal,fun = detect_step, ...,
                                         args = list(difference = difference))
 
-    events_tbl(.data) <- add_intervals_from_artifacts( old_events = events_tbl(.data), 
+    events_tbl(.data) <- add_intervals_from_artifacts(old_events = events_tbl(.data), 
                                                   artifacts_found, 
-                                                   sample_range,
-                                                   "step")
+                                                  sample_range,
+                                                  type = "step")
+
     validate_eeg_lst(.data)
 }
 
@@ -103,8 +108,9 @@ eeg_events_to_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRU
   dots <- rlang::enquos(...)
 
   #TODO in data.table
-  signal <- as.data.frame(x$signal)
-  x$events <- dplyr::as_tibble(x$events)
+  ## signal <- as.data.frame(x$signal)
+  signal <- data.table::copy(x$signal)
+  ## x$events <- dplyr::as_tibble(x$events)
 
   # dots <- rlang::quos(type == "Bad Interval")
 
@@ -116,22 +122,20 @@ eeg_events_to_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRU
 
   # For the replacement in parts of the segments
   b_chans <- dplyr::filter(baddies, !is.na(.channel)) %>%
-    .$.channel %>%
-    unique()
+      dplyr::distinct(.channel) %>%
+      dplyr::pull()
 
-  for (c in b_chans) {
-    b <- dplyr::filter(baddies, .channel == c & !is.na(.channel))
+  for (ch in b_chans) {
+    b <- dplyr::filter(baddies, .channel == ch,!is.na(.channel))
     if (!entire_seg) {
-      for (i in seq(1, nrow(b))) {
-        signal[[as.character(c)]][signal$.id %in% b$.id[i] &
-          between(
-            signal$.sample_id, b$.sample_0[i],
-            b$.sample_0[i] + b$.size[i] - 1
-          )  ] <- NA
-      }
-      # could try with na_if, maybe it's faster?
+        for (i in seq(1, nrow(b))) {
+            data.table::set(signal,i = which(signal$.id %in% b$.id[i] & between(
+                                                               signal$.sample_id, b$.initial[i],
+                                                               b$.final[i]
+                                                           )), j = ch, NA_real_)
+       }
     } else {
-      signal[[as.character(c)]][signal$.id %in% b$.id] <- NA
+     data.table::set(signal,i = which(signal$.id %in% b$.id), j = ch, value =  NA_real_)
     }
   }
   # For the replacement in the complete of the segments
@@ -139,27 +143,22 @@ eeg_events_to_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRU
 
   if (!entire_seg & nrow(b_all) != 0) {
     for (i in seq(1, nrow(b_all))) {
-      signal[, channel_names(x)][signal$.id == b_all$.id[i] &
+      data.table::set(signal, which(signal$.id == b_all$.id[i] &
         between(
-          signal$.sample_id, b_all$.sample_0[i],
-          b_all$.sample_0[i] + b_all$.size[i] - 1
-        ), ] <- NA
+          signal$.sample_id, b_all$.initial[i],
+          b_all$.final[i]
+        )),  j = channel_names(x),value = NA_real_)
     }
   } else {
-    signal[, channel_names(x)][signal$.id %in% b_all$.id, ] <- NA
+      data.table::set(signal, which(signal$.id %in% b_all$.id), j = channel_names(x), value =  NA_real_)
   }
+ 
 
   if (drop_events) {
-    x$events <- suppressMessages(dplyr::anti_join(
-      x$events,
-      dplyr::filter(x$events, !!!dots)
-    ))
+   x$events<-  anti_join_dt(x$events, filter_dt(x$events, !!!dots) )
   }
+x$signal <- signal
 
-  #TODO fix this:
-  x$signal <- data.table::data.table(signal)
-  data.table::setattr(x$signal, "class", c("signal_tbl", class(x$signal))) 
-  data.table::setkey(x$signal,.id,.sample_id)
-  x$events <- as_events_tbl(x$events)
-  validate_eeg_lst(x)
+validate_eeg_lst(x)
+
 }

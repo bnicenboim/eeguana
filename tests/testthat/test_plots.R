@@ -12,19 +12,19 @@ data_1 <- eeg_lst(
       .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = c(1, -10), .y = c(1, 1), .z = c(1, 10)
   ),
-  events_tbl = as_events_tbl(dplyr::tribble(
-    ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
-    1L, "New Segment", NA_character_, -4L, 1L, NA,
-    1L, "Bad", NA_character_, -2L, 3L, NA,
+  events_tbl = dplyr::tribble(
+    ~.id, ~type, ~description, ~.initial, ~.final, ~.channel,
+    1L, "New Segment", NA_character_, -4L, -4L, NA,
+    1L, "Bad", NA_character_, -2L, 0L, NA,
     1L, "Time 0", NA_character_, 1L, 1L, NA,
-    1L, "Bad", NA_character_, 2L, 2L, "X",
-    2L, "New Segment", NA_character_, -4L, 1L, NA,
+    1L, "Bad", NA_character_, 2L, 3L, "X",
+    2L, "New Segment", NA_character_, -4L, -4L, NA,
     2L, "Time 0", NA_character_, 1L, 1L, NA,
-    2L, "Bad", NA_character_, 2L, 1L, "Y",
-    3L, "New Segment", NA_character_, -4L, 1L, NA,
+    2L, "Bad", NA_character_, 2L, 2L, "Y",
+    3L, "New Segment", NA_character_, -4L, -4L, NA,
     3L, "Time 0", NA_character_, 1L, 1L, NA,
-    3L, "Bad", NA_character_, 2L, 1L, "Y"
-  )),
+    3L, "Bad", NA_character_, 2L, 2L, "Y"
+  ),
   segments_tbl = dplyr::tibble(.id = c(1L, 2L, 3L),
                            recording = "recording1",
                            segment = c(1L, 2L, 3L),
@@ -33,6 +33,7 @@ data_1 <- eeg_lst(
 
 
 data("data_faces_ERPs")
+data("data_faces_10_trials")
 
 
 # helper functions (borrowed from github.com/stan-dev/bayesplot/R/helpers-testthat.R)
@@ -115,5 +116,21 @@ test_that("plot functions create ggplots", {
 })
 
 
-
-
+## plot(data_faces_10_trials) + annotate_events(events_tbl(data_faces_10_trials),)
+## events_tbl <- events_tbl(data_faces_10_trials)
+## info_events   <- setdiff(colnames(events_tbl), obligatory_cols[["events"]])
+## events_tbl <- data.table::copy(events_tbl)
+## events_tbl[,xmin:= as_time(events_tbl$.initial, unit = "s") ]
+## events_tbl[,xmax:= as_time(events_tbl$.initial + .size, unit = "s") ]
+## events_tbl[,description := paste0((info_events), collapse =".")]
+## events_tbl
+## df <- as_tibble(data_faces_10_trials)
+## max(df$time)
+## max(data_faces_10_trials$signal$.sample_id)
+## max(events_tbl$.initial)
+## plot(data_faces_10_trials)+ geom_rect(data= events_tbl,
+##           aes(xmin = xmin,
+##               xmax =  xmax ,
+##               ymin = -1000, ymax= 1000,
+##               fill = description, group = .id),
+##           alpha = .8, inherit.aes = FALSE)

@@ -4,12 +4,12 @@
 \alias{plot.eeg_lst}
 \title{Create a basic signal plot}
 \usage{
-\method{plot}{eeg_lst}(x, max_sample = 64000, ...)
+\method{plot}{eeg_lst}(x, max_sample = 6400, ...)
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
 
-\item{max_sample}{Downsample to approximately 64000 samples by default.}
+\item{max_sample}{Downsample to approximately 6400 samples by default.}
 
 \item{...}{Not in use.}
 }
@@ -24,7 +24,7 @@ noise issues in the recording.
 \details{
 Note that for normal-size datasets, the plot may take several minutes to compile.
 If necessary, \code{plot} will first downsample the \code{eeg_lst} object so that there is a
-maximum of 64,000 samples. The \code{eeg_lst} object is then converted to a long-format
+maximum of 6,400 samples. The \code{eeg_lst} object is then converted to a long-format
 tibble via \code{as_tibble}. In this tibble, the \code{.source} variable is the
 channel/component name and \code{.value} its respective amplitude. The sample
 number (\code{.sample_id} in the \code{eeg_lst} object) is automatically converted to milliseconds

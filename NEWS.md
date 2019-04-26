@@ -8,6 +8,8 @@
       - `events()` was renamed to `events_tbl()`.
       - `ch_filt_*` functions were renamed to `eeg_filt_*` and they get a `...` argument to select the relevant channels.
       - Changes in the creation of `eeg_lst` objects.
+      - Faster `as_tibble()`.
+      - `as.data.table()` was added
 # eeguana 0.0.6.9000
   - Changes
       - There is a logo!

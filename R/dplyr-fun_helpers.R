@@ -29,18 +29,16 @@ filter_eeg_lst <- function(.eeg_lst, dots){
      extended_signal <- extended_signal(.eeg_lst, cond_cols) 
      by <- as.character(dplyr::group_vars(.eeg_lst))
  
-    # https://stackoverflow.com/questions/16573995/subset-by-group-with-data-table
-     dots_txt <- purrr::map(dots, ~  rlang::quo_text(.x)) %>%
-     paste0(., collapse = " & ")
-     
      cols_signal <- colnames(.eeg_lst$signal)
 
-     .eeg_lst$signal <-  extended_signal[extended_signal[,.I[eval(parse(text = dots_txt))], by = c(by)]$V1][,..cols_signal]
-
+     .eeg_lst$signal <-filter_dt(extended_signal, !!!dots, group_by_ = by) %>%
+         .[,..cols_signal]
+     if(nrow(.eeg_lst$events)>0){
+         range_s <- .eeg_lst$signal[,.(.lower= min(.sample_id), .upper = max(.sample_id) ), by = .id]
+         .eeg_lst$events <- update_events(.eeg_lst$events, range_s)
+     }
      .eeg_lst$segments <- dplyr::semi_join(.eeg_lst$segments, .eeg_lst$signal, by = ".id")
      }
-    
-
     # filter the segments and update the signal_tbl
     if (length(new_dots$segments) > 0) {
       grouping <- group_vars(.eeg_lst)[group_vars(.eeg_lst) %in% colnames(.eeg_lst$segments)]

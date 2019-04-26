@@ -4,7 +4,7 @@
 #' (`.sample_id`) and individual electrodes. Each `.sample_id` corresponds to
 #' 1 sample in the original recording, i.e. if the sampling rate of the EEG
 #' recording is 500 Hz, then each `.sample_id` corresponds to 2 milliseconds. 
-#' These timestamps correspond to `.sample_0` in the `events` table, which 
+#' These timestamps correspond to `.initial` in the `events` table, which 
 #' displays only the timestamps where logged events began.
 #'
 #' @param .id Integers indicating to which group the row of the signal matrix belongs.
@@ -86,7 +86,6 @@ validate_signal_tbl <- function(signal_tbl) {
                 )
     }
 
-
     if(!identical(data.table::key(signal_tbl), c(".id",".sample_id"))) {
         warning("`keys` of signal table are missing.",
                 call. = FALSE
@@ -94,7 +93,11 @@ validate_signal_tbl <- function(signal_tbl) {
     }
 
     ## Validates .sample_id
-    validate_sample_int(signal_tbl$.sample_id)
+    if (!is_sample_int(signal_tbl$.sample_id)) {
+        warning("Values of .initial should be samples",
+                call. = FALSE
+                )
+    }
 
     ##checks if there are channels
     if(nrow(signal_tbl)>0){

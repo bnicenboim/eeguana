@@ -20,8 +20,9 @@ data_faces_ERPs <- faces %>%
   group_by(.sample_id, condition) %>%
 summarize_all_ch(mean,na.rm=TRUE)
 
-pos_10 <- events(faces) %>% filter(type=="Stimulus", description =="s130") %>% pull(.sample_0) %>% .[10]
+pos_10 <- events_tbl(faces) %>% filter(type=="Stimulus", description =="s130") %>% pull(.sample_0) %>% .[10]
 
 data_faces_10_trials <- faces  %>% filter(.sample_id <= pos_10)
-  
+
+
 usethis::use_data(data_faces_ERPs, data_faces_10_trials, overwrite=TRUE)

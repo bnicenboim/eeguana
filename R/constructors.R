@@ -11,14 +11,13 @@
 #' (`.sample_id`) and individual electrodes. Each `.sample_id` corresponds to
 #' 1 sample in the original recording, i.e. if the sampling rate of the EEG
 #' recording is 500 Hz, then each `.sample_id` corresponds to 2 milliseconds. 
-#' These timestamps correspond to `.sample_0` in the `events` table, which 
+#' These timestamps correspond to `.initial` in the `events` table, which 
 #' displays only the timestamps where logged events began.
 #' 
 #' The `events` table is organised into columns representing the `type` of event
 #' associated with the trigger listed under `description`. The timestamp marking
-#' the beginning of the event is listed under `.sample_0` and the length of the
-#' event (in timestamps) is listed under `.size`. The `.channel` column will 
-#' generally only contain NAs, unless the 
+#' the beginning and the end of the event is listed under `.initial` and `.final` (in samples).
+#' The `.channel` column is a  linking variable only, so will generally only contain NAs, unless the 
 #' event is specific to a certain channel.
 #' 
 #' The `segments` tibble contains the subject ID under `recording`, which is 
@@ -40,7 +39,8 @@
 #' @return A valid eeg_lst.
 #' @export
 eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, channels_tbl = NULL) {
-    signal_tbl <- data.table::as.data.table(signal_tbl) 
+  if(is.null(signal_tbl) || !is_signal_tbl(signal_tbl)){  
+  signal_tbl <- data.table::as.data.table(signal_tbl) 
     if(!is.null(channels_tbl)){
         data.table::set(signal_tbl,
                         ##columns with channels
@@ -49,9 +49,20 @@ eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, c
                         value=  signal_tbl[, (update_channel_meta_data(.SD, channels_tbl)),
                                            .SDcols=(channels_tbl$.channel)])
     }
-    validate_eeg_lst(new_eeg_lst(as_signal_tbl(signal_tbl),
-                                 as_events_tbl(events_tbl),
-                                 validate_segments(segments_tbl)),
+  
+    signal_tbl <- as_signal_tbl(signal_tbl)
+  } else {
+      signal_tbl <- validate_signal_tbl(signal_tbl)
+  }
+  if(is.null(events_tbl) || !is_events_tbl(events_tbl)){
+      events_tbl <- as_events_tbl(events_tbl, sampling_rate = sampling_rate(signal_tbl))
+  } else {
+      events_tbl <- validate_events_tbl(events_tbl)
+  }
+    segments_tbl <- validate_segments(segments_tbl)
+    validate_eeg_lst(new_eeg_lst(signal_tbl,
+                                 events_tbl,
+                                 segments_tbl),
                      recursive = FALSE)
 } 
 
@@ -97,10 +108,6 @@ sample_int <- function(values, sampling_rate) {
 #' @return `TRUE` if the object inherits from the `sample` class.
 #' @export
 is_sample_int <- function(x) {
-  if(class(x) == "sample_int") {
-  	message("sample_id class is deprecated")
-  	return(TRUE)
-  }
   class(x) == "sample_int"
 }
 
