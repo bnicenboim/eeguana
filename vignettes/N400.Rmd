@@ -1,0 +1,351 @@
+---
+title: "Preprocessing and analysis of a simple N400 experiment"
+author: "Bruno Nicenboim"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Preprocessing and analysis of a simple N400 experiment}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.dim = c(10,15),
+  out.width = "100%"
+)
+```
+
+This
+
+## Dataset
+
+The EEG dataset used in this script is available in [](). In the experiment, subjects made
+
+First we download the data:
+
+```{r downloading,  eval = any(!file.exists("s04.eeg","s04.vmrk","s04.vhdr"))}
+``` 
+
+And then we load the *eeguana* package and read the the `.vhdr` fileinto memory. 
+The function `read_vhdr()` creates a list with data frames for the signal, events,
+segments information, and incorporates in its attributes generic EEG information.
+
+```{r libs, message = FALSE}
+library(eeguana)
+``` 
+
+```{r}
+s1_N400 <- read_vhdr(file = "N4data/s1.vhdr")
+```
+
+
+```{r}
+plot(s1_N400) +annotate_events(events_tbl(s1_N400))
+events_tbl(s1_N400) %>% count(description)
+
+# I cut the borders
+events_tbl(s1_N400) %>% filter(description %in% c("s102","s111","s121","s122"))
+s1_N400 <- s1_N400 %>% eeg_segment(description =="s111",end= description=="s102")
+
+```
+look at the data with events
+zoom in
+
+
+## Re reference
+```{r}
+#TOO slow
+s1_N400 <- eeg_rereference(s1_N400, -VEOG, -HEOG, ref_ch = c("M1", "M2") )
+
+```
+
+## Apply filters
+
+```{r}
+s1_N400_filt <- eeg_filt_band_pass(s1_N400,freq = c(.1,30))
+
+## events_tbl(s1_N400)
+## piece <- s1_N400 %>% filter(.sample_id %>% between(10500,11500)) %>%
+##     mutate(data ="raw")
+## piece_filt <- s1_N400_filt %>% filter(.sample_id %>% between(10500,11500)) %>%
+##     mutate(data ="filtered")
+
+## both <- bind(piece, piece_filt)
+## plot(both) + geom_line(aes(color = data))
+
+```
+
+## Make large segments (full sentence) and artifact rejection
+
+
+
+```{r}
+
+## library(profvis)
+## eeguana:::plot.eeg_lst()
+## dd <- eeg_downsample(data_N400_filt, max_sample = 6400)
+## ddt <- as_tibble(dd)
+
+## try_to_downsample(data_N400_filt,2000)
+## plot(dd)
+## profvis({
+##     plot(data_N400_filt, max_samples = 2000)
+
+##     nsamples(data_N400)
+##     })
+
+
+```
+
+```{r}
+events_tbl(s1_N400_filt) %>%
+    count(description)
+
+events_tbl(s1_N400_filt) %>% filter(description =="s130") %>% pull(.initial) %>% diff
+
+events_tbl(s1_N400_filt) %>%
+    filter(description == "s130") %>% pull(.sample_0) %>% diff
+                                        #max probably the break
+                                        #2200 should be enough
+
+s1_N400_s <-
+    s1_N400_filt %>% select(-type,-description) %>%
+    eeg_segment(description == "s130",lim=  c(0,2200), unit = "sample")
+
+s1_N400_s <- s1_N400_s %>% 
+    eeg_artif_minmax(-HEOG, -VEOG, difference =100, window=150, unit = "ms")
+
+
+## profvis({ fs
+##     data_N400_s %>% eeg_artif_minmax(-HEOG, -VEOG, difference =100, window=150, unit = "ms")
+## })
+ 
+plot(filter(data_N400_s, .id %in% 1:3)) + facet_grid(.source~.id)
+
+
+## data_N400_s <- data_N400_filt %>% eeg_segment(description == "s130",  c(0,25), unit = "s")
+
+```
+
+
+## Procedure
+
+### Defining trials
+
+The triggers were defined such that the trigger "S131" indicates condition 1 (positive-negative judgment) and 
+ "S132" indicates condition 2 (animal-human judgment). We access the events with `events()` function.
+
+```{r}
+events(data_judg)
+```
+
+However, we want the ERP based on the trigger "S141" that precedes any of these two triggers. We edit the events table (using dplyr functions: `mutate`, `case_when`, `lead`) to indicate to which condition each trigger "S141" belongs, and then we can segment based on these conditions using *eeguana*'s `eeg_segment()`:
+
+
+```{r}
+events(data_judg) <- mutate(events(data_judg), 
+                            condition = case_when(description == "S141" &
+                                                  lead(description) == "S131" ~ 1 ,
+                                                  description == "S141" & 
+                                                  lead(description) == "S132" ~ 2, 
+                                                                         TRUE ~ 0))
+data_judg_s <- data_judg %>% eeg_segment(condition %in% c(1,2), lim = c(-0.2,1))
+```
+
+
+## Pre-processing and re-referencing
+
+In this raw BrainVision dataset, the signal from all electrodes is monopolar and referenced to the left mastoid. We want the signal to be referenced to linked (left and right) mastoids. During the acquisition the 'RM' electrode (number 32) had been placed on the right mastoid. We first baseline the signal with `ch_baseline()`. In order to re-reference the data (e.g. including also the right mastoid in the reference) we add implicit channel 'REF' to the channels (which represents the left mastoid) by creating a channel with `channel_dbl()` and filling it with zeros using `mutate()` overloaded by *eeguana* to work with `eeg_lst's` (see `` ?`dplyr-eeguana` ``). The we re-reference the data using 'REF' and 'RM', the left and right mastoids respectively using `ch_rereference()`. Finally we apply a low-pass filter with a stop band frequency of 100 Hz using `ch_filt_low_pass()`:
+
+```{r}
+data_judg_s <- data_judg_s %>% 
+                # From the beginning of our desired segment length:
+                ch_baseline(-.2) %>% 
+                # The reference channel REF is filled with 0  
+                mutate(REF = channel_dbl(0)) %>% 
+                # All channels are references with REF  
+                ch_rereference(RM, REF) 
+
+data_judg_s_p <- data_judg_s %>% 
+                # A low pass filter is applied 
+                ch_filt_low_pass(100)  
+```
+
+We can have a look at one of the trials (the second one) of one channel
+(channel 27). We `filter()` the desired segment (meaning to select rows or
+samples, do not confuse with filtering the signal, e.g., `ch_filt_low_pass()`)
+and `select()` the channel, then we add information indicating if we are
+looking at the filtered or unfiltered data. Finally we bind both `eeg_lst's`
+and we use use `plot()` to generate a default `ggplot`:
+
+```{r , fig.dim = c(10,7)}
+X27_filtered <- data_judg_s_p %>% 
+                  filter(segment == 2) %>% 
+                  select(X27) %>% 
+                  mutate(filter = "Filtered")
+
+X27_unfiltered <- data_judg_s %>% 
+                  filter(segment == 2) %>% 
+                  select(X27) %>% 
+                  mutate(filter = "Unfiltered")
+
+bind(X27_filtered,X27_unfiltered) %>% plot() +
+                                      geom_line(aes(color = filter)) +
+                                      facet_wrap(~.source)  +
+                                      theme(legend.position = "bottom")
+                  
+```
+
+
+
+## Extracting the EOG signals
+
+In the BrainAmp acquisition system, all channels are measured relative to a
+common reference. For the horizontal EOG we will compute the potential
+difference between channels 57 and 25 (see the plot of the layout and the
+figure below). For the vertical EOG we will use channel 53 and channel "LEOG"
+which was placed below the subjects' left eye.
+
+```{r}
+data_judg_s_p <- data_judg_s_p %>% 
+                 mutate(eogv = ch_rereference(x = LEOG, X53),
+                        eogh = ch_rereference(x = X25, X57)) %>%
+                 # Unnecessary channels are removed
+                 select(-LEOG, -X53, -X56, -X25) 
+```
+
+You can check the channel labels that are now present in the data:
+ 
+
+```{r}
+channel_names(data_judg_s_p)
+```
+
+<!-- ## Channel layout
+
+For topoplotting and sometimes for analysis it is necessary to know how the electrodes were positioned on the scalp. In contrast to the sensor arrangement from a given MEG manufacturer, the topographical arrangement of the channels in EEG is not fixed. Different acquisition systems are designed for different electrode montages, and the number and position of electrodes can be adjusted depending on the experimental goal. In the current experiment, so-called 64-electrodes equidistant montage (ActiCap, BrainVision) was used. 
+
+The channel positions are not always stored in the EEG dataset. But we can use a fieldtrip layout file; this is a .mat file that contains the 2-D positions of the channels. (FieldTrip provides a number of default layouts for BrainVision EEG caps in the fieldtrip/template/layout directory.) It is also possible to edit the `channels_tbl` manually. In this example we will use an existing layout.
+
+
+```{r}
+#layout <- read_layout(mpi_customized_acticap64.mat)
+
+```
+
+Note that the layout should contain correct channel labels that match the channel labels in the data (channel labels not present in either will not be plotted when using a given layout). 
+ -->
+
+## Artifacts
+
+A next important step of EEG preprocessing is detection (and rejection) of artifacts. We can plot 
+EOG channel ('veog', number 61) and confirm that the segments 22, 42, 126, 136 and 150 contain blinks. 
+We use here `plot_gg()`, which is more flexible than `plot()` and requires a `geom`.
+
+
+```{r}
+data_judg_s_p %>%  select(eogv) %>% 
+                   plot_gg() + 
+                   geom_line() + 
+                   facet_wrap(~segment) +  
+                   theme(axis.text.x =  element_text(angle = 90)) + 
+                   scale_x_continuous(breaks = seq(0,1,.2))
+```
+
+The data can be also displayed in a different way. And `ggplotly()` can help us navigate the data.
+
+```{r, fig.dim = c(10,7),fig.show='hold',echo= TRUE, out.width = "100%"}
+data_summary <- data_judg_s_p %>% 
+                select(-eogh, -eogv) %>% 
+                group_by(segment) %>% 
+                summarize_all_ch(var)  
+
+plot_general <- data_summary %>% 
+                   plot_gg(x = segment, y= .source, fill = .value) + 
+                   geom_raster() + 
+                   theme(legend.position ="none", axis.text.y =  element_text(size = 6))
+
+plot_channels <- data_summary %>%  ungroup() %>% summarize_all_ch(max) %>% 
+                   plot_gg(x = .value, y= .source) + 
+                   geom_point()  + 
+                   theme(axis.text.y =  element_text(size = 6))
+
+plot_segments <- data_summary %>%  chs_fun(max) %>% 
+                   plot_gg(x = segment, y = .value) + 
+                   geom_point() + 
+                   theme(axis.text.y =  element_text(size = 6))
+
+
+subplot(ggplotly(plot_general),ggplotly(plot_channels),ggplotly(plot_segments), nrows = 2)
+```
+
+Here, we have plotted the trial 90 -the one with the highest variance. We can
+see a drift in the channel 48.
+
+```{r, results = "hold"}
+data_judg_s_p %>% filter(segment ==90)  %>% 
+                  plot() + 
+                  facet_wrap(~.source) + 
+                  theme(axis.text.x =  element_text(angle=90)) + 
+                  scale_x_continuous(breaks = seq(0,1,.2))
+```
+
+
+Rejection of trials based on visual inspection is somewhat arbitrary.
+Sometimes it is not easy to decide if a trial has to be rejected or not. In
+this exercise we suggest that you remove 8 trials with the highest variance
+(trial numbers 22, 42, 89, 90, 92, 126, 136 and 150): the trials
+with blinks that we saw before.
+
+```{r}
+
+data_judg_s_p <- data_judg_s_p %>% 
+                filter(!segment %in% c(22, 42, 89, 90, 92, 126, 136, 150))
+```
+
+
+## Computing and plotting the ERP's
+
+We now would like to compute the ERP's for two conditions: positive-negative
+judgment and human-animal judgment. This is straightforward to do with
+`group_by()` and `summarize_all_ch()`.
+
+
+```{r}
+
+ERPs <- data_judg_s_p %>% 
+        group_by(.sample_id, condition) %>% 
+        summarize_all_ch(mean,na.rm=TRUE)
+
+ERPs   %>% plot_gg() + 
+           geom_line(aes(color = factor(condition))) + 
+           facet_wrap(~.source)  + 
+           theme(axis.text.x =  element_text(angle=90)) + 
+           scale_x_continuous(breaks = seq(0,1,.2))
+```
+
+The following code allows you to look at the ERP difference waves. 
+
+
+```{r}
+
+diff_ERPs <- data_judg_s_p %>% 
+             group_by(.sample_id) %>% 
+             summarize_all_ch(funs(
+                  mean(.[condition==1] - .[condition==2], 
+                       na.rm=TRUE)))
+
+diff_ERPs  %>% plot_gg() +
+               geom_line() + 
+               facet_wrap(~.source) + 
+               theme(axis.text.x =  element_text(angle=90)) + 
+               scale_x_continuous(breaks = seq(0,1,.2))
+          
+```
+
+[CC Attribution-Share Alike 4.0 International](http://creativecommons.org/licenses/by-sa/4.0/)
+
