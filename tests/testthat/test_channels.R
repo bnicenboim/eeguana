@@ -72,3 +72,8 @@ test_that("both .eeg_lst and .channel_dbl give the same values for ch_rereferenc
   expect_equal(data_reref_all$signal$X %>% as.numeric, data_reref_all_chs$signal$X %>% as.numeric)
   expect_equal(data_reref_all$signal$Y %>% as.numeric, data_reref_all_chs$signal$Y %>% as.numeric)
 })
+
+
+data_3ch <- data_eeg %>% dplyr::mutate(OUT=channel_dbl(99))
+
+ch_rereference(data_3ch, X, exclude = "OUT")

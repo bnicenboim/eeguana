@@ -55,7 +55,7 @@ chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
 #' Notice that this function will update the channels one by one when used inside a mutate and not all at the same time.
 #' 
 #' @param x A channel to be referenced an eeg_lst where all the channels will be re-referenced (except for the ones in exclude).
-#' @param ... Channels that will be averaged as the reference.
+#' @param ref Channels that will be averaged as the reference.
 #' @inheritParams base::mean
 #' @return A rereferenced channel or an eeg_lst with all channels re-referenced.
 #' @export
@@ -66,7 +66,7 @@ chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
 #' \dontrun{
 #' # Rereference all channels used the linked mastoids (average of the two mastoids)
 #'
-#' faces_segs %>% ch_rereference(M1, M2)
+#' faces_segs %>% ch_rereference(ref = c("M1", "M2"))
 #' }
 #' @export
 ch_rereference <- function(x, ...,na.rm= FALSE) {
@@ -74,36 +74,36 @@ ch_rereference <- function(x, ...,na.rm= FALSE) {
 }
 #' @rdname ch_rereference
 #' @export
-ch_rereference.channel_dbl <- function(x, ..., na.rm = FALSE) {
-   dots <- rlang::enquos(...)
-   new_ref <-  purrr::map_chr(dots, rlang::quo_text) %>% paste0(collapse = ", ")
-
-  {x - rowMeans(data.table::data.table(...), na.rm = na.rm)}  %>%
-   { `attributes<-`(., c(attributes(.), 
-                        list(.reference = new_ref))
-                        ) }
-  # {`attributes<-`(., list(.reference=2))}
- }
+## ch_rereference.channel_dbl <- function(x, ref = list(), na.rm = FALSE) {
+##     ## new_ref <-  purrr::map_chr(dots, rlang::quo_text) %>% paste0(collapse = ", ")
+##     e <- environment() # current environment
+##     p <- parent.env(e)
+##     print(p)
+##   {x - rowMeans(data.table::as.data.table(mget(ref, envir= e)), na.rm = na.rm)}  %>%
+##    { `attributes<-`(., c(attributes(.), 
+##                         list(.reference = ref))
+##                         ) }
+##   # {`attributes<-`(., list(.reference=2))}
+##  }
 #' @rdname ch_rereference
 #' @param exclude  A character vector of channels to exclude from referencing.
 #' @export
-ch_rereference.eeg_lst <- function(x,..., na.rm = FALSE, exclude = NULL) {
+ch_rereference.eeg_lst <- function(x,ref = list(), na.rm = FALSE, exclude_ch = NULL) {
   #channels_info <- channels_tbl(x)
   signal <- data.table::copy(x$signal)
-  dots <- rlang::enquos(...)
-  cols <- rlang::quos_auto_name(dots) %>% names()
+  ## dots <- rlang::enquos(...)
+  cols <- unlist(ref) #rlang::quos_auto_name(dots) %>% names()
   ref <- rowMeans(x$signal[,..cols], na.rm = na.rm)
   reref <- function(x){
     x <- x - ref 
-    attributes(x)$.reference <- purrr::map_chr(dots, rlang::quo_text) %>% paste0(collapse = ", ")
+    attributes(x)$.reference <- paste0(ref, collapse = ", ")
     # print(x)
     x
   }
-
-  signal[, (channel_names(x)[!channel_names(x) %in% exclude]) := purrr::map(.SD, reref),.SDcols = channel_names(x)]
+    include <- channel_names(x)[!channel_names(x) %in% exclude_ch]
+    signal[, (include) := purrr::map(.SD, reref),.SDcols = include]
   x$signal <- signal
-  update_events_channels(x) %>% #update_channels_tbl(channels_info) %>%
-      validate_eeg_lst()
+  update_events_channels(x) %>%  validate_eeg_lst()
 
 }
 
