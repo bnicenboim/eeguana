@@ -195,7 +195,7 @@ read_vmrk <- function(file) {
   # splits Mk<Marker number>=<Type>, removes the Mk.., and <Date>
   events[,type := stringr::str_split(type,"=") %>%
            purrr::map_chr(~.x[[2]])][,date := NULL]
-  events[, .final := .initial + .final - 1L][]
+  events[, .final := .initial + .final][, .initial := .initial +1L] ##moves everything one sample, so that it starts from 1 and not zero
 }
 
 #' @importFrom magrittr %>%
