@@ -66,7 +66,7 @@ dplyr::mutate(
 )
 
 data_blinks_more_NA <- data_blinks_more
-data_blinks_more$signal[1,]$Fz <- NA_real_
+data_blinks_more_NA$signal[1,]$Fz <- NA_real_
 data_blinks_more_NA$signal[5,]$Cz <- NA_real_
 ##plot(data)
 
@@ -118,6 +118,9 @@ test_that("ica grouped works",{
 data_blinks_more_NA <-  data_blinks_more_NA %>% group_by(recording)
 data_ica_b_m_NA <- data_blinks_more_NA %>% eeg_ica(na.rm=TRUE)
 
-data_b_m_rec <-   as_eeg_lst(data_ica_b_m)
-data_b_m_rec_Fz <- eeg_ica(data_blinks_more, -Fz) %>% as_eeg_lst()
+data_b_m_rec_NA <-   as_eeg_lst(data_ica_b_m_NA)
 
+test_that("ica with NAs is a reversible",{
+    expect_equal(filter(data_blinks_more_NA, !(.id==1 & .sample_id ==1 | .sample_id==5)) ,
+                 filter(data_b_m_rec_NA, !(.id==1 & .sample_id ==1 | .sample_id==5)) )
+})
