@@ -65,8 +65,10 @@ dplyr::mutate(
     segments_tbl = dplyr::tibble(.id = seq.int(4), recording = paste0("recording",c(1,1,2,2)), segment =  seq.int(4))
 )
 
-
-#plot(data)
+data_blinks_more_NA <- data_blinks_more
+data_blinks_more$signal[1,]$Fz <- NA_real_
+data_blinks_more_NA$signal[5,]$Cz <- NA_real_
+##plot(data)
 
 
 data_ica_default <- eeg_ica(data_blinks)
@@ -105,11 +107,17 @@ data_b_m_rec_Fz <- eeg_ica(data_blinks_more, -Fz) %>% as_eeg_lst()
 
 data_blinks_more_no_blinks <- data_ica_b_m %>%
     select(-ICA1, comp1 = ICA2, comp2 = ICA3) %>%
-    as_eeg_lst()
+    as_eeg_lst() 
 
-test_that("ica grouped works",{
+test_that("ica grouped works",{ 
     expect_equal(data_blinks_more,data_b_m_rec)
     expect_equal(data_blinks_more,data_b_m_rec_Fz)
     expect_equal(data_more,data_blinks_more_no_blinks %>% ungroup() , tolerance = .01) 
 })
+
+data_blinks_more_NA <-  data_blinks_more_NA %>% group_by(recording)
+data_ica_b_m_NA <- data_blinks_more_NA %>% eeg_ica(na.rm=TRUE)
+
+data_b_m_rec <-   as_eeg_lst(data_ica_b_m)
+data_b_m_rec_Fz <- eeg_ica(data_blinks_more, -Fz) %>% as_eeg_lst()
 

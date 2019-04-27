@@ -117,7 +117,8 @@ s1_N400_s <-
     eeg_segment(description == "s130",lim=  c(0,2200), unit = "sample")
 
 s1_N400_s <- s1_N400_s %>% 
-    eeg_artif_minmax(-HEOG, -VEOG, difference =100, window=150, unit = "ms")
+    eeg_artif_minmax(-HEOG, -VEOG, difference =100, window=150, unit = "ms") %>%
+    eeg_artif_step(-HEOG, -VEOG,difference = 50)
 
 
 ## profvis({ fs
@@ -128,6 +129,7 @@ plot(piece) + facet_grid(.source~.id) + annotate_events(events_tbl(piece))
 
 s1_N400_s_clean <- s1_N400_s %>% eeg_events_to_NA(type == "artifact",all_chans = TRUE,entire_seg = FALSE)
 
+s1_N400_s_clean_ica <- eeg_ica(s1_N400_s_clean, -HEOG, -VEOG)
 
 ```
 

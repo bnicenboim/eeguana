@@ -20,7 +20,8 @@ eeg_ica.eeg_lst <- function(.data,
                     method = fICA::adapt_fICA,
                     config= list(),
                     tolerance = 1e-06,
-                    max_iterations = 1000
+                    max_iterations = 1000,
+                    na.rm = FALSE
                               ){
 
     if(unique(.data$segment$recording) %>% length() != 1 && !"recording" %in% group_vars(.data)) {
@@ -34,30 +35,44 @@ eeg_ica.eeg_lst <- function(.data,
     method = rlang::enquo(method)
     dots <- rlang::enquos(...)
 
+    ## Use id_all only if there are NAs
+    id_all<- NULL
+      if(na.rm == FALSE && anyNA(.data$signal)){
+        stop("Missing values in the eeg_lst, use na.rm = TRUE", call. = FALSE)
+      } else {
+          id_all <- .data$signal %>%
+              dplyr::select(-one_of(channel_names(.data)))
+      }
+
+    .data$signal <- .data$signal[complete.cases(.data$signal)]
+    signal_complete <- dplyr::select(.data$signal, channel_names(.data))
+    ## cols from signal_tbl that are not channels:
+    id_signal <- dplyr::select(.data$signal, -one_of(channel_names(.data)))
+    ## remove more if dots are used
+    if(!rlang::is_empty(dots)){
+        id_signal_col <- setdiff(colnames(signal_complete),
+                                      tidyselect::vars_select(colnames(signal_complete), !!!dots))
+        id_signal <- bind_cols_dt(id_signal,
+                                       dplyr::select(signal_complete, id_signal_col))
+        data.table::setkey(id_signal,.id,.sample_id)
+        signal_complete <- dplyr::select(signal_complete, !!!dots)
+    }
+
+
+
     ## creates a DT with length length(signal_tbl) where the grouping var is repeated,
     ## This is used to split the signal_tbl, in case that there are many recordings together
     rep_group <- repeated_group_col(.data)
-    signal_raw <- dplyr::select(.data$signal, channel_names(.data))
-    ## cols from signal_tbl that are not channels:
-    removed_signal <- dplyr::select(.data$signal, -one_of(channel_names(.data)))
-    ## remove more if dots are used
-    if(!rlang::is_empty(dots)){
-        removed_signal_col <- setdiff(colnames(signal_raw),
-                                      tidyselect::vars_select(colnames(signal_raw), !!!dots))
-        removed_signal <- bind_cols_dt(removed_signal,
-                                       dplyr::select(signal_raw, removed_signal_col))
-        data.table::setkey(removed_signal,.id,.sample_id)
-        signal_raw <- dplyr::select(signal_raw, !!!dots)
-    }
+
 
     if(nrow(rep_group)==0){
-      l_signal <- list(signal_raw)
+        l_signal <- list(signal_complete)
     } else {
-    l_signal <- signal_raw %>% split(rep_group)
+        l_signal <- signal_complete %>% split(rep_group)
     }
 
     channel_means <- l_signal  %>%
-        purrr::map(colMeans, na.rm=TRUE)
+        purrr::map(colMeans, na.rm=na.rm)
 
   
     method_label = rlang::as_label(method)
@@ -111,7 +126,7 @@ eeg_ica.eeg_lst <- function(.data,
     reconstr <- purrr::map2(l_ica,channel_means, ~  tcrossprod(.x$sources, t(.x$mixing_matrix)) + rep(.y, nrow(.x$sources)) ) %>%
         do.call("rbind", .)
     message("Absolute difference between original data and reconstructed from independent sources: ",
-            mean(abs(reconstr - as.matrix(signal_raw))) %>% signif(2))
+            mean(abs(reconstr - as.matrix(signal_complete))) %>% signif(2))
 
     signal_source_tbl <- l_ica %>%
         map_dtr( ~ .x$sources %>%
@@ -119,12 +134,18 @@ eeg_ica.eeg_lst <- function(.data,
                 {.[,lapply(.SD, component_dbl)][]} %>%
                 setNames(paste0("ICA",seq_len(ncol(.x$sources)))) 
                 ) %>%
-        bind_cols_dt(removed_signal,.)
+        bind_cols_dt(id_signal,.)
+    data.table::setkey(signal_source_tbl,.id,.sample_id)
+
+    ## if the data had NA, put back the missing samples
+    if(!is.null(id_all)){
+        signal_source_tbl <- signal_source_tbl[id_all, ]
+    }        ## rbind(id_all, fill = TRUE)
 
     mixing <- new_mixing_tbl(mixing_matrix = l_ica %>% purrr::transpose() %>% .$mixing_matrix,
                          means_matrix= channel_means,
                          groups = group_vars(.data),
-                         channels_tbl = channels_tbl(signal_raw)) %>%
+                         channels_tbl = channels_tbl(signal_complete)) %>%
         validate_mixing_tbl
     ica <- ica_lst(signal = signal_source_tbl,
                    mixing = mixing,
