@@ -20,6 +20,7 @@ multiplexed_bin_bv2_int32 <- read_vhdr(system.file("testdata","bv_export_bv_txt_
 vectorized_bin_bv2_int32 <- read_vhdr(system.file("testdata","bv_export_bv_txt_bin_vector_32bit.vhdr",package="eeguana"), recording = "bv2")
 
 test_that("files match", {
+    channels_tbl(multiplexed_bin_bv1) <- channels_tbl(vectorized_bin_bv2)
   expect_equal(multiplexed_bin_bv1,vectorized_bin_bv2, tolerance = .00001)
   expect_equal(vectorized_ascii_bv2,multiplexed_ascii_bv2)
   expect_equal(vectorized_ascii_bv2,vectorized_bin_bv2, tolerance = .00001)
