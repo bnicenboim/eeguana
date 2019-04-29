@@ -58,7 +58,6 @@ zoom in
 
 ## Re reference
 ```{r}
-#TOO slow
 s1_N400 <- eeg_rereference(s1_N400, -VEOG, -HEOG, ref_ch = c("M1", "M2") )
 
 ```
@@ -108,7 +107,7 @@ events_tbl(s1_N400_filt) %>%
 events_tbl(s1_N400_filt) %>% filter(description =="s130") %>% pull(.initial) %>% diff
 
 events_tbl(s1_N400_filt) %>%
-    filter(description == "s130") %>% pull(.sample_0) %>% diff
+    filter(description == "s130") %>% pull(.lower) %>% diff
                                         #max probably the break
                                         #2000 should be enough
 

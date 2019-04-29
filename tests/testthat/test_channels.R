@@ -76,3 +76,5 @@ test_that(".reference changes", {
 ##   expect_equal(data_reref_all$signal$Y %>% as.numeric, data_reref_all_chs$signal$Y %>% as.numeric)
 ## })
 
+
+    signal[, (ch_sel) := {ref= rowMeans()   ;lapply(.SD, reref, ref = ref)},.SDcols = c(ch_sel)]

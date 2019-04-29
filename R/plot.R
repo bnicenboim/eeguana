@@ -38,14 +38,7 @@
 #' @export
 plot.eeg_lst <- function(x, max_sample = 6400, ...) {
     ellipsis::check_dots_unnamed()
-  x <- try_to_downsample(x, max_sample)
-
-    df <- data.table::as.data.table(x)
-    df[, .source := factor(.source, levels = unique(.source))]
-  plot <- ggplot2::ggplot(
-    df,
-    ggplot2::aes(x = time, y = .value, group = .id)
-  ) +
+  plot <- ggplot2::ggplot(x, ggplot2::aes(x = time, y = .value, group = .id)) +
     ggplot2::geom_line() +
     ggplot2::facet_grid(.source ~ .,
                         labeller = ggplot2::label_wrap_gen(multi_line = FALSE),
@@ -544,4 +537,24 @@ annotate_events <- function(events_tbl, alpha = .2){
                           else {
                               NULL
                           })
+}
+
+#' @export
+ggplot.eeg_lst <- function(data = NULL,
+                           mapping = ggplot2::aes(),
+                           ...,
+                           max_sample = 2000,
+                            environment = parent.frame()) {
+   
+    df <- try_to_downsample(data, max_sample) %>%
+        data.table::as.data.table()
+
+    df[,.source := factor(.source, levels = unique(.source))]
+    if(is.null(mapping)){
+    }
+    p <- ggplot2::ggplot(data=df,mapping=mapping,..., environment=environment)
+
+    p$data_channels <- channels_tbl(data)
+    p$data_events <- events_tbl(data)
+    p
 }
