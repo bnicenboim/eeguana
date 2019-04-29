@@ -58,7 +58,7 @@ summarize_segments <-  function(segments, segments_groups, last_id){
 
 summarize_eval_signal <- function(.eeg_lst, dots){
 
-  cond_cols <- names_segments_col(.eeg_lst, dots)
+  cond_cols <- names_other_col(.eeg_lst, dots, "segments")
   extended_signal <- extended_signal(.eeg_lst, cond_cols) 
   by <- dplyr::group_vars(.eeg_lst)
 
@@ -93,7 +93,7 @@ summarize_eval_signal <- function(.eeg_lst, dots){
 summarize_at_eval_eeg_lst <- function(.eeg_lst, vars, funs){
   
   fun_quo <- funs[[1]]
-  cond_cols <- names_segments_col(.eeg_lst, fun_quo)
+  cond_cols <- names_other_col(.eeg_lst, fun_quo, "segments")
   names(cond_cols) <- cond_cols
 
   extended_signal <- extended_signal(.eeg_lst, cond_cols) 

@@ -113,11 +113,12 @@ test_that("warnings", {
 test_that("plot functions create ggplots", {
   expect_gg(lineplot_eeg)
   expect_gg(topoplot_eeg)
-expect_gg(plot(data_faces_10_trials) + annotate_events(events_tbl(data_faces_10_trials)))
-expect_gg(plot(data_faces_10_trials) +
-    annotate_events(events_tbl(data_faces_10_trials) %>%
+  data_shorter <- filter(data_faces_10_trials, between(as_time(.sample_id) , 91,93))
+  expect_gg(plot(data_shorter) + annotate_events(events_tbl(data_shorter)))
+expect_gg(plot(data_shorter) +
+          annotate_events(events_tbl(data_shorter) %>%
                     filter(type=="Stimulus") %>% select(-type) ))
-expect_gg(plot(data_faces_10_trials) +
-    annotate_events(events_tbl(data_faces_10_trials) %>%
+  expect_gg(plot(data_shorter) +
+            annotate_events(events_tbl(data_shorter) %>%
                     filter(type!="Stimulus") %>% select(-type)))
 })
