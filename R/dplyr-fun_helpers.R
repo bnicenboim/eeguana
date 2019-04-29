@@ -26,8 +26,8 @@ filter_eeg_lst <- function(.eeg_lst, dots){
 
     if (length(new_dots$signal) > 0) {
      cond_cols <- names_other_col(.eeg_lst, dots,"segments")
-     events_col <- names_other_col(.eeg_lst, dots,"events")
-     extended_signal <- extended_signal(.eeg_lst, cond_cols, events_col = events_col) 
+     ## events_col <- names_other_col(.eeg_lst, dots,"events")
+     extended_signal <- extended_signal(.eeg_lst, cond_cols) #, events_col = events_col) 
      by <- as.character(dplyr::group_vars(.eeg_lst))
  
      cols_signal <- colnames(.eeg_lst$signal)
