@@ -75,16 +75,18 @@ eeg_rereference <- function(.data, ..., ref_ch = NULL,na.rm= FALSE) {
 #' @export
 eeg_rereference.eeg_lst <- function(.data, ..., ref_ch = NULL, na.rm = FALSE) {
     signal <- data.table::copy(.data$signal)
-    ch_sel <- sel_ch(.data,...)
+    sel_ch <- sel_ch(.data,...)
     ref_ch <- unlist(ref_ch) #rlang::quos_auto_name(dots) %>% names()
 
-  ref <- rowMeans(.data$signal[,..ref_ch], na.rm = na.rm)
-  reref <- function(x){
+  #ref <- rowMeans(.data$signal[,..ref_ch], na.rm = na.rm)
+  reref <- function(x, ref){
     x <- x - ref 
     attributes(x)$.reference <- paste0(ref_ch, collapse = ", ")
     x
   }
-    signal[, (ch_sel) := lapply(.SD, reref),.SDcols = c(ch_sel)]
+   # signal[, (ch_sel) := {ref= rowMeans()   ;lapply(.SD, reref, ref = ref)},.SDcols = c(ch_sel)]
+    signal[, (sel_ch) := {ref= rowMeans(.SD);
+                          lapply(mget(sel_ch,inherits=TRUE), reref, ref = ref)},.SDcols = c(ref_ch)]
   .data$signal <- signal
   update_events_channels(.data) %>%  validate_eeg_lst()
 

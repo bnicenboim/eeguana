@@ -112,13 +112,19 @@ events_tbl(s1_N400_filt) %>%
                                         #max probably the break
                                         #2000 should be enough
 
-## First crazy values are removed:
-
 s1_N400_s <-
     s1_N400_filt %>% select(-type,-description) %>%
     eeg_segment(description == "s130",lim=  c(0,2000), unit = "sample")
 
+## First crazy values are removed (https://github.com/lucklab/erplab/wiki/Artifact-Rejection-in-Continuous-Data):
+
+
 s1_N400_s <- s1_N400_s %>% 
+    eeg_artif_amplitude(threshold = c(-200,200),events_lim = c(-250,250), unit = "ms")
+
+events_tbl(s1_N400_s) %>% count(type,description)
+
+
     eeg_artif_minmax(-HEOG, -VEOG, threshold =100, window=150, unit = "ms") %>%
     eeg_artif_step(-HEOG, -VEOG,threshold = 50, window=200, unit = "ms") %>%
     ##for horizontal eye movements : https://github.com/lucklab/erplab/wiki/Artifact-Detection:-Tutorial
