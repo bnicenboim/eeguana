@@ -196,6 +196,15 @@ read_vmrk <- function(file) {
   events[,type := stringr::str_split(type,"=") %>%
            purrr::map_chr(~.x[[2]])][,date := NULL]
     events[, .final := .initial + .final -1L]
+
+
+    ## bug of BV1, first sample is supposed to be 1
+    BV1 <- "BrainVision Data Exchange Marker File, Version 1.0"
+    if(stringr::str_detect(readChar(file, nchar(BV1)),BV1) &&
+       events[type=="New Segment", .initial][1]==0){
+        events[type=="New Segment" & .initial==0, c(".initial",".final") := list(1,1)]
+    }
+    events
 }
 
 #' @importFrom magrittr %>%
