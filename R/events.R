@@ -3,11 +3,16 @@
 #'   * `eeg_artif_step()`
 #'   * `eeg_artif_minmax()`
 #' 
+#' `eeg_artif_minmax()`and `eeg_artif_step()` can be used to detect blinks and horizontal eye movements
+#'  in the electro-oculographic (V/HEOG) channels or large voltage jumps in other channels. 
+#'  For the EOG channels, a relatively low threshold (e.g., 30 µV) is recommended. For non EOG channels, a relatively high threshold (e.g., 100 µV) would be 
+#'  more appropiate.
+#'    
 #' @param .data An `eeg_lst` object.
 #' @param ... Channels to include. All the channels by default, but eye channels should be removed.
-#' @param difference Maximum permissible difference in voltage. This is between two consecutive data points for `eeg_artif_step`, and in a `window` for `eeg_artif_minmax`.
-#' @param window Sliding window for min-max artifact detection (same unit as `lim`).
-#' @param lim Vector indicating the time before and after the event.
+#' @param threshold Voltage threshold that indicates an artifact. This is between two consecutive data points for `eeg_artif_step`, and in a `window` for `eeg_artif_minmax`.
+#' @param window Sliding window for min-max artifact detection (same unit as `events_lim`).
+#' @param events_events_lim Vector indicating the time before and after the artifact that will be included in events_tbl (by default the size the window before and afterwards).
 #' @inheritParams as_time
 #' @return An `eeg_lst`.
 #'
@@ -22,10 +27,10 @@ NULL
 #' @name eeg_artif
 #' @export
 eeg_artif_minmax <- function(.data,...,
-                                     difference = 100,
-                                     lim = c(-200, 200),
-                                     window = (lim[2]-lim[1])/2,
-                                     unit = "ms"){
+                                     threshold = 100,
+                                     window = .2,
+                                     events_lim = c(-window, window),
+                                     unit = "s"){
     UseMethod("eeg_artif_minmax")
 }
 
@@ -33,47 +38,77 @@ eeg_artif_minmax <- function(.data,...,
 #' @export
 eeg_artif_minmax.eeg_lst <- function(.data,
                                      ...,
-                                     difference = 100,
-                                     lim = c(-200, 200),
-                                     window = (lim[2]-lim[1])/2,
-                                     unit = "ms"){
-    sample_range <- as.integer(lim * scaling(sampling_rate = sampling_rate(.data),unit = unit))
-    win_sample  <- as.integer(window * scaling(sampling_rate = sampling_rate(.data),unit = unit )) + 1L
-    if(win_sample == 0) stop("The `window` needs to contain at least one sample.")
-    if(win_sample >= (sample_range[2]-sample_range[1])){
-        warning("The number of samples in `window` (",win_sample,
-                ") should be smaller than half of the samples contained in  `lim` (",
-                (sample_range[2]-sample_range[1])/2, ").")
-    }
-    artifacts_found <- search_artifacts(signal = .data$signal,fun = detect_minmax, ...,
-                                        args = list(win_sample=win_sample,
-                                                    difference=difference))
-    events_tbl(.data) <- add_intervals_from_artifacts(old_events = events_tbl(.data), 
-                                                  artifacts_found, 
-                                                  sample_range,"minmax")
-    validate_eeg_lst(.data)
+                                     threshold = 100,
+                                     window = .2,
+                                     events_lim = c(-window, window),
+                                     unit = "s"){
+
+    eeg_artif_custom(.data,...,
+                     fun = detect_minmax,
+                     threshold = threshold,
+                     events_lim = events_lim,
+                     window = window,
+                     unit = unit)
 }
 
 
 
 #' @name eeg_artif
 #' @export
-eeg_artif_step <- function(.data,..., difference = 50 , lim = c(-200, 200), unit = "ms" ) {
+eeg_artif_step <- function(.data,..., 
+                           threshold = 50,
+                                     window = .2,
+                                     events_lim = c(-window, window),
+                                     unit = "s"){
     UseMethod("eeg_artif_step")
 }
 
 #' @name eeg_artif
 #' @export 
-eeg_artif_step.eeg_lst <- function(.data, ..., difference = 50 , lim = c(-200, 200), unit = "ms" ) {
-    sample_range <- as.integer(lim * scaling(sampling_rate = sampling_rate(.data),unit = unit )) 
+eeg_artif_step.eeg_lst <- function(.data,..., 
+                           threshold = 50,
+                                     window = .2,
+                                     events_lim = c(-window, window),
+                                     unit = "s"){
 
-    artifacts_found <- search_artifacts(.data$signal,fun = detect_step, ...,
-                                        args = list(difference = difference))
+    eeg_artif_custom(.data,...,
+        fun = detect_step,
+                threshold = threshold,
+                events_lim = events_lim,
+                window = window,
+                unit = unit )
+ }
 
+eeg_artif_custom <-  function(.data,...,
+                              fun,
+                              threshold,
+                                     window = .2,
+                                     events_lim = c(-window, window),
+                                     unit = "s"){
+    events_lim_s <- as_sample_int(events_lim, sampling_rate =  sampling_rate(.data), unit = unit)
+    window_s <- round(as_sample_int(window, sampling_rate =  sampling_rate(.data), unit = unit) -1L)
+    
+    if(window_s <= 0) stop("The `window` needs to contain at least one sample.")
+    if(window_s >= (events_lim_s[2]-events_lim_s[1])){
+        warning("The number of samples in `window` (",window_s,
+                ") should be smaller than half of the samples contained in  `events_lim` (",
+                (events_lim_s[2]-events_lim_s[1])/2, ").")
+    }
+    args = list(threshold = threshold, window = window_s)
+
+    artifacts_found <- search_artifacts(.data$signal,
+                                        ...,
+                                        fun = fun,
+                                        args=args)
+    
+    fun_txt <-   substitute(fun)%>%
+        stringr::str_remove("detect_")
+    args_txt <- purrr::imap_chr(args, ~ paste(.y,.x,sep = "=")) %>%
+        paste(collapse="_")
     events_tbl(.data) <- add_intervals_from_artifacts(old_events = events_tbl(.data), 
-                                                  artifacts_found, 
-                                                  sample_range,
-                                                  type = "step")
+                                                      artifacts_found, 
+                                                      sample_range=events_lim_s,
+                                                      type = paste(fun_txt,args_txt,sep="_"))
 
     validate_eeg_lst(.data)
 }

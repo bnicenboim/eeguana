@@ -110,15 +110,18 @@ events_tbl(s1_N400_filt) %>% filter(description =="s130") %>% pull(.initial) %>%
 events_tbl(s1_N400_filt) %>%
     filter(description == "s130") %>% pull(.sample_0) %>% diff
                                         #max probably the break
-                                        #2200 should be enough
+                                        #2000 should be enough
 
 s1_N400_s <-
     s1_N400_filt %>% select(-type,-description) %>%
-    eeg_segment(description == "s130",lim=  c(0,2200), unit = "sample")
+    eeg_segment(description == "s130",lim=  c(0,2000), unit = "sample")
 
 s1_N400_s <- s1_N400_s %>% 
-    eeg_artif_minmax(-HEOG, -VEOG, difference =100, window=150, unit = "ms") %>%
-    eeg_artif_step(-HEOG, -VEOG,difference = 50)
+    eeg_artif_minmax(-HEOG, -VEOG, threshold =100, window=150, unit = "ms") %>%
+    eeg_artif_step(-HEOG, -VEOG,threshold = 50, window=200, unit = "ms") %>%
+    eeg_artif_minmax(HEOG, VEOG, threshold =30, window=150, unit = "ms") %>%
+    eeg_artif_step(HEOG, VEOG,threshold = 30, window=200, unit = "ms")
+
 
 
 ## profvis({ fs
@@ -129,8 +132,12 @@ plot(piece) + facet_grid(.source~.id) + annotate_events(events_tbl(piece))
 
 s1_N400_s_clean <- s1_N400_s %>% eeg_events_to_NA(type == "artifact",all_chans = TRUE,entire_seg = FALSE)
 
-s1_N400_s_clean_ica <- eeg_ica(s1_N400_s_clean, -HEOG, -VEOG)
+s1_N400_s_clean_ica <- eeg_ica(s1_N400_s_clean, -HEOG, -VEOG, -M1, -M2, na.rm=TRUE)
 
+s1_N400_s_clean$signal %>% select_if(is_channel_dbl) %>% as.matrix() %>% abs() %>% mean(na.rm=TRUE)
+piece_reconstr <- as_eeg_lst(s1_N400_s_clean_ica) %>% filter(.id %in% 1:5)
+
+piece_reconstr <- s1_N400_s_clean %>% filter(.id %in% 1:5) %>% 
 ```
 
 

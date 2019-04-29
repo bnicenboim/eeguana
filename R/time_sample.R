@@ -39,7 +39,7 @@ as_sample_int <- function(x,...) {
 #' @param unit "seconds" (or "s"), "milliseconds" (or "ms")
 #' @param sampling_rate Sampling rate in Hz
 #' @export
-as_sample_int.numeric <- function(x,  sampling_rate = NULL, unit = "ms") {
+as_sample_int.numeric <- function(x,  sampling_rate = NULL, unit = "s") {
     if(is.null(sampling_rate)) stop("'sampling_rate' needs to be specified", call. = FALSE)
     samples <- (x * scaling(sampling_rate, unit = unit) + 1) %>% as.integer()
 
