@@ -42,6 +42,10 @@ eeg_artif_minmax.eeg_lst <- function(.data,
                                      window = .2,
                                      events_lim = c(-window, window),
                                      unit = "s"){
+    if(!is.numeric(window) || window < 0) {
+        stop("`window` should be a positive number.", call. = FALSE)
+    }
+
 
     eeg_artif_custom(.data,...,
                      fun = detect_minmax,
@@ -70,6 +74,10 @@ eeg_artif_step.eeg_lst <- function(.data,...,
                                      window = .2,
                                      events_lim = c(-window, window),
                                      unit = "s"){
+    if(!is.numeric(window) || window < 0) {
+        stop("`window` should be a positive number.", call. = FALSE)
+    }
+
 
     eeg_artif_custom(.data,...,
         fun = detect_step,
@@ -79,13 +87,48 @@ eeg_artif_step.eeg_lst <- function(.data,...,
                 unit = unit )
  }
 
+#' @name eeg_artif
+#' @export
+eeg_artif_amplitude <- function(.data,..., 
+                                threshold = c(-200,200),
+                           events_lim = c(-.2, .2),
+                           unit = "s"){
+    UseMethod("eeg_artif_amplitude")
+}
+
+#' @name eeg_artif
+#' @export 
+eeg_artif_amplitude.eeg_lst <- function(.data,..., 
+                                   threshold = c(-200,200),
+                                   events_lim = c(-.2, .2),
+                                   unit = "s"){
+    if(length(threshold)<2) {
+        stop("Two thresholds are needed", call. = FALSE)
+    }
+    
+    eeg_artif_custom(.data,...,
+                     fun = detect_amplitude,
+                     threshold = c(min(threshold),max(threshold)),
+                     window= NULL,
+                     events_lim = events_lim,
+                     unit = unit )
+}
+
+
 eeg_artif_custom <-  function(.data,...,
                               fun,
                               threshold,
                                      window = .2,
                                      events_lim = c(-window, window),
-                                     unit = "s"){
+                              unit = "s"){
+
+    if(length(events_lim)<2) {
+        stop("Two values for `events_lim` are needed", call. = FALSE)
+    }
+
     events_lim_s <- as_sample_int(events_lim, sampling_rate =  sampling_rate(.data), unit = unit)
+
+    if(!is.null(window)){
     window_s <- round(as_sample_int(window, sampling_rate =  sampling_rate(.data), unit = unit) -1L)
     
     if(window_s <= 0) stop("The `window` needs to contain at least one sample.")
@@ -94,7 +137,11 @@ eeg_artif_custom <-  function(.data,...,
                 ") should be smaller than half of the samples contained in  `events_lim` (",
                 (events_lim_s[2]-events_lim_s[1])/2, ").")
     }
+
     args = list(threshold = threshold, window = window_s)
+    } else {
+        args = list(threshold = threshold)
+    }
 
     artifacts_found <- search_artifacts(.data$signal,
                                         ...,
@@ -103,7 +150,7 @@ eeg_artif_custom <-  function(.data,...,
     
     fun_txt <-   substitute(fun)%>%
         stringr::str_remove("detect_")
-    args_txt <- purrr::imap_chr(args, ~ paste(.y,.x,sep = "=")) %>%
+    args_txt <- purrr::imap_chr(args, ~ paste(.y,toString(.x),sep = "=")) %>%
         paste(collapse="_")
     events_tbl(.data) <- add_intervals_from_artifacts(old_events = events_tbl(.data), 
                                                       artifacts_found, 

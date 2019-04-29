@@ -13,7 +13,12 @@ detect_step <- function(x, args =list(window=NULL,threshold=NULL)){
       lmean <- means
       rmean <- c(means[seq.int(from = args$window/2 + 1L,to = length(means))], rep(NA, args$window/2))
           abs(rmean-lmean) >= args$threshold
-  }
+}
+#' @noRd 
+detect_amplitude <- function(x, args =list(threshold=NULL)){
+   x <= args$threshold[1] | x >= args$threshold[2]
+}
+
 #' @noRd 
 search_artifacts <- function(signal,..., fun, args = list()){
     ch_sel <- sel_ch(signal,...)
