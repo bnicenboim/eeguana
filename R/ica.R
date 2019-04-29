@@ -126,7 +126,7 @@ eeg_ica.eeg_lst <- function(.data,
     reconstr <- purrr::map2(l_ica,channel_means, ~  tcrossprod(.x$sources, t(.x$mixing_matrix)) + rep(.y, nrow(.x$sources)) ) %>%
         do.call("rbind", .)
     rel_diff <- signif(mean(abs(reconstr - as.matrix(signal_complete)),na.rm=na.rm)/mean(abs(as.matrix(signal_complete)),na.rm=na.rm) * 100,2)
-    if(rel_diff>.1){
+    if(rel_diff>5){
         warning("The mean relative difference between the original data and the reconstructed from independent sources is too large: ",rel_diff, "%. Have you excluded EOG and reference channels? If so, try increasing `max_iterations`.")
     } else{
         message("Mean relative difference between the original data and the reconstructed from independent sources: ",rel_diff, "%.")

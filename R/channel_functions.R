@@ -81,7 +81,7 @@ eeg_rereference.eeg_lst <- function(.data, ..., ref_ch = NULL, na.rm = FALSE) {
   ref <- rowMeans(.data$signal[,..ref_ch], na.rm = na.rm)
   reref <- function(x){
     x <- x - ref 
-    attributes(x)$.reference <- paste0(ref, collapse = ", ")
+    attributes(x)$.reference <- paste0(ref_ch, collapse = ", ")
     x
   }
     signal[, (ch_sel) := lapply(.SD, reref),.SDcols = c(ch_sel)]

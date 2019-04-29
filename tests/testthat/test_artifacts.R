@@ -51,8 +51,8 @@ data_1step %>%
 eeg_artif_step(threshold = .01,window=2/500, events_lim=c(0/500,1/500), unit = "second")
 ) %>%
         events_tbl()
-    expect_equal(art_eventsp1[.channel=="X",]$.initial %>% as.numeric(), 5 )
-    expect_equal(art_eventsp1[.channel=="X",]$.final %>% as.numeric(),6)
+    expect_equal(art_eventsp1[.channel=="X",]$.initial %>% as.numeric(), 4 )
+    expect_equal(art_eventsp1[.channel=="X",]$.final %>% as.numeric(),5)
     art_events0 <-suppressWarnings(  #the window is too small, but it's ok for the test
  data_1step %>%
  eeg_artif_step(threshold = .01,window=2/500, events_lim=c(0/500,0/500), unit = "second")
@@ -90,7 +90,7 @@ eeg_artif_step(threshold = .01,  window = 2/500,events_lim=c(-1/500,0/500), unit
     expect_equal(art_events[.channel=="Fz",]$.initial %>% as.numeric(), c(pmax(Fzi-2,1)) )
     expect_equal(art_events[.channel=="Fz",]$.final %>% as.numeric(),c(pmin(Fzf,1000)) )
     expect_equal(art_events[.channel=="Cz",]$.initial %>% as.numeric(), c(pmax(Czi-2,1)) )
-    expect_equal(art_events[.channel=="Cz",]$.final %>% as.numeric(),c(pmin(Czf,1000)) )
+    expect_equal(art_events[.channel=="Cz",]$.final %>% as.numeric(),c(pmin(Czf,998)) )
     expect_equal(nrow(art_events[.channel == "Pz",]), 0)
 })
 
