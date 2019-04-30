@@ -1,29 +1,29 @@
-#' Functions to get or set the signal table of an eeg_lst object.
+#' Functions to get or set the events table of an eeg_lst object.
 #'
 #'
 #' @param x An eeg_lst object.
-#' @param value An signal table.
+#' @param value An events table.
 #' @param ... Not in use.
 #' 
 #' @return A table.
 #' @export
-signal_tbl <- function(x, ...) {
-  UseMethod("signal_tbl")
+events_tbl <- function(x, ...) {
+  UseMethod("events_tbl")
 }
-#' @rdname signal
+#' @rdname events
 #' @export
-signal_tbl.eeg_lst <- function(x,...){
-  x$signal
+events_tbl.eeg_lst <- function(x,...){
+  x$events
 }
-#' @rdname signal
+#' @rdname events
 #' @export
-`signal_tbl<-` <- function(x, value) {
-  UseMethod("signal_tbl<-")
+`events_tbl<-` <- function(x, value) {
+  UseMethod("events_tbl<-")
 }
-#' @rdname signal
+#' @rdname events
 #' @export
-`signal_tbl<-.eeg_lst` <- function(x, value) {
-  x$signal <- as_signal_tbl(value)
+`events_tbl<-.eeg_lst` <- function(x, value) {
+  x$events <- as_events_tbl(value)
   x
 }
 
