@@ -251,7 +251,6 @@ plot_topo.mixing_tbl <- function(data,  projection = "polar", ...) {
         dplyr::filter(.ICA != "mean") %>%
         dplyr::mutate(.ICA = factor(.ICA, levels = unique(.ICA)))%>%
         dplyr::group_by(.group,.ICA) %>%
-        dplyr::left_join()
         eeg_interpolate_tbl(...) %>%
         plot_topo()
 }

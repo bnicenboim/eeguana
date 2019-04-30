@@ -1,29 +1,29 @@
-#' Functions to get or set the events table of an eeg_lst object.
+#' Functions to get or set the signal table of an eeg_lst object.
 #'
 #'
 #' @param x An eeg_lst object.
-#' @param value An events table.
+#' @param value An signal table.
 #' @param ... Not in use.
 #' 
 #' @return A table.
 #' @export
-events_tbl <- function(x, ...) {
-  UseMethod("events_tbl")
+signal_tbl <- function(x, ...) {
+  UseMethod("signal_tbl")
 }
-#' @rdname events
+#' @rdname signal
 #' @export
-events_tbl.eeg_lst <- function(x,...){
-  x$events
+signal_tbl.eeg_lst <- function(x,...){
+  x$signal
 }
-#' @rdname events
+#' @rdname signal
 #' @export
-`events_tbl<-` <- function(x, value) {
-  UseMethod("events_tbl<-")
+`signal_tbl<-` <- function(x, value) {
+  UseMethod("signal_tbl<-")
 }
-#' @rdname events
+#' @rdname signal
 #' @export
-`events_tbl<-.eeg_lst` <- function(x, value) {
-  x$events <- as_events_tbl(value)
+`signal_tbl<-.eeg_lst` <- function(x, value) {
+  x$signal <- as_signal_tbl(value)
   x
 }
 
@@ -85,20 +85,21 @@ channels_tbl.data.frame <- function(x, ...) {
 #' @rdname channels_tbl
 #' @export
 `channels_tbl<-.ica_lst` <- function(x, value) {
-  orig_names <- channel_names(x$mixing)
-  channels_mx <- x$mixing[, intersect(channel_names(x$mixing), value$.channel), with =FALSE]
-  nochannels_mx <- x$mixing[, setdiff(colnames(x$mixing), value$.channel), with = FALSE]
-  x$mixing <- cbind(nochannels_mx, 
-                    data.table::as.data.table(
-                      update_channel_meta_data(channels_mx, 
-                                               value[value$.channel %in% colnames(x$mixing),]))) %>%
-    as_mixing_tbl()
-  new_names <- channel_names(x$mixing)
-  x$events <- data.table::copy(x$events)
-  for (i in seq_len(nchannels(x$mixing))) {
-    data.table::set(x$events,which(x$events$.channel == orig_names[i]), ".channel", new_names[i])
-  }
-  NextMethod()
+  stop("Channels can't be edited in an ica_lst object.")
+  # orig_names <- channel_names(x$mixing)
+  # channels_mx <- x$mixing[, channel_names(x$mixing),, with =FALSE]
+  # nochannels_mx <- x$mixing[, setdiff(channel_names(x$mixing),colnames(x$mixing)), with = FALSE]
+  # x$mixing <- cbind(nochannels_mx, 
+  #                   data.table::as.data.table(
+  #                     update_channel_meta_data(channels_mx, 
+  #                                              value[value$.channel %in% colnames(x$mixing),]))) %>%
+  #   as_mixing_tbl()
+  # new_names <- channel_names(x$mixing)
+  # x$signal <- data.table::copy(x$signal)
+  # for (i in seq_len(nchannels(x$mixing))) {
+  #   data.table::set(x$signal,which(x$signal$.channel == orig_names[i]), ".channel", new_names[i])
+  # }
+  # NextMethod()
   
   }
 
@@ -107,18 +108,18 @@ channels_tbl.data.frame <- function(x, ...) {
 #' @export
 `channels_tbl<-.eeg_lst` <- function(x, value) {
   orig_names <- channel_names(x$signal)
-  channels_sg <- x$signal[, intersect(channel_names(x$signal), value$.channel), with =FALSE]
-  nochannels_sg <- x$signal[, setdiff(colnames(x$signal), value$.channel), with = FALSE]
+  channels_sg <- x$signal[, channel_names(x$signal), with =FALSE]
+  nochannels_sg <- x$signal[, setdiff(colnames(x$signal), channel_names(x$signal)), with = FALSE]
   x$signal <- cbind(nochannels_sg, 
                     data.table::as.data.table(
                       update_channel_meta_data(channels_sg, 
-                                               value[value$.channel %in% colnames(x$signal),]))) %>%
+                                               value))) %>%
     as_signal_tbl()
   new_names <- channel_names(x$signal)
   
-  x$events <- data.table::copy(x$events)
+  x$signal <- data.table::copy(x$signal)
   for (i in seq_len(nchannels(x$signal))) {
-    data.table::set(x$events,which(x$events$.channel == orig_names[i]), ".channel", new_names[i])
+    data.table::set(x$signal,which(x$signal$.channel == orig_names[i]), ".channel", new_names[i])
   }
 x
 }
@@ -131,4 +132,37 @@ x
   nochannels <- dplyr::select(x, -dplyr::one_of(channel_names(x)))
   x <- dplyr::bind_cols(nochannels, update_channel_meta_data(channels, value))
   x
+}
+#' 
+#' #' @export
+#' `[[.eeg_lst` <- function(x,i,...) {
+#'   pull.eeg_lst(.data = x,var =  i)
+#' }
+
+
+
+#' Function to get the signal table of an eeg_lst object.
+#'
+#'
+#' @param x An eeg_lst object.
+#' @param ... Not in use.
+#' 
+#' @return A table.
+#' @export
+signal_tbl <- function(x, ...) {
+    UseMethod("signal_tbl")
+}
+#' @rdname signal
+#' @export
+signal_tbl.eeg_lst <- function(x,...){
+    x$signal
+}
+#' @export
+`signal_tbl<-` <- function(x, value) {
+    UseMethod("signal_tbl<-")
+}
+#' @export
+`signal_tbl<-.eeg_lst` <- function(x, value) {
+
+stop("Not implemented, please use mutate", call. = FALSE)
 }

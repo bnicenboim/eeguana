@@ -232,10 +232,10 @@ names_other_col <- function(.eeg_lst, dots, tbl=NULL) {
   } else{
   cols <- setdiff(colnames(.eeg_lst[[tbl]]), ".id") # removes .id
   }
-  names_s <- c()
+  names_o <- c()
   for (n in seq_len(length(dots))) {
     # get the AST of each call and unlist it
-    names_o <- c(names_s, getAST(dots[[n]]) %>%
+    names_o <- c(names_o, getAST(dots[[n]]) %>%
       unlist(.) %>%
       # make it a vector of strings
       purrr::map_chr(~rlang::quo_text(.x)) %>%
