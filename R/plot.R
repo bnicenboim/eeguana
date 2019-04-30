@@ -67,7 +67,7 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
 #' 
 #' @param .data An `eeg_lst` object.
 #' @inheritParams  ggplot2::aes
-#' @param max_sample Downsample to approximately 6400 samples by default.
+#' @param max_sample Downsample to approximately 2400 samples by default.
 #'
 #' @family plot
 #' @return A ggplot object
@@ -92,20 +92,11 @@ plot_gg <- function(.data, ...) {
 }
 #' @rdname plot_gg
 #' @export
-plot_gg.eeg_lst <- function(.data, x = time, y = .value, ..., max_sample = 6400) {
+plot_gg.eeg_lst <- function(.data, x = time, y = .value, ..., max_sample = 2400) {
   x <- rlang::enquo(x)
   y <- rlang::enquo(y)
-
-  .data <- try_to_downsample(.data, max_sample)
-
   dots <- rlang::enquos(...)
-  df <- dplyr::as_tibble(.data) %>% 
-        dplyr::mutate(.source = factor(.source, levels = unique(.source)))
-
-  plot <- ggplot2::ggplot(
-    df,
-    ggplot2::aes(x = !!x, y = !!y, !!!dots)
-  ) +
+   plot <- ggplot2::ggplot(.data, ggplot2::aes(x = !!x, y = !!y, !!!dots)) +
     ggplot2::scale_colour_brewer(type = "qual", palette = "Dark2") +
     theme_eeguana
   plot
@@ -507,7 +498,9 @@ annotate_head <- function(size = 1.1, color ="black", stroke=1) {
 } 
 
 #' @export
-annotate_events <- function(events_tbl, alpha = .2){
+add_events_plot <- function(plot, alpha = .2){
+    events_tbl <- plot$data_events
+
     info_events   <- setdiff(colnames(events_tbl), obligatory_cols[["events"]])
     events_tbl <- data.table::copy(events_tbl)
     events_tbl[,xmin:= as_time(.initial) ]
@@ -523,7 +516,7 @@ annotate_events <- function(events_tbl, alpha = .2){
     to_plot$intervals_ch <- filter_dt(events_tbl, .initial < .final, !is.na(.channel) )  %>%
     .[, .source := as.factor(.channel)]
 
-    purrr::map(to_plot, ~ if(nrow(.x)>0){
+    add_to_plot <- purrr::map(to_plot, ~ if(nrow(.x)>0){
                               geom_rect(data= .x,
                                         aes(xmin = xmin,
                                             xmax =  xmax ,
@@ -537,13 +530,14 @@ annotate_events <- function(events_tbl, alpha = .2){
                           else {
                               NULL
                           })
+    plot + add_to_plot
 }
 
 #' @export
 ggplot.eeg_lst <- function(data = NULL,
                            mapping = ggplot2::aes(),
                            ...,
-                           max_sample = 2000,
+                           max_sample = 2400,
                             environment = parent.frame()) {
    
     df <- try_to_downsample(data, max_sample) %>%

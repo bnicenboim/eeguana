@@ -9,7 +9,7 @@
 #' 
 #'
 #'
-as.data.table.eeg_lst <- function(x, unit = "second", add_segments = TRUE, add_channels_info = TRUE) {
+as.data.table.eeg_lst <- function(x, unit = "second") {
     ## check if there are channels in the signal tbl (in ica_lst they may not be there)
     if(any(channel_names(x) %in% colnames(x$signal))){
         ## channels <- x$signal %>% dplyr::select_at(vars(-one_of(component_names(x)))) %>%
@@ -44,21 +44,7 @@ as.data.table.eeg_lst <- function(x, unit = "second", add_segments = TRUE, add_c
     }
 
     long_table <- rbind(channels,components) %>%
-        ## remove attributes that are now problematic
-        {
-            if (add_segments) {
                 left_join_dt(., data.table::as.data.table(x$segments), by = ".id")
-            } else {
-                .
-            }
-        } %>% 
-        {
-            if (add_channels_info) {
-                left_join_dt(., data.table::as.data.table(channels_tbl(x)), by = c(".source"=".channel"))
-            } else {
-                .
-            }
-        }
 
     ## inf_events <- setdiff(colnames(events_tbl(x)),  obligatory_cols[["events"]])
     ## events_all_ch <- data.table::copy(events_tbl(x))[is.na(.channel), ends := .initial + .size]
@@ -86,8 +72,8 @@ as.data.table.eeg_lst <- function(x, unit = "second", add_segments = TRUE, add_c
 #'
 #' @family tibble
 #'
-as_tibble.eeg_lst <- function(x, unit = "second", add_segments = TRUE, add_channels_info = TRUE) {
-    data.table::as.data.table(x, unit, add_segments, add_channels_info) %>%
+as_tibble.eeg_lst <- function(x, unit = "second") {
+    data.table::as.data.table(x, unit) %>%
         dplyr::as_tibble()
 }
 

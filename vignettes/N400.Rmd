@@ -100,6 +100,7 @@ s1_N400_filt <- eeg_filt_band_pass(s1_N400,freq = c(.1,30))
 
 ```
 
+## ICA 
 ```{r}
 events_tbl(s1_N400_filt) %>%
     count(description)
@@ -123,8 +124,34 @@ s1_N400_s <- s1_N400_s %>%
 
 events_tbl(s1_N400_s) %>% count(type,description)
 
+plot <- filter(s1_N400_s, .id %in% filter(events_tbl(s1_N400_s), type == "artifact")$.id ) %>%
+     select(Fp1, Fpz,Fp2, VEOG) %>%
+     plot(crazy, max_sample =2000) + facet_grid(.source~.id)
 
-    eeg_artif_minmax(-HEOG, -VEOG, threshold =100, window=150, unit = "ms") %>%
+     add_events_plot(plot)
+
+
+s1_N400_s <- s1_N400_s %>% eeg_events_to_NA(type == "artifact", all_chans = TRUE,entire_seg = FALSE)
+
+
+
+s1_N400_s_ica <- eeg_ica(s1_N400_s, -HEOG, -VEOG, -M1, -M2, na.rm=TRUE)
+
+
+```
+
+```{r}
+
+
+annotate_events(events_tbl(crazy))
+
+pp <- ggplot(crazy, aes(x=time, y = .value, group=.id)) +geom_line()
+
+
+
+
+
+eeg_artif_minmax(-HEOG, -VEOG, threshold =100, window=150, unit = "ms") %>%
     eeg_artif_step(-HEOG, -VEOG,threshold = 50, window=200, unit = "ms") %>%
     ##for horizontal eye movements : https://github.com/lucklab/erplab/wiki/Artifact-Detection:-Tutorial
     eeg_filt_band_pass(HEOG,VEOG, freq = c(1,10)) %>%
@@ -133,7 +160,7 @@ events_tbl(s1_N400_s) %>% count(type,description)
 
 events_tbl(s1_N400_s) %>% count(type,description)
 
-
+ 
 #####
 sH <- filter(s1_N400_s, .id %in% filter(events_tbl(s1_N400_s), .channel == "HEOG")$.id )
 
