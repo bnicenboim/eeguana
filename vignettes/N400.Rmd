@@ -133,10 +133,44 @@ plot <- filter(s1_N400_s, .id %in% filter(events_tbl(s1_N400_s), type == "artifa
 
 s1_N400_s <- s1_N400_s %>% eeg_events_to_NA(type == "artifact", all_chans = TRUE,entire_seg = FALSE)
 
-
+ fs
 
 s1_N400_s_ica <- eeg_ica(s1_N400_s, -HEOG, -VEOG, -M1, -M2, na.rm=TRUE)
 
+
+df <- try_to_downsample(s1_N400_s_ica, 2000)
+df <- df %>%  data.table::as.data.table()
+
+dt <- data.table::copy(df$signal)
+dt[, intersect(channel_names(df), df$signal):= NULL ]
+components <- df$signal %>% dplyr::select_at(vars(one_of(channel_names(df)))) %>%
+    data.table::melt(variable.name = ".source",
+                     measure.vars = component_names(df),
+                     value.name = ".value")
+components[,.type := "component"][
+   ,.source := as.character(.source)]
+
+     channels <- df$signal %>% dplyr::select_at(-one_of(component_names(df)))) %>%
+          data.table::melt(variable.name = ".source",
+                           measure.vars = intersect(colnames(df$signal), channel_names(df)),
+                           value.name = ".value")
+channels[,.type := "channel"][
+   ,.source := as.character(.source)]
+
+df[,.source := factor(.source, levels = unique(.source))]
+if(is.null(mapping)){
+}
+p <- ggplot2::ggplot(data=df,mapping=mapping,..., environment=environment)
+
+p$data_channels <- channels_tbl(data)
+p$data_events <- events_tbl(data)
+p
+
+summarise_all(list(~min(.), ~max(.)))
+
+plot(s1_N400_s_ica)
+
+summarise_all(list(~min(.), ~max(.)))
 
 ```
 

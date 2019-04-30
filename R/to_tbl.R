@@ -17,13 +17,15 @@ as.data.table.eeg_lst <- function(x, unit = "second") {
         ##     tidyr::gather(key = ".source", value = ".value",
         ##                   (intersect(colnames(x$signal), channel_names(x)))) %>%
         ##     dplyr::mutate(.type = "channel")
-
-        channels <- x$signal %>% dplyr::select_at(vars(-one_of(component_names(x)))) %>%
+  
+        channels <- x$signal %>% dplyr::select_at(dplyr::vars(-dplyr::one_of(component_names(x)))) %>%
             data.table::melt(variable.name = ".source",
                              measure.vars = intersect(colnames(x$signal), channel_names(x)),
                              value.name = ".value")
         channels[,.type := "channel"][
-           ,.source := as.character(.source)]
+           ,.source := as.character(.source)][
+           ,.value := unclass(.value)   
+           ]
     } else {
         channels <- data.table::data.table()
     }
@@ -33,12 +35,14 @@ as.data.table.eeg_lst <- function(x, unit = "second") {
         ##     .[,lapply(.SD, `attributes<-`, NULL )] %>%
         ##     tidyr::gather(key = ".source", value = ".value", component_names(x)) %>%
         ##     dplyr::mutate(.type = "component")
-        components <- x$signal %>% dplyr::select_at(vars(one_of(component_names(x)))) %>%
+        components <- x$signal %>% dplyr::select_at(dplyr::vars(-dplyr::one_of(channel_names(x$signal)))) %>%
             data.table::melt(variable.name = ".source",
                              measure.vars = component_names(x),
                              value.name = ".value")
         components[,.type := "component"][
-           ,.source := as.character(.source)]
+           ,.source := as.character(.source)][
+           ,.value := unclass(.value)   
+           ]
     } else {
         components =  data.table::data.table()
     }
@@ -55,8 +59,9 @@ as.data.table.eeg_lst <- function(x, unit = "second") {
     .unit <- unit
     long_table[, time := as_time(.sample_id, unit = .unit)]
     long_table[, .sample_id := NULL]
-    long_table %>% dplyr::select(time, dplyr::everything()) %>%
-    .[,lapply(.SD, `attributes<-`, NULL )]
+    long_table %>% dplyr::select(time, dplyr::everything())
+    #%>%
+    #.[,lapply(.SD, `attributes<-`, NULL )]
 }
 
 

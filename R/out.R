@@ -58,11 +58,15 @@ nchannels.default <- function(x, ...) {
 component_names <- function(x, ...) {
   UseMethod("component_names")
 }
-
+#' @rdname summary
+#' @export
+component_names.signal_tbl <- function(x, ...) {
+  colnames(x)[x[,purrr::map_lgl(.SD, is_component_dbl )]]
+}
 #' @rdname summary
 #' @export
 component_names.eeg_lst <- function(x, ...) {
-  colnames(x$signal)[x$signal[,purrr::map_lgl(.SD, is_component_dbl )]]
+  component_names(x$signal)
 }
 
 #' @rdname summary
