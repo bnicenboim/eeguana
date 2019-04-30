@@ -82,24 +82,45 @@ channels_tbl.data.frame <- function(x, ...) {
 `channels_tbl<-` <- function(x, value) {
   UseMethod("channels_tbl<-")
 }
+#' @rdname channels_tbl
+#' @export
+`channels_tbl<-.ica_lst` <- function(x, value) {
+  orig_names <- channel_names(x$mixing)
+  channels_mx <- x$mixing[, intersect(channel_names(x$mixing), value$.channel), with =FALSE]
+  nochannels_mx <- x$mixing[, setdiff(colnames(x$mixing), value$.channel), with = FALSE]
+  x$mixing <- cbind(nochannels_mx, 
+                    data.table::as.data.table(
+                      update_channel_meta_data(channels_mx, 
+                                               value[value$.channel %in% colnames(x$mixing),]))) %>%
+    as_mixing_tbl()
+  new_names <- channel_names(x$mixing)
+  x$events <- data.table::copy(x$events)
+  for (i in seq_len(nchannels(x$mixing))) {
+    data.table::set(x$events,which(x$events$.channel == orig_names[i]), ".channel", new_names[i])
+  }
+  NextMethod()
+  
+  }
+
 
 #' @rdname channels_tbl
 #' @export
 `channels_tbl<-.eeg_lst` <- function(x, value) {
-  orig_names <- channel_names(x)
-  channels <- dplyr::select(x$signal, orig_names)
-  nochannels <- dplyr::select(x$signal, -dplyr::one_of(channel_names(x)))
-  x$signal <- dplyr::bind_cols(nochannels, update_channel_meta_data(channels, value))
-  new_names <- channel_names(x)
-
-  for (i in seq_len(nchannels(x))) {
-    #TODO do it in data.table
-    x$events <- dplyr::mutate(x$events, 
-                              .channel = dplyr::if_else(.channel == orig_names[i], new_names[i], .channel)) %>%
-                as_events_tbl()
+  orig_names <- channel_names(x$signal)
+  channels_sg <- x$signal[, intersect(channel_names(x$signal), value$.channel), with =FALSE]
+  nochannels_sg <- x$signal[, setdiff(colnames(x$signal), value$.channel), with = FALSE]
+  x$signal <- cbind(nochannels_sg, 
+                    data.table::as.data.table(
+                      update_channel_meta_data(channels_sg, 
+                                               value[value$.channel %in% colnames(x$signal),]))) %>%
+    as_signal_tbl()
+  new_names <- channel_names(x$signal)
+  
+  x$events <- data.table::copy(x$events)
+  for (i in seq_len(nchannels(x$signal))) {
+    data.table::set(x$events,which(x$events$.channel == orig_names[i]), ".channel", new_names[i])
   }
-
-  x
+x
 }
 
 #' @rdname channels_tbl

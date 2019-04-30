@@ -22,6 +22,11 @@ channel_names <- function(x, ...) {
 #' @rdname summary
 #' @export
 channel_names.signal_tbl <- function(x, ...) {
+NextMethod()
+  }
+#' @rdname summary
+#' @export
+channel_names.default <- function(x, ...) {
   colnames(x)[x[,purrr::map_lgl(.SD, is_channel_dbl )]]
 }
 #' @rdname summary
@@ -32,7 +37,7 @@ channel_names.eeg_lst <- function(x, ...) {
 #' @rdname summary
 #' @export
 channel_names.mixing_tbl <- function(x, ...) {
-  colnames(x)[x[,purrr::map_lgl(.SD, is_channel_dbl )]]
+NextMethod()
 }
 #' @rdname summary
 #' @export

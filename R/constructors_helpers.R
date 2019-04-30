@@ -287,3 +287,22 @@ new_mixing_tbl <- function(mixing_matrix, means_matrix , groups, channels_tbl) {
     data.table::setattr(mixing_matrix_dt, "class",c("mixing_tbl",class(mixing_matrix_dt)))
     mixing_matrix_dt[]
 }
+
+#' @noRd
+as_mixing_tbl <- function(.data,...){
+    UseMethod("as_mixing_tbl")
+}
+#' @noRd
+as_mixing_tbl.data.table <- function(.data){
+    data.table::setattr(.data, "class", c("mixing_tbl",class(.data)))
+    validate_mixing_tbl(.data)
+}
+#' @noRd
+as_mixing_tbl.mixing_tbl <- function(.data){
+    validate_mixing_tbl(.data)
+}
+#' @noRd
+as_mixing_tbl.data.frame <- function(.data){
+    .data <- data.table::as.data.table(.data)
+    as_mixing_tbl(.data)
+}
