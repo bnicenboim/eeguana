@@ -90,7 +90,8 @@ summarize_eval_signal <- function(.eeg_lst, dots){
     added_cols <- paste0("V",seq_len(length(dots)))
     data.table::setnames(extended_signal, added_cols, add_names) 
  # add class to the columns that lost their class
-    extended_signal[, (add_names) := purrr::map2(.SD, old_attributes,~ `attributes<-`(.x,.y)), .SDcols = add_names]
+    extended_signal[, (add_names) := purrr::map2(.SD, old_attributes,~
+                                                                        if(is_channel_dbl(.x) | is_component_dbl(.x)) .x else  `attributes<-`(.x,.y)), .SDcols = add_names]
 
 
  update_summarized_signal(extended_signal,.eeg_lst)

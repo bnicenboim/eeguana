@@ -508,14 +508,19 @@ add_events_plot <- function(plot, alpha = .2){
     ## events_tbl[,.source:= as.factor(.channel)]
     events_tbl[,description := (do.call(paste,c(.SD, sep ="."))), .SDcols= c(info_events)]
                                         #single events
+    segs <- plot$data %>%
+        dplyr::select(-time, -.source, -.value, -.type) %>%
+        dplyr::distinct()
+  
+    events_tbl <- left_join_dt(events_tbl, data.table::as.data.table(segs), by = ".id")
+
     to_plot<- list()
     to_plot$events_all <- filter_dt(events_tbl, .initial == .final, is.na(.channel) )
     to_plot$events_ch <- filter_dt(events_tbl, .initial == .final, !is.na(.channel) ) %>%
         .[, .source := as.factor(.channel)]
     to_plot$intervals_all <- filter_dt(events_tbl, .initial < .final, is.na(.channel) )
     to_plot$intervals_ch <- filter_dt(events_tbl, .initial < .final, !is.na(.channel) )  %>%
-    .[, .source := as.factor(.channel)]
-
+        .[, .source := as.factor(.channel)]
     add_to_plot <- purrr::map(to_plot, ~ if(nrow(.x)>0){
                               geom_rect(data= .x,
                                         aes(xmin = xmin,
