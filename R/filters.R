@@ -33,44 +33,44 @@ NULL
 
 #' @rdname filt
 #' @export
-eeg_filt_low_pass <- function(.data, ..., freq = NULL, config = list()) {
+eeg_filt_low_pass <- function(.data, ..., freq = NULL, config = list(), na.rm = FALSE) {
   UseMethod("eeg_filt_low_pass")
 }
 
 #' @rdname filt
 #' @export
-eeg_filt_high_pass <- function(.data, ..., freq = NULL, config = list()) {
+eeg_filt_high_pass <- function(.data, ..., freq = NULL, config = list(), na.rm = FALSE) {
   UseMethod("eeg_filt_high_pass")
 }
 #' @rdname filt
 #' @export
-eeg_filt_band_pass <- function(.data, ..., freq = NULL, config = list()) {
+eeg_filt_band_pass <- function(.data, ..., freq = NULL, config = list(), na.rm = FALSE) {
   UseMethod("eeg_filt_band_pass")
 }
 #' @rdname filt
 #' @export
-eeg_filt_band_stop <- function(.data, ..., freq = NULL, config = list()) {
+eeg_filt_band_stop <- function(.data, ..., freq = NULL, config = list(), na.rm = FALSE) {
   UseMethod("eeg_filt_band_stop")
 }
 
 #' @export
-eeg_filt_low_pass.eeg_lst <- function(.data, ..., freq = NULL, config = list()) {
+eeg_filt_low_pass.eeg_lst <- function(.data, ..., freq = NULL, config = list(), na.rm = FALSE) {
     h <- create_filter(l_freq = NULL,
                        h_freq = freq,
                        sampling_rate = sampling_rate(.data),config = config)
-    .data$signal <- filt_eeg_lst(.data$signal,...,h=h)
+    .data$signal <- filt_eeg_lst(.data$signal,...,h=h, na.rm = na.rm)
     .data
 }
 #' @export
-eeg_filt_high_pass.eeg_lst <- function(.data, ..., freq = NULL, config = list()) {
+eeg_filt_high_pass.eeg_lst <- function(.data, ..., freq = NULL, config = list(), na.rm = FALSE) {
     h <- create_filter(l_freq = freq,
                        h_freq = NULL,
                        sampling_rate = sampling_rate(.data),config = config)
-    .data$signal <- filt_eeg_lst(.data$signal,...,h=h)
+    .data$signal <- filt_eeg_lst(.data$signal,...,h=h, na.rm = na.rm)
     .data
 }
 #' @export
-eeg_filt_band_stop.eeg_lst <- function(.data, ..., freq = NULL, config = list()) {
+eeg_filt_band_stop.eeg_lst <- function(.data, ..., freq = NULL, config = list(), na.rm = FALSE) {
     if(length(freq) != 2) stop("freq should contain two frequencies.")
     if(freq[1] <= freq[2]) {
         stop("The first argument of freq should be larger than the second one.")  }
@@ -78,11 +78,11 @@ eeg_filt_band_stop.eeg_lst <- function(.data, ..., freq = NULL, config = list())
     h <- create_filter(l_freq = freq[1],
                        h_freq= freq[2],
                        sampling_rate = sampling_rate(.data),config = config)
-    .data$signal <- filt_eeg_lst(.data$signal,...,h=h)
+    .data$signal <- filt_eeg_lst(.data$signal,...,h=h, na.rm = na.rm)
     .data
 }
 #' @export
-eeg_filt_band_pass.eeg_lst <- function(.data,..., freq = NULL, config = list()) {
+eeg_filt_band_pass.eeg_lst <- function(.data,..., freq = NULL, config = list(), na.rm = FALSE) {
     if(length(freq) != 2) stop("freq should contain two frequencies.")
     if(freq[1] >= freq[2]) {
         stop("The first argument of freq should be smaller than the second one.")
@@ -91,11 +91,11 @@ eeg_filt_band_pass.eeg_lst <- function(.data,..., freq = NULL, config = list()) 
     h <- create_filter(l_freq = freq[1],
                        h_freq= freq[2],
                        sampling_rate = sampling_rate(.data),config = config)
-    .data$signal <- filt_eeg_lst(.data$signal,...,h=h)
+    .data$signal <- filt_eeg_lst(.data$signal,...,h=h, na.rm = na.rm)
     .data
 }
 #' @noRd
-filt_eeg_lst <- function(.signal,..., h){
+filt_eeg_lst <- function(.signal,..., h, na.rm = FALSE){
     .signal <- data.table::copy(.signal)
     dots <- rlang::enquos(...)
     if(rlang::is_empty(dots)) {
@@ -103,6 +103,14 @@ filt_eeg_lst <- function(.signal,..., h){
     } else {
         ch_sel <- tidyselect::vars_select(channel_names(.signal), !!!dots)
     }
+
+    if(na.rm == FALSE) {
+        NA_channels <- ch_sel[.signal[, purrr::map_lgl(.SD, anyNA), .SDcols = (ch_sel)]]
+        if(length(NA_channels)>0){
+            stop("Missing values in the following channels: ", paste(NA_channels,sep= ","), "; use na.rm =TRUE, to proceed setting to NA the entire segment that contains an NA" , call. = FALSE)
+        }
+    }
+
     .signal[, (ch_sel) := lapply(.SD, overlap_add_filter,h), 
                     .SDcols = (ch_sel), by = ".id"]
     .signal
