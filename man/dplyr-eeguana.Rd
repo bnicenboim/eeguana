@@ -49,11 +49,11 @@
 An eeg_lst object.
 }
 \description{
-Manipulate the signal_tbl and the segments table of an eeg_lst.
+Manipulate the signal table and the segments table of an eeg_lst.
 }
 \details{
 Wrappers for \link[dplyr:dplyr]{dplyr}'s commands that act on different parts
-\code{eggble} objects.
+\code{eeg_lst} objects.
 The following wrappers have been implemented for \code{eeg_lst} objects:
 \itemize{
 \item \code{mutate()} adds new variables and preserves existing ones. Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.
@@ -72,7 +72,40 @@ they can be ' piped using \link[magrittr:magrittr]{magrittr} 's pipe, %>%.
 \examples{
 \dontrun{
 
-faces_segs \%>\% select(O1, O2, P7, P8)
+# Create new channel in the signal table
+data_faces_ERPs \%>\%
+    mutate(tmp = Fz - Cz)
+    
+# Create a new condition in the segments table
+data_faces_ERPs \%>\%
+    mutate(code = ifelse(condition == "faces", 1, -1))
+
+# Create a new channel and drop all others
+data_faces_ERPs \%>\%
+    transmute(Occipital = chs_mean(O1, O2, Oz, 
+              na.rm = TRUE))
+
+# Extract data associated with a condition
+data_faces_ERPs \%>\%
+    filter(condition == "faces")
+    
+# Group and summarize 
+data_faces_ERPs \%>\%
+    # Convert samples to times, filter between timepoints
+    filter(between(as_time(.sample_id, unit = "ms"), 
+           100, 200)) \%>\%
+    # Find mean amplitude of Fz for each condition
+    group_by(condition) \%>\%
+    summarize(mean.amplitude = mean(Fz))
+
+# Select specific electrodes
+data_faces_ERPs \%>\% 
+    select(O1, O2, P7, P8)
+
+# Rename a variable
+data_faces_ERPs \%>\%
+    rename(Predictor = condition)
+ 
 }
 }
 \seealso{

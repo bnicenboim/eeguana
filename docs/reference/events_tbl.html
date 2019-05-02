@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Builds an events_tbl table — events_tbl • eeguana</title>
+<title>Functions to get or set the events table of an eeg_lst object. — events_tbl • eeguana</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -37,14 +37,9 @@
 
 
 
-<meta property="og:title" content="Builds an events_tbl table — events_tbl" />
+<meta property="og:title" content="Functions to get or set the events table of an eeg_lst object. — events_tbl" />
 
-<meta property="og:description" content="The eeg_lst events table is organised into columns representing the type of event
-associated with the trigger listed under description. The timestamp marking
-the beginning of the event is listed under .sample_0 and the length of the
-event (in timestamps) is listed under .size. The .channel column is a
-linking variable only, so will generally only contain NAs, unless the
-event is specific to a certain channel." />
+<meta property="og:description" content="Functions to get or set the events table of an eeg_lst object." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -131,53 +126,39 @@ event is specific to a certain channel." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Builds an events_tbl table</h1>
-    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/constructors.R'><code>R/constructors.R</code></a></small>
+    <h1>Functions to get or set the events table of an eeg_lst object.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/editing.R'><code>R/editing.R</code></a></small>
     <div class="hidden name"><code>events_tbl.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>The eeg_lst <code>events</code> table is organised into columns representing the <code>type</code> of event
-associated with the trigger listed under <code>description</code>. The timestamp marking
-the beginning of the event is listed under <code>.sample_0</code> and the length of the
-event (in timestamps) is listed under <code>.size</code>. The <code>.channel</code> column is a
-linking variable only, so will generally only contain NAs, unless the
-event is specific to a certain channel.</p>
+    <p>Functions to get or set the events table of an eeg_lst object.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>events_tbl</span>(<span class='kw'>.id</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>.sample_0</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>.size</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>.channel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>descriptions_dt</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>events_tbl</span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>ids</th>
-      <td><p>Integers indicating to which group the row of the signal matrix belongs.</p></td>
+      <th>x</th>
+      <td><p>An eeg_lst object.</p></td>
     </tr>
     <tr>
-      <th>sample_0s</th>
-      <td><p>Vector of integers that indicate at which sample an events starts.</p></td>
+      <th>...</th>
+      <td><p>Not in use.</p></td>
     </tr>
     <tr>
-      <th>sizes</th>
-      <td><p>Vector of integers that indicate at which sample an events starts.</p></td>
-    </tr>
-    <tr>
-      <th>channels</th>
-      <td><p>Vector of characters that indicate to which channel the event is relevant or NA for all the channels.</p></td>
+      <th>value</th>
+      <td><p>An events table.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A valid <code>events_tbl</code> table.</p>
-    
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>Other events_tbl: <code>is_events_tbl</code></p></div>
+    <p>A table.</p>
     
 
   </div>
@@ -187,8 +168,6 @@ event is specific to a certain channel.</p>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-
-      <li><a href="#see-also">See also</a></li>
           </ul>
 
   </div>

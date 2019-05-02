@@ -147,21 +147,22 @@ Segment information and recording IDs appear in the <code>segments</code> tibble
     
     </div>
 
-    <pre class="usage"><span class='fu'>eeg_lst</span>(<span class='kw'>signal</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>events</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>segments</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>eeg_lst</span>(<span class='kw'>signal_tbl</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>events_tbl</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>segments_tbl</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>channels_tbl</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>signal</th>
+      <th>signal_tbl</th>
       <td><p>See <code>signal_tbl()</code>.</p></td>
     </tr>
     <tr>
-      <th>events</th>
+      <th>events_tbl</th>
       <td><p>See <code>events_tbl()</code>.</p></td>
     </tr>
     <tr>
-      <th>segments</th>
+      <th>segments_tbl</th>
       <td><p>A tibble of segment numbers and related information.</p></td>
     </tr>
     </table>
@@ -176,13 +177,12 @@ Segment information and recording IDs appear in the <code>segments</code> tibble
 (<code>.sample_id</code>) and individual electrodes. Each <code>.sample_id</code> corresponds to
 1 sample in the original recording, i.e. if the sampling rate of the EEG
 recording is 500 Hz, then each <code>.sample_id</code> corresponds to 2 milliseconds.
-These timestamps correspond to <code>.sample_0</code> in the <code>events</code> table, which
+These timestamps correspond to <code>.initial</code> in the <code>events</code> table, which
 displays only the timestamps where logged events began.</p>
 <p>The <code>events</code> table is organised into columns representing the <code>type</code> of event
 associated with the trigger listed under <code>description</code>. The timestamp marking
-the beginning of the event is listed under <code>.sample_0</code> and the length of the
-event (in timestamps) is listed under <code>.size</code>. The <code>.channel</code> column will
-generally only contain NAs, unless the
+the beginning and the end of the event is listed under <code>.initial</code> and <code>.final</code> (in samples).
+The <code>.channel</code> column is a  linking variable only, so will generally only contain NAs, unless the
 event is specific to a certain channel.</p>
 <p>The <code>segments</code> tibble contains the subject ID under <code>recording</code>, which is
 the file name unless otherwise specified. If the data has been segmented in
