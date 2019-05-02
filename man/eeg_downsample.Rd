@@ -4,22 +4,29 @@
 \alias{eeg_downsample}
 \title{Downsample EEG data}
 \usage{
-eeg_downsample(x, q = 2, max_sample = NULL, ...)
+eeg_downsample(x, q = 2, max_sample = NULL, n = if (ftype == "iir") 8
+  else 30, ftype = "iir", multiple_times = FALSE, ...)
 }
 \arguments{
 \item{x}{An eeg_lst object.}
 
 \item{q}{integer factor(s) to downsample by.}
 
-\item{max_sample}{Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total number of samples.}
+\item{max_sample}{Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total number of samples}
+
+\item{n}{ filter order used in the downsampling. }
+
+\item{ftype}{ filter type, \code{"iir"} or \code{"fir"} }
+
+\item{multiple_times}{Indicates whether to factorize `q`` and apply the downsampling in steps.}
 
 \item{...}{Not in use.}
 }
 \description{
 Downsample a signal_tbl by a factor \code{q}, using an FIR or IIR filter.
-This is a wrapper for \link{decimate} from the
-\link{signal_tbl} package, see its documentation for details. Notice that
-the code of the \link{signal_tbl} package might be outdated.
+This is a wrapper for \code{\link[signal:decimate]{decimate}} from the
+\code{\link[signal:signal]{signal}} package, see its documentation for details. Notice that
+the code of the signal package might be outdated.
 }
 \details{
 A factor q larger than 13 can result in NAs. To avoid this,

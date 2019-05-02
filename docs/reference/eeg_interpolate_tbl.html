@@ -140,11 +140,11 @@
     <pre class="usage"><span class='fu'>eeg_interpolate_tbl</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>eeg_interpolate_tbl</span>(<span class='no'>.data</span>, <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>1.2</span>,
+<span class='fu'>eeg_interpolate_tbl</span>(<span class='no'>.data</span>, <span class='kw'>radius</span> <span class='kw'>=</span> <span class='fl'>1.2</span>,
   <span class='kw'>diam_points</span> <span class='kw'>=</span> <span class='fl'>200</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"MBA"</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for data.frame</span>
-<span class='fu'>eeg_interpolate_tbl</span>(<span class='no'>.data</span>, <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>1.2</span>, <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>.x</span>,
+<span class='fu'>eeg_interpolate_tbl</span>(<span class='no'>.data</span>, <span class='kw'>radius</span> <span class='kw'>=</span> <span class='fl'>1.2</span>, <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>.x</span>,
   <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>.y</span>, <span class='kw'>value</span> <span class='kw'>=</span> <span class='no'>.value</span>, <span class='kw'>label</span> <span class='kw'>=</span> <span class='no'>.source</span>, <span class='kw'>diam_points</span> <span class='kw'>=</span> <span class='fl'>200</span>,
   <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"MBA"</span>, <span class='no'>...</span>)</pre>
     
@@ -160,8 +160,8 @@
       <td><p>Various arguments passed to the interpolation method.</p></td>
     </tr>
     <tr>
-      <th>size</th>
-      <td><p>Indicates how much to extrapolate, <code>1</code> indicates no extrapolation beyond the position of the electrodes.</p></td>
+      <th>radius</th>
+      <td><p>Indicates the radius of the extrapolation, for standard locations of electrodes,  <code>1</code> indicates no extrapolation beyond the position of the electrodes, <code>1.2</code> is the default</p></td>
     </tr>
     <tr>
       <th>diam_points</th>

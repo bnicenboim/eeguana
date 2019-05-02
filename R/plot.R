@@ -6,7 +6,7 @@
 #' 
 #' Note that for normal-size datasets, the plot may take several minutes to compile.
 #' If necessary, `plot` will first downsample the `eeg_lst` object so that there is a 
-#' maximum of 64,000 samples. The `eeg_lst` object is then converted to a long-format
+#' maximum of 6,400 samples. The `eeg_lst` object is then converted to a long-format
 #' tibble via `as_tibble`. In this tibble, the `.source` variable is the 
 #' channel/component name and `.value` its respective amplitude. The sample 
 #' number (`.sample_id` in the `eeg_lst` object) is automatically converted to milliseconds
@@ -18,7 +18,7 @@
 #' 
 #' 
 #' @param x An `eeg_lst` object.
-#' @param max_sample Downsample to approximately 64000 samples by default.
+#' @param max_sample Downsample to approximately 6400 samples by default.
 #' @param ... Not in use.
 #' @family plot
 #' 
@@ -36,8 +36,8 @@
 #' @importFrom magrittr %>%
 #'
 #' @export
-plot.eeg_lst <- function(x, max_sample = 64000, ...) {
-
+plot.eeg_lst <- function(x, max_sample = 6400, ...) {
+    ellipsis::check_dots_unnamed()
   x <- try_to_downsample(x, max_sample)
 
   df <- dplyr::as_tibble(x) %>% 
@@ -62,8 +62,8 @@ plot.eeg_lst <- function(x, max_sample = 64000, ...) {
 #' `ggplot2::ggplot` object.
 #' 
 #' If necessary, `plot_gg` will first downsample the `eeg_lst` object so that there is a 
-#' maximum of 64,000 samples. The `eeg_lst` object is then converted to a long-format
-#' tibble via `as_tibble`. In this tibble, the `.source` variable is the 
+#' maximum of 6400 samples. The `eeg_lst` object is then converted to a long-format
+#' tibble via [as_tibble]. In this tibble, the `.source` variable is the 
 #' channel/component name and `.value` its respective amplitude. The sample 
 #' number (`.sample_id` in the `eeg_lst` object) is automatically converted to milliseconds
 #' to create the variable `time`. By default, time is plotted on the 
@@ -74,7 +74,7 @@ plot.eeg_lst <- function(x, max_sample = 64000, ...) {
 #' 
 #' @param .data An `eeg_lst` object.
 #' @inheritParams  ggplot2::aes
-#' @param max_sample Downsample to approximately 64000 samples by default.
+#' @param max_sample Downsample to approximately 6400 samples by default.
 #'
 #' @family plot
 #' @return A ggplot object
@@ -99,7 +99,7 @@ plot_gg <- function(.data, ...) {
 }
 #' @rdname plot_gg
 #' @export
-plot_gg.eeg_lst <- function(.data, x = time, y = .value, ..., max_sample = 64000) {
+plot_gg.eeg_lst <- function(.data, x = time, y = .value, ..., max_sample = 6400) {
   x <- rlang::enquo(x)
   y <- rlang::enquo(y)
 
@@ -512,3 +512,36 @@ annotate_head <- function(size = 1.1, color ="black", stroke=1) {
    ggplot2::annotate("line", x = nose$x, y =nose$y, color = color, size = 1* stroke))
   
 } 
+
+#' @export
+annotate_events <- function(events_tbl, alpha = .2){
+    info_events   <- setdiff(colnames(events_tbl), obligatory_cols[["events"]])
+    events_tbl <- data.table::copy(events_tbl)
+    events_tbl[,xmin:= as_time(.initial) ]
+    events_tbl[,xmax:= as_time(.final) ]
+    ## events_tbl[,.source:= as.factor(.channel)]
+    events_tbl[,description := (do.call(paste,c(.SD, sep ="."))), .SDcols= c(info_events)]
+                                        #single events
+    to_plot<- list()
+    to_plot$events_all <- filter_dt(events_tbl, .initial == .final, is.na(.channel) )
+    to_plot$events_ch <- filter_dt(events_tbl, .initial == .final, !is.na(.channel) ) %>%
+        .[, .source := as.factor(.channel)]
+    to_plot$intervals_all <- filter_dt(events_tbl, .initial < .final, is.na(.channel) )
+    to_plot$intervals_ch <- filter_dt(events_tbl, .initial < .final, !is.na(.channel) )  %>%
+    .[, .source := as.factor(.channel)]
+
+    purrr::map(to_plot, ~ if(nrow(.x)>0){
+                              geom_rect(data= .x,
+                                        aes(xmin = xmin,
+                                            xmax =  xmax ,
+                                            color = description,
+                                            fill = description,
+                                            group = .id),
+                                        alpha = alpha,
+                                        ymin = -Inf, ymax= Inf,
+                                        inherit.aes = FALSE) 
+                          }
+                          else {
+                              NULL
+                          })
+}

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Builds an eeg_lst. — eeg_lst • eeguana</title>
+<title>Create an eeg_lst — eeg_lst • eeguana</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -37,9 +37,14 @@
 
 
 
-<meta property="og:title" content="Builds an eeg_lst. — eeg_lst" />
+<meta property="og:title" content="Create an eeg_lst — eeg_lst" />
 
-<meta property="og:description" content="Builds an eeg_lst." />
+<meta property="og:description" content="Builds an eeg_lst object composed of two data.table::data.table
+objects and one  tibble::tibble. All three are linked by a unique
+identifier .id. Amplitude values and timestamps appear in the signal
+table. Triggers, blinks, artefact rejection markings, and other
+events logged by the EEG recording software appear in the events table.
+Segment information and recording IDs appear in the segments tibble." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -126,14 +131,19 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Builds an eeg_lst.</h1>
+    <h1>Create an eeg_lst</h1>
     <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/constructors.R'><code>R/constructors.R</code></a></small>
     <div class="hidden name"><code>eeg_lst.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Builds an eeg_lst.</p>
+    <p>Builds an eeg_lst object composed of two <code><a href='https://www.rdocumentation.org/packages/data.table/topics/data.table'>data.table::data.table</a></code>
+objects and one  <code><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble::tibble</a></code>. All three are linked by a unique
+identifier <code>.id</code>. Amplitude values and timestamps appear in the <code>signal</code>
+table. Triggers, blinks, artefact rejection markings, and other
+events logged by the EEG recording software appear in the <code>events</code> table.
+Segment information and recording IDs appear in the <code>segments</code> tibble.</p>
     
     </div>
 
@@ -144,21 +154,45 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>signal</th>
-      <td><p>signal</p></td>
+      <td><p>See <code>signal_tbl()</code>.</p></td>
     </tr>
     <tr>
       <th>events</th>
-      <td><p>events</p></td>
+      <td><p>See <code>events_tbl()</code>.</p></td>
     </tr>
     <tr>
       <th>segments</th>
-      <td><p>segments</p></td>
+      <td><p>A tibble of segment numbers and related information.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A valid eeg_lst.</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The <code>signal</code> table is organised into columns representing timestamps
+(<code>.sample_id</code>) and individual electrodes. Each <code>.sample_id</code> corresponds to
+1 sample in the original recording, i.e. if the sampling rate of the EEG
+recording is 500 Hz, then each <code>.sample_id</code> corresponds to 2 milliseconds.
+These timestamps correspond to <code>.sample_0</code> in the <code>events</code> table, which
+displays only the timestamps where logged events began.</p>
+<p>The <code>events</code> table is organised into columns representing the <code>type</code> of event
+associated with the trigger listed under <code>description</code>. The timestamp marking
+the beginning of the event is listed under <code>.sample_0</code> and the length of the
+event (in timestamps) is listed under <code>.size</code>. The <code>.channel</code> column will
+generally only contain NAs, unless the
+event is specific to a certain channel.</p>
+<p>The <code>segments</code> tibble contains the subject ID under <code>recording</code>, which is
+the file name unless otherwise specified. If the data has been segmented in
+BrainVision, the segment number will be listed under <code>segment</code>. The data can
+also be segmented according to trigger labels in <code>eeguana</code>, see <code>segment</code>.
+<code>segment</code> will be place the segment number under <code>segment</code>, the trigger name
+under <code>type.x</code>, and the trigger label under <code>description.x</code>. Other information
+such as condition labels or response times can be added by the user by merging
+into the <code>segments</code> tibble using non-eeguana merge functions, e.g. the <code>dplyr</code>
+join series.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -173,6 +207,8 @@
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
 
       <li><a href="#see-also">See also</a></li>
           </ul>

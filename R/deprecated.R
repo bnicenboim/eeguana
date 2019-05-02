@@ -32,10 +32,64 @@ interpolate_tbl <- function(.data, ...) {
     UseMethod("eeg_interpolate_tbl")
 }
 #' @rdname eeguana-deprecated
-#' @inheritParams eeg_intervals_to_NA
+#' @inheritParams eeg_events_to_NA
 #' @export
 event_to_ch_NA <- function(x, ...) {
-  .Deprecated("eeg_intervals_to_NA")
-    UseMethod("eeg_intervals_to_NA")
+  .Deprecated("eeg_events_to_NA")
+    UseMethod("eeg_events_to_NA")
 }
  
+#' @rdname eeguana-deprecated
+#' @inheritParams eeg_events_to_NA
+#' @export
+eeg_intervals_to_NA <- function(x, ...) {
+    .Deprecated("eeg_events_to_NA")
+    UseMethod("eeg_events_to_NA")
+}
+#' @rdname eeguana-deprecated
+#' @inheritParams eeg_filt_low_pass
+#' @export
+ch_filt_low_pass <- function(x, ...) {
+    .Deprecated("eeg_filt_low_pass")
+    UseMethod("eeg_filt_low_pass")
+}
+
+#' @rdname eeguana-deprecated
+#' @inheritParams eeg_filt_high_pass
+#' @export
+ch_filt_high_pass <- function(x, ...) {
+    .Deprecated("eeg_filt_high_pass")
+    UseMethod("eeg_filt_high_pass")
+}
+
+#' @rdname eeguana-deprecated
+#' @inheritParams eeg_filt_band_pass
+#' @export
+ch_filt_band_pass <- function(x, ...) {
+    .Deprecated("eeg_filt_band_pass")
+    UseMethod("eeg_filt_band_pass")
+}
+
+#' @rdname eeguana-deprecated
+#' @inheritParams eeg_filt_stop_pass
+#' @export
+ch_filt_stop_pass <- function(x, ...) {
+    .Deprecated("eeg_filt_stop_pass")
+    UseMethod("eeg_filt_stop_pass")
+}
+
+#' @rdname eeguana-deprecated
+#' @inheritParams events_tbl 
+#' @export
+events <- function(x, ...) {
+    .Deprecated("events_tbl")
+    UseMethod("events_tbl")
+}
+
+#' @rdname eeguana-deprecated
+#' @inheritParams events_tbl 
+#' @export
+`events<-` <- function(x, ...) {
+    .Deprecated("events_tbl<-")
+    UseMethod("events_tbl<-")
+}

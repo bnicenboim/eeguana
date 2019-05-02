@@ -4,31 +4,28 @@ library(eeguana)
 
 # create fake dataset
 data_1 <- eeg_lst(
-  signal = signal_tbl(
-    signal_matrix = as.matrix(
-      data.frame(X = sin(1:30), Y = sin(1:30))
-    ),
-    ids = rep(c(1L, 2L, 3L), each = 10),
-    sample_ids = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500),
-    dplyr::tibble(
-      channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+    signal_tbl = dplyr::tibble(X = sin(1:30),
+                               Y = sin(1:30),
+    .id = rep(c(1L, 2L, 3L), each = 10),
+    .sample_id = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500)),
+    channels_tbl =  dplyr::tibble(
+      .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = c(1, -10), .y = c(1, 1), .z = c(1, 10)
-    )
   ),
-  events = as_events_tbl(dplyr::tribble(
-    ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
-    1L, "New Segment", NA_character_, -4L, 1L, NA,
-    1L, "Bad", NA_character_, -2L, 3L, NA,
+  events_tbl = dplyr::tribble(
+    ~.id, ~type, ~description, ~.initial, ~.final, ~.channel,
+    1L, "New Segment", NA_character_, -4L, -4L, NA,
+    1L, "Bad", NA_character_, -2L, 0L, NA,
     1L, "Time 0", NA_character_, 1L, 1L, NA,
-    1L, "Bad", NA_character_, 2L, 2L, "X",
-    2L, "New Segment", NA_character_, -4L, 1L, NA,
+    1L, "Bad", NA_character_, 2L, 3L, "X",
+    2L, "New Segment", NA_character_, -4L, -4L, NA,
     2L, "Time 0", NA_character_, 1L, 1L, NA,
-    2L, "Bad", NA_character_, 2L, 1L, "Y",
-    3L, "New Segment", NA_character_, -4L, 1L, NA,
+    2L, "Bad", NA_character_, 2L, 2L, "Y",
+    3L, "New Segment", NA_character_, -4L, -4L, NA,
     3L, "Time 0", NA_character_, 1L, 1L, NA,
-    3L, "Bad", NA_character_, 2L, 1L, "Y"
-  )),
-  segments = dplyr::tibble(.id = c(1L, 2L, 3L),
+    3L, "Bad", NA_character_, 2L, 2L, "Y"
+  ),
+  segments_tbl = dplyr::tibble(.id = c(1L, 2L, 3L),
                            recording = "recording1",
                            segment = c(1L, 2L, 3L),
                            condition = c("a", "b", "a"))
@@ -36,6 +33,7 @@ data_1 <- eeg_lst(
 
 
 data("data_faces_ERPs")
+data("data_faces_10_trials")
 
 
 # helper functions (borrowed from github.com/stan-dev/bayesplot/R/helpers-testthat.R)
@@ -115,8 +113,11 @@ test_that("warnings", {
 test_that("plot functions create ggplots", {
   expect_gg(lineplot_eeg)
   expect_gg(topoplot_eeg)
+expect_gg(plot(data_faces_10_trials) + annotate_events(events_tbl(data_faces_10_trials)))
+expect_gg(plot(data_faces_10_trials) +
+    annotate_events(events_tbl(data_faces_10_trials) %>%
+                    filter(type=="Stimulus") %>% select(-type) ))
+expect_gg(plot(data_faces_10_trials) +
+    annotate_events(events_tbl(data_faces_10_trials) %>%
+                    filter(type!="Stimulus") %>% select(-type)))
 })
-
-
-
-

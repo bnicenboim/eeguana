@@ -27,7 +27,7 @@ Imports:
     signal,
     MBA,
     tibble,
-    data.table (>= 1.11.8),
+    data.table (>= 1.12.2),
     edfReader,
     gtable,
     scales,

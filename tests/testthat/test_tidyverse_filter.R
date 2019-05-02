@@ -4,30 +4,27 @@ library(eeguana)
 
 # create fake dataset
 data_1 <- eeg_lst(
-  signal = signal_tbl(
-    signal_matrix = as.matrix(
-  data.frame(X = sin(1:30), Y = cos(1:30))
-    ),
-    ids = rep(c(1L, 2L, 3L), each = 10),
-sample_ids = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500),
-    dplyr::tibble(
-      channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+  signal_tbl =
+ dplyr::tibble(X = sin(1:30), Y = cos(1:30),
+    .id = rep(c(1L, 2L, 3L), each = 10),
+.sample_id = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500)),
+   channels_tbl = dplyr::tibble(
+      .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = c(1, 1), .y = NA_real_, .z = NA_real_
-    )
   ),
-  events = dplyr::tribble(
-    ~.id, ~type, ~description, ~.sample_0, ~.size, ~.channel,
-    1L, "New Segment", NA_character_, -4L, 1L, NA,
-    1L, "Bad", NA_character_, -2L, 3L, NA,
+   events_tbl = dplyr::tribble(
+    ~.id, ~type, ~description, ~.initial, ~.final, ~.channel,
+    1L, "New Segment", NA_character_, -4L, -4L, NA,
+    1L, "Bad", NA_character_, -2L, 0L, NA,
     1L, "Time 0", NA_character_, 1L, 1L, NA,
-    1L, "Bad", NA_character_, 2L, 2L, "X",
-    2L, "New Segment", NA_character_, -4L, 1L, NA,
+    1L, "Bad", NA_character_, 2L, 3L, "X",
+    2L, "New Segment", NA_character_, -4L, -4L, NA,
     2L, "Time 0", NA_character_, 1L, 1L, NA,
-    2L, "Bad", NA_character_, 2L, 1L, "Y",
-    3L, "New Segment", NA_character_, -4L, 1L, NA,
+    2L, "Bad", NA_character_, 2L, 2L, "Y",
+    3L, "New Segment", NA_character_, -4L, -4L, NA,
     3L, "Time 0", NA_character_, 1L, 1L, NA,
-    3L, "Bad", NA_character_, 2L, 1L, "Y"
-    )%>% as_events_tbl(),
+    3L, "Bad", NA_character_, 2L, 2L, "Y"
+    ),
   segments = dplyr::tibble(.id = c(1L, 2L, 3L),
                            recording = "recording1",
                            segment = c(1L, 2L, 3L),
@@ -126,9 +123,12 @@ test_that("data didn't change", {
 
 # a) Test signal/segments table by comparing eeg_lst with tibble
 
-filter1_sign_eeg <- filter(data, .sample_id >= 2) 
+filter1_sign_eeg <- filter(data, .sample_id >= 0) 
 filter1_sign_tbl <- left_join(as_tibble(data$signal), as_tibble(data$segments)) %>%
-  dplyr::filter(.sample_id >= 2) 
+  dplyr::filter(.sample_id >= 0) 
+filter1_events <- events_tbl(data) %>% filter(.initial >=0 |.final >=0) %>%
+    mutate(.final = ifelse(.initial < 0,0 , .final  ), .initial = ifelse(.initial < 0, 0, .initial))
+
 
 
 filter2_sign_eeg <- filter(data, .id == 1 & .sample_id == 2)
@@ -163,28 +163,27 @@ test_that("filtering within signal table works in segments table", {
 # b. Test the events table which will fail for now
 
 filter4_sign_eeg <- data %>% filter(.sample_id == -1)
-filter4_sign_tbl <- as_tibble(data$events) %>%
-  group_by(.id, .sample_0) %>%
-  filter(-1 %in% seq(.sample_0, by = 1, length.out = .size))
+filter4_evn_tbl <- as_tibble(data$events) %>%
+    filter(-1 %>% between(.initial, .final)) %>%
+    mutate(.initial = -1, .final = -1)
 
-
+ 
 # really want *only* the events < 0 (filter won't take a vector), but probs ok
 filter5_sign_eeg <- data %>% filter(.id == 1 & .sample_id < 0)
-filter5_sign_tbl <- as_tibble(data$events) %>%
-  group_by(.id, .sample_0) %>%
-  filter(.id == 1 & any(seq(.sample_0, by = 1, length.out = .size) < 0))
+filter5_evn_tbl <- as_tibble(data$events) %>%
+  group_by(.id, .initial) %>%
+    filter(.id == 1,  any(seq(.initial, by = 1, .final) < 0)) %>%
+    ungroup %>%
+mutate(.final = ifelse(.final >= 0,-1, .final  ))
 
-# this might be impossible to test?
-# filter6_sign_eeg <- data %>% filter(X < 0)
-# filter6_sign_tbl <- as_tibble(data$events) %>%
-#   group_by(.id, .sample_0) %>%
-#   filter(.id == 1 & any(seq(.sample_0, by = 1, length.out = .size) < 0))
+##won't work for now
+test_that("filtering in signal table returns the right events", {
+  expect_setequal(as.matrix(filter4_sign_eeg$events), as.matrix(filter4_evn_tbl))
+  expect_setequal(as.matrix(filter5_sign_eeg$events), as.matrix(filter5_evn_tbl))
+  expect_equal(as.matrix(filter1_sign_eeg$events), 
+                 as.matrix(filter1_events))
+})
 
-# won't work for now
-## test_that("filtering in signal table returns the right events", {
-##   expect_setequal(as.matrix(filter4_sign_eeg$events), as.matrix(filter4_sign_tbl))
-##   expect_setequal(as.matrix(filter5_sign_eeg$events), as.matrix(filter5_sign_tbl))
-## })
 
 
 # check against original data
@@ -200,7 +199,7 @@ test_that("data didn't change", {
 
 # a) Test all tables by comparing eeg_lst with tibble
 
-# warnings about ids here - happens most often when filtering by segments (but not always)
+# warnings about .id here - happens most often when filtering by segments (but not always)
 filter1_segm_eeg <- filter(data, segment != 2)
 
 filter1s_segm_tbl <- left_join(as_tibble(data$signal), as_tibble(data$segments)) %>%
@@ -208,7 +207,7 @@ filter1s_segm_tbl <- left_join(as_tibble(data$signal), as_tibble(data$segments))
 
 filter1e_segm_tbl <- left_join(as_tibble(data$segments), as_tibble(data$events)) %>%
   dplyr::filter(segment != 2) %>%
-  dplyr::distinct(.id, type, description, .sample_0, .size, .channel)
+  dplyr::distinct(.id, type, description, .initial, .final, .channel)
 
 
 filter2_segm_eeg <- filter(data, condition == "a" & segment == 3)
@@ -218,7 +217,7 @@ filter2s_segm_tbl <- left_join(as_tibble(data$signal), as_tibble(data$segments))
 
 filter2e_segm_tbl <- left_join(as_tibble(data$segments), as_tibble(data$events)) %>%
   dplyr::filter(condition == "a" & segment == 3) %>%
-  dplyr::distinct(.id, type, description, .sample_0, .size, .channel)
+  dplyr::distinct(.id, type, description, .initial, .final, .channel)
 
 
 filter3_segm_eeg <- filter(data, recording == "recording2")
@@ -228,7 +227,7 @@ filter3s_segm_tbl <- left_join(as_tibble(data$signal), as_tibble(data$segments))
 
 filter3e_segm_tbl <- left_join(as_tibble(data$segments), as_tibble(data$events)) %>%
   filter(recording == "recording2") %>%
-  select(.id, type, description, .sample_0, .size, .channel)
+  select(.id, type, description, .initial, .final, .channel)
 
 
 test_that("filtering within segments table works in signal table", {
@@ -353,12 +352,12 @@ test_that("filtering across tables returns the right segments table values", {
 ## # b) A couple of tests of the events table from the above filters
 
 ## filter1_evts_tbl <- left_join(as_tibble(data$segments), as_tibble(data$events)) %>%
-##   group_by(.id, .sample_0) %>%
-##   filter(segment == 2 & 2 %in% seq(.sample_0, by = 1, length.out = .size))
+##   group_by(.id, .initial) %>%
+##   filter(segment == 2 & 2 %in% seq(.initial, by = 1, length.out = .final))
 
 ## filter2_evts_tbl <- left_join(as_tibble(data$segments), as_tibble(data$events)) %>%
-##   group_by(.id, .sample_0) %>%
-##   filter(!(recording == "recording2") & any(seq(.sample_0, by = 1, length.out = .size) < 2))
+##   group_by(.id, .initial) %>%
+##   filter(!(recording == "recording2") & any(seq(.initial, by = 1, length.out = .final) < 2))
 
 
 ## # won't work for now
@@ -459,13 +458,13 @@ test_that("filtering on newly created variables works in segments table", {
 ## # b) A couple of tests of the events table
 
 ## mutate_filter1_evts_tbl <- as_tibble(data$events) %>%
-##   group_by(.id, .sample_0) %>%
-##   filter(2 %in% seq(.sample_0, by = 1, length.out = .size))
+##   group_by(.id, .initial) %>%
+##   filter(2 %in% seq(.initial, by = 1, .final))
 
 
 ## mutate_filter3_evts_tbl <- as_tibble(data$events) %>%
-##   group_by(.id, .sample_0) %>%
-##   filter(any(seq(.sample_0, by = 1, length.out = .size) > 0))
+##   group_by(.id, .initial) %>%
+##   filter(any(seq(.initial, by = 1, length.out = .final) > 0))
 
 
 ## # won't work for now
@@ -553,7 +552,7 @@ summarize_all_filter_tbl <- left_join(as_tibble(data$signal), as_tibble(data$seg
   dplyr::filter(.sample_id < 0)
 
 
-# warnings about ids
+# warnings about .id
 summarize_all1_filter_eeg <- group_by(data, .id, condition) %>% 
   summarize_all_ch("mean") %>%
   filter(condition == "a")

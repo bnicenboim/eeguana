@@ -142,10 +142,24 @@ construct_fir_filter <- function(sampling_rate, freq, gain, filter_length, phase
 }
 
 
-create_filter <- function(data, sampling_rate=NULL, l_freq=NULL, h_freq=NULL, filter_length="auto",
-                  l_trans_bandwidth="auto", h_trans_bandwidth="auto",
-                  method="fir", iir_params=NULL, phase="zero",
-                  fir_window="hamming", fir_design="firwin"){
+create_filter <- function(data,
+                          sampling_rate=NULL,
+                          l_freq=NULL,
+                          h_freq=NULL,
+                          config = list()){
+
+    if(length(config) == 0){
+        filter_length="auto"
+        l_trans_bandwidth="auto"
+        h_trans_bandwidth="auto"
+        method="fir"
+        iir_params=NULL
+        phase="zero"
+        fir_window="hamming"
+        fir_design="firwin"
+
+    } else {
+    stop("`config` parameter of the filters is not yet implemented", call. = FALSE)}
     ## """Create a FIR or IIR filter.
     ## ``l_freq`` and ``h_freq`` are the frequencies below which and above
     ## which, respectively, to filter out of the data. Thus the uses are:

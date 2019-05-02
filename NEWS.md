@@ -1,9 +1,16 @@
-# eeguana 0.0.7.900
+# eeguana 0.0.7.9000
   - Changes
-      - fastICA was implemented.
-      - filters were greatly improved and checked, only FIR filters are supported for now.
-      - Better documentation (mostly [Kate Stone](https://github.com/auskate))
-# eeguana 0.0.6.900
+      - FastICA was implemented in `eeg_ica()`.
+      - Artifact detection based on voltage steps implemented in `eeg_grad_artifact()`.
+      - Filters were greatly improved and checked, only FIR filters are supported for now.
+      - Better documentation (mostly [Kate Stone](https://github.com/auskate)).
+      - `eeg_intervals_to_NA()` was renamed to `eeg_events_to_NA()`.
+      - `events()` was renamed to `events_tbl()`.
+      - `ch_filt_*` functions were renamed to `eeg_filt_*` and they get a `...` argument to select the relevant channels.
+      - Changes in the creation of `eeg_lst` objects.
+      - Faster `as_tibble()`.
+      - `as.data.table()` was added
+# eeguana 0.0.6.9000
   - Changes
       - There is a logo!
       - Doi was added.
@@ -54,7 +61,7 @@
    
 # eeguana 0.0.2.9001
 
-- Data table is now powered by data.table.
+- Signals table is now powered by data.table.
 
 
 # eeguana 0.0.2.9000

@@ -19,11 +19,15 @@ NULL
 channel_names <- function(x, ...) {
   UseMethod("channel_names")
 }
-
+#' @rdname summary
+#' @export
+channel_names.signal_tbl <- function(x, ...) {
+  colnames(x)[x[,purrr::map_lgl(.SD, is_channel_dbl )]]
+}
 #' @rdname summary
 #' @export
 channel_names.eeg_lst <- function(x, ...) {
-  colnames(x$signal)[x$signal[,purrr::map_lgl(.SD, is_channel_dbl )]]
+  channel_names(x$signal)
 }
 #' @rdname summary
 #' @export
@@ -74,9 +78,17 @@ ncomponents.eeg_lst <- function(x, ...) {
     component_names(x) %>% length()
 }
 
-
-sampling_rate <- function(x) {
+sampling_rate <- function(x, ...) {
+  UseMethod("sampling_rate")
+}
+sampling_rate.eeg_lst <- function(x) {
   attributes(x$signal$.sample_id)$sampling_rate
+}
+sampling_rate.signal_tbl<- function(x) {
+  attributes(x$.sample_id)$sampling_rate
+}
+sampling_rate.events_tbl<- function(x) {
+  attributes(x$.initial)$sampling_rate
 }
 
 duration <- function(x) {
@@ -115,7 +127,7 @@ summary.eeg_lst <- function(object, ...) {
       dplyr::count(recording) %>%
       dplyr::rename(segment_n = n) %>% data.table::data.table(),
     events = object$events %>%
-      dplyr::group_by_at(dplyr::vars(-.size, -.channel, -.sample_0, -.id)) %>%
+      dplyr::group_by_at(dplyr::vars(-.final, -.channel, -.initial, -.id)) %>%
       dplyr::count() %>% data.table::data.table(),
     size = utils::capture.output(print(utils::object.size(object), units = "auto")),
     duration= format(.POSIXct(nrow(object$signal) / sampling_rate(object) ,tz="GMT"), "%H:%M:%S")

@@ -6,6 +6,13 @@
 \alias{segment}
 \alias{interpolate_tbl}
 \alias{event_to_ch_NA}
+\alias{eeg_intervals_to_NA}
+\alias{ch_filt_low_pass}
+\alias{ch_filt_high_pass}
+\alias{ch_filt_band_pass}
+\alias{ch_filt_stop_pass}
+\alias{events}
+\alias{events<-}
 \title{Deprecated functions in eeguana}
 \usage{
 downsample(x, q = 2, max_sample = NULL, ...)
@@ -15,13 +22,27 @@ segment(x, ...)
 interpolate_tbl(.data, ...)
 
 event_to_ch_NA(x, ...)
+
+eeg_intervals_to_NA(x, ...)
+
+ch_filt_low_pass(x, ...)
+
+ch_filt_high_pass(x, ...)
+
+ch_filt_band_pass(x, ...)
+
+ch_filt_stop_pass(x, ...)
+
+events(x, ...)
+
+events(x, ...) <- value
 }
 \arguments{
 \item{x}{An eeg_lst object.}
 
 \item{q}{integer factor(s) to downsample by.}
 
-\item{max_sample}{Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total number of samples.}
+\item{max_sample}{Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total number of samples}
 
 \item{...}{Not in use.}
 

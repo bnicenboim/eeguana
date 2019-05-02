@@ -9,7 +9,7 @@ eeg_ica <- function(.data, ...){
 #' @param .data An eeg_lst object
 #' @param ... Channels to include in ICA transformation. All the channels by default, but eye channels and reference channels should be removed.
 #' @param method Methods from different packages: `fICA::adapt_fICA` (default), `fICA::fICA`, `fICA::reloaded_fICA`, `fastICA::fastICA`, or a custom function that returns a list that contains `S`  (reconstucted sources) and `A` (mixing matrix), consistent with the formulation `X=A %*% S` or `W` (unmixing matrix), consistent with the formulation `X %*% W = S` (i.e., W == solve(X)).
-#' @param config Other parameters passed in a list to the method. These are the default parameters except that when possible the method is run in C rather than in R. See the documentation of the relevant method.
+#' @param config Other parameters passed in a list to the ICA method. These are the default parameters except that when possible the method is run in C rather than in R. See the documentation of the relevant method.
 #' @param tolerance Convergence tolerance.
 #' @param max_iterations Maximum number of iterations.
 #' 
@@ -21,8 +21,7 @@ eeg_ica.eeg_lst <- function(.data,
                     config= list(),
                     tolerance = 1e-06,
                     max_iterations = 1000
-                              )
-{
+                              ){
 
     if(unique(.data$segment$recording) %>% length() != 1 && !"recording" %in% group_vars(.data)) {
         warning("It seems that there is more than one recording. It may be appropriate to do 'data %>% group_by(recording)' before applying 'eeg_ica()' ")
@@ -122,10 +121,11 @@ eeg_ica.eeg_lst <- function(.data,
                 ) %>%
         bind_cols_dt(removed_signal,.)
 
-    mixing <- mixing_tbl(mixing_matrix = l_ica %>% purrr::transpose() %>% .$mixing_matrix,
+    mixing <- new_mixing_tbl(mixing_matrix = l_ica %>% purrr::transpose() %>% .$mixing_matrix,
                          means_matrix= channel_means,
                          groups = group_vars(.data),
-                         channel_info = channels_tbl(signal_raw))
+                         channels_tbl = channels_tbl(signal_raw)) %>%
+        validate_mixing_tbl
     ica <- ica_lst(signal = signal_source_tbl,
                    mixing = mixing,
                    events = .data$events,
@@ -174,7 +174,7 @@ as_eeg_lst.ica_lst <- function(.data, ...){
     signal <- .data$signal %>% dplyr::select_at(vars(-one_of(component_names(.data)))) %>%
         bind_cols_dt(reconstr_signals)
 
-    eeg_lst(signal= signal, events= .data$events, segments = .data$segments ) %>%
+    eeg_lst(signal_tbl= signal, events_tbl= .data$events, segments_tbl = .data$segments ) %>%
         dplyr::group_by(!!!dplyr::groups(.data))
 }
 

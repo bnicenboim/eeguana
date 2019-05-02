@@ -3,6 +3,7 @@
 \name{summary}
 \alias{summary}
 \alias{channel_names}
+\alias{channel_names.signal_tbl}
 \alias{channel_names.eeg_lst}
 \alias{channel_names.mixing_tbl}
 \alias{channel_names.ica_lst}
@@ -19,6 +20,8 @@
 \title{Display information of the eeg_lst object.}
 \usage{
 channel_names(x, ...)
+
+\method{channel_names}{signal_tbl}(x, ...)
 
 \method{channel_names}{eeg_lst}(x, ...)
 

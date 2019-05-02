@@ -67,24 +67,18 @@ reference:
     contents: 
     - starts_with("ch_")
     - starts_with("chs_")
-
   - title: "EEG-specialized functions"
     desc: >
       Functions for applying specialized actions on signal 
       table or the entire `eeg_lst`. 
-    contents: 
-    - '`eeg_downsample`'
-    - '`eeg_segment`'
-    - '`eeg_interpolate_tbl`'
-    - '`eeg_intervals_to_NA`'
-    - '`eeg_ica`'  
+    contents:
+    - starts_with("eeg_")
   - title: "Plot functions"
     desc: >
       Wrappers to `ggplot` functions that first transform the `eeg_lst` to a wide `tibble`, together with some transformation (downsampling, interpolation, etc).
     contents: 
     - starts_with("plot")
     - starts_with("annotate")
-
   - title: "'base'-inspired functions"
     desc: >
       Functions for getting specific information about the objects that compose an `eeg_lst`.
@@ -93,22 +87,18 @@ reference:
     - starts_with("as.")
     - starts_with("is_")
     - starts_with("n")
-
   - title: "Editing functions"
     desc: >
       Functions for editing `eeg_lst` objects.
     contents: 
-    - '`events`'
+    - '`events_tbl`'
     - '`channels_tbl`'
-
   - title: "Constructor functions"
     desc: >
       Internal functions for creating objects.
     contents: 
     - '`eeg_lst`'
     - '`ica_lst`'
-    - '`signal_tbl`'
-    - '`mixing_tbl`'
     - '`component_dbl`'
     - '`sample_int`'
     - '`channel_dbl`'
@@ -117,6 +107,7 @@ reference:
       Some other useful functions.
     contents:
     - '`change_coord`'
+    - '`rpink`'
   - title: "Example data sets"
     desc: >
       Example data sets in eeg_lst format.

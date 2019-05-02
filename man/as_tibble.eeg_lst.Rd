@@ -4,29 +4,25 @@
 \alias{as_tibble.eeg_lst}
 \alias{as_data_frame.eeg_lst}
 \alias{as_long_tbl.eeg_lst}
-\title{Convert an eeg_lst to a long table.}
+\title{Convert an eeg_lst to a long table in \code{\link[tibble:tibble]{tibble}} format.}
 \usage{
-\method{as_tibble}{eeg_lst}(x, add_segments = TRUE,
+\method{as_tibble}{eeg_lst}(x, unit = "second", add_segments = TRUE,
   add_channels_info = TRUE)
 
-as_data_frame.eeg_lst(x, add_segments = TRUE, add_channels_info = TRUE)
+as_data_frame.eeg_lst(x, unit = "second", add_segments = TRUE,
+  add_channels_info = TRUE)
 
-\method{as_long_tbl}{eeg_lst}(x, add_segments = TRUE,
+\method{as_long_tbl}{eeg_lst}(x, unit = "second", add_segments = TRUE,
   add_channels_info = TRUE)
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
-
-\item{add_segments}{Whether the segments table is included.}
-
-\item{add_channels_info}{Whether the channels information (\code{channels_tbl}) is included.
-\code{as_data_frame} is an alias.}
 }
 \value{
-A tibble.
+A \code{\link[tibble:tibble]{tibble}}
 }
 \description{
-Convert the signal_tbl table from wide to long format, and optionally \code{left_join}s the segment table
+Convert the signal_tbl table from wide to long format.
 }
 \seealso{
 Other tibble: \code{\link{as.data.frame.eeg_lst}}

@@ -12,7 +12,7 @@ faces <- read_vhdr("faces.vhdr")
 data_faces_ERPs <- faces %>% 
   eeg_segment(description %in% c("s70", "s71"), 
           lim = c(-.2,.25)) %>%
-  eeg_intervals_to_NA(type == "Bad Interval") %>% 
+  eeg_events_to_NA(type == "Bad Interval") %>% 
   ch_baseline() %>%  
   mutate(condition =
            if_else(description == "s70", "faces", "non-faces")) %>% 
@@ -20,8 +20,8 @@ data_faces_ERPs <- faces %>%
   group_by(.sample_id, condition) %>%
 summarize_all_ch(mean,na.rm=TRUE)
 
-pos_10 <- events(faces) %>% filter(type=="Stimulus", description =="s130") %>% pull(.sample_0) %>% .[10]
+pos_10 <- events_tbl(faces) %>% filter(type=="Stimulus", description =="s130") %>% pull(.initial) %>% .[10]
 
 data_faces_10_trials <- faces  %>% filter(.sample_id <= pos_10)
-  
+
 usethis::use_data(data_faces_ERPs, data_faces_10_trials, overwrite=TRUE)
