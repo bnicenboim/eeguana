@@ -49,26 +49,32 @@ test_that("both chs_fun and chs_mean give the same output", {
 
 
 
-data_reref <- mutate(data_eeg, X = ch_rereference(X, X, Y))
-X_reref <- data_eeg$signal$X - (data_eeg$signal$X+data_eeg$signal$Y)/2
-attributes(X_reref)$.reference = "X, Y"
+## data_reref <- mutate(data_eeg, X = ch_rereference(X, X, Y))
+ X_reref <- data_eeg$signal$X - (data_eeg$signal$X+data_eeg$signal$Y)/2
+ Y_reref <- data_eeg$signal$Y - (data_eeg$signal$X+data_eeg$signal$Y)/2
+ attributes(X_reref)$.reference = "X, Y"
 
-test_that("can reref the mean of the channels", {
-  expect_equal(data_reref$signal$X, X_reref)
-})
+## test_that("can reref the mean of the channels", {
+##   expect_equal(data_reref$signal$X, X_reref)
+## })
 
-data_reref_all_chs <- ch_rereference(data_eeg, X, Y)
+data_reref_all_chs <- eeg_rereference(data_eeg, ref_ch = c("X", "Y"))
 
 test_that(".reference changes", {
-  expect_equal(unique(channels_tbl(data_reref_all_chs)$.reference),"X, Y")
+    expect_equal(unique(channels_tbl(data_reref_all_chs)$.reference),"X, Y")
+    expect_equal(data_reref_all_chs$signal$X %>% as.numeric, X_reref %>% as.numeric)
+    expect_equal(data_reref_all_chs$signal$Y %>% as.numeric, Y_reref %>% as.numeric)
 })
 
 
-data_reref_all <- transmute(data_eeg, X_ref = ch_rereference(X, X, Y), Y_ref = ch_rereference(Y, X, Y))  %>%
-                    rename(X = X_ref, Y = Y_ref)
+## data_reref_all <- transmute(data_eeg, X_ref = ch_rereference(X, X, Y), Y_ref = ch_rereference(Y, X, Y))  %>%
+##                     rename(X = X_ref, Y = Y_ref)
 
 
-test_that("both .eeg_lst and .channel_dbl give the same values for ch_rereference (it's ok to loose the events and attributes", {
-  expect_equal(data_reref_all$signal$X %>% as.numeric, data_reref_all_chs$signal$X %>% as.numeric)
-  expect_equal(data_reref_all$signal$Y %>% as.numeric, data_reref_all_chs$signal$Y %>% as.numeric)
-})
+## test_that("both .eeg_lst and .channel_dbl give the same values for ch_rereference (it's ok to loose the events and attributes", {
+##   expect_equal(data_reref_all$signal$X %>% as.numeric, data_reref_all_chs$signal$X %>% as.numeric)
+##   expect_equal(data_reref_all$signal$Y %>% as.numeric, data_reref_all_chs$signal$Y %>% as.numeric)
+## })
+
+
+    

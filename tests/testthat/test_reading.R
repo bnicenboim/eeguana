@@ -2,11 +2,16 @@ context("Read dat files")
 library(eeguana)
 
 
-multiplexed_bin_bv1 <- read_vhdr(file = system.file("testdata","asalab_export_bv.vhdr",package="eeguana"), recording = "bv1")
+multiplexed_bin_bv1 <- read_vhdr(file = system.file("testdata","asalab_export_bv.vhdr",package="eeguana"), recording = "bv2")
 multiplexed_bin_bv2 <- read_vhdr(system.file("testdata","bv_export_bv_txt_bin_multi.vhdr",package="eeguana"), recording = "bv2")
 vectorized_bin_bv2 <- read_vhdr(system.file("testdata","bv_export_bv_txt_bin_vector.vhdr",package="eeguana"), recording = "bv2")
 multiplexed_ascii_bv2 <- read_vhdr(system.file("testdata","bv_export_bv_txt_txt_multi.vhdr" ,package="eeguana"), recording = "bv2")
 vectorized_ascii_bv2 <- read_vhdr(system.file("testdata","bv_export_bv_txt_txt_vector.vhdr",package="eeguana"), recording = "bv2")
+
+test_that("basic tests of the events", {
+    expect_equal(events_tbl(multiplexed_bin_bv1)$.initial,  events_tbl(multiplexed_bin_bv1)$.final)
+    expect_equal(events_tbl(multiplexed_bin_bv1)$.initial[1],1)
+})
 
 #Integer encoding
 multiplexed_bin_bv2_int16 <- read_vhdr(system.file("testdata","bv_export_bv_txt_bin_multi_16bit.vhdr" ,package="eeguana"), recording = "bv2")
@@ -15,7 +20,8 @@ multiplexed_bin_bv2_int32 <- read_vhdr(system.file("testdata","bv_export_bv_txt_
 vectorized_bin_bv2_int32 <- read_vhdr(system.file("testdata","bv_export_bv_txt_bin_vector_32bit.vhdr",package="eeguana"), recording = "bv2")
 
 test_that("files match", {
-  expect_equal(multiplexed_bin_bv2,vectorized_bin_bv2)
+    channels_tbl(multiplexed_bin_bv1) <- channels_tbl(vectorized_bin_bv2)
+  expect_equal(multiplexed_bin_bv1,vectorized_bin_bv2, tolerance = .00001)
   expect_equal(vectorized_ascii_bv2,multiplexed_ascii_bv2)
   expect_equal(vectorized_ascii_bv2,vectorized_bin_bv2, tolerance = .00001)
 })
@@ -24,6 +30,16 @@ test_that("int files match", {
   expect_equal(multiplexed_bin_bv2_int16,vectorized_bin_bv2_int16)
   expect_equal(multiplexed_bin_bv2_int32,vectorized_bin_bv2_int32)
 })
+
+
+##repeated channel
+multiplexed_bin_repeat <- read_vhdr(file = system.file("testdata","asalab_export_bv_2.vhdr",package="eeguana"), recording = "bv2")
+
+
+test_that("repeated channels are not a problem", {
+    expect_equal(multiplexed_bin_bv1,rename(multiplexed_bin_repeat, VEOG=HEOG.1))
+})
+
 
 
 ft <- read_ft(file = system.file("testdata","fieldtrip_matrix.mat",package="eeguana"), recording = "bv2")

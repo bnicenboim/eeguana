@@ -4,14 +4,14 @@
 #' recording is plotted by electrode. Useful as a quick visual check for major
 #' noise issues in the recording.
 #' 
-#' Note that for normal-size datasets, the plot may take several minutes to compile.
+#' Note that for normal-size datasets, the plot may take some time to compile.
 #' If necessary, `plot` will first downsample the `eeg_lst` object so that there is a 
 #' maximum of 6,400 samples. The `eeg_lst` object is then converted to a long-format
 #' tibble via `as_tibble`. In this tibble, the `.source` variable is the 
 #' channel/component name and `.value` its respective amplitude. The sample 
-#' number (`.sample_id` in the `eeg_lst` object) is automatically converted to milliseconds
+#' number (`.sample_id` in the `eeg_lst` object) is automatically converted to seconds
 #' to create the variable `time`. By default, time is then plotted on the 
-#' x-axis and amplitude on the y-axis.
+#' x-axis and amplitude on the y-axis, and uses `scales = "free"`; see [ggplot2::facet_grid()].
 #' 
 #' To add additional components to the plot such as titles and annotations, simply
 #' use the `+` symbol and add layers exactly as you would for `ggplot::ggplot`.
@@ -38,19 +38,12 @@
 #' @export
 plot.eeg_lst <- function(x, max_sample = 6400, ...) {
     ellipsis::check_dots_unnamed()
-  x <- try_to_downsample(x, max_sample)
-
-  df <- dplyr::as_tibble(x) %>% 
-        dplyr::mutate(.source = factor(.source, levels = unique(.source)))
-  plot <- ggplot2::ggplot(
-    df,
-    ggplot2::aes(x = time, y = .value, group = .id)
-  ) +
+  plot <- ggplot2::ggplot(x, ggplot2::aes(x = time, y = .value, group = .id)) +
     ggplot2::geom_line() +
     ggplot2::facet_grid(.source ~ .,
-      labeller = ggplot2::label_wrap_gen(multi_line = FALSE)
+                        labeller = ggplot2::label_wrap_gen(multi_line = FALSE),
+                        scales = "free"
     ) +
-    ggplot2::scale_y_reverse() +
     theme_eeguana
   plot
 }
@@ -74,7 +67,7 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
 #' 
 #' @param .data An `eeg_lst` object.
 #' @inheritParams  ggplot2::aes
-#' @param max_sample Downsample to approximately 6400 samples by default.
+#' @param max_sample Downsample to approximately 2400 samples by default.
 #'
 #' @family plot
 #' @return A ggplot object
@@ -99,20 +92,11 @@ plot_gg <- function(.data, ...) {
 }
 #' @rdname plot_gg
 #' @export
-plot_gg.eeg_lst <- function(.data, x = time, y = .value, ..., max_sample = 6400) {
+plot_gg.eeg_lst <- function(.data, x = time, y = .value, ..., max_sample = 2400) {
   x <- rlang::enquo(x)
   y <- rlang::enquo(y)
-
-  .data <- try_to_downsample(.data, max_sample)
-
   dots <- rlang::enquos(...)
-  df <- dplyr::as_tibble(.data) %>% 
-        dplyr::mutate(.source = factor(.source, levels = unique(.source)))
-
-  plot <- ggplot2::ggplot(
-    df,
-    ggplot2::aes(x = !!x, y = !!y, !!!dots)
-  ) +
+   plot <- ggplot2::ggplot(.data, ggplot2::aes(x = !!x, y = !!y, !!!dots)) +
     ggplot2::scale_colour_brewer(type = "qual", palette = "Dark2") +
     theme_eeguana
   plot
@@ -262,11 +246,11 @@ plot_topo.eeg_lst <- function(data, projection = "polar", ...) {
 plot_topo.mixing_tbl <- function(data,  projection = "polar", ...) {
     
     channels_tbl(data)  <- change_coord(channels_tbl(data), projection)  
-
+#TODO: move to data.table, ignore group, just do it by .recording
     data %>% as_long_tbl %>% 
-        filter(.ICA != "mean") %>%
+        dplyr::filter(.ICA != "mean") %>%
         dplyr::mutate(.ICA = factor(.ICA, levels = unique(.ICA)))%>%
-        group_by(.group,.ICA) %>%
+        dplyr::group_by(.group,.ICA) %>%
         eeg_interpolate_tbl(...) %>%
         plot_topo()
 }
@@ -514,7 +498,9 @@ annotate_head <- function(size = 1.1, color ="black", stroke=1) {
 } 
 
 #' @export
-annotate_events <- function(events_tbl, alpha = .2){
+add_events_plot <- function(plot, alpha = .2){
+    events_tbl <- plot$data_events
+
     info_events   <- setdiff(colnames(events_tbl), obligatory_cols[["events"]])
     events_tbl <- data.table::copy(events_tbl)
     events_tbl[,xmin:= as_time(.initial) ]
@@ -522,15 +508,20 @@ annotate_events <- function(events_tbl, alpha = .2){
     ## events_tbl[,.source:= as.factor(.channel)]
     events_tbl[,description := (do.call(paste,c(.SD, sep ="."))), .SDcols= c(info_events)]
                                         #single events
+    segs <- plot$data %>%
+        dplyr::select(-time, -.source, -.value, -.type) %>%
+        dplyr::distinct()
+  
+    events_tbl <- left_join_dt(events_tbl, data.table::as.data.table(segs), by = ".id")
+
     to_plot<- list()
     to_plot$events_all <- filter_dt(events_tbl, .initial == .final, is.na(.channel) )
     to_plot$events_ch <- filter_dt(events_tbl, .initial == .final, !is.na(.channel) ) %>%
         .[, .source := as.factor(.channel)]
     to_plot$intervals_all <- filter_dt(events_tbl, .initial < .final, is.na(.channel) )
     to_plot$intervals_ch <- filter_dt(events_tbl, .initial < .final, !is.na(.channel) )  %>%
-    .[, .source := as.factor(.channel)]
-
-    purrr::map(to_plot, ~ if(nrow(.x)>0){
+        .[, .source := as.factor(.channel)]
+    add_to_plot <- purrr::map(to_plot, ~ if(nrow(.x)>0){
                               geom_rect(data= .x,
                                         aes(xmin = xmin,
                                             xmax =  xmax ,
@@ -544,4 +535,25 @@ annotate_events <- function(events_tbl, alpha = .2){
                           else {
                               NULL
                           })
+    plot + add_to_plot
+}
+
+#' @export
+ggplot.eeg_lst <- function(data = NULL,
+                           mapping = ggplot2::aes(),
+                           ...,
+                           max_sample = 2400,
+                            environment = parent.frame()) {
+   
+    df <- try_to_downsample(data, max_sample) %>%
+        data.table::as.data.table()
+
+    df[,.source := factor(.source, levels = unique(.source))]
+    if(is.null(mapping)){
+    }
+    p <- ggplot2::ggplot(data=df,mapping=mapping,..., environment=environment)
+
+    p$data_channels <- channels_tbl(data)
+    p$data_events <- events_tbl(data)
+    p
 }

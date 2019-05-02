@@ -104,9 +104,16 @@ select.eeg_lst <- function(.data, ...) {
 #' @rdname dplyr-eeguana
 #' @export
 select.ica_lst <- function(.data, ...){
-    sel <- tidyselect::vars_select(component_names(.data),...)
-    .data <- NextMethod()
+  comps <- component_names(.data)
+  cols <- c(colnames(.data$signal), colnames(.data$segments)) %>%
+    unique()
+   .data <- NextMethod()
+  if(!identical(comps, component_names(.data))){
+    #update the mixing table
+    sel <- tidyselect::vars_select(cols,...) %>%
+      .[. %in% comps]
     .data$mixing <- rename_sel_comp(.data$mixing, sel)
+  }
     .data
 }
 

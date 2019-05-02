@@ -80,13 +80,13 @@ select3_tbl <- data %>%
 
 select4_eeg <- select(data, ends_with("X"))
 select4_tbl <- data %>%
-    as_tibble(add_channels_info=FALSE) %>%
+    as_tibble() %>%
     tidyr::spread(key = .source, value = .value) %>%
     dplyr::select(ends_with("X"))
 
 select4.1_eeg <- select(data, one_of("X"))
 select4.1_tbl <- data %>%
-    as_tibble(add_channels_info=FALSE) %>%
+    as_tibble() %>%
   tidyr::spread(key = .source, value = .value) %>%
   dplyr::select(one_of("X"))
 
@@ -96,14 +96,14 @@ select5_tbl <- data$signal %>%
 
 select5.1_eeg <- select(data, one_of("Y"))
 select5.1_tbl <- data %>%
-    as_tibble(add_channels_info=FALSE) %>%
+    as_tibble() %>%
   tidyr::spread(key = .source, value = .value) %>%
   dplyr::select(one_of("Y"))
 
 
 select6_eeg <- select(data, tidyselect::matches("X"))
 select6_tbl <- data %>%
-    as_tibble(add_channels_info=FALSE) %>%
+    as_tibble() %>%
   tidyr::spread(key = .source, value = .value) %>%
   dplyr::select(tidyselect::matches("X"))
 

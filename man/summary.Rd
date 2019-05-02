@@ -4,12 +4,14 @@
 \alias{summary}
 \alias{channel_names}
 \alias{channel_names.signal_tbl}
+\alias{channel_names.default}
 \alias{channel_names.eeg_lst}
 \alias{channel_names.mixing_tbl}
 \alias{channel_names.ica_lst}
 \alias{nchannels}
 \alias{nchannels.default}
 \alias{component_names}
+\alias{component_names.signal_tbl}
 \alias{component_names.eeg_lst}
 \alias{ncomponents}
 \alias{ncomponents.eeg_lst}
@@ -23,6 +25,8 @@ channel_names(x, ...)
 
 \method{channel_names}{signal_tbl}(x, ...)
 
+\method{channel_names}{default}(x, ...)
+
 \method{channel_names}{eeg_lst}(x, ...)
 
 \method{channel_names}{mixing_tbl}(x, ...)
@@ -34,6 +38,8 @@ nchannels(x, ...)
 \method{nchannels}{default}(x, ...)
 
 component_names(x, ...)
+
+\method{component_names}{signal_tbl}(x, ...)
 
 \method{component_names}{eeg_lst}(x, ...)
 

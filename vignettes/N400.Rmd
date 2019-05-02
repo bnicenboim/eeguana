@@ -1,0 +1,92 @@
+---
+title: "Preprocessing and analysis of a simple N400 experiment"
+author: "Bruno Nicenboim"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Preprocessing and analysis of a simple N400 experiment}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.dim = c(10,15),
+  out.width = "100%"
+)
+```
+
+
+
+## Dataset
+
+The EEG dataset and the script used here is available in [](). In this small experiment, participants (technicians of our lab) read sentences from [Metzner et al. 2015]( https://doi.org/10.1162/jocn_a_00731) such as the following one:
+
+a. Paris ist die Hauptstadt von	Frankreich.
+
+   **Paris is the capital of France.**
+   
+b. Rom ist die Hauptstadt von Frankreich.
+
+   **Rome is the capital of France.**
+
+And then answer whether they agreed with the statement.
+
+...
+
+
+The experiment uses the following triggers:
+* Session starts: 5
+* Instructions start: 101
+* Practice starts: 111
+* Experiment starts: 121
+* Trial starts (fixation cross appears): 130
+* Sentence ends: 132
+* Question starts: 133
+* Answer is given: 134
+* Pause:135
+* Experiment ends: 122
+* Session ends: 102
+
+
+## Preprocessing
+
+First we load the `eeguana` and other packages that we'll use.
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(eeguana)
+```
+
+We'll need the following dataset that can be downloaded as follows:
+
+```{r downloading,  eval = any(!file.exists("s1_N400.eeg","s1_N400.vmrk","s1_N400.vhdr"))}
+
+``` 
+
+The function `read_vhdr()` creates a list with tables for the signal, events, and
+segments, and incorporates in its attributes generic EEG information. We can print this object, and also inspect the information about the channels  using `channels_tbl`
+
+```{r libs, message = FALSE}
+library(eeguana)
+``` 
+
+```{r}
+s1_N400 <- read_vhdr(file = "N4data/s1_N400.vhdr")
+s1_N400
+channels_tbl(s1_N400)
+```
+
+There are two issues, there are repeated channels (HEOG.1 and VEOG.1), and there is no electrode positions in the object. First, we'll remove the extra channels, and then since we know that the layout was a standard 10/20, we'll add this layout to the object.
+
+
+```{r}
+s1_N400 <- s1_N400 %>% select(-HEOG.1, -VEOG.1)
+## In case the order of the electrodes is different, we do a left_join instead of replacing the table:
+channels_tbl(s1_N400) <- select(channels_tbl(s1_N400), .channel) %>%
+    left_join(layout_32_1020)
+```

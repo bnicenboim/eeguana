@@ -10,6 +10,10 @@
       - Changes in the creation of `eeg_lst` objects.
       - Faster `as_tibble()`.
       - `as.data.table()` was added
+   - Bugs
+      - Events in Brain Vision version 1.0 file are now correctly read. 
+      - Various minor bugs fixed.
+     
 # eeguana 0.0.6.9000
   - Changes
       - There is a logo!

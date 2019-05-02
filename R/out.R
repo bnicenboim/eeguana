@@ -22,6 +22,11 @@ channel_names <- function(x, ...) {
 #' @rdname summary
 #' @export
 channel_names.signal_tbl <- function(x, ...) {
+NextMethod()
+  }
+#' @rdname summary
+#' @export
+channel_names.default <- function(x, ...) {
   colnames(x)[x[,purrr::map_lgl(.SD, is_channel_dbl )]]
 }
 #' @rdname summary
@@ -32,7 +37,7 @@ channel_names.eeg_lst <- function(x, ...) {
 #' @rdname summary
 #' @export
 channel_names.mixing_tbl <- function(x, ...) {
-  colnames(x)[x[,purrr::map_lgl(.SD, is_channel_dbl )]]
+NextMethod()
 }
 #' @rdname summary
 #' @export
@@ -58,11 +63,15 @@ nchannels.default <- function(x, ...) {
 component_names <- function(x, ...) {
   UseMethod("component_names")
 }
-
+#' @rdname summary
+#' @export
+component_names.signal_tbl <- function(x, ...) {
+  colnames(x)[x[,purrr::map_lgl(.SD, is_component_dbl )]]
+}
 #' @rdname summary
 #' @export
 component_names.eeg_lst <- function(x, ...) {
-  colnames(x$signal)[x$signal[,purrr::map_lgl(.SD, is_component_dbl )]]
+  component_names(x$signal)
 }
 
 #' @rdname summary
@@ -159,6 +168,30 @@ print.eeg_summary <- function(x, ...) {
   x$events %>%
     print(.)
 
+  invisible(x)
+}
+
+#' @export
+print.eeg_lst <- function(x, ...){
+  cat_line("# eeg_lst object:")
+  if(length(dplyr::group_vars(x)) >0 ){
+    cat_line("# Grouped by: ", paste0(dplyr::group_vars(x), sep = ", "))
+  }
+  cat_line("")
+cat_line("# Signal table:")
+  print(x$signal,...)
+
+  cat_line("")
+   cat_line("# Events table:")
+  if(nrow(x$events)>0){
+    print(x$events,...)
+  } else {
+    cat_line("No events.")
+  } 
+  
+  cat_line("")
+  cat_line("# Segments table:")
+  print(x$segments,...)
   invisible(x)
 }
 
