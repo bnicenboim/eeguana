@@ -63,10 +63,10 @@ library(eeguana)
 ```
 
 We'll need the following dataset that can be downloaded as follows:
+```{r downloading}
+files <- c("s1_N400.eeg","s1_N400.vmrk","s1_N400.vhdr")
+```
 
-```{r downloading,  eval = any(!file.exists("s1_N400.eeg","s1_N400.vmrk","s1_N400.vhdr"))}
-
-``` 
 
 The function `read_vhdr()` creates a list with tables for the signal, events, and
 segments, and incorporates in its attributes generic EEG information. We can print this object, and also inspect the information about the channels  using `channels_tbl`
@@ -81,7 +81,7 @@ s1_N400
 channels_tbl(s1_N400)
 ```
 
-There are two issues, there are repeated channels (HEOG.1 and VEOG.1), and there is no electrode positions in the object. First, we'll remove the extra channels, and then since we know that the layout was a standard 10/20, we'll add this layout to the object.
+There are two issues, there are repeated channels (HEOG.1 and VEOG.1), and there is no electrode positions in the object. First, we'll remove the extra channels using the function `select()` from `dplyr` overloaded to be used with `eeg_lst` objects. Then since we know that the layout was a standard 10/20, we'll add this layout to the object, using the dataset.
 
 
 ```{r}
@@ -90,3 +90,59 @@ s1_N400 <- s1_N400 %>% select(-HEOG.1, -VEOG.1)
 channels_tbl(s1_N400) <- select(channels_tbl(s1_N400), .channel) %>%
     left_join(layout_32_1020)
 ```
+
+## Pre-processing
+
+### Rereferencing
+In this dataset, the signal from all electrodes is monopolar and referenced to the left mastoid (M1). We want the signal (excluding the EOG channels) to be referenced to linked (left and right) mastoids (M1 and M2).
+
+```{r}
+s1_N400 <- eeg_rereference(s1_N400, -VEOG, -HEOG, ref_ch = c("M1", "M2") )
+
+```
+
+## Filtering
+
+We apply a band pass filter of 0.1 to 30 Hz to all the channels except the EOG channels, where we apply a stronger filter to be able to detect eye movements later. We don't segment yet, because discontinuities in the signal create artifacts on the edges.
+
+```{r}
+s1_N400_filt <- eeg_filt_band_pass(s1_N400,-HEOG, -VEOG, freq = c(.1,30)) %>%
+    eeg_filt_band_pass(HEOG,VEOG, freq = c(1,10))
+```
+
+
+## ICA
+
+We want to apply ICA to as much data as possible, but to "representative" data, that is part of the experiments and not when the participants are moving or reading the instructions. For the same reason, we want to remove "crazy" artifacts: regions with extreme amplitudes in the signal.
+
+```{r}
+s1_N400_ls <- eeg_segment(s1_N400_filt, description == "s130", end= description == "s134") %>%
+    eeg_artif_amplitude(threshold = c(-200,200,events_lim = c(-250,250), unit = "ms")
+
+
+events_tbl(s1_N400_filt) %>%
+    count(description)
+
+events_tbl(s1_N400_filt) %>% filter(description =="s130") %>% pull(.initial) %>% diff
+
+events_tbl(s1_N400_filt) %>%
+    filter(description == "s130") %>% pull(.lower) %>% diff
+                                        #max probably the break
+                                        #2000 should be enough
+
+s1_N400_s <-
+    s1_N400_filt %>% select(-type,-description) %>%
+    eeg_segment(description == "s130",lim=  c(0,2000), unit = "sample")
+
+## First crazy values are removed (https://github.com/lucklab/erplab/wiki/Artifact-Rejection-in-Continuous-Data):
+
+
+s1_N400_s <- s1_N400_s %>% 
+
+events_tbl(s1_N400_s) %>% count(type,description)
+
+plot <- filter(s1_N400_s, .id %in% filter(events_tbl(s1_N400_s), type == "artifact")$.id ) %>%
+     select(Fp1, Fpz,Fp2, VEOG) %>%
+     plot(crazy, max_sample =2000) + facet_grid(.source~.id)
+
+add_events_plot(plot)
