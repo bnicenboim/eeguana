@@ -85,11 +85,11 @@ validate_channel_dbl <- function(channel) {
     )
   } )
 
-  if (is.null(attributes(channel)$.reference)) {
-    warning("Attribute .reference is missing.",
-      call. = FALSE
-    )
-  }
+  # if (is.null(attributes(channel)$.reference)) {
+  #   warning("Attribute .reference is missing.",
+  #     call. = FALSE
+  #   )
+  # }
   channel
 }
 
