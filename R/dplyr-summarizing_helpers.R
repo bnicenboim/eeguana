@@ -1,5 +1,4 @@
 summarize_eeg_lst <- function(.eeg_lst, dots){
-
    .eeg_lst$signal <- summarize_eval_signal(.eeg_lst, dots)
    update_summarized_eeg_lst(.eeg_lst)
 }

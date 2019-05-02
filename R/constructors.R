@@ -167,6 +167,29 @@ is_channel_dbl <- function(x) {
 }
 
 #' @export
+`[[.eeg_lst` <- function(x,i,...) {
+  if(is.character(i) ){
+    if(i %in% names(x)){
+      return(NextMethod())
+    } else if(i %in% colnames(x$signal)){
+        x <- x$signal
+    } else if(i %in% colnames(x$segments)){
+      x <- x$segments
+    } else {
+      warning("`[[` can only be used with elements of the signal and segments table.")
+      return(NULL)
+    }
+  # attrs <- attributes(x)
+  # r <- NextMethod("[[")
+  # mostattributes(r) <- attrs
+  # print(r)
+  return(x[[i]])
+  } else if(is.numeric(i)){
+   return(dplyr::filter(x, .id == i) )
+  }
+}
+
+#' @export
 mean.channel_dbl <- function(x,...) {
   attrs <- attributes(x)
   class(x) <- NULL
