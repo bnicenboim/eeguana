@@ -44,6 +44,12 @@ factors <- function(N) {
   out
 }
 
+## taken from dplyr
+cat_line <- function (...) 
+{
+  cat(paste0(..., "\n"), sep = "")
+}
+
 
 #' @noRd
 as_integer <- function(x) {

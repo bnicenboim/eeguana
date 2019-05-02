@@ -171,6 +171,30 @@ print.eeg_summary <- function(x, ...) {
   invisible(x)
 }
 
+#' @export
+print.eeg_lst <- function(x, ...){
+  cat_line("# eeg_lst object:")
+  if(length(dplyr::group_vars(x)) >0 ){
+    cat_line("# Grouped by: ", paste0(dplyr::group_vars(x), sep = ", "))
+  }
+  cat_line("")
+cat_line("# Signal table:")
+  print(x$signal,...)
+
+  cat_line("")
+   cat_line("# Events table:")
+  if(nrow(x$events)>0){
+    print(x$events,...)
+  } else {
+    cat_line("No events.")
+  } 
+  
+  cat_line("")
+  cat_line("# Segments table:")
+  print(x$segments,...)
+  invisible(x)
+}
+
 #' Count number of complete segments of an eeg_lst object.
 #'
 #' @param x An `eeg_lst` object.

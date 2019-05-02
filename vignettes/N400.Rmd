@@ -23,11 +23,20 @@ This
 
 ## Dataset
 
-The EEG dataset used in this script is available in [](). In the experiment, subjects made
+The EEG dataset and the script used here is available in [](). In the experiment, participants (technicians of our lab) read sentences such as the following one:
+
+a. Paris ist die Hauptstadt von	Frankreich.
+
+   **Paris is the capital of France.**
+   
+b. Rom ist die Hauptstadt von Frankreich.
+
+   **Rome is the capital of France.**
 
 First we download the data:
 
 ```{r downloading,  eval = any(!file.exists("s04.eeg","s04.vmrk","s04.vhdr"))}
+
 ``` 
 
 And then we load the *eeguana* package and read the the `.vhdr` fileinto memory. 
@@ -231,15 +240,6 @@ summary(lm(.value ~description, data=sl ))
 sg %>% filter(as_time(.sample_id, unit= "s") %>% between(.25,.6)) %>%
     group_by(description) %>%
  summarize_if(is_channel_dbl, mean, na.rm=TRUE)
-f <- test(sg,is_channel_dbl, mean, na.rm=TRUE)
-x <- summarize_if(sg,is_channel_dbl, mean, na.rm=TRUE)
-x <- summarize(sg,!!!f)
-x <- summarize(sg,mean(Oz))
-summarize(sg, mean(Fp1))
-select.eeg_lst(sg, Fp1)
-summarize_eval_signal(sg, f)
-
-
 ```
 
 
