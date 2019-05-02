@@ -170,7 +170,8 @@ is_channel_dbl <- function(x) {
 `[[.eeg_lst` <- function(x,i,...) {
   if(is.character(i) ){
     if(i %in% names(x)){
-      return(NextMethod())
+    ##regular access to lists
+        return(NextMethod())
     } else if(i %in% colnames(x$signal)){
         x <- x$signal
     } else if(i %in% colnames(x$segments)){
@@ -184,8 +185,9 @@ is_channel_dbl <- function(x) {
   # mostattributes(r) <- attrs
   # print(r)
   return(x[[i]])
-  } else if(is.numeric(i)){
-   return(dplyr::filter(x, .id == i) )
+  } else if(is.numeric(i)){ 
+    ##Regular access to lists; needs to be there for data.table::copy
+   return(NextMethod())
   }
 }
 

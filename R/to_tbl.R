@@ -24,7 +24,7 @@ as.data.table.eeg_lst <- function(x, unit = "second") {
                              value.name = ".value")
         channels[,.type := "channel"][
            ,.source := as.character(.source)][
-           ,.value := unclass(.value)   
+           ,.value := `attributes<-`(.value,NULL)   
            ]
     } else {
         channels <- data.table::data.table()
@@ -41,7 +41,7 @@ as.data.table.eeg_lst <- function(x, unit = "second") {
                              value.name = ".value")
         components[,.type := "component"][
            ,.source := as.character(.source)][
-           ,.value := unclass(.value)   
+           ,.value := `attributes<-`(.value,NULL)   
            ]
     } else {
         components =  data.table::data.table()
