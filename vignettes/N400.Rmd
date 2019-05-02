@@ -65,9 +65,14 @@ s1_N400 <- eeg_rereference(s1_N400, -VEOG, -HEOG, ref_ch = c("M1", "M2") )
 ## Apply filters
 
 ```{r}
-s1_N400_filt <- eeg_filt_band_pass(s1_N400,freq = c(.1,30))
 
-## events_tbl(s1_N400)
+s1_N400_filt <- eeg_filt_band_pass(s1_N400,-HEOG, -VEOG, freq = c(.1,30)) %>%
+    ##stronger filters to the eyes electrodes
+    ## to be able to detect eye movements later
+    eeg_filt_band_pass(HEOG,VEOG, freq = c(1,10))
+
+
+    ## events_tbl(s1_N400)
 ## piece <- s1_N400 %>% filter(.sample_id %>% between(10500,11500)) %>%
 ##     mutate(data ="raw")
 ## piece_filt <- s1_N400_filt %>% filter(.sample_id %>% between(10500,11500)) %>%
@@ -128,94 +133,111 @@ plot <- filter(s1_N400_s, .id %in% filter(events_tbl(s1_N400_s), type == "artifa
      select(Fp1, Fpz,Fp2, VEOG) %>%
      plot(crazy, max_sample =2000) + facet_grid(.source~.id)
 
-     add_events_plot(plot)
+add_events_plot(plot)
 
 
 s1_N400_s <- s1_N400_s %>% eeg_events_to_NA(type == "artifact", all_chans = TRUE,entire_seg = FALSE)
 
- fs
+## add a layout
+channels_tbl(s1_N400_s) <- left_join(channels_tbl(s1_N400_s) %>% select(-radius, -theta, -phi, -.x,-.y,-.z), layout_32_1020)
 
+## ICA:
+set.seed(123)
 s1_N400_s_ica <- eeg_ica(s1_N400_s, -HEOG, -VEOG, -M1, -M2, na.rm=TRUE)
 
 
-df <- try_to_downsample(s1_N400_s_ica, 2000)
-df <- df %>%  data.table::as.data.table()
 
-dt <- data.table::copy(df$signal)
-dt[, intersect(channel_names(df), df$signal):= NULL ]
-components <- df$signal %>% dplyr::select_at(vars(one_of(channel_names(df)))) %>%
-    data.table::melt(variable.name = ".source",
-                     measure.vars = component_names(df),
-                     value.name = ".value")
-components[,.type := "component"][
-   ,.source := as.character(.source)]
+plot_topo(s1_N400_s_ica) + facet_wrap(~.ICA)+
+    annotate_head() + 
+    geom_contour() +
+    geom_text(colour = "black")
 
-     channels <- df$signal %>% dplyr::select_at(-one_of(component_names(df)))) %>%
-          data.table::melt(variable.name = ".source",
-                           measure.vars = intersect(colnames(df$signal), channel_names(df)),
-                           value.name = ".value")
-channels[,.type := "channel"][
-   ,.source := as.character(.source)]
+#SASICA
+cors<- summarize_at(s1_N400_s_ica, component_names(s1_N400_s_ica),
+                    list(V = ~  cor(x=., y=VEOG, use= "complete"),
+                         H = ~ cor(x=., y=HEOG, use= "complete"))) %>%
+    as_tibble()
+cors %>% arrange(.value)
 
-df[,.source := factor(.source, levels = unique(.source))]
-if(is.null(mapping)){
-}
-p <- ggplot2::ggplot(data=df,mapping=mapping,..., environment=environment)
+##for horizontal eye movements : https://github.com/lucklab/erplab/wiki/Artifact-Detection:-Tutorial
+s1_N400_s_ica_b <- s1_N400_s_ica %>%
+    eeg_artif_step(VEOG, HEOG, threshold = 30, window=400, unit = "ms") %>%
+    eeg_artif_minmax(VEOG, HEOG, threshold = 50, window=200, unit = "ms")
 
-p$data_channels <- channels_tbl(data)
-p$data_events <- events_tbl(data)
-p
 
-summarise_all(list(~min(.), ~max(.)))
+plot <- filter(s1_N400_s_ica_b, .id %in% filter(events_tbl(s1_N400_s_ica_b), type == "artifact")$.id[1:30] ) %>%
+    select(ICA1, ICA6, ICA9, ICA17, ICA29, VEOG, HEOG) %>%
+    mutate_at(component_names(.), ~.*20) %>%
+    plot( max_sample =2000) + facet_grid(.source~.id)
 
-plot(s1_N400_s_ica)
+add_events_plot(plot)
 
-summarise_all(list(~min(.), ~max(.)))
+##https://sapienlabs.co/getting-rid-of-eye-blink-in-the-eeg/
+#power spectra
+
+##2,8, 5
+ids <- filter(events_tbl(s1_N400_s_ica_b), type == "artifact")$.id[1:30] %>%unique()
+
+s1_N400_icaed <- s1_N400_s_ica_b %>% select(-ICA1,-ICA6) %>% as_eeg_lst()
+
+##diffs
+s1_old<- filter(s1_N400_s, .id %in% ids ) %>%
+    select(starts_with("Fp")) %>%
+    mutate(ica="no") 
+s1_new<- filter(s1_N400_icaed, .id %in% ids) %>%
+    select(starts_with("Fp"), VEOG, HEOG) %>%
+    mutate(ica="yes")
+
+all <- bind(s1_old,s1_new)
+p<- all%>%   plot( max_sample =2000) + facet_grid(.source~segment) +
+    geom_line(aes(color=ica))
+
+add_events_plot(p)
+
+
 
 ```
 
+
 ```{r}
 
+s1_segs <- s1_N400_icaed %>% select(-description, -type) %>%
+    eeg_segment(description %in% c("s70","s71"), lim = c(-.1,1))
 
-annotate_events(events_tbl(crazy))
+s1_segs_artif <- s1_segs %>%
+    eeg_artif_minmax(-HEOG, -VEOG, threshold =100, window=150, unit = "ms") %>%
+    eeg_artif_step(-HEOG, -VEOG,threshold = 50, window=200, unit = "ms")
 
-pp <- ggplot(crazy, aes(x=time, y = .value, group=.id)) +geom_line()
+events_tbl(s1_segs_artif) %>% count(type,description)
+ids <- events_tbl(s1_segs_artif) %>% filter(!is.na(.channel), !.channel %in% c("VEOG","HEOG")) %>%
+    pull(.id)
+plot <- s1_segs_artif %>% filter(.id %in% ids) %>% plot() + facet_grid(.source ~segment)
 
-
-
-
-
-eeg_artif_minmax(-HEOG, -VEOG, threshold =100, window=150, unit = "ms") %>%
-    eeg_artif_step(-HEOG, -VEOG,threshold = 50, window=200, unit = "ms") %>%
-    ##for horizontal eye movements : https://github.com/lucklab/erplab/wiki/Artifact-Detection:-Tutorial
-    eeg_filt_band_pass(HEOG,VEOG, freq = c(1,10)) %>%
-    eeg_artif_step(VEOG, HEOG, threshold = 30, window=400, unit = "ms") %>%
-    eeg_artif_step(VEOG, HEOG, threshold = 50, window=200, unit = "ms")
-
-events_tbl(s1_N400_s) %>% count(type,description)
-
- 
-#####
-sH <- filter(s1_N400_s, .id %in% filter(events_tbl(s1_N400_s), .channel == "HEOG")$.id )
-
-filter(s1_N400_s, .id %in% c(1,2,3) )
-
-## profvis({ fs
-##     data_N400_s %>% eeg_artif_minmax(-HEOG, -VEOG, difference =100, window=150, unit = "ms")
-## })
-## piece <- filter(s1_N400_s, .id %in% 1:30)
-piece <- filter(sH, .id %in% c(1,10,13,20,25,32)) %>% select(HEOG,Fp1)
-plot(piece) + facet_grid(.source~.id) + annotate_events(events_tbl(piece))
-
-#####
+add_events_plot(plot)
 
 
+s1 <- eeg_events_to_NA(s1_segs_artif, type == "artifact" & !.channel %in% c("HEOG","VEOG"), all_chans = TRUE,entire_seg = TRUE)
 
-s1_N400_s_clean <- s1_N400_s %>% eeg_events_to_NA(type == "artifact" & !.channel %in% c("HEOG","VEOG"), all_chans = TRUE,entire_seg = FALSE)
+sg <- s1 %>% group_by(.sample_id, description) %>% summarize_at(channel_names(s1), ~ mean(., na.rm=TRUE))
 
-s1_N400_s_clean_ica <- eeg_ica(s1_N400_s_clean, -HEOG, -VEOG, -M1, -M2, na.rm=TRUE)
+p <- sg %>% select(Cz, CP1,Pz, POz) %>% plot() + geom_line(aes(color=description)) + facet_grid(.source ~ .)
+add_events_plot(p )
 
+sl <- s1 %>% select(Cz, CP1, CP2, P3, Pz, P4, POz) %>% filter(as_time(.sample_id, unit= "s") %>% between(.25,.6)) %>% group_by(.id, description) %>% summarize_at(channel_names(.), ~ mean(., na.rm=TRUE)) %>% chs_mean() %>% as_tibble()
+sl$description <- factor(sl$description)
+contrasts(sl$description) <- contr.sum(2)
+summary(lm(.value ~description, data=sl ))
 
+sg %>% filter(as_time(.sample_id, unit= "s") %>% between(.25,.6)) %>%
+    group_by(description) %>%
+ summarize_if(is_channel_dbl, mean, na.rm=TRUE)
+f <- test(sg,is_channel_dbl, mean, na.rm=TRUE)
+x <- summarize_if(sg,is_channel_dbl, mean, na.rm=TRUE)
+x <- summarize(sg,!!!f)
+x <- summarize(sg,mean(Oz))
+summarize(sg, mean(Fp1))
+select.eeg_lst(sg, Fp1)
+summarize_eval_signal(sg, f)
 
 
 ```
