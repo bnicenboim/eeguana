@@ -122,3 +122,6 @@ expect_gg(plot(data_shorter) +
             annotate_events(events_tbl(data_shorter) %>%
                     filter(type!="Stimulus") %>% select(-type)))
 })
+
+
+warning("test plot(ica)")

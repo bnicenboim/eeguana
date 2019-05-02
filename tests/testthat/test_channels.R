@@ -77,4 +77,4 @@ test_that(".reference changes", {
 ## })
 
 
-    signal[, (ch_sel) := {ref= rowMeans()   ;lapply(.SD, reref, ref = ref)},.SDcols = c(ch_sel)]
+    

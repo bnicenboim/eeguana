@@ -124,3 +124,7 @@ test_that("ica with NAs is a reversible",{
     expect_equal(filter(data_blinks_more_NA, !(.id==1 & .sample_id ==1 | .sample_id==5)) ,
                  filter(data_b_m_rec_NA, !(.id==1 & .sample_id ==1 | .sample_id==5)) )
 })
+
+
+warning("test channels_tbl()<-")
+warning("select/mutate/etc")
