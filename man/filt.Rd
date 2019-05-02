@@ -8,13 +8,17 @@
 \alias{eeg_filt_band_stop}
 \title{Apply a zero-phase low-pass, high-pass, band-pass, or band-stop FIR filter.}
 \usage{
-eeg_filt_low_pass(.data, ..., freq = NULL, config = list())
+eeg_filt_low_pass(.data, ..., freq = NULL, config = list(),
+  na.rm = FALSE)
 
-eeg_filt_high_pass(.data, ..., freq = NULL, config = list())
+eeg_filt_high_pass(.data, ..., freq = NULL, config = list(),
+  na.rm = FALSE)
 
-eeg_filt_band_pass(.data, ..., freq = NULL, config = list())
+eeg_filt_band_pass(.data, ..., freq = NULL, config = list(),
+  na.rm = FALSE)
 
-eeg_filt_band_stop(.data, ..., freq = NULL, config = list())
+eeg_filt_band_stop(.data, ..., freq = NULL, config = list(),
+  na.rm = FALSE)
 }
 \arguments{
 \item{.data}{A channel or an eeg_lst.}

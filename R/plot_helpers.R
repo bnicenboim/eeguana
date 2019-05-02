@@ -17,6 +17,7 @@ eeg_interpolate_tbl <- function(.data, ...) {
 eeg_interpolate_tbl.eeg_lst <- function(.data, radius = 1.2, diam_points = 200, method = "MBA", ...) {
   grouping <- group_vars(.data)
   .data <- dplyr::as_tibble(.data) %>% 
+    dplyr::left_join(channels_tbl(.data), by = c(".source"=".channel"))%>%
     dplyr::group_by_at(dplyr::vars(grouping))
   dots <- rlang::enquos(...)
   # NextMethod()
@@ -316,6 +317,6 @@ change_coord <- function(data, projection = "polar") {
   new_coord <- project(data$.x, data$.y, data$.z)
   data$.x <- new_coord$x
   data$.y <- new_coord$y
-  data$.z <- NA
+  data$.z <- NA_real_
   data
 }
