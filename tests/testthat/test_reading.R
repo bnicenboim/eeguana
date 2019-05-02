@@ -32,6 +32,16 @@ test_that("int files match", {
 })
 
 
+##repeated channel
+multiplexed_bin_repeat <- read_vhdr(file = system.file("testdata","asalab_export_bv_2.vhdr",package="eeguana"), recording = "bv2")
+
+
+test_that("repeated channels are not a problem", {
+    expect_equal(multiplexed_bin_bv1,rename(multiplexed_bin_repeat, VEOG=HEOG.1))
+})
+
+
+
 ft <- read_ft(file = system.file("testdata","fieldtrip_matrix.mat",package="eeguana"), recording = "bv2")
 channels_tbl(ft) <- channels_tbl(multiplexed_bin_bv2)
 

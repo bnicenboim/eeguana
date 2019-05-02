@@ -113,7 +113,7 @@ update_channel_meta_data <- function(channels, channels_tbl) {
     )
   } else {
     channels <- purrr::map2(
-      channels %>% stats::setNames(make.names(channels_tbl$.channel)),
+      channels %>% stats::setNames(make_names(channels_tbl$.channel)),
                   purrr::transpose(dplyr::select(channels_tbl, -.channel)),
       function(sig, chan_info) {
         .channel <- new_channel_dbl(values = sig, as.list(chan_info))

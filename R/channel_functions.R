@@ -139,7 +139,7 @@ chs_fun.eeg_lst <- function(x,.funs, pars = list(), ...) {
   signal <- data.table::copy(x$signal)
   funs <- as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env())
   # fun_txt <- rlang::quo_text(funs[[1]]) %>% make.names()
-  fun_txt <- names(funs) %>% make.names()
+  fun_txt <- names(funs) %>% make_names()
 
   # TODO a more elegant way, but if pars is list(), then row_fun_ch thinks that ... is NULL, and the function gets an argument NULL
   if(length(pars) != 0){

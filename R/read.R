@@ -161,7 +161,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
 
   # channel info:
   channels <- dplyr::tibble(
-    .channel = make.unique(channel_names) %>% make.names()
+    .channel = make_names(channel_names)
   )
 
   if (!is.null(layout)) {

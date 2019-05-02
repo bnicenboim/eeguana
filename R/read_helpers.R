@@ -132,7 +132,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
 
 add_event_channel <- function(events, labels) {
-  labels <- make.names(labels)
+  labels <- make_names(labels)
   dplyr::mutate(events, .channel = if (".channel" %in% names(events)) {
     .channel
   } else {

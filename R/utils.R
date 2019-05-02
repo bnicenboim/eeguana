@@ -50,6 +50,9 @@ cat_line <- function (...)
   cat(paste0(..., "\n"), sep = "")
 }
 
+make_names <- function(names){
+  make.names(names) %>% make.unique()
+}
 
 #' @noRd
 as_integer <- function(x) {
