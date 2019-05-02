@@ -8,7 +8,8 @@
 eeg_ica(.data, ...)
 
 \method{eeg_ica}{eeg_lst}(.data, ..., method = fICA::adapt_fICA,
-  config = list(), tolerance = 1e-06, max_iterations = 1000)
+  config = list(), tolerance = 1e-06, max_iterations = 1000,
+  na.rm = FALSE)
 }
 \arguments{
 \item{.data}{An eeg_lst object}

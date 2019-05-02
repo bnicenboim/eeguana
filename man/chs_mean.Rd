@@ -42,7 +42,7 @@ faces_segs_some \%>\%
 }
 \seealso{
 Other channel: \code{\link{ch_baseline}},
-  \code{\link{ch_rereference}}, \code{\link{channel_dbl}},
+  \code{\link{channel_dbl}}, \code{\link{eeg_rereference}},
   \code{\link{is_channel_dbl}}
 }
 \concept{channel}

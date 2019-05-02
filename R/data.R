@@ -25,3 +25,13 @@
 #'   * `type == "Stimulus", description == "s71` indicates that a non-face was presented.
 #' @source See https://bnicenboim.github.io/eeguana/articles/brainvision_files.html
 "data_faces_10_trials"
+
+
+#' Layout for a 32 electrodes cap at the standard 10-20 system
+#'
+#' A dataset containing coordinates ofa 32 electrodes mounted in an elastic cap at the standard 10-20 system (Jasper, 1958)
+#' 
+#'
+#' @format An table with channel names and locations
+"layout_32_1020"
+

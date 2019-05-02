@@ -30,16 +30,6 @@ data_1 <- eeg_lst(
                            condition = c("a", "b", "a"))
 )
 
-long <- as_tibble(data_1)
-long2 <- as_tibble(data_1,add_segments = FALSE)
-long3 <- as_tibble(data_1,add_segments = FALSE, add_channels_info = FALSE)
-long4 <- as_tibble(data_1, add_channels_info = FALSE)
-
-test_that("Different args don't affect the basic columns of the long table" ,{
-expect_true(unique(long2 %in% long))
-expect_true(unique(long3 %in% long))
-expect_true(unique(long4 %in% long))
-})
 
 cond1 <- eeg_lst(
   signal_tbl =

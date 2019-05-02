@@ -19,7 +19,7 @@ This function returns  TRUE for channels.
 }
 \seealso{
 Other channel: \code{\link{ch_baseline}},
-  \code{\link{ch_rereference}}, \code{\link{channel_dbl}},
-  \code{\link{chs_mean}}
+  \code{\link{channel_dbl}}, \code{\link{chs_mean}},
+  \code{\link{eeg_rereference}}
 }
 \concept{channel}

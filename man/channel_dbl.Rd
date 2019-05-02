@@ -29,7 +29,7 @@ Cz <- channel_dbl(runif(100,-5,5))
 }
 \seealso{
 Other channel: \code{\link{ch_baseline}},
-  \code{\link{ch_rereference}}, \code{\link{chs_mean}},
+  \code{\link{chs_mean}}, \code{\link{eeg_rereference}},
   \code{\link{is_channel_dbl}}
 }
 \concept{channel}

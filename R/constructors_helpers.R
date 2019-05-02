@@ -85,11 +85,11 @@ validate_channel_dbl <- function(channel) {
     )
   } )
 
-  if (is.null(attributes(channel)$.reference)) {
-    warning("Attribute .reference is missing.",
-      call. = FALSE
-    )
-  }
+  # if (is.null(attributes(channel)$.reference)) {
+  #   warning("Attribute .reference is missing.",
+  #     call. = FALSE
+  #   )
+  # }
   channel
 }
 
@@ -113,7 +113,7 @@ update_channel_meta_data <- function(channels, channels_tbl) {
     )
   } else {
     channels <- purrr::map2(
-      channels %>% stats::setNames(make.names(channels_tbl$.channel)),
+      channels %>% stats::setNames(make_names(channels_tbl$.channel)),
                   purrr::transpose(dplyr::select(channels_tbl, -.channel)),
       function(sig, chan_info) {
         .channel <- new_channel_dbl(values = sig, as.list(chan_info))
@@ -286,4 +286,23 @@ new_mixing_tbl <- function(mixing_matrix, means_matrix , groups, channels_tbl) {
                     ,.id = ".group")
     data.table::setattr(mixing_matrix_dt, "class",c("mixing_tbl",class(mixing_matrix_dt)))
     mixing_matrix_dt[]
+}
+
+#' @noRd
+as_mixing_tbl <- function(.data,...){
+    UseMethod("as_mixing_tbl")
+}
+#' @noRd
+as_mixing_tbl.data.table <- function(.data){
+    data.table::setattr(.data, "class", c("mixing_tbl",class(.data)))
+    validate_mixing_tbl(.data)
+}
+#' @noRd
+as_mixing_tbl.mixing_tbl <- function(.data){
+    validate_mixing_tbl(.data)
+}
+#' @noRd
+as_mixing_tbl.data.frame <- function(.data){
+    .data <- data.table::as.data.table(.data)
+    as_mixing_tbl(.data)
 }

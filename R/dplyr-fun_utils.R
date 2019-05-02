@@ -1,16 +1,21 @@
 #' @noRd
-extended_signal <- function(.eeg_lst, cond_cols = NULL){
+extended_signal <- function(.eeg_lst, cond_cols = NULL, events_cols = NULL){
+extended_signal <- NULL  
   relevant_cols <- c(obligatory_cols$segments, group_vars(.eeg_lst),cond_cols)
-
  if(length(relevant_cols)>1) { #more than just .id
   segments <-  dplyr::ungroup(.eeg_lst$segments) %>% 
                {.[names(.) %in% relevant_cols]} %>%
                data.table::data.table()
   data.table::setkey(segments,.id)
-  return(.eeg_lst$signal[segments])
- } else {
-  return(data.table::copy(.eeg_lst$signal))
+  extended_signal <-  .eeg_lst$signal[segments]
  }
+  if(length(events_cols)>0){
+    extended_signal <- events_tbl(.eeg_lst)[,..events_cols][extended_signal]
+      }
+  if(is.null(extended_signal)){
+  extended_signal <- data.table::copy(.eeg_lst$signal)
+  }
+  extended_signal
 }
 
 # eval_signal <- function(.eeg_lst, eval_txt, cond_cols, out_cols = colnames(.eeg_lst$signal),remove_cols = NULL){
@@ -49,13 +54,13 @@ getAST <- function(ee) {
 
 #' @noRd
 dots_by_tbl_quos <- function(.eeg_lst, dots) {
-
+  
   signal_cols <- c(colnames(.eeg_lst$signal),
-                     paste0("`",channel_names(.eeg_lst),"`") #In case channel name is used with ` in the function call, NOT sure if needed anymore
-                     )
-
+                   paste0("`",channel_names(.eeg_lst),"`") #In case channel name is used with ` in the function call, NOT sure if needed anymore
+  )
+  
   signal_dots <- purrr::map_lgl(dots, function(dot)
-  # get the AST of each call and unlist it
+    # get the AST of each call and unlist it
     getAST(dot) %>%
       unlist(.) %>%
       # make it a vector of strings
@@ -68,17 +73,16 @@ dots_by_tbl_quos <- function(.eeg_lst, dots) {
         } else {
           return(FALSE)
         }
-        }) %>% any())
-
-# things might fail if there is a function named as a signal column. TODO, check for that in the validate.
-
+      }) %>% any())
+  
+  # things might fail if there is a function named as a signal column. TODO, check for that in the validate.
+  
   # signal_dots is a vector of TRUE/FALSE indicating for each call whether it belongs to signals
   # if both signal_tbl and segments columns are there, it will say that the dots should apply
   # to a signal_tbl dataframe.
   segments <- c(dots[!signal_dots], dots[signal_dots][rlang::quos(.id) %in% dots[signal_dots]])
   list(signal = dots[signal_dots], segments = segments)
 }
-
 
 # getAST(dot) %>%
 #       unlist(.) %>% purrr::map(function (e) {

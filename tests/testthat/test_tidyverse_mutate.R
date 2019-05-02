@@ -281,16 +281,18 @@ test_that("data didn't change after grouping and mutate functions", {
 
 
 
-### test as_time conversion (bug #44) ###
-eeg_time <- mutate(data, time = as_time(.sample_id, unit = "seconds")) %>%
-  summarize(mean = mean(time))
+### test as_time conversion  ###
+eeg_time <- suppressWarnings( mutate(data, time = as_time(.sample_id, unit = "seconds")) %>%
+  summarize(mean = mean(time)))
 
 tbl_time <- data %>%
   as_tibble() %>%
   dplyr::summarize(mean = mean(time))
 
 test_that("as_time works as expected", {
-  expect_equal(as.double(eeg_time$signal[["mean"]]), tbl_time$mean)
+    expect_equal(as.double(eeg_time$signal[["mean"]]), tbl_time$mean)
+    expect_warning(mutate(data, time = as_time(.sample_id, unit = "seconds")) %>%
+        summarize(mean = mean(time)))
 })
 
 

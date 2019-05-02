@@ -60,11 +60,25 @@ tbl_if_vars <- function(.tbl, .p, .env, ..., .include_group_vars = FALSE) {
   n <- length(tibble_vars)
   selected <- rlang::new_logical(n)
   for (i in seq_len(n)) {
-    selected[[i]] <- .p(.tbl[[tibble_vars[[i]]]], ...)
+    print(.p)
+    print(pull(.tbl(tibble_var[[i]]
+                    )))
+    selected[[i]] <- .p(pull(.tbl, tibble_vars[[i]]), ...)
   }
-
   tibble_vars[selected]
 }
 tbl_if_syms <- function(.tbl, .p, .env, ..., .include_group_vars = FALSE) {
   rlang::syms(tbl_if_vars(.tbl, .p, .env, ..., .include_group_vars = .include_group_vars))
 }
+
+pull.eeg_lst <-function (.data, var = -1) 
+{
+  if( var %in% colnames(.data$signal)){
+    .data$signal[[var]]
+  } else if( var %in% colnames(.data$segments)){
+    .data$segments[[var]]
+  } else {
+    stop("var not found")
+  }
+}
+

@@ -1,5 +1,4 @@
 summarize_eeg_lst <- function(.eeg_lst, dots){
-
    .eeg_lst$signal <- summarize_eval_signal(.eeg_lst, dots)
    update_summarized_eeg_lst(.eeg_lst)
 }
@@ -58,7 +57,7 @@ summarize_segments <-  function(segments, segments_groups, last_id){
 
 summarize_eval_signal <- function(.eeg_lst, dots){
 
-  cond_cols <- names_segments_col(.eeg_lst, dots)
+  cond_cols <- names_other_col(.eeg_lst, dots, "segments")
   extended_signal <- extended_signal(.eeg_lst, cond_cols) 
   by <- dplyr::group_vars(.eeg_lst)
 
@@ -73,18 +72,26 @@ summarize_eval_signal <- function(.eeg_lst, dots){
 # https://stackoverflow.com/questions/14837902/how-to-write-a-function-that-calls-a-function-that-calls-data-table
 # https://stackoverflow.com/questions/15790743/data-table-meta-programming
 
- dots_txt <- purrr::map(dots, rlang::quo_text) %>%
-     paste(collapse =", ") %>%
-     {paste(".(",.,")")}
+    dots_txt <- purrr::map(dots, rlang::quo_text) %>%
+        paste(collapse =", ") %>%
+        {paste(".(",.,")")}
+    add_names <- rlang::quos_auto_name(dots) %>% names()
 
- extended_signal <- extended_signal[, eval(parse(text = dots_txt)), by = c(by)]
- added_cols <- paste0("V",seq_len(length(dots)))
+    old_attributes <- purrr::map(add_names %>% stringr::str_split("_"),
+               ~ attributes(.eeg_lst$signal[[.x[[1]]]]))
 
+    old_attributes <- setNames(old_attributes, add_names)
+
+    env <- lapply(dots, rlang::quo_get_env) %>% unique()
+    if(length(env)!=1) stop("Need to fix env", env)
+    extended_signal <- extended_signal[, eval(parse(text = dots_txt), envir = env), by = c(by)]
+    
+    added_cols <- paste0("V",seq_len(length(dots)))
+    data.table::setnames(extended_signal, added_cols, add_names) 
  # add class to the columns that lost their class
- extended_signal[, (added_cols) := lapply(.SD, function(x) 
-                  if(!is_channel_dbl(x)) {channel_dbl(x)} else {x}), .SDcols = added_cols]
+    extended_signal[, (add_names) := purrr::map2(.SD, old_attributes,~
+                                                                        if(is_channel_dbl(.x) | is_component_dbl(.x)) .x else  `attributes<-`(.x,.y)), .SDcols = add_names]
 
- data.table::setnames(extended_signal, added_cols, rlang::quos_auto_name(dots) %>% names()) 
 
  update_summarized_signal(extended_signal,.eeg_lst)
   
@@ -93,7 +100,7 @@ summarize_eval_signal <- function(.eeg_lst, dots){
 summarize_at_eval_eeg_lst <- function(.eeg_lst, vars, funs){
   
   fun_quo <- funs[[1]]
-  cond_cols <- names_segments_col(.eeg_lst, fun_quo)
+  cond_cols <- names_other_col(.eeg_lst, fun_quo, "segments")
   names(cond_cols) <- cond_cols
 
   extended_signal <- extended_signal(.eeg_lst, cond_cols) 

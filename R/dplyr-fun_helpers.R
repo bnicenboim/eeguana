@@ -25,8 +25,9 @@ filter_eeg_lst <- function(.eeg_lst, dots){
     new_dots <- dots_by_tbl_quos(.eeg_lst, dots)
 
     if (length(new_dots$signal) > 0) {
-     cond_cols <- names_segments_col(.eeg_lst, dots)
-     extended_signal <- extended_signal(.eeg_lst, cond_cols) 
+     cond_cols <- names_other_col(.eeg_lst, dots,"segments")
+     ## events_col <- names_other_col(.eeg_lst, dots,"events")
+     extended_signal <- extended_signal(.eeg_lst, cond_cols) #, events_col = events_col) 
      by <- as.character(dplyr::group_vars(.eeg_lst))
  
      cols_signal <- colnames(.eeg_lst$signal)
@@ -78,7 +79,8 @@ mutate_eeg_lst <- function(.eeg_lst, dots, keep_cols = TRUE){
                              }}  %>% c(.,new_cols) %>%
                        unique()
       
-      cond_cols <- names_segments_col(.eeg_lst, dots)
+      cond_cols <- names_other_col(.eeg_lst, dots,"segments")
+      
 
 
   extended_signal <- extended_signal(.eeg_lst, cond_cols) 
@@ -222,21 +224,24 @@ scaling
 #   .eeg_lst
 # }
 
-#' Gives the names of segment columns except for .id included in a quosure
+#' Gives the names of segment or events columns except for .id included in a quosure
 #' @noRd
-names_segments_col <- function(.eeg_lst, dots) {
-  segments_cols <- setdiff(colnames(.eeg_lst$segments), ".id") # removes .id
-
-  names_s <- c()
+names_other_col <- function(.eeg_lst, dots, tbl=NULL) {
+  if(is.null(tbl)){
+    cols <- setdiff(c(colnames(.eeg_lst[["signal"]]), colnames(.eeg_lst[["events"]])), ".id")
+  } else{
+  cols <- setdiff(colnames(.eeg_lst[[tbl]]), ".id") # removes .id
+  }
+  names_o <- c()
   for (n in seq_len(length(dots))) {
     # get the AST of each call and unlist it
-    names_s <- c(names_s, getAST(dots[[n]]) %>%
+    names_o <- c(names_o, getAST(dots[[n]]) %>%
       unlist(.) %>%
       # make it a vector of strings
       purrr::map_chr(~rlang::quo_text(.x)) %>%
-      dplyr::intersect(segments_cols))
+      dplyr::intersect(cols))
   }
-  unique(names_s)
+  unique(names_o)
 }
 
 

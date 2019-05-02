@@ -8,7 +8,7 @@
 plot_gg(.data, ...)
 
 \method{plot_gg}{eeg_lst}(.data, x = time, y = .value, ...,
-  max_sample = 6400)
+  max_sample = 2400)
 }
 \arguments{
 \item{.data}{An \code{eeg_lst} object.}
@@ -25,7 +25,7 @@ they are so common; all other aesthetics must be named.}
 variables. The names for x and y aesthetics are typically omitted because
 they are so common; all other aesthetics must be named.}
 
-\item{max_sample}{Downsample to approximately 6400 samples by default.}
+\item{max_sample}{Downsample to approximately 2400 samples by default.}
 }
 \value{
 A ggplot object
