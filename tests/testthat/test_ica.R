@@ -94,6 +94,22 @@ test_that("ica can remove blinks",{
 expect_equal(data,data_no_blinks, tolerance = .021)
 })
 
+x <- data_blinks$signal[,c("Fz","Cz","Pz")]
+py_fica <- function(x){
+sk <- reticulate::import("sklearn.decomposition")
+ica <- sk$FastICA(whiten=TRUE)
+S <- ica$fit_transform(x)
+A <- t(ica$mixing_)
+W <- ica$components_
+
+X <- scale(x)
+attributes(X) <- NULL
+X <- matrix(X, ncol =3)
+
+all.equal( (t(A) %*% W) %*% t(X), t(X))
+#all.equal(as.matrix(tcrossprod(S, t(A)) + colMeans(x)), as.matrix(x))
+list(A=A, S=S)
+}
 
 test_that("appropiate warnings",{
 expect_warning(data_blinks_more %>% eeg_ica())

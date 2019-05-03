@@ -23,7 +23,8 @@ eeg_ica.eeg_lst <- function(.data,
                     max_iterations = 1000,
                     na.rm = FALSE
                               ){
-
+  start_time <- Sys.time()
+  
     if(unique(.data$segment$recording) %>% length() != 1 && !"recording" %in% group_vars(.data)) {
         warning("It seems that there is more than one recording. It may be appropriate to do 'data %>% group_by(recording)' before applying 'eeg_ica()' ")
     }
@@ -76,7 +77,8 @@ eeg_ica.eeg_lst <- function(.data,
 
   
     method_label = rlang::as_label(method)
-
+  message(paste("# ICA is being done using", method_label,"..."))
+  
     if(method_label== "fastICA::fastICA"){
         default_config <- list(n.comp = nchannels(.data), method="C",maxit =max_iterations,
                                tol = tolerance)
@@ -154,6 +156,11 @@ eeg_ica.eeg_lst <- function(.data,
                    mixing = mixing,
                    events = .data$events,
                    segments = .data$segments) %>% dplyr::group_by(!!!dplyr::groups(.data))
+    
+    end_time <- Sys.time()
+    timing <- end_time - start_time
+    message(paste0("# ICA took ",round(timing[[1]],2)," ",attributes(timing)$units))
+    
     message(say_size(ica))
     ica
 }

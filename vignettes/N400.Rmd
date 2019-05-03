@@ -71,10 +71,6 @@ files <- c("s1_N400.eeg","s1_N400.vmrk","s1_N400.vhdr")
 The function `read_vhdr()` creates a list with tables for the signal, events, and
 segments, and incorporates in its attributes generic EEG information. We can print this object, and also inspect the information about the channels  using `channels_tbl`
 
-```{r libs, message = FALSE}
-library(eeguana)
-``` 
-
 ```{r}
 s1_N400 <- read_vhdr(file = "N4data/s1_N400.vhdr")
 s1_N400
@@ -117,32 +113,23 @@ We want to apply ICA to as much data as possible, but to "representative" data, 
 
 ```{r}
 s1_N400_ls <- eeg_segment(s1_N400_filt, description == "s130", end= description == "s134") %>%
-    eeg_artif_amplitude(threshold = c(-200,200,events_lim = c(-250,250), unit = "ms")
+    eeg_artif_amplitude(threshold = c(-200,200),events_lim = c(-1000,1000), unit = "ms")
+
+ids <- filter(events_tbl(s1_N400_ls), type == "artifact") %>%
+    pull(.id) %>%
+    unique
+
+plot_artif <- filter(s1_N400_ls, .id %in% ids[1:10]) %>%
+     plot(max_sample =2000) + facet_grid(.source~.id)
+
+add_events_plot(plot_artif)
+
+events_tbl(s1_N400_ls)
+
+s1_N400_ica <- eeg_events_to_NA(s1_N400_ls, type == "artifact",
+                               all_chans = TRUE, entire_seg = FALSE) %>%
+    eeg_ica( -HEOG, -VEOG, -M1, -M2, max_iterations = 10000,tolerance = 1e-07,na.rm=TRUE)
 
 
-events_tbl(s1_N400_filt) %>%
-    count(description)
+```
 
-events_tbl(s1_N400_filt) %>% filter(description =="s130") %>% pull(.initial) %>% diff
-
-events_tbl(s1_N400_filt) %>%
-    filter(description == "s130") %>% pull(.lower) %>% diff
-                                        #max probably the break
-                                        #2000 should be enough
-
-s1_N400_s <-
-    s1_N400_filt %>% select(-type,-description) %>%
-    eeg_segment(description == "s130",lim=  c(0,2000), unit = "sample")
-
-## First crazy values are removed (https://github.com/lucklab/erplab/wiki/Artifact-Rejection-in-Continuous-Data):
-
-
-s1_N400_s <- s1_N400_s %>% 
-
-events_tbl(s1_N400_s) %>% count(type,description)
-
-plot <- filter(s1_N400_s, .id %in% filter(events_tbl(s1_N400_s), type == "artifact")$.id ) %>%
-     select(Fp1, Fpz,Fp2, VEOG) %>%
-     plot(crazy, max_sample =2000) + facet_grid(.source~.id)
-
-add_events_plot(plot)

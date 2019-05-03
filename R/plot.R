@@ -505,8 +505,7 @@ add_events_plot <- function(plot, alpha = .2){
     events_tbl <- data.table::copy(events_tbl)
     events_tbl[,xmin:= as_time(.initial) ]
     events_tbl[,xmax:= as_time(.final) ]
-    ## events_tbl[,.source:= as.factor(.channel)]
-    events_tbl[,description := (do.call(paste,c(.SD, sep ="."))), .SDcols= c(info_events)]
+    events_tbl[,Event := (do.call(paste,c(.SD, sep ="."))), .SDcols= c(info_events)]
                                         #single events
     segs <- plot$data %>%
         dplyr::select(-time, -.source, -.value, -.type) %>%
@@ -525,8 +524,8 @@ add_events_plot <- function(plot, alpha = .2){
                               geom_rect(data= .x,
                                         aes(xmin = xmin,
                                             xmax =  xmax ,
-                                            color = description,
-                                            fill = description,
+                                            color = Event,
+                                            fill = Event,
                                             group = .id),
                                         alpha = alpha,
                                         ymin = -Inf, ymax= Inf,
