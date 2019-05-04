@@ -34,6 +34,18 @@ channel_names.default <- function(x, ...) {
 channel_names.eeg_lst <- function(x, ...) {
   channel_names(x$signal)
 }
+#
+#' @rdname summary
+#' @export
+channel_ica_names <- function(x, ...) {
+  UseMethod("channel_ica_names")
+}
+#' @rdname summary
+#' @export
+channel_ica_names.eeg_ica_lst <- function(x, ...) {
+rownames(x$ica[[1]]$unmixing_matrix)
+  }
+
 #' @rdname summary
 #' @export
 nchannels <- function(x, ...) {
@@ -205,7 +217,7 @@ print.eeg_ica_lst <- function(x, ...){
     cat_line("")
     cat_line("# ICA :" )
     cat_line(paste0("# Component_names: ICA1...", component_names(x)[ncomponents(x)]))
-    cat_line(paste0("# Channels_used: ", paste0(rownames(x$ica[[1]]$unmixing_matrix), collapse=", ")))
+    cat_line(paste0("# Channels_used: ", paste0(channel_ica_names(x), collapse=", ")))
     cat_line("")
     cat_line("# Segments table:")
     print(x$segments,...)

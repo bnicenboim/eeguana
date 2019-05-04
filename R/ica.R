@@ -134,15 +134,17 @@ eeg_ica_show.eeg_ica_lst <- function(.data,...){
 
     dots <- rlang::enquos(...)
     comp_sel <- tidyselect::vars_select(component_names(.data), !!!dots)
-    signal_raw <- .data$signal[data.table::as.data.table(.data$segments)[
+    signal_raw <- .data$signal[, c(".id", channel_ica_names(.data)), with = FALSE] %>%
+        .[data.table::as.data.table(.data$segments)[
                                                    ,.(.id,recording)],
-                                    , on = ".id"][,c(".id",".sample_id"):=NULL]
-
+        , on = ".id", nomatch =0]
+     signal_raw[,".id":=NULL]
+ 
     l_signal <- split(signal_raw, by = "recording", keep.by = FALSE)
 
    ica_c <-  map2_dtr(l_signal, .data$ica, ~ {
         X<-scale(.x, scale = FALSE)
-        tcrossprod(as.matrix(X), t(.y$unmixing_matrix[, comp_sel]))  %>%
+        tcrossprod(as.matrix(X), t(.y$unmixing_matrix[, comp_sel, drop = FALSE]))  %>%
             data.table::as.data.table() %>%
             .[,lapply(.SD, component_dbl)]
    })

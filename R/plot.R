@@ -252,7 +252,7 @@ plot_topo_ica.eeg_ica_lst <- function(data,  projection = "polar", ...) {
     channels_tbl(data)  <- change_coord(channels_tbl(data), projection)  
     ##TODO: move to data.table, ignore group, just do it by .recording
     long_table <- map_dtr(data$ica, ~ data.table::as.data.table(.x$mixing_matrix) %>%
-                            .[, .ICA := {.ICA = paste0("I",seq_len(.N));
+                            .[, .ICA := {.ICA = paste0("ICA",seq_len(.N));
                             factor(.ICA, levels = .ICA)}],.id = "recording") %>%
       data.table::melt(variable.name = ".key",
                        id.vars = c(".ICA","recording"),
