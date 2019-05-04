@@ -132,7 +132,6 @@ nsamples.eeg_lst <- function(x, ...) {
 #' @export
 summary.eeg_lst <- function(object, ...) {
   summ <- list(
-    channels = channels_tbl(object) %>% data.table::data.table(),
     sampling_rate = sampling_rate(object),
     segments = object$segments %>%
       dplyr::count(recording) %>%
@@ -147,35 +146,74 @@ summary.eeg_lst <- function(object, ...) {
   summ
 }
 
+
+#' @export
+summary.eeg_ica_lst <- function(object, ...) {
+    summ <- NextMethod()
+    summ$ica_cor <- eeg_ica_cor_lst(object)
+
+    class(summ) <- c("ica_summary", class(summ))
+    summ
+}
+
+
+#' @export
+eeg_ica_cor_lst <- function(.data,...){
+    UseMethod("eeg_ica_cor_lst")
+}
+
+#' @export
+eeg_ica_cor_lst.eeg_ica_lst <- function(.data,...){
+    eogs <- channel_names(.data)[channel_names(.data) %>%
+                                 stringr::str_detect(stringr::regex("eog", ignore_case = TRUE))]
+    names(eogs) <- eogs
+    comps <- object %>% eeg_ica_show(component_names(.)) 
+
+    lapply(eogs, function(eog) 
+        comps$signal %>%
+        dplyr::summarize_at(component_names(comps),
+                            ~ cor(x=., y = comps$signal[[eog]], use = "complete")) %>%
+        t() %>%
+        {dplyr::tibble(.ICA = rownames(.), cor= .[,1])} %>%
+        dplyr::arrange(desc(abs(cor))))
+
+}
+
+#' @rdname summary
+#' @export
+print.ica_summary <- function(x, ...) {
+    NextMethod()
+    cat_line("")
+    cat_line("# ICA data:")
+    cat_line("")
+    cat_line("# Correlations with EOG channels:")
+    print(x$ica_cor,...)
+    invisible(x)
+}
+
+
 #' @rdname summary
 #' @export
 print.eeg_summary <- function(x, ...) {
-  cat(paste0("# EEG data (eeg_lst) from the following channels:\n"))
-
-  x$channels %>%
-    print(.)
-
+  cat_line(paste0("# EEG data:"))
   cat(paste0("# Sampling rate: ", x$sampling_rate, " Hz.\n"))
-
   cat(paste0("# Size in memory: ", x$size, ".\n"))
-
   cat(paste0("# Total duration: ", x$duration, ".\n"))
-
   cat("# Summary of segments\n")
   x$segments %>%
-    print(.)
+    print(.,...)
 
   cat("# Summary of events\n")
 
   x$events %>%
-    print(.)
+    print(.,...)
 
   invisible(x)
 }
 
 #' @export
 print.eeg_lst <- function(x, ...){
-  cat_line("# eeg_lst object:")
+  cat_line("# EEG data:")
   if(length(dplyr::group_vars(x)) >0 ){
     cat_line("# Grouped by: ", paste0(dplyr::group_vars(x), sep = ", "))
   }
@@ -199,7 +237,7 @@ cat_line("# Signal table:")
 
 #' @export
 print.eeg_ica_lst <- function(x, ...){
-    cat_line("# eeg_ica_lst object:")
+    cat_line("# EEG data:")
     if(length(dplyr::group_vars(x)) >0 ){
         cat_line("# Grouped by: ", paste0(dplyr::group_vars(x), sep = ", "))
     }
@@ -215,7 +253,7 @@ print.eeg_ica_lst <- function(x, ...){
         cat_line("No events.")
     } 
     cat_line("")
-    cat_line("# ICA :" )
+    cat_line("# ICA:" )
     cat_line(paste0("# Component_names: ICA1...", component_names(x)[ncomponents(x)]))
     cat_line(paste0("# Channels_used: ", paste0(channel_ica_names(x), collapse=", ")))
     cat_line("")
