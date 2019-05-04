@@ -4,19 +4,16 @@
 \alias{plot_topo}
 \alias{plot_topo.tbl_df}
 \alias{plot_topo.eeg_lst}
-\alias{plot_topo.mixing_tbl}
-\alias{plot_topo.ica_lst}
+\alias{plot_topo_ica.eeg_ica_lst}
 \title{Create a topographic plot}
 \usage{
 plot_topo(data, ...)
 
-\method{plot_topo}{tbl_df}(data, value = .value, label = .source)
+\method{plot_topo}{tbl_df}(data, value = .value, label = .key)
 
 \method{plot_topo}{eeg_lst}(data, projection = "polar", ...)
 
-\method{plot_topo}{mixing_tbl}(data, projection = "polar", ...)
-
-\method{plot_topo}{ica_lst}(data, projection = "polar", ...)
+\method{plot_topo_ica}{eeg_ica_lst}(data, projection = "polar", ...)
 }
 \arguments{
 \item{data}{A table of interpolated electrodes as produced by \code{eeg_interpolate_tbl}, or an \code{eeg_lst}, or \code{ica_lst} appropiately grouped.}
@@ -25,7 +22,7 @@ plot_topo(data, ...)
 
 \item{value}{Values used for the interpolation, generally \code{.value} (default).}
 
-\item{label}{Label of the points that are used for the interpolation, generally \code{.source} (default).}
+\item{label}{Label of the points that are used for the interpolation, generally \code{.key} (default).}
 
 \item{projection}{Projection type for converting the 3D coordinates of the electrodes into 2d coordinates. Projection types available: "polar" (default), "orthographic", or  "stereographic"}
 }
@@ -42,7 +39,7 @@ Before calling \code{plot_topo}, the \code{eeg_lst} object object must be approp
 grouped (e.g. by condition) and/or
 summarized into mean values such that each .x .y coordinate has only one
 amplitude value. By default, \code{plot_topo} interpolates amplitude values via
-\code{eeg_interpolate_tbl}, which generates a tibble with \code{.source} (channel),
+\code{eeg_interpolate_tbl}, which generates a tibble with \code{.key} (channel),
 \code{.value} (amplitude), and .x .y coordinate variables. .x .y coordinates are
 extracted from the \code{eeg_lst} object, which in turn reads the coordinates logged
 by your EEG recording software. By default, \code{plot_topo} will display electrodes

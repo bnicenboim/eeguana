@@ -36,16 +36,6 @@ channel_names.eeg_lst <- function(x, ...) {
 }
 #' @rdname summary
 #' @export
-channel_names.mixing_tbl <- function(x, ...) {
-NextMethod()
-}
-#' @rdname summary
-#' @export
-channel_names.ica_lst <- function(x, ...) {
-c(channel_names.eeg_lst(x), channel_names(x$mixing))
-  }
-#' @rdname summary
-#' @export
 nchannels <- function(x, ...) {
   UseMethod("nchannels")
 }
@@ -65,13 +55,13 @@ component_names <- function(x, ...) {
 }
 #' @rdname summary
 #' @export
-component_names.signal_tbl <- function(x, ...) {
-  colnames(x)[x[,purrr::map_lgl(.SD, is_component_dbl )]]
+component_names.eeg_ica_lst <- function(x, ...) {
+  colnames(x$ica[[1]]$unmixing_matrix)
 }
 #' @rdname summary
 #' @export
-component_names.eeg_lst <- function(x, ...) {
-  component_names(x$signal)
+component_names.default <- function(x, ...) {
+  stop("Component names can only be extracted after running `eeg_ica()` on an eeg_lst object.", call. = FALSE)
 }
 
 #' @rdname summary
@@ -194,6 +184,34 @@ cat_line("# Signal table:")
   print(x$segments,...)
   invisible(x)
 }
+
+#' @export
+print.eeg_ica_lst <- function(x, ...){
+    cat_line("# eeg_ica_lst object:")
+    if(length(dplyr::group_vars(x)) >0 ){
+        cat_line("# Grouped by: ", paste0(dplyr::group_vars(x), sep = ", "))
+    }
+    cat_line("")
+    cat_line("# Signal table:")
+    print(x$signal,...)
+
+    cat_line("")
+    cat_line("## Events table:")
+    if(nrow(x$events)>0){
+        print(x$events,...)
+    } else {
+        cat_line("No events.")
+    } 
+    cat_line("")
+    cat_line("# ICA :" )
+    cat_line(paste0("# Component_names: ICA1...", component_names(x)[ncomponents(x)]))
+    cat_line(paste0("# Channels_used: ", paste0(rownames(x$ica[[1]]$unmixing_matrix), collapse=", ")))
+    cat_line("")
+    cat_line("# Segments table:")
+    print(x$segments,...)
+    invisible(x)
+}
+
 
 #' Count number of complete segments of an eeg_lst object.
 #'

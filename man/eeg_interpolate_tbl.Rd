@@ -12,7 +12,7 @@ eeg_interpolate_tbl(.data, ...)
   diam_points = 200, method = "MBA", ...)
 
 \method{eeg_interpolate_tbl}{data.frame}(.data, radius = 1.2, x = .x,
-  y = .y, value = .value, label = .source, diam_points = 200,
+  y = .y, value = .value, label = .key, diam_points = 200,
   method = "MBA", ...)
 }
 \arguments{
@@ -32,7 +32,7 @@ eeg_interpolate_tbl(.data, ...)
 
 \item{value}{Values used for the interpolation, generally \code{.value} (default).}
 
-\item{label}{Label of the points that are used for the interpolation, generally \code{.source} (default).}
+\item{label}{Label of the points that are used for the interpolation, generally \code{.key} (default).}
 }
 \description{
 Create a default topographic plot based on the segments of the \code{eeg_lst} object.

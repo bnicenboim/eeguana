@@ -128,3 +128,14 @@ is_signal_tbl <- function(x) {
     "signal_tbl" %in% class(x) 
 }
 
+#' @noRd
+as_eeg_ica_lst <- function(.data,...){
+    UseMethod("as_eeg_ica_lst")
+}
+as_eeg_ica_lst.eeg_ica_lst <- function(.data,...){
+  .data
+}
+as_eeg_ica_lst.eeg_lst <- function(.data,...){
+  class(.data) <- c("eeg_ica_lst",class(.data))
+.data
+  }

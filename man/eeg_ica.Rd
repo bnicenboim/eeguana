@@ -8,15 +8,14 @@
 eeg_ica(.data, ...)
 
 \method{eeg_ica}{eeg_lst}(.data, ..., method = fICA::adapt_fICA,
-  config = list(), tolerance = 1e-06, max_iterations = 1000,
-  na.rm = FALSE)
+  config = list(), tolerance = 1e-06, max_iterations = 1000)
 }
 \arguments{
 \item{.data}{An eeg_lst object}
 
 \item{...}{Channels to include in ICA transformation. All the channels by default, but eye channels and reference channels should be removed.}
 
-\item{method}{Methods from different packages: \code{fICA::adapt_fICA} (default), \code{fICA::fICA}, \code{fICA::reloaded_fICA}, \code{fastICA::fastICA}, or a custom function that returns a list that contains \code{S}  (reconstucted sources) and \code{A} (mixing matrix), consistent with the formulation \code{X=A \%*\% S} or \code{W} (unmixing matrix), consistent with the formulation \code{X \%*\% W = S} (i.e., W == solve(X)).}
+\item{method}{Methods from different packages: \code{fICA::adapt_fICA} (default), \code{fICA::fICA}, \code{fICA::reloaded_fICA}, \code{fastICA::fastICA}, or a custom function that returns a list that contains \code{S}  (reconstucted sources) and \code{A} (mixing matrix), consistent with the formulation \code{X= S \%*\% A}, where X is matrix of N_samples X N_channels or \code{W} (unmixing matrix), consistent with the formulation \code{X \%*\% W = S}.}
 
 \item{config}{Other parameters passed in a list to the ICA method. These are the default parameters except that when possible the method is run in C rather than in R. See the documentation of the relevant method.}
 
