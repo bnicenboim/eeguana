@@ -17,7 +17,7 @@ eeg_interpolate_tbl <- function(.data, ...) {
 eeg_interpolate_tbl.eeg_lst <- function(.data, radius = 1.2, diam_points = 200, method = "MBA", ...) {
   grouping <- group_vars(.data)
   .data <- dplyr::as_tibble(.data) %>% 
-    dplyr::left_join(channels_tbl(.data), by = c(".source"=".channel"))%>%
+    dplyr::left_join(channels_tbl(.data), by = c(".key"=".channel"))%>%
     dplyr::group_by_at(dplyr::vars(grouping))
   dots <- rlang::enquos(...)
   # NextMethod()
@@ -26,48 +26,30 @@ eeg_interpolate_tbl.eeg_lst <- function(.data, radius = 1.2, diam_points = 200, 
                       x=!!rlang::quo(.x),
                       y=!!rlang::quo(.y),
                       value = !!rlang::quo(.value),
-                      label = !!rlang::quo(.source),
+                      label = !!rlang::quo(.key),
                       diam_points,
                       method,
                       !!!dots)
 }
 
-#' @export
-eeg_interpolate_tbl.ica_lst <- function(.data, radius = 1.2, diam_points = 200, method = "MBA", ...) {
-    grouping <- group_vars(.data)
-    .data <- dplyr::as_tibble(.data) %>% dplyr::group_by_at(dplyr::vars(grouping))
-    dots <- rlang::enquos(...)
-                                        # NextMethod()
-    eeg_interpolate_tbl(.data,
-                        radius = radius,
-                        x=!!rlang::quo(.x),
-                        y=!!rlang::quo(.y),
-                        value = !!rlang::quo(.value),
-                        label = !!rlang::quo(.source),
-                        diam_points,
-                        method,
-                        !!!dots)
-}
-
-
 #' @rdname eeg_interpolate_tbl
 #' @param x Variable storing the x coordinate, generally `.x` (default).
 #' @param y Variable storing the y coordinate, generally `.y` (default).
 #' @param value Values used for the interpolation, generally `.value` (default). 
-#' @param label Label of the points that are used for the interpolation, generally `.source` (default).
+#' @param label Label of the points that are used for the interpolation, generally `.key` (default).
 #' @export
 eeg_interpolate_tbl.data.frame <- function(.data, 
                                            radius = 1.2,
                                            x = .x,
                                            y = .y, 
                                            value = .value, 
-                                           label = .source, 
+                                           label = .key, 
                                            diam_points = 200,
                                            method = "MBA", ...) {
   # x <- rlang::quo(.x)
   # y <- rlang::quo(.y)
   # value <- rlang::quo(.value)
-  # label <- rlang::quo(.source)
+  # label <- rlang::quo(.key)
   x <- rlang::enquo(x)
   y <- rlang::enquo(y)
   value <- rlang::enquo(value)
@@ -294,10 +276,10 @@ orthographic <- function(x, y, z) {
 #' Change coordinate system from 3D to 2D
 #'
 #'
-#' @param data A tbl created with .sources_tbl
+#' @param data A tbl created with .keys_tbl
 #' @param projection projection type
 #'
-#' @return A modified .sources_tbl
+#' @return A modified .keys_tbl
 #'
 #' @export
 change_coord <- function(data, projection = "polar") {

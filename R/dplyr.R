@@ -58,6 +58,12 @@ filter_.eeg_lst <- function(.data, ..., .dots = list()) {
   dots <- compat_lazy_dots(.dots, rlang::caller_env(), ...)
   filter_eeg_lst(.data, dots = dots)
 }
+filter.eeg_ica_lst <- function(.data, ..., .dots = list()) {
+  out <- NextMethod()
+  recordings <- unique(out$segments$recording)
+  out$ica <- out$ica[recordings]
+  out
+}
 #' @rdname dplyr-eeguana
 filter.eeg_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
@@ -101,33 +107,11 @@ group_vars.eeg_lst <- function(x) {
 select.eeg_lst <- function(.data, ...) {
   select_rename(.data, select = TRUE, ...)
 }
-#' @rdname dplyr-eeguana
-#' @export
-select.ica_lst <- function(.data, ...){
-  comps <- component_names(.data)
-  cols <- c(colnames(.data$signal), colnames(.data$segments)) %>%
-    unique()
-   .data <- NextMethod()
-  if(!identical(comps, component_names(.data))){
-    #update the mixing table
-    sel <- tidyselect::vars_select(cols,...) %>%
-      .[. %in% comps]
-    .data$mixing <- rename_sel_comp(.data$mixing, sel)
-  }
-    .data
-}
 
 #' @rdname dplyr-eeguana
 rename.eeg_lst <- function(.data, ...) {
     select_rename(.data, select = FALSE, ...)
 
-}
-#' @rdname dplyr-eeguana
-rename.ica_lst <- function(.data, ...) {
-    sel <- tidyselect::vars_rename(component_names(.data),...)
-    .data <- NextMethod()
-    .data$mixing <- rename_sel_comp(.data$mixing, sel)
-    .data
 }
 
 #' @noRd

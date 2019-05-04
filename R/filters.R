@@ -23,10 +23,10 @@
 #' # Compare the ERPs
 #' data_faces_ERPs %>% select(O1, O2, P7, P8) %>%
 #'                     plot() +
-#'                     facet_wrap(~.source)
+#'                     facet_wrap(~.key)
 #' data_ERPs_filtered %>% select(O1, O2, P7, P8) %>%
 #'                        plot() +
-#'                        facet_wrap(~.source)
+#'                        facet_wrap(~.key)
 #' @name filt
 NULL
 #> NULL 

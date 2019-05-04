@@ -10,58 +10,24 @@
 #'
 #'
 as.data.table.eeg_lst <- function(x, unit = "second") {
-    ## check if there are channels in the signal tbl (in ica_lst they may not be there)
-    if(any(channel_names(x) %in% colnames(x$signal))){
-        ## channels <- x$signal %>% dplyr::select_at(vars(-one_of(component_names(x)))) %>%
-        ##     .[,lapply(.SD, `attributes<-`, NULL )] %>%
-        ##     tidyr::gather(key = ".source", value = ".value",
-        ##                   (intersect(colnames(x$signal), channel_names(x)))) %>%
-        ##     dplyr::mutate(.type = "channel")
-  
-        channels <- x$signal %>% dplyr::select_at(dplyr::vars(-dplyr::one_of(component_names(x)))) %>%
-            data.table::melt(variable.name = ".source",
-                             measure.vars = intersect(colnames(x$signal), channel_names(x)),
+   keys <- x$signal %>%
+       dplyr::select_if(function(x) is_channel_dbl(x) | is_component_dbl(x)) %>%
+       colnames()
+    long_signal <- x$signal %>%
+            data.table::melt(variable.name = ".key",
+                             measure.vars = keys,
                              value.name = ".value")
-        channels[,.type := "channel"][
-           ,.source := as.character(.source)][
-           ,.value := `attributes<-`(.value,NULL)   
-           ]
-    } else {
-        channels <- data.table::data.table()
-    }
+    long_signal[,.key := as.character(.key)][
+           ,.value := `attributes<-`(.value,NULL)]
 
-    if(ncomponents(x)!=0){
-        ## components <-  x$signal %>% dplyr::select_if(purrr::negate(is_channel_dbl)) %>%
-        ##     .[,lapply(.SD, `attributes<-`, NULL )] %>%
-        ##     tidyr::gather(key = ".source", value = ".value", component_names(x)) %>%
-        ##     dplyr::mutate(.type = "component")
-        components <- x$signal %>% dplyr::select_at(dplyr::vars(-dplyr::one_of(channel_names(x$signal)))) %>%
-            data.table::melt(variable.name = ".source",
-                             measure.vars = component_names(x),
-                             value.name = ".value")
-        components[,.type := "component"][
-           ,.source := as.character(.source)][
-           ,.value := `attributes<-`(.value,NULL)   
-           ]
-    } else {
-        components =  data.table::data.table()
-    }
-
-    long_table <- rbind(channels,components) %>%
+    long_table <- long_signal %>%
                 left_join_dt(., data.table::as.data.table(x$segments), by = ".id")
 
-    ## inf_events <- setdiff(colnames(events_tbl(x)),  obligatory_cols[["events"]])
-    ## events_all_ch <- data.table::copy(events_tbl(x))[is.na(.channel), ends := .initial + .size]
-
-    ## events_all_ch[long_table ,on = .(.id, .initial <= .sample_id, ends > .sample_id), c(colnames(long_table),inf_events), with = FALSE]
-
-    ##unit inside the data.table was creating problems, I rename it to .unit
+     ##unit inside the data.table was creating problems, I rename it to .unit
     .unit <- unit
-    long_table[, time := as_time(.sample_id, unit = .unit)]
+    long_table[, .time := as_time(.sample_id, unit = .unit)]
     long_table[, .sample_id := NULL]
-    long_table %>% dplyr::select(time, dplyr::everything())
-    #%>%
-    #.[,lapply(.SD, `attributes<-`, NULL )]
+    long_table %>% dplyr::select(.time, dplyr::everything())
 }
 
 
@@ -134,11 +100,11 @@ as_long_tbl.mixing_tbl <- function(x, add_channels_info = TRUE,...){
 
     x %>% 
         .[,lapply(.SD, `attributes<-`, NULL )] %>%
-        tidyr::gather(key = ".source", value = ".value", channel_names(x)) %>%
+        tidyr::gather(key = ".key", value = ".value", channel_names(x)) %>%
         dplyr::mutate(.type = ".channel") %>% 
      {
       if (add_channels_info) {
-        dplyr::left_join(., channels_tbl(x), by = c(".source"=".channel"))
+        dplyr::left_join(., channels_tbl(x), by = c(".key"=".channel"))
       } else {
         .
       }

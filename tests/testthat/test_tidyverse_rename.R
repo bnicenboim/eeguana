@@ -64,14 +64,14 @@ test_that("internal (?) variables cannot be renamed", {
 rename1_eeg <- rename(data, ZZ = Y) 
 rename1_tbl <- data %>%
   as_tibble() %>%
-  tidyr::spread(key = .source, value = .value) %>%
+  tidyr::spread(key = .key, value = .value) %>%
   dplyr::rename(ZZ = Y) 
 
 
 rename2_eeg <- rename(data, x = X)
 rename2_tbl <- data %>%
   as_tibble() %>%
-  tidyr::spread(key = .source, value = .value) %>%
+  tidyr::spread(key = .key, value = .value) %>%
   dplyr::rename(x = X) 
 
 
@@ -126,21 +126,21 @@ test_that("data didn't change", {
 rename3_eeg <- rename(data, subject = recording)
 rename3_tbl <- data %>%
   as_tibble() %>%
-  tidyr::spread(key = .source, value = .value) %>%
+  tidyr::spread(key = .key, value = .value) %>%
   dplyr::rename(subject = recording)
 
 
 rename4_eeg <- rename(data, epoch = segment)
 rename4_tbl <- data %>%
   as_tibble() %>%
-  tidyr::spread(key = .source, value = .value) %>%
+  tidyr::spread(key = .key, value = .value) %>%
   dplyr::rename(epoch = segment)
 
 
 rename5_eeg <- rename(data, cond = condition)
 rename5_tbl <- data %>%
   as_tibble() %>%
-  tidyr::spread(key = .source, value = .value) %>%
+  tidyr::spread(key = .key, value = .value) %>%
   dplyr::rename(cond = condition)
 
 
@@ -222,14 +222,14 @@ test_that("renaming in events table doesn't change data", {
 ## rename_all1_eeg <- rename_all(data, toupper)
 ## rename_all1_tbl <- data %>%
 ##   as_tibble() %>%
-##   tidyr::spread(key = .source, value = .value) %>%
+##   tidyr::spread(key = .key, value = .value) %>%
 ##   dplyr::rename_all(toupper)
 
 
 ## rename_all2_eeg <- rename_all(data, tolower)
 ## rename_all2_tbl <- data %>%
 ##   as_tibble() %>%
-##   tidyr::spread(key = .source, value = .value) %>%
+##   tidyr::spread(key = .key, value = .value) %>%
 ##   dplyr::rename_all(tolower)
 
 
@@ -278,7 +278,7 @@ rename_select_eeg <- rename(data, ZZ = Y) %>%
   select(ZZ)
 rename_select_tbl <- data %>%
   as_tibble() %>%
-  tidyr::spread(key = .source, value = .value) %>%
+  tidyr::spread(key = .key, value = .value) %>%
   dplyr::rename(ZZ = Y) %>%
   dplyr::select(ZZ)
 
@@ -287,7 +287,7 @@ mutate_rename_eeg <- mutate(data, Z = Y + 1) %>%
   rename(ZZ = Z)
 mutate_rename_tbl <- data %>%
   as_tibble() %>%
-  tidyr::spread(key = .source, value = .value) %>%
+  tidyr::spread(key = .key, value = .value) %>%
   dplyr::mutate(Z = Y + 1) %>%
   dplyr::rename(ZZ = Z)
 
@@ -350,7 +350,7 @@ group_rename_eeg <- data %>%
 
 group_rename_tbl <- data %>%
   as_tibble() %>%
-  tidyr::spread(key = .source, value = .value) %>%
+  tidyr::spread(key = .key, value = .value) %>%
   dplyr::group_by(recording) %>%
   dplyr::rename(subject = recording)
 
@@ -362,7 +362,7 @@ group_rename_summarize_eeg <- data %>%
 
 group_rename_summarize_tbl <- data %>%
   as_tibble() %>%
-  tidyr::spread(key = .source, value = .value) %>%
+  tidyr::spread(key = .key, value = .value) %>%
   dplyr::group_by(recording, condition) %>%
   dplyr::summarise(X = mean(X), Y = mean(Y)) %>%
   dplyr::rename(subject = recording)

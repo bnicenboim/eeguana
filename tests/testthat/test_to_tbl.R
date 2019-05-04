@@ -93,6 +93,6 @@ test_that("can transform to tibble", {
   conds <- bind(cond1, cond1_2)
   df <- as_tibble(conds)
   expect_equal(nrow(df), nrow(conds$signal) * length(channel_names(conds)))
-  expect_equal(max(df$time), max((conds$signal$.sample_id - 1)) / eeguana:::sampling_rate(conds))
+  expect_equal(max(df$.time), max((conds$signal$.sample_id - 1)) / eeguana:::sampling_rate(conds))
 })
 

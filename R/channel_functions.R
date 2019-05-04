@@ -99,6 +99,7 @@ sel_ch <- function(data,...){
     } else {
         ch_sel <- tidyselect::vars_select(channel_names(data), !!!dots)
     }
+    ch_sel
 }
 
 

@@ -47,16 +47,6 @@ channels_tbl.eeg_lst <- function(x, ...) {
 channels_tbl(x$signal)
 }
 
-#' @rdname channels_tbl
-#' @export
-channels_tbl.ica_lst <- function(x, ...) {
-    signal_chs <- channels_tbl(x$signal)
-    mixing_chs <- channels_tbl(x$mixing)
-    if(nrow(signal_chs)==0)  signal_chs <- NULL
-    if(nrow(mixing_chs)==0)  mixing_chs <- NULL
-   dplyr::bind_rows(signal_chs, mixing_chs)
-}
-
 
 #' @rdname channels_tbl
 #' @export
@@ -82,26 +72,6 @@ channels_tbl.data.frame <- function(x, ...) {
 `channels_tbl<-` <- function(x, value) {
   UseMethod("channels_tbl<-")
 }
-#' @rdname channels_tbl
-#' @export
-`channels_tbl<-.ica_lst` <- function(x, value) {
-  stop("Channels can't be edited in an ica_lst object.")
-  # orig_names <- channel_names(x$mixing)
-  # channels_mx <- x$mixing[, channel_names(x$mixing),, with =FALSE]
-  # nochannels_mx <- x$mixing[, setdiff(channel_names(x$mixing),colnames(x$mixing)), with = FALSE]
-  # x$mixing <- cbind(nochannels_mx, 
-  #                   data.table::as.data.table(
-  #                     update_channel_meta_data(channels_mx, 
-  #                                              value[value$.channel %in% colnames(x$mixing),]))) %>%
-  #   as_mixing_tbl()
-  # new_names <- channel_names(x$mixing)
-  # x$signal <- data.table::copy(x$signal)
-  # for (i in seq_len(nchannels(x$mixing))) {
-  #   data.table::set(x$signal,which(x$signal$.channel == orig_names[i]), ".channel", new_names[i])
-  # }
-  # NextMethod()
-  
-  }
 
 
 #' @rdname channels_tbl

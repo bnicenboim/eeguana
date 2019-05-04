@@ -128,7 +128,7 @@ events_tbl(s1_N400_ls)
 
 s1_N400_ica <- eeg_events_to_NA(s1_N400_ls, type == "artifact",
                                all_chans = TRUE, entire_seg = FALSE) %>%
-    eeg_ica( -HEOG, -VEOG, -M1, -M2, max_iterations = 10000,tolerance = 1e-07,na.rm=TRUE)
+    eeg_ica( -HEOG, -VEOG, -M1, -M2, max_iterations = 10000,tolerance = 1e-18,na.rm=TRUE)
 
 
 ```

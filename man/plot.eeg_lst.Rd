@@ -25,7 +25,7 @@ noise issues in the recording.
 Note that for normal-size datasets, the plot may take some time to compile.
 If necessary, \code{plot} will first downsample the \code{eeg_lst} object so that there is a
 maximum of 6,400 samples. The \code{eeg_lst} object is then converted to a long-format
-tibble via \code{as_tibble}. In this tibble, the \code{.source} variable is the
+tibble via \code{as_tibble}. In this tibble, the \code{.key} variable is the
 channel/component name and \code{.value} its respective amplitude. The sample
 number (\code{.sample_id} in the \code{eeg_lst} object) is automatically converted to seconds
 to create the variable \code{time}. By default, time is then plotted on the

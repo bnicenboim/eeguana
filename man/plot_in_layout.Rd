@@ -28,7 +28,7 @@ on the scalp.
 }
 \details{
 This function requires two steps: first, a ggplot object must be created with
-ERPs facetted by channel (\code{.source}).
+ERPs facetted by channel (\code{.key}).
 Then, the ggplot object is called in \code{plot_in_layout}. The function uses grobs
 arranged according to .x .y coordinates extracted from the \code{eeg_lst} object, by
 default in polar arrangement. The arrangement can be changed with the \code{projection}
@@ -54,7 +54,7 @@ ERP_plot <- data_faces_ERPs \%>\%
        # plot the averaged waveforms
        geom_line(aes(color = condition)) +
        # facet by channel
-       facet_wrap(~ .source) +  
+       facet_wrap(~ .key) +  
        # add a legend and title
        theme(legend.position = "bottom") + 
        ggtitle("ERPs for faces vs non-faces") 
