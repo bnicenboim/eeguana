@@ -35,37 +35,20 @@ eeg_ica.eeg_lst <- function(.data,
     method = rlang::enquo(method)
     dots <- rlang::enquos(...)
 
-    ## ## Use id_all only if there are NAs
-    ## id_all<- NULL
-    ##   if(na.rm == FALSE && anyNA(.data$signal)){
-    ##     stop("Missing values in the eeg_lst, use na.rm = TRUE", call. = FALSE)
-    ##   } else {
-    ##       id_all <- .data$signal %>%
-    ##           dplyr::select(-one_of(channel_names(.data)))
-    ##   }
-
-
   signal_complete <- .data$signal[complete.cases(.data$signal)] %>%
             dplyr::select(.id, channel_names(.data))
-    ## cols from signal_tbl that are not channels:
-    ## id_signal <- dplyr::select(.data$signal, -one_of(channel_names(.data)))
-    ## remove more if dots are used
-    if(!rlang::is_empty(dots)){
-        ## id_signal_col <- setdiff(colnames(signal_complete),
-                                      ## tidyselect::vars_select(colnames(signal_complete), !!!dots))
-        ## id_signal <- bind_cols_dt(id_signal,
-                                       ## dplyr::select(signal_complete, id_signal_col))
-        ## data.table::setkey(id_signal,.id,.sample_id)
-       chs <- sel_ch(signal_complete, !!!dots)
-        signal_complete <- dplyr::select(signal_complete, c(".id", chs))
-    }
+  ## remove more if dots are used
+  if(!rlang::is_empty(dots)){
+      chs <- sel_ch(signal_complete, !!!dots)
+      signal_complete <- dplyr::select(signal_complete, c(".id", chs))
+  }
 
 
-
-    ## creates a DT with length length(signal_tbl) where the grouping var is repeated,
+  ## creates a DT with length length(signal_tbl) where the grouping var is repeated,
   ## This is used to split the signal_tbl, in case that there are many recordings together
   signal_complete <- signal_complete[data.table::as.data.table(.data$segments)[
-                                                    ,.(.id,recording)], on = ".id"][,.id:=NULL]
+                                                    ,.(.id,recording)], on = ".id",
+                                     nomatch = 0][,.id:=NULL][]
 
   l_signal <- split(signal_complete, by = "recording", keep.by = FALSE)
 
@@ -116,7 +99,8 @@ eeg_ica.eeg_lst <- function(.data,
     config <- purrr::list_modify(default_config, !!!config)
 
   ICA_fun <- function(x){
-      ##method needs to be evaluated in the package env, and the parameters are passed in alist with do.call
+      ## the method needs to be evaluated in the package env,
+      ## and the parameters are passed in alist with do.call
         do.call(rlang::eval_tidy(method), c(list(data_in(x)), config)) %>% data_out()
     }
 
