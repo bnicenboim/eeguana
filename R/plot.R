@@ -7,7 +7,7 @@
 #' Note that for normal-size datasets, the plot may take some time to compile.
 #' If necessary, `plot` will first downsample the `eeg_lst` object so that there is a 
 #' maximum of 6,400 samples. The `eeg_lst` object is then converted to a long-format
-#' tibble via `as_tibble`. In this tibble, the `.source` variable is the 
+#' tibble via `as_tibble`. In this tibble, the `.key` variable is the 
 #' channel/component name and `.value` its respective amplitude. The sample 
 #' number (`.sample_id` in the `eeg_lst` object) is automatically converted to seconds
 #' to create the variable `time`. By default, time is then plotted on the 
@@ -38,9 +38,9 @@
 #' @export
 plot.eeg_lst <- function(x, max_sample = 6400, ...) {
     ellipsis::check_dots_unnamed()
-  plot <- ggplot2::ggplot(x, ggplot2::aes(x = time, y = .value, group = .id)) +
+    plot <- ggplot2::ggplot(x, ggplot2::aes(x = .time, y = .value, group = .id)) +
     ggplot2::geom_line() +
-    ggplot2::facet_grid(.source ~ .,
+    ggplot2::facet_grid(.key ~ .,
                         labeller = ggplot2::label_wrap_gen(multi_line = FALSE),
                         scales = "free"
     ) +
@@ -56,7 +56,7 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
 #' 
 #' If necessary, `plot_gg` will first downsample the `eeg_lst` object so that there is a 
 #' maximum of 6400 samples. The `eeg_lst` object is then converted to a long-format
-#' tibble via [as_tibble]. In this tibble, the `.source` variable is the 
+#' tibble via [as_tibble]. In this tibble, the `.key` variable is the 
 #' channel/component name and `.value` its respective amplitude. The sample 
 #' number (`.sample_id` in the `eeg_lst` object) is automatically converted to milliseconds
 #' to create the variable `time`. By default, time is plotted on the 
@@ -83,7 +83,7 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
 #'       stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1.5, 
 #'                aes(color = condition)) +
 #'       # facet by channel
-#'       facet_wrap(~ .source) + 
+#'       facet_wrap(~ .key) + 
 #'       theme(legend.position = "bottom") 
 #'
 #' @export
@@ -92,7 +92,7 @@ plot_gg <- function(.data, ...) {
 }
 #' @rdname plot_gg
 #' @export
-plot_gg.eeg_lst <- function(.data, x = time, y = .value, ..., max_sample = 2400) {
+plot_gg.eeg_lst <- function(.data, x = .time, y = .value, ..., max_sample = 2400) {
   x <- rlang::enquo(x)
   y <- rlang::enquo(y)
   dots <- rlang::enquos(...)
@@ -127,7 +127,7 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 #' grouped (e.g. by condition) and/or 
 #' summarized into mean values such that each .x .y coordinate has only one 
 #' amplitude value. By default, `plot_topo` interpolates amplitude values via
-#' `eeg_interpolate_tbl`, which generates a tibble with `.source` (channel), 
+#' `eeg_interpolate_tbl`, which generates a tibble with `.key` (channel), 
 #'  `.value` (amplitude), and .x .y coordinate variables. .x .y coordinates are 
 #' extracted from the `eeg_lst` object, which in turn reads the coordinates logged
 #' by your EEG recording software. By default, `plot_topo` will display electrodes 
@@ -191,7 +191,7 @@ plot_topo <- function(data,  ...) {
 }
 #' @rdname plot_topo
 #' @export
-plot_topo.tbl_df <- function(data, value= .value,  label=.source) {
+plot_topo.tbl_df <- function(data, value= .value,  label=.key) {
 
   value <- rlang::enquo(value)
   label <- rlang::enquo(label)
@@ -241,25 +241,32 @@ plot_topo.eeg_lst <- function(data, projection = "polar", ...) {
     plot_topo()
 }
 
+#' @export
+plot_topo_ica <- function(data,  ...) {
+  UseMethod("plot_topo_ica")
+}
 #' @rdname plot_topo
 #' @export
-plot_topo.mixing_tbl <- function(data,  projection = "polar", ...) {
+plot_topo_ica.eeg_ica_lst <- function(data,  projection = "polar", ...) {
     
     channels_tbl(data)  <- change_coord(channels_tbl(data), projection)  
-#TODO: move to data.table, ignore group, just do it by .recording
-    data %>% as_long_tbl %>% 
-        dplyr::filter(.ICA != "mean") %>%
-        dplyr::mutate(.ICA = factor(.ICA, levels = unique(.ICA)))%>%
-        dplyr::group_by(.group,.ICA) %>%
+    ##TODO: move to data.table, ignore group, just do it by .recording
+    long_table <- map_dtr(data$ica, ~ data.table::as.data.table(.x$mixing_matrix) %>%
+                            .[, .ICA := {.ICA = paste0("I",seq_len(.N));
+                            factor(.ICA, levels = .ICA)}],.id = "recording") %>%
+      data.table::melt(variable.name = ".key",
+                       id.vars = c(".ICA","recording"),
+                       value.name = ".value")
+    long_table[,.key := as.character(.key)]
+    
+    long_table <- left_join_dt(long_table, data.table::as.data.table(channels_tbl(data)), by = c(".key"= ".channel")) %>% 
+      dplyr::group_by(recording,.ICA) %>%
+      
         eeg_interpolate_tbl(...) %>%
         plot_topo()
 }
 
-#' @rdname plot_topo
-#' @export
-plot_topo.ica_lst <- function(data, projection = "polar", ...) {
-    plot_topo(data$mixing, projection = "polar", ...)
-}
+
 
 
 #' Arrange ERP plots according to scalp layout
@@ -268,7 +275,7 @@ plot_topo.ica_lst <- function(data, projection = "polar", ...) {
 #' on the scalp.
 #' 
 #' This function requires two steps: first, a ggplot object must be created with 
-#' ERPs facetted by channel (`.source`). 
+#' ERPs facetted by channel (`.key`). 
 #' Then, the ggplot object is called in `plot_in_layout`. The function uses grobs
 #' arranged according to .x .y coordinates extracted from the `eeg_lst` object, by
 #' default in polar arrangement. The arrangement can be changed with the `projection`
@@ -300,7 +307,7 @@ plot_topo.ica_lst <- function(data, projection = "polar", ...) {
 #'        # plot the averaged waveforms
 #'        geom_line(aes(color = condition)) +
 #'        # facet by channel
-#'        facet_wrap(~ .source) +  
+#'        facet_wrap(~ .key) +  
 #'        # add a legend and title
 #'        theme(legend.position = "bottom") + 
 #'        ggtitle("ERPs for faces vs non-faces") 
@@ -329,7 +336,7 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
   if (!all(c(".x", ".y", ".z") %in% colnames(eeg_data))) {
     stop("Coordinates are missing from the data.")
   }
-  plot <- plot  + ggplot2::facet_wrap(.~.source)
+  plot <- plot  + ggplot2::facet_wrap(.~.key)
   plot_grob <- ggplot2::ggplotGrob(plot)
   layout <- ggplot2::ggplot_build(plot)$layout$layout
 
@@ -373,9 +380,9 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
   
   # won't work for free scales, need to add an if-else inside
   
-  channel_grobs <- purrr::map(layout$.source, function(ch) {
+  channel_grobs <- purrr::map(layout$.key, function(ch) {
     ## pos <- which(facet_names==ch, arr.ind =  TRUE)
-      ch_pos <- layout %>% dplyr::filter(.source == ch)
+      ch_pos <- layout %>% dplyr::filter(.key == ch)
     # panel_txt <- paste0("panel-", ch_pos$ROW, "-", ch_pos$COL)
     # strip_txt <- paste0("strip-t-", ch_pos$COL, "-", ch_pos$ROW)
     # axisl_txt <- paste0("axis-l-", ch_pos$ROW, "-", ch_pos$COL)
@@ -403,7 +410,7 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
     # }
 
     ch_grob
-  }) %>% stats::setNames(layout$.source)
+  }) %>% stats::setNames(layout$.key)
   # #gtable::gtable_height(ch_grob)
   # grid::heightDetails(ch_grob)
   # grid::heightDetails(ch_grob)
@@ -441,7 +448,7 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
   
   for (i in seq_len(length(channel_grobs))) {
     new_coord <- eeg_data %>%
-        dplyr::filter(.source == names(channel_grobs)[[i]]) %>%
+        dplyr::filter(.key == names(channel_grobs)[[i]]) %>%
       dplyr::distinct(.x, .y)
     if(is.na(new_coord$.x) && is.na(new_coord$.y)){
       new_plot
@@ -505,11 +512,10 @@ add_events_plot <- function(plot, alpha = .2){
     events_tbl <- data.table::copy(events_tbl)
     events_tbl[,xmin:= as_time(.initial) ]
     events_tbl[,xmax:= as_time(.final) ]
-    ## events_tbl[,.source:= as.factor(.channel)]
-    events_tbl[,description := (do.call(paste,c(.SD, sep ="."))), .SDcols= c(info_events)]
+    events_tbl[,Event := (do.call(paste,c(.SD, sep ="."))), .SDcols= c(info_events)]
                                         #single events
     segs <- plot$data %>%
-        dplyr::select(-time, -.source, -.value, -.type) %>%
+        dplyr::select(-.time, -.key, -.value) %>%
         dplyr::distinct()
   
     events_tbl <- left_join_dt(events_tbl, data.table::as.data.table(segs), by = ".id")
@@ -517,16 +523,16 @@ add_events_plot <- function(plot, alpha = .2){
     to_plot<- list()
     to_plot$events_all <- filter_dt(events_tbl, .initial == .final, is.na(.channel) )
     to_plot$events_ch <- filter_dt(events_tbl, .initial == .final, !is.na(.channel) ) %>%
-        .[, .source := as.factor(.channel)]
+        .[, .key := as.factor(.channel)]
     to_plot$intervals_all <- filter_dt(events_tbl, .initial < .final, is.na(.channel) )
     to_plot$intervals_ch <- filter_dt(events_tbl, .initial < .final, !is.na(.channel) )  %>%
-        .[, .source := as.factor(.channel)]
+        .[, .key := as.factor(.channel)]
     add_to_plot <- purrr::map(to_plot, ~ if(nrow(.x)>0){
                               geom_rect(data= .x,
                                         aes(xmin = xmin,
                                             xmax =  xmax ,
-                                            color = description,
-                                            fill = description,
+                                            color = Event,
+                                            fill = Event,
                                             group = .id),
                                         alpha = alpha,
                                         ymin = -Inf, ymax= Inf,
@@ -544,13 +550,10 @@ ggplot.eeg_lst <- function(data = NULL,
                            ...,
                            max_sample = 2400,
                             environment = parent.frame()) {
-   
     df <- try_to_downsample(data, max_sample) %>%
         data.table::as.data.table()
 
-    df[,.source := factor(.source, levels = unique(.source))]
-    if(is.null(mapping)){
-    }
+    df[,.key := factor(.key, levels = unique(.key))]
     p <- ggplot2::ggplot(data=df,mapping=mapping,..., environment=environment)
 
     p$data_channels <- channels_tbl(data)

@@ -115,7 +115,7 @@ faces_segs_some %>%
                   geom_line(alpha = .1, aes(group = .id, color = condition)) + 
                   stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1.5, 
                   aes(color = condition)) +
-                  facet_wrap(~ .source) + 
+                  facet_wrap(~ .key) + 
                   geom_vline(xintercept = 0, linetype = "dashed") + 
                   geom_vline(xintercept = .17, linetype = "dotted") + 
                   theme(legend.position = "bottom") 

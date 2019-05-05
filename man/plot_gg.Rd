@@ -7,7 +7,7 @@
 \usage{
 plot_gg(.data, ...)
 
-\method{plot_gg}{eeg_lst}(.data, x = time, y = .value, ...,
+\method{plot_gg}{eeg_lst}(.data, x = .time, y = .value, ...,
   max_sample = 2400)
 }
 \arguments{
@@ -38,7 +38,7 @@ its input data. Layers can then be added in the same way as for a
 \details{
 If necessary, \code{plot_gg} will first downsample the \code{eeg_lst} object so that there is a
 maximum of 6400 samples. The \code{eeg_lst} object is then converted to a long-format
-tibble via \link{as_tibble}. In this tibble, the \code{.source} variable is the
+tibble via \link{as_tibble}. In this tibble, the \code{.key} variable is the
 channel/component name and \code{.value} its respective amplitude. The sample
 number (\code{.sample_id} in the \code{eeg_lst} object) is automatically converted to milliseconds
 to create the variable \code{time}. By default, time is plotted on the
@@ -58,7 +58,7 @@ data_faces_ERPs \%>\%
       stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1.5, 
                aes(color = condition)) +
       # facet by channel
-      facet_wrap(~ .source) + 
+      facet_wrap(~ .key) + 
       theme(legend.position = "bottom") 
 
 }

@@ -71,7 +71,7 @@ add_intervals_from_artifacts <- function(old_events, artifact_found, sample_rang
             }),.id = TRUE
             )
     events_found[,.id:= as.integer(.id)]
-
+    message(paste0("# Number of intervals with artifacts: ", nrow(events_found)))
     new_events <- rbind(events_found, old_events, fill = TRUE)
     data.table::setorder(new_events,.id, .initial, .channel)
     new_events
