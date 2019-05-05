@@ -1,10 +1,10 @@
 
 #' Dplyr functions for manipulating eeg_lst objects.
 #'
-#' Manipulate the signal_tbl and the segments table of an eeg_lst.
+#' Manipulate the signal table and the segments table of an eeg_lst.
 #'
 #' Wrappers for [dplyr][dplyr::dplyr]'s commands that act on different parts
-#' `eggble` objects.
+#' `eeg_lst` objects.
 #' The following wrappers have been implemented for `eeg_lst` objects:
 #' * `mutate()` adds new variables and preserves existing ones. Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.
 #' * `transmute()` like `mutate` but drops non-used variables of the referred table, except for the obligatory columns starting with `.`.
@@ -29,8 +29,41 @@
 #' 
 #' @examples
 #' \dontrun{
-#'
-#' faces_segs %>% select(O1, O2, P7, P8)
+#' 
+#' # Create new channel in the signal table
+#' data_faces_ERPs %>%
+#'     mutate(tmp = Fz - Cz)
+#'     
+#' # Create a new condition in the segments table
+#' data_faces_ERPs %>%
+#'     mutate(code = ifelse(condition == "faces", 1, -1))
+#' 
+#' # Create a new channel and drop all others
+#' data_faces_ERPs %>%
+#'     transmute(Occipital = chs_mean(O1, O2, Oz, 
+#'               na.rm = TRUE))
+#' 
+#' # Extract data associated with a condition
+#' data_faces_ERPs %>%
+#'     filter(condition == "faces")
+#'     
+#' # Group and summarize 
+#' data_faces_ERPs %>%
+#'     # Convert samples to times, filter between timepoints
+#'     filter(between(as_time(.sample_id, unit = "ms"), 
+#'            100, 200)) %>%
+#'     # Find mean amplitude of Fz for each condition
+#'     group_by(condition) %>%
+#'     summarize(mean.amplitude = mean(Fz))
+#' 
+#' # Select specific electrodes
+#' data_faces_ERPs %>% 
+#'     select(O1, O2, P7, P8)
+#' 
+#' # Rename a variable
+#' data_faces_ERPs %>%
+#'     rename(Predictor = condition)
+#'  
 #' }
 NULL
 # > NULL
@@ -57,12 +90,6 @@ transmute_.eeg_lst <- function(.data, ..., .dots = list()) {
 filter_.eeg_lst <- function(.data, ..., .dots = list()) {
   dots <- compat_lazy_dots(.dots, rlang::caller_env(), ...)
   filter_eeg_lst(.data, dots = dots)
-}
-filter.eeg_ica_lst <- function(.data, ..., .dots = list()) {
-  out <- NextMethod()
-  recordings <- unique(out$segments$recording)
-  out$ica <- out$ica[recordings]
-  out
 }
 #' @rdname dplyr-eeguana
 filter.eeg_lst <- function(.data, ...) {
@@ -107,11 +134,26 @@ group_vars.eeg_lst <- function(x) {
 select.eeg_lst <- function(.data, ...) {
   select_rename(.data, select = TRUE, ...)
 }
+#' @rdname dplyr-eeguana
+#' @export
+select.ica_lst <- function(.data, ...){
+    sel <- tidyselect::vars_select(component_names(.data),...)
+    .data <- NextMethod()
+    .data$mixing <- rename_sel_comp(.data$mixing, sel)
+    .data
+}
 
 #' @rdname dplyr-eeguana
 rename.eeg_lst <- function(.data, ...) {
     select_rename(.data, select = FALSE, ...)
 
+}
+#' @rdname dplyr-eeguana
+rename.ica_lst <- function(.data, ...) {
+    sel <- tidyselect::vars_rename(component_names(.data),...)
+    .data <- NextMethod()
+    .data$mixing <- rename_sel_comp(.data$mixing, sel)
+    .data
 }
 
 #' @noRd
