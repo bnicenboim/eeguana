@@ -18,7 +18,7 @@
 
 \method{transmute}{eeg_lst}(.data, ...)
 
-\method{filter}{eeg_lst}(.data, ...)
+\method{filter}{eeg_lst}(.data, ..., .preserve = FALSE)
 
 \method{summarise}{eeg_lst}(.data, ...)
 

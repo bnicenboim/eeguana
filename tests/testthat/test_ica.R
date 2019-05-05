@@ -158,7 +158,6 @@ data_b_m_rec_NA <-   eeg_ica_keep(data_ica_b_m_NA, ICA1, ICA2, ICA3)
 test_that("ica with NAs is a reversible",{
     expect_equal(filter(data_blinks_more_NA, !(.id==1 & .sample_id ==1 | .sample_id==5))$signal ,
                  filter(data_b_m_rec_NA, !(.id==1 & .sample_id ==1 | .sample_id==5))$signal )
-expect_silent(eeg_ica(data_blinks_NA_id))
   })
 
 test_that("other functions work correctly in the eeg_ica_lst", {
