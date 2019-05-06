@@ -162,7 +162,9 @@ filter(s1_N400_ica, .id %in% blink_ids[1:20]) %>%
     annotate_events()
 
 
-s1_N400_icaed <- s1_N400_ica %>% eeg_ica_keep(-ICA1)
+s1_N400_icaed <- s1_N400_ica %>%
+    eeg_ica_keep(-ICA1) %>%
+    as_eeg_lst()
 
 
 ```
@@ -171,18 +173,29 @@ Now we'll segment the data to appropriate check if there are still artifacts.
 
 ```{r}
 
-select(-description, -type) %>%
+s1_N400_seg <- s1_N400_icaed %>%  select(-description, -type) %>%
     eeg_segment(description %in% c("s10","s20"), lim = c(-.1,1))
 
-s1_segs_artif <- s1_segs %>%
+s1_N400_seg_artif <- s1_N400_seg %>%
     eeg_artif_minmax(-HEOG, -VEOG, threshold =100, window=150, unit = "ms") %>%
     eeg_artif_step(-HEOG, -VEOG,threshold = 50, window=200, unit = "ms")
 
-events_tbl(s1_segs_artif) %>% count(type,description)
-ids <- events_tbl(s1_segs_artif) %>% filter(!is.na(.channel), !.channel %in% c("VEOG","HEOG")) %>%
+events_tbl(s1_N400_seg_artif) %>% count(type,description)
+ids <- events_tbl(s1_N400_seg_artif) %>% filter(!is.na(.channel), !.channel %in% c("VEOG","HEOG")) %>%
     pull(.id)
-plot_artif <- s1_segs_artif %>% filter(.id %in% ids) %>% plot() + facet_grid(.source ~segment)
+s1_N400_seg_artif %>% filter(.id %in% ids) %>%
+    select(-VEOG, -HEOG)%>%
+    plot() + facet_grid(.key ~segment) +
+    annotate_events() 
 
-add_events_plot(plot_artif)
+s1_N400 <- s1_N400_seg_artif %>% eeg_events_to_NA(type=="artifact", !.channel %in% c("VEOG","HEOG"),entire_seg = TRUE, all_chans = FALSE, drop_events = TRUE )
+
+summary(s1_N400)
+
+```
+
+```{r}
+ERPs <- s1_N400 %>% group_by(.sample_id, description) %>% summarize_at(channel_names(.), mean, na.rm= TRUE)
+ERPs %>% select(Fz) %>% plot() + geom_line(aes(color = description))
 
 ```
