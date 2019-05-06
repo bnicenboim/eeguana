@@ -121,10 +121,10 @@ bad_ids <- filter(events_tbl(s1_N400_ls), type == "artifact") %>%
     pull(.id) %>%
     unique
 
-plot_artif <- filter(s1_N400_ls, .id %in% bad_ids[1:10]) %>% 
-     plot(max_sample =2000) + facet_grid(.key~.id)
+filter(s1_N400_ls, .id %in% bad_ids[1:10]) %>% 
+    plot(max_sample =2000) + facet_grid(.key~.id) +
+    annotate_events()
 
-add_events_plot(plot_artif)
 
 events_tbl(s1_N400_ls)
 ## By default will ignore artifacts
@@ -153,16 +153,16 @@ s1_N400_ica <- s1_N400_ica %>%
 blink_ids <- filter(events_tbl(s1_N400_ica), type == "artifact", .channel %in% c("VEOG","HEOG"))$.id %>% unique()
 
 
-plot <- filter(s1_N400_ica, .id %in% blink_ids[1:20]) %>%
+filter(s1_N400_ica, .id %in% blink_ids[1:20]) %>%
     eeg_ica_show(one_of(ICAs)) %>%
     select(c(ICAs, "VEOG", "HEOG")) %>%
     mutate_if(is_component_dbl, ~.*10) %>%
     plot( max_sample =2000) + facet_grid(.key~.id) +
-    coord_cartesian(ylim=c(-50,50), xlim = c(0,4))
+    coord_cartesian(ylim=c(-50,50), xlim = c(0,4)) +
+    annotate_events()
 
-add_events_plot(plot, alpha =.3,all_chs = TRUE)
 
-s1_N400_ica <- s1_N400_ica %>% eeg_ica_keep(-ICA1)
+s1_N400_icaed <- s1_N400_ica %>% eeg_ica_keep(-ICA1)
 
 
 ```

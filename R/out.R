@@ -264,7 +264,7 @@ print.eeg_ica_lst <- function(x, ...){
     } 
     cat_line("")
     cat_line("# ICA:" )
-    cat_line(paste0("# Component_names: ICA1...", component_names(x)[ncomponents(x)]))
+    cat_line(paste0("# Component_names:", paste0(component_names(x), collapse = ", ")))
     cat_line(paste0("# Channels_used: ", paste0(channel_ica_names(x), collapse=", ")))
     cat_line("")
     cat_line("# Segments table:")
