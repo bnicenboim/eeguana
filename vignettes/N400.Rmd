@@ -115,7 +115,7 @@ We want to apply ICA to as much data as possible, but to "representative" data, 
 
 ```{r}
 s1_N400_ls <- eeg_segment(s1_N400_filt, description == "s130", end= description == "s132") %>%
-    eeg_artif_amplitude(threshold = c(-200,200),events_lim = c(-200,200), unit = "ms")
+    eeg_artif_minmax(threshold = 100,window = 200, unit = "ms")
 
 bad_ids <- filter(events_tbl(s1_N400_ls), type == "artifact") %>%
     pull(.id) %>%
@@ -145,7 +145,7 @@ summary(s1_N400_ica)
 ```
 We'll look closer at the ICA that are more likely to be related to eye movements, and we'll compare with signals that look like blinks and saccades:
 ```{r}
-ICAs <- c("ICA1", "ICA2","ICA3", "ICA9", "ICA16", "ICA5")
+ICAs <- c("ICA1", "ICA2","ICA3", "ICA17", "ICA29", "ICA7")
 s1_N400_ica <- s1_N400_ica %>%
     eeg_artif_step(HEOG, threshold = 30, window=400, unit = "ms") %>%
     eeg_artif_minmax(VEOG, threshold = 50, window=200, unit = "ms")
@@ -153,13 +153,14 @@ s1_N400_ica <- s1_N400_ica %>%
 blink_ids <- filter(events_tbl(s1_N400_ica), type == "artifact", .channel %in% c("VEOG","HEOG"))$.id %>% unique()
 
 
-plot <- filter(s1_N400_ica, .id %in% blink_ids[5:15]) %>%
+plot <- filter(s1_N400_ica, .id %in% blink_ids[1:20]) %>%
     eeg_ica_show(one_of(ICAs)) %>%
     select(c(ICAs, "VEOG", "HEOG")) %>%
     mutate_if(is_component_dbl, ~.*10) %>%
-    plot( max_sample =2000) + facet_grid(.key~.id)
+    plot( max_sample =2000) + facet_grid(.key~.id) +
+    coord_cartesian(ylim=c(-50,50), xlim = c(0,4))
 
-add_events_plot(plot, all_chs = TRUE)
+add_events_plot(plot, alpha =.3,all_chs = TRUE)
 
 s1_N400_ica <- s1_N400_ica %>% eeg_ica_keep(-ICA1)
 

@@ -505,11 +505,28 @@ annotate_head <- function(size = 1.1, color ="black", stroke=1) {
 } 
 
 #' @export
-add_events_plot <- function(plot, alpha = .2,all_chs = FALSE){
-    events_tbl <- plot$data_events
+annotate_events <- function(data=NULL, alpha = .2){
+    layer <- geom_rect(data=data, alpha = alpha,
+              ymin = -Inf, ymax= Inf,
+              inherit.aes = FALSE,
+              aes(xmin = xmin,
+                  xmax =  xmax ,
+                  color = Event,
+                  fill = Event,
+                  group = .id)
+              
+              )
+    structure(list(layer = layer), class = "layer_events")
+}
 
+ggplot_add.layer_events <- function(object, plot, object_name) {
+    if(length(object$layer$data)==0) {
+        events_tbl <- plot$data_events
+   } else {
+       events_tbl <- object$layer$data
+    }
     info_events   <- setdiff(colnames(events_tbl), obligatory_cols[["events"]])
-    events_tbl <- data.table::copy(events_tbl)
+    events_tbl <- data.table::as.data.table(events_tbl)
     events_tbl[,xmin:= as_time(.initial) ]
     events_tbl[,xmax:= as_time(.final) ]
     events_tbl[,Event := (do.call(paste,c(.SD, sep ="."))), .SDcols= c(info_events)]
@@ -519,9 +536,10 @@ add_events_plot <- function(plot, alpha = .2,all_chs = FALSE){
         dplyr::distinct()
   
     events_tbl <- left_join_dt(events_tbl, data.table::as.data.table(segs), by = ".id")
-    if(all_chs){
-      events_tbl[, .channel := NA]
-    }
+    ## if(all_chs){
+    ##   events_tbl[, .channel := NA]
+    ## }
+
     to_plot<- list()
     to_plot$events_all <- filter_dt(events_tbl, .initial == .final, is.na(.channel) )
     to_plot$events_ch <- filter_dt(events_tbl, .initial == .final, !is.na(.channel) ) %>%
@@ -530,21 +548,14 @@ add_events_plot <- function(plot, alpha = .2,all_chs = FALSE){
     to_plot$intervals_ch <- filter_dt(events_tbl, .initial < .final, !is.na(.channel) )  %>%
         .[, .key := as.factor(.channel)]
     add_to_plot <- purrr::map(to_plot, ~ if(nrow(.x)>0){
-                              geom_rect(data= .x,
-                                        aes(xmin = xmin,
-                                            xmax =  xmax ,
-                                            color = Event,
-                                            fill = Event,
-                                            group = .id),
-                                        alpha = alpha,
-                                        ymin = -Inf, ymax= Inf,
-                                        inherit.aes = FALSE) 
-                          }
-                          else {
-                              NULL
-                          })
-    plot + add_to_plot
-}
+                                             object$layer$data= .x
+                                             object$layer
+                                         }
+                                         else {
+                                             NULL
+                                         })
+  plot + add_to_plot
+} 
 
 #' @export
 ggplot.eeg_lst <- function(data = NULL,
