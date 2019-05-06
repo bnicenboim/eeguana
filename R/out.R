@@ -131,11 +131,20 @@ nsamples.eeg_lst <- function(x, ...) {
 #'
 #' @export
 summary.eeg_lst <- function(object, ...) {
+  segments_with_incomp_col <- object %>% signal_tbl %>% dplyr::select(-.sample_id) %>%
+    split(by=".id", keep.by = FALSE) %>% 
+    lapply(anyNA) %>% 
+    unlist() %>% 
+    dplyr::tibble(".id" = as.integer(names(.)), "incomplete" = .) %>%
+    dplyr::left_join(object$segments, by =".id")
+    
+  
   summ <- list(
     sampling_rate = sampling_rate(object),
-    segments = object$segments %>%
-      dplyr::count(recording) %>%
-      dplyr::rename(segment_n = n) %>% data.table::data.table(),
+    segments = segments_with_incomp_col %>% 
+    dplyr::group_by(recording) %>%
+    dplyr::summarize(n_segments = n(), n_incomplete = sum(incomplete))  %>% 
+      data.table::data.table(),
     events = object$events %>%
       dplyr::group_by_at(dplyr::vars(-.final, -.channel, -.initial, -.id)) %>%
       dplyr::count() %>% data.table::data.table(),
@@ -167,7 +176,7 @@ eeg_ica_cor_lst.eeg_ica_lst <- function(.data,...){
     eogs <- channel_names(.data)[channel_names(.data) %>%
                                  stringr::str_detect(stringr::regex("eog", ignore_case = TRUE))]
     names(eogs) <- eogs
-    comps <- object %>% eeg_ica_show(component_names(.)) 
+    comps <- .data %>% eeg_ica_show(component_names(.)) 
 
     lapply(eogs, function(eog) 
         comps$signal %>%
@@ -203,6 +212,7 @@ print.eeg_summary <- function(x, ...) {
   x$segments %>%
     print(.,...)
 
+  
   cat("# Summary of events\n")
 
   x$events %>%

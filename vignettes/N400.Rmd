@@ -60,10 +60,11 @@ First we load the `eeguana` and other packages that we'll use.
 library(dplyr)
 library(ggplot2)
 library(eeguana)
+require(osfr)
 set.seed(123) #ICA will always find the same components
 ```
 
-We'll need the following dataset that can be downloaded as follows:
+We'll need the following dataset that can be downloaded from the folder N400 of [https://osf.io/tbwvz/]. Alternatively we could use `osfr` as follows:
 ```{r downloading}
 files <- c("s1_N400.eeg","s1_N400.vmrk","s1_N400.vhdr")
 ```
@@ -113,15 +114,15 @@ s1_N400_filt <- eeg_filt_band_pass(s1_N400,-HEOG, -VEOG, freq = c(.1,30)) %>%
 We want to apply ICA to as much data as possible, but to "representative" data, that is part of the experiments and not when the participants are moving or reading the instructions. For the same reason, we want to remove "crazy" artifacts: regions with extreme amplitudes in the signal.
 
 ```{r}
-s1_N400_ls <- eeg_segment(s1_N400_filt, description == "s130", end= description == "s134") %>%
-    eeg_artif_amplitude(threshold = c(-200,200),events_lim = c(-1000,1000), unit = "ms")
+s1_N400_ls <- eeg_segment(s1_N400_filt, description == "s130", end= description == "s132") %>%
+    eeg_artif_amplitude(threshold = c(-400,400),events_lim = c(-200,200), unit = "ms")
 
-ids <- filter(events_tbl(s1_N400_ls), type == "artifact") %>%
+bad_ids <- filter(events_tbl(s1_N400_ls), type == "artifact") %>%
     pull(.id) %>%
     unique
 
-plot_artif <- filter(s1_N400_ls, .id %in% ids[1:10]) %>%
-     plot(max_sample =2000) + facet_grid(.~.id)
+plot_artif <- filter(s1_N400_ls, .id %in% bad_ids[1:10]) %>% select(Fp1) %>%
+     plot(max_sample =2000) + facet_grid(.key~.id)
 
 add_events_plot(plot_artif)
 
@@ -139,7 +140,6 @@ s1_N400_ica %>% plot_topo_ica() +
 
 summary(s1_N400_ica)
 
-
 s1_N400_ica <- s1_N400_ica %>%
     eeg_artif_step(VEOG, HEOG, threshold = 30, window=400, unit = "ms") %>%
     eeg_artif_minmax(VEOG, HEOG, threshold = 50, window=200, unit = "ms")
@@ -147,9 +147,9 @@ s1_N400_ica <- s1_N400_ica %>%
 blink_ids <- filter(events_tbl(s1_N400_ica, type == "artifact", .channel %in% c("VEOG","HEOG")))$.id %>% unique()
 
 ##s1_N400_ica %>% group_by(.id) %>% filter_at(channel_names(.), anyNA)
+#s1_N400_ica %>% group_by(.id) %>% filter(complete.cases(signal_tbl(s1_N400_ica)))
 
-filter(complete.cases(signal_tbl(s1_N400_ica)))
-
+#summary incomplete cases
 plot <- filter(s1_N400_ica, .id %in% blink_ids[1:30]) %>%
     eeg_ica_show(ICA1:ICA10) %>%
     select(ICA1:ICA10, VEOG, HEOG) %>%
@@ -157,6 +157,5 @@ plot <- filter(s1_N400_ica, .id %in% blink_ids[1:30]) %>%
     plot( max_sample =2000) + facet_grid(.key~.id)
 
 add_events_plot(plot)
-
 ```
 
