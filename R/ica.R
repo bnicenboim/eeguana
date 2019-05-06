@@ -16,7 +16,8 @@ eeg_ica <- function(.data, ...){
 #' @return An ica_lst object
 #' @export
 eeg_ica.eeg_lst <- function(.data, 
-                    ...,
+                            ...,
+                            ignore = type == "artifact",
                     method = fICA::adapt_fICA,
                     config= list(),
                     tolerance = 1e-06,
@@ -32,21 +33,29 @@ eeg_ica.eeg_lst <- function(.data,
     ##https://martinos.org/mne/dev/auto_tutorials/plot_ica_from_raw.html
     ##http://www.fieldtriptoolbox.org/example/use_independent_component_analysis_ica_to_remove_eog_artifacts/
     ##method = rlang::quo(fICA::adapt_fICA) # for testing
-    method = rlang::enquo(method)
+  ##ignore = rlang::quo(type == "artifact") # for testing
+  method <- rlang::enquo(method)
     dots <- rlang::enquos(...)
+  ignore <- rlang::enquo(ignore)
 
-  signal_complete <- .data$signal[complete.cases(.data$signal)] %>%
+  rejected_data <- eeg_events_to_NA(.data, !!ignore,
+                                    all_chans = FALSE,
+                                    entire_seg = FALSE,
+                                    drop_events = FALSE)
+
+  signal_raw <- rejected_data$signal %>%
             dplyr::select(.id, channel_names(.data))
   ## remove more if dots are used
   if(!rlang::is_empty(dots)){
-      chs <- sel_ch(signal_complete, !!!dots)
-      signal_complete <- dplyr::select(signal_complete, c(".id", chs))
+      chs <- sel_ch(signal_raw, !!!dots)
+      signal_raw <- dplyr::select(signal_raw, c(".id", chs))
   }
 
-
+  
   ## creates a DT with length length(signal_tbl) where the grouping var is repeated,
   ## This is used to split the signal_tbl, in case that there are many recordings together
-  signal_complete <- signal_complete[data.table::as.data.table(.data$segments)[
+  signal_complete <- signal_raw[complete.cases(signal_raw),][
+      data.table::as.data.table(.data$segments)[
                                                     ,.(.id,recording)], on = ".id",
                                      nomatch = 0][,.id:=NULL][]
 

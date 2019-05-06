@@ -7,8 +7,9 @@
 \usage{
 eeg_ica(.data, ...)
 
-\method{eeg_ica}{eeg_lst}(.data, ..., method = fICA::adapt_fICA,
-  config = list(), tolerance = 1e-06, max_iterations = 1000)
+\method{eeg_ica}{eeg_lst}(.data, ..., ignore = type == "artifact",
+  method = fICA::adapt_fICA, config = list(), tolerance = 1e-06,
+  max_iterations = 1000)
 }
 \arguments{
 \item{.data}{An eeg_lst object}

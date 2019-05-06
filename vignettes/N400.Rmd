@@ -111,27 +111,30 @@ s1_N400_filt <- eeg_filt_band_pass(s1_N400,-HEOG, -VEOG, freq = c(.1,30)) %>%
 
 ## ICA
 
-We want to apply ICA to as much data as possible, but to "representative" data, that is part of the experiments and not when the participants are moving or reading the instructions. For the same reason, we want to remove "crazy" artifacts: regions with extreme amplitudes in the signal.
+We want to apply ICA to as much data as possible, but to "representative" data, that is part of the experiments and not when the participants are moving or reading the instructions. For the same reason, we want to the ignore "crazy" artifacts: regions with extreme amplitudes in the signal.
 
 ```{r}
 s1_N400_ls <- eeg_segment(s1_N400_filt, description == "s130", end= description == "s132") %>%
-    eeg_artif_amplitude(threshold = c(-400,400),events_lim = c(-200,200), unit = "ms")
+    eeg_artif_amplitude(threshold = c(-200,200),events_lim = c(-200,200), unit = "ms")
 
 bad_ids <- filter(events_tbl(s1_N400_ls), type == "artifact") %>%
     pull(.id) %>%
     unique
 
-plot_artif <- filter(s1_N400_ls, .id %in% bad_ids[1:10]) %>% select(Fp1) %>%
+plot_artif <- filter(s1_N400_ls, .id %in% bad_ids[1:10]) %>% 
      plot(max_sample =2000) + facet_grid(.key~.id)
 
 add_events_plot(plot_artif)
 
 events_tbl(s1_N400_ls)
+## By default will ignore artifacts
+s1_N400_ica <- s1_N400_ls %>%
+    eeg_ica( -HEOG, -VEOG, -M1, -M2, ignore = type == "artifact")
 
-s1_N400_ica <- eeg_events_to_NA(s1_N400_ls, type == "artifact",
-                               all_chans = TRUE, entire_seg = FALSE) %>%
-    eeg_ica( -HEOG, -VEOG, -M1, -M2)
+```
 
+We can now check the different topographic plots of the ICAs. And their correlation with the EOG channels
+```{r}
 s1_N400_ica %>% plot_topo_ica() +
     facet_wrap(~.ICA)+
     annotate_head() + 
@@ -139,23 +142,46 @@ s1_N400_ica %>% plot_topo_ica() +
     geom_text(colour = "black")
 
 summary(s1_N400_ica)
-
+```
+We'll look closer at the ICA that are more likely to be related to eye movements, and we'll compare with signals that look like blinks and saccades:
+```{r}
+ICAs <- c("ICA1", "ICA2","ICA3", "ICA9", "ICA16", "ICA5")
 s1_N400_ica <- s1_N400_ica %>%
-    eeg_artif_step(VEOG, HEOG, threshold = 30, window=400, unit = "ms") %>%
-    eeg_artif_minmax(VEOG, HEOG, threshold = 50, window=200, unit = "ms")
+    eeg_artif_step(HEOG, threshold = 30, window=400, unit = "ms") %>%
+    eeg_artif_minmax(VEOG, threshold = 50, window=200, unit = "ms")
 
-blink_ids <- filter(events_tbl(s1_N400_ica, type == "artifact", .channel %in% c("VEOG","HEOG")))$.id %>% unique()
+blink_ids <- filter(events_tbl(s1_N400_ica), type == "artifact", .channel %in% c("VEOG","HEOG"))$.id %>% unique()
 
-##s1_N400_ica %>% group_by(.id) %>% filter_at(channel_names(.), anyNA)
-#s1_N400_ica %>% group_by(.id) %>% filter(complete.cases(signal_tbl(s1_N400_ica)))
 
-#summary incomplete cases
-plot <- filter(s1_N400_ica, .id %in% blink_ids[1:30]) %>%
-    eeg_ica_show(ICA1:ICA10) %>%
-    select(ICA1:ICA10, VEOG, HEOG) %>%
-    mutate_if(is_component_dbl, ~.*20) %>%
+plot <- filter(s1_N400_ica, .id %in% blink_ids[5:15]) %>%
+    eeg_ica_show(one_of(ICAs)) %>%
+    select(c(ICAs, "VEOG", "HEOG")) %>%
+    mutate_if(is_component_dbl, ~.*10) %>%
     plot( max_sample =2000) + facet_grid(.key~.id)
 
-add_events_plot(plot)
+add_events_plot(plot, all_chs = TRUE)
+
+s1_N400_ica <- s1_N400_ica %>% eeg_ica_keep(-ICA1)
+
+
 ```
 
+Now we'll segment the data to appropriate check if there are still artifacts.
+
+```{r}
+
+select(-description, -type) %>%
+    eeg_segment(description %in% c("s10","s20"), lim = c(-.1,1))
+
+s1_segs_artif <- s1_segs %>%
+    eeg_artif_minmax(-HEOG, -VEOG, threshold =100, window=150, unit = "ms") %>%
+    eeg_artif_step(-HEOG, -VEOG,threshold = 50, window=200, unit = "ms")
+
+events_tbl(s1_segs_artif) %>% count(type,description)
+ids <- events_tbl(s1_segs_artif) %>% filter(!is.na(.channel), !.channel %in% c("VEOG","HEOG")) %>%
+    pull(.id)
+plot_artif <- s1_segs_artif %>% filter(.id %in% ids) %>% plot() + facet_grid(.source ~segment)
+
+add_events_plot(plot_artif)
+
+```

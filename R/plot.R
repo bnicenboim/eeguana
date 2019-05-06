@@ -505,7 +505,7 @@ annotate_head <- function(size = 1.1, color ="black", stroke=1) {
 } 
 
 #' @export
-add_events_plot <- function(plot, alpha = .2){
+add_events_plot <- function(plot, alpha = .2,all_chs = FALSE){
     events_tbl <- plot$data_events
 
     info_events   <- setdiff(colnames(events_tbl), obligatory_cols[["events"]])
@@ -519,7 +519,9 @@ add_events_plot <- function(plot, alpha = .2){
         dplyr::distinct()
   
     events_tbl <- left_join_dt(events_tbl, data.table::as.data.table(segs), by = ".id")
-
+    if(all_chs){
+      events_tbl[, .channel := NA]
+    }
     to_plot<- list()
     to_plot$events_all <- filter_dt(events_tbl, .initial == .final, is.na(.channel) )
     to_plot$events_ch <- filter_dt(events_tbl, .initial == .final, !is.na(.channel) ) %>%
