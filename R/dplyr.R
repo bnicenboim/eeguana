@@ -136,26 +136,11 @@ group_vars.eeg_lst <- function(x) {
 select.eeg_lst <- function(.data, ...) {
   select_rename(.data, select = TRUE, ...)
 }
-#' @rdname dplyr-eeguana
-#' @export
-select.ica_lst <- function(.data, ...){
-    sel <- tidyselect::vars_select(component_names(.data),...)
-    .data <- NextMethod()
-    .data$mixing <- rename_sel_comp(.data$mixing, sel)
-    .data
-}
 
 #' @rdname dplyr-eeguana
 rename.eeg_lst <- function(.data, ...) {
     select_rename(.data, select = FALSE, ...)
 
-}
-#' @rdname dplyr-eeguana
-rename.ica_lst <- function(.data, ...) {
-    sel <- tidyselect::vars_rename(component_names(.data),...)
-    .data <- NextMethod()
-    .data$mixing <- rename_sel_comp(.data$mixing, sel)
-    .data
 }
 
 #' @noRd
