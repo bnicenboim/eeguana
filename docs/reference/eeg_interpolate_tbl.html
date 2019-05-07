@@ -95,7 +95,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/brainvision_files.html">Introduction - Manipulating a clean EEG file exported from BrainVision 2.0</a>
+      <a href="../articles/intro.html">Introduction - Preprocessing and visualization of EEG data.</a>
     </li>
     <li>
       <a href="../articles/preprocessing_erp.html">Preprocessing of EEG data and computing ERPs (Fieldtrip tutorial)</a>
@@ -145,7 +145,7 @@
 
 <span class='co'># S3 method for data.frame</span>
 <span class='fu'>eeg_interpolate_tbl</span>(<span class='no'>.data</span>, <span class='kw'>radius</span> <span class='kw'>=</span> <span class='fl'>1.2</span>, <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>.x</span>,
-  <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>.y</span>, <span class='kw'>value</span> <span class='kw'>=</span> <span class='no'>.value</span>, <span class='kw'>label</span> <span class='kw'>=</span> <span class='no'>.source</span>, <span class='kw'>diam_points</span> <span class='kw'>=</span> <span class='fl'>200</span>,
+  <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>.y</span>, <span class='kw'>value</span> <span class='kw'>=</span> <span class='no'>.value</span>, <span class='kw'>label</span> <span class='kw'>=</span> <span class='no'>.key</span>, <span class='kw'>diam_points</span> <span class='kw'>=</span> <span class='fl'>200</span>,
   <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"MBA"</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -185,7 +185,7 @@
     </tr>
     <tr>
       <th>label</th>
-      <td><p>Label of the points that are used for the interpolation, generally <code>.source</code> (default).</p></td>
+      <td><p>Label of the points that are used for the interpolation, generally <code>.key</code> (default).</p></td>
     </tr>
     </table>
     

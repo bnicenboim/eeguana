@@ -7,20 +7,22 @@ eeg_ica <- function(.data, ...){
 
 #' @rdname eeg_ica
 #' @param .data An eeg_lst object
-#' @param ... Channels to include in ICA transformation. All the channels by default, but eye channels and reference channels should be removed.
-#' @param method Methods from different packages: `fICA::adapt_fICA` (default), `fICA::fICA`, `fICA::reloaded_fICA`, `fastICA::fastICA`, or a custom function that returns a list that contains `S`  (reconstucted sources) and `A` (mixing matrix), consistent with the formulation `X= S %*% A`, where X is matrix of N_samples X N_channels or `W` (unmixing matrix), consistent with the formulation `X %*% W = S`.
-#' @param config Other parameters passed in a list to the ICA method. These are the default parameters except that when possible the method is run in C rather than in R. See the documentation of the relevant method.
-#' @param tolerance Convergence tolerance.
-#' @param max_iterations Maximum number of iterations.
+#' @param ... Channels to include in ICA transformation. All the channels by default, but eye channels 
+#' and reference channels should be removed.
+#' @param method Methods from different packages: `adapt_fast_ICA`  (default), `reloaded_fast_ICA`,
+#'  `fast_ICA` (adapted from `fICA` package), or a custom function that returns a list that with `A`
+#'   (mixing matrix), consistent with the formulation `X= S %*% A`, where X is matrix 
+#'   of N_samples by N_channels and/or `W` (unmixing matrix), consistent with the formulation
+#'    `X %*% W = S`.
+#' @param config Other parameters passed in a list to the ICA method. See the documentation of the relevant method.
 #' 
 #' @return An ica_lst object
 #' @export
 eeg_ica.eeg_lst <- function(.data, 
-                    ...,
-                    method = fICA::adapt_fICA,
-                    config= list(),
-                    tolerance = 1e-06,
-                    max_iterations = 1000
+                            ...,
+                            ignore = type == "artifact",
+                    method = adapt_fast_ICA,
+                    config= list()
                               ){
   start_time <- Sys.time()
   
@@ -32,71 +34,37 @@ eeg_ica.eeg_lst <- function(.data,
     ##https://martinos.org/mne/dev/auto_tutorials/plot_ica_from_raw.html
     ##http://www.fieldtriptoolbox.org/example/use_independent_component_analysis_ica_to_remove_eog_artifacts/
     ##method = rlang::quo(fICA::adapt_fICA) # for testing
-    method = rlang::enquo(method)
+  ##ignore = rlang::quo(type == "artifact") # for testing
+  method <- rlang::enquo(method)
     dots <- rlang::enquos(...)
+  ignore <- rlang::enquo(ignore)
 
-    ## ## Use id_all only if there are NAs
-    ## id_all<- NULL
-    ##   if(na.rm == FALSE && anyNA(.data$signal)){
-    ##     stop("Missing values in the eeg_lst, use na.rm = TRUE", call. = FALSE)
-    ##   } else {
-    ##       id_all <- .data$signal %>%
-    ##           dplyr::select(-one_of(channel_names(.data)))
-    ##   }
-
-
-  signal_complete <- .data$signal[complete.cases(.data$signal)] %>%
+  if(!rlang::is_empty(ignore)){
+  rejected_data <- eeg_events_to_NA(.data, !!ignore,
+                                    all_chans = FALSE,
+                                    entire_seg = FALSE,
+                                    drop_events = FALSE)
+}
+  signal_raw <- rejected_data$signal %>%
             dplyr::select(.id, channel_names(.data))
-    ## cols from signal_tbl that are not channels:
-    ## id_signal <- dplyr::select(.data$signal, -one_of(channel_names(.data)))
-    ## remove more if dots are used
-    if(!rlang::is_empty(dots)){
-        ## id_signal_col <- setdiff(colnames(signal_complete),
-                                      ## tidyselect::vars_select(colnames(signal_complete), !!!dots))
-        ## id_signal <- bind_cols_dt(id_signal,
-                                       ## dplyr::select(signal_complete, id_signal_col))
-        ## data.table::setkey(id_signal,.id,.sample_id)
-       chs <- sel_ch(signal_complete, !!!dots)
-        signal_complete <- dplyr::select(signal_complete, c(".id", chs))
-    }
-
-
-
-    ## creates a DT with length length(signal_tbl) where the grouping var is repeated,
+  ## remove more if dots are used
+  if(!rlang::is_empty(dots)){
+      chs <- sel_ch(signal_raw, !!!dots)
+      signal_raw <- dplyr::select(signal_raw, c(".id", chs))
+  }
+  
+  ## creates a DT with length length(signal_tbl) where the grouping var is repeated,
   ## This is used to split the signal_tbl, in case that there are many recordings together
-  signal_complete <- signal_complete[data.table::as.data.table(.data$segments)[
-                                                    ,.(.id,recording)], on = ".id"][,.id:=NULL]
+  signal_complete <- signal_raw[complete.cases(signal_raw),][
+      data.table::as.data.table(.data$segments)[
+                                                    ,.(.id,recording)], on = ".id",
+                                     nomatch = 0][,.id:=NULL][]
 
   l_signal <- split(signal_complete, by = "recording", keep.by = FALSE)
 
   method_label = rlang::as_label(method)
   message(paste0("# ICA is being done using ", method_label,"..."))
   
-    if(method_label== "fastICA::fastICA"){
-        default_config <- list(n.comp = nchannels(.data), method="C",maxit =max_iterations,
-                               tol = tolerance)
-        data_in <- function(x) x
-        data_out <- function(x) {
-            list(                 ##mix mat has a column for each channel, and
-                ##a row for each component
-                 unmixing_matrix = x$K %*% x$W,
-                 mixing_matrix =  x$A)
-        }
-
-    } else if(stringr::str_detect(method_label,"^fICA::")){
-        default_config <- list(inR = FALSE, maxiter =max_iterations,
-                               eps = tolerance)
-        data_in <- function(x) as.matrix(x)
-        data_out <- function(x) {
-            list(##mix mat has a column for each channel, and
-                 ##a row for each component
-                 unmixing_matrix = t(x$W),
-                 mixing_matrix =  t(MASS::ginv(x$W)))
-        }
-    } else {
-        message("Using custom ICA function: ", method_label)
-        default_config <- list()
-        data_in <- function(x) x
         data_out <- function(x)      {
             out <- list()
             if(!is.null(x$A)) {
@@ -111,13 +79,11 @@ eeg_ica.eeg_lst <- function(.data,
             }
             out
         }
-    }
-
-    config <- purrr::list_modify(default_config, !!!config)
-
+    
   ICA_fun <- function(x){
-      ##method needs to be evaluated in the package env, and the parameters are passed in alist with do.call
-        do.call(rlang::eval_tidy(method), c(list(data_in(x)), config)) %>% data_out()
+      ## the method needs to be evaluated in the package env,
+      ## and the parameters are passed in alist with do.call
+        do.call(rlang::eval_tidy(method), c(list(x), config)) %>% data_out()
     }
 
   l_ica <- lapply(l_signal, function(x) {
@@ -130,8 +96,6 @@ eeg_ica.eeg_lst <- function(.data,
       colnames(ica$unmixing_matrix) <- paste0("ICA", seq_len(ncol(ica$unmixing_matrix)))
       ica
   })
-
-
   .data$ica <- l_ica
     
     end_time <- Sys.time()
@@ -150,15 +114,17 @@ eeg_ica_show.eeg_ica_lst <- function(.data,...){
 
     dots <- rlang::enquos(...)
     comp_sel <- tidyselect::vars_select(component_names(.data), !!!dots)
-    signal_raw <- .data$signal[data.table::as.data.table(.data$segments)[
+    signal_raw <- .data$signal[, c(".id", channel_ica_names(.data)), with = FALSE] %>%
+        .[data.table::as.data.table(.data$segments)[
                                                    ,.(.id,recording)],
-                                    , on = ".id"][,c(".id",".sample_id"):=NULL]
-
+        , on = ".id", nomatch =0]
+     signal_raw[,".id":=NULL]
+ 
     l_signal <- split(signal_raw, by = "recording", keep.by = FALSE)
 
    ica_c <-  map2_dtr(l_signal, .data$ica, ~ {
         X<-scale(.x, scale = FALSE)
-        tcrossprod(as.matrix(X), t(.y$unmixing_matrix[, comp_sel]))  %>%
+        tcrossprod(as.matrix(X), t(.y$unmixing_matrix[, comp_sel, drop = FALSE]))  %>%
             data.table::as.data.table() %>%
             .[,lapply(.SD, component_dbl)]
    })

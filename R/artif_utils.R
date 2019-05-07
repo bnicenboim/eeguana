@@ -23,13 +23,19 @@ detect_amplitude <- function(x, args =list(threshold=NULL)){
 search_artifacts <- function(signal,..., fun, args = list()){
     ch_sel <- sel_ch(signal,...)
 
+    
      ##in case there are missing .sample_ids
-    signal[,list(.sample_id = seq.int(min(.sample_id),max(.sample_id))) ,by=.id] %>%
-    left_join_dt(signal,by=c(".id",".sample_id")) %>%
+   add_missing_samples(signal) %>%
         .[,c(list(.sample_id = .sample_id),
               lapply(.SD,fun, args)),
            .SDcols = (ch_sel), by = .id]
 
+}
+
+add_missing_samples <- function(signal){
+    signal[,list(.sample_id = sample_int(seq.int(min(.sample_id),max(.sample_id)), 
+                 sampling_rate= sampling_rate(signal))) ,by=.id] %>%
+    left_join_dt(signal,by=c(".id",".sample_id"))
 }
 
 #' add events from a table similar to signal, but with TRUE/FALSE depending if an artifact was detected.

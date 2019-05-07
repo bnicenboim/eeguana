@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 
 A package for flexible manipulation of EEG data. *eeguana* provides a *data.table* powered framework for manipulating EEG data with *dplyr*-based functions (e.g., `mutate`, `filter`, `summarize`) extended to a new class `eeg_lst`,  other EEG-specialized functions, and `ggplot` wrapper functions.  The new class is inspired by tidyverse principles but it's not really "tidy" (due to space considerations), it's a list of (i) a wide *data table* (`signal_tbl`) that contains the signal amplitudes at every sample point of the EEG,  (ii) an events *data table* with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant number (`recording`), conditions, etc.  
 
-*eeguana* cannot do much pre-processing for now, but I plan to incorporate pre-processing functions with time, and thus it is meant to be used on EEG files where filtering, artifact rejection, ICA, etc have already been done.
+*eeguana* can do only basic pre-processing for now, more complete packages exist for matlab ([FieldTrip](http://www.fieldtriptoolbox.org/) and [EEGLAB](https://sccn.ucsd.edu/eeglab/index.php)) and python ([MNE](https://martinos.org/mne/stable/index.html)).
 
 See [Reference](https://bnicenboim.github.io/eeguana/reference/index.html) for more information about the functions of *eeguana*.
 
@@ -38,11 +38,7 @@ devtools::install_github("bnicenboim/eeguana")
 
 ## Example
 
-Here, I
-exemplify the use of *eeguana* with (pre-processed) EEG data from BrainVision 2.0. The data belong to 
-a simple experiment  where a
-participant was presented 100 faces and 100 assorted images in random order. The
-task of the experiment was to mentally count the number of faces.
+Here, I exemplify the use of *eeguana* with (pre-processed) EEG data from BrainVision 2.0. The data belong to a simple experiment  where a participant was presented 100 faces and 100 assorted images in random order. The task of the experiment was to mentally count the number of faces.
 
 First we download the data:
 
@@ -104,14 +100,12 @@ faces_segs_some <- faces_segs %>%
 faces_segs_some
 ```
 
-With some "regular" `ggplot` skills, we can create customized plots. `plot_gg()`
-downsamples the signals (by default), and converts them to a long-format data frame that is
-feed into `ggplot` object. This object can then be customized. 
+With some "regular" `ggplot` skills, we can create customized plots. `ggplot()` applied to an `eeg_lst` object will downsample the signals (when needed), and convert them to a long-format data frame that is feed into `ggplot`. This object can then be customized. 
 
 ```{r plot, fig.dim = c(10,15), out.width = "100%", results = "hide"}
 faces_segs_some %>% 
                   select(O1, O2, P7, P8) %>% 
-                  plot_gg() + 
+                  ggplot(aes(x =.time, y =.value)) + 
                   geom_line(alpha = .1, aes(group = .id, color = condition)) + 
                   stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1.5, 
                   aes(color = condition)) +
@@ -130,7 +124,7 @@ of the stimuli, creating a table with interpolated amplitudes and using the ggpl
 ```{r topo, fig.dim = c(10,5), out.width = "100%", results = "hide"}
 faces_segs_some %>% filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) %>% 
                     group_by(condition) %>%
-                    summarize_all_ch(mean, na.rm = TRUE) %>%
+                    summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
                     plot_topo() +
                     annotate_head() + 
                     geom_contour() +
@@ -142,7 +136,7 @@ faces_segs_some %>% filter(between(as_time(.sample_id, unit = "milliseconds"),10
 
 ## See also
 
-Other packages for EEG/ERP data:
+Other R packages for EEG/ERP data:
 
 * [eegUtils](https://github.com/craddm/eegUtils ) some helper utilities for plotting and processing EEG data in active development by Matt Craddock.
 * [erpR](https://cran.r-project.org/web/packages/erpR/index.html)  analysis of event-related potentials (ERPs) by Giorgio Arcara, Anna Petrova. It hasn't been updated since 2014.

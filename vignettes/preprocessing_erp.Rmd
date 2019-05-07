@@ -23,7 +23,7 @@ This tutorial is an adaptation (and some parts are a verbatim copy) of *Fieldtri
 
 The preprocessing of data refers to the reading of the data, segmenting the data around interesting events such as triggers, temporal filtering, and optionally rereferencing.
 
-There are largely two alternative approaches for preprocessing, which especially differ in the amount of memory required (and processing time). The first approach is to read all data from the file(s) into memory, apply filters, and subsequently cut the data into interesting segments. The second approach is to segment the data and then apply the filters to those segments only. This tutorial explains the second approach. It should be noticed that filtering distorts the edges of the segments, and this second approach should be followed with care. Even more so with *eeguana* than with Fieldtrip, since filters in *eeguana* depend on the package [signal](https://cran.r-project.org/web/packages/signal/index.html), which is far from being the state-of-the-arts; it is in the state of the year 2000 version of the Octave code.
+There are largely two alternative approaches for preprocessing, which especially differ in the amount of memory required (and processing time). The first approach is to read all data from the file(s) into memory, apply filters, and subsequently cut the data into interesting segments. The second approach is to segment the data and then apply the filters to those segments only. This tutorial explains the second approach. It should be noticed that filtering distorts the edges of the segments, and this second approach should be followed with care.
 
 Preprocessing involves several steps including identifying individual trials from the dataset, filtering and artifact rejections. This tutorial covers how to identify trials using the trigger signal. Defining data segments of interest can be done according to a specified trigger channel or according to your own criteria.
 
@@ -47,6 +47,8 @@ The function `read_vhdr()` creates a list with data frames for the signal, event
 segments information, and incorporates in its attributes generic EEG information.
 
 ```{r libs, message = FALSE}
+library(ggplot2)
+library(dplyr)
 library(eeguana)
 library(plotly)
 ```
@@ -63,14 +65,14 @@ The triggers were defined such that the trigger "S131" indicates condition 1 (po
  "S132" indicates condition 2 (animal-human judgment). We access the events with `events()` function.
 
 ```{r}
-events(data_judg)
+events_tbl(data_judg)
 ```
 
 However, we want the ERP based on the trigger "S141" that precedes any of these two triggers. We edit the events table (using dplyr functions: `mutate`, `case_when`, `lead`) to indicate to which condition each trigger "S141" belongs, and then we can segment based on these conditions using *eeguana*'s `eeg_segment()`:
 
 
 ```{r}
-events(data_judg) <- mutate(events(data_judg), 
+events_tbl(data_judg) <- mutate(events_tbl(data_judg), 
                             condition = case_when(description == "S141" &
                                                   lead(description) == "S131" ~ 1 ,
                                                   description == "S141" & 
@@ -82,7 +84,7 @@ data_judg_s <- data_judg %>% eeg_segment(condition %in% c(1,2), lim = c(-0.2,1))
 
 ## Pre-processing and re-referencing
 
-In this raw BrainVision dataset, the signal from all electrodes is monopolar and referenced to the left mastoid. We want the signal to be referenced to linked (left and right) mastoids. During the acquisition the 'RM' electrode (number 32) had been placed on the right mastoid. We first baseline the signal with `ch_baseline()`. In order to re-reference the data (e.g. including also the right mastoid in the reference) we add implicit channel 'REF' to the channels (which represents the left mastoid) by creating a channel with `channel_dbl()` and filling it with zeros using `mutate()` overloaded by *eeguana* to work with `eeg_lst's` (see `` ?`dplyr-eeguana` ``). The we re-reference the data using 'REF' and 'RM', the left and right mastoids respectively using `ch_rereference()`. Finally we apply a low-pass filter with a stop band frequency of 100 Hz using `ch_filt_low_pass()`:
+In this raw BrainVision dataset, the signal from all electrodes is monopolar and referenced to the left mastoid. We want the signal to be referenced to linked (left and right) mastoids. During the acquisition the 'RM' electrode (number 32) had been placed on the right mastoid. We first baseline the signal with `ch_baseline()`. In order to re-reference the data (e.g. including also the right mastoid in the reference) we add implicit channel 'REF' to the channels (which represents the left mastoid) by creating a channel with `channel_dbl()` and filling it with zeros using `mutate()` overloaded by *eeguana* to work with `eeg_lst's` (see `` ?`dplyr-eeguana` ``). The we re-reference the data using 'REF' and 'RM', the left and right mastoids respectively using `eeg_rereference()`. Finally we apply a low-pass filter with a stop band frequency of 100 Hz using `eeg_filt_low_pass()`:
 
 ```{r}
 data_judg_s <- data_judg_s %>% 
@@ -91,11 +93,11 @@ data_judg_s <- data_judg_s %>%
                 # The reference channel REF is filled with 0  
                 mutate(REF = channel_dbl(0)) %>% 
                 # All channels are references with REF  
-                ch_rereference(RM, REF) 
+                eeg_rereference(ref_ch = c("RM","REF"))
 
 data_judg_s_p <- data_judg_s %>% 
                 # A low pass filter is applied 
-                ch_filt_low_pass(100)  
+                eeg_filt_low_pass(freq= 100)  
 ```
 
 We can have a look at one of the trials (the second one) of one channel
@@ -118,7 +120,7 @@ X27_unfiltered <- data_judg_s %>%
 
 bind(X27_filtered,X27_unfiltered) %>% plot() +
                                       geom_line(aes(color = filter)) +
-                                      facet_wrap(~.source)  +
+                                      facet_wrap(~.key)  +
                                       theme(legend.position = "bottom")
                   
 ```
@@ -134,11 +136,12 @@ figure below). For the vertical EOG we will use channel 53 and channel "LEOG"
 which was placed below the subjects' left eye.
 
 ```{r}
-data_judg_s_p <- data_judg_s_p %>% 
-                 mutate(eogv = ch_rereference(x = LEOG, X53),
-                        eogh = ch_rereference(x = X25, X57)) %>%
-                 # Unnecessary channels are removed
-                 select(-LEOG, -X53, -X56, -X25) 
+data_judg_s_p <- data_judg_s_p %>%
+    eeg_rereference(LEOG, ref_ch = "X53") %>%
+    eeg_rereference(X25, ref_ch = "X57") %>%
+    rename(eogv = LEOG, eogh = X25) %>%
+    select(-X53, X57)
+             
 ```
 
 You can check the channel labels that are now present in the data:
@@ -167,16 +170,17 @@ Note that the layout should contain correct channel labels that match the channe
 
 A next important step of EEG preprocessing is detection (and rejection) of artifacts. We can plot 
 EOG channel ('veog', number 61) and confirm that the segments 22, 42, 126, 136 and 150 contain blinks. 
-We use here `plot_gg()`, which is more flexible than `plot()` and requires a `geom`.
+We use here `ggplot()`, which is more flexible than `plot()`.
 
 
 ```{r}
 data_judg_s_p %>%  select(eogv) %>% 
-                   plot_gg() + 
+                   ggplot(aes(x = .time, y = .value)) + 
                    geom_line() + 
                    facet_wrap(~segment) +  
                    theme(axis.text.x =  element_text(angle = 90)) + 
-                   scale_x_continuous(breaks = seq(0,1,.2))
+    scale_x_continuous(breaks = seq(0,1,.2)) +
+    theme_eeguana()
 ```
 
 The data can be also displayed in a different way. And `ggplotly()` can help us navigate the data.
@@ -185,20 +189,20 @@ The data can be also displayed in a different way. And `ggplotly()` can help us 
 data_summary <- data_judg_s_p %>% 
                 select(-eogh, -eogv) %>% 
                 group_by(segment) %>% 
-                summarize_all_ch(var)  
+                summarize_at(channel_names(.), var)  
 
 plot_general <- data_summary %>% 
-                   plot_gg(x = segment, y= .source, fill = .value) + 
+                   ggplot(aes(x = segment, y= .key, fill = .value)) + 
                    geom_raster() + 
                    theme(legend.position ="none", axis.text.y =  element_text(size = 6))
 
 plot_channels <- data_summary %>%  ungroup() %>% summarize_all_ch(max) %>% 
-                   plot_gg(x = .value, y= .source) + 
+                   ggplot(aes(x = .value, y= .key)) + 
                    geom_point()  + 
                    theme(axis.text.y =  element_text(size = 6))
 
-plot_segments <- data_summary %>%  chs_fun(max) %>% 
-                   plot_gg(x = segment, y = .value) + 
+plot_segments <- data_summary %>%  chs_fun(max) %>%
+    ggplot(aes(x = segment, y= .value)) + 
                    geom_point() + 
                    theme(axis.text.y =  element_text(size = 6))
 
@@ -212,7 +216,7 @@ see a drift in the channel 48.
 ```{r, results = "hold"}
 data_judg_s_p %>% filter(segment ==90)  %>% 
                   plot() + 
-                  facet_wrap(~.source) + 
+                  facet_wrap(~.key) + 
                   theme(axis.text.x =  element_text(angle=90)) + 
                   scale_x_continuous(breaks = seq(0,1,.2))
 ```
@@ -235,18 +239,18 @@ data_judg_s_p <- data_judg_s_p %>%
 
 We now would like to compute the ERP's for two conditions: positive-negative
 judgment and human-animal judgment. This is straightforward to do with
-`group_by()` and `summarize_all_ch()`.
+`group_by()` and `summarize_at()`.
 
 
-```{r}
+```{r, message = FALSE}
 
 ERPs <- data_judg_s_p %>% 
         group_by(.sample_id, condition) %>% 
-        summarize_all_ch(mean,na.rm=TRUE)
+        summarize_at(channel_names(.), mean,na.rm=TRUE)
 
-ERPs   %>% plot_gg() + 
+ERPs   %>% plot() + 
            geom_line(aes(color = factor(condition))) + 
-           facet_wrap(~.source)  + 
+           facet_wrap(~.key)  + 
            theme(axis.text.x =  element_text(angle=90)) + 
            scale_x_continuous(breaks = seq(0,1,.2))
 ```
@@ -254,17 +258,16 @@ ERPs   %>% plot_gg() +
 The following code allows you to look at the ERP difference waves. 
 
 
-```{r}
-
+```{r, message = FALSE}
 diff_ERPs <- data_judg_s_p %>% 
              group_by(.sample_id) %>% 
-             summarize_all_ch(funs(
+             summarize_at(channel_names(.), list(~
                   mean(.[condition==1] - .[condition==2], 
                        na.rm=TRUE)))
 
-diff_ERPs  %>% plot_gg() +
+diff_ERPs  %>% plot() +
                geom_line() + 
-               facet_wrap(~.source) + 
+               facet_wrap(~.key) + 
                theme(axis.text.x =  element_text(angle=90)) + 
                scale_x_continuous(breaks = seq(0,1,.2))
           

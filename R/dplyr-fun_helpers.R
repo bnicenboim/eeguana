@@ -31,7 +31,6 @@ filter_eeg_lst <- function(.eeg_lst, dots){
      by <- as.character(dplyr::group_vars(.eeg_lst))
  
      cols_signal <- colnames(.eeg_lst$signal)
-
      .eeg_lst$signal <-filter_dt(extended_signal, !!!dots, group_by_ = by) %>%
          .[,..cols_signal]
      if(nrow(.eeg_lst$events)>0){

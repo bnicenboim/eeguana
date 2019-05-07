@@ -91,8 +91,10 @@ filter_.eeg_lst <- function(.data, ..., .dots = list()) {
   dots <- compat_lazy_dots(.dots, rlang::caller_env(), ...)
   filter_eeg_lst(.data, dots = dots)
 }
+
 #' @rdname dplyr-eeguana
-filter.eeg_lst <- function(.data, ...) {
+filter.eeg_lst <- function(.data, ..., .preserve = FALSE) {
+  if(.preserve==TRUE) {warning("Ignoring `.preserve` argument.")}
   dots <- rlang::quos(...)
   filter_eeg_lst(.data, dots = dots)
 }

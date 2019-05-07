@@ -101,7 +101,7 @@ summary(): Prints a summary of the eeg_lst object. (It also returns a list.)
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/brainvision_files.html">Introduction - Manipulating a clean EEG file exported from BrainVision 2.0</a>
+      <a href="../articles/intro.html">Introduction - Preprocessing and visualization of EEG data.</a>
     </li>
     <li>
       <a href="../articles/preprocessing_erp.html">Preprocessing of EEG data and computing ERPs (Fieldtrip tutorial)</a>
@@ -151,14 +151,19 @@ summary(): Prints a summary of the eeg_lst object. (It also returns a list.)
 
     <pre class="usage"><span class='fu'>channel_names</span>(<span class='no'>x</span>, <span class='no'>...</span>)
 
+<span class='co'># S3 method for signal_tbl</span>
+<span class='fu'>channel_names</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for default</span>
+<span class='fu'>channel_names</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+
 <span class='co'># S3 method for eeg_lst</span>
 <span class='fu'>channel_names</span>(<span class='no'>x</span>, <span class='no'>...</span>)
 
-<span class='co'># S3 method for mixing_tbl</span>
-<span class='fu'>channel_names</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+<span class='fu'>channel_ica_names</span>(<span class='no'>x</span>, <span class='no'>...</span>)
 
-<span class='co'># S3 method for ica_lst</span>
-<span class='fu'>channel_names</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+<span class='co'># S3 method for eeg_ica_lst</span>
+<span class='fu'>channel_ica_names</span>(<span class='no'>x</span>, <span class='no'>...</span>)
 
 <span class='fu'>nchannels</span>(<span class='no'>x</span>, <span class='no'>...</span>)
 
@@ -167,7 +172,10 @@ summary(): Prints a summary of the eeg_lst object. (It also returns a list.)
 
 <span class='fu'>component_names</span>(<span class='no'>x</span>, <span class='no'>...</span>)
 
-<span class='co'># S3 method for eeg_lst</span>
+<span class='co'># S3 method for eeg_ica_lst</span>
+<span class='fu'>component_names</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for default</span>
 <span class='fu'>component_names</span>(<span class='no'>x</span>, <span class='no'>...</span>)
 
 <span class='fu'>ncomponents</span>(<span class='no'>x</span>, <span class='no'>...</span>)
@@ -182,6 +190,9 @@ summary(): Prints a summary of the eeg_lst object. (It also returns a list.)
 
 <span class='co'># S3 method for eeg_lst</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/summary'>summary</a></span>(<span class='no'>object</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for ica_summary</span>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>x</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for eeg_summary</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>

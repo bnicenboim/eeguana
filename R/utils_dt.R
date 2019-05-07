@@ -68,10 +68,13 @@ anti_join_dt <- function(x,y,by = NULL){
 #' @noRd
 filter_dt <- function(.data, ..., group_by_ = character(0) ){
   
-    dots <- rlang::enquos(...)
-    cnds <- lapply(dots, rlang::as_label) %>% paste0(collapse = " & ")
+    dots <- rlang::quos(...)
+    #if(rlang::is_quosures(dots))
+  
+    #TODO check parse_quo(), as_label reduces the quo if it's too long
+    cnds <- lapply(dots, rlang::quo_text) %>% paste0(collapse = " & ")
     env <- lapply(dots, rlang::quo_get_env) %>% unique()
-    if(length(env)!=1) stop("Need to fix filter_dt")
+    if(length(env)!=1) stop("Need to fix filter_dt; env", env)
     ##TODO: check why this happens: for some reason if I don't do that, I modify the index of .data
     ## .data <- data.table::copy(.data)  
     ## .data[eval(parse(text = cnds), envir =envs[[1]]),]

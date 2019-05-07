@@ -627,8 +627,35 @@ test_that("the classes of channels of signal_tbl remain after filtering by new v
 })
 
 
-# check against original data
+
+###############
+## Group by filter
+##################
+
+##DO NOT USE ifelse, it looses the attributes; TODO: write about it
+data_NA <- data %>% mutate(X = dplyr::if_else(.id==1 & .sample_id ==1, channel_dbl(NA), X))
+data_NAm1 <- data_NA %>% filter(.id !=1 | .sample_id !=1)
+data_NAm1id <- data_NA %>% filter(.id !=1)
+test_that("filter_at and grouped filtered at", {
+    ##everything except the NA:
+    expect_equal(data_NA %>% dplyr::filter_at(channel_names(.),~ !is.na(.)), data_NAm1)
+    expect_equal(data_NA %>% dplyr::group_by(.id) %>%
+                 dplyr::filter_at(channel_names(.),~ !is.na(.)) %>%
+                 dplyr::ungroup(), data_NAm1)
+    ##removes .id ==1
+    expect_equal(data_NA %>% dplyr::group_by(.id) %>%
+                 dplyr::filter_at(channel_names(.),~ !anyNA(.)) %>%
+                 dplyr::ungroup(), data_NAm1id)
+    expect_equal(data_NA %>% dplyr::group_by(.id) %>%
+                 dplyr::filter_at(channel_names(.),dplyr::all_vars(!anyNA(.))) %>%
+                 dplyr::ungroup(), data_NAm1id)
+})
+
+
+
+####
+
+## check against original data
 test_that("data didn't change", {
   expect_equal(reference_data, data)
 })
-
