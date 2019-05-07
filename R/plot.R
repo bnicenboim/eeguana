@@ -46,7 +46,7 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
     ) +
       ggplot2::scale_x_continuous("Time (s)")+
       ggplot2::scale_y_continuous("Amplitude")+
-    theme_eeguana
+    theme_eeguana()
   plot
 }
 
@@ -100,7 +100,7 @@ plot_gg.eeg_lst <- function(.data, x = .time, y = .value, ..., max_sample = 2400
   dots <- rlang::enquos(...)
    plot <- ggplot2::ggplot(.data, ggplot2::aes(x = !!x, y = !!y, !!!dots)) +
     ggplot2::scale_colour_brewer(type = "qual", palette = "Dark2") +
-    theme_eeguana
+    theme_eeguana()
   plot
 }
 
@@ -114,7 +114,7 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
     ggplot2::aes(x = !!x, y = !!y, !!!dots)
   ) +
     ggplot2::scale_colour_brewer(type = "qual", palette = "Dark2") +
-    theme_eeguana
+    theme_eeguana()
   plot
 }
 
@@ -227,7 +227,7 @@ plot_topo.tbl_df <- function(data, value= .value,  label=.key) {
     # Not that bad scale:
     #    scale_fill_distiller(palette = "Spectral", guide = "colourbar", oob = scales::squish) + #
     ggplot2::scale_fill_distiller(type = "div",palette = "RdBu",guide = "colourbar",  oob = scales::squish) +
-    theme_eeguana_empty
+    theme_eeguana2()
   plot
 
 }
@@ -336,11 +336,11 @@ plot_in_layout <- function(plot,  ...) {
 plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
   size_x <- ratio[[1]]
   size_y <- ratio[[2]]
-  eeg_data <- plot$data
-  ## if (!"channel" %in% colnames(eeg_data)) {
+  ch_location <- plot$data_channels
+  ## if (!"channel" %in% colnames(ch_location)) {
   ##   stop("Channels are missing from the data.")
   ## }
-  if (!all(c(".x", ".y", ".z") %in% colnames(eeg_data))) {
+  if (!all(c(".x", ".y", ".z") %in% colnames(ch_location))) {
     stop("Coordinates are missing from the data.")
   }
   plot <- plot  + ggplot2::facet_wrap(.~.key)
@@ -434,12 +434,12 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
   # How much larger than the electrode position should the plot be?
  
 
-  eeg_data <- change_coord(eeg_data, projection)
+  ch_location <- change_coord(ch_location, projection)
 
-  xmin <- min(eeg_data$.x,na.rm=TRUE) - 0.3 #* size
-  xmax <- max(eeg_data$.x,na.rm=TRUE) + 0.3 #* size
-  ymin <- min(eeg_data$.y,na.rm=TRUE) - 0.3 #* size
-  ymax <- max(eeg_data$.y,na.rm=TRUE) + 0.3 #* size
+  xmin <- min(ch_location$.x,na.rm=TRUE) - 0.3 #* size
+  xmax <- max(ch_location$.x,na.rm=TRUE) + 0.3 #* size
+  ymin <- min(ch_location$.y,na.rm=TRUE) - 0.3 #* size
+  ymax <- max(ch_location$.y,na.rm=TRUE) + 0.3 #* size
   new_plot <- ggplot2::ggplot(data.frame(x = c(xmin, xmax), y = c(ymin, ymax)),
                              ggplot2::aes_(x = ~x, y = ~y)) +
     ggplot2::geom_blank() +
@@ -454,8 +454,8 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
     )
   
   for (i in seq_len(length(channel_grobs))) {
-    new_coord <- eeg_data %>%
-        dplyr::filter(.key == names(channel_grobs)[[i]]) %>%
+    new_coord <- ch_location %>%
+        dplyr::filter(.channel == names(channel_grobs)[[i]]) %>%
       dplyr::distinct(.x, .y)
     if(is.na(new_coord$.x) && is.na(new_coord$.y)){
       new_plot
@@ -549,7 +549,7 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
     ## }
     chs <- list(unique(as.character(plot$data$.key)))
    events_tbl[,.key:=lapply(.channel, function(x) as.character(x))]
-   events_tbl[is.na(.channel), .key:=rep(chs,.N)]
+   events_tbl[is.na(.channel), .key:=list(rep(chs,.N))]
    events_tbl <- tidyr::unnest(events_tbl)
    
    events_tbl[,.key:=factor(.key, levels = levels(plot$data$.key))]
@@ -594,5 +594,24 @@ ggplot.eeg_lst <- function(data = NULL,
 
     p$data_channels <- channels_tbl(data)
     p$data_events <- events_tbl(data)
+    p$data_channels <- channels_tbl(data)
     p
+}
+#' 
+#' @export
+theme_eeguana <- function() {
+  ggplot2::theme_bw() %+replace% 
+                ggplot2::theme(
+                    strip.background = ggplot2::element_rect(colour = "transparent", fill = "transparent"),
+                    panel.spacing  = ggplot2::unit(.01, "points"),
+                    panel.border = ggplot2::element_rect(colour = "transparent", fill = "transparent"))
+}
+#' 
+#' @export
+theme_eeguana2 <- function() {
+ theme_eeguana() %+replace% 
+                    theme(panel.grid = ggplot2::element_line(colour = "transparent"),
+                      axis.ticks= ggplot2::element_line(colour = "transparent"),
+                      axis.text= ggplot2::element_blank(),
+                      axis.title= ggplot2::element_blank())
 }

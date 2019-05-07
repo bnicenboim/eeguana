@@ -48,7 +48,6 @@ read_dat <- function(file, header_info = NULL, events = NULL,
       } else {
           raw_signal <- data.table::fread(file)  %>%
             dplyr::select_if(is.double) %>% data.table::transpose()
-          data.table::fread(file)
       }
   }
 
