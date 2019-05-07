@@ -215,7 +215,9 @@ subset.channel_dbl <- function(x, ... ) {
 decimate_ch <- function (.channel, q, n = if (ftype == "iir") 8 else 30, ftype = "iir") {
     attrs <- attributes(.channel)
     class(.channel) <- NULL
-    if(length(q)>1){
+    if(anyNA(.channel)){
+      r <- .channel[seq(1, length(.channel), by = prod(q))]
+    } else if(length(q)>1){
        r<- Reduce(function(x,q) signal::decimate(x=x,q=q, n=n,ftype = ftype), x = q, init = .channel)
     } else {
         r <- signal::decimate(x =.channel, q=q, n = n , ftype = ftype)

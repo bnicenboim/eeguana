@@ -44,7 +44,9 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
                         labeller = ggplot2::label_wrap_gen(multi_line = FALSE),
                         scales = "free"
     ) +
-    theme_eeguana
+      ggplot2::scale_x_continuous("Time (s)")+
+      ggplot2::scale_y_continuous("Amplitude")+
+    theme_eeguana()
   plot
 }
 
@@ -98,7 +100,7 @@ plot_gg.eeg_lst <- function(.data, x = .time, y = .value, ..., max_sample = 2400
   dots <- rlang::enquos(...)
    plot <- ggplot2::ggplot(.data, ggplot2::aes(x = !!x, y = !!y, !!!dots)) +
     ggplot2::scale_colour_brewer(type = "qual", palette = "Dark2") +
-    theme_eeguana
+    theme_eeguana()
   plot
 }
 
@@ -112,7 +114,7 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
     ggplot2::aes(x = !!x, y = !!y, !!!dots)
   ) +
     ggplot2::scale_colour_brewer(type = "qual", palette = "Dark2") +
-    theme_eeguana
+    theme_eeguana()
   plot
 }
 
@@ -225,7 +227,7 @@ plot_topo.tbl_df <- function(data, value= .value,  label=.key) {
     # Not that bad scale:
     #    scale_fill_distiller(palette = "Spectral", guide = "colourbar", oob = scales::squish) + #
     ggplot2::scale_fill_distiller(type = "div",palette = "RdBu",guide = "colourbar",  oob = scales::squish) +
-    theme_eeguana_empty
+    theme_eeguana2()
   plot
 
 }
@@ -242,17 +244,17 @@ plot_topo.eeg_lst <- function(data, projection = "polar", ...) {
 }
 
 #' @export
-plot_topo_ica <- function(data,  ...) {
-  UseMethod("plot_topo_ica")
+plot_components <- function(data,  ...) {
+  UseMethod("plot_components")
 }
 #' @rdname plot_topo
 #' @export
-plot_topo_ica.eeg_ica_lst <- function(data,  projection = "polar", ...) {
+plot_components.eeg_ica_lst <- function(data,  projection = "polar", ...) {
     
     channels_tbl(data)  <- change_coord(channels_tbl(data), projection)  
     ##TODO: move to data.table, ignore group, just do it by .recording
     long_table <- map_dtr(data$ica, ~ data.table::as.data.table(.x$mixing_matrix) %>%
-                            .[, .ICA := {.ICA = paste0("I",seq_len(.N));
+                            .[, .ICA := {.ICA = paste0("ICA",seq_len(.N));
                             factor(.ICA, levels = .ICA)}],.id = "recording") %>%
       data.table::melt(variable.name = ".key",
                        id.vars = c(".ICA","recording"),
@@ -260,10 +262,16 @@ plot_topo_ica.eeg_ica_lst <- function(data,  projection = "polar", ...) {
     long_table[,.key := as.character(.key)]
     
     long_table <- left_join_dt(long_table, data.table::as.data.table(channels_tbl(data)), by = c(".key"= ".channel")) %>% 
-      dplyr::group_by(recording,.ICA) %>%
+      dplyr::group_by(recording,.ICA) 
       
-        eeg_interpolate_tbl(...) %>%
-        plot_topo()
+       long_table %>% eeg_interpolate_tbl(...) %>%
+        plot_topo() +
+      facet_wrap(~.ICA)+
+      annotate_head() + 
+      geom_contour() +
+      geom_text(colour = "black")+
+         theme(legend.position = "none")
+    
 }
 
 
@@ -329,11 +337,11 @@ plot_in_layout <- function(plot,  ...) {
 plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
   size_x <- ratio[[1]]
   size_y <- ratio[[2]]
-  eeg_data <- plot$data
-  ## if (!"channel" %in% colnames(eeg_data)) {
+  ch_location <- plot$data_channels
+  ## if (!"channel" %in% colnames(ch_location)) {
   ##   stop("Channels are missing from the data.")
   ## }
-  if (!all(c(".x", ".y", ".z") %in% colnames(eeg_data))) {
+  if (!all(c(".x", ".y", ".z") %in% colnames(ch_location))) {
     stop("Coordinates are missing from the data.")
   }
   plot <- plot  + ggplot2::facet_wrap(.~.key)
@@ -427,12 +435,12 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
   # How much larger than the electrode position should the plot be?
  
 
-  eeg_data <- change_coord(eeg_data, projection)
+  ch_location <- change_coord(ch_location, projection)
 
-  xmin <- min(eeg_data$.x,na.rm=TRUE) - 0.3 #* size
-  xmax <- max(eeg_data$.x,na.rm=TRUE) + 0.3 #* size
-  ymin <- min(eeg_data$.y,na.rm=TRUE) - 0.3 #* size
-  ymax <- max(eeg_data$.y,na.rm=TRUE) + 0.3 #* size
+  xmin <- min(ch_location$.x,na.rm=TRUE) - 0.3 #* size
+  xmax <- max(ch_location$.x,na.rm=TRUE) + 0.3 #* size
+  ymin <- min(ch_location$.y,na.rm=TRUE) - 0.3 #* size
+  ymax <- max(ch_location$.y,na.rm=TRUE) + 0.3 #* size
   new_plot <- ggplot2::ggplot(data.frame(x = c(xmin, xmax), y = c(ymin, ymax)),
                              ggplot2::aes_(x = ~x, y = ~y)) +
     ggplot2::geom_blank() +
@@ -447,8 +455,8 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
     )
   
   for (i in seq_len(length(channel_grobs))) {
-    new_coord <- eeg_data %>%
-        dplyr::filter(.key == names(channel_grobs)[[i]]) %>%
+    new_coord <- ch_location %>%
+        dplyr::filter(.channel == names(channel_grobs)[[i]]) %>%
       dplyr::distinct(.x, .y)
     if(is.na(new_coord$.x) && is.na(new_coord$.y)){
       new_plot
@@ -505,11 +513,29 @@ annotate_head <- function(size = 1.1, color ="black", stroke=1) {
 } 
 
 #' @export
-add_events_plot <- function(plot, alpha = .2){
-    events_tbl <- plot$data_events
+annotate_events <- function(data=NULL, alpha = .2){
+    layer <- geom_rect(data=data, alpha = alpha,
+              ymin = -Inf, ymax= Inf,
+              inherit.aes = FALSE,
+              aes(xmin = xmin,
+                  xmax =  xmax ,
+                  color = Event,
+                  fill = Event,
+                  group = .id)
+              
+              )
+    structure(list(layer = layer), class = "layer_events")
+}
 
+#' @export
+ggplot_add.layer_events <- function(object, plot, object_name) {
+    if(length(object$layer$data)==0) {
+        events_tbl <- plot$data_events
+   } else {
+       events_tbl <- object$layer$data
+    }
     info_events   <- setdiff(colnames(events_tbl), obligatory_cols[["events"]])
-    events_tbl <- data.table::copy(events_tbl)
+    events_tbl <- data.table::as.data.table(events_tbl)
     events_tbl[,xmin:= as_time(.initial) ]
     events_tbl[,xmax:= as_time(.final) ]
     events_tbl[,Event := (do.call(paste,c(.SD, sep ="."))), .SDcols= c(info_events)]
@@ -519,30 +545,41 @@ add_events_plot <- function(plot, alpha = .2){
         dplyr::distinct()
   
     events_tbl <- left_join_dt(events_tbl, data.table::as.data.table(segs), by = ".id")
-
-    to_plot<- list()
-    to_plot$events_all <- filter_dt(events_tbl, .initial == .final, is.na(.channel) )
-    to_plot$events_ch <- filter_dt(events_tbl, .initial == .final, !is.na(.channel) ) %>%
-        .[, .key := as.factor(.channel)]
-    to_plot$intervals_all <- filter_dt(events_tbl, .initial < .final, is.na(.channel) )
-    to_plot$intervals_ch <- filter_dt(events_tbl, .initial < .final, !is.na(.channel) )  %>%
-        .[, .key := as.factor(.channel)]
-    add_to_plot <- purrr::map(to_plot, ~ if(nrow(.x)>0){
-                              geom_rect(data= .x,
-                                        aes(xmin = xmin,
-                                            xmax =  xmax ,
-                                            color = Event,
-                                            fill = Event,
-                                            group = .id),
-                                        alpha = alpha,
-                                        ymin = -Inf, ymax= Inf,
-                                        inherit.aes = FALSE) 
-                          }
-                          else {
-                              NULL
-                          })
-    plot + add_to_plot
-}
+    ## if(all_chs){
+    ##   events_tbl[, .channel := NA]
+    ## }
+    chs <- list(unique(as.character(plot$data$.key)))
+   events_tbl[,.key:=lapply(.channel, function(x) as.character(x))]
+   events_tbl[is.na(.channel), .key:=list(rep(chs,.N))]
+   events_tbl <- tidyr::unnest(events_tbl)
+   
+   events_tbl[,.key:=factor(.key, levels = levels(plot$data$.key))]
+  # events_all_chs <- events_tbl[is.na(.channel),]
+  # events_all_chs[,.key := rep(list(unique(events_tbl$.channel)),.N)] 
+  # events_all_chs <- tidyr::unnest(events_all_chs)
+  # events_spec_chs <- events_tbl[!is.na(.channel),]
+  # events_spec_chs[, .key := .channel]
+  # events_tbl <- rbind(events_all_chs, events_spec_chs)
+  #   to_plot<- list()
+  #   to_plot$events_all <- filter_dt(events_tbl, .initial == .final, is.na(.channel) )
+  #   to_plot$events_ch <- filter_dt(events_tbl, .initial == .final, !is.na(.channel) ) %>%
+  #       .[, .key := as.factor(.channel)]
+  #   to_plot$intervals_all <- filter_dt(events_tbl, .initial < .final, is.na(.channel) )
+  #   to_plot$intervals_ch <- filter_dt(events_tbl, .initial < .final, !is.na(.channel) )  %>%
+  #       .[, .key := as.factor(.channel)]
+  #   add_to_plot <- purrr::map(to_plot, ~ if(nrow(.x)>0){
+  #                                            layer <- data.table::copy(object$layer)
+  #                                            layer$data <-  .x
+  #                                            layer
+  #                                        }
+  #                                        else {
+  #                                            NULL
+  #                                        }) %>%
+  #     purrr::keep(function(x) !is.null(x))
+  #   
+  object$layer$data <- events_tbl
+   plot + object$layer
+} 
 
 #' @export
 ggplot.eeg_lst <- function(data = NULL,
@@ -558,5 +595,30 @@ ggplot.eeg_lst <- function(data = NULL,
 
     p$data_channels <- channels_tbl(data)
     p$data_events <- events_tbl(data)
+    p$data_channels <- channels_tbl(data)
     p
+}
+#'  Eeguana ggplot themes
+#'  These are complete light themes based on [ggplot2::theme_bw()] which control all non-data display. 
+#'  @name theme
+NULL
+# > NULL
+
+#' @rdname theme
+#' @export
+theme_eeguana <- function() {
+  ggplot2::theme_bw() %+replace% 
+                ggplot2::theme(
+                    strip.background = ggplot2::element_rect(colour = "transparent", fill = "transparent"),
+                    panel.spacing  = ggplot2::unit(.01, "points"),
+                    panel.border = ggplot2::element_rect(colour = "transparent", fill = "transparent"))
+}
+#' @rdname theme
+#' @export
+theme_eeguana2 <- function() {
+ theme_eeguana() %+replace% 
+                    theme(panel.grid = ggplot2::element_line(colour = "transparent"),
+                      axis.ticks= ggplot2::element_line(colour = "transparent"),
+                      axis.text= ggplot2::element_blank(),
+                      axis.title= ggplot2::element_blank())
 }

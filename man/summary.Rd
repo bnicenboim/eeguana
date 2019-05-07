@@ -6,6 +6,8 @@
 \alias{channel_names.signal_tbl}
 \alias{channel_names.default}
 \alias{channel_names.eeg_lst}
+\alias{channel_ica_names}
+\alias{channel_ica_names.eeg_ica_lst}
 \alias{nchannels}
 \alias{nchannels.default}
 \alias{component_names}
@@ -16,6 +18,7 @@
 \alias{nsamples}
 \alias{nsamples.eeg_lst}
 \alias{summary.eeg_lst}
+\alias{print.ica_summary}
 \alias{print.eeg_summary}
 \title{Display information of the eeg_lst object.}
 \usage{
@@ -26,6 +29,10 @@ channel_names(x, ...)
 \method{channel_names}{default}(x, ...)
 
 \method{channel_names}{eeg_lst}(x, ...)
+
+channel_ica_names(x, ...)
+
+\method{channel_ica_names}{eeg_ica_lst}(x, ...)
 
 nchannels(x, ...)
 
@@ -46,6 +53,8 @@ nsamples(x, ...)
 \method{nsamples}{eeg_lst}(x, ...)
 
 \method{summary}{eeg_lst}(object, ...)
+
+\method{print}{ica_summary}(x, ...)
 
 \method{print}{eeg_summary}(x, ...)
 }

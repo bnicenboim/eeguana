@@ -6,7 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Builds a signal_tbl table — signal_tbl • eeguana</title>
+<title>#' @export
+<code>[[.eeg_lst</code> &lt;- function(x,i,...) 
+pull.eeg_lst(.data = x,var =  i)
+
+Function to get the signal table of an eeg_lst object. — signal_tbl • eeguana</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -37,14 +41,17 @@
 
 
 
-<meta property="og:title" content="Builds a signal_tbl table — signal_tbl" />
+<meta property="og:title" content="#' @export
+<code>[[.eeg_lst</code> &lt;- function(x,i,...) 
+pull.eeg_lst(.data = x,var =  i)
 
-<meta property="og:description" content="The eeg_lst signal table is organised into columns representing timestamps
-(.sample_id) and individual electrodes. Each .sample_id corresponds to
-1 sample in the original recording, i.e. if the sampling rate of the EEG
-recording is 500 Hz, then each .sample_id corresponds to 2 milliseconds.
-These timestamps correspond to .sample_0 in the events table, which
-displays only the timestamps where logged events began." />
+Function to get the signal table of an eeg_lst object. — signal_tbl" />
+
+<meta property="og:description" content="#' @export
+[[.eeg_lst &amp;lt;- function(x,i,...) 
+pull.eeg_lst(.data = x,var =  i)" />
+
+<meta property="og:description" content="Function to get the signal table of an eeg_lst object." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -100,7 +107,7 @@ displays only the timestamps where logged events began." />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/brainvision_files.html">Introduction - Manipulating a clean EEG file exported from BrainVision 2.0</a>
+      <a href="../articles/intro.html">Introduction - Preprocessing and visualization of EEG data.</a>
     </li>
     <li>
       <a href="../articles/preprocessing_erp.html">Preprocessing of EEG data and computing ERPs (Fieldtrip tutorial)</a>
@@ -131,53 +138,43 @@ displays only the timestamps where logged events began." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Builds a signal_tbl table</h1>
-    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/constructors.R'><code>R/constructors.R</code></a></small>
+    <h1>#' @export
+<code>[[.eeg_lst</code> &lt;- function(x,i,...) 
+pull.eeg_lst(.data = x,var =  i)
+
+Function to get the signal table of an eeg_lst object.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/editing.R'><code>R/editing.R</code></a></small>
     <div class="hidden name"><code>signal_tbl.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>The eeg_lst <code>signal</code> table is organised into columns representing timestamps
-(<code>.sample_id</code>) and individual electrodes. Each <code>.sample_id</code> corresponds to
-1 sample in the original recording, i.e. if the sampling rate of the EEG
-recording is 500 Hz, then each <code>.sample_id</code> corresponds to 2 milliseconds.
-These timestamps correspond to <code>.sample_0</code> in the <code>events</code> table, which
-displays only the timestamps where logged events began.</p>
+    <p>#' @export
+<code>[[.eeg_lst</code> &lt;- function(x,i,...) 
+pull.eeg_lst(.data = x,var =  i)
+
+    Function to get the signal table of an eeg_lst object.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>signal_tbl</span>(<span class='kw'>signal_matrix</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ids</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>sample_ids</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>channel_info</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>signal_tbl</span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>signal_matrix</th>
-      <td><p>Matrix or table of channels with their signal.</p></td>
+      <th>x</th>
+      <td><p>An eeg_lst object.</p></td>
     </tr>
     <tr>
-      <th>ids</th>
-      <td><p>Integers indicating to which group the row of the signal matrix belongs.</p></td>
-    </tr>
-    <tr>
-      <th>sample_ids</th>
-      <td><p>Vector of integers.</p></td>
-    </tr>
-    <tr>
-      <th>channel_info</th>
-      <td><p>A table with information about each channel (such as the one produced by `channels_tbl``)</p></td>
+      <th>...</th>
+      <td><p>Not in use.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A valid <code>signal_tbl</code> table.</p>
-    
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>Other signal_tbl: <code>is_signal_tbl</code></p></div>
+    <p>A table.</p>
     
 
   </div>
@@ -187,8 +184,6 @@ displays only the timestamps where logged events began.</p>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-
-      <li><a href="#see-also">See also</a></li>
           </ul>
 
   </div>

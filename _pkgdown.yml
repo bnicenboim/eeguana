@@ -22,9 +22,9 @@ navbar:
     articles:
       text: Articles
       menu:
-      - text: Introduction - Manipulating a clean EEG file exported from BrainVision
+      - text: Introduction - Preprocessing and visualization of EEG data.
           2.0
-        href: articles/brainvision_files.html
+        href: articles/intro.html
       - text: Preprocessing of EEG data and computing ERPs (Fieldtrip tutorial)
         href: articles/preprocessing_erp.html
     news:

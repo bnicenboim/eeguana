@@ -93,7 +93,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/brainvision_files.html">Introduction - Manipulating a clean EEG file exported from BrainVision 2.0</a>
+      <a href="../articles/intro.html">Introduction - Preprocessing and visualization of EEG data.</a>
     </li>
     <li>
       <a href="../articles/preprocessing_erp.html">Preprocessing of EEG data and computing ERPs (Fieldtrip tutorial)</a>
@@ -128,22 +128,40 @@
       <small>Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="eeguana-0-0-7-900" class="section level1">
+    <div id="eeguana-0-0-7-9000" class="section level1">
 <h1 class="page-header">
-<a href="#eeguana-0-0-7-900" class="anchor"></a>eeguana 0.0.7.900</h1>
+<a href="#eeguana-0-0-7-9000" class="anchor"></a>eeguana 0.0.7.9000</h1>
 <ul>
 <li>Changes
 <ul>
 <li>FastICA was implemented in <code>eeg_ica()</code>.</li>
 <li>Artifact detection based on voltage steps implemented in <code>eeg_grad_artifact()</code>.</li>
 <li>Filters were greatly improved and checked, only FIR filters are supported for now.</li>
-<li>Better documentation (mostly <a href="https://github.com/auskate">Kate Stone</a>)</li>
+<li>Better documentation (mostly <a href="https://github.com/auskate">Kate Stone</a>).</li>
 <li>
-<p><code>eeg_intervals_to_NA()</code> was renamed to <code>eeg_events_to_NA()</code></p>
-<h1 id="eeguana-0.0.6.900" class="page-header">eeguana 0.0.6.900</h1>
-</li>
+<code>eeg_intervals_to_NA()</code> was renamed to <code>eeg_events_to_NA()</code>.</li>
+<li>
+<code>events()</code> was renamed to <code>events_tbl()</code>.</li>
+<li>
+<code>ch_filt_*</code> functions were renamed to <code>eeg_filt_*</code> and they get a <code>...</code> argument to select the relevant channels.</li>
+<li>Changes in the creation of <code>eeg_lst</code> objects.</li>
+<li>Faster <code>as_tibble()</code>.</li>
+<li>
+<code>as.data.table()</code> was added</li>
 </ul>
 </li>
+<li>Bugs
+<ul>
+<li>Events in Brain Vision version 1.0 file are now correctly read.</li>
+<li>Various minor bugs fixed.</li>
+</ul>
+</li>
+</ul>
+</div>
+    <div id="eeguana-0-0-6-9000" class="section level1">
+<h1 class="page-header">
+<a href="#eeguana-0-0-6-9000" class="anchor"></a>eeguana 0.0.6.9000</h1>
+<ul>
 <li>Changes
 <ul>
 <li>There is a logo!</li>
@@ -273,7 +291,8 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-        <li><a href="#eeguana-0-0-7-900">0.0.7.900</a></li>
+        <li><a href="#eeguana-0-0-7-9000">0.0.7.9000</a></li>
+        <li><a href="#eeguana-0-0-6-9000">0.0.6.9000</a></li>
         <li><a href="#eeguana-0-0-5-9000">0.0.5.9000</a></li>
         <li><a href="#eeguana-0-0-4-9000">0.0.4.9000</a></li>
         <li><a href="#eeguana-0-0-3-9000">0.0.3.9000</a></li>
