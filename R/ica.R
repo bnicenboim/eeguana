@@ -7,21 +7,22 @@ eeg_ica <- function(.data, ...){
 
 #' @rdname eeg_ica
 #' @param .data An eeg_lst object
-#' @param ... Channels to include in ICA transformation. All the channels by default, but eye channels and reference channels should be removed.
-#' @param method Methods from different packages: `fICA::adapt_fICA` (default), `fICA::fICA`, `fICA::reloaded_fICA`, `fastICA::fastICA`, or a custom function that returns a list that contains `S`  (reconstucted sources) and `A` (mixing matrix), consistent with the formulation `X= S %*% A`, where X is matrix of N_samples X N_channels or `W` (unmixing matrix), consistent with the formulation `X %*% W = S`.
-#' @param config Other parameters passed in a list to the ICA method. These are the default parameters except that when possible the method is run in C rather than in R. See the documentation of the relevant method.
-#' @param tolerance Convergence tolerance.
-#' @param max_iterations Maximum number of iterations.
+#' @param ... Channels to include in ICA transformation. All the channels by default, but eye channels 
+#' and reference channels should be removed.
+#' @param method Methods from different packages: `adapt_fast_ICA`  (default), `reloaded_fast_ICA`,
+#'  `fast_ICA` (adapted from `fICA` package), or a custom function that returns a list that with `A`
+#'   (mixing matrix), consistent with the formulation `X= S %*% A`, where X is matrix 
+#'   of N_samples $\times$ N_channels and/or `W` (unmixing matrix), consistent with the formulation
+#'    `X %*% W = S`.
+#' @param config Other parameters passed in a list to the ICA method. See the documentation of the relevant method.
 #' 
 #' @return An ica_lst object
 #' @export
 eeg_ica.eeg_lst <- function(.data, 
                             ...,
                             ignore = type == "artifact",
-                    method = fICA::adapt_fICA,
-                    config= list(),
-                    tolerance = 1e-06,
-                    max_iterations = 1000
+                    method = adapt_fast_ICA,
+                    config= list()
                               ){
   start_time <- Sys.time()
   
@@ -38,11 +39,12 @@ eeg_ica.eeg_lst <- function(.data,
     dots <- rlang::enquos(...)
   ignore <- rlang::enquo(ignore)
 
+  if(!rlang::is_empty(ignore)){
   rejected_data <- eeg_events_to_NA(.data, !!ignore,
                                     all_chans = FALSE,
                                     entire_seg = FALSE,
                                     drop_events = FALSE)
-
+}
   signal_raw <- rejected_data$signal %>%
             dplyr::select(.id, channel_names(.data))
   ## remove more if dots are used
@@ -50,7 +52,6 @@ eeg_ica.eeg_lst <- function(.data,
       chs <- sel_ch(signal_raw, !!!dots)
       signal_raw <- dplyr::select(signal_raw, c(".id", chs))
   }
-
   
   ## creates a DT with length length(signal_tbl) where the grouping var is repeated,
   ## This is used to split the signal_tbl, in case that there are many recordings together
@@ -64,31 +65,6 @@ eeg_ica.eeg_lst <- function(.data,
   method_label = rlang::as_label(method)
   message(paste0("# ICA is being done using ", method_label,"..."))
   
-    if(method_label== "fastICA::fastICA"){
-        default_config <- list(n.comp = nchannels(.data), method="C",maxit =max_iterations,
-                               tol = tolerance)
-        data_in <- function(x) x
-        data_out <- function(x) {
-            list(                 ##mix mat has a column for each channel, and
-                ##a row for each component
-                 unmixing_matrix = x$K %*% x$W,
-                 mixing_matrix =  x$A)
-        }
-
-    } else if(stringr::str_detect(method_label,"^fICA::")){
-        default_config <- list(inR = FALSE, maxiter =max_iterations,
-                               eps = tolerance)
-        data_in <- function(x) as.matrix(x)
-        data_out <- function(x) {
-            list(##mix mat has a column for each channel, and
-                 ##a row for each component
-                 unmixing_matrix = t(x$W),
-                 mixing_matrix =  t(MASS::ginv(x$W)))
-        }
-    } else {
-        message("Using custom ICA function: ", method_label)
-        default_config <- list()
-        data_in <- function(x) x
         data_out <- function(x)      {
             out <- list()
             if(!is.null(x$A)) {
@@ -103,14 +79,11 @@ eeg_ica.eeg_lst <- function(.data,
             }
             out
         }
-    }
-
-    config <- purrr::list_modify(default_config, !!!config)
-
+    
   ICA_fun <- function(x){
       ## the method needs to be evaluated in the package env,
       ## and the parameters are passed in alist with do.call
-        do.call(rlang::eval_tidy(method), c(list(data_in(x)), config)) %>% data_out()
+        do.call(rlang::eval_tidy(method), c(list(x), config)) %>% data_out()
     }
 
   l_ica <- lapply(l_signal, function(x) {
@@ -123,8 +96,6 @@ eeg_ica.eeg_lst <- function(.data,
       colnames(ica$unmixing_matrix) <- paste0("ICA", seq_len(ncol(ica$unmixing_matrix)))
       ica
   })
-
-
   .data$ica <- l_ica
     
     end_time <- Sys.time()

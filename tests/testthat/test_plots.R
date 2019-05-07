@@ -92,11 +92,7 @@ topoplot_eeg <- data_faces_ERPs %>%
   geom_text(colour = "black")
 
 ica_plot <- data_faces_ERPs  %>% mutate(recording =1) %>%
-    eeg_ica(-M1,-M2, -EOGV,-EOGH) %>% plot_topo_ica() +
-    facet_wrap(.~.ICA) +
-    annotate_head()+
-    geom_text()+
-    geom_contour()
+    eeg_ica(-M1,-M2, -EOGV,-EOGH) %>% plot_components()
 
 test_that("plotting doesn't change data", {
   # channel is factor in the plot and character in tibble, is that ok?
@@ -122,7 +118,7 @@ test_that("plot functions create ggplots", {
   expect_gg(topoplot_eeg)
   expect_gg(ica_plot)
   data_shorter <- filter(data_faces_10_trials, between(as_time(.sample_id) , 91,93))
-  expect_gg(plot(data_shorter) %>% add_events_plot())
+  expect_gg(plot(data_shorter) + annotate_events())
 
 })
 

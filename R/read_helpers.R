@@ -47,7 +47,8 @@ read_dat <- function(file, header_info = NULL, events = NULL,
           raw_signal <- data.table::fread(file, skip = 1)  #channel names might be problematic
       } else {
           raw_signal <- data.table::fread(file)  %>%
-            dplyr::select_if(is.double) %>% data.table::transpose() 
+            dplyr::select_if(is.double) %>% data.table::transpose()
+          data.table::fread(file)
       }
   }
 

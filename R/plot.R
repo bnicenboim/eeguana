@@ -44,6 +44,8 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
                         labeller = ggplot2::label_wrap_gen(multi_line = FALSE),
                         scales = "free"
     ) +
+      ggplot2::scale_x_continuous("Time (s)")+
+      ggplot2::scale_y_continuous("Amplitude")+
     theme_eeguana
   plot
 }
@@ -242,12 +244,12 @@ plot_topo.eeg_lst <- function(data, projection = "polar", ...) {
 }
 
 #' @export
-plot_topo_ica <- function(data,  ...) {
-  UseMethod("plot_topo_ica")
+plot_components <- function(data,  ...) {
+  UseMethod("plot_components")
 }
 #' @rdname plot_topo
 #' @export
-plot_topo_ica.eeg_ica_lst <- function(data,  projection = "polar", ...) {
+plot_components.eeg_ica_lst <- function(data,  projection = "polar", ...) {
     
     channels_tbl(data)  <- change_coord(channels_tbl(data), projection)  
     ##TODO: move to data.table, ignore group, just do it by .recording
@@ -260,10 +262,15 @@ plot_topo_ica.eeg_ica_lst <- function(data,  projection = "polar", ...) {
     long_table[,.key := as.character(.key)]
     
     long_table <- left_join_dt(long_table, data.table::as.data.table(channels_tbl(data)), by = c(".key"= ".channel")) %>% 
-      dplyr::group_by(recording,.ICA) %>%
+      dplyr::group_by(recording,.ICA) 
       
-        eeg_interpolate_tbl(...) %>%
-        plot_topo()
+       long_table %>% eeg_interpolate_tbl(...) %>%
+        plot_topo() +
+      facet_wrap(~.ICA)+
+      annotate_head() + 
+      geom_contour() +
+      geom_text(colour = "black")
+    
 }
 
 
@@ -519,6 +526,7 @@ annotate_events <- function(data=NULL, alpha = .2){
     structure(list(layer = layer), class = "layer_events")
 }
 
+#' @export
 ggplot_add.layer_events <- function(object, plot, object_name) {
     if(length(object$layer$data)==0) {
         events_tbl <- plot$data_events
@@ -539,22 +547,37 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
     ## if(all_chs){
     ##   events_tbl[, .channel := NA]
     ## }
-
-    to_plot<- list()
-    to_plot$events_all <- filter_dt(events_tbl, .initial == .final, is.na(.channel) )
-    to_plot$events_ch <- filter_dt(events_tbl, .initial == .final, !is.na(.channel) ) %>%
-        .[, .key := as.factor(.channel)]
-    to_plot$intervals_all <- filter_dt(events_tbl, .initial < .final, is.na(.channel) )
-    to_plot$intervals_ch <- filter_dt(events_tbl, .initial < .final, !is.na(.channel) )  %>%
-        .[, .key := as.factor(.channel)]
-    add_to_plot <- purrr::map(to_plot, ~ if(nrow(.x)>0){
-                                             object$layer$data= .x
-                                             object$layer
-                                         }
-                                         else {
-                                             NULL
-                                         })
-  plot + add_to_plot
+    chs <- list(unique(as.character(plot$data$.key)))
+   events_tbl[,.key:=lapply(.channel, function(x) as.character(x))]
+   events_tbl[is.na(.channel), .key:=rep(chs,.N)]
+   events_tbl <- tidyr::unnest(events_tbl)
+   
+   events_tbl[,.key:=factor(.key, levels = levels(plot$data$.key))]
+  # events_all_chs <- events_tbl[is.na(.channel),]
+  # events_all_chs[,.key := rep(list(unique(events_tbl$.channel)),.N)] 
+  # events_all_chs <- tidyr::unnest(events_all_chs)
+  # events_spec_chs <- events_tbl[!is.na(.channel),]
+  # events_spec_chs[, .key := .channel]
+  # events_tbl <- rbind(events_all_chs, events_spec_chs)
+  #   to_plot<- list()
+  #   to_plot$events_all <- filter_dt(events_tbl, .initial == .final, is.na(.channel) )
+  #   to_plot$events_ch <- filter_dt(events_tbl, .initial == .final, !is.na(.channel) ) %>%
+  #       .[, .key := as.factor(.channel)]
+  #   to_plot$intervals_all <- filter_dt(events_tbl, .initial < .final, is.na(.channel) )
+  #   to_plot$intervals_ch <- filter_dt(events_tbl, .initial < .final, !is.na(.channel) )  %>%
+  #       .[, .key := as.factor(.channel)]
+  #   add_to_plot <- purrr::map(to_plot, ~ if(nrow(.x)>0){
+  #                                            layer <- data.table::copy(object$layer)
+  #                                            layer$data <-  .x
+  #                                            layer
+  #                                        }
+  #                                        else {
+  #                                            NULL
+  #                                        }) %>%
+  #     purrr::keep(function(x) !is.null(x))
+  #   
+  object$layer$data <- events_tbl
+   plot + object$layer
 } 
 
 #' @export

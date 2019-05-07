@@ -4,7 +4,7 @@
 \alias{plot_topo}
 \alias{plot_topo.tbl_df}
 \alias{plot_topo.eeg_lst}
-\alias{plot_topo_ica.eeg_ica_lst}
+\alias{plot_components.eeg_ica_lst}
 \title{Create a topographic plot}
 \usage{
 plot_topo(data, ...)
@@ -13,7 +13,7 @@ plot_topo(data, ...)
 
 \method{plot_topo}{eeg_lst}(data, projection = "polar", ...)
 
-\method{plot_topo_ica}{eeg_ica_lst}(data, projection = "polar", ...)
+\method{plot_components}{eeg_ica_lst}(data, projection = "polar", ...)
 }
 \arguments{
 \item{data}{A table of interpolated electrodes as produced by \code{eeg_interpolate_tbl}, or an \code{eeg_lst}, or \code{ica_lst} appropiately grouped.}
