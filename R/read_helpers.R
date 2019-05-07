@@ -42,12 +42,16 @@ read_dat <- function(file, header_info = NULL, events = NULL,
     raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = multiplexed) %>%
                   data.table::as.data.table()
   } else if (common_info$format == "ASCII") {
-
-    if(multiplexed){
-          raw_signal <- data.table::fread(file, skip = 1)  #channel names might be problematic
-      } else {
-          raw_signal <- data.table::fread(file)  %>%
-            dplyr::select_if(is.double) %>% data.table::transpose()
+   raw_signal <- data.table::fread(file, 
+                                          skip =  common_info$SkipLines, 
+                                          dec =common_info$DecimalSymbol, 
+                                          sep =" ", 
+                                          header = FALSE) 
+   if(common_info$SkipColumns >0){
+           raw_signal <-  raw_signal[,-common_info$SkipColumns, with = FALSE]
+   }
+    if(!multiplexed){
+          raw_signal <- data.table::transpose(raw_signal)
       }
   }
 
