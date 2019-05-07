@@ -77,7 +77,7 @@ ica2 <- eeg_ica_show(data_ica_default, ICA1, ICA2)
 
 data_rec <- data_ica_default %>% eeg_ica_keep(ICA1, ICA2, ICA3)
 
-data_ica_m <- eeg_ica(data_blinks, method = fastICA::fastICA,config = list(verbose = FALSE) )
+data_ica_m <- eeg_ica(data_blinks, method = fastICA::fastICA,config = list(n.comp = 3, verbose = FALSE) )
 data_rec_m <- data_ica_m %>% eeg_ica_keep(ICA1, ICA2, ICA3)
 
 data_ica_Fz <- eeg_ica(data_blinks, -Fz)
@@ -112,6 +112,7 @@ test_that("can use other functions",{
     skip_on_travis()
     skip_on_cran()
     py_fica <- function(x){
+        x <- as.matrix(x)
         sk <- reticulate::import("sklearn.decomposition")
         ica <- sk$FastICA(whiten=TRUE)
         X <- scale(x, scale = FALSE)
