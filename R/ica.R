@@ -12,7 +12,7 @@ eeg_ica <- function(.data, ...){
 #' @param method Methods from different packages: `adapt_fast_ICA`  (default), `reloaded_fast_ICA`,
 #'  `fast_ICA` (adapted from `fICA` package), or a custom function that returns a list that with `A`
 #'   (mixing matrix), consistent with the formulation `X= S %*% A`, where X is matrix 
-#'   of N_samples $\times$ N_channels and/or `W` (unmixing matrix), consistent with the formulation
+#'   of N_samples by N_channels and/or `W` (unmixing matrix), consistent with the formulation
 #'    `X %*% W = S`.
 #' @param config Other parameters passed in a list to the ICA method. See the documentation of the relevant method.
 #' 

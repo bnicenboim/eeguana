@@ -93,10 +93,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/N400.html">Preprocessing and analysis of a simple N400 experiment</a>
-    </li>
-    <li>
-      <a href="../articles/brainvision_files.html">Introduction - Manipulating a clean EEG file exported from BrainVision 2.0</a>
+      <a href="../articles/intro.html">Introduction - Preprocessing and visualization of EEG data.</a>
     </li>
     <li>
       <a href="../articles/preprocessing_erp.html">Preprocessing of EEG data and computing ERPs (Fieldtrip tutorial)</a>
@@ -188,7 +185,7 @@
       <tr>
         
         <td>
-          <p><code><a href="dplyr-eeguana.html">mutate(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">transmute(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">filter(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">summarise(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">group_by(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">ungroup(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">groups(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">group_vars(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">select(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">select(<i>&lt;ica_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">rename(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">rename(<i>&lt;ica_lst&gt;</i>)</a></code> </p>
+          <p><code><a href="dplyr-eeguana.html">mutate(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">transmute(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">filter(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">summarise(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">group_by(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">ungroup(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">groups(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">group_vars(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">select(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">rename(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
         </td>
         <td><p>Dplyr functions for manipulating eeg_lst objects.</p></td>
       </tr><tr>
@@ -220,7 +217,7 @@
       <tr>
         
         <td>
-          <p><code><a href="summary.html">channel_names()</a></code> <code><a href="summary.html">nchannels()</a></code> <code><a href="summary.html">component_names()</a></code> <code><a href="summary.html">ncomponents()</a></code> <code><a href="summary.html">nsamples()</a></code> <code><a href="summary.html">summary(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">print(<i>&lt;eeg_summary&gt;</i>)</a></code> </p>
+          <p><code><a href="summary.html">channel_names()</a></code> <code><a href="summary.html">channel_ica_names()</a></code> <code><a href="summary.html">nchannels()</a></code> <code><a href="summary.html">component_names()</a></code> <code><a href="summary.html">ncomponents()</a></code> <code><a href="summary.html">nsamples()</a></code> <code><a href="summary.html">summary(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">print(<i>&lt;ica_summary&gt;</i>)</a></code> <code><a href="summary.html">print(<i>&lt;eeg_summary&gt;</i>)</a></code> </p>
         </td>
         <td><p>Display information of the eeg_lst object.</p></td>
       </tr><tr>
@@ -243,12 +240,6 @@
           <p><code><a href="ch_baseline.html">ch_baseline()</a></code> </p>
         </td>
         <td><p>Baseline an eeg_lst</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="ch_rereference.html">ch_rereference()</a></code> </p>
-        </td>
-        <td><p>Rereference a channel or group of channels.</p></td>
       </tr><tr>
         
         <td>
@@ -278,7 +269,7 @@
       <tr>
         
         <td>
-          <p><code><a href="eeg_artif.html">eeg_artif_minmax()</a></code> <code><a href="eeg_artif.html">eeg_artif_step()</a></code> </p>
+          <p><code><a href="eeg_artif.html">eeg_artif_minmax()</a></code> <code><a href="eeg_artif.html">eeg_artif_step()</a></code> <code><a href="eeg_artif.html">eeg_artif_amplitude()</a></code> </p>
         </td>
         <td><p>Annotate artifacts in the  events table of an eeg_lst.</p></td>
       </tr><tr>
@@ -311,6 +302,12 @@
           <p><code><a href="eeg_lst.html">eeg_lst()</a></code> </p>
         </td>
         <td><p>Create an eeg_lst</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="eeg_rereference.html">eeg_rereference()</a></code> </p>
+        </td>
+        <td><p>Rereference a channel or group of channels.</p></td>
       </tr><tr>
         
         <td>
@@ -358,7 +355,7 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="plot_topo.html">plot_topo()</a></code> </p>
+          <p><code><a href="plot_topo.html">plot_topo()</a></code> <code><a href="plot_topo.html">plot_components(<i>&lt;eeg_ica_lst&gt;</i>)</a></code> </p>
         </td>
         <td><p>Create a topographic plot</p></td>
       </tr><tr>
@@ -384,6 +381,12 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="as_eeg_lst.eeg_ica_lst.html">as_eeg_lst(<i>&lt;eeg_ica_lst&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>to.data object</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="as_sample_int.html">as_sample_int()</a></code> </p>
         </td>
         <td><p>Convert a time point  into a sample.</p></td>
@@ -392,7 +395,7 @@
         <td>
           <p><code><a href="as_tibble.eeg_lst.html">as_tibble(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="as_tibble.eeg_lst.html">as_data_frame.eeg_lst()</a></code> <code><a href="as_tibble.eeg_lst.html">as_long_tbl(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
         </td>
-        <td><p>Convert an eeg_lst to a long table.</p></td>
+        <td><p>Convert an eeg_lst to a long table in <code><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></code> format.</p></td>
       </tr><tr>
         
         <td>
@@ -405,6 +408,12 @@
           <p><code><a href="as.data.frame.eeg_lst.html">as.data.frame(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
         </td>
         <td><p>Convert an eeg_lst to a (base) data frame.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="as.data.table.eeg_lst.html">as.data.table.eeg_lst()</a></code> </p>
+        </td>
+        <td><p>Convert an eeg_lst to a long table in <code><a href='https://www.rdocumentation.org/packages/data.table/topics/data.table'>data.table</a></code> format.</p></td>
       </tr><tr>
         
         <td>
@@ -450,7 +459,7 @@ This function returns  TRUE for signals.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="summary.html">channel_names()</a></code> <code><a href="summary.html">nchannels()</a></code> <code><a href="summary.html">component_names()</a></code> <code><a href="summary.html">ncomponents()</a></code> <code><a href="summary.html">nsamples()</a></code> <code><a href="summary.html">summary(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">print(<i>&lt;eeg_summary&gt;</i>)</a></code> </p>
+          <p><code><a href="summary.html">channel_names()</a></code> <code><a href="summary.html">channel_ica_names()</a></code> <code><a href="summary.html">nchannels()</a></code> <code><a href="summary.html">component_names()</a></code> <code><a href="summary.html">ncomponents()</a></code> <code><a href="summary.html">nsamples()</a></code> <code><a href="summary.html">summary(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="summary.html">print(<i>&lt;ica_summary&gt;</i>)</a></code> <code><a href="summary.html">print(<i>&lt;eeg_summary&gt;</i>)</a></code> </p>
         </td>
         <td><p>Display information of the eeg_lst object.</p></td>
       </tr>

@@ -269,7 +269,8 @@ plot_components.eeg_ica_lst <- function(data,  projection = "polar", ...) {
       facet_wrap(~.ICA)+
       annotate_head() + 
       geom_contour() +
-      geom_text(colour = "black")
+      geom_text(colour = "black")+
+         theme(legend.position = "none")
     
 }
 
@@ -597,7 +598,13 @@ ggplot.eeg_lst <- function(data = NULL,
     p$data_channels <- channels_tbl(data)
     p
 }
-#' 
+#'  Eeguana ggplot themes
+#'  These are complete light themes based on [ggplot2::theme_bw()] which control all non-data display. 
+#'  @name theme
+NULL
+# > NULL
+
+#' @rdname theme
 #' @export
 theme_eeguana <- function() {
   ggplot2::theme_bw() %+replace% 
@@ -606,7 +613,7 @@ theme_eeguana <- function() {
                     panel.spacing  = ggplot2::unit(.01, "points"),
                     panel.border = ggplot2::element_rect(colour = "transparent", fill = "transparent"))
 }
-#' 
+#' @rdname theme
 #' @export
 theme_eeguana2 <- function() {
  theme_eeguana() %+replace% 
