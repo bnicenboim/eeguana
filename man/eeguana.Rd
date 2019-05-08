@@ -6,7 +6,13 @@
 \alias{eeguana-package}
 \title{eeguana: A package for flexible manipulation of EEG data.}
 \description{
-The eeguana package provides functions that can be used on already pre-processed (i.e.,
-filtering, artifact rejects, ICA, etc has already been done) EEG files (at least for now).
-The package mainly provides dplyr-like functions to manipulate the EEG data, and ggplot wrapper functions.
+The package \emph{eeguana} provides a framework for doing simple pre-processing
+with specialized functions (starting with \code{eeg_} and \code{ch_}) and manipulating
+EEG data with \emph{dplyr} verbs (e.g., \code{mutate}, \code{filter}, \code{summarize}) extended to a
+new class \code{eeg_lst}, and \code{ggplot} wrapper functions.  The new class is inspired by
+tidyverse principles but it's not really "tidy" (due to space considerations),
+it's a list of (i) a wide table that contains the signal amplitudes at every sample
+point of the EEG,  (ii) an events table with information about markers (or triggers),
+blinks and other exported information, and (iii) a long table with experimental information,
+such as participant (\code{recording}), conditions, etc.
 }

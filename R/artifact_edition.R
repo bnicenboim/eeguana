@@ -1,4 +1,4 @@
-#' Annotate artifacts in the  events table of an eeg_lst.
+#' Detect artifacts and add them in the events table of an eeg_lst.
 #'
 #'   * `eeg_artif_step()`
 #'   * `eeg_artif_minmax()`
@@ -114,51 +114,6 @@ eeg_artif_amplitude.eeg_lst <- function(.data,...,
                      unit = unit )
 }
 
-
-eeg_artif_custom <-  function(.data,...,
-                              fun,
-                              threshold,
-                                     window = .2,
-                                     events_lim = c(-window, window),
-                              unit = "s"){
-
-    if(length(events_lim)<2) {
-        stop("Two values for `events_lim` are needed", call. = FALSE)
-    }
-
-    events_lim_s <- as_sample_int(events_lim, sampling_rate =  sampling_rate(.data), unit = unit)
-
-    if(!is.null(window)){
-    window_s <- round(as_sample_int(window, sampling_rate =  sampling_rate(.data), unit = unit) -1L)
-    
-    if(window_s <= 0) stop("The `window` needs to contain at least one sample.")
-    if(window_s >= (events_lim_s[2]-events_lim_s[1])){
-        warning("The number of samples in `window` (",window_s,
-                ") should be smaller than half of the samples contained in  `events_lim` (",
-                (events_lim_s[2]-events_lim_s[1])/2, ").")
-    }
-
-    args = list(threshold = threshold, window = window_s)
-    } else {
-        args = list(threshold = threshold)
-    }
-
-    artifacts_found <- search_artifacts(.data$.signal,
-                                        ...,
-                                        fun = fun,
-                                        args=args)
-    
-    fun_txt <-   substitute(fun)%>%
-        stringr::str_remove("detect_")
-    args_txt <- purrr::imap_chr(args, ~ paste(.y,toString(.x),sep = "=")) %>%
-        paste(collapse="_")
-    events_tbl(.data) <- add_intervals_from_artifacts(old_events = events_tbl(.data), 
-                                                      artifacts_tbl = artifacts_found, 
-                                                      sample_range=events_lim_s,
-                                                      .type = paste(fun_txt,args_txt,sep="_"))
-
-    validate_eeg_lst(.data)
-}
 
 
 

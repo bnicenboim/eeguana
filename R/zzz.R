@@ -11,3 +11,5 @@
 		  "scale_fill_gradientn","time",".type","value","x..lower","x..sample"
 		  )
 	)
+## data.table needs this
+.datatable.aware = TRUE

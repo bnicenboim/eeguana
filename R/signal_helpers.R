@@ -1,4 +1,4 @@
-# this functions are adapted from python scipy
+## These functions are adapted from python scipy
 sinc <- function(x){
     ifelse(x==0, 1, sin(pi * x)/(pi*x))
 }

@@ -91,7 +91,7 @@ data_faces_ERPs \%>\%
 
 }
 \seealso{
-Other plot: \code{\link{plot.eeg_lst}},
-  \code{\link{plot_gg}}, \code{\link{plot_in_layout}}
+Other plot: \code{\link{ggplot.eeg_lst}},
+  \code{\link{plot.eeg_lst}}, \code{\link{plot_in_layout}}
 }
 \concept{plot}

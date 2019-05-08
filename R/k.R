@@ -7,5 +7,3 @@ obligatory_cols <- list(
   .segments = c(.id = ".id")
 )
 
-# data.table needs this
-.datatable.aware = TRUE

@@ -45,7 +45,7 @@ plot(data_faces_ERPs) +
 
 }
 \seealso{
-Other plot: \code{\link{plot_gg}},
+Other plot: \code{\link{ggplot.eeg_lst}},
   \code{\link{plot_in_layout}}, \code{\link{plot_topo}}
 }
 \concept{plot}

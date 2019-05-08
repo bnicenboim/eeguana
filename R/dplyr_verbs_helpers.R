@@ -246,3 +246,94 @@ signal_from_parent_frame <- function(env = parent.frame()) {
   signal_env <- rlang::env_get(env = env, ".top_env", inherit = TRUE)
   signal_tbl <- dplyr::as_tibble(rlang::env_get_list(signal_env, rlang::env_names(signal_env)))
 }
+#' @noRd
+extended_signal <- function(.eeg_lst, cond_cols = NULL, events_cols = NULL){
+extended_signal <- NULL  
+  relevant_cols <- c(obligatory_cols$.segments, group_vars(.eeg_lst),cond_cols)
+ if(length(relevant_cols)>1) { #more than just .id
+  segments <-  dplyr::ungroup(.eeg_lst$.segments) %>% 
+               {.[names(.) %in% relevant_cols]} %>%
+               data.table::data.table()
+  data.table::setkey(segments,.id)
+  extended_signal <-  .eeg_lst$.signal[segments]
+ }
+  if(length(events_cols)>0){
+    extended_signal <- events_tbl(.eeg_lst)[,..events_cols][extended_signal]
+      }
+  if(is.null(extended_signal)){
+  extended_signal <- data.table::copy(.eeg_lst$.signal)
+  }
+  extended_signal
+}
+
+#' @noRd
+group_vars_segments <- function(.eeg_lst){
+ intersect(group_vars(.eeg_lst), colnames(.eeg_lst$.segments))
+} 
+
+#' @noRd
+group_vars_only_segments <- function(.eeg_lst){
+ group_vars_segments(.eeg_lst) %>% {.[. != ".id"]}
+} 
+
+#' @noRd
+update_events_channels <- function(x) {
+  if(nrow(x$.events)>0) {
+    x$.events <- x$.events[is.na(.channel) | .channel %in% channel_names(x),]
+  }
+  x
+}
+
+
+# https://stackoverflow.com/questions/50563895/using-rlang-find-the-data-pronoun-in-a-set-of-quosures
+#' @noRd
+getAST <- function(ee) {
+  as.list(ee) %>% purrr::map_if(is.call, getAST)
+}
+
+#' @noRd
+dots_by_tbl_quos <- function(.eeg_lst, dots) {
+  
+  signal_cols <- c(colnames(.eeg_lst$.signal),
+                   paste0("`",channel_names(.eeg_lst),"`") #In case channel name is used with ` in the function call, NOT sure if needed anymore
+  )
+  
+  signal_dots <- purrr::map_lgl(dots, function(dot)
+    # get the AST of each call and unlist it
+    getAST(dot) %>%
+      unlist(.) %>%
+      # make it a vector of strings
+      purrr::map_lgl(function(element){  # check for every element if it's a channel or if it's a channel function
+        txt_element <- rlang::quo_text(element) 
+        if (txt_element %in% signal_cols) {
+          return(TRUE)
+        } else if(exists(txt_element) && is.function(eval(parse(text= txt_element)))){
+          return(stringr::str_detect(txt_element, stringr::regex("^ch_|^chs_|^channel_dbl|^channel_names|^signal_tbl")))
+        } else {
+          return(FALSE)
+        }
+      }) %>% any())
+  
+  # things might fail if there is a function named as a signal column. TODO, check for that in the validate.
+  
+  # signal_dots is a vector of TRUE/FALSE indicating for each call whether it belongs to signals
+  # if both signal_tbl and segments columns are there, it will say that the dots should apply
+  # to a signal_tbl dataframe.
+  .segments <- c(dots[!signal_dots], dots[signal_dots][rlang::quos(.id) %in% dots[signal_dots]])
+  list(.signal = dots[signal_dots], .segments = .segments)
+}
+
+
+#' @noRd
+rename_sel_comp <- function(mixing, sel){
+    mixing <- mixing[ .ICA %in% c("mean",sel),] 
+    mixing[,.ICA := purrr::map_chr(.ICA, function(r){
+        new_name <- names(sel[sel==r])
+        if(length(new_name)!=0){
+            return(new_name)
+        } else {
+            return(r)
+        }
+    })][]
+
+}

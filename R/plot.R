@@ -50,73 +50,36 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
   plot
 }
 
-#' Create an ERP plot
-#' 
-#' `plot_gg` initializes a ggplot object which takes an `eeg_lst` object as
-#' its input data. Layers can then be added in the same way as for a 
-#' `ggplot2::ggplot` object.
-#' 
-#' If necessary, `plot_gg` will first downsample the `eeg_lst` object so that there is a 
-#' maximum of 6400 samples. The `eeg_lst` object is then converted to a long-format
-#' tibble via [as_tibble]. In this tibble, the `.key` variable is the 
-#' channel/component name and `.value` its respective amplitude. The sample 
-#' number (`.sample` in the `eeg_lst` object) is automatically converted to milliseconds
-#' to create the variable `time`. By default, time is plotted on the 
-#' x-axis and amplitude on the y-axis.
-#' 
-#' To add additional components to the plot such as titles and annotations, simply
-#' use the `+` symbol and add layers exactly as you would for `ggplot::ggplot`.
-#' 
-#' @param .data An `eeg_lst` object.
-#' @inheritParams  ggplot2::aes
-#' @param max_sample Downsample to approximately 2400 samples by default.
-#'
-#' @family plot
-#' @return A ggplot object
-#' 
-#' @examples 
-#' 
-#' # Plot grand averages for selected channels
-#' data_faces_ERPs %>% 
-#'   # select the desired electrodes
-#'   select(O1, O2, P7, P8) %>% 
-#'   plot_gg() + 
-#'       # add a grand average wave
-#'       stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1.5, 
-#'                aes(color = condition)) +
-#'       # facet by channel
-#'       facet_wrap(~ .key) + 
-#'       theme(legend.position = "bottom") 
-#'
-#' @export
-plot_gg <- function(.data, ...) {
-  UseMethod("plot_gg")
-}
-#' @rdname plot_gg
-#' @export
-plot_gg.eeg_lst <- function(.data, x = .time, y = .value, ..., max_sample = 2400) {
-  x <- rlang::enquo(x)
-  y <- rlang::enquo(y)
-  dots <- rlang::enquos(...)
-   plot <- ggplot2::ggplot(.data, ggplot2::aes(x = !!x, y = !!y, !!!dots)) +
-    ggplot2::scale_colour_brewer(type = "qual", palette = "Dark2") +
-    theme_eeguana()
-  plot
-}
 
-#' @export
-plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
-  dots <- rlang::enquos(...)
-  x <- rlang::enquo(x)
-  y <- rlang::enquo(y)
-  plot <- ggplot2::ggplot(
-    .data,
-    ggplot2::aes(x = !!x, y = !!y, !!!dots)
-  ) +
-    ggplot2::scale_colour_brewer(type = "qual", palette = "Dark2") +
-    theme_eeguana()
-  plot
-}
+
+## plot_gg <- function(.data, ...) {
+##   UseMethod("plot_gg")
+## }
+## #' @rdname plot_gg
+## #' @export
+## plot_gg.eeg_lst <- function(.data, x = .time, y = .value, ..., max_sample = 2400) {
+##   x <- rlang::enquo(x)
+##   y <- rlang::enquo(y)
+##   dots <- rlang::enquos(...)
+##    plot <- ggplot2::ggplot(.data, ggplot2::aes(x = !!x, y = !!y, !!!dots)) +
+##     ggplot2::scale_colour_brewer(type = "qual", palette = "Dark2") +
+##     theme_eeguana()
+##   plot
+## }
+
+## #' @export
+## plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
+##   dots <- rlang::enquos(...)
+##   x <- rlang::enquo(x)
+##   y <- rlang::enquo(y)
+##   plot <- ggplot2::ggplot(
+##     .data,
+##     ggplot2::aes(x = !!x, y = !!y, !!!dots)
+##   ) +
+##     ggplot2::scale_colour_brewer(type = "qual", palette = "Dark2") +
+##     theme_eeguana()
+##   plot
+## }
 
 
 #' Create a topographic plot
@@ -579,8 +542,47 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
   #   
   object$layer$data <- events_tbl
    plot + object$layer
-} 
+}
 
+
+#' Create an ERP plot
+#' 
+#' `ggplot` initializes a ggplot object which takes an `eeg_lst` object as
+#' its input data. Layers can then be added in the same way as for a 
+#' [ggplot2::ggplot] object.
+#' 
+#' If necessary, t will first downsample the `eeg_lst` object so that there is a 
+#' maximum of 6400 samples. The `eeg_lst` object is then converted to a long-format
+#' tibble via [as_tibble]. In this tibble, the `.key` variable is the 
+#' channel/component name and `.value` its respective amplitude. The sample 
+#' number (`.sample` in the `eeg_lst` object) is automatically converted to milliseconds
+#' to create the variable `.time`. By default, time is plotted on the 
+#' x-axis and amplitude on the y-axis.
+#' 
+#' To add additional components to the plot such as titles and annotations, simply
+#' use the `+` symbol and add layers exactly as you would for `ggplot::ggplot`.
+#' 
+#' @param .data An `eeg_lst` object.
+#' @inheritParams  ggplot2::ggplot
+#' @param max_sample Downsample to approximately 2400 samples by default.
+#'
+#' @family plot
+#' @return A ggplot object
+#' 
+#' @examples 
+#' 
+#' # Plot grand averages for selected channels
+#' data_faces_ERPs %>% 
+#'   # select the desired electrodes
+#'   select(O1, O2, P7, P8) %>% 
+#'   ggplot(aes(x=.time, y =.key)) + 
+#'       # add a grand average wave
+#'       stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1.5, 
+#'                aes(color = condition)) +
+#'       # facet by channel
+#'       facet_wrap(~ .key) + 
+#'       theme(legend.position = "bottom") 
+#'
 #' @export
 ggplot.eeg_lst <- function(data = NULL,
                            mapping = ggplot2::aes(),

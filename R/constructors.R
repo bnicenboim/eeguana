@@ -66,9 +66,6 @@ eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, c
                      recursive = FALSE)
 } 
 
-
-
-
 #' Test if the object is an eeg_lst.
 #' This function returns  TRUE for eeg_lsts.
 #'
@@ -81,7 +78,6 @@ eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, c
 is_eeg_lst <- function(x) {
     "eeg_lst" %in% class(x)
 }
-
 
 #' Builds a series of sample numbers.
 #'
@@ -110,7 +106,6 @@ sample_int <- function(values, sampling_rate) {
 is_sample_int <- function(x) {
   class(x) == "sample_int"
 }
-
 
 #' Builds a channel.
 #'
@@ -209,26 +204,6 @@ subset.channel_dbl <- function(x, ... ) {
  r
 }
 
-#' wrapper for signal::decimate that allows a vector in q, for decimating several times serially
-#' When using IIR downsampling, it is recommended to call decimate multiple times for downsampling factors higher than 13. reference: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.decimate.html
-#' @noRd
-decimate_ch <- function (.channel, q, n = if (ftype == "iir") 8 else 30, ftype = "iir") {
-    attrs <- attributes(.channel)
-    class(.channel) <- NULL
-    if(anyNA(.channel)){
-      r <- .channel[seq(1, length(.channel), by = prod(q))]
-    } else if(length(q)>1){
-       r<- Reduce(function(x,q) signal::decimate(x=x,q=q, n=n,ftype = ftype), x = q, init = .channel)
-    } else {
-        r <- signal::decimate(x =.channel, q=q, n = n , ftype = ftype)
-    }
-    mostattributes(r) <- attrs
-    r
-}
-
-
-
-
 #' Builds a component.
 #'
 #' @param values Vector of doubles indicating amplitudes.
@@ -255,7 +230,6 @@ component_dbl <- function(values) {
 is_component_dbl <- function(x) {
   class(x) == "component_dbl"
 }
-
 
 #' @export
 `[.component_dbl` <- function(x,i,...) {
@@ -293,17 +267,3 @@ subset.component_dbl <- function(x, ... ) {
   mostattributes(r) <- attrs
   r
 }
-#' Builds an eeg_lst.
-#'
-#' @param signal signal
-#' @param events events
-#' @param segments segments
-#' 
-#' @family eeg_lst
-#'
-#' @return A valid eeg_lst.
-#' @export
-ica_lst <- function(signal = NULL, mixing = NULL, events = NULL, segments = NULL) {
-    validate_ica_lst(new_ica_lst(signal, mixing, events, segments))
-}
-

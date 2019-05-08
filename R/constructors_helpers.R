@@ -124,14 +124,7 @@ update_channel_meta_data <- function(channels, channels_tbl) {
   channels
 }
 
-# purrr::map2(
-#       channels , purrr::transpose(channels_tbl),
-#       function(sig, chan_info) {
-#         channel <- new_channel_dbl(value = sig, as.list(chan_info))
-#       }
-# )
-
-
+#
 #' @param x 
 #'
 #' @noRd
@@ -214,96 +207,3 @@ validate_component_dbl <- function(component) {
     component
 }
 
-#' @param signal_tbl 
-#'
-#' @param events 
-#' @param segments 
-#'
-#' @noRd
-new_ica_lst <- function(signal = NULL, mixing = NULL, events = NULL, segments = NULL) {
-    x <- list(
-        signal = signal,
-        mixing = mixing,
-        events = events,
-        segments = segments
-    )
-    x <- unclass(x)
-    structure(x,
-              class = c("ica_lst","eeg_lst"),
-              vars = character(0)
-              )
-}
-
-#' @param x 
-#'
-#' @noRd
-validate_ica_lst <- function(x) {
-    x <- validate_eeg_lst(x)
-    x$mixing <- validate_mixing_tbl(x$mixing)
-    x
-}
-
-#' @param mixing_tbl 
-#'
-#' @noRd
-validate_mixing_tbl <- function(mixing_tbl) {
-    
-    if (!data.table::is.data.table(mixing_tbl)) {
-        warning("'mixing' should be a data.table.",
-                call. = FALSE
-                )
-    }
-
-     if(all(!sapply(mixing_tbl, is_channel_dbl)) && nrow(mixing_tbl)>0){
-        warning("No channels found.")
-    }
-    # Validates channels 
-    mixing_tbl[, lapply(.SD,validate_channel_dbl), .SDcols= sapply(mixing_tbl, is_channel_dbl)] 
-
-    mixing_tbl
-}
-
-#' Builds a mixing_tbl table.
-#'
-#' @param mixing_matrix Matrix or table of channels with their mixing.
-#' @param ids Integers indicating to which group the row of the mixing matrix belongs.
-#' @param sample_ids Vector of integers.
-#' @param channel_info A table with information about each channel (such as the one produced by `channels_tbl``)
-#' 
-#' @return A valid mixing_tbl table.
-#' @noRd
-new_mixing_tbl <- function(mixing_matrix, means_matrix , groups, channels_tbl) {
-    ## if mixing_mat is not a list I convert it to always use the same map
-    if(!is.list(mixing_matrix)) mixing_matrix <- list(mixing_matrix)
-    if(!is.list(means_matrix))  means_matrix <- list(means_matrix)
-    mixing_matrix_dt <-
-        map2_dtr( mixing_matrix, means_matrix, function(mixm, meansm)  {
-            .ICA <- data.table::data.table(.ICA =c("mean",paste0("ICA",seq_len(nrow(mixm)))))
-            mm <- rbind(meansm,mixm) %>% data.table::data.table() %>%
-                .[, (update_channel_meta_data(.SD, channels_tbl))] %>%
-                cbind(.ICA, .)
-            mm
-        }
-                    ,.id = ".group")
-    data.table::setattr(mixing_matrix_dt, "class",c("mixing_tbl",class(mixing_matrix_dt)))
-    mixing_matrix_dt[]
-}
-
-#' @noRd
-as_mixing_tbl <- function(.data,...){
-    UseMethod("as_mixing_tbl")
-}
-#' @noRd
-as_mixing_tbl.data.table <- function(.data){
-    data.table::setattr(.data, "class", c("mixing_tbl",class(.data)))
-    validate_mixing_tbl(.data)
-}
-#' @noRd
-as_mixing_tbl.mixing_tbl <- function(.data){
-    validate_mixing_tbl(.data)
-}
-#' @noRd
-as_mixing_tbl.data.frame <- function(.data){
-    .data <- data.table::as.data.table(.data)
-    as_mixing_tbl(.data)
-}

@@ -50,7 +50,6 @@ into the \code{segments} tibble using non-eeguana merge functions, e.g. the \cod
 join series.
 }
 \seealso{
-Other eeg_lst: \code{\link{ica_lst}},
-  \code{\link{is_eeg_lst}}
+Other eeg_lst: \code{\link{is_eeg_lst}}
 }
 \concept{eeg_lst}

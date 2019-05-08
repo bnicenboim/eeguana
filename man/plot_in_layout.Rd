@@ -63,7 +63,7 @@ ERP_plot <- data_faces_ERPs \%>\%
 plot_in_layout(ERP_plot)
 }
 \seealso{
-Other plot: \code{\link{plot.eeg_lst}},
-  \code{\link{plot_gg}}, \code{\link{plot_topo}}
+Other plot: \code{\link{ggplot.eeg_lst}},
+  \code{\link{plot.eeg_lst}}, \code{\link{plot_topo}}
 }
 \concept{plot}
