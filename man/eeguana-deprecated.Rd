@@ -38,7 +38,7 @@ events(x, ...)
 events(x, ...) <- value
 }
 \arguments{
-\item{x}{An eeg_lst object.}
+\item{x}{Variable storing the x coordinate, generally \code{.x} (default).}
 
 \item{q}{integer factor(s) to downsample by.}
 
@@ -46,7 +46,7 @@ events(x, ...) <- value
 
 \item{...}{Not in use.}
 
-\item{.data}{An \code{eeg_lst} object or a long table with amplitudes..}
+\item{.data}{An eeg_lst object.}
 }
 \description{
 These functions still work but will be removed (defunct) in the next version.

@@ -63,7 +63,7 @@ use the \code{+} symbol and add layers exactly as you would for \code{ggplot::gg
 # Calculate mean amplitude between 100-200 ms and plot the topography
 data_faces_ERPs \%>\% 
     # select the time window of interest
-    filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) \%>\% 
+    filter(between(as_time(.sample, unit = "milliseconds"),100,200)) \%>\% 
     # compute mean amplitude per condition
     group_by(condition) \%>\%
     summarize_all_ch(mean, na.rm = TRUE) \%>\%
@@ -78,7 +78,7 @@ data_faces_ERPs \%>\%
 
 # The same but with interpolation
 data_faces_ERPs \%>\% 
-    filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) \%>\% 
+    filter(between(as_time(.sample, unit = "milliseconds"),100,200)) \%>\% 
     group_by(condition) \%>\%
     summarize_all_ch(mean, na.rm = TRUE) \%>\%
     eeg_interpolate_tbl() \%>\%

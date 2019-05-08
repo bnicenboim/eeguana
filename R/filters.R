@@ -58,7 +58,7 @@ eeg_filt_low_pass.eeg_lst <- function(.data, ..., freq = NULL, config = list(), 
     h <- create_filter(l_freq = NULL,
                        h_freq = freq,
                        sampling_rate = sampling_rate(.data),config = config)
-    .data$signal <- filt_eeg_lst(.data$signal,...,h=h, na.rm = na.rm)
+    .data$.signal <- filt_eeg_lst(.data$.signal,...,h=h, na.rm = na.rm)
     .data
 }
 #' @export
@@ -66,7 +66,7 @@ eeg_filt_high_pass.eeg_lst <- function(.data, ..., freq = NULL, config = list(),
     h <- create_filter(l_freq = freq,
                        h_freq = NULL,
                        sampling_rate = sampling_rate(.data),config = config)
-    .data$signal <- filt_eeg_lst(.data$signal,...,h=h, na.rm = na.rm)
+    .data$.signal <- filt_eeg_lst(.data$.signal,...,h=h, na.rm = na.rm)
     .data
 }
 #' @export
@@ -78,7 +78,7 @@ eeg_filt_band_stop.eeg_lst <- function(.data, ..., freq = NULL, config = list(),
     h <- create_filter(l_freq = freq[1],
                        h_freq= freq[2],
                        sampling_rate = sampling_rate(.data),config = config)
-    .data$signal <- filt_eeg_lst(.data$signal,...,h=h, na.rm = na.rm)
+    .data$.signal <- filt_eeg_lst(.data$.signal,...,h=h, na.rm = na.rm)
     .data
 }
 #' @export
@@ -91,7 +91,7 @@ eeg_filt_band_pass.eeg_lst <- function(.data,..., freq = NULL, config = list(), 
     h <- create_filter(l_freq = freq[1],
                        h_freq= freq[2],
                        sampling_rate = sampling_rate(.data),config = config)
-    .data$signal <- filt_eeg_lst(.data$signal,...,h=h, na.rm = na.rm)
+    .data$.signal <- filt_eeg_lst(.data$.signal,...,h=h, na.rm = na.rm)
     .data
 }
 #' @noRd

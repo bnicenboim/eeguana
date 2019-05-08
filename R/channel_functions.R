@@ -40,9 +40,9 @@ chs_mean.character <- function(..., na.rm = FALSE) {
 #' @export
 chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
   #channels_info <- channels_tbl(x)
-  signal <- data.table::copy(x$signal)
+  signal <- data.table::copy(x$.signal)
   signal[,mean := rowMeans_ch(.SD, na.rm = na.rm),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
-  x$signal <- signal
+  x$.signal <- signal
   update_events_channels(x) %>% #update_channels_tbl(channels_info) %>%
       validate_eeg_lst()
 }
@@ -74,11 +74,11 @@ eeg_rereference <- function(.data, ..., ref_ch = NULL,na.rm= FALSE) {
 }
 #' @export
 eeg_rereference.eeg_lst <- function(.data, ..., ref_ch = NULL, na.rm = FALSE) {
-    signal <- data.table::copy(.data$signal)
+    signal <- data.table::copy(.data$.signal)
     sel_ch <- sel_ch(.data,...)
     ref_ch <- unlist(ref_ch) #rlang::quos_auto_name(dots) %>% names()
 
-  #ref <- rowMeans(.data$signal[,..ref_ch], na.rm = na.rm)
+  #ref <- rowMeans(.data$.signal[,..ref_ch], na.rm = na.rm)
   reref <- function(x, ref){
     x <- x - ref 
     attributes(x)$.reference <- paste0(ref_ch, collapse = ", ")
@@ -87,7 +87,7 @@ eeg_rereference.eeg_lst <- function(.data, ..., ref_ch = NULL, na.rm = FALSE) {
    # signal[, (ch_sel) := {ref= rowMeans()   ;lapply(.SD, reref, ref = ref)},.SDcols = c(ch_sel)]
     signal[, (sel_ch) := {ref= rowMeans(.SD);
                           lapply(mget(sel_ch,inherits=TRUE), reref, ref = ref)},.SDcols = c(ref_ch)]
-  .data$signal <- signal
+  .data$.signal <- signal
   update_events_channels(.data) %>%  validate_eeg_lst()
 
 }
@@ -137,7 +137,7 @@ chs_fun.character <- function(..., .funs, pars = list()) {
 #' @export
 chs_fun.eeg_lst <- function(x,.funs, pars = list(), ...) {
 
-  signal <- data.table::copy(x$signal)
+  signal <- data.table::copy(x$.signal)
   funs <- as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env())
   # fun_txt <- rlang::quo_text(funs[[1]]) %>% make.names()
   fun_txt <- names(funs) %>% make_names()
@@ -148,7 +148,7 @@ chs_fun.eeg_lst <- function(x,.funs, pars = list(), ...) {
   } else {
     signal[,(fun_txt) := row_fun_ch(.SD, .funs),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
   }
-  x$signal <- signal
+  x$.signal <- signal
   update_events_channels(x) %>% #update_channels_tbl(channels_info) %>%
       validate_eeg_lst()
 }

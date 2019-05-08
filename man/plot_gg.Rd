@@ -40,7 +40,7 @@ If necessary, \code{plot_gg} will first downsample the \code{eeg_lst} object so 
 maximum of 6400 samples. The \code{eeg_lst} object is then converted to a long-format
 tibble via \link{as_tibble}. In this tibble, the \code{.key} variable is the
 channel/component name and \code{.value} its respective amplitude. The sample
-number (\code{.sample_id} in the \code{eeg_lst} object) is automatically converted to milliseconds
+number (\code{.sample} in the \code{eeg_lst} object) is automatically converted to milliseconds
 to create the variable \code{time}. By default, time is plotted on the
 x-axis and amplitude on the y-axis.
 

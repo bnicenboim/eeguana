@@ -32,7 +32,7 @@ channel_names.default <- function(x, ...) {
 #' @rdname summary
 #' @export
 channel_names.eeg_lst <- function(x, ...) {
-  channel_names(x$signal)
+  channel_names(x$.signal)
 }
 #
 #' @rdname summary
@@ -93,19 +93,19 @@ sampling_rate <- function(x, ...) {
   UseMethod("sampling_rate")
 }
 sampling_rate.eeg_lst <- function(x) {
-  attributes(x$signal$.sample_id)$sampling_rate
+  attributes(x$.signal$.sample)$sampling_rate
 }
 sampling_rate.signal_tbl<- function(x) {
-  attributes(x$.sample_id)$sampling_rate
+  attributes(x$.sample)$sampling_rate
 }
 sampling_rate.events_tbl<- function(x) {
   attributes(x$.initial)$sampling_rate
 }
 
 duration <- function(x) {
-  x$signal %>%
+  x$.signal %>%
     dplyr::group_by(.id) %>%
-    dplyr::summarize(duration = (max(.sample_id) - min(.sample_id)) /
+    dplyr::summarize(duration = (max(.sample) - min(.sample)) /
       sampling_rate(x)) %>%
     .$duration
 }
@@ -131,25 +131,25 @@ nsamples.eeg_lst <- function(x, ...) {
 #'
 #' @export
 summary.eeg_lst <- function(object, ...) {
-  segments_with_incomp_col <- object %>% signal_tbl %>% dplyr::select(-.sample_id) %>%
+  segments_with_incomp_col <- object %>% signal_tbl %>% dplyr::select(-.sample) %>%
     split(by=".id", keep.by = FALSE) %>% 
     lapply(anyNA) %>% 
     unlist() %>% 
     dplyr::tibble(".id" = as.integer(names(.)), "incomplete" = .) %>%
-    dplyr::left_join(object$segments, by =".id")
+    dplyr::left_join(object$.segments, by =".id")
     
   
   summ <- list(
     sampling_rate = sampling_rate(object),
     segments = segments_with_incomp_col %>% 
-    dplyr::group_by(recording) %>%
+    dplyr::group_by(.recording) %>%
     dplyr::summarize(n_segments = n(), n_incomplete = sum(incomplete))  %>% 
       data.table::data.table(),
-    events = object$events %>%
+    events = object$.events %>%
       dplyr::group_by_at(dplyr::vars(-.final, -.channel, -.initial, -.id)) %>%
       dplyr::count() %>% data.table::data.table(),
     size = utils::capture.output(print(utils::object.size(object), units = "auto")),
-    duration= format(.POSIXct(nrow(object$signal) / sampling_rate(object) ,tz="GMT"), "%H:%M:%S")
+    duration= format(.POSIXct(nrow(object$.signal) / sampling_rate(object) ,tz="GMT"), "%H:%M:%S")
   )
   class(summ) <- c("eeg_summary", class(summ))
   summ
@@ -179,9 +179,9 @@ eeg_ica_cor_lst.eeg_ica_lst <- function(.data,...){
     comps <- .data %>% eeg_ica_show(component_names(.)) 
 
     lapply(eogs, function(eog) 
-        comps$signal %>%
+        comps$.signal %>%
         dplyr::summarize_at(component_names(comps),
-                            ~ cor(x=., y = comps$signal[[eog]], use = "complete")) %>%
+                            ~ cor(x=., y = comps$.signal[[eog]], use = "complete")) %>%
         t() %>%
         {dplyr::tibble(.ICA = rownames(.), cor= .[,1])} %>%
         dplyr::arrange(desc(abs(cor))))
@@ -229,19 +229,19 @@ print.eeg_lst <- function(x, ...){
   }
   cat_line("")
 cat_line("# Signal table:")
-  print(x$signal,...)
+  print(x$.signal,...)
 
   cat_line("")
    cat_line("# Events table:")
-  if(nrow(x$events)>0){
-    print(x$events,...)
+  if(nrow(x$.events)>0){
+    print(x$.events,...)
   } else {
     cat_line("No events.")
   } 
   
   cat_line("")
   cat_line("# Segments table:")
-  print(x$segments,...)
+  print(x$.segments,...)
   invisible(x)
 }
 
@@ -253,12 +253,12 @@ print.eeg_ica_lst <- function(x, ...){
     }
     cat_line("")
     cat_line("# Signal table:")
-    print(x$signal,...)
+    print(x$.signal,...)
 
     cat_line("")
     cat_line("## Events table:")
-    if(nrow(x$events)>0){
-        print(x$events,...)
+    if(nrow(x$.events)>0){
+        print(x$.events,...)
     } else {
         cat_line("No events.")
     } 
@@ -268,7 +268,7 @@ print.eeg_ica_lst <- function(x, ...){
     cat_line(paste0("# Channels_used: ", paste0(channel_ica_names(x), collapse=", ")))
     cat_line("")
     cat_line("# Segments table:")
-    print(x$segments,...)
+    print(x$.segments,...)
     invisible(x)
 }
 
@@ -287,7 +287,7 @@ print.eeg_ica_lst <- function(x, ...){
 #' @examples
 #' \dontrun{
 #'
-#' faces_segs_some %>% count_complete_cases(recording, description)
+#' faces_segs_some %>% count_complete_cases(.recording, .description)
 #' }
 #' @family summarize
 #' @export
@@ -298,14 +298,14 @@ count_complete_cases_tbl <- function(x, ...) {
 count_complete_cases_tbl.eeg_lst <- function(x, ...) {
   dots <- rlang::enquos(...)
 
-  x$signal %>%
+  x$.signal %>%
     dplyr::group_by(.id) %>%
     dplyr::filter_at(
       dplyr::vars(dplyr::one_of(channel_names(x))),
       dplyr::all_vars(all(!is.na(.)))
     ) %>%
     dplyr::summarize() %>%
-    dplyr::semi_join(x$segments, ., by = ".id") %>%
+    dplyr::semi_join(x$.segments, ., by = ".id") %>%
     dplyr::select(-.id, -segment) %>%
     dplyr::count(!!!dots)
 }

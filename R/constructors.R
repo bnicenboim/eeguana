@@ -8,14 +8,14 @@
 #' Segment information and recording IDs appear in the `segments` tibble. 
 #' 
 #' The `signal` table is organised into columns representing timestamps 
-#' (`.sample_id`) and individual electrodes. Each `.sample_id` corresponds to
+#' (`.sample`) and individual electrodes. Each `.sample` corresponds to
 #' 1 sample in the original recording, i.e. if the sampling rate of the EEG
-#' recording is 500 Hz, then each `.sample_id` corresponds to 2 milliseconds. 
+#' recording is 500 Hz, then each `.sample` corresponds to 2 milliseconds. 
 #' These timestamps correspond to `.initial` in the `events` table, which 
 #' displays only the timestamps where logged events began.
 #' 
-#' The `events` table is organised into columns representing the `type` of event
-#' associated with the trigger listed under `description`. The timestamp marking
+#' The `events` table is organised into columns representing the `.type` of event
+#' associated with the trigger listed under `.description`. The timestamp marking
 #' the beginning and the end of the event is listed under `.initial` and `.final` (in samples).
 #' The `.channel` column is a  linking variable only, so will generally only contain NAs, unless the 
 #' event is specific to a certain channel.
@@ -25,7 +25,7 @@
 #' BrainVision, the segment number will be listed under `segment`. The data can
 #' also be segmented according to trigger labels in `eeguana`, see `segment`. 
 #' `segment` will be place the segment number under `segment`, the trigger name 
-#' under `type.x`, and the trigger label under `description.x`. Other information 
+#' under `.type.x`, and the trigger label under `.description.x`. Other information 
 #' such as condition labels or response times can be added by the user by merging
 #' into the `segments` tibble using non-eeguana merge functions, e.g. the `dplyr`
 #' join series.
@@ -60,9 +60,9 @@ eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, c
       events_tbl <- validate_events_tbl(events_tbl)
   }
     segments_tbl <- validate_segments(segments_tbl)
-    validate_eeg_lst(new_eeg_lst(signal_tbl,
-                                 events_tbl,
-                                 segments_tbl),
+    validate_eeg_lst(new_eeg_lst(.signal =  signal_tbl,
+                                 .events = events_tbl,
+                                 .segments = segments_tbl),
                      recursive = FALSE)
 } 
 
@@ -172,10 +172,10 @@ is_channel_dbl <- function(x) {
     if(i %in% names(x)){
     ##regular access to lists
         return(NextMethod())
-    } else if(i %in% colnames(x$signal)){
-        x <- x$signal
-    } else if(i %in% colnames(x$segments)){
-      x <- x$segments
+    } else if(i %in% colnames(x$.signal)){
+        x <- x$.signal
+    } else if(i %in% colnames(x$.segments)){
+      x <- x$.segments
     } else {
       warning("`[[` can only be used with elements of the signal and segments table.")
       return(NULL)

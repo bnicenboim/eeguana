@@ -21,7 +21,7 @@ as_time.sample_int <- function(x, unit = "second") {
 }
 #' @export
 as_time.default <- function(x, unit = "second") {
-  stop("`as_time()` can only be used with samples. Tip: You should probably use it with `.sample_id`.")
+  stop("`as_time()` can only be used with samples. Tip: You should probably use it with `.sample`.")
 }
 
 #' Convert a time point  into a sample.

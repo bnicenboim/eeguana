@@ -27,8 +27,8 @@ ch_baseline.eeg_lst <- function(x, time = -Inf, sample_id = NULL, ...) {
     message("# Ignoring time parameter.")
   }
  
- x$signal <- data.table::copy(x$signal)
- x$signal <- x$signal[, (channel_names(x)) := lapply(.SD, fun_baseline, .sample_id, sample_id) ,
+ x$.signal <- data.table::copy(x$.signal)
+ x$.signal <- x$.signal[, (channel_names(x)) := lapply(.SD, fun_baseline, .sample, sample_id) ,
              .SDcols = (channel_names(x)),
               by = .id ]
   x
@@ -40,17 +40,16 @@ ch_baseline.channel_dbl <- function(x, time = -Inf, sample_id = NULL,...) {
   signal <- signal_from_parent_frame(env = parent.frame(1))
 
   if(is.null(sample_id) & is.numeric(time)){
-   sample_id <- time * attributes(signal$.sample_id)$sampling_rate
+   sample_id <- time * attributes(signal$.sample)$sampling_rate
   } else if( is.numeric(sample_id) & is.numeric(time)) {
     message("# Ignoring time parameter.")
   }
 # 
-  print(signal$.sample_id)
-  fun_baseline(x, signal[[".sample_id"]], sample_id)  
+  fun_baseline(x, signal[[".sample"]], sample_id)  
 }
 
 
-fun_baseline <- function(x,.sample_id, lower) {
-  x - mean(x[between(.sample_id, lower, 0)],na.rm=TRUE)
+fun_baseline <- function(x,.sample, lower) {
+  x - mean(x[between(.sample, lower, 0)],na.rm=TRUE)
 }
 

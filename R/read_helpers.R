@@ -2,7 +2,7 @@
 #' @importFrom magrittr %>%
 #' @noRd
 read_dat <- function(file, header_info = NULL, events = NULL,
-                     recording, sep, zero) {
+                     .recording, sep, zero) {
   n_chan <- nrow(header_info$chan_info)
   common_info <- header_info$common_info
 
@@ -94,16 +94,16 @@ read_dat <- function(file, header_info = NULL, events = NULL,
   # segmented id info and sample
   segmentation <- data.table::data.table(.lower, .first_sample, .upper)
   segmentation[,.id := seq_len(.N)]
-  seg_sample_id <- data.table::data.table(.sample_id = sample_id) %>%
-               .[segmentation, on = .(.sample_id >= .lower, .sample_id <= .upper ), 
-                              .(.id, .sample_id=x..sample_id, .first_sample)]
+  seg_sample_id <- data.table::data.table(.sample = sample_id) %>%
+               .[segmentation, on = .(.sample >= .lower, .sample <= .upper ), 
+                              .(.id, .sample=x..sample, .first_sample)]
 
-  seg_sample_id[,.sample_id :=  .sample_id - .first_sample +1L]
+  seg_sample_id[,.sample :=  .sample - .first_sample +1L]
 
   signal_tbl <- new_signal_tbl(
     signal_matrix = raw_signal,
      .id = as.integer(seg_sample_id$.id),
-    .sample_id = new_sample_int(seg_sample_id$.sample_id, sampling_rate = common_info$sampling_rate),
+    .sample = new_sample_int(seg_sample_id$.sample, sampling_rate = common_info$sampling_rate),
     channels_tbl = header_info$chan_info
   )
   events[,.id:=1]
@@ -113,8 +113,10 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
   segments <- tibble::tibble(
     .id = seq(length(.lower)),
-    recording = recording, segment = .id
-  )
+    .recording = .recording
+  ) %>% dplyr::group_by(.id) %>%
+    dplyr::mutate(segment = 1:dplyr::n()) %>%
+    ungroup()
 
   eeg_lst <- eeg_lst(
     signal_tbl = signal_tbl,
@@ -127,7 +129,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
     " was read."
   ))
   message(paste0(
-    "# Data from ", nrow(eeg_lst$segments),
+    "# Data from ", nrow(eeg_lst$.segments),
     " segment(s) and ", nchannels(eeg_lst), " channels was loaded."
   ))
   message(say_size(eeg_lst))
@@ -190,14 +192,14 @@ read_vmrk <- function(file) {
     stringr::str_extract(stringr::regex("^Mk[0-9]*?=.*^Mk[0-9]*?=.*?$", multiline = TRUE, dotall = TRUE))
 
    col_names <- c(
-     "type", "description", ".initial",
+     ".type", ".description", ".initial",
      ".final", ".channel", "date"
    )
   events <- data.table::fread(markers, fill=TRUE,
                               header = FALSE,
                               col.names=col_names)
   # splits Mk<Marker number>=<Type>, removes the Mk.., and <Date>
-  events[,type := stringr::str_split(type,"=") %>%
+  events[,.type := stringr::str_split(.type,"=") %>%
            purrr::map_chr(~.x[[2]])][,date := NULL]
     events[, .final := .initial + .final -1L]
 
@@ -205,8 +207,8 @@ read_vmrk <- function(file) {
     ## bug of BV1, first sample is supposed to be 1
     BV1 <- "BrainVision Data Exchange Marker File, Version 1.0"
     if(stringr::str_detect(readChar(file, nchar(BV1)),BV1) &&
-       events[type=="New Segment", .initial][1]==0){
-        events[type=="New Segment" & .initial==0, c(".initial",".final") := list(1,1)]
+       events[.type=="New Segment", .initial][1]==0){
+        events[.type=="New Segment" & .initial==0, c(".initial",".final") := list(1,1)]
     }
     events
 }
@@ -222,19 +224,19 @@ read_vhdr_metadata <- function(file) {
                       t() %>% dplyr::as_tibble()) %>% {
                       if(ncol(.)==4) dplyr::mutate(., empty_col = NA_real_) else .
                         } %>%
-    purrr::set_names(c("type",".channel", ".reference", "resolution", "unit")) %>%
+    purrr::set_names(c("number",".channel", ".reference", "resolution", "unit")) %>%
     dplyr::mutate(resolution = as.double(resolution),
                   unit = "microvolt") 
  #To avoid problems with the unicode characters, it seems that brainvision uses "mu" instead of "micro"
  #TODO: check if the unit could be different here
  
   if(is.null(vhdr$Coordinates)){
-coordinates <- dplyr::tibble(type = channel_info$type,radius = NA_real_, theta = NA_real_, phi = NA_real_)
+coordinates <- dplyr::tibble(number = channel_info$number,radius = NA_real_, theta = NA_real_, phi = NA_real_)
   } else {
   coordinates <-  vhdr$Coordinates %>% 
     purrr::imap_dfr(~ c(.y, stringr::str_split(.x,",")[[1]]) %>% 
                       t() %>% dplyr::as_tibble()) %>%
-    purrr::set_names(c("type","radius", "theta", "phi")) %>%
+    purrr::set_names(c("number","radius", "theta", "phi")) %>%
     dplyr::mutate_at(dplyr::vars(c("radius", "theta", "phi")), as.numeric)
     
   }
@@ -275,7 +277,7 @@ coordinates <- dplyr::tibble(type = channel_info$type,radius = NA_real_, theta =
     stop("DataType needs to be 'time'")
   }
 
-  chan_info <- dplyr::full_join(channel_info, coordinates, by = "type") %>%
+  chan_info <- dplyr::full_join(channel_info, coordinates, by = "number") %>%
     dplyr::bind_cols(purrr::pmap_dfr(
       list(.$radius, .$theta, .$phi),
       brainvision_loc_2_xyz

@@ -9,7 +9,7 @@
 #' the downsampling can be done in steps. For example, instead of setting
 #' `q = 20`, it is possible to set `q = c(2,10)`.
 #'
-#' @param x An eeg_lst object.
+#' @param .data An eeg_lst object.
 #' @param q integer factor(s) to downsample by.
 #' @param max_sample Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total number of samples
 #' @param multiple_times Indicates whether to factorize `q`` and apply the downsampling in steps.
@@ -19,19 +19,19 @@
 #' @family eeg
 #' 
 #' @export
-eeg_downsample <- function(x, q = 2, max_sample = NULL,
+eeg_downsample <- function(.data, q = 2, max_sample = NULL,
                            n = if (ftype == "iir") 8 else 30,
                            ftype = "iir", multiple_times = FALSE, ...) {
   UseMethod("eeg_downsample")
 }
 
 #' @export
-eeg_downsample.eeg_lst <- function(x, q = 2, max_sample = NULL,
+eeg_downsample.eeg_lst <- function(.data, q = 2, max_sample = NULL,
                                n = if (ftype == "iir") 8 else 30,
                                ftype = "iir", multiple_times = FALSE, ...) {
 
   # if(stringr::str_to_lower(q) == "min") {
-  #   q <- mindiv(sampling_rate(x), start = 2)
+  #   q <- mindiv(sampling_rate(.data), start = 2)
   #  message(paste0("Using q = ", q))
   # }
 
@@ -45,20 +45,20 @@ eeg_downsample.eeg_lst <- function(x, q = 2, max_sample = NULL,
     }
     
     if (!is.null(max_sample) && ftype == "iir" ) {
-        len_samples <- max(nsamples(x))
+        len_samples <- max(nsamples(.data))
         if (max_sample > len_samples / 2) {
             stop("The maximum value for max_sample allowed is half the number of samples.")
         }
         approx_q <- len_samples / max_sample
         q <- factors(round(approx_q))
     }
-    channels_to_decimate <- purrr::map_lgl(x$signal, ~ is_channel_dbl(.x) ||
+    channels_to_decimate <- purrr::map_lgl(.data$.signal, ~ is_channel_dbl(.x) ||
                                                          is_component_dbl(.x)) %>%
-        {colnames(x$signal)[.]}
+        {colnames(.data$.signal)[.]}
 
     ##add missing samples in case of a discontinuity
-    x$signal <-  add_missing_samples(x$signal) 
-    discontinuity <- x$signal %>% dplyr::select(channels_to_decimate) %>% anyNA()
+    .data$.signal <-  add_missing_samples(.data$.signal) 
+    discontinuity <- .data$.signal %>% dplyr::select(channels_to_decimate) %>% anyNA()
     if(discontinuity){
         warning("Some parts of the signal won't be filtered before the downsampling due to NA values or discontinuities")
     }
@@ -69,9 +69,9 @@ eeg_downsample.eeg_lst <- function(x, q = 2, max_sample = NULL,
 
     q <- as.integer(q)
     factor <- prod(q)
-    new_sampling_rate <- sampling_rate(x) / factor
+    new_sampling_rate <- sampling_rate(.data) / factor
     message(paste0(
-        "# Downsampling from ", sampling_rate(x), "Hz to ",
+        "# Downsampling from ", sampling_rate(.data), "Hz to ",
         round(new_sampling_rate,2), "Hz."
     ))
     if(!is.null(max_sample) || multiple_times){
@@ -80,31 +80,31 @@ eeg_downsample.eeg_lst <- function(x, q = 2, max_sample = NULL,
 
    
 
-      channels_info <- channels_tbl(x)
+      channels_info <- channels_tbl(.data)
 
-    x$signal <-  
+    .data$.signal <-  
         ##The first sample corresponds to the min(time) in sample units
-        x$signal[, c(list(.sample_id = new_sample_int(seq.int(from = ceiling(min(.sample_id)/factor),
+        .data$.signal[, c(list(.sample = new_sample_int(seq.int(from = ceiling(min(.sample)/factor),
                                                  length.out = .N/factor), sampling_rate = new_sampling_rate)),
       lapply(.SD, decimate_ch, q=q, n = n , ftype = ftype)),
                          .SDcols = c(channels_to_decimate),by = c(".id")]
 
 
-  data.table::setkey(x$signal,.id,.sample_id)
-  data.table::setcolorder(x$signal,c(".id",".sample_id"))
+  data.table::setkey(.data$.signal,.id,.sample)
+  data.table::setcolorder(.data$.signal,c(".id",".sample"))
 
   # even table needs to be adapted, starts from 1,
   # and the size is divided by two with a min of 1
-  x$events <- data.table::copy(x$events)[, .initial := 
+  .data$.events <- data.table::copy(.data$.events)[, .initial := 
                                                sample_int(ceiling(.initial / factor), new_sampling_rate)][, .final := sample_int(ceiling(.final / factor), new_sampling_rate) ][]
 
   ## this shouldn't be needed:
   ## just in case I update the .id from segments table
-  ## x$segments <- dplyr::mutate(x$segments, .id = seq_len(dplyr::n()))
+  ## .data$.segments <- dplyr::mutate(.data$.segments, .id = seq_len(dplyr::n()))
 
-  message(say_size(x))
+  message(say_size(.data))
 
-  x %>% #update_channels_tbl(channels_info) %>% 
+  .data %>% #update_channels_tbl(channels_info) %>% 
       validate_eeg_lst()
 }
 

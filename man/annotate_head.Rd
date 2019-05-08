@@ -22,7 +22,7 @@ Adds the outline of a head and nose to a ggplot.
 \examples{
 
 data_faces_ERPs \%>\% 
-    filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) \%>\% 
+    filter(between(as_time(.sample, unit = "milliseconds"),100,200)) \%>\% 
     group_by(condition) \%>\%
     summarize_all_ch(mean, na.rm = TRUE) \%>\%
     plot_topo() +

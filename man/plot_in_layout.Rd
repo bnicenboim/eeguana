@@ -47,7 +47,7 @@ ERP_plot <- data_faces_ERPs \%>\%
    # select a few electrodes
    select(Fz, FC1, FC2, C3, Cz, C4, CP1, CP2, Pz) \%>\%
    # group by time point and condition
-   group_by(.sample_id, condition) \%>\%
+   group_by(.sample, condition) \%>\%
    # compute averages
    summarize_all_ch(mean,na.rm=TRUE) \%>\%
    plot_gg() + 

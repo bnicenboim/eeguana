@@ -17,6 +17,6 @@ test_that("can change channels metadata", {
   channels_info$.x[1] <- 100
   channels_info$.x[2] <- 100
   channels_tbl(eeg_file) <- channels_info
-  expect_equal(names(eeg_file$signal[, 3]), "NEW_CHANNEL")
-  expect_equal(attributes(eeg_file$signal[[4]])$.x, 100)
+  expect_equal(names(eeg_file$.signal[, 3]), "NEW_CHANNEL")
+  expect_equal(attributes(eeg_file$.signal[[4]])$.x, 100)
 })

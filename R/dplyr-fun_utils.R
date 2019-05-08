@@ -1,24 +1,24 @@
 #' @noRd
 extended_signal <- function(.eeg_lst, cond_cols = NULL, events_cols = NULL){
 extended_signal <- NULL  
-  relevant_cols <- c(obligatory_cols$segments, group_vars(.eeg_lst),cond_cols)
+  relevant_cols <- c(obligatory_cols$.segments, group_vars(.eeg_lst),cond_cols)
  if(length(relevant_cols)>1) { #more than just .id
-  segments <-  dplyr::ungroup(.eeg_lst$segments) %>% 
+  segments <-  dplyr::ungroup(.eeg_lst$.segments) %>% 
                {.[names(.) %in% relevant_cols]} %>%
                data.table::data.table()
   data.table::setkey(segments,.id)
-  extended_signal <-  .eeg_lst$signal[segments]
+  extended_signal <-  .eeg_lst$.signal[segments]
  }
   if(length(events_cols)>0){
     extended_signal <- events_tbl(.eeg_lst)[,..events_cols][extended_signal]
       }
   if(is.null(extended_signal)){
-  extended_signal <- data.table::copy(.eeg_lst$signal)
+  extended_signal <- data.table::copy(.eeg_lst$.signal)
   }
   extended_signal
 }
 
-# eval_signal <- function(.eeg_lst, eval_txt, cond_cols, out_cols = colnames(.eeg_lst$signal),remove_cols = NULL){
+# eval_signal <- function(.eeg_lst, eval_txt, cond_cols, out_cols = colnames(.eeg_lst$.signal),remove_cols = NULL){
 #   extended_signal <- extended_signal(.eeg_lst, cond_cols) 
 #   out_cols
 #   by <- dplyr::group_vars(.eeg_lst)
@@ -29,7 +29,7 @@ extended_signal <- NULL
 
 #' @noRd
 group_vars_segments <- function(.eeg_lst){
- intersect(group_vars(.eeg_lst), colnames(.eeg_lst$segments))
+ intersect(group_vars(.eeg_lst), colnames(.eeg_lst$.segments))
 } 
 
 #' @noRd
@@ -39,8 +39,8 @@ group_vars_only_segments <- function(.eeg_lst){
 
 #' @noRd
 update_events_channels <- function(x) {
-  if(nrow(x$events)>0) {
-    x$events <- x$events[is.na(.channel) | .channel %in% channel_names(x),]
+  if(nrow(x$.events)>0) {
+    x$.events <- x$.events[is.na(.channel) | .channel %in% channel_names(x),]
   }
   x
 }
@@ -55,7 +55,7 @@ getAST <- function(ee) {
 #' @noRd
 dots_by_tbl_quos <- function(.eeg_lst, dots) {
   
-  signal_cols <- c(colnames(.eeg_lst$signal),
+  signal_cols <- c(colnames(.eeg_lst$.signal),
                    paste0("`",channel_names(.eeg_lst),"`") #In case channel name is used with ` in the function call, NOT sure if needed anymore
   )
   
@@ -80,8 +80,8 @@ dots_by_tbl_quos <- function(.eeg_lst, dots) {
   # signal_dots is a vector of TRUE/FALSE indicating for each call whether it belongs to signals
   # if both signal_tbl and segments columns are there, it will say that the dots should apply
   # to a signal_tbl dataframe.
-  segments <- c(dots[!signal_dots], dots[signal_dots][rlang::quos(.id) %in% dots[signal_dots]])
-  list(signal = dots[signal_dots], segments = segments)
+  .segments <- c(dots[!signal_dots], dots[signal_dots][rlang::quos(.id) %in% dots[signal_dots]])
+  list(.signal = dots[signal_dots], .segments = .segments)
 }
 
 # getAST(dot) %>%

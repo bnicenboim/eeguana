@@ -35,7 +35,7 @@ summarize_all_ch <- function(.tbl, ...) {
 summarize_at_ch.eeg_lst <- function(.tbl,.vars,  .funs, ...) {
   #TODO look for a rlang alternative for as_fun_list and dplyr:::tbl_at_syms
   funs <- as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env(),...) # fun_list class, contains a quosure such as ^mean(.)
-  vars <- tbl_at_syms(.tbl$signal, .vars) #list of chars
+  vars <- tbl_at_syms(.tbl$.signal, .vars) #list of chars
 
   is_named <- rlang::quo_text(rlang::enquo(.funs)) %>% 
               stringr::str_detect('have_name = TRUE')
@@ -115,21 +115,21 @@ bind <- function(...) {
   # Binding
   # .id of the new eggbles needs to be adapted
 
-  signal <- purrr::map(eeg_lsts, ~.x$signal) %>% data.table::rbindlist(idcol=".sid", fill = TRUE)
+  signal <- purrr::map(eeg_lsts, ~.x$.signal) %>% data.table::rbindlist(idcol=".sid", fill = TRUE)
   signal[, .id := .GRP, by = .(.sid,.id)][,.sid := NULL]
-  data.table::setkey(signal,.id,.sample_id)
+  data.table::setkey(signal,.id,.sample)
   
   data.table::setattr(signal,"class",c("signal_tbl",class(signal)))
-  events <- purrr::map(eeg_lsts, ~.x$events) %>% data.table::rbindlist(idcol=".sid", fill = TRUE)
+  events <- purrr::map(eeg_lsts, ~.x$.events) %>% data.table::rbindlist(idcol=".sid", fill = TRUE)
   events[, .id := .GRP, by = .(.sid,.id)][,.sid := NULL]
   events <- as_events_tbl(events)
 
-  segments <- purrr::map(eeg_lsts, ~data.table::data.table(.x$segments)) %>% data.table::rbindlist(idcol=".sid", fill = TRUE)
+  segments <- purrr::map(eeg_lsts, ~data.table::data.table(.x$.segments)) %>% data.table::rbindlist(idcol=".sid", fill = TRUE)
   segments[, .id := .GRP, by = .(.sid,.id)][,.sid := NULL] 
   segments <- segments %>% dplyr::as_tibble()
 
   new_eeg_lst <- new_eeg_lst(
-    signal = signal, events = events, segments = segments
+    .signal = signal, .events = events, .segments = segments
   ) %>%
     validate_eeg_lst()
   message(say_size(new_eeg_lst))

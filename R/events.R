@@ -143,7 +143,7 @@ eeg_artif_custom <-  function(.data,...,
         args = list(threshold = threshold)
     }
 
-    artifacts_found <- search_artifacts(.data$signal,
+    artifacts_found <- search_artifacts(.data$.signal,
                                         ...,
                                         fun = fun,
                                         args=args)
@@ -153,9 +153,9 @@ eeg_artif_custom <-  function(.data,...,
     args_txt <- purrr::imap_chr(args, ~ paste(.y,toString(.x),sep = "=")) %>%
         paste(collapse="_")
     events_tbl(.data) <- add_intervals_from_artifacts(old_events = events_tbl(.data), 
-                                                      artifacts_found, 
+                                                      artifacts_tbl = artifacts_found, 
                                                       sample_range=events_lim_s,
-                                                      type = paste(fun_txt,args_txt,sep="_"))
+                                                      .type = paste(fun_txt,args_txt,sep="_"))
 
     validate_eeg_lst(.data)
 }
@@ -190,15 +190,15 @@ eeg_events_to_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRU
   dots <- rlang::enquos(...)
 
   #TODO in data.table
-  ## signal <- as.data.frame(x$signal)
-  signal <- data.table::copy(x$signal)
-  ## x$events <- dplyr::as_tibble(x$events)
+  ## signal <- as.data.frame(x$.signal)
+  signal <- data.table::copy(x$.signal)
+  ## x$.events <- dplyr::as_tibble(x$.events)
 
-  # dots <- rlang::quos(type == "Bad Interval")
+  # dots <- rlang::quos(.type == "Bad Interval")
 
   # Hack for match 2 columns with 2 columns, similar to semi_join but allowing
   # for assignment
-  baddies <- dplyr::filter(x$events, !!!dots)
+  baddies <- dplyr::filter(x$.events, !!!dots)
 
   if (all_chans) baddies <- dplyr::mutate(baddies, .channel = NA)
 
@@ -212,7 +212,7 @@ eeg_events_to_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRU
     if (!entire_seg) {
         for (i in seq(1, nrow(b))) {
             data.table::set(signal,i = which(signal$.id %in% b$.id[i] & between(
-                                                               signal$.sample_id, b$.initial[i],
+                                                               signal$.sample, b$.initial[i],
                                                                b$.final[i]
                                                            )), j = ch, NA_real_)
        }
@@ -227,7 +227,7 @@ eeg_events_to_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRU
     for (i in seq(1, nrow(b_all))) {
       data.table::set(signal, which(signal$.id == b_all$.id[i] &
         between(
-          signal$.sample_id, b_all$.initial[i],
+          signal$.sample, b_all$.initial[i],
           b_all$.final[i]
         )),  j = channel_names(x),value = NA_real_)
     }
@@ -237,9 +237,9 @@ eeg_events_to_NA.eeg_lst <- function(x, ..., all_chans = FALSE, entire_seg = TRU
  
 
   if (drop_events) {
-   x$events<-  anti_join_dt(x$events, filter_dt(x$events, !!!dots) )
+   x$.events<-  anti_join_dt(x$.events, filter_dt(x$.events, !!!dots) )
   }
-x$signal <- signal
+x$.signal <- signal
 
 validate_eeg_lst(x)
 

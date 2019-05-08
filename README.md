@@ -7,7 +7,7 @@ eeguana <img src="man/figures/logo.png" align="right" height=140/>
 Overview
 --------
 
-A package for flexible manipulation of EEG data. *eeguana* provides a *data.table* powered framework for manipulating EEG data with *dplyr*-based functions (e.g., `mutate`, `filter`, `summarize`) extended to a new class `eeg_lst`, other EEG-specialized functions, and `ggplot` wrapper functions. The new class is inspired by tidyverse principles but it's not really "tidy" (due to space considerations), it's a list of (i) a wide *data table* (`signal_tbl`) that contains the signal amplitudes at every sample point of the EEG, (ii) an events *data table* with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant number (`recording`), conditions, etc.
+A package for flexible manipulation of EEG data. *eeguana* provides a *data.table* powered framework for manipulating EEG data with *dplyr*-based functions (e.g., `mutate`, `filter`, `summarize`) extended to a new class `eeg_lst`, other EEG-specialized functions, and `ggplot` wrapper functions. The new class is inspired by tidyverse principles but it's not really "tidy" (due to space considerations), it's a list of (i) a wide *data table* (`signal_tbl`) that contains the signal amplitudes at every sample point of the EEG, (ii) an events *data table* with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant number (`.recording`), conditions, etc.
 
 *eeguana* cannot do much pre-processing for now, but I plan to incorporate pre-processing functions with time, and thus it is meant to be used on EEG files where filtering, artifact rejection, ICA, etc have already been done.
 
@@ -147,7 +147,7 @@ faces
 #> 
 #> $segments
 #> # A tibble: 1 x 3
-#>     .id recording  segment
+#>     .id .recording  segment
 #>   <int> <chr>        <int>
 #> 1     1 faces.vhdr       1
 #> 

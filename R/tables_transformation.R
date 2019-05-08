@@ -5,7 +5,7 @@
 #' segment "trials".) The limits of `segment` are inclusive: If, for
 #' example, `lim = c(0,0)`, the segment would contain only sample 1.
 #'
-#' @param x An `eeg_lst` object.
+#' @param .data An `eeg_lst` object.
 #' @param ... Description of the event.
 #' @param unit Unit
 #'
@@ -14,28 +14,28 @@
 #' @importFrom magrittr %>%
 #'
 #' @export
-eeg_segment <- function(x, ...) {
+eeg_segment <- function(.data, ...) {
   UseMethod("eeg_segment")
 }
 #' @rdname eeg_segment
 #' @param lim Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments
 #' @param end Description of the event that indicates the end of the segment, if this is used, `lim` is ignored.
-#' @param recording_col Column in the segments table indicating to which recording or file each segment belongs.
+#' @param .recording_col Column in the segments table indicating to which .recording or file each segment belongs.
 #' @inheritParams as_time
 #' @export
-eeg_segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds",
-                                recording_col = "recording") {
+eeg_segment.eeg_lst <- function(.data, ..., lim = c(-.5, .5), end, unit = "s") {
   dots <- rlang::enquos(...)
   end <- rlang::enquo(end)
 
-  ## x$events needs to stop being an events_tbl in order to remove stuff from it.
+
+  ## .data$.events needs to stop being an events_tbl in order to remove stuff from it.
   ## if not, it calls to filter.events_tbl
-  times0 <- dplyr::filter(dplyr::as_tibble(x$events), !!!dots) %>%
+  times0 <- dplyr::filter(dplyr::as_tibble(.data$.events), !!!dots) %>%
       dplyr::select(-.channel, -.final) %>%
       dplyr::rename(.first_sample = .initial)
 
   if(!rlang::quo_is_missing(end)){
-    times_end <- dplyr::filter(dplyr::as_tibble(x$events), !!end) %>%
+    times_end <- dplyr::filter(dplyr::as_tibble(.data$.events), !!end) %>%
         dplyr::select(-.channel, -.final) %>%
         dplyr::rename(.first_sample = .initial)
   }
@@ -46,7 +46,7 @@ eeg_segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds",
 
   if (rlang::quo_is_missing(end) && (length(lim) == 2) || ## two values or a dataframe
     (!is.null(nrow(lim)) && nrow(lim) == nrow(times0)) ) {
-    scaling <- scaling(sampling_rate(x), unit = unit)
+    scaling <- scaling(sampling_rate(.data), unit = unit)
     sample_lim <- round(lim * scaling) 
     seg_names <- colnames(times0)[!startsWith(colnames(times0),".")]
     segmentation_info <- times0 %>% dplyr::mutate(.lower =.first_sample+ sample_lim[[1]] %>% as_integer(), 
@@ -67,43 +67,43 @@ eeg_segment.eeg_lst <- function(x, ..., lim = c(-.5, .5), end, unit = "seconds",
   }
 
   segmentation <- data.table::as.data.table(segmentation_info)
-  segmentation[,.first_sample := sample_int(.first_sample, sampling_rate = sampling_rate(x))]
+  segmentation[,.first_sample := sample_int(.first_sample, sampling_rate = sampling_rate(.data))]
   # update the signal tbl:
-  cols_signal <- colnames(x$signal)
-  cols_signal_temp <- c(".new_id",".first_sample","x..sample_id",cols_signal[cols_signal!=".id"])
+  cols_signal <- colnames(.data$.signal)
+  cols_signal_temp <- c(".new_id",".first_sample","x..sample",cols_signal[cols_signal!=".id"])
 
-  new_signal <- x$signal[segmentation, on = .(.id, .sample_id >= .lower, .sample_id <= .upper), allow.cartesian=TRUE,
+  new_signal <- .data$.signal[segmentation, on = .(.id, .sample >= .lower, .sample <= .upper), allow.cartesian=TRUE,
   ..cols_signal_temp]
 
   
-  #.sample_id is now the lower bound
-  #x..sample_id is the original columns
-  new_signal[, .sample_id := x..sample_id - .first_sample + 1L][,.first_sample := NULL][, x..sample_id:=NULL ]
+  #.sample is now the lower bound
+  #x..sample is the original columns
+  new_signal[, .sample := x..sample - .first_sample + 1L][,.first_sample := NULL][, x..sample:=NULL ]
   data.table::setnames(new_signal, ".new_id",".id")
-  attributes(new_signal$.sample_id) <- attributes(x$signal$.sample_id)
-  data.table::setkey(new_signal, .id, .sample_id)
-  x$signal <- new_signal
+  attributes(new_signal$.sample) <- attributes(.data$.signal$.sample)
+  data.table::setkey(new_signal, .id, .sample)
+  .data$.signal <- new_signal
 
   
 
-  x$events <- update_events(x$events, segmentation)
-  ## data.table::setattr(x$events,"class",c("events_tbl",class(x$events)))
+  .data$.events <- update_events(.data$.events, segmentation[,c(".type",".description"):= NULL][])
+  ## data.table::setattr(.data$.events,"class",c("events_tbl",class(.data$.events)))
 
 
-  message(paste0("# Total of ", max(x$signal$.id), " segments found."))
+  message(paste0("# Total of ", max(.data$.signal$.id), " segments found."))
 
-  x$segments <- dplyr::right_join(x$segments,
+  .data$.segments <- dplyr::right_join(.data$.segments,
                 dplyr::select(times0, -.first_sample), by = ".id") %>%
                 dplyr::mutate(.id = 1:n()) 
 
-  if(!is.null(recording_col) && !is.na(recording_col)){
-  x$segments <- x$segments %>% dplyr::group_by_at(dplyr::vars(recording_col)) %>%
+  if(!is.null(.data$.recording) && !is.na(.data$.recording)){
+  .data$.segments <- .data$.segments %>% dplyr::group_by(.recording) %>%
                     dplyr::mutate(segment = 1:n()) %>%
                     dplyr::ungroup()
   } 
 
-  message(paste0(say_size(x), " after segmentation."))
-  validate_eeg_lst(x)
+  message(paste0(say_size(.data), " after segmentation."))
+  validate_eeg_lst(.data)
 }
 
 

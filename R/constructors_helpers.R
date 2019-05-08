@@ -4,10 +4,11 @@
 #' @param segments 
 #'
 #' @noRd
-new_eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
+new_eeg_lst <- function(.signal = NULL, .events = NULL, .segments = NULL) {
     x <- list(
-        signal = signal, events = events,
-        segments = segments
+        .signal = .signal,
+        .events = .events,
+        .segments = .segments
     )
     x <- unclass(x)
     structure(x,
@@ -38,23 +39,23 @@ new_sample_int <- function(values, sampling_rate) {
   )
 }
 
-#' @param .sample_id 
+#' @param .sample 
 #'
 #' @noRd
-validate_sample_int <- function(.sample_id) {
-  if (!is.integer(.sample_id)) {
+validate_sample_int <- function(.sample) {
+  if (!is.integer(.sample)) {
     stop("Values should be integers.",
       call. = FALSE
     )
   }
-  if (length(.sample_id) > 0) {
-    if (attributes(.sample_id)$sampling_rate <= 0) {
+  if (length(.sample) > 0) {
+    if (attributes(.sample)$sampling_rate <= 0) {
       warning("Attribute sampling_rate should be a positive value.",
         call. = FALSE
       )
     }
   }
-  .sample_id
+  .sample
 }
 
 #' @noRd
@@ -140,30 +141,30 @@ validate_eeg_lst <- function(x, recursive = TRUE) {
   }
 
   if(recursive){
-    x$signal <- validate_signal_tbl(x$signal)
-    x$events <- validate_events_tbl(x$events)
-    x$segments <- validate_segments(x$segments)
+    x$.signal <- validate_signal_tbl(x$.signal)
+    x$.events <- validate_events_tbl(x$.events)
+    x$.segments <- validate_segments(x$.segments)
   }
-    diff_channels <- setdiff(x$events$.channel, channel_names(x))
+    diff_channels <- setdiff(x$.events$.channel, channel_names(x))
     if (length(diff_channels) != 0 & any(!is.na(diff_channels))) {
         warning("Unknown channel in table of events",
                 call. = FALSE
                 )
     }
-    if (!all.equal(unique(x$signal$.id), unique(x$segments$.id))) {
+    if (!all.equal(unique(x$.signal$.id), unique(x$.segments$.id))) {
         warning("The values of .id mismatch between tables.",
                 call. = FALSE
                 )
     }
 
-    if(any(!group_vars(x) %in% c(colnames(x$signal),colnames(x$segments)))){
+    if(any(!group_vars(x) %in% c(colnames(x$.signal),colnames(x$.segments)))){
         warning("Grouping variables are missing.",
                 call. = FALSE
                 )
     }
   ## nulls should be caught by the recursive=TRUE
-  if(!is.null(sampling_rate(x$events)) && !is.null(sampling_rate(x$signal)) &&
-     sampling_rate(x$events)!= sampling_rate(x$signal)){
+  if(!is.null(sampling_rate(x$.events)) && !is.null(sampling_rate(x$.signal)) &&
+     sampling_rate(x$.events)!= sampling_rate(x$.signal)){
       warning("Sampling rates in events and signal table are different",
               call. = FALSE)
     }

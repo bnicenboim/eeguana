@@ -97,11 +97,11 @@ between <- data.table::between
 #' @noRd
 repeated_group_col <- function(.eeg_lst){
     group_cols <- group_vars(.eeg_lst)
-    segments <-   .eeg_lst$segments %>%
-        {.[names(.) %in%  c(obligatory_cols$segments, group_cols)]} %>%
+    segments <-   .eeg_lst$.segments %>%
+        {.[names(.) %in%  c(obligatory_cols$.segments, group_cols)]} %>%
         data.table::data.table()
     data.table::setkey(segments,.id)
-    dt <- .eeg_lst$signal[segments, group_cols, with = FALSE]  
+    dt <- .eeg_lst$.signal[segments, group_cols, with = FALSE]  
     if(nrow(dt)==0){
       return(dt)
     } else {
@@ -111,13 +111,13 @@ repeated_group_col <- function(.eeg_lst){
 
 
 #' @noRd
-try_to_downsample <- function(x, max_sample){ 
-    if (all(!is.na(nsamples(x))) && (is.numeric(max_sample) && max_sample != 0 &&
+try_to_downsample <- function(.data, max_sample){ 
+    if (all(!is.na(nsamples(.data))) && (is.numeric(max_sample) && max_sample != 0 &&
                                         # it will downsample if the samples are at least twice as large than the max_sample
-        max(nsamples(x))/ 2 > max_sample)) {
-        x <- eeg_downsample(x, max_sample = max_sample)
+        max(nsamples(.data))/ 2 > max_sample)) {
+        .data <- eeg_downsample(.data, max_sample = max_sample)
     } else {
-        x
+        .data
     }
 }
 

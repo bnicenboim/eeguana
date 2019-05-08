@@ -50,7 +50,7 @@
 #' # Group and summarize 
 #' data_faces_ERPs %>%
 #'     # Convert samples to times, filter between timepoints
-#'     filter(between(as_time(.sample_id, unit = "ms"), 
+#'     filter(between(as_time(.sample, unit = "ms"), 
 #'            100, 200)) %>%
 #'     # Find mean amplitude of Fz for each condition
 #'     group_by(condition) %>%
@@ -102,7 +102,7 @@ filter.eeg_lst <- function(.data, ..., .preserve = FALSE) {
 filter.eeg_ica_lst <- function(.data, ..., .preserve= FALSE) {
 
     out <- NextMethod()
-    recordings <- unique(out$segments$recording)
+    recordings <- unique(out$.segments$.recording)
     out$ica <- out$ica[recordings]
     out
 }
@@ -195,18 +195,18 @@ NULL
 anti_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
   if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
 
-  x$segments <- dplyr::anti_join(x$segments, y, by = NULL, suffix = c(".x", ".y"), ...)
+  x$.segments <- dplyr::anti_join(x$.segments, y, by = NULL, suffix = c(".x", ".y"), ...)
 
-  segments <- data.table::as.data.table(x$segments)
-  x$signal <- semi_join_dt(x$signal, segments, by = ".id")
-  x$events <- semi_join_dt(x$events, segments, by = ".id")
+  segments <- data.table::as.data.table(x$.segments)
+  x$.signal <- semi_join_dt(x$.signal, segments, by = ".id")
+  x$.events <- semi_join_dt(x$.events, segments, by = ".id")
   x %>% validate_eeg_lst()
 }
 #' @rdname join-eeguana
 left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
   if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
 
-  x$segments <- dplyr::left_join(x$segments, y = y, by = by, copy = copy, suffix = c(".x", ".y"), ...)
+  x$.segments <- dplyr::left_join(x$.segments, y = y, by = by, copy = copy, suffix = c(".x", ".y"), ...)
 
   validate_eeg_lst(x)
 }
@@ -214,15 +214,15 @@ left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".
 semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
 
-  x$segments <- dplyr::semi_join(x$segments, y, by = NULL, suffix = c(".x", ".y"), ...)
+  x$.segments <- dplyr::semi_join(x$.segments, y, by = NULL, suffix = c(".x", ".y"), ...)
 
-  segments <- data.table::as.data.table(x$segments)
-  x$signal <- semi_join_dt(x$signal, segments, by = ".id")
-  x$events <- semi_join_dt(x$events, segments, by = ".id")
+  segments <- data.table::as.data.table(x$.segments)
+  x$.signal <- semi_join_dt(x$.signal, segments, by = ".id")
+  x$.events <- semi_join_dt(x$.events, segments, by = ".id")
   x %>% validate_eeg_lst()
   
 }
 
 tbl_vars.eeg_lst <- function(x) {
-  setdiff(dplyr::tbl_vars(x$signal), c(dplyr::tbl_vars(x$segments), c(".id", ".sample_id")))
+  setdiff(dplyr::tbl_vars(x$.signal), c(dplyr::tbl_vars(x$.segments), c(".id", ".sample")))
 }

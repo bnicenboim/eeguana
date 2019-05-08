@@ -7,7 +7,7 @@
 		  "BinaryFormat","DataFile","DataFormat","DataOrientation","L","MarkerFile",
 		  "Mk_number=Type","SamplingInterval","V1","V2","amplitude",
 		  "channel","","i..initial",
-		  "i..size","lowerb","mk","n","offset","","recording","resolution",
-		  "scale_fill_gradientn","time","type","value","x..lower","x..sample_id"
+		  "i..size","lowerb","mk","n","offset","",".recording","resolution",
+		  "scale_fill_gradientn","time",".type","value","x..lower","x..sample"
 		  )
 	)

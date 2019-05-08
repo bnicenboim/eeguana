@@ -9,9 +9,9 @@
 #' 
 #'
 #' @param file A vhdr file in a folder that contains a .vmrk and .dat files
-#' @param sep Segment separation marker. By default: type == "New Segment"
-#' @param zero Time zero marker. By default: type == "Time 0"
-#' @param recording Recording name (file name, by default).
+#' @param sep Segment separation marker. By default: .type == "New Segment"
+#' @param zero Time zero marker. By default: ..type == "Time 0"
+#' @param .recording Recording name (file name, by default).
 #' 
 #' @return An `eeg_lst` object with signal_tbl and event from file_name.dat,
 #' file_name.vhdr, and file_name.vmrk.
@@ -19,26 +19,26 @@
 #' @examples 
 #' \dontrun{
 #' # load a single subject
-#' s1 <- read_vhdr("./faces.vhdr", recording = 1)
+#' s1 <- read_vhdr("./faces.vhdr", .recording = 1)
 #' 
 #' # load multiple subjects using purrr::map, extracting subject IDs from file names
-#' faces <- purrr::map(list.files("./","vhdr"), ~
-#'     read_vhdr(.x, recording = parse_number(.x, na = character()))
+#' faces <- purrr::map(list.files("./","vhdr"), ~ 
+#'     read_vhdr(.x, .recording = parse_number(.x, na = character()))
 #' }
 #' 
 #' @family read
 #' @importFrom magrittr %>%
 #'
 #' @export
-read_vhdr <- function(file, sep = type == "New Segment", zero = type == "Time 0",
-                      recording = file) {
+read_vhdr <- function(file, sep = .type == "New Segment", zero = .type == "Time 0",
+                      .recording = file) {
   
   if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
 
   sep <- rlang::enquo(sep)
   zero <- rlang::enquo(zero)
-  # sep = rlang::quo(type == "New Segment")
-  # zero = rlang::quo(type == "Time 0")
+  # sep = rlang::quo(.type == "New Segment")
+  # zero = rlang::quo(.type == "Time 0")
 
   # Takes the files from the header:
   file_path <- stringr::str_match(file, "(.*(/|\\\\)).")[, 2] %>% {
@@ -82,7 +82,7 @@ read_vhdr <- function(file, sep = type == "New Segment", zero = type == "Time 0"
       file = paste0(file_path, data_file),
       header_info = header_info,
       events = events,
-      recording = recording,
+      .recording = .recording,
       sep = sep,
       zero = zero
     )
@@ -104,13 +104,13 @@ read_vhdr <- function(file, sep = type == "New Segment", zero = type == "Time 0"
 #' this [Fieldtrip reference article](http://www.fieldtriptoolbox.org/reference/ft_datatype_raw).
 #' 
 #' @param file A .mat file containing a fieldtrip struct.
-#' @param recording Recording name, by default is the file name.
+#' @param .recording Recording name, by default is the file name.
 #' @param layout A .mat [layout from Fieldtrip](http://www.fieldtriptoolbox.org/template/layout)
 #' @return An `eeg_lst` object with signal_tbl and event from a matlab file.
 #' 
 #' @examples 
 #' \dontrun{
-#' s1 <- read_ft("./subject1.mat", layout = "easycapM25.mat", recording = 1)
+#' s1 <- read_ft("./subject1.mat", layout = "easycapM25.mat", .recording = 1)
 #' }
 #' 
 #' @family read
@@ -118,7 +118,7 @@ read_vhdr <- function(file, sep = type == "New Segment", zero = type == "Time 0"
 #' @importFrom magrittr %>%
 #'
 #' @export
-read_ft <- function(file, layout = NULL, recording = file) {
+read_ft <- function(file, layout = NULL, .recording = file) {
   # TODO: checks if R.matlab was installed first
 
   # It should be based on this:
@@ -194,7 +194,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
   # signal_tbl <- dplyr::mutate(signal_tbl, .sample = sample, .id = as.integer(.id)) %>%
   #   dplyr::select(.id, .sample, dplyr::everything())
   signal_tbl <- new_signal_tbl(signal_matrix = dplyr::select(signal_raw, -.id),
-    .id = signal_raw$.id, .sample_id = sample, channels_tbl = channels
+    .id = signal_raw$.id, .sample = sample, channels_tbl = channels
   )
 
 
@@ -222,7 +222,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
     dplyr::as_tibble() %>%
     dplyr::select(-offset) %>%
     dplyr::mutate_all(as_first_non0) %>%
-    dplyr::rename(duration = dplyr::matches("duration"), .initial = sample) %>%
+    dplyr::rename(duration = dplyr::matches("duration"), .initial = sample, .type = type, .description = value) %>%
     dplyr::mutate(.final = .initial + duration -1, .id = 1L) %>% 
     dplyr::select(-duration) %>%
     add_event_channel(channel_names)
@@ -236,7 +236,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
   
   segments <- tibble::tibble(
     .id = seq_len(max(signal_tbl$.id)),
-    recording = recording, segment = .id
+    .recording = .recording, segment = .id
   )
   
   if(!is.null(mat[[1]][, , 1]$trialinfo)){
@@ -253,7 +253,7 @@ read_ft <- function(file, layout = NULL, recording = file) {
     " was read."
   ))
   message(paste0(
-    "# Data from ", nrow(eeg_lst$segments),
+    "# Data from ", nrow(eeg_lst$.segments),
     " segment(s) and ", nchannels(eeg_lst), " channels was loaded."
   ))
   message(say_size(eeg_lst))
@@ -268,24 +268,24 @@ read_ft <- function(file, layout = NULL, recording = file) {
 #' 
 #'
 #' @param file A edf/bdf file
-#' @param recording Recording name (file name, by default). If set to NULL or NA, the patient name will be used.
+#' @param .recording .Recording name (file name, by default). If set to NULL or NA, the patient name will be used.
 #'
 #' @return An `eeg_lst` object.
 #' 
 #' @examples 
-#' \dontrun{s1 <- read_edf("./faces.edf", recording = 1)}
+#' \dontrun{s1 <- read_edf("./faces.edf", .recording = 1)}
 #' 
 #' @family read
 #'
 #' @export
-read_edf <- function(file, recording = file) {
+read_edf <- function(file, .recording = file) {
   
   if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
   
   header_edf <- edfReader::readEdfHeader(file)  
-  if(is.null(recording) || is.na(recording)) {
-    recording <- header_edf$patient 
-    if(recording== "" ||  is.null(recording) || is.na(recording)) {
+  if(is.null(.recording) || is.na(.recording)) {
+    .recording <- header_edf$patient 
+    if(.recording== "" ||  is.null(.recording) || is.na(.recording)) {
       stop("Patient information is missing.")
     }
   }
@@ -322,16 +322,17 @@ read_edf <- function(file, recording = file) {
                                 .x = NA_real_, .y = NA_real_, .z = NA_real_,
                                 .reference = NA_character_)
   signal <- new_signal_tbl(signal_matrix = signal_dt,.id = s_id,
-                      .sample_id = sample_id, 
+                      .sample = sample_id, 
                       channels_tbl = channel_info)
   if(length(l_annot)==0){
       events <- new_events_tbl(, sampling_rate = sampling_rate)
   } else {
       edf_events <- l_annot[[1]]$annotations
+      desc <- data.table::data.table(.type = NA, .description = edf_events[["annotation"]] )
       init_events <- sample_int(round(edf_events$onset * sampling_rate) + 1L , sampling_rate = sampling_rate)
     events <- new_events_tbl(.id=1L, 
                              .initial = init_events,
-                         descriptions_dt = edf_events["annotation"],
+                         descriptions_dt = desc, 
                          .final = ( dplyr::case_when(!is.na(edf_events$duration) ~
                                                       round(edf_events$duration* sampling_rate),
                                                    !is.na(edf_events$end) ~
@@ -341,7 +342,7 @@ read_edf <- function(file, recording = file) {
 
   }
     segments <- tibble::tibble(.id = seq_len(max(s_id)),
-                            recording = recording, 
+                            .recording = .recording, 
                             segment = .id)
   
   eeg_lst <- eeg_lst(
@@ -353,7 +354,7 @@ read_edf <- function(file, recording = file) {
     " was read."
   ))
   message(paste0(
-    "# Data from ", nrow(eeg_lst$segments),
+    "# Data from ", nrow(eeg_lst$.segments),
     " segment(s) and ", nchannels(eeg_lst), " channels was loaded."
   ))
   message(say_size(eeg_lst))

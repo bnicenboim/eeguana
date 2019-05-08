@@ -86,7 +86,7 @@ data_faces_ERPs \%>\%
 # Group and summarize 
 data_faces_ERPs \%>\%
     # Convert samples to times, filter between timepoints
-    filter(between(as_time(.sample_id, unit = "ms"), 
+    filter(between(as_time(.sample, unit = "ms"), 
            100, 200)) \%>\%
     # Find mean amplitude of Fz for each condition
     group_by(condition) \%>\%

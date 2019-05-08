@@ -13,7 +13,7 @@ events_tbl <- function(x, ...) {
 #' @rdname events
 #' @export
 events_tbl.eeg_lst <- function(x,...){
-  x$events
+  x$.events
 }
 #' @rdname events
 #' @export
@@ -23,7 +23,7 @@ events_tbl.eeg_lst <- function(x,...){
 #' @rdname events
 #' @export
 `events_tbl<-.eeg_lst` <- function(x, value) {
-  x$events <- as_events_tbl(value)
+  x$.events <- as_events_tbl(value)
   x
 }
 
@@ -44,7 +44,7 @@ channels_tbl <- function(x, ...) {
 #' @rdname channels_tbl
 #' @export
 channels_tbl.eeg_lst <- function(x, ...) {
-channels_tbl(x$signal)
+channels_tbl(x$.signal)
 }
 
 
@@ -77,19 +77,19 @@ channels_tbl.data.frame <- function(x, ...) {
 #' @rdname channels_tbl
 #' @export
 `channels_tbl<-.eeg_lst` <- function(x, value) {
-  orig_names <- channel_names(x$signal)
-  channels_sg <- x$signal[, channel_names(x$signal), with =FALSE]
-  nochannels_sg <- x$signal[, setdiff(colnames(x$signal), channel_names(x$signal)), with = FALSE]
-  x$signal <- cbind(nochannels_sg, 
+  orig_names <- channel_names(x$.signal)
+  channels_sg <- x$.signal[, channel_names(x$.signal), with =FALSE]
+  nochannels_sg <- x$.signal[, setdiff(colnames(x$.signal), channel_names(x$.signal)), with = FALSE]
+  x$.signal <- cbind(nochannels_sg, 
                     data.table::as.data.table(
                       update_channel_meta_data(channels_sg, 
                                                value))) %>%
     as_signal_tbl()
-  new_names <- channel_names(x$signal)
+  new_names <- channel_names(x$.signal)
   
-  x$signal <- data.table::copy(x$signal)
-  for (i in seq_len(nchannels(x$signal))) {
-    data.table::set(x$signal,which(x$signal$.channel == orig_names[i]), ".channel", new_names[i])
+  x$.signal <- data.table::copy(x$.signal)
+  for (i in seq_len(nchannels(x$.signal))) {
+    data.table::set(x$.signal,which(x$.signal$.channel == orig_names[i]), ".channel", new_names[i])
   }
 x
 }
@@ -125,7 +125,7 @@ signal_tbl <- function(x, ...) {
 #' @rdname signal
 #' @export
 signal_tbl.eeg_lst <- function(x,...){
-    x$signal
+    x$.signal
 }
 #' @export
 `signal_tbl<-` <- function(x, value) {

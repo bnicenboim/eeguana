@@ -73,10 +73,10 @@ tbl_if_syms <- function(.tbl, .p, .env, ..., .include_group_vars = FALSE) {
 
 pull.eeg_lst <-function (.data, var = -1) 
 {
-  if( var %in% colnames(.data$signal)){
-    .data$signal[[var]]
-  } else if( var %in% colnames(.data$segments)){
-    .data$segments[[var]]
+  if( var %in% colnames(.data$.signal)){
+    .data$.signal[[var]]
+  } else if( var %in% colnames(.data$.segments)){
+    .data$.segments[[var]]
   } else {
     stop("var not found")
   }

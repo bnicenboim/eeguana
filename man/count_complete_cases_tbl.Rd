@@ -20,7 +20,7 @@ Count number of complete segments of an eeg_lst object.
 \examples{
 \dontrun{
 
-faces_segs_some \%>\% count_complete_cases(recording, description)
+faces_segs_some \%>\% count_complete_cases(.recording, .description)
 }
 }
 \seealso{

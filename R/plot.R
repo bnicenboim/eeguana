@@ -9,7 +9,7 @@
 #' maximum of 6,400 samples. The `eeg_lst` object is then converted to a long-format
 #' tibble via `as_tibble`. In this tibble, the `.key` variable is the 
 #' channel/component name and `.value` its respective amplitude. The sample 
-#' number (`.sample_id` in the `eeg_lst` object) is automatically converted to seconds
+#' number (`.sample` in the `eeg_lst` object) is automatically converted to seconds
 #' to create the variable `time`. By default, time is then plotted on the 
 #' x-axis and amplitude on the y-axis, and uses `scales = "free"`; see [ggplot2::facet_grid()].
 #' 
@@ -60,7 +60,7 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
 #' maximum of 6400 samples. The `eeg_lst` object is then converted to a long-format
 #' tibble via [as_tibble]. In this tibble, the `.key` variable is the 
 #' channel/component name and `.value` its respective amplitude. The sample 
-#' number (`.sample_id` in the `eeg_lst` object) is automatically converted to milliseconds
+#' number (`.sample` in the `eeg_lst` object) is automatically converted to milliseconds
 #' to create the variable `time`. By default, time is plotted on the 
 #' x-axis and amplitude on the y-axis.
 #' 
@@ -161,7 +161,7 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 #' # Calculate mean amplitude between 100-200 ms and plot the topography
 #' data_faces_ERPs %>% 
 #'     # select the time window of interest
-#'     filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) %>% 
+#'     filter(between(as_time(.sample, unit = "milliseconds"),100,200)) %>% 
 #'     # compute mean amplitude per condition
 #'     group_by(condition) %>%
 #'     summarize_all_ch(mean, na.rm = TRUE) %>%
@@ -176,7 +176,7 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 #'
 #' # The same but with interpolation
 #' data_faces_ERPs %>% 
-#'     filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) %>% 
+#'     filter(between(as_time(.sample, unit = "milliseconds"),100,200)) %>% 
 #'     group_by(condition) %>%
 #'     summarize_all_ch(mean, na.rm = TRUE) %>%
 #'     eeg_interpolate_tbl() %>%
@@ -255,14 +255,14 @@ plot_components.eeg_ica_lst <- function(data,  projection = "polar", ...) {
     ##TODO: move to data.table, ignore group, just do it by .recording
     long_table <- map_dtr(data$ica, ~ data.table::as.data.table(.x$mixing_matrix) %>%
                             .[, .ICA := {.ICA = paste0("ICA",seq_len(.N));
-                            factor(.ICA, levels = .ICA)}],.id = "recording") %>%
+                            factor(.ICA, levels = .ICA)}],.id = ".recording") %>%
       data.table::melt(variable.name = ".key",
-                       id.vars = c(".ICA","recording"),
+                       id.vars = c(".ICA",".recording"),
                        value.name = ".value")
     long_table[,.key := as.character(.key)]
     
     long_table <- left_join_dt(long_table, data.table::as.data.table(channels_tbl(data)), by = c(".key"= ".channel")) %>% 
-      dplyr::group_by(recording,.ICA) 
+      dplyr::group_by(.recording,.ICA) 
       
        long_table %>% eeg_interpolate_tbl(...) %>%
         plot_topo() +
@@ -308,7 +308,7 @@ plot_components.eeg_ica_lst <- function(data,  projection = "polar", ...) {
 #'    # select a few electrodes
 #'    select(Fz, FC1, FC2, C3, Cz, C4, CP1, CP2, Pz) %>%
 #'    # group by time point and condition
-#'    group_by(.sample_id, condition) %>%
+#'    group_by(.sample, condition) %>%
 #'    # compute averages
 #'    summarize_all_ch(mean,na.rm=TRUE) %>%
 #'    plot_gg() + 
@@ -491,7 +491,7 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
 #' @examples
 #' 
 #' data_faces_ERPs %>% 
-#'     filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) %>% 
+#'     filter(between(as_time(.sample, unit = "milliseconds"),100,200)) %>% 
 #'     group_by(condition) %>%
 #'     summarize_all_ch(mean, na.rm = TRUE) %>%
 #'     plot_topo() +
@@ -534,7 +534,7 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
    } else {
        events_tbl <- object$layer$data
     }
-    info_events   <- setdiff(colnames(events_tbl), obligatory_cols[["events"]])
+    info_events   <- setdiff(colnames(events_tbl), obligatory_cols[[".events"]])
     events_tbl <- data.table::as.data.table(events_tbl)
     events_tbl[,xmin:= as_time(.initial) ]
     events_tbl[,xmax:= as_time(.final) ]
@@ -561,8 +561,8 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
   # events_spec_chs[, .key := .channel]
   # events_tbl <- rbind(events_all_chs, events_spec_chs)
   #   to_plot<- list()
-  #   to_plot$events_all <- filter_dt(events_tbl, .initial == .final, is.na(.channel) )
-  #   to_plot$events_ch <- filter_dt(events_tbl, .initial == .final, !is.na(.channel) ) %>%
+  #   to_plot$.events_all <- filter_dt(events_tbl, .initial == .final, is.na(.channel) )
+  #   to_plot$.events_ch <- filter_dt(events_tbl, .initial == .final, !is.na(.channel) ) %>%
   #       .[, .key := as.factor(.channel)]
   #   to_plot$intervals_all <- filter_dt(events_tbl, .initial < .final, is.na(.channel) )
   #   to_plot$intervals_ch <- filter_dt(events_tbl, .initial < .final, !is.na(.channel) )  %>%

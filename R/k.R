@@ -2,9 +2,9 @@ url_issues <- "https://github.com/bnicenboim/eeguana/issues"
 
 
 obligatory_cols <- list(
-  signal = c(.id = ".id", .sample_id = ".sample_id"),
-  events = c(.id = ".id", .initial = ".initial", .final = ".final", .channel = ".channel"),
-  segments = c(.id = ".id")
+  .signal = c(.id = ".id", .sample = ".sample"),
+  .events = c(.id = ".id", .initial = ".initial", .final = ".final", .channel = ".channel"),
+  .segments = c(.id = ".id")
 )
 
 # data.table needs this
