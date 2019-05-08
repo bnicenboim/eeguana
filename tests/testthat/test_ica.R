@@ -142,6 +142,7 @@ data_blinks_more_no_blinks <- data_ica_b_m %>%
     eeg_ica_keep(-ICA1)
 
 data_rec2 <- data_ica_b_m %>% filter(recording!="recording1") %>% eeg_ica_keep(-ICA1)
+
 test_that("ica grouped works",{ 
     expect_equal(data_blinks_more$signal,data_b_m_rec$signal)
     expect_equal(data_blinks_more$signal,data_b_m_rec_Fz$signal)
