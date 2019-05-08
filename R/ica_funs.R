@@ -4,7 +4,7 @@
 #' version 
 #' of the original estimated unmixing matrix in W, and the mixing matrix A,
 #' consistent with the formulation `X= S %*% A`, where X is the matrix of data with
-#'  N_samples $\times$ N_channels, and S is a matrix of sources with N_samples $\times$ N_sources. 
+#'  N_samples by N_channels, and S is a matrix of sources with N_samples by N_sources. 
 #'  They are meant to be  used with [eeg_ica()]. In order to save memory, these wrappers do not
 #'  return the estimated 
 #' source components.

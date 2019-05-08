@@ -601,12 +601,14 @@ ggplot.eeg_lst <- function(data = NULL,
     p
 }
 #'  Eeguana ggplot themes
-#'  These are complete light themes based on [ggplot2::theme_bw()] which control all non-data display. 
-#'  @name theme
+#'
+#' These are complete light themes based on [ggplot2::theme_bw()] which control all non-data display.
+#' @return A ggplot theme.
+#' @name theme_eeguana
 NULL
 # > NULL
 
-#' @rdname theme
+#' @rdname theme_eeguana
 #' @export
 theme_eeguana <- function() {
   ggplot2::theme_bw() %+replace% 
@@ -615,7 +617,7 @@ theme_eeguana <- function() {
                     panel.spacing  = ggplot2::unit(.01, "points"),
                     panel.border = ggplot2::element_rect(colour = "transparent", fill = "transparent"))
 }
-#' @rdname theme
+#' @rdname theme_eeguana
 #' @export
 theme_eeguana2 <- function() {
  theme_eeguana() %+replace% 

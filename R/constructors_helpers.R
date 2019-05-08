@@ -106,7 +106,7 @@ update_channel_meta_data <- function(channels, channels_tbl) {
       channels,
       function(sig) {
         .channel <- new_channel_dbl(values = sig,
-                                    channels_tbl = list(.x=NA_real_,
+                                    channel_info = list(.x=NA_real_,
                                                         .y= NA_real_,
                                                         .z =NA_real_,
                                                         .reference=NA_real_))

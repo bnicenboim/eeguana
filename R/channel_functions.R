@@ -109,45 +109,39 @@ sel_ch <- function(data,...){
 #' @return A new channel or an `eeg_lst` object with a channel where a function was instead of the previous channels.
 #' @inheritParams dplyr::summarize_at 
 #' @export
-chs_fun <- function(x, .funs, ...) {
+chs_fun <- function(x, .f, ...) {
   UseMethod("chs_fun")
 }
 #' @rdname chs_fun
 #' @param pars List that contains the additional arguments for the function calls in .funs.
 #' @export
-chs_fun.channel_dbl <- function(...,.funs, pars = list()) {
-if(length(pars) != 0){
-   row_fun_ch(data.table::data.table(...),.funs,  unlist(pars))  
- } else {
-   row_fun_ch(data.table::data.table(...),.funs)  
- }
+chs_fun.channel_dbl <- function(...,.f, pars = list()) {
+  .f <- rlang::as_function(.f)
+   row_fun_ch(data.table::data.table(...),.f, pars)  
 }
 #' @rdname chs_fun
 #' @export
-chs_fun.character <- function(..., .funs, pars = list()) {
+chs_fun.character <- function(..., .f, pars = list()) {
   dt_chs <- data.table::as.data.table(mget(..., envir = rlang::caller_env()))
-  if(length(pars) != 0){
-    row_fun_ch(dt_chs,.funs,  unlist(pars))
-  } else {
-    row_fun_ch(dt_chs,.funs)
-  }
+  .f <- rlang::as_function(.f)
+  row_fun_ch(data.table::data.table(...),.f, pars)  
 }
 
 #' @rdname chs_fun
 #' @export
-chs_fun.eeg_lst <- function(x,.funs, pars = list(), ...) {
+chs_fun.eeg_lst <- function(x,.f, pars = list(), ...) {
 
   signal <- data.table::copy(x$.signal)
-  funs <- as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env())
-  # fun_txt <- rlang::quo_text(funs[[1]]) %>% make.names()
-  fun_txt <- names(funs) %>% make_names()
-
-  # TODO a more elegant way, but if pars is list(), then row_fun_ch thinks that ... is NULL, and the function gets an argument NULL
-  if(length(pars) != 0){
-    signal[,(fun_txt) := row_fun_ch(.SD, .funs,  unlist(pars)),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
+  if(is.list(.f)){
+  .f <- lapply(.f, rlang::as_function)
   } else {
-    signal[,(fun_txt) := row_fun_ch(.SD, .funs),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
+
+    fun_txt <-toString(substitute(.f))  %>% make_names()
+    .f <- list(rlang::as_function(.f))
+    names(.f) <-fun_txt
   }
+  signal[,names(.f):=lapply(.f, function(x) row_fun_ch(.SD, x, pars)),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
+  
   x$.signal <- signal
   update_events_channels(x) %>% #update_channels_tbl(channels_info) %>%
       validate_eeg_lst()
