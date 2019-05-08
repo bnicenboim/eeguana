@@ -108,3 +108,16 @@ dots_by_tbl_quos <- function(.eeg_lst, dots) {
 
 # is.function(rlang::expr("mean()"))
 
+#' @noRd
+rename_sel_comp <- function(mixing, sel){
+    mixing <- mixing[ .ICA %in% c("mean",sel),] 
+    mixing[,.ICA := purrr::map_chr(.ICA, function(r){
+        new_name <- names(sel[sel==r])
+        if(length(new_name)!=0){
+            return(new_name)
+        } else {
+            return(r)
+        }
+    })][]
+
+}

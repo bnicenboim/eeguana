@@ -88,7 +88,6 @@ filter.eeg_lst <- function(.data, ..., .preserve = FALSE) {
   filter_eeg_lst(.data, dots = dots)
 }
 filter.eeg_ica_lst <- function(.data, ..., .preserve= FALSE) {
-
     out <- NextMethod()
     recordings <- unique(out$.segments$.recording)
     out$ica <- out$ica[recordings]

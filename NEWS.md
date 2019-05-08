@@ -1,15 +1,20 @@
-# eeguana 0.0.7.9000
+# eeguana 0.1.0.9000
   - Changes
       - FastICA was implemented in `eeg_ica()`.
       - Artifact detection based on voltage steps implemented in `eeg_grad_artifact()`.
       - Filters were greatly improved and checked, only FIR filters are supported for now.
       - Better documentation (mostly [Kate Stone](https://github.com/auskate)).
-      - `eeg_intervals_to_NA()` was renamed to `eeg_events_to_NA()`.
-      - `events()` was renamed to `events_tbl()`.
-      - `ch_filt_*` functions were renamed to `eeg_filt_*` and they get a `...` argument to select the relevant channels.
+
       - Changes in the creation of `eeg_lst` objects.
       - Faster `as_tibble()`.
-      - `as.data.table()` was added
+      - `as.data.table()` was added.
+            - Renamed functions:
+                - `eeg_intervals_to_NA()` was renamed to `eeg_events_to_NA()`.
+                - `events()` was renamed to `events_tbl()`.
+                - `plot_gg()` should be changed to 'ggplot(aes(x=.time, y=.value))'.
+                - `summarize_all_ch(...)` should be changed to `summarize_at(channel_names(.),...)`.
+                - `summarize_at_ch(...)` should be changed to `summarize_at(...)`.
+                - `ch_filt_*` functions were renamed to `eeg_filt_*` and they get a `...` argument to select the relevant channels.
    - Bugs
       - Events in Brain Vision version 1.0 file are now correctly read. 
       - Various minor bugs fixed.

@@ -1,7 +1,7 @@
 Package: eeguana
 Type: Package
 Title: A package for flexible manipulation of EEG data
-Version: 0.0.7.9000
+Version: 0.1.0.9000
 Authors@R: c(
     person("Bruno", "Nicenboim", email = "bruno.nicenboim@uni-potsdam.de", role = c("aut", "cre")),
     person("Kate", "Stone", email = "kate.stone@uni-potsdam.de", role = "ctb"))

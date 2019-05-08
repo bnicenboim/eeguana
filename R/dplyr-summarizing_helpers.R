@@ -3,12 +3,6 @@ summarize_eeg_lst <- function(.eeg_lst, dots){
    update_summarized_eeg_lst(.eeg_lst)
 }
 
-summarize_at_eeg_lst <- function(.eeg_lst, vars, funs){
-   .eeg_lst$.signal <-   summarize_at_eval_eeg_lst(.eeg_lst, vars, funs)
-   update_summarized_eeg_lst(.eeg_lst)
-
-}
-
 update_summarized_eeg_lst <- function(.eeg_lst){
 
       ## Restructure segments table to fit the new signal table
@@ -25,8 +19,7 @@ update_summarized_eeg_lst <- function(.eeg_lst){
     # TODO maybe I can do some type of summary of the events table, instead
   .eeg_lst$.events <- new_events_tbl(sampling_rate = sampling_rate(.eeg_lst)) 
     #update channels in the events and the meta data (summarize deletes the metadata of the channels)
-  .eeg_lst <- update_events_channels(.eeg_lst) #%>% update_channels_tbl(channels_info)
-
+  .eeg_lst <- update_events_channels(.eeg_lst) #
   validate_eeg_lst(.eeg_lst)
 }
 
@@ -35,18 +28,23 @@ update_summarized_eeg_lst <- function(.eeg_lst){
 summarize_segments <-  function(segments, segments_groups, last_id){
     # data.table::data.table(segments)[,unique(.SD),.SDcols=c(segments_groups)][] %>% dplyr::as_tibble() %>%
     if(length(segments_groups)!=0){
-    data.table::data.table(segments)[,.(segment_n = .N),by=c(segments_groups)][] %>%
+ ### IMPORTANT: segments need to be grouped and summarized as data.table does, which is differently than dplyr
+    unique(data.table::data.table(segments), by=c(segments_groups))[,segments_groups, with= FALSE] %>%
         dplyr::as_tibble() %>%
-    # segments %>% 
-          # dplyr::group_by_at(vars(segments_groups)) %>%
-          # dplyr::summarize() %>%
-          # dplyr::ungroup() %>%
+ 
       {
        if (!".id" %in% dplyr::tbl_vars(.)) {
          hd_add_column(., .id = seq_len(last_id))
        } else {
          .
-       }
+       } %>%
+           {
+               if (!".recording" %in% dplyr::tbl_vars(.)) {
+                   hd_add_column(., .recording = NA)
+               } else {
+                   .
+               }
+           } 
       } %>%
     dplyr::select(.id, dplyr::everything())
     } else {
@@ -159,5 +157,5 @@ update_summarized_signal <- function(extended_signal, .eeg_lst){
 
   data.table::setkey(extended_signal,.id,.sample)
   data.table::setcolorder(extended_signal,c(".id",".sample"))
-  extended_signal[]
+  extended_signal[] 
 }

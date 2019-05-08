@@ -58,10 +58,10 @@ summarize_tbl <- data %>%
   dplyr::filter(.key == "X") %>%
   dplyr::summarize(mean = mean(.value))
 
-summarize_at_eeg <- summarize_at_ch(data, channel_names(data), mean)
-summarize_all_eeg <- summarize_all_ch(data, mean)
-summarize_all2_eeg <- summarize_all_ch(data, "mean")
-summarize_all3_eeg <- summarize_all_ch(data, funs(mean(.)))
+summarize_at_eeg <- summarize_at(data, channel_names(data), mean)
+summarize_all_eeg <- summarize_at(data, channel_names(data), mean)
+summarize_all2_eeg <- summarize_at(data, channel_names(data), "mean")
+summarize_all3_eeg <- summarize_at(data, channel_names(data), funs(mean(.)))
 
 summarize2_tbl <- data %>%
   as_tibble() %>%
@@ -69,7 +69,7 @@ summarize2_tbl <- data %>%
   dplyr::summarize(mean = mean(.value)) %>%
   tidyr::spread(key = .key, value = mean)
 
-summarize_all4_eeg <- summarize_all_ch(data, funs(mean = mean(.)))
+summarize_all4_eeg <- summarize_at(data, channel_names(data), funs(mean = mean(.)))
 
 summarize4_tbl <- data %>%
   as_tibble() %>%
@@ -137,7 +137,7 @@ summarize_g_tbl <- data %>%
   dplyr::group_by(.time) %>%
   dplyr::summarise(mean = mean(.value))
 
-summarize_at_g_signal_eeg <- summarize_at_ch(group_by_eeg_lst, channel_names(data), mean)
+summarize_at_g_signal_eeg <- summarize_at(group_by_eeg_lst, channel_names(data), mean)
 
 summarize_at_g_tbl <- data %>%
   as_tibble() %>%
@@ -282,14 +282,11 @@ test_that("summarizing by groups works as expected for the .key values", {
 
 
 test_that("summarizing by groups works as expected for the segments", {
-  expect_equal(data_s1$.segments %>%
-    dplyr::select(-segment_n), as_tibble(s_data_s1) %>%
+  expect_equal(data_s1$.segments, as_tibble(s_data_s1) %>%
     mutate(.id = 1:n()))
-  expect_equal(data_s2$.segments %>%
-    dplyr::select(-segment_n), as_tibble(s_data_s2) %>%
+  expect_equal(data_s2$.segments, as_tibble(s_data_s2) %>%
     mutate(.id = 1:n()))
-  expect_equal(data_s3$.segments %>%
-    dplyr::select(-segment_n), as_tibble(s_data_s3) %>%
+  expect_equal(data_s3$.segments, as_tibble(s_data_s3) %>%
     mutate(.id = 1:n()))
   expect_equal(data_s4$.segments, tibble(.id = 1L))
 })
@@ -302,19 +299,19 @@ test_that("summarizing by groups works as expected for the segments", {
 
 data_all_s1 <- data %>%
   group_by(.sample, condition, .recording) %>%
-  summarize_all_ch(mean)
+  summarize_at(channel_names(.),mean)
 
 data_all_s2 <- data_all_s1 %>%
   group_by(.sample, condition) %>%
-  summarize_all_ch(mean)
+  summarize_at(channel_names(.),mean)
 
 data_all_s3 <- data_all_s2 %>%
   group_by(.sample) %>%
-  summarize_all_ch(mean)
+  summarize_at(channel_names(.),mean)
 
 data_all_s4 <- data_all_s3 %>%
   group_by() %>%
-  summarize_all_ch(mean)
+  summarize_at(channel_names(.),mean)
 
 
 test_that("summarize all channels works as the regular summarize", {
@@ -341,7 +338,7 @@ tbl_diff_means_1 <- data %>%
   dplyr::summarize(mean = mean(.value[condition == "a"] - .value[condition == "b"]))
 
 eeg_diff_means_2 <- group_by(data, .sample) %>%
-  summarize_all_ch(funs(mean(.[condition == "a"] - 
+  summarize_at(channel_names(.),funs(mean(.[condition == "a"] - 
                                .[condition == "b"])))
 
 tbl_diff_means_2 <- data %>%
@@ -363,7 +360,7 @@ tbl_diff_means_3 <- data %>%
   dplyr::summarize(mean = mean(.value[condition == "a" & .recording == "recording1"] - .value[condition == "b" & .recording == "recording2"]))
 
 eeg_diff_means_4 <- group_by(data, .sample) %>%
-  summarize_all_ch(funs(mean(.[condition == "a" & .recording == "recording1"] - 
+  summarize_at(channel_names(.),funs(mean(.[condition == "a" & .recording == "recording1"] - 
                                .[condition == "b" & .recording == "recording2"])))
 
 tbl_diff_means_4 <- data %>%
@@ -373,7 +370,7 @@ tbl_diff_means_4 <- data %>%
   tidyr::spread(key = .key, value = mean) %>%
   dplyr::ungroup()
 
-eeg_means_5 <- group_by(data, .sample) %>% summarize_all_ch("mean")
+eeg_means_5 <- group_by(data, .sample) %>% summarize_at(channel_names(.),"mean")
 
 tbl_means_5 <- data %>%
   as_tibble() %>%

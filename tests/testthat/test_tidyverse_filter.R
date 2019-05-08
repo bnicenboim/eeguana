@@ -532,7 +532,7 @@ summarize_filter_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segme
 
 summarize_at_filter_eeg <- data %>% 
   group_by(.id, .recording, condition) %>%
-  summarize_at_ch(channel_names(data), mean) %>%
+  summarize_at(channel_names(data), mean) %>%
   filter(X > 0 & Y > 0)
 
 summarize_at_filter_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%
@@ -543,7 +543,7 @@ summarize_at_filter_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.se
 
 
 summarize_all_filter_eeg <- group_by(data, .id, .sample) %>% 
-  summarize_all_ch("mean") %>%
+  summarize_at(channel_names(.),"mean") %>%
   filter(.sample < 0)
 
 summarize_all_filter_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%
@@ -554,7 +554,7 @@ summarize_all_filter_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.s
 
 # warnings about .id
 summarize_all1_filter_eeg <- group_by(data, .id, condition) %>% 
-  summarize_all_ch("mean") %>%
+  summarize_at(channel_names(.),"mean") %>%
   filter(condition == "a")
 
 summarize_all1_filter_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%
@@ -564,7 +564,7 @@ summarize_all1_filter_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.
 
 
 summarize_all2_filter_eeg <- group_by(data, condition) %>% 
-  summarize_all_ch("mean") %>%
+  summarize_at(channel_names(.),"mean") %>%
   filter(condition == "a")
 
 summarize_all2_filter_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%

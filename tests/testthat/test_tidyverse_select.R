@@ -321,7 +321,7 @@ mutate_select_tbl <- data %>%
   dplyr::select(Z)
 
 
-summarize_all_select_eeg <- summarize_all_ch(data, mean) %>%
+summarize_all_select_eeg <- summarize_at(data, channel_names(data), mean) %>%
   select(Y)
 summarize_all_select_tbl <- data %>%
   as_tibble() %>%
@@ -382,7 +382,7 @@ group_select_tbl <- data %>%
 
 group_select_summarize_eeg <- data %>%
   group_by(.sample) %>%
-  summarize_all_ch(mean) %>%
+  summarize_at(channel_names(.),mean) %>%
   select(X)
 
 group_select_summarize_tbl <- data %>%

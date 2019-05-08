@@ -2,6 +2,13 @@
 
 mu_raw <- list(charToRaw("μ"), charToRaw("µ"))
 
+#' Unique columns of signal and segments tables.
+#' @noRd
+col_names_main <- function(.eeg_lst) {
+    unique(c(colnames(.eeg_lst$.signal), colnames(.eeg_lst$.segments)))
+}
+
+
 #' @noRd
 seq_len2 <- function(length.out) {
   if (length(length.out) == 0) {

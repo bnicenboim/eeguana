@@ -61,7 +61,7 @@ lineplot_eeg <- data_faces_ERPs %>%
 # create topo plot
 topoplot_eeg <- data_faces_ERPs %>%
   group_by(condition) %>%
-  summarise_all_ch(mean, na.rm = TRUE) %>%
+  summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
   plot_topo() + 
   facet_grid(~ condition) +
   annotate_head() +
@@ -78,17 +78,11 @@ test_that("plotting doesn't change data", {
   expect_equal(nrow(topoplot_eeg$data), 
                nrow(data_faces_ERPs %>%
                            group_by(condition) %>%
-                           summarise_all_ch(mean, na.rm = TRUE) %>%
+                           summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
                          eeg_interpolate_tbl() %>%
                          filter(is.na(.key))))
 })
 
-test_that("warnings", {
- expect_warning(data_1 %>%
-    group_by(condition) %>%
-    summarise_all_ch(mean, na.rm = TRUE) %>%
-     plot_topo(projection = "orthographic"))
-})
 
 test_that("plot functions create ggplots", {
   expect_gg(plot)

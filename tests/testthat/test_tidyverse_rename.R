@@ -357,7 +357,7 @@ group_rename_tbl <- data %>%
 
 group_rename_summarize_eeg <- data %>%
   group_by(.recording, condition) %>%
-  summarize_all_ch(mean) %>%
+  summarize_at(channel_names(.),mean) %>%
   rename(subject = .recording)
 
 group_rename_summarize_tbl <- data %>%

@@ -11,7 +11,7 @@ group_by_eeg_lst <- function(.eeg_lst, dots, .add = FALSE){
   } else {
     attributes(.eeg_lst)$vars <- unique(c(attributes(.eeg_lst)$vars,new_groups))
   }
-  allcols <- c(colnames(.eeg_lst$.signal), colnames(.eeg_lst$.segments))
+  allcols <- col_names_main(.eeg_lst) 
   if(length(setdiff(attributes(.eeg_lst)$vars, allcols))>0) {
     notfound <- paste0(setdiff(attributes(.eeg_lst)$vars, allcols), collapse = ", ")
     stop(sprintf("Incorrect grouping. The groups %s were not found", notfound),call. = FALSE)
@@ -77,9 +77,7 @@ mutate_eeg_lst <- function(.eeg_lst, dots, keep_cols = TRUE){
                               obligatory_cols$.signal
                              }}  %>% c(.,new_cols) %>%
                        unique()
-      
       cond_cols <- names_other_col(.eeg_lst, dots,".segments")
-      
 
 
   extended_signal <- extended_signal(.eeg_lst, cond_cols) 
@@ -96,7 +94,7 @@ mutate_eeg_lst <- function(.eeg_lst, dots, keep_cols = TRUE){
 
 
       #updates the events and the channels
-      .eeg_lst <- .eeg_lst %>% update_events_channels()  #%>% update_channels_tbl(channels_info)
+      .eeg_lst <- .eeg_lst %>% update_events_channels()  
       data.table::setkey(.eeg_lst$.signal,.id,.sample)
      }
     
@@ -190,9 +188,6 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
   validate_eeg_lst()
 }
 
-
-
-
 #' @noRd
 scaling <- function(sampling_rate, unit) {
   if (stringr::str_to_lower(unit) %in% c("s", "sec", "second", "seconds", "secs")) {
@@ -212,16 +207,6 @@ scaling <- function(sampling_rate, unit) {
 scaling
   }
 
-
-# #' @noRd
-# redo_indices <- function(.eeg_lst) {
-#   .eeg_lst$.signal[,.id:= as.factor(.id) %>% as.integer(.)]
-#   .eeg_lst$.segments <- .eeg_lst$.segments %>% 
-#                         dplyr::mutate(.id =  as.factor(.id) %>% as.integer(.))
-#   .eeg_lst$.events[,.id:= as.factor(.id) %>% as.integer(.)]
-#   data.table::setkey(.eeg_lst$.signal, .id, .sample)
-#   .eeg_lst
-# }
 
 #' Gives the names of segment or events columns except for .id included in a quosure
 #' @noRd
