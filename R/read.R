@@ -234,10 +234,10 @@ read_ft <- function(file, layout = NULL, .recording = file) {
     events <- NULL 
   }
   
-  segments <- tibble::tibble(
-    .id = seq_len(max(signal_tbl$.id)),
-    .recording = .recording, segment = .id
-  )
+  segments <- build_segments_tbl(.id= seq_len(max(signal_tbl$.id)),.recording)
+  
+
+  
   
   if(!is.null(mat[[1]][, , 1]$trialinfo)){
     segments <- segments %>% dplyr::bind_cols(dplyr::as_tibble(mat[[1]][, , 1]$trialinfo))
@@ -341,10 +341,12 @@ read_edf <- function(file, .recording = file) {
                                      .channel= NA_character_)
 
   }
-    segments <- tibble::tibble(.id = seq_len(max(s_id)),
-                            .recording = .recording, 
-                            segment = .id)
-  
+   
+    segments <- build_segments_tbl(
+    .id = seq_len(max(s_id)),
+    .recording = .recording
+  )
+   
   eeg_lst <- eeg_lst(
     signal = signal, events = events, segments = segments
   )

@@ -14,6 +14,8 @@ as_data_frame.eeg_lst(x, unit = "second")
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
+
+\item{unit}{Unit for the \code{.time} column of the transformed object: "s" (default), "ms", "samples".}
 }
 \value{
 A \code{\link[tibble:tibble]{tibble}}

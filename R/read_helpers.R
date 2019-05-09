@@ -110,13 +110,10 @@ read_dat <- function(file, header_info = NULL, events = NULL,
   segmentation[,.new_id := .id][, .id := 1]
   seg_events <- update_events(as_events_tbl(events,common_info$sampling_rate), segmentation)
          
-
-  segments <- tibble::tibble(
+  segments <- build_segments_tbl(
     .id = seq(length(.lower)),
     .recording = .recording
-  ) %>% dplyr::group_by(.id) %>%
-    dplyr::mutate(segment = 1:dplyr::n()) %>%
-    ungroup()
+  )
 
   eeg_lst <- eeg_lst(
     signal_tbl = signal_tbl,
@@ -136,7 +133,14 @@ read_dat <- function(file, header_info = NULL, events = NULL,
   eeg_lst
 }
 
-
+  build_segments_tbl <- function(.id, .recording){
+    tibble::tibble(
+    .id = .id,
+    .recording = .recording
+  )%>% dplyr::group_by(.recording) %>%
+    dplyr::mutate(segment = 1:dplyr::n()) %>%
+    ungroup()
+  }
 add_event_channel <- function(events, labels) {
   labels <- make_names(labels)
   dplyr::mutate(events, .channel = if (".channel" %in% names(events)) {

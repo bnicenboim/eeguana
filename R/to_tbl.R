@@ -3,13 +3,12 @@
 #' Convert the signal_tbl table from wide to long format.
 #'
 #' @param x An `eeg_lst` object.
-#' @param add_segments Whether the segments table is included.
-#' @param add_channels_info Whether the channels information (`channels_tbl`) is included. 
+#' @param unit Unit for the `.time` column of the transformed object: "s" (default), "ms", "samples".
 #' @return  A [`data.table`][data.table::data.table].
 #' 
 #'
 #'
-as.data.table.eeg_lst <- function(x, unit = "second") {
+as.data.table.eeg_lst <- function(x, unit = "s") {
    keys <- x$.signal %>%
        dplyr::select_if(function(x) is_channel_dbl(x) | is_component_dbl(x)) %>%
        colnames()
@@ -35,8 +34,7 @@ as.data.table.eeg_lst <- function(x, unit = "second") {
 #'
 #' Convert the signal_tbl table from wide to long format.
 #'
-#' @param x An `eeg_lst` object.
-#' @inheritParams as.data.table
+#' @inheritParams as.data.table.eeg_lst
 #' @return A [`tibble`][tibble::tibble]
 #'
 #' @importFrom magrittr %>%

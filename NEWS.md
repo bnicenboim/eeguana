@@ -4,7 +4,7 @@
       - Artifact detection based on voltage steps implemented in `eeg_grad_artifact()`.
       - Filters were greatly improved and checked, only FIR filters are supported for now.
       - Better documentation (mostly [Kate Stone](https://github.com/auskate)).
-
+      - Easy access to the information of the different tables with `signal_tbl()`, `events_tbl()`, and `segments_tbl()`.
       - Changes in the creation of `eeg_lst` objects.
       - Faster `as_tibble()`.
       - `as.data.table()` was added.

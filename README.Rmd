@@ -88,14 +88,18 @@ faces_segs <- faces %>%
 ```
 
 
-We can also edit the segmentation information and add more descriptive labels.
+We can also edit the segmentation information and add more descriptive labels. Once the `eeg_lst` is segmented, the segments table includes the relevant columns from the events table (but without the leading dots).
+
 *eeguana* has wrappers for many `dplyr` commands for the EEG data.  These commands always return an entire `eeg_lst` object so that they can be piped using `magrittr`'s pipe, `%>%`.
 
 ```{r}
+## To only see the segments table:
+segments_tbl(faces_segs)
+## We modify the entire object:
 faces_segs_some <- faces_segs %>%  
                   mutate(condition =
-                  if_else(.description == "s70", "faces", "non-faces")) %>% 
-                  select(-.type)
+                  if_else(description == "s70", "faces", "non-faces")) %>% 
+                  select(-type)
 
 faces_segs_some
 ```

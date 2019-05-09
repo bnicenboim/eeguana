@@ -10,17 +10,15 @@
 events_tbl <- function(.data, ...) {
   UseMethod("events_tbl")
 }
-#' @rdname events
 #' @export
 events_tbl.eeg_lst <- function(.data,...){
   .data$.events
 }
-#' @rdname events
+#' @rdname events_tbl
 #' @export
 `events_tbl<-` <- function(.data, value) {
   UseMethod("events_tbl<-")
 }
-#' @rdname events
 #' @export
 `events_tbl<-.eeg_lst` <- function(.data, value) {
   .data$.events <- as_events_tbl(value)
@@ -39,14 +37,12 @@ channels_tbl <- function(.data, ...) {
   UseMethod("channels_tbl")
 }
 
-#' @rdname channels_tbl
 #' @export
 channels_tbl.eeg_lst <- function(.data, ...) {
 channels_tbl(.data$.signal)
 }
 
 
-#' @rdname channels_tbl
 #' @export
 channels_tbl.data.frame <- function(.data, ...) {
 
@@ -71,8 +67,6 @@ channels_tbl.data.frame <- function(.data, ...) {
   UseMethod("channels_tbl<-")
 }
 
-
-#' @rdname channels_tbl
 #' @export
 `channels_tbl<-.eeg_lst` <- function(.data, value) {
   orig_names <- channel_names(.data$.signal)
@@ -92,7 +86,6 @@ channels_tbl.data.frame <- function(.data, ...) {
 .data
 }
 
-#' @rdname channels_tbl
 #' @export
 `channels_tbl<-.data.frame` <- function(.data, value) {
   orig_names <- channel_names(.data)
@@ -114,17 +107,42 @@ channels_tbl.data.frame <- function(.data, ...) {
 signal_tbl <- function(.data, ...) {
     UseMethod("signal_tbl")
 }
-#' @rdname signal
 #' @export
 signal_tbl.eeg_lst <- function(.data,...){
     .data$.signal
 }
+
 #' @export
 `signal_tbl<-` <- function(.data, value) {
     UseMethod("signal_tbl<-")
 }
 #' @export
 `signal_tbl<-.eeg_lst` <- function(.data, value) {
+
+stop("Not implemented, please use mutate", call. = FALSE)
+}
+#' Function to get the segments table of an eeg_lst object.
+#'
+#'
+#' @param .data An eeg_lst object.
+#' @param ... Not in use.
+#' 
+#' @return A table.
+#' @export
+segments_tbl <- function(.data, ...) {
+    UseMethod("segments_tbl")
+}
+#' @export
+segments_tbl.eeg_lst <- function(.data,...){
+    .data$.segments
+}
+
+#' @export
+`segments_tbl<-` <- function(.data, value) {
+    UseMethod("segments_tbl<-")
+}
+#' @export
+`segments_tbl<-.eeg_lst` <- function(.data, value) {
 
 stop("Not implemented, please use mutate", call. = FALSE)
 }

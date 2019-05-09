@@ -91,12 +91,14 @@ seged_bin <- multiplexed_bin_bv2 %>% eeg_segment(.description %in% c("s10","s11"
 seg_bin_bv2 <- read_vhdr(system.file("testdata","bv_segexport_bin.vhdr",package="eeguana"), .recording = "bv2")
 
 test_that("seg matches", {
-  expect_equal(seg_ascii_bv2$.signal,seged_ascii$.signal)
+    expect_equal(seg_ascii_bv2$.signal,seged_ascii$.signal)
+    expect_equal(seg_ascii_bv2$.segments$segment,1:12)
+
   expect_equal(events_tbl(seg_ascii_bv2)[.type=="Stimulus"],events_tbl(seged_ascii))
-  expect_equal(seg_ascii_bv2$.segments,dplyr::select(seged_ascii$.segments,-.type,-.description))
+  expect_equal(seg_ascii_bv2$.segments,dplyr::select(seged_ascii$.segments,-type,-description))
 
   expect_equal(seg_bin_bv2$.signal,seged_bin$.signal)
   expect_equal(events_tbl(seg_bin_bv2)[.type=="Stimulus"],events_tbl(seged_bin))
-  expect_equal(seg_bin_bv2$.segments,dplyr::select(seged_bin$.segments,-.type,-.description))
+  expect_equal(seg_bin_bv2$.segments,dplyr::select(seged_bin$.segments,-type,-description))
 })
 

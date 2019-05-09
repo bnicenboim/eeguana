@@ -1,7 +1,6 @@
-#' @param signal_tbl 
-#'
-#' @param events 
-#' @param segments 
+#' @param .signal 
+#' @param .events 
+#' @param .segments 
 #'
 #' @noRd
 new_eeg_lst <- function(.signal = NULL, .events = NULL, .segments = NULL) {

@@ -92,14 +92,19 @@ eeg_segment.eeg_lst <- function(.data, ..., lim = c(-.5, .5), end, unit = "s") {
 
   message(paste0("# Total of ", max(.data$.signal$.id), " segments found."))
 
+  #remove the . from the segments so that it's clear that it's not protected
+  data.table::setnames(times0,-1, stringr::str_remove(colnames(times0)[-1],"^\\."))
+  
   .data$.segments <- dplyr::right_join(.data$.segments,
-                dplyr::select(times0, -.first_sample), by = ".id") %>%
+                dplyr::select(times0, -first_sample), by = ".id") %>%
                 dplyr::mutate(.id = 1:n()) 
 
+  
   if(!is.null(.data$.segments$.recording) && !is.na(.data$.segments$.recording)){
   .data$.segments <- .data$.segments %>% dplyr::group_by(.recording) %>%
                     dplyr::mutate(segment = 1:n()) %>%
                     dplyr::ungroup()
+  
   } 
 
   message(paste0(say_size(.data), " after segmentation."))

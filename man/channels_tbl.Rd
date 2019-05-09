@@ -2,24 +2,12 @@
 % Please edit documentation in R/tbl.R
 \name{channels_tbl}
 \alias{channels_tbl}
-\alias{channels_tbl.eeg_lst}
-\alias{channels_tbl.data.frame}
 \alias{channels_tbl<-}
-\alias{channels_tbl<-.eeg_lst}
-\alias{channels_tbl<-.data.frame}
 \title{Functions to get or set the channel information of an eeg_lst object.}
 \usage{
 channels_tbl(.data, ...)
 
-\method{channels_tbl}{eeg_lst}(.data, ...)
-
-\method{channels_tbl}{data.frame}(.data, ...)
-
 channels_tbl(.data) <- value
-
-\method{channels_tbl}{eeg_lst}(.data) <- value
-
-\method{channels_tbl}{data.frame}(.data) <- value
 }
 \arguments{
 \item{.data}{An eeg_lst object.}
