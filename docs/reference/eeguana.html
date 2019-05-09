@@ -39,11 +39,15 @@
 
 <meta property="og:title" content="eeguana: A package for flexible manipulation of EEG data. — eeguana" />
 
-<meta property="og:description" content="The eeguana package provides functions that can be used on already pre-processed (i.e.,
-filtering, artifact rejects, ICA, etc has already been done) EEG files (at least for now).
-The package mainly provides dplyr-like functions to manipulate the EEG data, and ggplot wrapper functions." />
-
-<meta property="og:image" content="/logo.png" />
+<meta property="og:description" content="The package eeguana provides a framework for doing simple pre-processing
+with specialized functions (starting with eeg_ and ch_) and manipulating
+EEG data with dplyr verbs (e.g., mutate, filter, summarize) extended to a
+new class eeg_lst, and ggplot wrapper functions.  The new class is inspired by
+tidyverse principles but it's not really &quot;tidy&quot; (due to space considerations),
+it's a list of (i) a wide table that contains the signal amplitudes at every sample
+point of the EEG,  (ii) an events table with information about markers (or triggers),
+blinks and other exported information, and (iii) a long table with experimental information,
+such as participant (recording), conditions, etc." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -74,7 +78,7 @@ The package mainly provides dplyr-like functions to manipulate the EEG data, and
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.7.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.9000</span>
       </span>
     </div>
 
@@ -135,9 +139,15 @@ The package mainly provides dplyr-like functions to manipulate the EEG data, and
 
     <div class="ref-description">
     
-    <p>The eeguana package provides functions that can be used on already pre-processed (i.e.,
-filtering, artifact rejects, ICA, etc has already been done) EEG files (at least for now).
-The package mainly provides dplyr-like functions to manipulate the EEG data, and ggplot wrapper functions.</p>
+    <p>The package <em>eeguana</em> provides a framework for doing simple pre-processing
+with specialized functions (starting with <code>eeg_</code> and <code>ch_</code>) and manipulating
+EEG data with <em>dplyr</em> verbs (e.g., <code>mutate</code>, <code>filter</code>, <code>summarize</code>) extended to a
+new class <code>eeg_lst</code>, and <code>ggplot</code> wrapper functions.  The new class is inspired by
+tidyverse principles but it's not really "tidy" (due to space considerations),
+it's a list of (i) a wide table that contains the signal amplitudes at every sample
+point of the EEG,  (ii) an events table with information about markers (or triggers),
+blinks and other exported information, and (iii) a long table with experimental information,
+such as participant (<code>recording</code>), conditions, etc.</p>
     
     </div>
 

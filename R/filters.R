@@ -5,11 +5,12 @@
 #' * `eeg_filt_low_pass()` Low-pass or high-cut filter.
 #' * `eeg_filt_high_pass()` High-pass or low-cut filter.
 #' * `eeg_filt_band_pass()` Band-pass filter.
-#' * `eeg_filt_stop_pass()` Stop-pass filter.
+#' * `eeg_filt_band_stop()` Band-stop filter.
 #'
 #'
 #' @param .data A channel or an eeg_lst.
-#' @param freq A single cut frequency for `eeg_filt_low_pass` and `eeg_filt_high_pass`, two edges for  `eeg_filt_band_pass` and `eeg_filt_stop_pass`.
+#' @param freq A single cut frequency for `eeg_filt_low_pass` and `eeg_filt_high_pass`, two edges for
+#'   `eeg_filt_band_pass` and `eeg_filt_band_stop`.
 #' @param ... Channels to apply the filters to. All the channels by default.
 #' @param config Other parameters passed in a list to the ICA method. (Not implemented)
 #'

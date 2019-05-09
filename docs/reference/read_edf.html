@@ -40,8 +40,6 @@
 <meta property="og:title" content="Read an edf/edf+/bdf file into R — read_edf" />
 
 <meta property="og:description" content="Creates an eeg_lst object from edf, edf+, and bdf file export formats." />
-
-<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -72,7 +70,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.7.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.9000</span>
       </span>
     </div>
 
@@ -137,7 +135,7 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>read_edf</span>(<span class='no'>file</span>, <span class='kw'>recording</span> <span class='kw'>=</span> <span class='no'>file</span>)</pre>
+    <pre class="usage"><span class='fu'>read_edf</span>(<span class='no'>file</span>, <span class='kw'>.recording</span> <span class='kw'>=</span> <span class='no'>file</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -147,8 +145,8 @@
       <td><p>A edf/bdf file</p></td>
     </tr>
     <tr>
-      <th>recording</th>
-      <td><p>Recording name (file name, by default). If set to NULL or NA, the patient name will be used.</p></td>
+      <th>.recording</th>
+      <td><p>.Recording name (file name, by default). If set to NULL or NA, the patient name will be used.</p></td>
     </tr>
     </table>
     
@@ -163,7 +161,7 @@
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><span class='co'># NOT RUN {</span>
-<span class='no'>s1</span> <span class='kw'>&lt;-</span> <span class='fu'>read_edf</span>(<span class='st'>"./faces.edf"</span>, <span class='kw'>recording</span> <span class='kw'>=</span> <span class='fl'>1</span>)
+<span class='no'>s1</span> <span class='kw'>&lt;-</span> <span class='fu'>read_edf</span>(<span class='st'>"./faces.edf"</span>, <span class='kw'>.recording</span> <span class='kw'>=</span> <span class='fl'>1</span>)
 <span class='co'># }</span><div class='input'>
 </div></pre>
   </div>

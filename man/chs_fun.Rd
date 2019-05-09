@@ -7,18 +7,16 @@
 \alias{chs_fun.eeg_lst}
 \title{Get the by-sample (or by-row) function of the specified channels.}
 \usage{
-chs_fun(x, .funs, ...)
+chs_fun(x, .f, ...)
 
-\method{chs_fun}{channel_dbl}(..., .funs, pars = list())
+\method{chs_fun}{channel_dbl}(..., .f, pars = list())
 
-\method{chs_fun}{character}(..., .funs, pars = list())
+\method{chs_fun}{character}(..., .f, pars = list())
 
-\method{chs_fun}{eeg_lst}(x, .funs, pars = list(), ...)
+\method{chs_fun}{eeg_lst}(x, .f, pars = list(), ...)
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
-
-\item{.funs}{A function \code{fun}, a quosure style lambda \code{~ fun(.)} or a list of either form.}
 
 \item{...}{A channel or a group of unquoted or quoted channels (if an \code{eeg_lst} is not specified).}
 

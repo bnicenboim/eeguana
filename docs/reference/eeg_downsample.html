@@ -43,8 +43,6 @@
 This is a wrapper for decimate from the
 signal package, see its documentation for details. Notice that
 the code of the signal package might be outdated." />
-
-<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -75,7 +73,7 @@ the code of the signal package might be outdated." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.7.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.9000</span>
       </span>
     </div>
 
@@ -143,14 +141,14 @@ the code of the signal package might be outdated.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>eeg_downsample</span>(<span class='no'>x</span>, <span class='kw'>q</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>max_sample</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='kw'>if</span> (<span class='no'>ftype</span> <span class='kw'>==</span> <span class='st'>"iir"</span>) <span class='fl'>8</span>
-  <span class='kw'>else</span> <span class='fl'>30</span>, <span class='kw'>ftype</span> <span class='kw'>=</span> <span class='st'>"iir"</span>, <span class='kw'>multiple_times</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>eeg_downsample</span>(<span class='no'>.data</span>, <span class='kw'>q</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>max_sample</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='kw'>if</span> (<span class='no'>ftype</span> <span class='kw'>==</span>
+  <span class='st'>"iir"</span>) <span class='fl'>8</span> <span class='kw'>else</span> <span class='fl'>30</span>, <span class='kw'>ftype</span> <span class='kw'>=</span> <span class='st'>"iir"</span>, <span class='kw'>multiple_times</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
+      <th>.data</th>
       <td><p>An eeg_lst object.</p></td>
     </tr>
     <tr>

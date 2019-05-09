@@ -81,9 +81,9 @@ using these two triggers.
 
 ```{r}
 faces_segs <- faces %>% 
-               eeg_segment(description %in% c("s70", "s71"), 
+               eeg_segment(.description %in% c("s70", "s71"), 
                         lim = c(-.2,.25)) %>%
-               eeg_intervals_to_NA(type == "Bad Interval") %>% 
+               eeg_events_to_NA(.type == "Bad Interval") %>% 
                ch_baseline()
 ```
 
@@ -94,8 +94,8 @@ We can also edit the segmentation information and add more descriptive labels.
 ```{r}
 faces_segs_some <- faces_segs %>%  
                   mutate(condition =
-                  if_else(description == "s70", "faces", "non-faces")) %>% 
-                  select(-type)
+                  if_else(.description == "s70", "faces", "non-faces")) %>% 
+                  select(-.type)
 
 faces_segs_some
 ```
@@ -122,7 +122,7 @@ first making segments that include only the interval .1-.2 *s* after the onset
 of the stimuli, creating a table with interpolated amplitudes and using the ggplot wrapper `plot_topo`.
 
 ```{r topo, fig.dim = c(10,5), out.width = "100%", results = "hide"}
-faces_segs_some %>% filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) %>% 
+faces_segs_some %>% filter(between(as_time(.sample, unit = "milliseconds"),100,200)) %>% 
                     group_by(condition) %>%
                     summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
                     plot_topo() +

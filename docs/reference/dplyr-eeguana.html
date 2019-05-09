@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Dplyr functions for manipulating eeg_lst objects. — dplyr-eeguana • eeguana</title>
+<title>Dplyr verbs overloaded for manipulating eeg_lst objects. — dplyr-eeguana • eeguana</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -37,11 +37,9 @@
 
 
 
-<meta property="og:title" content="Dplyr functions for manipulating eeg_lst objects. — dplyr-eeguana" />
+<meta property="og:title" content="Dplyr verbs overloaded for manipulating eeg_lst objects. — dplyr-eeguana" />
 
-<meta property="og:description" content="Manipulate the signal_tbl and the segments table of an eeg_lst." />
-
-<meta property="og:image" content="/logo.png" />
+<meta property="og:description" content="Manipulate the signal table and the segments table of an eeg_lst." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -72,7 +70,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.7.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.9000</span>
       </span>
     </div>
 
@@ -126,14 +124,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Dplyr functions for manipulating eeg_lst objects.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/dplyr.R'><code>R/dplyr.R</code></a></small>
+    <h1>Dplyr verbs overloaded for manipulating eeg_lst objects.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/dplyr_verbs.R'><code>R/dplyr_verbs.R</code></a></small>
     <div class="hidden name"><code>dplyr-eeguana.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Manipulate the signal_tbl and the segments table of an eeg_lst.</p>
+    <p>Manipulate the signal table and the segments table of an eeg_lst.</p>
     
     </div>
 
@@ -187,7 +185,7 @@
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>Wrappers for <a href='https://dplyr.tidyverse.org/reference/dplyr-package.html'>dplyr</a>'s commands that act on different parts
-<code>eggble</code> objects.
+<code>eeg_lst</code> objects.
 The following wrappers have been implemented for <code>eeg_lst</code> objects:</p><ul>
 <li><p><code>mutate()</code> adds new variables and preserves existing ones. Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.</p></li>
 <li><p><code>transmute()</code> like <code>mutate</code> but drops non-used variables of the referred table, except for the obligatory columns starting with <code>.</code>.</p></li>
@@ -198,18 +196,51 @@ The following wrappers have been implemented for <code>eeg_lst</code> objects:</
 <li><p><code>select()</code> keeps only the mentioned variables from the referred table, except for the obligatory columns starting with <code>.</code>.</p></li>
 <li><p><code>rename()</code>: keeps all variables.</p></li>
 </ul>
-    <p>These commands always return the entire eeg_lst so that
+    <p>In addition, <code>_at()</code>, and <code>_if()</code> versions of these verbs work as well. Notice that  <code>_at()</code> versions are much faster than <code>_if()</code> versions of these commands.</p>
+<p>These functions always return the entire <code>eeg_lst</code> so that
 they can be ' piped using <a href='https://www.rdocumentation.org/packages/magrittr/topics/magrittr'>magrittr</a> 's pipe, <!-- %&gt;%. --></p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>join, summarize_at_ch, summarize_all_ch, bind for the extended dplyr-like functions.</p>
-<p>Other dplyr functions: <code>summarize_ch</code></p></div>
+    <div class='dont-index'><p>join, bind for the extended dplyr-like functions.</p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><span class='co'># NOT RUN {</span>
-<span class='no'>faces_segs</span> <span class='kw'>%&gt;%</span> <span class='fu'>select</span>(<span class='no'>O1</span>, <span class='no'>O2</span>, <span class='no'>P7</span>, <span class='no'>P8</span>)
+<span class='co'># Create new channel in the signal table</span>
+<span class='no'>data_faces_ERPs</span> <span class='kw'>%&gt;%</span>
+    <span class='fu'>mutate</span>(<span class='kw'>tmp</span> <span class='kw'>=</span> <span class='no'>Fz</span> - <span class='no'>Cz</span>)
+
+<span class='co'># Create a new condition in the segments table</span>
+<span class='no'>data_faces_ERPs</span> <span class='kw'>%&gt;%</span>
+    <span class='fu'>mutate</span>(<span class='kw'>code</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/ifelse'>ifelse</a></span>(<span class='no'>condition</span> <span class='kw'>==</span> <span class='st'>"faces"</span>, <span class='fl'>1</span>, -<span class='fl'>1</span>))
+
+<span class='co'># Create a new channel and drop all others</span>
+<span class='no'>data_faces_ERPs</span> <span class='kw'>%&gt;%</span>
+    <span class='fu'>transmute</span>(<span class='kw'>Occipital</span> <span class='kw'>=</span> <span class='fu'>chs_mean</span>(<span class='no'>O1</span>, <span class='no'>O2</span>, <span class='no'>Oz</span>,
+              <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>))
+
+<span class='co'># Extract data associated with a condition</span>
+<span class='no'>data_faces_ERPs</span> <span class='kw'>%&gt;%</span>
+    <span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/filter'>filter</a></span>(<span class='no'>condition</span> <span class='kw'>==</span> <span class='st'>"faces"</span>)
+
+<span class='co'># Group and summarize </span>
+<span class='no'>data_faces_ERPs</span> <span class='kw'>%&gt;%</span>
+    <span class='co'># Convert samples to times, filter between timepoints</span>
+    <span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/filter'>filter</a></span>(<span class='fu'>between</span>(<span class='fu'>as_time</span>(<span class='no'>.sample</span>, <span class='kw'>unit</span> <span class='kw'>=</span> <span class='st'>"ms"</span>),
+           <span class='fl'>100</span>, <span class='fl'>200</span>)) <span class='kw'>%&gt;%</span>
+    <span class='co'># Find mean amplitude of Fz for each condition</span>
+    <span class='fu'>group_by</span>(<span class='no'>condition</span>) <span class='kw'>%&gt;%</span>
+    <span class='fu'>summarize</span>(<span class='kw'>mean.amplitude</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/mean'>mean</a></span>(<span class='no'>Fz</span>))
+
+<span class='co'># Select specific electrodes</span>
+<span class='no'>data_faces_ERPs</span> <span class='kw'>%&gt;%</span>
+    <span class='fu'>select</span>(<span class='no'>O1</span>, <span class='no'>O2</span>, <span class='no'>P7</span>, <span class='no'>P8</span>)
+
+<span class='co'># Rename a variable</span>
+<span class='no'>data_faces_ERPs</span> <span class='kw'>%&gt;%</span>
+    <span class='fu'>rename</span>(<span class='kw'>Predictor</span> <span class='kw'>=</span> <span class='no'>condition</span>)
+
 <span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

@@ -39,9 +39,6 @@
 
 <meta property="og:title" content="Function reference" />
 
-<meta property="og:image" content="/logo.png" />
-<meta name="twitter:card" content="summary" />
-
 
 
 <!-- mathjax -->
@@ -70,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.7.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.9000</span>
       </span>
     </div>
 
@@ -187,7 +184,7 @@
         <td>
           <p><code><a href="dplyr-eeguana.html">mutate(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">transmute(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">filter(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">summarise(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">group_by(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">ungroup(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">groups(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">group_vars(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">select(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr-eeguana.html">rename(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
         </td>
-        <td><p>Dplyr functions for manipulating eeg_lst objects.</p></td>
+        <td><p>Dplyr verbs overloaded for manipulating eeg_lst objects.</p></td>
       </tr><tr>
         
         <td>
@@ -200,12 +197,6 @@
           <p><code><a href="bind.html">bind()</a></code> </p>
         </td>
         <td><p>Bind eeg_lst objects.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="summarize_ch.html">summarize_at_ch()</a></code> <code><a href="summarize_ch.html">summarize_all_ch()</a></code> <code><a href="summarize_ch.html">summarise_at_ch()</a></code> <code><a href="summarize_ch.html">summarise_all_ch()</a></code> </p>
-        </td>
-        <td><p>Summarize multiple channels</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -243,9 +234,9 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="eeguana-deprecated.html">downsample()</a></code> <code><a href="eeguana-deprecated.html">segment()</a></code> <code><a href="eeguana-deprecated.html">interpolate_tbl()</a></code> <code><a href="eeguana-deprecated.html">event_to_ch_NA()</a></code> <code><a href="eeguana-deprecated.html">eeg_intervals_to_NA()</a></code> <code><a href="eeguana-deprecated.html">ch_filt_low_pass()</a></code> <code><a href="eeguana-deprecated.html">ch_filt_high_pass()</a></code> <code><a href="eeguana-deprecated.html">ch_filt_band_pass()</a></code> <code><a href="eeguana-deprecated.html">ch_filt_stop_pass()</a></code> <code><a href="eeguana-deprecated.html">events()</a></code> <code><a href="eeguana-deprecated.html">`events<-`()</a></code> </p>
+          <p><code><a href="eeguana-defunct.html">downsample()</a></code> <code><a href="eeguana-defunct.html">segment()</a></code> <code><a href="eeguana-defunct.html">interpolate_tbl()</a></code> <code><a href="eeguana-defunct.html">event_to_ch_NA()</a></code> <code><a href="eeguana-defunct.html">eeg_intervals_to_NA()</a></code> <code><a href="eeguana-defunct.html">ch_filt_low_pass()</a></code> <code><a href="eeguana-defunct.html">ch_filt_high_pass()</a></code> <code><a href="eeguana-defunct.html">ch_filt_band_pass()</a></code> <code><a href="eeguana-defunct.html">ch_filt_stop_pass()</a></code> <code><a href="eeguana-defunct.html">events()</a></code> <code><a href="eeguana-defunct.html">`events<-`()</a></code> <code><a href="eeguana-defunct.html">summarize_all_ch()</a></code> <code><a href="eeguana-defunct.html">summarize_at_ch()</a></code> <code><a href="eeguana-defunct.html">summarise_all_ch()</a></code> <code><a href="eeguana-defunct.html">summarise_at_ch()</a></code> <code><a href="eeguana-defunct.html">plot_gg()</a></code> </p>
         </td>
-        <td><p>Deprecated functions in eeguana</p></td>
+        <td><p>Defunct functions in eeguana</p></td>
       </tr><tr>
         
         <td>
@@ -271,7 +262,7 @@
         <td>
           <p><code><a href="eeg_artif.html">eeg_artif_minmax()</a></code> <code><a href="eeg_artif.html">eeg_artif_step()</a></code> <code><a href="eeg_artif.html">eeg_artif_amplitude()</a></code> </p>
         </td>
-        <td><p>Annotate artifacts in the  events table of an eeg_lst.</p></td>
+        <td><p>Detect artifacts and add them in the events table of an eeg_lst.</p></td>
       </tr><tr>
         
         <td>
@@ -317,9 +308,9 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="eeguana-deprecated.html">downsample()</a></code> <code><a href="eeguana-deprecated.html">segment()</a></code> <code><a href="eeguana-deprecated.html">interpolate_tbl()</a></code> <code><a href="eeguana-deprecated.html">event_to_ch_NA()</a></code> <code><a href="eeguana-deprecated.html">eeg_intervals_to_NA()</a></code> <code><a href="eeguana-deprecated.html">ch_filt_low_pass()</a></code> <code><a href="eeguana-deprecated.html">ch_filt_high_pass()</a></code> <code><a href="eeguana-deprecated.html">ch_filt_band_pass()</a></code> <code><a href="eeguana-deprecated.html">ch_filt_stop_pass()</a></code> <code><a href="eeguana-deprecated.html">events()</a></code> <code><a href="eeguana-deprecated.html">`events<-`()</a></code> </p>
+          <p><code><a href="eeguana-defunct.html">downsample()</a></code> <code><a href="eeguana-defunct.html">segment()</a></code> <code><a href="eeguana-defunct.html">interpolate_tbl()</a></code> <code><a href="eeguana-defunct.html">event_to_ch_NA()</a></code> <code><a href="eeguana-defunct.html">eeg_intervals_to_NA()</a></code> <code><a href="eeguana-defunct.html">ch_filt_low_pass()</a></code> <code><a href="eeguana-defunct.html">ch_filt_high_pass()</a></code> <code><a href="eeguana-defunct.html">ch_filt_band_pass()</a></code> <code><a href="eeguana-defunct.html">ch_filt_stop_pass()</a></code> <code><a href="eeguana-defunct.html">events()</a></code> <code><a href="eeguana-defunct.html">`events<-`()</a></code> <code><a href="eeguana-defunct.html">summarize_all_ch()</a></code> <code><a href="eeguana-defunct.html">summarize_at_ch()</a></code> <code><a href="eeguana-defunct.html">summarise_all_ch()</a></code> <code><a href="eeguana-defunct.html">summarise_at_ch()</a></code> <code><a href="eeguana-defunct.html">plot_gg()</a></code> </p>
         </td>
-        <td><p>Deprecated functions in eeguana</p></td>
+        <td><p>Defunct functions in eeguana</p></td>
       </tr><tr>
         
         <td>
@@ -337,15 +328,15 @@
       <tr>
         
         <td>
-          <p><code><a href="plot.eeg_lst.html">plot(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
+          <p><code><a href="eeguana-defunct.html">downsample()</a></code> <code><a href="eeguana-defunct.html">segment()</a></code> <code><a href="eeguana-defunct.html">interpolate_tbl()</a></code> <code><a href="eeguana-defunct.html">event_to_ch_NA()</a></code> <code><a href="eeguana-defunct.html">eeg_intervals_to_NA()</a></code> <code><a href="eeguana-defunct.html">ch_filt_low_pass()</a></code> <code><a href="eeguana-defunct.html">ch_filt_high_pass()</a></code> <code><a href="eeguana-defunct.html">ch_filt_band_pass()</a></code> <code><a href="eeguana-defunct.html">ch_filt_stop_pass()</a></code> <code><a href="eeguana-defunct.html">events()</a></code> <code><a href="eeguana-defunct.html">`events<-`()</a></code> <code><a href="eeguana-defunct.html">summarize_all_ch()</a></code> <code><a href="eeguana-defunct.html">summarize_at_ch()</a></code> <code><a href="eeguana-defunct.html">summarise_all_ch()</a></code> <code><a href="eeguana-defunct.html">summarise_at_ch()</a></code> <code><a href="eeguana-defunct.html">plot_gg()</a></code> </p>
         </td>
-        <td><p>Create a basic signal plot</p></td>
+        <td><p>Defunct functions in eeguana</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="plot_gg.html">plot_gg()</a></code> </p>
+          <p><code><a href="plot.eeg_lst.html">plot(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
         </td>
-        <td><p>Create an ERP plot</p></td>
+        <td><p>Create a basic signal plot</p></td>
       </tr><tr>
         
         <td>
@@ -496,12 +487,6 @@ This function returns  TRUE for signals.</p></td>
           <p><code><a href="eeg_lst.html">eeg_lst()</a></code> </p>
         </td>
         <td><p>Create an eeg_lst</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="ica_lst.html">ica_lst()</a></code> </p>
-        </td>
-        <td><p>Builds an eeg_lst.</p></td>
       </tr><tr>
         
         <td>

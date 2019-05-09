@@ -9,7 +9,7 @@
 #'  * 'ch_filt_low_pass()' should be changed to 'eeg_filt_low_pass()'.
 #'  * 'ch_filt_high_pass()' should be changed to 'eeg_filt_high_pass()'.
 #'  * 'ch_filt_band_pass()' should be changed to 'eeg_filt_band_pass()'.
-#'  * 'ch_filt_stop_pass()' should be changed to 'eeg_filt_stop_pass()'.
+#'  * 'ch_filt_stop_pass()' should be changed to 'eeg_filt_band_stop()'.
 #'  * 'events()' should be changed to 'events_tbl()'.
 #'  * 'plot_gg()' should be changed to 'ggplot(aes(x=.time, y=.value))'.
 #'  * 'summarize_all_ch(...)' should be changed to `summarize_at(channel_names(.),...)`.
@@ -71,10 +71,10 @@ ch_filt_band_pass <- function(x, ...) {
 }
 
 #' @rdname eeguana-defunct
-#' @inheritParams eeg_filt_stop_pass
+#' @inheritParams eeg_filt_band_stop
 #' @export
 ch_filt_stop_pass <- function(x, ...) {
-    .Defunct("eeg_filt_stop_pass")
+    .Defunct("eeg_filt_band_stop")
 }
 
 #' @rdname eeguana-defunct

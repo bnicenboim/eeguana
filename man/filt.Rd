@@ -25,7 +25,8 @@ eeg_filt_band_stop(.data, ..., freq = NULL, config = list(),
 
 \item{...}{Channels to apply the filters to. All the channels by default.}
 
-\item{freq}{A single cut frequency for \code{eeg_filt_low_pass} and \code{eeg_filt_high_pass}, two edges for  \code{eeg_filt_band_pass} and \code{eeg_filt_stop_pass}.}
+\item{freq}{A single cut frequency for \code{eeg_filt_low_pass} and \code{eeg_filt_high_pass}, two edges for
+\code{eeg_filt_band_pass} and \code{eeg_filt_band_stop}.}
 
 \item{config}{Other parameters passed in a list to the ICA method. (Not implemented)}
 }
@@ -40,7 +41,7 @@ Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter of the  F
 \item \code{eeg_filt_low_pass()} Low-pass or high-cut filter.
 \item \code{eeg_filt_high_pass()} High-pass or low-cut filter.
 \item \code{eeg_filt_band_pass()} Band-pass filter.
-\item \code{eeg_filt_stop_pass()} Stop-pass filter.
+\item \code{eeg_filt_band_stop()} Band-stop filter.
 }
 }
 \examples{
