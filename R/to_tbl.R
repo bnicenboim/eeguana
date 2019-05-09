@@ -37,7 +37,6 @@ as.data.table.eeg_lst <- function(x, unit = "s") {
 #' @inheritParams as.data.table.eeg_lst
 #' @return A [`tibble`][tibble::tibble]
 #'
-#' @importFrom magrittr %>%
 #'
 #' @family tibble
 #'
@@ -77,7 +76,6 @@ as_data_frame.eeg_lst <- as_tibble.eeg_lst
 #'
 #' @return A tibble.
 #'
-#' @importFrom magrittr %>%
 #'
 #' @family tibble
 #' @export

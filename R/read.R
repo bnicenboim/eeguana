@@ -27,7 +27,6 @@
 #' }
 #' 
 #' @family read
-#' @importFrom magrittr %>%
 #'
 #' @export
 read_vhdr <- function(file, sep = .type == "New Segment", zero = .type == "Time 0",
@@ -115,7 +114,6 @@ read_vhdr <- function(file, sep = .type == "New Segment", zero = .type == "Time 
 #' 
 #' @family read
 #' 
-#' @importFrom magrittr %>%
 #'
 #' @export
 read_ft <- function(file, layout = NULL, .recording = file) {

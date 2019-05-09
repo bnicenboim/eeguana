@@ -20,6 +20,8 @@ A layer for a ggplot
 Adds the outline of a head and nose to a ggplot.
 }
 \examples{
+library(dplyr)
+library(ggplot2)
 
 data_faces_ERPs \%>\% 
     filter(between(as_time(.sample, unit = "milliseconds"),100,200)) \%>\% 

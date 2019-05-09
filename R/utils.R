@@ -2,6 +2,28 @@
 
 #mu_raw <- list(charToRaw("μ"), charToRaw("µ"))
 
+#' Pipe operator
+#'
+#' See \code{magrittr::\link[magrittr]{\%>\%}} for details.
+#'
+#' @name %>%
+#' @rdname pipe
+#' @keywords internal
+#' @export
+#' @importFrom magrittr %>%
+#' @usage lhs \%>\% rhs
+NULL
+
+#' := operator
+#'
+#'
+#' @name :=
+#' @rdname set
+#' @noRd
+#' @keywords internal
+#' @importFrom data.table :=
+NULL
+
 #' Unique columns of signal and segments tables.
 #' @noRd
 col_names_main <- function(.eeg_lst) {

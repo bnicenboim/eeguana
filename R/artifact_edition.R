@@ -16,7 +16,6 @@
 #' @inheritParams as_time
 #' @return An `eeg_lst`.
 #'
-#' @importFrom magrittr %>%
 #'
 #' @name eeg_artif
 #' 
@@ -125,7 +124,6 @@ eeg_artif_amplitude.eeg_lst <- function(.data,...,
 #'
 #' @return An eeg_lst.
 #'
-#' @importFrom magrittr %>%
 #'
 #' @export
 eeg_events_to_NA <- function(x, ...) {

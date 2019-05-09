@@ -143,20 +143,15 @@ validate_events_tbl <- function(events) {
 }
 
 
-#' @export
 filter.events_tbl <- function(.data, ..., preserve = FALSE){
   as_events_tbl(NextMethod(), sampling_rate(.data))
 }
-#' @export
 mutate.events_tbl <- function(.data, ...){
     as_events_tbl(NextMethod(), sampling_rate(.data))
 }
-#' @export
 transmute.events_tbl <- function(.data, ...){
     as_events_tbl(NextMethod(), sampling_rate(.data))
 }
-
-#' @export
-summarize.events_tbl <- function(.data, ...){
+summarise.events_tbl <- function(.data, ...){
     as_events_tbl(NextMethod(), sampling_rate(.data))
 }

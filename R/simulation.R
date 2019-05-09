@@ -5,7 +5,7 @@
 ##'
 ##' Reference:
 ##' Smith, J.O. Spectral Audio Signal Processing,
-##' [http://ccrma.stanford.edu/~jos/sasp/], online book,
+##' <http://ccrma.stanford.edu/~jos/sasp/>, online book,
 ##' 2011 edition.
 ##' 
 ##' @param n number of observations. 

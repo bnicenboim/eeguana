@@ -16,6 +16,10 @@ Depends:
     ggplot2 (>= 3.1.0),
     dplyr (>= 0.8.0)
 Imports:
+    ggplot2 (>= 3.1.0),
+    dplyr (>= 0.8.0),
+    ggplot2 (>= 3.1.0),
+    dplyr (>= 0.8.0),
     tidyr (>= 0.8.2),
     ini (>= 0.3.1),
     purrr (>= 0.2.5),

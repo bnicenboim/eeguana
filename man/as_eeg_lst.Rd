@@ -2,15 +2,15 @@
 % Please edit documentation in R/ica.R
 \name{as_eeg_lst}
 \alias{as_eeg_lst}
-\title{to.data object}
+\title{Transforms an object to a eeg_lst}
 \usage{
 as_eeg_lst(.data, ...)
 }
 \arguments{
-\item{.data}{}
+\item{.data}{An \code{eeg_ica_lst} and experimentally an MNE raw signal using \link[reticulate:reticulate]{reticulate::reticulate}.}
 
-\item{...}{}
+\item{...}{Not in use.}
 }
 \description{
-to.data object
+Transforms an object to a eeg_lst
 }

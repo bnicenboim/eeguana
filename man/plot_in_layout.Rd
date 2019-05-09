@@ -41,6 +41,8 @@ whole plot object, while other theme adjustments will be treated as applying
 to individual facets. x-axis and y-axis labels cannot be added at this stage.
 }
 \examples{
+library(ggplot2)
+library(dplyr)
 
 # Create a ggplot object with some grand averaged ERPs
 ERP_plot <- data_faces_ERPs \%>\% 
@@ -50,7 +52,7 @@ ERP_plot <- data_faces_ERPs \%>\%
    group_by(.sample, condition) \%>\%
    # compute averages
     summarize_at(channel_names(.), mean, na.rm = TRUE) \%>\%
-   plot_gg() + 
+   ggplot(aes(x = .time, y = .value)) + 
        # plot the averaged waveforms
        geom_line(aes(color = condition)) +
        # facet by channel

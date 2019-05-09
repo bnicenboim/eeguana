@@ -33,7 +33,6 @@
 #' plot(data_faces_ERPs) + 
 #'     coord_cartesian(ylim = c(-500,500))
 #' 
-#' @importFrom magrittr %>%
 #'
 #' @export
 plot.eeg_lst <- function(x, max_sample = 6400, ...) {
@@ -92,7 +91,8 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
 #' @return A ggplot object
 #' 
 #' @examples 
-#' 
+#' library(dplyr)
+#' library(ggplot2)
 #' # Calculate mean amplitude between 100-200 ms and plot the topography
 #' data_faces_ERPs %>% 
 #'     # select the time window of interest
@@ -247,6 +247,8 @@ plot_components.eeg_ica_lst <- function(data,  projection = "polar", ...) {
 #' 
 #' 
 #' @examples 
+#' library(ggplot2)
+#' library(dplyr)
 #' 
 #' # Create a ggplot object with some grand averaged ERPs
 #' ERP_plot <- data_faces_ERPs %>% 
@@ -256,7 +258,7 @@ plot_components.eeg_ica_lst <- function(data,  projection = "polar", ...) {
 #'    group_by(.sample, condition) %>%
 #'    # compute averages
 #'     summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
-#'    plot_gg() + 
+#'    ggplot(aes(x = .time, y = .value)) + 
 #'        # plot the averaged waveforms
 #'        geom_line(aes(color = condition)) +
 #'        # facet by channel
@@ -434,6 +436,8 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
 #' @return A layer for a ggplot
 #' 
 #' @examples
+#' library(dplyr)
+#' library(ggplot2)
 #' 
 #' data_faces_ERPs %>% 
 #'     filter(between(as_time(.sample, unit = "milliseconds"),100,200)) %>% 
@@ -482,7 +486,6 @@ annotate_events <- function(data=NULL, alpha = .2){
     structure(list(layer = layer), class = "layer_events")
 }
 
-#' @export
 ggplot_add.layer_events <- function(object, plot, object_name) {
     if(length(object$layer$data)==0) {
         events_tbl <- plot$data_events
@@ -552,7 +555,7 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
 #' x-axis and amplitude on the y-axis.
 #' 
 #' To add additional components to the plot such as titles and annotations, simply
-#' use the `+` symbol and add layers exactly as you would for `ggplot::ggplot`.
+#' use the `+` symbol and add layers exactly as you would for [ggplot::ggplot].
 #' 
 #' @param data An `eeg_lst` object.
 #' @inheritParams  ggplot2::ggplot
@@ -562,7 +565,8 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
 #' @return A ggplot object
 #' 
 #' @examples 
-#' 
+#' library(ggplot2)
+#' library(dplyr)
 #' # Plot grand averages for selected channels
 #' data_faces_ERPs %>% 
 #'   # select the desired electrodes
@@ -575,7 +579,6 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
 #'       facet_wrap(~ .key) + 
 #'       theme(legend.position = "bottom") 
 #'
-#' @export
 ggplot.eeg_lst <- function(data = NULL,
                            mapping = ggplot2::aes(),
                            ...,

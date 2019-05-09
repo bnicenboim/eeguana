@@ -106,7 +106,7 @@ eeg_ica.eeg_lst <- function(.data,
 }
 #' Add independent components (or sources) to the signal table for visualization.
 #' 
-#' @param data An eeg_ica_lst object
+#' @param .data An eeg_ica_lst object
 #' @param ... Components to extract from the mixing matrix of the ICA transformation.
 #' @family ICA functions
 #' @export
@@ -143,7 +143,7 @@ eeg_ica_show.eeg_ica_lst <- function(.data,...){
 #' 
 #' This function will transform the channels according to the indepent components that are kept or removed.
 #' 
-#' @param data An eeg_ica_lst object
+#' @param .data An eeg_ica_lst object
 #' @param ... Components to keep from the mixing matrix of the ICA transformation. See [dplyr::select] and [tidyselect::select_helpers] for details.
 #' @family ICA functions
 #' @export
@@ -189,21 +189,17 @@ eeg_ica_keep.eeg_ica_lst <- function(.data, ...){
       validate_eeg_lst(.data)
 } 
 
-#' to.data object
+#' Transforms an object to a eeg_lst
 #'
-#' @param .data 
-#' @param ... 
+#' @param .data An `eeg_ica_lst` and experimentally an MNE raw signal using [reticulate::reticulate].
+#' @param ... Not in use.
 #' 
 #' @export
 as_eeg_lst <- function(.data, ...){
     UseMethod("as_eeg_lst")
 }
 
-#' Transforms an object to a eeg_lst
-#'
-#' @param .data An `eeg_ica_lst` and experimentally an MNE raw signal using [reticulate::reticulate].
-#' @param ... Not in use.
-#' 
+
 #' @export
 as_eeg_lst.eeg_ica_lst <- function(.data, ...){
     eeg_lst(signal_tbl = .data$.signal, events_tbl = .data$.events, segments_tbl = .data$.segments)

@@ -11,7 +11,6 @@
 #'
 #' @return An `eeg_lst`.
 #'
-#' @importFrom magrittr %>%
 #'
 #' @export
 eeg_segment <- function(.data, ...) {

@@ -43,6 +43,7 @@ plot(data_faces_ERPs)
 plot(data_faces_ERPs) + 
     coord_cartesian(ylim = c(-500,500))
 
+
 }
 \seealso{
 Other plotting functions: \code{\link{annotate_events}},

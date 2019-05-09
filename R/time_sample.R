@@ -6,7 +6,6 @@
 #'
 #' @return A vector of times.
 #'
-#' @importFrom magrittr %>%
 #'
 #' @export
 as_time <- function(x, unit = "second") {
@@ -46,6 +45,6 @@ as_sample_int.numeric <- function(x,  sampling_rate = NULL, unit = "s", ...) {
     sample_int(samples, sampling_rate)
 }
 #' @export
-as_sample_int.sample_int <- function(x) {
+as_sample_int.sample_int <- function(x,...) {
     x
 }

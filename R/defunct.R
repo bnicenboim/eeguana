@@ -80,13 +80,13 @@ ch_filt_stop_pass <- function(x, ...) {
 #' @rdname eeguana-defunct
 #' @inheritParams events_tbl 
 #' @export
-events <- function(x,value, ...) {
+events <- function(x, ...) {
     .Defunct("events_tbl")
 }
 #' @rdname eeguana-defunct
 #' @inheritParams events_tbl 
 #' @export
-`events<-` <- function(x, ...) {
+`events<-` <- function(x,value) {
     .Defunct("events_tbl<-")
 }
 #' @rdname eeguana-defunct

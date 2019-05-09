@@ -1,5 +1,4 @@
 #' Helper function to read the dat files directly
-#' @importFrom magrittr %>%
 #' @noRd
 read_dat <- function(file, header_info = NULL, events = NULL,
                      .recording, sep, zero) {
@@ -182,7 +181,6 @@ segment_events <- function(events, .lower, .initial, .upper) {
 }
 
 
-#' @importFrom magrittr %>%
 
 read_vmrk <- function(file) {
   # Each entry looks like this in the vmrk file:
@@ -216,8 +214,6 @@ read_vmrk <- function(file) {
     }
     events
 }
-
-#' @importFrom magrittr %>%
 
 read_vhdr_metadata <- function(file) {
 

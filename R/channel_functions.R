@@ -53,7 +53,7 @@ chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
 #' Rereference a channel or group of channels.
 #'
 #' Notice that this function will update the channels one by one when used inside a mutate and not all at the same time.
-#' 
+#' @param .data An eeg_lst object.
 #' @param ref Character vector of channels that will be averaged as the reference.
 #' @inheritParams base::mean
 #' @param ... Channels to include. All the channels by default, but eye channels channels should be removed.
@@ -77,16 +77,16 @@ eeg_rereference.eeg_lst <- function(.data, ..., ref = NULL, na.rm = FALSE) {
     signal <- data.table::copy(.data$.signal)
     sel_ch <- sel_ch(.data,...)
     ref <- unlist(ref) #rlang::quos_auto_name(dots) %>% names()
-
+  
   #ref <- rowMeans(.data$.signal[,..ref], na.rm = na.rm)
-  reref <- function(x, ref){
-    x <- x - ref 
+  reref <- function(x, ref_value){
+    x <- x - ref_value 
     attributes(x)$.reference <- paste0(ref, collapse = ", ")
     x
   }
    # signal[, (ch_sel) := {ref= rowMeans()   ;lapply(.SD, reref, ref = ref)},.SDcols = c(ch_sel)]
     signal[, (sel_ch) := {ref= rowMeans(.SD);
-                          lapply(mget(sel_ch,inherits=TRUE), reref, ref = ref)},.SDcols = c(ref)]
+                          lapply(mget(sel_ch,inherits=TRUE), reref, ref_value = ref)},.SDcols = c(ref)]
   .data$.signal <- signal
   update_events_channels(.data) %>%  validate_eeg_lst()
 
@@ -158,8 +158,6 @@ chs_fun.eeg_lst <- function(x,.funs, pars = list(), ...) {
 #' @family channel
 #' @return An eeg_lst.
 #'
-#' @importFrom magrittr %>%
-#' @importFrom data.table :=
 #'
 #' @export
 ch_baseline <- function(x, ...) {

@@ -6,7 +6,6 @@
 #'
 #' @return An `eeg_lst` object.
 #'
-#' @importFrom magrittr %>%
 #'
 #' @export
 bind <- function(...) {

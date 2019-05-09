@@ -292,7 +292,6 @@ print.eeg_ica_lst <- function(x, ...){
 #'
 #' @return A tbl.
 #'
-#' @importFrom magrittr %>%
 #' @family summarize
 #'
 #' @examples

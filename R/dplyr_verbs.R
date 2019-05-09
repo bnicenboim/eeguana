@@ -24,7 +24,7 @@
 #' @param ... Name-value pairs of expressions; see [dplyr][dplyr::dplyr] for more help
 #' @param .preserve Not in use, for compatibility reasons.
 #' @param add Not in use, for compatibility reasons.
-#' @param drop When .drop = TRUE, empty groups are dropped. (FALSE by default.)
+#' @param .drop When .drop = TRUE, empty groups are dropped. (FALSE by default.)
 #' @return An eeg_lst object.
 #'
 #' @family dplyr functions
@@ -33,7 +33,7 @@
 #' 
 #' @examples
 #' \dontrun{
-#' 
+#' library(dplyr)
 #' # Create new channel in the signal table
 #' data_faces_ERPs %>%
 #'     mutate(tmp = Fz - Cz)

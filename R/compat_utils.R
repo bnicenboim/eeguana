@@ -6,6 +6,7 @@
   register_s3_method("dplyr", "tbl_vars", "eeg_lst")
 
   register_s3_method("dplyr", "filter", "eeg_lst")
+  register_s3_method("dplyr", "filter", "eeg_ica_lst")
   register_s3_method("dplyr", "summarise", "eeg_lst")
   register_s3_method("dplyr", "mutate", "eeg_lst")
   register_s3_method("dplyr", "transmute", "eeg_lst")
@@ -16,7 +17,13 @@
   register_s3_method("dplyr", "semi_join", "eeg_lst")
   register_s3_method("dplyr", "anti_join", "eeg_lst")
   register_s3_method("dplyr", "as_tibble", "eeg_lst")
+  
+  register_s3_method("dplyr", "filter", "events_tbl")
+  register_s3_method("dplyr", "mutate", "events_tbl")
+  register_s3_method("dplyr", "transmute", "events_tbl")
+  register_s3_method("dplyr", "summarise", "events_tbl")
   register_s3_method("dplyr", "as_data_frame", "eeg_lst")
+  register_s3_method("ggplot2", "ggplot", "eeg_lst")
   register_s3_method("data.table", "as.data.table", "eeg_lst")
 
   invisible()
