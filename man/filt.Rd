@@ -29,6 +29,8 @@ eeg_filt_band_stop(.data, ..., freq = NULL, config = list(),
 \code{eeg_filt_band_pass} and \code{eeg_filt_band_stop}.}
 
 \item{config}{Other parameters passed in a list to the ICA method. (Not implemented)}
+
+\item{na.rm}{=TRUE will set to NA the entire segment that contains an NA, otherwise the filter will stop with an error.}
 }
 \value{
 A channel or an eeg_lst.

@@ -39,6 +39,9 @@
 
 <meta property="og:title" content="Function reference" />
 
+<meta property="og:image" content="/logo.png" />
+<meta name="twitter:card" content="summary" />
+
 
 
 <!-- mathjax -->
@@ -142,9 +145,9 @@
       <tr>
         
         <td>
-          <p><code><a href="eeguana.html">eeguana</a></code> </p>
+          <p><code><a href="eeguana-package.html">eeguana-package</a></code> </p>
         </td>
-        <td><p>eeguana: A package for flexible manipulation of EEG data.</p></td>
+        <td><p>eeguana: A package for flexible manipulation of EEG data</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -284,6 +287,24 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="eeg_ica_cor_lst.html">eeg_ica_cor_lst()</a></code> </p>
+        </td>
+        <td><p>Show correlations between ICA sources and eye (EOG) electrodes.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="eeg_ica_keep.html">eeg_ica_keep()</a></code> </p>
+        </td>
+        <td><p>Select independent components (or sources) to keep.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="eeg_ica_show.html">eeg_ica_show()</a></code> </p>
+        </td>
+        <td><p>Add independent components (or sources) to the signal table for visualization.</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="eeg_interpolate_tbl.html">eeg_interpolate_tbl()</a></code> </p>
         </td>
         <td><p>Create a table with interpolated signals of an eeg_lst object.</p></td>
@@ -340,15 +361,27 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="plot_components.html">plot_components()</a></code> </p>
+        </td>
+        <td><p>Generates topographic plots of the components after running ICA on an eeg_lst</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="plot_in_layout.html">plot_in_layout()</a></code> </p>
         </td>
         <td><p>Arrange ERP plots according to scalp layout</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="plot_topo.html">plot_topo()</a></code> <code><a href="plot_topo.html">plot_components(<i>&lt;eeg_ica_lst&gt;</i>)</a></code> </p>
+          <p><code><a href="plot_topo.html">plot_topo()</a></code> </p>
         </td>
         <td><p>Create a topographic plot</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="annotate_events.html">annotate_events()</a></code> </p>
+        </td>
+        <td><p>Adds a layer with the events on top of a plot of an eeg_lst.</p></td>
       </tr><tr>
         
         <td>
@@ -374,7 +407,7 @@
         <td>
           <p><code><a href="as_eeg_lst.eeg_ica_lst.html">as_eeg_lst(<i>&lt;eeg_ica_lst&gt;</i>)</a></code> </p>
         </td>
-        <td><p>to.data object</p></td>
+        <td><p>Transforms an object to a eeg_lst</p></td>
       </tr><tr>
         
         <td>
@@ -464,7 +497,7 @@ This function returns  TRUE for signals.</p></td>
       <tr>
         
         <td>
-          <p><code><a href="events_tbl.html">events_tbl()</a></code> </p>
+          <p><code><a href="events_tbl.html">events_tbl()</a></code> <code><a href="events_tbl.html">`events_tbl<-`()</a></code> </p>
         </td>
         <td><p>Functions to get or set the events table of an eeg_lst object.</p></td>
       </tr><tr>

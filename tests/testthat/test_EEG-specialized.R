@@ -75,6 +75,11 @@ channels_tbl=    dplyr::tibble(
     ),
   segments_tbl = dplyr::tibble(.id = c(1L, 2L), .recording = "recording1", segment = c(1L, 2L))
 )
+baselines <- dplyr::summarize(dplyr::group_by(
+                                         dplyr::filter(as_tibble(data$.signal), .sample <= 0),
+                                         .id
+                                     ), bX = mean(X), bY = mean(Y))
+
 
 signal_with_baselines <- dplyr::left_join(as_tibble(data$.signal), baselines)
 signal_with_baselines$new_X <- signal_with_baselines$X - signal_with_baselines$bX

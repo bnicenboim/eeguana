@@ -15,8 +15,9 @@ eeg_ica <- function(.data, ...){
 #'   of N_samples by N_channels and/or `W` (unmixing matrix), consistent with the formulation
 #'    `X %*% W = S`.
 #' @param config Other parameters passed in a list to the ICA method. See the documentation of the relevant method.
-#' 
-#' @return An ica_lst object
+#' @param ignore Events that should be ignored in the ICA, set to NULL for not using the events table.
+#' @family ICA functions
+#' @return An eeg_ica_lst object
 #' @export
 eeg_ica.eeg_lst <- function(.data, 
                             ...,
@@ -39,7 +40,7 @@ eeg_ica.eeg_lst <- function(.data,
     dots <- rlang::enquos(...)
   ignore <- rlang::enquo(ignore)
 
-  if(!rlang::is_empty(ignore)){
+  if(!rlang::quo_is_null(ignore)){
   rejected_data <- eeg_events_to_NA(.data, !!ignore,
                                     all_chans = FALSE,
                                     entire_seg = FALSE,
@@ -103,7 +104,11 @@ eeg_ica.eeg_lst <- function(.data,
     message(paste0("# ICA took ",round(timing[[1]],2)," ",attributes(timing)$units))
    as_eeg_ica_lst(.data) 
 }
-
+#' Add independent components (or sources) to the signal table for visualization.
+#' 
+#' @param data An eeg_ica_lst object
+#' @param ... Components to extract from the mixing matrix of the ICA transformation.
+#' @family ICA functions
 #' @export
 eeg_ica_show <- function(.data, ...){
     UseMethod("eeg_ica_show")
@@ -134,6 +139,13 @@ eeg_ica_show.eeg_ica_lst <- function(.data,...){
     validate_eeg_lst(.data)
 }
 
+#' Select independent components (or sources) to keep.
+#' 
+#' This function will transform the channels according to the indepent components that are kept or removed.
+#' 
+#' @param data An eeg_ica_lst object
+#' @param ... Components to keep from the mixing matrix of the ICA transformation. See [dplyr::select] and [tidyselect::select_helpers] for details.
+#' @family ICA functions
 #' @export
 eeg_ica_keep <- function(.data, ...){
     UseMethod("eeg_ica_keep")
@@ -187,10 +199,10 @@ as_eeg_lst <- function(.data, ...){
     UseMethod("as_eeg_lst")
 }
 
-#' to.data object
+#' Transforms an object to a eeg_lst
 #'
-#' @param .data 
-#' @param ... 
+#' @param .data An `eeg_ica_lst` and experimentally an MNE raw signal using [reticulate::reticulate].
+#' @param ... Not in use.
 #' 
 #' @export
 as_eeg_lst.eeg_ica_lst <- function(.data, ...){

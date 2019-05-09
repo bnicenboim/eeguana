@@ -20,7 +20,7 @@
 #' @param x An `eeg_lst` object.
 #' @param max_sample Downsample to approximately 6400 samples by default.
 #' @param ... Not in use.
-#' @family plot
+#' @family plotting functions
 #' 
 #' @return A ggplot object
 #' 
@@ -52,34 +52,6 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
 
 
 
-## plot_gg <- function(.data, ...) {
-##   UseMethod("plot_gg")
-## }
-## #' @rdname plot_gg
-## #' @export
-## plot_gg.eeg_lst <- function(.data, x = .time, y = .value, ..., max_sample = 2400) {
-##   x <- rlang::enquo(x)
-##   y <- rlang::enquo(y)
-##   dots <- rlang::enquos(...)
-##    plot <- ggplot2::ggplot(.data, ggplot2::aes(x = !!x, y = !!y, !!!dots)) +
-##     ggplot2::scale_colour_brewer(type = "qual", palette = "Dark2") +
-##     theme_eeguana()
-##   plot
-## }
-
-## #' @export
-## plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
-##   dots <- rlang::enquos(...)
-##   x <- rlang::enquo(x)
-##   y <- rlang::enquo(y)
-##   plot <- ggplot2::ggplot(
-##     .data,
-##     ggplot2::aes(x = !!x, y = !!y, !!!dots)
-##   ) +
-##     ggplot2::scale_colour_brewer(type = "qual", palette = "Dark2") +
-##     theme_eeguana()
-##   plot
-## }
 
 
 #' Create a topographic plot
@@ -115,7 +87,7 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
 #' @param data A table of interpolated electrodes as produced by `eeg_interpolate_tbl`, or an `eeg_lst`, or `ica_lst` appropiately grouped. 
 #' @param ... If data are an `eeg_lst` or `ica_lst`, these are arguments passed to `eeg_interpolate_tbl`, such as, radius, size, etc.
 #'
-#' @family plot
+#' @family plotting functions
 #'
 #' @return A ggplot object
 #' 
@@ -127,7 +99,7 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
 #'     filter(between(as_time(.sample, unit = "milliseconds"),100,200)) %>% 
 #'     # compute mean amplitude per condition
 #'     group_by(condition) %>%
-#'     summarize_all_ch(mean, na.rm = TRUE) %>%
+#'     summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
 #'     plot_topo() +
 #'         # add a head and nose shape
 #'         annotate_head() + 
@@ -141,7 +113,7 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
 #' data_faces_ERPs %>% 
 #'     filter(between(as_time(.sample, unit = "milliseconds"),100,200)) %>% 
 #'     group_by(condition) %>%
-#'     summarize_all_ch(mean, na.rm = TRUE) %>%
+#'     summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
 #'     eeg_interpolate_tbl() %>%
 #'     plot_topo() +
 #'         annotate_head() + 
@@ -156,7 +128,7 @@ plot_topo <- function(data,  ...) {
 }
 #' @rdname plot_topo
 #' @export
-plot_topo.tbl_df <- function(data, value= .value,  label=.key) {
+plot_topo.tbl_df <- function(data, value= .value,  label=.key, ...) {
 
   value <- rlang::enquo(value)
   label <- rlang::enquo(label)
@@ -206,11 +178,21 @@ plot_topo.eeg_lst <- function(data, projection = "polar", ...) {
     plot_topo()
 }
 
+#' Generates topographic plots of the components after running ICA on an eeg_lst
+#' 
+#' Note that unlike [plot_topo], there is no need for faceting, or adding layers.
+#' 
+#' @param data An eeg_ica_lst
+#'
+#'
+#' @family plotting functions
+#' @family ICA functions
 #' @export
 plot_components <- function(data,  ...) {
   UseMethod("plot_components")
 }
-#' @rdname plot_topo
+#' @inheritParams plot_topo
+#' @rdname plot_components
 #' @export
 plot_components.eeg_ica_lst <- function(data,  projection = "polar", ...) {
     
@@ -260,7 +242,7 @@ plot_components.eeg_ica_lst <- function(data,  projection = "polar", ...) {
 #'
 #' @param plot A ggplot object with channels
 #'
-#' @family plot
+#' @family plotting functions
 #' @return A ggplot object
 #' 
 #' 
@@ -273,7 +255,7 @@ plot_components.eeg_ica_lst <- function(data,  projection = "polar", ...) {
 #'    # group by time point and condition
 #'    group_by(.sample, condition) %>%
 #'    # compute averages
-#'    summarize_all_ch(mean,na.rm=TRUE) %>%
+#'     summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
 #'    plot_gg() + 
 #'        # plot the averaged waveforms
 #'        geom_line(aes(color = condition)) +
@@ -448,7 +430,7 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
 #' @param size Size of the head
 #' @param color Color of the head
 #' @param stroke Line thickness
-#'
+#' @family plotting functions
 #' @return A layer for a ggplot
 #' 
 #' @examples
@@ -456,7 +438,7 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
 #' data_faces_ERPs %>% 
 #'     filter(between(as_time(.sample, unit = "milliseconds"),100,200)) %>% 
 #'     group_by(condition) %>%
-#'     summarize_all_ch(mean, na.rm = TRUE) %>%
+#'     summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
 #'     plot_topo() +
 #'     annotate_head(size = .9, color = "black", stroke = 1)
 #' 
@@ -475,6 +457,16 @@ annotate_head <- function(size = 1.1, color ="black", stroke=1) {
   
 } 
 
+#' Adds a layer with the events on top of a plot of an eeg_lst.
+#' 
+#' @param data The data to be displayed in this layer. There are three options:
+#'               * If NULL, the default, the events table is inherited from the plot data as specified
+#'               in the call to ggplot().
+#'               * An events table will override the plot events table data. 
+#'
+#' @param alpha new alpha level in 0,1.
+#' @return A [`ggplot`][ggplot2::ggplot] layer.
+#' @family plotting functions
 #' @export
 annotate_events <- function(data=NULL, alpha = .2){
     layer <- geom_rect(data=data, alpha = alpha,
@@ -562,11 +554,11 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
 #' To add additional components to the plot such as titles and annotations, simply
 #' use the `+` symbol and add layers exactly as you would for `ggplot::ggplot`.
 #' 
-#' @param .data An `eeg_lst` object.
+#' @param data An `eeg_lst` object.
 #' @inheritParams  ggplot2::ggplot
 #' @param max_sample Downsample to approximately 2400 samples by default.
 #'
-#' @family plot
+#' @family plotting functions
 #' @return A ggplot object
 #' 
 #' @examples 
@@ -604,6 +596,7 @@ ggplot.eeg_lst <- function(data = NULL,
 #'
 #' These are complete light themes based on [ggplot2::theme_bw()] which control all non-data display.
 #' @return A ggplot theme.
+#' @family plotting functions
 #' @name theme_eeguana
 NULL
 # > NULL

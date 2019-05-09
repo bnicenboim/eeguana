@@ -54,9 +54,9 @@ chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
 #'
 #' Notice that this function will update the channels one by one when used inside a mutate and not all at the same time.
 #' 
-#' @param ref Channels that will be averaged as the reference.
+#' @param ref Character vector of channels that will be averaged as the reference.
 #' @inheritParams base::mean
-#' @inheritParams eeg_artif 
+#' @param ... Channels to include. All the channels by default, but eye channels channels should be removed.
 #' @return An  eeg_lst with some channels re-referenced.
 #' @export
 #'
@@ -69,24 +69,24 @@ chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
 #' faces_segs %>% eeg_rereference(ref = c("M1", "M2"))
 #' }
 #' @export
-eeg_rereference <- function(.data, ..., ref_ch = NULL,na.rm= FALSE) {
+eeg_rereference <- function(.data, ..., ref = NULL,na.rm= FALSE) {
   UseMethod("eeg_rereference")
 }
 #' @export
-eeg_rereference.eeg_lst <- function(.data, ..., ref_ch = NULL, na.rm = FALSE) {
+eeg_rereference.eeg_lst <- function(.data, ..., ref = NULL, na.rm = FALSE) {
     signal <- data.table::copy(.data$.signal)
     sel_ch <- sel_ch(.data,...)
-    ref_ch <- unlist(ref_ch) #rlang::quos_auto_name(dots) %>% names()
+    ref <- unlist(ref) #rlang::quos_auto_name(dots) %>% names()
 
-  #ref <- rowMeans(.data$.signal[,..ref_ch], na.rm = na.rm)
+  #ref <- rowMeans(.data$.signal[,..ref], na.rm = na.rm)
   reref <- function(x, ref){
     x <- x - ref 
-    attributes(x)$.reference <- paste0(ref_ch, collapse = ", ")
+    attributes(x)$.reference <- paste0(ref, collapse = ", ")
     x
   }
    # signal[, (ch_sel) := {ref= rowMeans()   ;lapply(.SD, reref, ref = ref)},.SDcols = c(ch_sel)]
     signal[, (sel_ch) := {ref= rowMeans(.SD);
-                          lapply(mget(sel_ch,inherits=TRUE), reref, ref = ref)},.SDcols = c(ref_ch)]
+                          lapply(mget(sel_ch,inherits=TRUE), reref, ref = ref)},.SDcols = c(ref)]
   .data$.signal <- signal
   update_events_channels(.data) %>%  validate_eeg_lst()
 
@@ -109,38 +109,38 @@ sel_ch <- function(data,...){
 #' @return A new channel or an `eeg_lst` object with a channel where a function was instead of the previous channels.
 #' @inheritParams dplyr::summarize_at 
 #' @export
-chs_fun <- function(x, .f, ...) {
+chs_fun <- function(x, .funs, ...) {
   UseMethod("chs_fun")
 }
 #' @rdname chs_fun
 #' @param pars List that contains the additional arguments for the function calls in .funs.
 #' @export
-chs_fun.channel_dbl <- function(...,.f, pars = list()) {
-  .f <- rlang::as_function(.f)
-   row_fun_ch(data.table::data.table(...),.f, pars)  
+chs_fun.channel_dbl <- function(...,.funs, pars = list()) {
+  .funs <- rlang::as_function(.funs)
+   row_fun_ch(data.table::data.table(...),.funs, pars)  
 }
 #' @rdname chs_fun
 #' @export
-chs_fun.character <- function(..., .f, pars = list()) {
+chs_fun.character <- function(..., .funs, pars = list()) {
   dt_chs <- data.table::as.data.table(mget(..., envir = rlang::caller_env()))
-  .f <- rlang::as_function(.f)
-  row_fun_ch(data.table::data.table(...),.f, pars)  
+  .funs <- rlang::as_function(.funs)
+  row_fun_ch(data.table::data.table(...),.funs, pars)  
 }
 
 #' @rdname chs_fun
 #' @export
-chs_fun.eeg_lst <- function(x,.f, pars = list(), ...) {
+chs_fun.eeg_lst <- function(x,.funs, pars = list(), ...) {
 
   signal <- data.table::copy(x$.signal)
-  if(is.list(.f)){
-  .f <- lapply(.f, rlang::as_function)
+  if(is.list(.funs)){
+  .funs <- lapply(.funs, rlang::as_function)
   } else {
 
-    fun_txt <-toString(substitute(.f))  %>% make_names()
-    .f <- list(rlang::as_function(.f))
-    names(.f) <-fun_txt
+    fun_txt <-toString(substitute(.funs))  %>% make_names()
+    .funs <- list(rlang::as_function(.funs))
+    names(.funs) <-fun_txt
   }
-  signal[,names(.f):=lapply(.f, function(x) row_fun_ch(.SD, x, pars)),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
+  signal[,names(.funs):=lapply(.funs, function(x) row_fun_ch(.SD, x, pars)),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
   
   x$.signal <- signal
   update_events_channels(x) %>% #update_channels_tbl(channels_info) %>%

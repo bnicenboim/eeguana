@@ -15,8 +15,8 @@ data_faces_ERPs <- faces %>%
   eeg_events_to_NA(.type == "Bad Interval") %>% 
   ch_baseline() %>%  
   mutate(condition =
-           if_else(.description == "s70", "faces", "non-faces")) %>% 
-  select(-.type) %>% 
+           if_else(description == "s70", "faces", "non-faces")) %>% 
+  select(-type) %>% 
   group_by(.sample, condition) %>%
 summarize_at(channel_names(data_faces_ERPs), mean,na.rm=TRUE)
 

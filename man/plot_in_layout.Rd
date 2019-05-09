@@ -49,7 +49,7 @@ ERP_plot <- data_faces_ERPs \%>\%
    # group by time point and condition
    group_by(.sample, condition) \%>\%
    # compute averages
-   summarize_all_ch(mean,na.rm=TRUE) \%>\%
+    summarize_at(channel_names(.), mean, na.rm = TRUE) \%>\%
    plot_gg() + 
        # plot the averaged waveforms
        geom_line(aes(color = condition)) +
@@ -63,7 +63,10 @@ ERP_plot <- data_faces_ERPs \%>\%
 plot_in_layout(ERP_plot)
 }
 \seealso{
-Other plot: \code{\link{ggplot.eeg_lst}},
-  \code{\link{plot.eeg_lst}}, \code{\link{plot_topo}}
+Other plotting functions: \code{\link{annotate_events}},
+  \code{\link{annotate_head}},
+  \code{\link{ggplot.eeg_lst}}, \code{\link{plot.eeg_lst}},
+  \code{\link{plot_components}}, \code{\link{plot_topo}},
+  \code{\link{theme_eeguana}}
 }
-\concept{plot}
+\concept{plotting functions}

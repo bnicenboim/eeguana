@@ -21,13 +21,15 @@
 #' they can be ' piped using [magrittr][magrittr::magrittr] 's pipe, %>%.
 #'
 #' @param .data An eeg_lst.
-#' @param ... Name-value pairs of expressions; see  [dplyr][dplyr::dplyr] for more help.
+#' @param ... Name-value pairs of expressions; see [dplyr][dplyr::dplyr] for more help
+#' @param .preserve Not in use, for compatibility reasons.
+#' @param add Not in use, for compatibility reasons.
+#' @param drop When .drop = TRUE, empty groups are dropped. (FALSE by default.)
 #' @return An eeg_lst object.
 #'
 #' @family dplyr functions
-#' @seealso [join], [bind] for the extended dplyr-like functions.
 #'
-#' @name dplyr-eeguana
+#' @name dplyr_verbs
 #' 
 #' @examples
 #' \dontrun{
@@ -70,18 +72,19 @@
 NULL
 # > NULL
 
-#' @rdname dplyr-eeguana
+
+#' @rdname dplyr_verbs
 mutate.eeg_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
   mutate_eeg_lst(.data, dots, keep_cols = TRUE)
 }
 
-#' @rdname dplyr-eeguana
+#' @rdname dplyr_verbs
 transmute.eeg_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
   mutate_eeg_lst(.data, dots, keep_cols = FALSE)
 }
-#' @rdname dplyr-eeguana
+#' @rdname dplyr_verbs
 filter.eeg_lst <- function(.data, ..., .preserve = FALSE) {
   if(.preserve==TRUE) {warning("Ignoring `.preserve` argument.")}
   dots <- rlang::quos(...)
@@ -93,41 +96,49 @@ filter.eeg_ica_lst <- function(.data, ..., .preserve= FALSE) {
     out$ica <- out$ica[recordings]
     out
 }
-#' @rdname dplyr-eeguana
+#' @rdname dplyr_verbs
 summarise.eeg_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
  summarize_eeg_lst(.data, dots)
 }
-#' @rdname dplyr-eeguana
+#' @rdname dplyr_verbs
 group_by.eeg_lst <- function(.data, ..., add=FALSE, .drop = FALSE) {
   dots <- rlang::quos(...)
   if(.drop==TRUE) {warning("Ignoring .drop argument. It hasn't been implemented yet.")}
   group_by_eeg_lst(.eeg_lst = .data, dots, .add = add)
 }
-#' @rdname dplyr-eeguana
+#' @rdname dplyr_verbs
 ungroup.eeg_lst <- function(.data, ...) {
   attributes(.data)$vars <- character(0)
   validate_eeg_lst(.data)
 }
 
-#' @rdname dplyr-eeguana
-groups.eeg_lst <- function(x) {
-attributes(x)$vars %>% purrr::map(as.name)
-}
-
-#' @rdname dplyr-eeguana
-group_vars.eeg_lst <- function(x) {
-  attributes(x)$vars
-}
-#' @rdname dplyr-eeguana
+#' @rdname dplyr_verbs
 select.eeg_lst <- function(.data, ...) {
   select_rename(.data, select = TRUE, ...)
 }
 
-#' @rdname dplyr-eeguana
+#' @rdname dplyr_verbs
 rename.eeg_lst <- function(.data, ...) {
     select_rename(.data, select = FALSE, ...)
 
+}
+
+#' Return grouping variables.
+#' 
+#' @param x An eeg_lst.
+#' @name dplyr_groups
+NULL
+# > NULL
+
+#' @rdname dplyr_groups
+groups.eeg_lst <- function(x) {
+    attributes(x)$vars %>% purrr::map(as.name)
+}
+
+#' @rdname dplyr_groups
+group_vars.eeg_lst <- function(x) {
+    attributes(x)$vars
 }
 
 
@@ -149,8 +160,7 @@ rename.eeg_lst <- function(.data, ...) {
 #' @inheritParams dplyr::join
 #' @return An eeg_lst object.
 #'
-#' @family join functions
-#' @seealso [dplyr], [summarize_at_ch], [summarize_all_ch], [bind] for the extended dplyr-like functions.
+#' @family dplyr functions
 #'
 #' @name join-eeguana
 #' 

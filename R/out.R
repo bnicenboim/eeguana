@@ -165,7 +165,13 @@ summary.eeg_ica_lst <- function(object, ...) {
     summ
 }
 
-
+#' Show correlations between ICA sources and eye (EOG) electrodes.
+#' 
+#' @param .data An `eeg_ica_lst` object
+#' @param ... If left empty, the function will assume that EOG channels include eog/EOG in their names, alternatively, EOG channels can be selected here.
+#' @family ICA functions
+#'
+#' @return A list of correlations.
 #' @export
 eeg_ica_cor_lst <- function(.data,...){
     UseMethod("eeg_ica_cor_lst")
@@ -173,8 +179,13 @@ eeg_ica_cor_lst <- function(.data,...){
 
 #' @export
 eeg_ica_cor_lst.eeg_ica_lst <- function(.data,...){
+    
+  if(length(list(...)) == 0){
     eogs <- channel_names(.data)[channel_names(.data) %>%
                                  stringr::str_detect(stringr::regex("eog", ignore_case = TRUE))]
+  } else {
+      eogs >- sel_ch(.data,...)
+    }
     names(eogs) <- eogs
     comps <- .data %>% eeg_ica_show(component_names(.)) 
 

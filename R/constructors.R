@@ -32,7 +32,8 @@
 #'
 #' @param signal_tbl See [signal_tbl()].
 #' @param events_tbl See [events_tbl()].
-#' @param segments_tbl A tibble of segment numbers and related information. 
+#' @param segments_tbl A tibble of segment numbers and related information. See [segments_tbl()].
+#' @param channels_tbl Optionally a table with channels information. See [channels_tbl()]. 
 #' 
 #' @family eeg_lst
 #'

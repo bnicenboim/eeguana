@@ -112,15 +112,6 @@ signal_tbl.eeg_lst <- function(.data,...){
     .data$.signal
 }
 
-#' @export
-`signal_tbl<-` <- function(.data, value) {
-    UseMethod("signal_tbl<-")
-}
-#' @export
-`signal_tbl<-.eeg_lst` <- function(.data, value) {
-
-stop("Not implemented, please use mutate", call. = FALSE)
-}
 #' Function to get the segments table of an eeg_lst object.
 #'
 #'
@@ -137,12 +128,3 @@ segments_tbl.eeg_lst <- function(.data,...){
     .data$.segments
 }
 
-#' @export
-`segments_tbl<-` <- function(.data, value) {
-    UseMethod("segments_tbl<-")
-}
-#' @export
-`segments_tbl<-.eeg_lst` <- function(.data, value) {
-
-stop("Not implemented, please use mutate", call. = FALSE)
-}

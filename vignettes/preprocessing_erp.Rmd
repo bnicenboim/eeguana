@@ -93,7 +93,7 @@ data_judg_s <- data_judg_s %>%
                 # The reference channel REF is filled with 0  
                 mutate(REF = channel_dbl(0)) %>% 
                 # All channels are references with REF  
-                eeg_rereference(ref_ch = c("RM","REF"))
+                eeg_rereference(ref = c("RM","REF"))
 
 data_judg_s_p <- data_judg_s %>% 
                 # A low pass filter is applied 
@@ -137,8 +137,8 @@ which was placed below the subjects' left eye.
 
 ```{r}
 data_judg_s_p <- data_judg_s_p %>%
-    eeg_rereference(LEOG, ref_ch = "X53") %>%
-    eeg_rereference(X25, ref_ch = "X57") %>%
+    eeg_rereference(LEOG, ref = "X53") %>%
+    eeg_rereference(X25, ref = "X57") %>%
     rename(eogv = LEOG, eogh = X25) %>%
     select(-X53, X57)
              

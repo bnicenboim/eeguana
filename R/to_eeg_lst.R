@@ -1,6 +1,6 @@
 
 #' @export
-as_eeg_lst.mne.io.base.BaseRaw <- function(.data){
+as_eeg_lst.mne.io.base.BaseRaw <- function(.data,...){
 
     ##create channel info
     ch_names <- .data$ch_names

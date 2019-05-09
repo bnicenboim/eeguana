@@ -11,8 +11,8 @@
 #' @param .data An `eeg_lst` object.
 #' @param ... Channels to include. All the channels by default, but eye channels should be removed.
 #' @param threshold Voltage threshold that indicates an artifact. This is between two consecutive data points for `eeg_artif_step`, and in a `window` for `eeg_artif_minmax`.
-#' @param window Sliding window for min-max artifact detection (same unit as `events_lim`).
-#' @param events_events_lim Vector indicating the time before and after the artifact that will be included in events_tbl (by default the size the window before and afterwards).
+#' @param window Sliding window length for the artifact detection (same unit as `lim`).
+#' @param lim Vector indicating the time before and after the artifact that will be included in events_tbl (by default the size the window before and afterwards).
 #' @inheritParams as_time
 #' @return An `eeg_lst`.
 #'
@@ -29,7 +29,7 @@ NULL
 eeg_artif_minmax <- function(.data,...,
                                      threshold = 100,
                                      window = .2,
-                                     events_lim = c(-window, window),
+                                     lim = c(-window, window),
                                      unit = "s"){
     UseMethod("eeg_artif_minmax")
 }
@@ -40,7 +40,7 @@ eeg_artif_minmax.eeg_lst <- function(.data,
                                      ...,
                                      threshold = 100,
                                      window = .2,
-                                     events_lim = c(-window, window),
+                                     lim = c(-window, window),
                                      unit = "s"){
     if(!is.numeric(window) || window < 0) {
         stop("`window` should be a positive number.", call. = FALSE)
@@ -50,7 +50,7 @@ eeg_artif_minmax.eeg_lst <- function(.data,
     eeg_artif_custom(.data,...,
                      fun = detect_minmax,
                      threshold = threshold,
-                     events_lim = events_lim,
+                     lim = lim,
                      window = window,
                      unit = unit)
 }
@@ -62,7 +62,7 @@ eeg_artif_minmax.eeg_lst <- function(.data,
 eeg_artif_step <- function(.data,..., 
                            threshold = 50,
                                      window = .2,
-                                     events_lim = c(-window, window),
+                                     lim = c(-window, window),
                                      unit = "s"){
     UseMethod("eeg_artif_step")
 }
@@ -72,7 +72,7 @@ eeg_artif_step <- function(.data,...,
 eeg_artif_step.eeg_lst <- function(.data,..., 
                            threshold = 50,
                                      window = .2,
-                                     events_lim = c(-window, window),
+                                     lim = c(-window, window),
                                      unit = "s"){
     if(!is.numeric(window) || window < 0) {
         stop("`window` should be a positive number.", call. = FALSE)
@@ -82,7 +82,7 @@ eeg_artif_step.eeg_lst <- function(.data,...,
     eeg_artif_custom(.data,...,
         fun = detect_step,
                 threshold = threshold,
-                events_lim = events_lim,
+                lim = lim,
                 window = window,
                 unit = unit )
  }
@@ -91,7 +91,7 @@ eeg_artif_step.eeg_lst <- function(.data,...,
 #' @export
 eeg_artif_amplitude <- function(.data,..., 
                                 threshold = c(-200,200),
-                           events_lim = c(-.2, .2),
+                           lim = c(-.2, .2),
                            unit = "s"){
     UseMethod("eeg_artif_amplitude")
 }
@@ -100,7 +100,7 @@ eeg_artif_amplitude <- function(.data,...,
 #' @export 
 eeg_artif_amplitude.eeg_lst <- function(.data,..., 
                                    threshold = c(-200,200),
-                                   events_lim = c(-.2, .2),
+                                   lim = c(-.2, .2),
                                    unit = "s"){
     if(length(threshold)<2) {
         stop("Two thresholds are needed", call. = FALSE)
@@ -110,7 +110,7 @@ eeg_artif_amplitude.eeg_lst <- function(.data,...,
                      fun = detect_amplitude,
                      threshold = c(min(threshold),max(threshold)),
                      window= NULL,
-                     events_lim = events_lim,
+                     lim = lim,
                      unit = unit )
 }
 

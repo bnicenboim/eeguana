@@ -62,6 +62,6 @@ they can be ' piped using \link[magrittr:magrittr]{magrittr} 's pipe, %>%.
 }
 }
 \seealso{
-\link{dplyr}, \link{summarize_at_ch}, \link{summarize_all_ch}, \link{bind} for the extended dplyr-like functions.
+Other dplyr functions: \code{\link{dplyr_verbs}}
 }
-\concept{join functions}
+\concept{dplyr functions}

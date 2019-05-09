@@ -39,7 +39,7 @@ test_that("both .eeg_lst and .channel_dbl give the same output for chs_mean", {
   expect_equal(data_M, data_M2)
 })
 
-data_M_f <- transmute(data_eeg, mean = chs_fun(X,Y, .f = mean))
+data_M_f <- transmute(data_eeg, mean = chs_fun(X,Y, .funs = mean))
 data_M_fa <- chs_fun(data_eeg, "mean")
 data_M_fa2 <- chs_fun(data_eeg, mean)
 data_M_fa3 <- chs_fun(data_eeg, list(mean = ~ mean(.)))
@@ -69,7 +69,7 @@ test_that("both chs_fun and chs_mean give the same output", {
 ##   expect_equal(data_reref$.signal$X, X_reref)
 ## })
 
-data_reref_all_chs <- eeg_rereference(data_eeg, ref_ch = c("X", "Y"))
+data_reref_all_chs <- eeg_rereference(data_eeg, ref = c("X", "Y"))
 
 test_that(".reference changes", {
     expect_equal(unique(channels_tbl(data_reref_all_chs)$.reference),"X, Y")

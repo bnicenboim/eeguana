@@ -13,7 +13,7 @@
 #'   `eeg_filt_band_pass` and `eeg_filt_band_stop`.
 #' @param ... Channels to apply the filters to. All the channels by default.
 #' @param config Other parameters passed in a list to the ICA method. (Not implemented)
-#'
+#' @param na.rm =TRUE will set to NA the entire segment that contains an NA, otherwise the filter will stop with an error.
 #' @return A channel or an eeg_lst.
 #'
 #'

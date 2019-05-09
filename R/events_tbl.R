@@ -142,33 +142,17 @@ validate_events_tbl <- function(events) {
     events[]
 }
 
-#' @export
-filter_.events_tbl <- function(.data, ..., .dots = list()){
-    as_events_tbl(NextMethod(), sampling_rate(.data))
-}
 
 #' @export
 filter.events_tbl <- function(.data, ..., preserve = FALSE){
   as_events_tbl(NextMethod(), sampling_rate(.data))
 }
 #' @export
-mutate_.events_tbl <- function(.data, ..., .dots = list()){
-    as_events_tbl(NextMethod(), sampling_rate(.data))
-}
-#' @export
 mutate.events_tbl <- function(.data, ...){
     as_events_tbl(NextMethod(), sampling_rate(.data))
 }
 #' @export
-transmute_.events_tbl <- function(.data, ..., .dots = list()){
-    as_events_tbl(NextMethod(), sampling_rate(.data))
-}
-#' @export
 transmute.events_tbl <- function(.data, ...){
-    as_events_tbl(NextMethod(), sampling_rate(.data))
-}
-#' @export
-summarise_.events_tbl <- function(.data, ..., .dots = list()){
     as_events_tbl(NextMethod(), sampling_rate(.data))
 }
 

@@ -1,6 +1,6 @@
 
 
-mu_raw <- list(charToRaw("μ"), charToRaw("µ"))
+#mu_raw <- list(charToRaw("μ"), charToRaw("µ"))
 
 #' Unique columns of signal and segments tables.
 #' @noRd

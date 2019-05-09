@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# eeguana <img src="man/figures/logo.png" align="right" height=140/>
+# eeguana <img src="inst/logos/logo.png" align="right" height=140/>
 
 ## Overview
 
