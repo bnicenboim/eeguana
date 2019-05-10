@@ -1,17 +1,17 @@
 context("test tidyverse functions select")
-library(eeguana)
+library(eeguana); library(dplyr); library(ggplot2)
 
 
 data_1 <- eeg_lst(
   signal_tbl =
- dplyr::tibble(X = sin(1:30), Y = cos(1:30),
+  tibble(X = sin(1:30), Y = cos(1:30),
     .id = rep(c(1L, 2L, 3L), each = 10),
 .sample = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500)),
-   channels_tbl = dplyr::tibble(
+   channels_tbl =  tibble(
       .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = c(1, 1), .y = NA_real_, .z = NA_real_
   ),
-events_tbl = dplyr::tribble(
+events_tbl =  tribble(
                         ~.id, ~.type, ~.description, ~.initial, ~.final, ~.channel,
                         1L, "New Segment", NA_character_, -4L, -4L, NA,
                         1L, "Bad", NA_character_, -2L, 0L, NA,
@@ -24,7 +24,7 @@ events_tbl = dplyr::tribble(
                         3L, "Time 0", NA_character_, 1L, 1L, NA,
                         3L, "Bad", NA_character_, 2L, 2L, "Y"
                     ),
-  segments_tbl = dplyr::tibble(.id = c(1L, 2L, 3L),
+  segments_tbl =  tibble(.id = c(1L, 2L, 3L),
                            .recording = "recording1",
                            segment = c(1L, 2L, 3L),
                            condition = c("a", "b", "a"))
@@ -62,50 +62,50 @@ select1_eeg <- select(data, X)
 select1_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::select(X)
+   select(X)
 
 
 select2_eeg <- select(data, -Y)
 select2_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::select(-Y)
+   select(-Y)
 
 
 select3_eeg <- select(data, starts_with("Y"))
 select3_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::select(starts_with("Y"))
+   select(starts_with("Y"))
 
 select4_eeg <- select(data, ends_with("X"))
 select4_tbl <- data %>%
     as_tibble() %>%
     tidyr::spread(key = .key, value = .value) %>%
-    dplyr::select(ends_with("X"))
+     select(ends_with("X"))
 
 select4.1_eeg <- select(data, one_of("X"))
 select4.1_tbl <- data %>%
     as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::select(one_of("X"))
+   select(one_of("X"))
 
 select5_eeg <- select(data, contains("Y"))
 select5_tbl <- data$.signal %>%
-  dplyr::select(contains("Y"))
+   select(contains("Y"))
 
 select5.1_eeg <- select(data, one_of("Y"))
 select5.1_tbl <- data %>%
     as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::select(one_of("Y"))
+   select(one_of("Y"))
 
 
 select6_eeg <- select(data, tidyselect::matches("X"))
 select6_tbl <- data %>%
     as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::select(tidyselect::matches("X"))
+   select(tidyselect::matches("X"))
 
 
 
@@ -177,21 +177,21 @@ select9_eeg <- select(data, .recording)
 select9_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::select(.recording)
+   select(.recording)
 
 
 select10_eeg <- select(data, segment)
 select10_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::select(segment)
+   select(segment)
 
 
 select11_eeg <- select(data, condition)
 select11_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::select(condition)
+   select(condition)
 
 
 
@@ -251,14 +251,14 @@ test_that("data didn't change", {
 ## select_all1_tbl <- data %>%
 ##   as_tibble() %>%
 ##   tidyr::spread(key = .key, value = .value) %>%
-##   dplyr::select_all(toupper)
+##    select_all(toupper)
 
 
 ## select_all2_eeg <- select_all(data, tolower) 
 ## select_all2_tbl <- data %>%
 ##   as_tibble() %>%
 ##   tidyr::spread(key = .key, value = .value) %>%
-##   dplyr::select_all(tolower)
+##    select_all(tolower)
 
 
 
@@ -317,8 +317,8 @@ mutate_select_eeg <- mutate(data, Z = Y + 1) %>%
 mutate_select_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::mutate(Z = Y + 1) %>%
-  dplyr::select(Z)
+   mutate(Z = Y + 1) %>%
+   select(Z)
 
 
 summarize_all_select_eeg <- summarize_at(data, channel_names(data), mean) %>%
@@ -326,8 +326,8 @@ summarize_all_select_eeg <- summarize_at(data, channel_names(data), mean) %>%
 summarize_all_select_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::summarise(X = mean(X), Y = mean(Y)) %>%
-  dplyr::select(Y)
+   summarise(X = mean(X), Y = mean(Y)) %>%
+   select(Y)
 
 
 test_that("select on new variables doesn't change data", {
@@ -376,8 +376,8 @@ group_select_eeg <- data %>%
 group_select_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::group_by(condition) %>%
-  dplyr::select(Y)
+   group_by(condition) %>%
+   select(Y)
 
 
 group_select_summarize_eeg <- data %>%
@@ -388,9 +388,9 @@ group_select_summarize_eeg <- data %>%
 group_select_summarize_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::group_by(.time) %>%
-  dplyr::summarise(X = mean(X)) %>%
-  dplyr::select(X)
+   group_by(.time) %>%
+   summarise(X = mean(X)) %>%
+   select(X)
 
 
 

@@ -1,5 +1,5 @@
 context("convert formats")
-library(eeguana)
+library(eeguana); library(dplyr); library(ggplot2)
 
 test_that("raw brainvision read and converted from MNE match", {
     skip_on_cran()  #it needs MNE installed
@@ -15,7 +15,7 @@ test_that("raw brainvision read and converted from MNE match", {
     ## eeg_pkl <- reticulate::py_load_object(bvfile_pkl, pickle = "pickle")
 
     eeg_mne <- as_eeg_lst(eeg_mne_obj) %>%
-        dplyr::mutate(.recording="r1")
+         mutate(.recording="r1")
 
     # events_tbl(eeg_read) <- events_tbl(eeg_read) %>%
         # mutate(.description=paste0(.type,"/",.description)) %>% select(-.type)

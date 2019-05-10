@@ -24,6 +24,7 @@
   register_s3_method("dplyr", "summarise", "events_tbl")
   register_s3_method("dplyr", "as_data_frame", "eeg_lst")
   register_s3_method("ggplot2", "ggplot", "eeg_lst")
+  register_s3_method("ggplot2", "ggplot_add", "layer_events")
   register_s3_method("data.table", "as.data.table", "eeg_lst")
 
   invisible()

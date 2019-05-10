@@ -133,12 +133,12 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 }
 
   build_segments_tbl <- function(.id, .recording){
-    tibble::tibble(
+    dplyr::tibble(
     .id = .id,
     .recording = .recording
   )%>% dplyr::group_by(.recording) %>%
     dplyr::mutate(segment = 1:dplyr::n()) %>%
-    ungroup()
+    dplyr::ungroup()
   }
 add_event_channel <- function(events, labels) {
   labels <- make_names(labels)
@@ -299,5 +299,5 @@ brainvision_loc_2_xyz <- function(radius = 1, theta = NULL, phi = NULL) {
   x <- dplyr::if_else(radius != 0, round(sin(theta * pi / 180) * cos(phi * pi / 180), 2), NA_real_)
   y <- dplyr::if_else(radius != 0, round(sin(theta * pi / 180) * sin(phi * pi / 180), 2), NA_real_)
   z <- dplyr::if_else(radius != 0, round(cos(theta * pi / 180), 2), NA_real_)
-  tibble::tibble(.x = x, .y = y, .z = z)
+  dplyr::tibble(.x = x, .y = y, .z = z)
 }

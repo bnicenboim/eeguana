@@ -1,16 +1,16 @@
 context("test Channel functions")
-library(eeguana)
+library(eeguana); library(dplyr); library(ggplot2)
 
 
 data_eeg <- eeg_lst(
   signal_tbl =
- dplyr::tibble(X = sin(1:20), Y = cos(1:20),
+  tibble(X = sin(1:20), Y = cos(1:20),
     .id = rep(c(1L, 2L), each = 10),
     .sample = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500)),
-   channels_tbl = dplyr::tibble(
+   channels_tbl =  tibble(
       .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
-),   events_tbl = dplyr::tribble(
+),   events_tbl =  tribble(
     ~.id, ~.type, ~.description, ~.initial, ~.final, ~.channel,
     1L, "New Segment", NA_character_, -4L, -4L, NA,
     1L, "Bad", NA_character_, -2L, 0L, NA,
@@ -20,7 +20,7 @@ data_eeg <- eeg_lst(
     2L, "Time 0", NA_character_, 1L, 1L, NA,
     2L, "Bad", NA_character_, 2L, 2L, "Y"
     ),
-  segments = dplyr::tibble(.id = c(1L, 2L), .recording = "recording1", segment = c(1L, 2L))
+  segments =  tibble(.id = c(1L, 2L), .recording = "recording1", segment = c(1L, 2L))
 )
 
 
@@ -44,7 +44,7 @@ data_M_fa <- chs_fun(data_eeg, "mean")
 data_M_fa2 <- chs_fun(data_eeg, mean)
 data_M_fa3 <- chs_fun(data_eeg, list(mean = ~ mean(.)))
 data_M_fa4 <- chs_fun(data_eeg, ~ mean(.,na.rm = TRUE)) %>%
-  dplyr::rename(mean =  X...mean....na.rm...TRUE.)
+   rename(mean =  X...mean....na.rm...TRUE.)
 data_eeg_NA <- data_eeg %>% mutate(X = if_else(X>.98, channel_dbl(NA), X)) 
 data_M_fa_NA1 <- chs_fun(data_eeg_NA, list(mean = ~ mean(.,na.rm = TRUE)))
 data_M_fa_NA2 <- chs_fun(data_eeg_NA, mean, list(na.rm=TRUE))

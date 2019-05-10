@@ -8,7 +8,9 @@
 		  "Mk_number=Type","SamplingInterval","V1","V2","amplitude",
 		  "channel","","i..initial",
 		  "i..size","lowerb","mk","n","offset","",".recording","resolution",
-		  "scale_fill_gradientn","time",".type","value","x..lower","x..sample"
+		  "time",".type","value","x..lower","x..sample",
+		  "xmin","xmax", "Event", ".key",".value", ".time",
+		  ".first_sample"
 		  )
 	)
 ## data.table needs this

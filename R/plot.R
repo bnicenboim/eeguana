@@ -14,7 +14,7 @@
 #' x-axis and amplitude on the y-axis, and uses `scales = "free"`; see [ggplot2::facet_grid()].
 #' 
 #' To add additional components to the plot such as titles and annotations, simply
-#' use the `+` symbol and add layers exactly as you would for `ggplot::ggplot`.
+#' use the `+` symbol and add layers exactly as you would for [ggplot2::ggplot].
 #' 
 #' 
 #' @param x An `eeg_lst` object.
@@ -30,11 +30,12 @@
 #' plot(data_faces_ERPs)
 #' 
 #' # Add ggplot layers
+#' library(ggplot2)
 #' plot(data_faces_ERPs) + 
 #'     coord_cartesian(ylim = c(-500,500))
 #' 
 #'
-#' @export
+#' @export 
 plot.eeg_lst <- function(x, max_sample = 6400, ...) {
     ellipsis::check_dots_unnamed()
     plot <- ggplot2::ggplot(x, ggplot2::aes(x = .time, y = .value, group = .id)) +
@@ -80,7 +81,7 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
 #' size, and even head size, etc.
 #' 
 #' To add additional components to the plot such as titles and annotations, simply
-#' use the `+` symbol and add layers exactly as you would for `ggplot::ggplot`.
+#' use the `+` symbol and add layers exactly as you would for [ggplot2::ggplot].
 #'
 #'
 #' @param data A table of interpolated electrodes as produced by `eeg_interpolate_tbl`, or an `eeg_lst`, or `ica_lst` appropiately grouped. 
@@ -211,11 +212,11 @@ plot_components.eeg_ica_lst <- function(data,  projection = "polar", ...) {
       
        long_table %>% eeg_interpolate_tbl(...) %>%
         plot_topo() +
-      facet_wrap(~.ICA)+
+      ggplot2::facet_wrap(~.ICA)+
       annotate_head() + 
-      geom_contour() +
-      geom_text(colour = "black")+
-         theme(legend.position = "none")
+         ggplot2::geom_contour() +
+         ggplot2::geom_text(colour = "black")+
+         ggplot2::theme(legend.position = "none")
     
 }
 
@@ -235,7 +236,7 @@ plot_components.eeg_ica_lst <- function(data,  projection = "polar", ...) {
 #' argument. White space in the plot can be reduced by changing `ratio`.
 #' 
 #' Additional components such as titles and annotations should be added to the 
-#' plot object using `+` exactly as you would for `ggplot::ggplot`.
+#' plot object using `+` exactly as you would for [ggplot2::ggplot].
 #' Title and legend adjustments will be treated as applying to the 
 #' whole plot object, while other theme adjustments will be treated as applying 
 #' to individual facets. x-axis and y-axis labels cannot be added at this stage.
@@ -473,10 +474,10 @@ annotate_head <- function(size = 1.1, color ="black", stroke=1) {
 #' @family plotting functions
 #' @export
 annotate_events <- function(data=NULL, alpha = .2){
-    layer <- geom_rect(data=data, alpha = alpha,
+    layer <- ggplot2::geom_rect(data=data, alpha = alpha,
               ymin = -Inf, ymax= Inf,
               inherit.aes = FALSE,
-              aes(xmin = xmin,
+              ggplot2::aes(xmin = xmin,
                   xmax =  xmax ,
                   color = Event,
                   fill = Event,
@@ -503,40 +504,15 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
         dplyr::distinct()
   
     events_tbl <- left_join_dt(events_tbl, data.table::as.data.table(segs), by = ".id")
-    ## if(all_chs){
-    ##   events_tbl[, .channel := NA]
-    ## }
     chs <- list(unique(as.character(plot$data$.key)))
    events_tbl[,.key:=lapply(.channel, function(x) as.character(x))]
    events_tbl[is.na(.channel), .key:=list(rep(chs,.N))]
    events_tbl <- tidyr::unnest(events_tbl)
    
    events_tbl[,.key:=factor(.key, levels = levels(plot$data$.key))]
-  # events_all_chs <- events_tbl[is.na(.channel),]
-  # events_all_chs[,.key := rep(list(unique(events_tbl$.channel)),.N)] 
-  # events_all_chs <- tidyr::unnest(events_all_chs)
-  # events_spec_chs <- events_tbl[!is.na(.channel),]
-  # events_spec_chs[, .key := .channel]
-  # events_tbl <- rbind(events_all_chs, events_spec_chs)
-  #   to_plot<- list()
-  #   to_plot$.events_all <- filter_dt(events_tbl, .initial == .final, is.na(.channel) )
-  #   to_plot$.events_ch <- filter_dt(events_tbl, .initial == .final, !is.na(.channel) ) %>%
-  #       .[, .key := as.factor(.channel)]
-  #   to_plot$intervals_all <- filter_dt(events_tbl, .initial < .final, is.na(.channel) )
-  #   to_plot$intervals_ch <- filter_dt(events_tbl, .initial < .final, !is.na(.channel) )  %>%
-  #       .[, .key := as.factor(.channel)]
-  #   add_to_plot <- purrr::map(to_plot, ~ if(nrow(.x)>0){
-  #                                            layer <- data.table::copy(object$layer)
-  #                                            layer$data <-  .x
-  #                                            layer
-  #                                        }
-  #                                        else {
-  #                                            NULL
-  #                                        }) %>%
-  #     purrr::keep(function(x) !is.null(x))
-  #   
+
   object$layer$data <- events_tbl
-   plot + object$layer
+   ggplot2::`%+%`(plot, object$layer)
 }
 
 
@@ -555,7 +531,7 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
 #' x-axis and amplitude on the y-axis.
 #' 
 #' To add additional components to the plot such as titles and annotations, simply
-#' use the `+` symbol and add layers exactly as you would for [ggplot::ggplot].
+#' use the `+` symbol and add layers exactly as you would for [ggplot2::ggplot].
 #' 
 #' @param data An `eeg_lst` object.
 #' @inheritParams  ggplot2::ggplot
@@ -607,18 +583,18 @@ NULL
 #' @rdname theme_eeguana
 #' @export
 theme_eeguana <- function() {
-  ggplot2::theme_bw() %+replace% 
+  ggplot2::`%+replace%`(ggplot2::theme_bw(),  
                 ggplot2::theme(
                     strip.background = ggplot2::element_rect(colour = "transparent", fill = "transparent"),
                     panel.spacing  = ggplot2::unit(.01, "points"),
-                    panel.border = ggplot2::element_rect(colour = "transparent", fill = "transparent"))
+                    panel.border = ggplot2::element_rect(colour = "transparent", fill = "transparent")))
 }
 #' @rdname theme_eeguana
 #' @export
 theme_eeguana2 <- function() {
- theme_eeguana() %+replace% 
-                    theme(panel.grid = ggplot2::element_line(colour = "transparent"),
+  ggplot2::`%+replace%`(theme_eeguana(), 
+                        ggplot2::theme(panel.grid = ggplot2::element_line(colour = "transparent"),
                       axis.ticks= ggplot2::element_line(colour = "transparent"),
                       axis.text= ggplot2::element_blank(),
-                      axis.title= ggplot2::element_blank())
+                      axis.title= ggplot2::element_blank()))
 }

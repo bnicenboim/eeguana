@@ -71,10 +71,10 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data,...){
         units_list <- c("mol/m^3","hertz","newton","pascal","joule","watt","coulomb",
                         "volt","farad","ohm",
                         "S","weber","tesla","henry","celsius","lumen","lux") %>%
-            setNames(c(10,101:116) %>% as.character()) %>%
+            stats::setNames(c(10,101:116) %>% as.character()) %>%
             as.list()
         prefix <- c("","deci","centi","milli","micro","nano") %>%
-            setNames(c(0,-1:-3,-6,-9) %>% as.character)
+            stats::setNames(c(0,-1:-3,-6,-9) %>% as.character)
 
         if(!ch$unit %in% as.numeric(names(units_list))) ch$unit <- 107  #default to Volts
 
@@ -113,8 +113,8 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data,...){
                                                                col = "annotation", into =c(".type",".description"), sep="/", fill ="left"))
     }
     data_name <- toString(substitute(.data))
-    eeg_lst(signal = new_signal,
-            events= new_events,
-            segments = tibble::tibble(.id=1L,.recording=data_name, segment=1L))
+    eeg_lst(signal_tbl  = new_signal,
+            events_tbl = new_events,
+            segments_tbl  = dplyr::tibble(.id=1L,.recording=data_name, segment=1L))
 
 }

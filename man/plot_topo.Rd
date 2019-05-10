@@ -53,7 +53,7 @@ built into the function so as to allow flexibility in choosing colour, font
 size, and even head size, etc.
 
 To add additional components to the plot such as titles and annotations, simply
-use the \code{+} symbol and add layers exactly as you would for \code{ggplot::ggplot}.
+use the \code{+} symbol and add layers exactly as you would for \link[ggplot2:ggplot]{ggplot2::ggplot}.
 }
 \examples{
 library(dplyr)

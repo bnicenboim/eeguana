@@ -192,7 +192,7 @@ eeg_ica_cor_lst.eeg_ica_lst <- function(.data,...){
     lapply(eogs, function(eog) 
         comps$.signal %>%
         dplyr::summarize_at(component_names(comps),
-                            ~ cor(x=., y = comps$.signal[[eog]], use = "complete")) %>%
+                            ~ stats::cor(x=., y = comps$.signal[[eog]], use = "complete")) %>%
         t() %>%
         {dplyr::tibble(.ICA = rownames(.), cor= .[,1])} %>%
         dplyr::arrange(desc(abs(cor))))

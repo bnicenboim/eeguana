@@ -1,5 +1,5 @@
 context("test tidyverse summarize")
-library(eeguana)
+library(eeguana); library(dplyr); library(ggplot2)
 
 # tests when factors are used should be done.
 
@@ -8,14 +8,14 @@ library(eeguana)
 
 data_1 <- eeg_lst(
   signal_tbl =
- dplyr::tibble(X = sin(1:30), Y = cos(1:30),
+  tibble(X = sin(1:30), Y = cos(1:30),
     .id = rep(c(1L, 2L, 3L), each = 10),
 .sample = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500)),
-   channels_tbl = dplyr::tibble(
+   channels_tbl =  tibble(
       .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = c(1, 1), .y = NA_real_, .z = NA_real_
   ),
-events_tbl = dplyr::tribble(
+events_tbl =  tribble(
                         ~.id, ~.type, ~.description, ~.initial, ~.final, ~.channel,
                         1L, "New Segment", NA_character_, -4L, -4L, NA,
                         1L, "Bad", NA_character_, -2L, 0L, NA,
@@ -28,7 +28,7 @@ events_tbl = dplyr::tribble(
                         3L, "Time 0", NA_character_, 1L, 1L, NA,
                         3L, "Bad", NA_character_, 2L, 2L, "Y"
                     ),
-  segments_tbl = dplyr::tibble(.id = c(1L, 2L, 3L),
+  segments_tbl =  tibble(.id = c(1L, 2L, 3L),
                            .recording = "recording1",
                            segment = c(1L, 2L, 3L),
                            condition = c("a", "b", "a"))
@@ -55,8 +55,8 @@ summarize_eeg <- summarize(data, mean = mean(X))
 
 summarize_tbl <- data %>%
   as_tibble() %>%
-  dplyr::filter(.key == "X") %>%
-  dplyr::summarize(mean = mean(.value))
+   filter(.key == "X") %>%
+   summarize(mean = mean(.value))
 
 summarize_at_eeg <- summarize_at(data, channel_names(data), mean)
 summarize_all_eeg <- summarize_at(data, channel_names(data), mean)
@@ -65,18 +65,18 @@ summarize_all3_eeg <- summarize_at(data, channel_names(data), funs(mean(.)))
 
 summarize2_tbl <- data %>%
   as_tibble() %>%
-  dplyr::group_by(.key) %>%
-  dplyr::summarize(mean = mean(.value)) %>%
+   group_by(.key) %>%
+   summarize(mean = mean(.value)) %>%
   tidyr::spread(key = .key, value = mean)
 
 summarize_all4_eeg <- summarize_at(data, channel_names(data), funs(mean = mean(.)))
 
 summarize4_tbl <- data %>%
   as_tibble() %>%
-  dplyr::group_by(.key) %>%
-  dplyr::summarize(mean = mean(.value)) %>%
+   group_by(.key) %>%
+   summarize(mean = mean(.value)) %>%
   tidyr::spread(key = .key, value = mean) %>%
-  dplyr::rename(X_mean = X, Y_mean = Y)
+   rename(X_mean = X, Y_mean = Y)
 
 
 test_that("summarize works correctly on ungrouped data", {
@@ -133,66 +133,66 @@ summarize_g_signal_eeg <- summarize(group_by_eeg_lst, mean = mean(X))
 
 summarize_g_tbl <- data %>%
   as_tibble() %>%
-  dplyr::filter(.key == "X") %>%
-  dplyr::group_by(.time) %>%
-  dplyr::summarise(mean = mean(.value))
+   filter(.key == "X") %>%
+   group_by(.time) %>%
+   summarise(mean = mean(.value))
 
 summarize_at_g_signal_eeg <- summarize_at(group_by_eeg_lst, channel_names(data), mean)
 
 summarize_at_g_tbl <- data %>%
   as_tibble() %>%
-  dplyr::group_by(.time, .key) %>%
-  dplyr::summarise(mean = mean(.value)) %>%
+   group_by(.time, .key) %>%
+   summarise(mean = mean(.value)) %>%
   tidyr::spread(key = .key, value = mean) %>%
-  dplyr::ungroup()
+   ungroup()
 
 summarize_g2_signal_eeg <- summarize(group2_by_eeg_lst, mean = mean(X))
 
 summarize_g2_tbl <- data %>%
   as_tibble() %>%
-  dplyr::filter(.key == "X") %>%
-  dplyr::group_by(.id) %>%
-  dplyr::summarise(mean = mean(.value))
+   filter(.key == "X") %>%
+   group_by(.id) %>%
+   summarise(mean = mean(.value))
 
 summarize_g3_signal_eeg <- summarize(group3_by_eeg_lst, mean = mean(X))
 
 summarize_g3_tbl <- data %>%
   as_tibble() %>%
-  dplyr::filter(.key == "X") %>%
-  dplyr::group_by(.recording) %>%
-  dplyr::summarise(mean = mean(.value))
+   filter(.key == "X") %>%
+   group_by(.recording) %>%
+   summarise(mean = mean(.value))
 
 summarize_g4_signal_eeg <- summarize(group4_by_eeg_lst, mean = mean(X))
 
 summarize_g4_tbl <- data %>%
   as_tibble() %>%
-  dplyr::filter(.key == "X") %>%
-  dplyr::group_by(.recording, .time) %>%
-  dplyr::summarise(mean = mean(.value))
+   filter(.key == "X") %>%
+   group_by(.recording, .time) %>%
+   summarise(mean = mean(.value))
 
 summarize_g5_signal_eeg <- summarize(group5_by_eeg_lst, mean = mean(X))
 
 summarize_g5_tbl <- data %>%
   as_tibble() %>%
-  dplyr::filter(.key == "X") %>%
-  dplyr::group_by(.id, .recording) %>%
-  dplyr::summarise(mean = mean(.value))
+   filter(.key == "X") %>%
+   group_by(.id, .recording) %>%
+   summarise(mean = mean(.value))
 
 summarize_g6_signal_eeg <- summarize(group6_by_eeg_lst, mean = mean(X))
 
 summarize_g6_tbl <- data %>%
   as_tibble() %>%
-  dplyr::filter(.key == "X") %>%
-  dplyr::group_by(.id, .time, .recording) %>%
-  dplyr::summarise(mean = mean(.value))
+   filter(.key == "X") %>%
+   group_by(.id, .time, .recording) %>%
+   summarise(mean = mean(.value))
 
 summarize_g7_signal_eeg <- summarize(group7_by_eeg_lst, mean = mean(X))
 
 summarize_g7_tbl <- data %>%
   as_tibble() %>%
-  dplyr::filter(.key == "X") %>%
-  dplyr::group_by(condition, .time) %>% # have to reverse order 
-  dplyr::summarise(mean = mean(.value)) 
+   filter(.key == "X") %>%
+   group_by(condition, .time) %>% # have to reverse order 
+   summarise(mean = mean(.value)) 
 
 
 test_that("summarize works correctly on  data grouped by .sample", {
@@ -332,10 +332,10 @@ eeg_diff_means_1 <- group_by(data, .sample) %>%
 
 tbl_diff_means_1 <- data %>%
   as_tibble() %>%
-  dplyr::group_by(.time) %>%
+   group_by(.time) %>%
 
-  dplyr::filter(.key == "X") %>%
-  dplyr::summarize(mean = mean(.value[condition == "a"] - .value[condition == "b"]))
+   filter(.key == "X") %>%
+   summarize(mean = mean(.value[condition == "a"] - .value[condition == "b"]))
 
 eeg_diff_means_2 <- group_by(data, .sample) %>%
   summarize_at(channel_names(.),funs(mean(.[condition == "a"] - 
@@ -344,10 +344,10 @@ eeg_diff_means_2 <- group_by(data, .sample) %>%
 tbl_diff_means_2 <- data %>%
   as_tibble() %>%
 
-  dplyr::group_by(.time, .key) %>%
-  dplyr::summarize(mean = mean(.value[condition == "a"] - .value[condition == "b"])) %>%
+   group_by(.time, .key) %>%
+   summarize(mean = mean(.value[condition == "a"] - .value[condition == "b"])) %>%
   tidyr::spread(key = .key, value = mean) %>%
-  dplyr::ungroup()
+   ungroup()
 
 eeg_diff_means_3 <- group_by(data, .sample) %>%
   summarize(mean = mean(X[condition == "a" & .recording == "recording1"] - 
@@ -355,9 +355,9 @@ eeg_diff_means_3 <- group_by(data, .sample) %>%
 
 tbl_diff_means_3 <- data %>%
   as_tibble() %>%
-  dplyr::group_by(.time) %>%
-  dplyr::filter(.key == "X") %>%
-  dplyr::summarize(mean = mean(.value[condition == "a" & .recording == "recording1"] - .value[condition == "b" & .recording == "recording2"]))
+   group_by(.time) %>%
+   filter(.key == "X") %>%
+   summarize(mean = mean(.value[condition == "a" & .recording == "recording1"] - .value[condition == "b" & .recording == "recording2"]))
 
 eeg_diff_means_4 <- group_by(data, .sample) %>%
   summarize_at(channel_names(.),funs(mean(.[condition == "a" & .recording == "recording1"] - 
@@ -365,19 +365,19 @@ eeg_diff_means_4 <- group_by(data, .sample) %>%
 
 tbl_diff_means_4 <- data %>%
   as_tibble() %>%
-  dplyr::group_by(.time, .key) %>%
-  dplyr::summarize(mean = mean(.value[condition == "a" & .recording == "recording1"] - .value[condition == "b" & .recording == "recording2"])) %>%
+   group_by(.time, .key) %>%
+   summarize(mean = mean(.value[condition == "a" & .recording == "recording1"] - .value[condition == "b" & .recording == "recording2"])) %>%
   tidyr::spread(key = .key, value = mean) %>%
-  dplyr::ungroup()
+   ungroup()
 
 eeg_means_5 <- group_by(data, .sample) %>% summarize_at(channel_names(.),"mean")
 
 tbl_means_5 <- data %>%
   as_tibble() %>%
-  dplyr::group_by(.time, .key) %>%
-  dplyr::summarize(mean = mean(.value)) %>%
+   group_by(.time, .key) %>%
+   summarize(mean = mean(.value)) %>%
   tidyr::spread(key = .key, value = mean) %>%
-  dplyr::ungroup()
+   ungroup()
 
 
 test_that("summarising functions work the same on eeg_lst as on tibble", {

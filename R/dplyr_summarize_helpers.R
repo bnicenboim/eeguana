@@ -48,7 +48,7 @@ summarize_segments <-  function(segments, segments_groups, last_id){
       } %>%
     dplyr::select(.id, dplyr::everything())
     } else {
-        tibble::tibble(.id = seq_len(last_id))
+        dplyr::tibble(.id = seq_len(last_id))
     }
 }
 
@@ -78,7 +78,7 @@ summarize_eval_signal <- function(.eeg_lst, dots){
     old_attributes <- purrr::map(add_names %>% stringr::str_split("_"),
                ~ attributes(.eeg_lst$.signal[[.x[[1]]]]))
 
-    old_attributes <- setNames(old_attributes, add_names)
+    old_attributes <- stats::setNames(old_attributes, add_names)
 
     env <- lapply(dots, rlang::quo_get_env) %>% unique()
     if(length(env)!=1) stop("Need to fix env", env)

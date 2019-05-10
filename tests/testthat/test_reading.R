@@ -1,5 +1,5 @@
 context("Read dat files")
-library(eeguana)
+library(eeguana); library(dplyr); library(ggplot2)
 
 
 multiplexed_bin_bv1 <- read_vhdr(file = system.file("testdata","asalab_export_bv.vhdr",package="eeguana"), .recording = "bv2")
@@ -57,14 +57,14 @@ edf_plus_bv <- read_edf(file = system.file("testdata","bv_export_edf+.edf",packa
 
 ch_tbl <- channels_tbl(multiplexed_bin_bv2)
 max_sample <- max(multiplexed_bin_bv2$.signal$.sample)
-edf_f <- dplyr::filter(edf, .sample <=  4722)
+edf_f <-  filter(edf, .sample <=  4722)
 channels_tbl(edf_f) <- ch_tbl
 
 
 channels_tbl(edf) <- channels_tbl(edf_bv)
 channels_tbl(edf_plus_bv) <- channels_tbl(edf_bv)
 events_bv <- events_tbl(multiplexed_bin_bv2) %>% 
-  dplyr::mutate(.type = NA,.description=ifelse(.description=="","New Segment",.description)) %>% dplyr::as_tibble()
+   mutate(.type = NA,.description=ifelse(.description=="","New Segment",.description)) %>%  as_tibble()
 events_edf <- events_tbl(edf_plus_bv) %>% as_tibble()      
 
 test_that("edf and dat files match", {
@@ -95,10 +95,10 @@ test_that("seg matches", {
     expect_equal(seg_ascii_bv2$.segments$segment,1:12)
 
   expect_equal(events_tbl(seg_ascii_bv2)[.type=="Stimulus"],events_tbl(seged_ascii))
-  expect_equal(seg_ascii_bv2$.segments,dplyr::select(seged_ascii$.segments,-type,-description))
+  expect_equal(seg_ascii_bv2$.segments, select(seged_ascii$.segments,-type,-description))
 
   expect_equal(seg_bin_bv2$.signal,seged_bin$.signal)
   expect_equal(events_tbl(seg_bin_bv2)[.type=="Stimulus"],events_tbl(seged_bin))
-  expect_equal(seg_bin_bv2$.segments,dplyr::select(seged_bin$.segments,-type,-description))
+  expect_equal(seg_bin_bv2$.segments, select(seged_bin$.segments,-type,-description))
 })
 

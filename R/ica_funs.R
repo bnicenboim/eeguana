@@ -72,7 +72,7 @@ fast_ICA <- function (X, g = "tanh", dg = NULL, G = NULL, init = NULL, n.init = 
     eps <- p * eps
     name <- c("pow3", "tanh", "gaus")
     method <- match.arg(method, c("sym2", "sym", "def"))
-    S0 <- cov(X)
+    S0 <- stats::cov(X)
     EVD <- eigen(S0, symmetric = TRUE)
     S0.5 <- EVD$vectors %*% tcrossprod(diag(EVD$values^(0.5)), 
                                        EVD$vectors)

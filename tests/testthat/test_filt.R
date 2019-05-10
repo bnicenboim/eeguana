@@ -1,30 +1,30 @@
 context("test filters")
-library(eeguana)
+library(eeguana); library(dplyr); library(ggplot2)
 set.seed(123)
 
 
 N <- 1000
-signal <- dplyr::tibble(X1 = sin(seq_len(N)),  # f = 1/(2* pi)
+signal <-  tibble(X1 = sin(seq_len(N)),  # f = 1/(2* pi)
                  X2 = sin(seq_len(N) *2), # f = 3/(2*pi)
                  X3 = sin(seq_len(N) *3), # f = 5/(2*pi)
                  X4 = X1+X2+X3) %>%
-    dplyr::mutate_all(channel_dbl)
+     mutate_all(channel_dbl)
 
 data_sin <- eeg_lst(
     signal_tbl = signal %>%
-        dplyr::mutate(.id = 1L,
+         mutate(.id = 1L,
         .sample = sample_int(seq_len(N), sampling_rate = 500) 
     ),
-    segments_tbl = dplyr::tibble(.id = 1L, .recording = "recording1", segment =  1L)
+    segments_tbl =  tibble(.id = 1L, .recording = "recording1", segment =  1L)
 )
 
 
 data_sin_more <- eeg_lst(
     signal_tbl = signal %>%
-        dplyr::mutate(.id = rep(1:4, each =N/4),
+         mutate(.id = rep(1:4, each =N/4),
         .sample = sample_int(rep(seq_len(N/4),times= 4), sampling_rate = 500) 
     ),
-    segments_tbl = dplyr::tibble(.id = seq.int(4), .recording = paste0("recording",c(1,1,2,2)), segment =  seq.int(4))
+    segments_tbl =  tibble(.id = seq.int(4), .recording = paste0("recording",c(1,1,2,2)), segment =  seq.int(4))
 )
 
 

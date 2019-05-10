@@ -1,5 +1,5 @@
 context("test EEG-specialized functions")
-library(eeguana)
+library(eeguana); library(dplyr); library(ggplot2)
 
 
 data <- eeg_lst(
@@ -9,11 +9,11 @@ data <- eeg_lst(
                             .id = rep(c(1L, 2L), each = 10),
                             .sample = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500)),
     channels_tbl = 
-        dplyr::tibble(
+         tibble(
                    .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
                    radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
                ),
-    events_tbl = dplyr::tribble(
+    events_tbl =  tribble(
                             ~.id, ~.type, ~.description, ~.initial, ~.final, ~.channel,
                             1L, "New Segment", NA_character_, -4L, -4L, NA,
                             1L, "Bad", NA_character_, -2L, 0L, NA,
@@ -23,21 +23,21 @@ data <- eeg_lst(
                             2L, "Time 0", NA_character_, 1L, 1L, NA,
                             2L, "Bad", NA_character_, 2L, 2L, "Y"
                         ),
-    segments_tbl = dplyr::tibble(.id = c(1L, 2L), .recording = "recording1", segment = c(1L, 2L))
+    segments_tbl =  tibble(.id = c(1L, 2L), .recording = "recording1", segment = c(1L, 2L))
 )
 
 
 data_NA <- eeg_lst(
-  signal_tbl =dplyr::tibble(
+  signal_tbl = tibble(
                          X = sin(1:20),
                          Y = cos(1:20),
     .id = rep(c(1L, 2L), each = 10),
     .sample = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500)),
-  channels_tbl=  dplyr::tibble(
+  channels_tbl=   tibble(
       .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
     ),
-  events_tbl = dplyr::tribble(
+  events_tbl =  tribble(
     ~.id, ~.type, ~.description, ~.initial, ~.final, ~.channel,
     1L, "New Segment", NA_character_, -4L, -4L, NA_character_,
     1L, "Bad", NA_character_, -2L, 0L, NA,
@@ -47,22 +47,22 @@ data_NA <- eeg_lst(
     2L, "Time 0", NA_character_, 1L, 1L, NA,
     2L, "Bad", NA_character_, 2L, 2L, NA
     ),
-  segments_tbl = dplyr::tibble(.id = c(1L, 2L), .recording = "recording1", segment = c(1L, 2L))
+  segments_tbl =  tibble(.id = c(1L, 2L), .recording = "recording1", segment = c(1L, 2L))
 )
 
 data_XY <- eeg_lst(
-    signal_tbl =dplyr::tibble(
+    signal_tbl = tibble(
                            X = sin(1:20),
                            Y = cos(1:20),
                            .id = rep(c(1L, 2L), each = 10),
                            .sample = sample_int(rep(seq(-4L, 5L), times = 2),
                                                    sampling_rate = 500)),
-channels_tbl=    dplyr::tibble(
+channels_tbl=     tibble(
       .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
     
   ),
-  events_tbl = dplyr::tribble(
+  events_tbl =  tribble(
     ~.id, ~.type, ~.description, ~.initial, ~.final, ~.channel,
     1L, "New Segment", NA_character_, -4L, -4L, NA,
     1L, "Bad", NA_character_, -2L, 0L, "X",
@@ -73,15 +73,15 @@ channels_tbl=    dplyr::tibble(
     2L, "Time 0", NA_character_, 1L, 1L, NA,
     2L, "Bad", NA_character_, 2L, 2L, "Y"
     ),
-  segments_tbl = dplyr::tibble(.id = c(1L, 2L), .recording = "recording1", segment = c(1L, 2L))
+  segments_tbl =  tibble(.id = c(1L, 2L), .recording = "recording1", segment = c(1L, 2L))
 )
-baselines <- dplyr::summarize(dplyr::group_by(
-                                         dplyr::filter(as_tibble(data$.signal), .sample <= 0),
+baselines <-  summarize( group_by(
+                                          filter(as_tibble(data$.signal), .sample <= 0),
                                          .id
                                      ), bX = mean(X), bY = mean(Y))
 
 
-signal_with_baselines <- dplyr::left_join(as_tibble(data$.signal), baselines)
+signal_with_baselines <-  left_join(as_tibble(data$.signal), baselines)
 signal_with_baselines$new_X <- signal_with_baselines$X - signal_with_baselines$bX
 signal_with_baselines$new_Y <- signal_with_baselines$Y - signal_with_baselines$bY
 baselined <- ch_baseline(data)
@@ -154,15 +154,15 @@ test_that("can clean whole segments in files", {
 N <- 1000
 data_eeg <- eeg_lst(
   signal_tbl =  
-      dplyr::tibble(X = sin(1:N/20),
+       tibble(X = sin(1:N/20),
                     Y = cos(1:N/20),
     .id = rep(c(1L, 2L), each = N/2),
     .sample = sample_int(rep(seq.int(-100, N/2 -101), times = 2), sampling_rate = 500)),
-channels_tbl=    dplyr::tibble(
+channels_tbl=     tibble(
       .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
     ),
-  events_tbl =  dplyr::tribble(
+  events_tbl =   tribble(
     ~.id, ~.type, ~.description, ~.initial, ~.final, ~.channel,
     1L, "New Segment", NA_character_, -100L, -100L, NA,
     1L, "Bad", NA_character_, -20L, 9L, NA,
@@ -172,14 +172,14 @@ channels_tbl=    dplyr::tibble(
     2L, "Time 0", NA_character_, 1L, 1L, NA,
     2L, "Bad", NA_character_, 20L, 29L, "Y"
     ), 
-  segments_tbl = dplyr::tibble(.id = c(1L, 2L), .recording = "recording1", segment = c(1L, 2L))
+  segments_tbl =  tibble(.id = c(1L, 2L), .recording = "recording1", segment = c(1L, 2L))
 )
 
 
 data_d <- eeg_downsample(data_eeg, q=2)
 
-## dplyr::bind_rows(dplyr::tibble(x=seq_along(data_eeg$.signal$X),y= data_eeg$.signal$X %>% as.numeric, .type= "original"),
-##                  dplyr::tibble(x=seq(from = 1, to = N, by= 2),y= data_d$.signal$X %>% as.numeric, .type= "downsampled")) %>%
+##  bind_rows( tibble(x=seq_along(data_eeg$.signal$X),y= data_eeg$.signal$X %>% as.numeric, .type= "original"),
+##                   tibble(x=seq(from = 1, to = N, by= 2),y= data_d$.signal$X %>% as.numeric, .type= "downsampled")) %>%
 ## ggplot(aes(x=x,y=y, color = .type)) + geom_point()
 
 
@@ -299,8 +299,8 @@ test_that("times remain similar; sample0 = 101", {
 
 data_d <- eeg_downsample(data_eeg, q=20,multiple_times = TRUE )
 
-## dplyr::bind_rows(dplyr::tibble(x=seq_along(data_eeg$.signal$X),y= data_eeg$.signal$X %>% as.numeric, .type= "original"),
-##                  dplyr::tibble(x=seq(from = 1, to = N, by= 20),y= data_d$.signal$X %>% as.numeric, .type= "downsampled")) %>%
+##  bind_rows( tibble(x=seq_along(data_eeg$.signal$X),y= data_eeg$.signal$X %>% as.numeric, .type= "original"),
+##                   tibble(x=seq(from = 1, to = N, by= 20),y= data_d$.signal$X %>% as.numeric, .type= "downsampled")) %>%
 ## ggplot(aes(x=x,y=y, color = .type)) + geom_point()
  
  
@@ -319,8 +319,8 @@ test_that("times remain similar; q=20", {
 
 data_dmax <- eeg_downsample(data_eeg,max_sample = 100 )
 
-## dplyr::bind_rows(dplyr::tibble(x=seq_along(data_eeg$.signal$X),y= data_eeg$.signal$X %>% as.numeric, .type= "original"),
-##                  dplyr::tibble(x=seq(from = 1, to = N, by= 2),y= data_d$.signal$X %>% as.numeric, .type= "downsampled")) %>%
+##  bind_rows( tibble(x=seq_along(data_eeg$.signal$X),y= data_eeg$.signal$X %>% as.numeric, .type= "original"),
+##                   tibble(x=seq(from = 1, to = N, by= 2),y= data_d$.signal$X %>% as.numeric, .type= "downsampled")) %>%
 ## ggplot(aes(x=x,y=y, color = .type)) + geom_point()
 
 

@@ -1,18 +1,18 @@
 context("test tidyverse functions filter")
-library(eeguana)
+library(eeguana); library(dplyr); library(ggplot2)
 
 
 # create fake dataset
 data_1 <- eeg_lst(
   signal_tbl =
- dplyr::tibble(X = sin(1:30), Y = cos(1:30),
+  tibble(X = sin(1:30), Y = cos(1:30),
     .id = rep(c(1L, 2L, 3L), each = 10),
 .sample = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500)),
-   channels_tbl = dplyr::tibble(
+   channels_tbl =  tibble(
       .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = c(1, 1), .y = NA_real_, .z = NA_real_
   ),
-   events_tbl = dplyr::tribble(
+   events_tbl =  tribble(
     ~.id, ~.type, ~.description, ~.initial, ~.final, ~.channel,
     1L, "New Segment", NA_character_, -4L, -4L, NA,
     1L, "Bad", NA_character_, -2L, 0L, NA,
@@ -25,7 +25,7 @@ data_1 <- eeg_lst(
     3L, "Time 0", NA_character_, 1L, 1L, NA,
     3L, "Bad", NA_character_, 2L, 2L, "Y"
     ),
-  segments = dplyr::tibble(.id = c(1L, 2L, 3L),
+  segments =  tibble(.id = c(1L, 2L, 3L),
                            .recording = "recording1",
                            segment = c(1L, 2L, 3L),
                            condition = c("a", "b", "a"))
@@ -54,31 +54,31 @@ reference_data <- data.table::copy(data)
 filter1_id_eeg <- filter(data, .id == 1)
 
 filter1_id_sign_tbl <- as_tibble(data$.signal) %>%
-  dplyr::filter(.id == 1)
+   filter(.id == 1)
 filter1_id_segm_tbl <- as_tibble(data$.segments) %>%
-  dplyr::filter(.id == 1)
+   filter(.id == 1)
 filter1_id_evts_tbl <- as_tibble(data$.events) %>%
-  dplyr::filter(.id == 1)
+   filter(.id == 1)
 
 
 filter2_id_eeg <- filter(data, .id != 2)
 
 filter2_id_sign_tbl <- as_tibble(data$.signal) %>%
-  dplyr::filter(.id != 2)
+   filter(.id != 2)
 filter2_id_segm_tbl <- as_tibble(data$.segments) %>%
-  dplyr::filter(.id != 2)
+   filter(.id != 2)
 filter2_id_evts_tbl <- as_tibble(data$.events) %>%
-  dplyr::filter(.id != 2)
+   filter(.id != 2)
 
 
 filter3_id_eeg <- filter(data, .id == 3)
 
 filter3_id_sign_tbl <- as_tibble(data$.signal) %>%
-  dplyr::filter(.id == 3)
+   filter(.id == 3)
 filter3_id_segm_tbl <- as_tibble(data$.segments) %>%
-  dplyr::filter(.id == 3)
+   filter(.id == 3)
 filter3_id_evts_tbl <- as_tibble(data$.events) %>%
-  dplyr::filter(.id == 3)
+   filter(.id == 3)
 
 
 test_that("filtering within signal table returns correct values in signal table", {
@@ -125,7 +125,7 @@ test_that("data didn't change", {
 
 filter1_sign_eeg <- filter(data, .sample >= 0) 
 filter1_sign_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%
-  dplyr::filter(.sample >= 0) 
+   filter(.sample >= 0) 
 filter1_events <- events_tbl(data) %>% filter(.initial >=0 |.final >=0) %>%
     mutate(.final = ifelse(.initial < 0,0 , .final  ), .initial = ifelse(.initial < 0, 0, .initial))
 
@@ -133,12 +133,12 @@ filter1_events <- events_tbl(data) %>% filter(.initial >=0 |.final >=0) %>%
 
 filter2_sign_eeg <- filter(data, .id == 1 & .sample == 2)
 filter2_sign_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%
-  dplyr::filter(.id == 1 & .sample == 2)
+   filter(.id == 1 & .sample == 2)
 
 
 filter3_sign_eeg <- filter(data, X < 0 & Y < 0)
 filter3_sign_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%
-  dplyr::filter(X < 0 & Y < 0)
+   filter(X < 0 & Y < 0)
 
 
 test_that("filtering within signal table works in signal table", {
@@ -203,21 +203,21 @@ test_that("data didn't change", {
 filter1_segm_eeg <- filter(data, segment != 2)
 
 filter1s_segm_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%
-  dplyr::filter(segment != 2)
+   filter(segment != 2)
 
 filter1e_segm_tbl <- left_join(as_tibble(data$.segments), as_tibble(data$.events)) %>%
-  dplyr::filter(segment != 2) %>%
-  dplyr::distinct(.id, .type, .description, .initial, .final, .channel)
+   filter(segment != 2) %>%
+   distinct(.id, .type, .description, .initial, .final, .channel)
 
 
 filter2_segm_eeg <- filter(data, condition == "a" & segment == 3)
 
 filter2s_segm_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%
-  dplyr::filter(condition == "a" & segment == 3)
+   filter(condition == "a" & segment == 3)
 
 filter2e_segm_tbl <- left_join(as_tibble(data$.segments), as_tibble(data$.events)) %>%
-  dplyr::filter(condition == "a" & segment == 3) %>%
-  dplyr::distinct(.id, .type, .description, .initial, .final, .channel)
+   filter(condition == "a" & segment == 3) %>%
+   distinct(.id, .type, .description, .initial, .final, .channel)
 
 
 filter3_segm_eeg <- filter(data, .recording == "recording2")
@@ -284,7 +284,7 @@ test_that("data didn't change", {
 filter1_eeg <- filter(data, .sample == 2 & segment == 2)
 
 filter1_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>% 
-  dplyr::filter(.sample == 2 & segment == 2)
+   filter(.sample == 2 & segment == 2)
 
 # just checking this is the same as above
 # filter1_tbl <- data %>%
@@ -295,25 +295,25 @@ filter1_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%
 
 filter2_eeg <- filter(data, .sample < 2 & !(.recording == "recording2"))
 filter2_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%
-  dplyr::filter(.sample < 2 & !(.recording == "recording2"))
+   filter(.sample < 2 & !(.recording == "recording2"))
 
 filter3_eeg <- filter(data, .sample == 1 | condition == "a")
 filter3_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%
-  dplyr::filter(.sample == 1 | condition == "a") 
+   filter(.sample == 1 | condition == "a") 
 
 filter4_eeg <- filter(data, .id == 2 | condition == "b")
 filter4_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%
-  dplyr::filter(.id == 2 | condition == "b") 
+   filter(.id == 2 | condition == "b") 
 
 
 filter5_eeg <- filter(data, between(X, 0, 0.5) & segment != 1)
 filter5_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%
-  dplyr::filter(between(X, 0, 0.5) & segment != 1)
+   filter(between(X, 0, 0.5) & segment != 1)
 
 
 filter6_eeg <- filter(data, Y > 0 & .recording == "recording1")
 filter6_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%
-  dplyr::filter(Y > 0 & .recording == "recording1")
+   filter(Y > 0 & .recording == "recording1")
 
 
 test_that("filtering across tables returns the right signal table values", {
@@ -389,7 +389,7 @@ mutate_filter1_eeg <- data %>%
 
 mutate_filter1_tbl <-  data$.signal %>%
   mutate(time = as_time(.sample, unit = "milliseconds")) %>%
-    dplyr::filter(time == 2) %>%
+     filter(time == 2) %>%
   left_join(as_tibble(data$.segments))
 
 
@@ -400,7 +400,7 @@ mutate_filter2_eeg <- data %>%
 
 mutate_filter2_tbl <- data$.signal %>%
   mutate(time = as_time(.sample, unit = "seconds")) %>%
-  dplyr::filter(time == 0.002) %>%
+   filter(time == 0.002) %>%
 left_join(as_tibble(data$.segments))
 
 mutate_filter3_eeg <- data %>% 
@@ -408,8 +408,8 @@ mutate_filter3_eeg <- data %>%
   filter(group == "late")
 
 mutate_filter3_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%
-  dplyr::mutate(group = ifelse(.sample > 0, "late", "early")) %>%
-  dplyr::filter(group == "late")
+   mutate(group = ifelse(.sample > 0, "late", "early")) %>%
+   filter(group == "late")
 
 
 mutate_filter4_eeg <- data %>% 
@@ -417,16 +417,16 @@ mutate_filter4_eeg <- data %>%
   filter(group == "neg")
 
 mutate_filter4_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%
-  dplyr::mutate(group = ifelse(Y > 0, "pos", "neg")) %>%
-  dplyr::filter(group == "neg")
+   mutate(group = ifelse(Y > 0, "pos", "neg")) %>%
+   filter(group == "neg")
 
 
 transmute_filter_eeg <- transmute(data, X = X + 1) %>%
   filter(.recording == "recording1")
 
 transmute_filter_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%
-  dplyr::filter(.recording == "recording1") %>%
-  dplyr::mutate(X = X + 1) 
+   filter(.recording == "recording1") %>%
+   mutate(X = X + 1) 
   
 
 test_that("filtering on newly created variables works in signal table", {
@@ -512,11 +512,11 @@ test_that("data didn't change", {
 # # this doesn't group by time either
 # mutate_at_tbl <- data %>%
 #   as_tibble() %>%
-#   dplyr::select(.id, time, channel, amplitude, condition, segment, recording) %>%
+#    select(.id, time, channel, amplitude, condition, segment, recording) %>%
 #   tidyr::spread(key = channel, value = amplitude) %>%
-#   dplyr::group_by(time) %>%
-#   dplyr::mutate_at(channel_names(data), funs(mean)) %>%
-#   dplyr::filter(condition == "b")
+#    group_by(time) %>%
+#    mutate_at(channel_names(data), funs(mean)) %>%
+#    filter(condition == "b")
 
 
 
@@ -525,9 +525,9 @@ summarize_filter_eeg <- group_by(data, .sample) %>%
   filter(mean > -0.35)
 
 summarize_filter_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%
-  dplyr::group_by(.sample) %>%
-  dplyr::summarize(mean = mean(Y)) %>%
-  dplyr::filter(mean > -0.35)
+   group_by(.sample) %>%
+   summarize(mean = mean(Y)) %>%
+   filter(mean > -0.35)
 
 
 summarize_at_filter_eeg <- data %>% 
@@ -536,10 +536,10 @@ summarize_at_filter_eeg <- data %>%
   filter(X > 0 & Y > 0)
 
 summarize_at_filter_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%
-  dplyr::group_by(.id, .recording, condition) %>%
-  dplyr::summarise(X = mean(X), Y = mean(Y)) %>%
-  dplyr::ungroup() %>% # have to add this or it does weird stuff
-  dplyr::filter(X > 0 & Y > 0)
+   group_by(.id, .recording, condition) %>%
+   summarise(X = mean(X), Y = mean(Y)) %>%
+   ungroup() %>% # have to add this or it does weird stuff
+   filter(X > 0 & Y > 0)
 
 
 summarize_all_filter_eeg <- group_by(data, .id, .sample) %>% 
@@ -547,9 +547,9 @@ summarize_all_filter_eeg <- group_by(data, .id, .sample) %>%
   filter(.sample < 0)
 
 summarize_all_filter_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%
-  dplyr::group_by(.id, .sample) %>%
-  dplyr::summarize(X = mean(X), Y = mean(Y)) %>%
-  dplyr::filter(.sample < 0)
+   group_by(.id, .sample) %>%
+   summarize(X = mean(X), Y = mean(Y)) %>%
+   filter(.sample < 0)
 
 
 # warnings about .id
@@ -558,9 +558,9 @@ summarize_all1_filter_eeg <- group_by(data, .id, condition) %>%
   filter(condition == "a")
 
 summarize_all1_filter_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%
-  dplyr::group_by(.id, condition) %>%
-  dplyr::summarize(X = mean(X), Y = mean(Y)) %>%
-  dplyr::filter(condition == "a")
+   group_by(.id, condition) %>%
+   summarize(X = mean(X), Y = mean(Y)) %>%
+   filter(condition == "a")
 
 
 summarize_all2_filter_eeg <- group_by(data, condition) %>% 
@@ -568,9 +568,9 @@ summarize_all2_filter_eeg <- group_by(data, condition) %>%
   filter(condition == "a")
 
 summarize_all2_filter_tbl <- left_join(as_tibble(data$.signal), as_tibble(data$.segments)) %>%
-  dplyr::group_by(condition) %>%
-  dplyr::summarize(X = mean(X), Y = mean(Y)) %>%
-  dplyr::filter(condition == "a")
+   group_by(condition) %>%
+   summarize(X = mean(X), Y = mean(Y)) %>%
+   filter(condition == "a")
 
 
 
@@ -633,22 +633,22 @@ test_that("the classes of channels of signal_tbl remain after filtering by new v
 ##################
 
 ##DO NOT USE ifelse, it looses the attributes; TODO: write about it
-data_NA <- data %>% mutate(X = dplyr::if_else(.id==1 & .sample ==1, channel_dbl(NA), X))
+data_NA <- data %>% mutate(X =  if_else(.id==1 & .sample ==1, channel_dbl(NA), X))
 data_NAm1 <- data_NA %>% filter(.id !=1 | .sample !=1)
 data_NAm1id <- data_NA %>% filter(.id !=1)
 test_that("filter_at and grouped filtered at", {
     ##everything except the NA:
-    expect_equal(data_NA %>% dplyr::filter_at(channel_names(.),~ !is.na(.)), data_NAm1)
-    expect_equal(data_NA %>% dplyr::group_by(.id) %>%
-                 dplyr::filter_at(channel_names(.),~ !is.na(.)) %>%
-                 dplyr::ungroup(), data_NAm1)
+    expect_equal(data_NA %>%  filter_at(channel_names(.),~ !is.na(.)), data_NAm1)
+    expect_equal(data_NA %>%  group_by(.id) %>%
+                  filter_at(channel_names(.),~ !is.na(.)) %>%
+                  ungroup(), data_NAm1)
     ##removes .id ==1
-    expect_equal(data_NA %>% dplyr::group_by(.id) %>%
-                 dplyr::filter_at(channel_names(.),~ !anyNA(.)) %>%
-                 dplyr::ungroup(), data_NAm1id)
-    expect_equal(data_NA %>% dplyr::group_by(.id) %>%
-                 dplyr::filter_at(channel_names(.),dplyr::all_vars(!anyNA(.))) %>%
-                 dplyr::ungroup(), data_NAm1id)
+    expect_equal(data_NA %>%  group_by(.id) %>%
+                  filter_at(channel_names(.),~ !anyNA(.)) %>%
+                  ungroup(), data_NAm1id)
+    expect_equal(data_NA %>%  group_by(.id) %>%
+                  filter_at(channel_names(.), all_vars(!anyNA(.))) %>%
+                  ungroup(), data_NAm1id)
 })
 
 

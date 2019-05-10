@@ -56,7 +56,7 @@ eeg_ica.eeg_lst <- function(.data,
   
   ## creates a DT with length length(signal_tbl) where the grouping var is repeated,
   ## This is used to split the signal_tbl, in case that there are many recordings together
-  signal_complete <- signal_raw[complete.cases(signal_raw),][
+  signal_complete <- signal_raw[stats::complete.cases(signal_raw),][
       data.table::as.data.table(.data$.segments)[
                                                     ,.(.id,.recording)], on = ".id",
                                      nomatch = 0][,.id:=NULL][]

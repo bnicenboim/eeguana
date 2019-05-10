@@ -11,7 +11,7 @@ ifft <- function(x, N = NULL){
     } else {
         x <- c(x, rep(0, N-length(x)))
     }
-    fft(x, inverse = TRUE) / length(x)
+    stats::fft(x, inverse = TRUE) / length(x)
 }
 
 
@@ -24,7 +24,7 @@ rfft <- function(x,N=NULL){
         x <- c(x, rep(0, N-length(x)))
     }
 
-    fft(x)[1:(floor(length(x)/2)+1)]
+    stats::fft(x)[1:(floor(length(x)/2)+1)]
 }
 
 irfft <- function(x,N=NULL){
@@ -96,7 +96,7 @@ hamming <- function(M, sym=TRUE){
     ## >>> plt.ylabel("Amplitude")
     ## >>> plt.xlabel("Sample")
     ## >>> plt.figure()
-    ## >>> A = fft(window, 2048) / (len(window)/2.0)
+    ## >>> A = stats::fft(window, 2048) / (len(window)/2.0)
     ## >>> freq = np.linspace(-0.5, 0.5, len(A))
     ## >>> response = 20 * np.log10(np.abs(fftshift(A / abs(A).max())))
     ## >>> plt.plot(freq, response)

@@ -32,7 +32,7 @@ to create the variable \code{time}. By default, time is then plotted on the
 x-axis and amplitude on the y-axis, and uses \code{scales = "free"}; see \code{\link[ggplot2:facet_grid]{ggplot2::facet_grid()}}.
 
 To add additional components to the plot such as titles and annotations, simply
-use the \code{+} symbol and add layers exactly as you would for \code{ggplot::ggplot}.
+use the \code{+} symbol and add layers exactly as you would for \link[ggplot2:ggplot]{ggplot2::ggplot}.
 }
 \examples{
 
@@ -40,6 +40,7 @@ use the \code{+} symbol and add layers exactly as you would for \code{ggplot::gg
 plot(data_faces_ERPs)
 
 # Add ggplot layers
+library(ggplot2)
 plot(data_faces_ERPs) + 
     coord_cartesian(ylim = c(-500,500))
 

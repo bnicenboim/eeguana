@@ -1,18 +1,18 @@
 context("test tidyverse functions rename/select")
-library(eeguana)
+library(eeguana); library(dplyr); library(ggplot2)
 
 
 # create fake dataset
 data_1 <- eeg_lst(
   signal_tbl =
- dplyr::tibble(X = sin(1:30), Y = cos(1:30),
+  tibble(X = sin(1:30), Y = cos(1:30),
     .id = rep(c(1L, 2L, 3L), each = 10),
     .sample = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500)),
-   channels_tbl = dplyr::tibble(
+   channels_tbl =  tibble(
       .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = c(1, 1), .y = NA_real_, .z = NA_real_
   ),
-   events_tbl = dplyr::tribble(
+   events_tbl =  tribble(
     ~.id, ~.type, ~.description, ~.initial, ~.final, ~.channel,
     1L, "New Segment", NA_character_, -4L, -4L, NA,
     1L, "Bad", NA_character_, -2L, 0L, NA,
@@ -25,7 +25,7 @@ data_1 <- eeg_lst(
     3L, "Time 0", NA_character_, 1L, 1L, NA,
     3L, "Bad", NA_character_, 2L, 2L, "Y"
     ),
-  segments_tbl = dplyr::tibble(.id = c(1L, 2L, 3L),
+  segments_tbl =  tibble(.id = c(1L, 2L, 3L),
                            .recording = "recording1",
                            segment = c(1L, 2L, 3L),
                            condition = c("a", "b", "a"))
@@ -65,14 +65,14 @@ rename1_eeg <- rename(data, ZZ = Y)
 rename1_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::rename(ZZ = Y) 
+   rename(ZZ = Y) 
 
 
 rename2_eeg <- rename(data, x = X)
 rename2_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::rename(x = X) 
+   rename(x = X) 
 
 
 test_that("renaming in signal table doesn't change data", {
@@ -127,21 +127,21 @@ rename3_eeg <- rename(data, subject = .recording)
 rename3_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::rename(subject = .recording)
+   rename(subject = .recording)
 
 
 rename4_eeg <- rename(data, epoch = segment)
 rename4_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::rename(epoch = segment)
+   rename(epoch = segment)
 
 
 rename5_eeg <- rename(data, cond = condition)
 rename5_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::rename(cond = condition)
+   rename(cond = condition)
 
 
 test_that("renaming in segments table doesn't change data", {
@@ -223,14 +223,14 @@ test_that("renaming in events table doesn't change data", {
 ## rename_all1_tbl <- data %>%
 ##   as_tibble() %>%
 ##   tidyr::spread(key = .key, value = .value) %>%
-##   dplyr::rename_all(toupper)
+##    rename_all(toupper)
 
 
 ## rename_all2_eeg <- rename_all(data, tolower)
 ## rename_all2_tbl <- data %>%
 ##   as_tibble() %>%
 ##   tidyr::spread(key = .key, value = .value) %>%
-##   dplyr::rename_all(tolower)
+##    rename_all(tolower)
 
 
 
@@ -279,8 +279,8 @@ rename_select_eeg <- rename(data, ZZ = Y) %>%
 rename_select_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::rename(ZZ = Y) %>%
-  dplyr::select(ZZ)
+   rename(ZZ = Y) %>%
+   select(ZZ)
 
 
 mutate_rename_eeg <- mutate(data, Z = Y + 1) %>%
@@ -288,8 +288,8 @@ mutate_rename_eeg <- mutate(data, Z = Y + 1) %>%
 mutate_rename_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::mutate(Z = Y + 1) %>%
-  dplyr::rename(ZZ = Z)
+   mutate(Z = Y + 1) %>%
+   rename(ZZ = Z)
 
 
 
@@ -351,8 +351,8 @@ group_rename_eeg <- data %>%
 group_rename_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::group_by(.recording) %>%
-  dplyr::rename(subject = .recording)
+   group_by(.recording) %>%
+   rename(subject = .recording)
 
 
 group_rename_summarize_eeg <- data %>%
@@ -363,9 +363,9 @@ group_rename_summarize_eeg <- data %>%
 group_rename_summarize_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::group_by(.recording, condition) %>%
-  dplyr::summarise(X = mean(X), Y = mean(Y)) %>%
-  dplyr::rename(subject = .recording)
+   group_by(.recording, condition) %>%
+   summarise(X = mean(X), Y = mean(Y)) %>%
+   rename(subject = .recording)
 
 
 test_that("rename on grouped variables doesn't change data", {

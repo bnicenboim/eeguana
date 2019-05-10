@@ -35,7 +35,7 @@ default in polar arrangement. The arrangement can be changed with the \code{proj
 argument. White space in the plot can be reduced by changing \code{ratio}.
 
 Additional components such as titles and annotations should be added to the
-plot object using \code{+} exactly as you would for \code{ggplot::ggplot}.
+plot object using \code{+} exactly as you would for \link[ggplot2:ggplot]{ggplot2::ggplot}.
 Title and legend adjustments will be treated as applying to the
 whole plot object, while other theme adjustments will be treated as applying
 to individual facets. x-axis and y-axis labels cannot be added at this stage.
