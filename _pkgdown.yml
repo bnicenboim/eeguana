@@ -45,11 +45,11 @@ reference:
       Functions for reading external files and return an `eeg_lst`.
     contents: 
     - starts_with("read")
-  - title: "Tidyverse 'dplyr'(-like) functions and extensions"
+  - title: "Dplyr verbs (and extensions)"
     desc: >
       Functions that overload some `dplyr` functions and always return an `eeg_lst`. 
     contents: 
-    - '`dplyr-eeguana`'
+    - '`dplyr_verbs`'
     - '`join-eeguana`'
     - '`bind`'
   - title: "Specialized summarizing functions"
@@ -57,20 +57,14 @@ reference:
       Functions that apply a series of `dplyr` functions to return useful summaries.
     contents: 
      - '`summary`'
-     - '`count_complete_cases_tbl`'
-
-  - title: "Channel functions"
-    desc: >
-      Functions that act on the channels of the signal table. They have a default version that acts on all the channels, and can be used inside a `mutate` call for more control.
-    contents: 
-    - starts_with("ch_")
-    - starts_with("chs_")
   - title: "EEG-specialized functions"
     desc: >
-      Functions for applying specialized actions on signal 
-      table or the entire `eeg_lst`. 
+      Functions for applying specialized actions on the signal 
+      table, channel, or the entire `eeg_lst`. 
     contents:
     - starts_with("eeg_")
+    - starts_with("ch_")
+    - starts_with("chs_")
   - title: "Plot functions"
     desc: >
       Wrappers to `ggplot` functions that first transform the `eeg_lst` to a wide `tibble`, together with some transformation (downsampling, interpolation, etc).
@@ -87,16 +81,17 @@ reference:
     - starts_with("n")
   - title: "Editing functions"
     desc: >
-      Functions for editing `eeg_lst` objects.
+      Functions for showing (and sometimes editing) `eeg_lst` objects parts.
     contents: 
+    - '`signal_tbl`'
     - '`events_tbl`'
+    - '`segments_tbl`'
     - '`channels_tbl`'
   - title: "Constructor functions"
     desc: >
       Internal functions for creating objects.
     contents: 
     - '`eeg_lst`'
-    - '`component_dbl`'
     - '`sample_int`'
     - '`channel_dbl`'
   - title: "Others"
@@ -110,3 +105,8 @@ reference:
       Example data sets in eeg_lst format.
     contents: 
     - starts_with("data_")
+  - title: "Layout"
+    desc: >
+      Layout of caps 
+    contents: 
+    - starts_with("layout_")

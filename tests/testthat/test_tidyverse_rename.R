@@ -447,11 +447,11 @@ test_that("rename on group vars works same in eeg_lst and tibble", {
     as.matrix(group_rename_eeg$.segments),
     as.matrix(dplyr::select(group_rename_tbl, .id, subject, segment, condition))
   )
-  expect_setequal(
+  expect_equal(
     as.matrix(group_rename_summarize_eeg$.signal[, c("X", "Y")]),
     as.matrix(group_rename_summarize_tbl[, c("X", "Y")])
   )
-  expect_setequal(
+  expect_equal(
     as.matrix(group_rename_summarize_eeg$.segments[, c("subject", "condition")]),
     as.matrix(group_rename_summarize_tbl[, c("subject", "condition")])
   )
