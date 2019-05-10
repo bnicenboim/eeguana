@@ -77,7 +77,7 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
 #' To add a head and nose, add the layer `annotate_head`. Add 
 #' contour lines with `ggplot2::geom_contour` and electrode labels 
 #' with `ggplot2::geom_text`. These arguments are deliberately not
-#' built into the function so as to allow flexibility in choosing colour, font 
+#' built into the function so as to allow flexibility in choosing color, font 
 #' size, and even head size, etc.
 #' 
 #' To add additional components to the plot such as titles and annotations, simply
@@ -107,7 +107,7 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
 #'         # add contour lines
 #'         geom_contour() +
 #'         # add electrode labels
-#'         geom_text(colour = "black") +
+#'         geom_text(color = "black") +
 #'         facet_grid(~condition)
 #'
 #' # The same but with interpolation
@@ -119,7 +119,7 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
 #'     plot_topo() +
 #'         annotate_head() + 
 #'         geom_contour() +
-#'         geom_text(colour = "black") +
+#'         geom_text(color = "black") +
 #'         facet_grid(~condition)
 #' 
 #' 
@@ -159,10 +159,10 @@ plot_topo.tbl_df <- function(data, value= .value,  label=.key, ...) {
                                  fill = !!value, z = !!value, label =  dplyr::if_else(!is.na(!!label), !!label, ""))) +
     ggplot2::geom_raster(interpolate = TRUE, hjust = 0.5, vjust = 0.5)  +
     # Non recommended "rainbow" Matlab palette from https://www.mattcraddock.com/blog/2017/02/25/erp-visualization-creating-topographical-scalp-maps-part-1/
-    #    scale_fill_gradientn(colours = colorRampPalette(c("#00007F", "blue", "#007FFF", "cyan", "#7FFF7F", "yellow", "#FF7F00", "red", "#7F0000")),guide = "colourbar",oob = scales::squish)+ 
+    #    scale_fill_gradientn(colors = colorRampPalette(c("#00007F", "blue", "#007FFF", "cyan", "#7FFF7F", "yellow", "#FF7F00", "red", "#7F0000")),guide = "colourbar",oob = scales::squish)+ 
     # Not that bad scale:
-    #    scale_fill_distiller(palette = "Spectral", guide = "colourbar", oob = scales::squish) + #
-    ggplot2::scale_fill_distiller(type = "div",palette = "RdBu",guide = "colourbar",  oob = scales::squish) +
+    #    scale_fill_distiller(palette = "Spectral", guide = "colorbar", oob = scales::squish) + #
+    ggplot2::scale_fill_distiller(type = "div",palette = "RdBu",guide = "colorbar",  oob = scales::squish) +
     theme_eeguana2()
   plot
 
@@ -215,7 +215,7 @@ plot_components.eeg_ica_lst <- function(data,  projection = "polar", ...) {
       ggplot2::facet_wrap(~.ICA)+
       annotate_head() + 
          ggplot2::geom_contour() +
-         ggplot2::geom_text(colour = "black")+
+         ggplot2::geom_text(color = "black")+
          ggplot2::theme(legend.position = "none")
     
 }
@@ -585,16 +585,16 @@ NULL
 theme_eeguana <- function() {
   ggplot2::`%+replace%`(ggplot2::theme_bw(),  
                 ggplot2::theme(
-                    strip.background = ggplot2::element_rect(colour = "transparent", fill = "transparent"),
+                    strip.background = ggplot2::element_rect(color = "transparent", fill = "transparent"),
                     panel.spacing  = ggplot2::unit(.01, "points"),
-                    panel.border = ggplot2::element_rect(colour = "transparent", fill = "transparent")))
+                    panel.border = ggplot2::element_rect(color = "transparent", fill = "transparent")))
 }
 #' @rdname theme_eeguana
 #' @export
 theme_eeguana2 <- function() {
   ggplot2::`%+replace%`(theme_eeguana(), 
-                        ggplot2::theme(panel.grid = ggplot2::element_line(colour = "transparent"),
-                      axis.ticks= ggplot2::element_line(colour = "transparent"),
+                        ggplot2::theme(panel.grid = ggplot2::element_line(color = "transparent"),
+                      axis.ticks= ggplot2::element_line(color = "transparent"),
                       axis.text= ggplot2::element_blank(),
                       axis.title= ggplot2::element_blank()))
 }
