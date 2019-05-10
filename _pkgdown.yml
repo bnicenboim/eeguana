@@ -42,8 +42,7 @@ reference:
     - '`eeguana`'
   - title: "Reading functions"
     desc: >
-      Functions for reading external files (BrainVision and mat
-      files from Fieldtrip) and return an `eeg_lst`. (Upcoming: eeglab and edf files).
+      Functions for reading external files and return an `eeg_lst`.
     contents: 
     - starts_with("read")
   - title: "Tidyverse 'dplyr'(-like) functions and extensions"
