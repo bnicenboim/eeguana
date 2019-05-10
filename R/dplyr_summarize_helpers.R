@@ -31,8 +31,10 @@ summarize_segments <- function(segments, segments_groups, last_id) {
   # data.table::data.table(segments)[,unique(.SD),.SDcols=c(segments_groups)][] %>% dplyr::as_tibble() %>%
   if (length(segments_groups) != 0) {
     ### IMPORTANT: segments need to be grouped and summarized as data.table does, which is differently than dplyr
-    unique(data.table::data.table(segments), by = c(segments_groups))[, segments_groups, with = FALSE] %>%
-      dplyr::as_tibble() %>%
+    # unique(data.table::data.table(segments), by = c(segments_groups))[, segments_groups, with = FALSE] %>%
+      # dplyr::as_tibble() %>%
+    segments %>% dplyr::group_by_at(dplyr::vars(segments_groups)) %>%
+      dplyr::summarize() %>%
       {
         if (!".id" %in% dplyr::tbl_vars(.)) {
           hd_add_column(., .id = seq_len(last_id))
@@ -87,7 +89,7 @@ summarize_eval_signal <- function(.eeg_lst, dots) {
 
   env <- lapply(dots, rlang::quo_get_env) %>% unique()
   if (length(env) != 1) stop("Need to fix env", env)
-  extended_signal <- extended_signal[, eval(parse(text = dots_txt), envir = env), by = c(by)]
+  extended_signal <- extended_signal[, eval(parse(text = dots_txt), envir = env), keyby = c(by)]
 
   added_cols <- paste0("V", seq_len(length(dots)))
   data.table::setnames(extended_signal, added_cols, add_names)
@@ -99,37 +101,6 @@ summarize_eval_signal <- function(.eeg_lst, dots) {
   update_summarized_signal(extended_signal, .eeg_lst)
 }
 
-summarize_at_eval_eeg_lst <- function(.eeg_lst, vars, funs) {
-  fun_quo <- funs[[1]]
-  cond_cols <- names_other_col(.eeg_lst, fun_quo, ".segments")
-  names(cond_cols) <- cond_cols
-
-  extended_signal <- extended_signal(.eeg_lst, cond_cols)
-  by <- dplyr::group_vars(.eeg_lst)
-
-  fun_txt <- rlang::quo_text(fun_quo)
-
-  # save attributes, then do the function, then keep attributes
-  myfun <- function(., args) {
-    attr <- attributes(.)
-    `attributes<-`(with(args, eval(parse(text = fun_txt))), attr)
-  }
-
-  extended_signal <- extended_signal[,
-    # apply my fun to all ther relevant columns
-    lapply(.SD, myfun,
-      # adding the auxiliary columns that are used as conditions (e.g., .[cond=1])
-      args = lapply(cond_cols, function(.) get(.))
-    ),
-    .SDcols = as.character(vars),
-    by = c(by)
-  ]
-  # give a name if the name wasn't given
-  if (!is.null(names(funs))) {
-    data.table::setnames(extended_signal, as.character(vars), paste0(as.character(vars), "_", names(funs)))
-  }
-  update_summarized_signal(extended_signal, .eeg_lst)
-}
 
 
 
