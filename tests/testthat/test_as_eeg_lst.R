@@ -1,5 +1,13 @@
 context("convert formats")
 library(eeguana)
+skip_on_appveyor <-
+function () 
+{
+    if (!identical(Sys.getenv("APPVEYOR"), "True")) {
+        return(TRUE)
+    }
+    skip("On Appveyor")
+}
 
 test_that("raw brainvision read and converted from MNE match", {
   skip_on_cran() # it needs MNE installed
@@ -7,7 +15,7 @@ test_that("raw brainvision read and converted from MNE match", {
   skip_on_appveyor()
   ## reference
   bvfile <- system.file("testdata", "bv_export_bv_txt_bin_vector.vhdr", package = "eeguana")
-  eeg_read <- read_vhdr(bvfile, .recording = "r1")
+  eeg_read <- read_vhdr(file = bvfile, .recording = "r1")
   ## bvfile_pkl <- paste0(bvfile,".pkl")
 
   reticulate::use_condaenv("mne")

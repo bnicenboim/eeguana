@@ -405,7 +405,7 @@ group_rename_tbl <- data %>%
   dplyr::rename(subject = .recording)
 
 
-group_rename_summarize_eeg <- data %>%
+group_rename_summarize_eeg  <- data %>%
   dplyr::group_by(.recording, condition) %>%
   dplyr::summarize_at(channel_names(.), mean) %>%
   dplyr::rename(subject = .recording)
