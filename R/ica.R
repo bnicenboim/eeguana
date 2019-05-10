@@ -15,18 +15,19 @@ eeg_ica <- function(.data, ...){
 #'   of N_samples by N_channels and/or `W` (unmixing matrix), consistent with the formulation
 #'    `X %*% W = S`.
 #' @param config Other parameters passed in a list to the ICA method. See the documentation of the relevant method.
-#' 
-#' @return An ica_lst object
+#' @param ignore Events that should be ignored in the ICA, set to NULL for not using the events table.
+#' @family ICA functions
+#' @return An eeg_ica_lst object
 #' @export
 eeg_ica.eeg_lst <- function(.data, 
                             ...,
-                            ignore = type == "artifact",
+                            ignore = .type == "artifact",
                     method = adapt_fast_ICA,
                     config= list()
                               ){
   start_time <- Sys.time()
   
-    ## if(unique(.data$segment$recording) %>% length() != 1 && !"recording" %in% group_vars(.data)) {
+    ## if(unique(.data$segment$.recording) %>% length() != 1 && !".recording" %in% group_vars(.data)) {
     ##     warning("It seems that there is more than one recording. It may be appropriate to do 'data %>% group_by(recording)' before applying 'eeg_ica()' ")
     ## }
 
@@ -34,18 +35,18 @@ eeg_ica.eeg_lst <- function(.data,
     ##https://martinos.org/mne/dev/auto_tutorials/plot_ica_from_raw.html
     ##http://www.fieldtriptoolbox.org/example/use_independent_component_analysis_ica_to_remove_eog_artifacts/
     ##method = rlang::quo(fICA::adapt_fICA) # for testing
-  ##ignore = rlang::quo(type == "artifact") # for testing
+  ##ignore = rlang::quo(.type == "artifact") # for testing
   method <- rlang::enquo(method)
     dots <- rlang::enquos(...)
   ignore <- rlang::enquo(ignore)
 
-  if(!rlang::is_empty(ignore)){
+  if(!rlang::quo_is_null(ignore)){
   rejected_data <- eeg_events_to_NA(.data, !!ignore,
                                     all_chans = FALSE,
                                     entire_seg = FALSE,
                                     drop_events = FALSE)
 }
-  signal_raw <- rejected_data$signal %>%
+  signal_raw <- rejected_data$.signal %>%
             dplyr::select(.id, channel_names(.data))
   ## remove more if dots are used
   if(!rlang::is_empty(dots)){
@@ -55,12 +56,12 @@ eeg_ica.eeg_lst <- function(.data,
   
   ## creates a DT with length length(signal_tbl) where the grouping var is repeated,
   ## This is used to split the signal_tbl, in case that there are many recordings together
-  signal_complete <- signal_raw[complete.cases(signal_raw),][
-      data.table::as.data.table(.data$segments)[
-                                                    ,.(.id,recording)], on = ".id",
+  signal_complete <- signal_raw[stats::complete.cases(signal_raw),][
+      data.table::as.data.table(.data$.segments)[
+                                                    ,.(.id,.recording)], on = ".id",
                                      nomatch = 0][,.id:=NULL][]
 
-  l_signal <- split(signal_complete, by = "recording", keep.by = FALSE)
+  l_signal <- split(signal_complete, by = ".recording", keep.by = FALSE)
 
   method_label = rlang::as_label(method)
   message(paste0("# ICA is being done using ", method_label,"..."))
@@ -103,7 +104,11 @@ eeg_ica.eeg_lst <- function(.data,
     message(paste0("# ICA took ",round(timing[[1]],2)," ",attributes(timing)$units))
    as_eeg_ica_lst(.data) 
 }
-
+#' Add independent components (or sources) to the signal table for visualization.
+#' 
+#' @param .data An eeg_ica_lst object
+#' @param ... Components to extract from the mixing matrix of the ICA transformation.
+#' @family ICA functions
 #' @export
 eeg_ica_show <- function(.data, ...){
     UseMethod("eeg_ica_show")
@@ -114,13 +119,13 @@ eeg_ica_show.eeg_ica_lst <- function(.data,...){
 
     dots <- rlang::enquos(...)
     comp_sel <- tidyselect::vars_select(component_names(.data), !!!dots)
-    signal_raw <- .data$signal[, c(".id", channel_ica_names(.data)), with = FALSE] %>%
-        .[data.table::as.data.table(.data$segments)[
-                                                   ,.(.id,recording)],
+    signal_raw <- .data$.signal[, c(".id", channel_ica_names(.data)), with = FALSE] %>%
+        .[data.table::as.data.table(.data$.segments)[
+                                                   ,.(.id,.recording)],
         , on = ".id", nomatch =0]
      signal_raw[,".id":=NULL]
  
-    l_signal <- split(signal_raw, by = "recording", keep.by = FALSE)
+    l_signal <- split(signal_raw, by = ".recording", keep.by = FALSE)
 
    ica_c <-  map2_dtr(l_signal, .data$ica, ~ {
         X<-scale(.x, scale = FALSE)
@@ -129,11 +134,18 @@ eeg_ica_show.eeg_ica_lst <- function(.data,...){
             .[,lapply(.SD, component_dbl)]
    })
     data.table::setnames(ica_c, comp_sel)
-    .data$signal <- cbind(.data$signal, ica_c)
-    class(.data$signal) <- class(signal_raw)
+    .data$.signal <- cbind(.data$.signal, ica_c)
+    class(.data$.signal) <- class(signal_raw)
     validate_eeg_lst(.data)
 }
 
+#' Select independent components (or sources) to keep.
+#' 
+#' This function will transform the channels according to the indepent components that are kept or removed.
+#' 
+#' @param .data An eeg_ica_lst object
+#' @param ... Components to keep from the mixing matrix of the ICA transformation. See [dplyr::select] and [tidyselect::select_helpers] for details.
+#' @family ICA functions
 #' @export
 eeg_ica_keep <- function(.data, ...){
     UseMethod("eeg_ica_keep")
@@ -153,12 +165,12 @@ eeg_ica_keep.eeg_ica_lst <- function(.data, ...){
 
 
 
-    signal_raw <- .data$signal[,c(".id",chs), with = FALSE][
-                            data.table::as.data.table(.data$segments)[
-                                              ,.(.id,recording)],
+    signal_raw <- .data$.signal[,c(".id",chs), with = FALSE][
+                            data.table::as.data.table(.data$.segments)[
+                                              ,.(.id,.recording)],
                              , on = ".id"][,.id :=NULL]
 
-    l_signal <- split(signal_raw, by = "recording", keep.by = FALSE)
+    l_signal <- split(signal_raw, by = ".recording", keep.by = FALSE)
 
     signal_back <-  map2_dtr(l_signal, .data$ica, ~ {
         X<-scale(.x, scale = FALSE)
@@ -168,33 +180,29 @@ eeg_ica_keep.eeg_ica_lst <- function(.data, ...){
             data.table::as.data.table() 
     })
     ## Puts back the signal in its original place
-    .data$signal <- data.table::copy(.data$signal)
-    chs_tbl <- channels_tbl(.data$signal)
+    .data$.signal <- data.table::copy(.data$.signal)
+    chs_tbl <- channels_tbl(.data$.signal)
     for(ch in colnames(signal_back)){
-        data.table::set(.data$signal,j= ch, value =  channel_dbl(signal_back[[ch]]))
+        data.table::set(.data$.signal,j= ch, value =  channel_dbl(signal_back[[ch]]))
     }
-    channels_tbl(.data$signal) <- chs_tbl
+    channels_tbl(.data$.signal) <- chs_tbl
       validate_eeg_lst(.data)
 } 
 
-#' to.data object
+#' Transforms an object to a eeg_lst
 #'
-#' @param .data 
-#' @param ... 
+#' @param .data An `eeg_ica_lst` and experimentally an MNE raw signal using [reticulate::reticulate].
+#' @param ... Not in use.
 #' 
 #' @export
 as_eeg_lst <- function(.data, ...){
     UseMethod("as_eeg_lst")
 }
 
-#' to.data object
-#'
-#' @param .data 
-#' @param ... 
-#' 
+
 #' @export
 as_eeg_lst.eeg_ica_lst <- function(.data, ...){
-    eeg_lst(signal_tbl = .data$signal, events_tbl = .data$events, segments_tbl = .data$segments)
+    eeg_lst(signal_tbl = .data$.signal, events_tbl = .data$.events, segments_tbl = .data$.segments)
 }
 #' @export
 as_eeg_lst.eeg_lst <- function(.data, ...){

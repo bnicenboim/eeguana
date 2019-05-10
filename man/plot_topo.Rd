@@ -4,16 +4,13 @@
 \alias{plot_topo}
 \alias{plot_topo.tbl_df}
 \alias{plot_topo.eeg_lst}
-\alias{plot_components.eeg_ica_lst}
 \title{Create a topographic plot}
 \usage{
 plot_topo(data, ...)
 
-\method{plot_topo}{tbl_df}(data, value = .value, label = .key)
+\method{plot_topo}{tbl_df}(data, value = .value, label = .key, ...)
 
 \method{plot_topo}{eeg_lst}(data, projection = "polar", ...)
-
-\method{plot_components}{eeg_ica_lst}(data, projection = "polar", ...)
 }
 \arguments{
 \item{data}{A table of interpolated electrodes as produced by \code{eeg_interpolate_tbl}, or an \code{eeg_lst}, or \code{ica_lst} appropiately grouped.}
@@ -56,17 +53,18 @@ built into the function so as to allow flexibility in choosing colour, font
 size, and even head size, etc.
 
 To add additional components to the plot such as titles and annotations, simply
-use the \code{+} symbol and add layers exactly as you would for \code{ggplot::ggplot}.
+use the \code{+} symbol and add layers exactly as you would for \link[ggplot2:ggplot]{ggplot2::ggplot}.
 }
 \examples{
-
+library(dplyr)
+library(ggplot2)
 # Calculate mean amplitude between 100-200 ms and plot the topography
 data_faces_ERPs \%>\% 
     # select the time window of interest
-    filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) \%>\% 
+    filter(between(as_time(.sample, unit = "milliseconds"),100,200)) \%>\% 
     # compute mean amplitude per condition
     group_by(condition) \%>\%
-    summarize_all_ch(mean, na.rm = TRUE) \%>\%
+    summarize_at(channel_names(.), mean, na.rm = TRUE) \%>\%
     plot_topo() +
         # add a head and nose shape
         annotate_head() + 
@@ -78,9 +76,9 @@ data_faces_ERPs \%>\%
 
 # The same but with interpolation
 data_faces_ERPs \%>\% 
-    filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) \%>\% 
+    filter(between(as_time(.sample, unit = "milliseconds"),100,200)) \%>\% 
     group_by(condition) \%>\%
-    summarize_all_ch(mean, na.rm = TRUE) \%>\%
+    summarize_at(channel_names(.), mean, na.rm = TRUE) \%>\%
     eeg_interpolate_tbl() \%>\%
     plot_topo() +
         annotate_head() + 
@@ -91,7 +89,10 @@ data_faces_ERPs \%>\%
 
 }
 \seealso{
-Other plot: \code{\link{plot.eeg_lst}},
-  \code{\link{plot_gg}}, \code{\link{plot_in_layout}}
+Other plotting functions: \code{\link{annotate_events}},
+  \code{\link{annotate_head}},
+  \code{\link{ggplot.eeg_lst}}, \code{\link{plot.eeg_lst}},
+  \code{\link{plot_components}},
+  \code{\link{plot_in_layout}}, \code{\link{theme_eeguana}}
 }
-\concept{plot}
+\concept{plotting functions}

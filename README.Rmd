@@ -16,11 +16,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-# eeguana <img src="man/figures/logo.png" align="right" height=140/>
+# eeguana <img src="inst/logos/logo.png" align="right" height=140/>
 
 ## Overview
 
-A package for flexible manipulation of EEG data. *eeguana* provides a *data.table* powered framework for manipulating EEG data with *dplyr*-based functions (e.g., `mutate`, `filter`, `summarize`) extended to a new class `eeg_lst`,  other EEG-specialized functions, and `ggplot` wrapper functions.  The new class is inspired by tidyverse principles but it's not really "tidy" (due to space considerations), it's a list of (i) a wide *data table* (`signal_tbl`) that contains the signal amplitudes at every sample point of the EEG,  (ii) an events *data table* with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant number (`recording`), conditions, etc.  
+A package for flexible manipulation of EEG data. *eeguana* provides a *data.table* powered framework for manipulating EEG data with *dplyr*-based functions (e.g., `mutate`, `filter`, `summarize`) extended to a new class `eeg_lst`,  other EEG-specialized functions, and `ggplot` wrapper functions.  The new class is inspired by tidyverse principles but it's not really "tidy" (due to space considerations), it's a list of (i) a wide *data table* (`signal_tbl`) that contains the signal amplitudes at every sample point of the EEG,  (ii) an events *data table* with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant number (`.recording`), conditions, etc.  
 
 *eeguana* can do only basic pre-processing for now, more complete packages exist for matlab ([FieldTrip](http://www.fieldtriptoolbox.org/) and [EEGLAB](https://sccn.ucsd.edu/eeglab/index.php)) and python ([MNE](https://martinos.org/mne/stable/index.html)).
 
@@ -81,17 +81,22 @@ using these two triggers.
 
 ```{r}
 faces_segs <- faces %>% 
-               eeg_segment(description %in% c("s70", "s71"), 
+               eeg_segment(.description %in% c("s70", "s71"), 
                         lim = c(-.2,.25)) %>%
-               eeg_intervals_to_NA(type == "Bad Interval") %>% 
+               eeg_events_to_NA(.type == "Bad Interval") %>% 
                ch_baseline()
 ```
 
 
-We can also edit the segmentation information and add more descriptive labels.
+We can also edit the segmentation information and add more descriptive labels. Once the `eeg_lst` is segmented, the segments table includes the relevant columns from the events table (but without the leading dots).
+
 *eeguana* has wrappers for many `dplyr` commands for the EEG data.  These commands always return an entire `eeg_lst` object so that they can be piped using `magrittr`'s pipe, `%>%`.
 
 ```{r}
+## To only see the segments table:
+segments_tbl(faces_segs)
+library(dplyr)
+## We modify the entire object:
 faces_segs_some <- faces_segs %>%  
                   mutate(condition =
                   if_else(description == "s70", "faces", "non-faces")) %>% 
@@ -103,6 +108,7 @@ faces_segs_some
 With some "regular" `ggplot` skills, we can create customized plots. `ggplot()` applied to an `eeg_lst` object will downsample the signals (when needed), and convert them to a long-format data frame that is feed into `ggplot`. This object can then be customized. 
 
 ```{r plot, fig.dim = c(10,15), out.width = "100%", results = "hide"}
+library(ggplot2)
 faces_segs_some %>% 
                   select(O1, O2, P7, P8) %>% 
                   ggplot(aes(x =.time, y =.value)) + 
@@ -122,7 +128,7 @@ first making segments that include only the interval .1-.2 *s* after the onset
 of the stimuli, creating a table with interpolated amplitudes and using the ggplot wrapper `plot_topo`.
 
 ```{r topo, fig.dim = c(10,5), out.width = "100%", results = "hide"}
-faces_segs_some %>% filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) %>% 
+faces_segs_some %>% filter(between(as_time(.sample, unit = "milliseconds"),100,200)) %>% 
                     group_by(condition) %>%
                     summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
                     plot_topo() +

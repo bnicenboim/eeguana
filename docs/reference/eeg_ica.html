@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.7.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.9000</span>
       </span>
     </div>
 
@@ -140,7 +140,7 @@
     <pre class="usage"><span class='fu'>eeg_ica</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>eeg_ica</span>(<span class='no'>.data</span>, <span class='no'>...</span>, <span class='kw'>ignore</span> <span class='kw'>=</span> <span class='no'>type</span> <span class='kw'>==</span> <span class='st'>"artifact"</span>,
+<span class='fu'>eeg_ica</span>(<span class='no'>.data</span>, <span class='no'>...</span>, <span class='kw'>ignore</span> <span class='kw'>=</span> <span class='no'>.type</span> <span class='kw'>==</span> <span class='st'>"artifact"</span>,
   <span class='kw'>method</span> <span class='kw'>=</span> <span class='no'>adapt_fast_ICA</span>, <span class='kw'>config</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>())</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -154,6 +154,10 @@
       <th>...</th>
       <td><p>Channels to include in ICA transformation. All the channels by default, but eye channels
 and reference channels should be removed.</p></td>
+    </tr>
+    <tr>
+      <th>ignore</th>
+      <td><p>Events that should be ignored in the ICA, set to NULL for not using the events table.</p></td>
     </tr>
     <tr>
       <th>method</th>
@@ -171,7 +175,13 @@ of N_samples by N_channels and/or <code>W</code> (unmixing matrix), consistent w
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An ica_lst object</p>
+    <p>An eeg_ica_lst object</p>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p>Other ICA functions: <code><a href='eeg_ica_cor_lst.html'>eeg_ica_cor_lst</a></code>,
+  <code><a href='eeg_ica_keep.html'>eeg_ica_keep</a></code>, <code><a href='eeg_ica_show.html'>eeg_ica_show</a></code>,
+  <code><a href='plot_components.html'>plot_components</a></code></p></div>
     
 
   </div>
@@ -181,6 +191,8 @@ of N_samples by N_channels and/or <code>W</code> (unmixing matrix), consistent w
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#see-also">See also</a></li>
           </ul>
 
   </div>

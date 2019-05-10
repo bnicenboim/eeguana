@@ -53,7 +53,6 @@ reference:
     - '`dplyr-eeguana`'
     - '`join-eeguana`'
     - '`bind`'
-    - '`summarize_ch`'
   - title: "Specialized summarizing functions"
     desc: >
       Functions that apply a series of `dplyr` functions to return useful summaries.
@@ -98,7 +97,6 @@ reference:
       Internal functions for creating objects.
     contents: 
     - '`eeg_lst`'
-    - '`ica_lst`'
     - '`component_dbl`'
     - '`sample_int`'
     - '`channel_dbl`'

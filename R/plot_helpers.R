@@ -15,7 +15,7 @@ eeg_interpolate_tbl <- function(.data, ...) {
 #' @param diam_points Density of the interpolation (number of points that are interpolated in the diameter of the scalp).
 #' @export
 eeg_interpolate_tbl.eeg_lst <- function(.data, radius = 1.2, diam_points = 200, method = "MBA", ...) {
-  grouping <- group_vars(.data)
+  grouping <- dplyr::group_vars(.data)
   .data <- dplyr::as_tibble(.data) %>% 
     dplyr::left_join(channels_tbl(.data), by = c(".key"=".channel"))%>%
     dplyr::group_by_at(dplyr::vars(grouping))
@@ -55,8 +55,8 @@ eeg_interpolate_tbl.data.frame <- function(.data,
   value <- rlang::enquo(value)
   label <- rlang::enquo(label)
 
-   outside <-  .data %>%  ungroup %>%
-        distinct(!!label, !!x, !!y) %>%
+   outside <-  .data %>%  dplyr::ungroup() %>%
+        dplyr::distinct(!!label, !!x, !!y) %>%
        dplyr::filter(sqrt((!!x)^2 + (!!y)^2) >= 1 * radius)
   
     if(nrow(outside)>0){
@@ -72,7 +72,7 @@ eeg_interpolate_tbl.data.frame <- function(.data,
   is_grouped <- .data %>%
     dplyr::group_by_at(group_vars) %>%
     dplyr::group_by(!!label, add = TRUE) %>%
-    dplyr::summarize(L = n()) %>%
+    dplyr::summarize(L = dplyr::n()) %>%
     # dplyr::filter(!is.na(!!x) |!is.na(!!y)) %>%
     dplyr::pull(L) %>%
     all(. == 1)

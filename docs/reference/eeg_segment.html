@@ -75,7 +75,7 @@ example, lim = c(0,0), the segment would contain only sample 1." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.7.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.9000</span>
       </span>
     </div>
 
@@ -130,7 +130,7 @@ example, lim = c(0,0), the segment would contain only sample 1." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Segment an eeg_lst.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/tables_transformation.R'><code>R/tables_transformation.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/segmentation.R'><code>R/segmentation.R</code></a></small>
     <div class="hidden name"><code>eeg_segment.Rd</code></div>
     </div>
 
@@ -143,17 +143,17 @@ example, <code>lim = c(0,0)</code>, the segment would contain only sample 1.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>eeg_segment</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+    <pre class="usage"><span class='fu'>eeg_segment</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>eeg_segment</span>(<span class='no'>x</span>, <span class='no'>...</span>, <span class='kw'>lim</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(-<span class='fl'>0.5</span>, <span class='fl'>0.5</span>), <span class='no'>end</span>,
-  <span class='kw'>unit</span> <span class='kw'>=</span> <span class='st'>"seconds"</span>, <span class='kw'>recording_col</span> <span class='kw'>=</span> <span class='st'>"recording"</span>)</pre>
+<span class='fu'>eeg_segment</span>(<span class='no'>.data</span>, <span class='no'>...</span>, <span class='kw'>lim</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(-<span class='fl'>0.5</span>, <span class='fl'>0.5</span>), <span class='no'>end</span>,
+  <span class='kw'>unit</span> <span class='kw'>=</span> <span class='st'>"s"</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
+      <th>.data</th>
       <td><p>An <code>eeg_lst</code> object.</p></td>
     </tr>
     <tr>
@@ -171,10 +171,6 @@ example, <code>lim = c(0,0)</code>, the segment would contain only sample 1.</p>
     <tr>
       <th>unit</th>
       <td><p>Unit</p></td>
-    </tr>
-    <tr>
-      <th>recording_col</th>
-      <td><p>Column in the segments table indicating to which recording or file each segment belongs.</p></td>
     </tr>
     </table>
     

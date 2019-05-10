@@ -7,7 +7,7 @@
 \usage{
 eeg_ica(.data, ...)
 
-\method{eeg_ica}{eeg_lst}(.data, ..., ignore = type == "artifact",
+\method{eeg_ica}{eeg_lst}(.data, ..., ignore = .type == "artifact",
   method = adapt_fast_ICA, config = list())
 }
 \arguments{
@@ -15,6 +15,8 @@ eeg_ica(.data, ...)
 
 \item{...}{Channels to include in ICA transformation. All the channels by default, but eye channels
 and reference channels should be removed.}
+
+\item{ignore}{Events that should be ignored in the ICA, set to NULL for not using the events table.}
 
 \item{method}{Methods from different packages: \code{adapt_fast_ICA}  (default), \code{reloaded_fast_ICA},
 \code{fast_ICA} (adapted from \code{fICA} package), or a custom function that returns a list that with \code{A}
@@ -25,8 +27,14 @@ of N_samples by N_channels and/or \code{W} (unmixing matrix), consistent with th
 \item{config}{Other parameters passed in a list to the ICA method. See the documentation of the relevant method.}
 }
 \value{
-An ica_lst object
+An eeg_ica_lst object
 }
 \description{
 EEG signal decomposition using Independent Component Analysis (ICA)
 }
+\seealso{
+Other ICA functions: \code{\link{eeg_ica_cor_lst}},
+  \code{\link{eeg_ica_keep}}, \code{\link{eeg_ica_show}},
+  \code{\link{plot_components}}
+}
+\concept{ICA functions}

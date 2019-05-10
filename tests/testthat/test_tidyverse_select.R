@@ -1,18 +1,18 @@
 context("test tidyverse functions select")
-library(eeguana)
+library(eeguana); library(dplyr); library(ggplot2)
 
 
 data_1 <- eeg_lst(
   signal_tbl =
- dplyr::tibble(X = sin(1:30), Y = cos(1:30),
+  tibble(X = sin(1:30), Y = cos(1:30),
     .id = rep(c(1L, 2L, 3L), each = 10),
-.sample_id = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500)),
-   channels_tbl = dplyr::tibble(
+.sample = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500)),
+   channels_tbl =  tibble(
       .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = c(1, 1), .y = NA_real_, .z = NA_real_
   ),
-events_tbl = dplyr::tribble(
-                        ~.id, ~type, ~description, ~.initial, ~.final, ~.channel,
+events_tbl =  tribble(
+                        ~.id, ~.type, ~.description, ~.initial, ~.final, ~.channel,
                         1L, "New Segment", NA_character_, -4L, -4L, NA,
                         1L, "Bad", NA_character_, -2L, 0L, NA,
                         1L, "Time 0", NA_character_, 1L, 1L, NA,
@@ -24,15 +24,15 @@ events_tbl = dplyr::tribble(
                         3L, "Time 0", NA_character_, 1L, 1L, NA,
                         3L, "Bad", NA_character_, 2L, 2L, "Y"
                     ),
-  segments_tbl = dplyr::tibble(.id = c(1L, 2L, 3L),
-                           recording = "recording1",
+  segments_tbl =  tibble(.id = c(1L, 2L, 3L),
+                           .recording = "recording1",
                            segment = c(1L, 2L, 3L),
                            condition = c("a", "b", "a"))
 )
 
 
 # just some different X and Y
-data_2 <- mutate(data_1, recording = "recording2",
+data_2 <- mutate(data_1, .recording = "recording2",
                  X = sin(X + 10),
                  Y = cos(Y - 10),
                  condition = c("b", "a", "b"))
@@ -62,50 +62,50 @@ select1_eeg <- select(data, X)
 select1_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::select(X)
+   select(X)
 
 
 select2_eeg <- select(data, -Y)
 select2_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::select(-Y)
+   select(-Y)
 
 
 select3_eeg <- select(data, starts_with("Y"))
 select3_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::select(starts_with("Y"))
+   select(starts_with("Y"))
 
 select4_eeg <- select(data, ends_with("X"))
 select4_tbl <- data %>%
     as_tibble() %>%
     tidyr::spread(key = .key, value = .value) %>%
-    dplyr::select(ends_with("X"))
+     select(ends_with("X"))
 
 select4.1_eeg <- select(data, one_of("X"))
 select4.1_tbl <- data %>%
     as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::select(one_of("X"))
+   select(one_of("X"))
 
 select5_eeg <- select(data, contains("Y"))
-select5_tbl <- data$signal %>%
-  dplyr::select(contains("Y"))
+select5_tbl <- data$.signal %>%
+   select(contains("Y"))
 
 select5.1_eeg <- select(data, one_of("Y"))
 select5.1_tbl <- data %>%
     as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::select(one_of("Y"))
+   select(one_of("Y"))
 
 
 select6_eeg <- select(data, tidyselect::matches("X"))
 select6_tbl <- data %>%
     as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::select(tidyselect::matches("X"))
+   select(tidyselect::matches("X"))
 
 
 
@@ -120,46 +120,46 @@ test_that("different select operators produce the same eeg_lst", {
 # since we've established that all the above are the same so can just test 1
 test_that("select in signal table doesn't change the data", {
   # in signal table
-  expect_equal(select1_eeg$signal[, c(".id", ".sample_id", "X")],
-               data$signal[, c(".id", ".sample_id", "X")])
+  expect_equal(select1_eeg$.signal[, c(".id", ".sample", "X")],
+               data$.signal[, c(".id", ".sample", "X")])
   # in segments table
-  expect_equal(select1_eeg$segments, data$segments)
+  expect_equal(select1_eeg$.segments, data$.segments)
 })
 
 
 test_that("select in signal table removes the right data from the events table", {
   # test a select that removed Y events
-  expect_true(nrow(filter(select1_eeg$events, .channel == "Y")) == 0)
+  expect_true(nrow(filter(select1_eeg$.events, .channel == "Y")) == 0)
   # and one that removed X events
-  expect_true(nrow(filter(select3_eeg$events, .channel == "X")) == 0)
+  expect_true(nrow(filter(select3_eeg$.events, .channel == "X")) == 0)
 })
 
 
 test_that("select works the same on eeg_lst as on tibble", {
-  expect_setequal(as.matrix(select1_eeg$signal$X), as.matrix(select1_tbl))
-  expect_setequal(as.matrix(select2_eeg$signal[, !c(".sample_id")]), 
+  expect_setequal(as.matrix(select1_eeg$.signal$X), as.matrix(select1_tbl))
+  expect_setequal(as.matrix(select2_eeg$.signal[, !c(".sample")]), 
                   as.matrix(select(select2_tbl, .id, X)))
-  expect_setequal(as.matrix(select3_eeg$signal$Y), 
+  expect_setequal(as.matrix(select3_eeg$.signal$Y), 
                   as.matrix(select3_tbl))
-  expect_setequal(as.matrix(select4_eeg$signal$X), 
+  expect_setequal(as.matrix(select4_eeg$.signal$X), 
                   as.matrix(select4_tbl$X))
   expect_equal(select4_eeg, select4.1_eeg)
   expect_equal(select4_tbl$X, select4.1_tbl$X)
-  expect_setequal(as.matrix(select5_eeg$signal$Y), 
+  expect_setequal(as.matrix(select5_eeg$.signal$Y), 
                   as.matrix(select5_tbl)) 
   expect_equal(select5_eeg, select5.1_eeg)
-  expect_setequal(as.matrix(select6_eeg$signal$X), 
+  expect_setequal(as.matrix(select6_eeg$.signal$X), 
                   as.matrix(select6_tbl))  
   
 })
 
 
 test_that("the classes of channels of signal_tbl haven't changed", {
-  expect_equal(is_channel_dbl(select1_eeg$signal$X), TRUE)
-  expect_equal(is_channel_dbl(select2_eeg$signal$X), TRUE)
-  expect_equal(is_channel_dbl(select3_eeg$signal$Y), TRUE)
-  expect_equal(is_channel_dbl(select4_eeg$signal$X), TRUE)
-  expect_equal(is_channel_dbl(select5_eeg$signal$Y), TRUE)
+  expect_equal(is_channel_dbl(select1_eeg$.signal$X), TRUE)
+  expect_equal(is_channel_dbl(select2_eeg$.signal$X), TRUE)
+  expect_equal(is_channel_dbl(select3_eeg$.signal$Y), TRUE)
+  expect_equal(is_channel_dbl(select4_eeg$.signal$X), TRUE)
+  expect_equal(is_channel_dbl(select5_eeg$.signal$Y), TRUE)
 })
 
 
@@ -173,58 +173,58 @@ test_that("data didn't change", {
 
 ### segments table
 
-select9_eeg <- select(data, recording)
+select9_eeg <- select(data, .recording)
 select9_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::select(recording)
+   select(.recording)
 
 
 select10_eeg <- select(data, segment)
 select10_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::select(segment)
+   select(segment)
 
 
 select11_eeg <- select(data, condition)
 select11_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::select(condition)
+   select(condition)
 
 
 
 test_that("selecting in segments table doesn't change data", {
   # in signal table
-  expect_equal(select9_eeg$signal, data$signal)
-  expect_equal(select10_eeg$signal, data$signal)
-  expect_equal(select11_eeg$signal, data$signal)
+  expect_equal(select9_eeg$.signal, data$.signal)
+  expect_equal(select10_eeg$.signal, data$.signal)
+  expect_equal(select11_eeg$.signal, data$.signal)
   # in segments table
-  expect_equal(select9_eeg$segments, data$segments[c(".id", "recording")])
-  expect_equal(select10_eeg$segments, data$segments[c(".id", "segment")])
-  expect_equal(select11_eeg$segments, data$segments[c(".id", "condition")])
+  expect_equal(select9_eeg$.segments, data$.segments[c(".id", ".recording")])
+  expect_equal(select10_eeg$.segments, data$.segments[c(".id", "segment")])
+  expect_equal(select11_eeg$.segments, data$.segments[c(".id", "condition")])
   # in events table
-  expect_equal(select9_eeg$events, data$events)
-  expect_equal(select10_eeg$events, data$events)
-  expect_equal(select11_eeg$events, data$events)
+  expect_equal(select9_eeg$.events, data$.events)
+  expect_equal(select10_eeg$.events, data$.events)
+  expect_equal(select11_eeg$.events, data$.events)
 })
 
 
 test_that("select works the same on eeg_lst as on tibble", {
-  expect_setequal(as.matrix(select9_eeg$segments$recording), 
-                  as.matrix(select9_tbl$recording))
-  expect_setequal(as.matrix(select10_eeg$segments$segment), 
+  expect_setequal(as.matrix(select9_eeg$.segments$.recording), 
+                  as.matrix(select9_tbl$.recording))
+  expect_setequal(as.matrix(select10_eeg$.segments$segment), 
                   as.matrix(select10_tbl$segment))
-  expect_setequal(as.matrix(select11_eeg$segments$condition), 
+  expect_setequal(as.matrix(select11_eeg$.segments$condition), 
                   as.matrix(select11_tbl$condition))
 })
 
 
 test_that("the classes of channels of signal_tbl haven't changed", {
-  expect_equal(is_channel_dbl(select9_eeg$signal$X), TRUE)
-  expect_equal(is_channel_dbl(select10_eeg$signal$Y), TRUE)
-  expect_equal(is_channel_dbl(select11_eeg$signal$X), TRUE)
+  expect_equal(is_channel_dbl(select9_eeg$.signal$X), TRUE)
+  expect_equal(is_channel_dbl(select10_eeg$.signal$Y), TRUE)
+  expect_equal(is_channel_dbl(select11_eeg$.signal$X), TRUE)
 })
 
 
@@ -251,52 +251,52 @@ test_that("data didn't change", {
 ## select_all1_tbl <- data %>%
 ##   as_tibble() %>%
 ##   tidyr::spread(key = .key, value = .value) %>%
-##   dplyr::select_all(toupper)
+##    select_all(toupper)
 
 
 ## select_all2_eeg <- select_all(data, tolower) 
 ## select_all2_tbl <- data %>%
 ##   as_tibble() %>%
 ##   tidyr::spread(key = .key, value = .value) %>%
-##   dplyr::select_all(tolower)
+##    select_all(tolower)
 
 
 
 ## test_that("scoped selects don't change data", {
 ##   # in signal table
-##   expect_equivalent(select_all1_eeg$signal, data$signal)
-##   expect_equivalent(select_all2_eeg$signal, data$signal)  
-##   expect_equal(select_all1_eeg$signal[, c(".id", ".sample_id")],
-##                data$signal[, c(".id", ".sample_id")])
-##   expect_equal(select_all2_eeg$signal[, c(".id", ".sample_id")],
-##                data$signal[, c(".id", ".sample_id")])
+##   expect_equivalent(select_all1_eeg$.signal, data$.signal)
+##   expect_equivalent(select_all2_eeg$.signal, data$.signal)  
+##   expect_equal(select_all1_eeg$.signal[, c(".id", ".sample")],
+##                data$.signal[, c(".id", ".sample")])
+##   expect_equal(select_all2_eeg$.signal[, c(".id", ".sample")],
+##                data$.signal[, c(".id", ".sample")])
 ##   # in segments table
-##   expect_equal(select_all1_eeg$segments, data$segments) 
-##   expect_equal(select_all2_eeg$segments, data$segments) 
+##   expect_equal(select_all1_eeg$.segments, data$.segments) 
+##   expect_equal(select_all2_eeg$.segments, data$.segments) 
 ##   # in events table
-##   expect_equal(select_all1_eeg$events, data$events)
+##   expect_equal(select_all1_eeg$.events, data$.events)
 ##   # uh oh
-##   expect_equal(select_all2_eeg$events, data$events)
+##   expect_equal(select_all2_eeg$.events, data$.events)
 ## })
 
 
 ## test_that("scoped selects work the same on eeg_lst as tibble", {
-##   expect_setequal(as.matrix(select_all1_eeg$signal[, !c(".sample_id")]),
+##   expect_setequal(as.matrix(select_all1_eeg$.signal[, !c(".sample")]),
 ##                as.matrix(select(select_all1_tbl, .ID, X, Y)))
-##   expect_setequal(as.matrix(select_all2_eeg$signal[, !c(".sample_id")]),
+##   expect_setequal(as.matrix(select_all2_eeg$.signal[, !c(".sample")]),
 ##                as.matrix(select(select_all2_tbl, .id, x, y)))
 ##   # windows doesn't notice the case difference (although it does notice if you try to select lowercase in line 2)
 ##   # can use skip_on_os if it will cause problems
-##   expect_setequal(as.matrix(select_all1_eeg$segments),
+##   expect_setequal(as.matrix(select_all1_eeg$.segments),
 ##                as.matrix(select(select_all1_tbl, .ID, RECORDING, SEGMENT, CONDITION)))
-##   expect_setequal(as.matrix(select_all2_eeg$segments),
-##                   as.matrix(select(select_all2_tbl, .id, recording, segment, condition)))
+##   expect_setequal(as.matrix(select_all2_eeg$.segments),
+##                   as.matrix(select(select_all2_tbl, .id, .recording, segment, condition)))
 ## })
 
 
 ## test_that("the classes of channels of signal_tbl haven't changed", {
-##   expect_equal(is_channel_dbl(select_all1_eeg$signal$X), TRUE)
-##   expect_equal(is_channel_dbl(select_all2_eeg$signal$x), TRUE)
+##   expect_equal(is_channel_dbl(select_all1_eeg$.signal$X), TRUE)
+##   expect_equal(is_channel_dbl(select_all2_eeg$.signal$x), TRUE)
 ## })
 
 
@@ -317,46 +317,46 @@ mutate_select_eeg <- mutate(data, Z = Y + 1) %>%
 mutate_select_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::mutate(Z = Y + 1) %>%
-  dplyr::select(Z)
+   mutate(Z = Y + 1) %>%
+   select(Z)
 
 
-summarize_all_select_eeg <- summarize_all_ch(data, mean) %>%
+summarize_all_select_eeg <- summarize_at(data, channel_names(data), mean) %>%
   select(Y)
 summarize_all_select_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::summarise(X = mean(X), Y = mean(Y)) %>%
-  dplyr::select(Y)
+   summarise(X = mean(X), Y = mean(Y)) %>%
+   select(Y)
 
 
 test_that("select on new variables doesn't change data", {
   # in signal table
-  expect_equal(mutate_select_eeg$signal[, c(".id", ".sample_id")],
-               data$signal[, c(".id", ".sample_id")])
-  expect_equivalent(mutate_select_eeg$signal$Z, data$signal$Y+1)
+  expect_equal(mutate_select_eeg$.signal[, c(".id", ".sample")],
+               data$.signal[, c(".id", ".sample")])
+  expect_equivalent(mutate_select_eeg$.signal$Z, data$.signal$Y+1)
   # in segments table
-  expect_equal(mutate_select_eeg$segments, data$segments)
+  expect_equal(mutate_select_eeg$.segments, data$.segments)
 })
 
 
 test_that("select on new variables removes the right data from events", {
-  expect_true(nrow(filter(mutate_select_eeg$events, .channel == "X")) == 0)
+  expect_true(nrow(filter(mutate_select_eeg$.events, .channel == "X")) == 0)
   # should the events table get larger with the new "channel"?
 })
 
 
 test_that("select works the same on eeg_lst as on tibble", {
-  ## expect_setequal(as.matrix(rename_select_eeg$signal$ZZ),
+  ## expect_setequal(as.matrix(rename_select_eeg$.signal$ZZ),
                   ## as.matrix(rename_select_tbl))
-  expect_setequal(as.matrix(mutate_select_eeg$signal$Z),
+  expect_setequal(as.matrix(mutate_select_eeg$.signal$Z),
                   as.matrix(mutate_select_tbl)) 
 })
 
 
 
 test_that("the classes of channels of signal_tbl haven't changed", {
-  expect_equal(is_channel_dbl(mutate_select_eeg$signal$Z), TRUE)
+  expect_equal(is_channel_dbl(mutate_select_eeg$.signal$Z), TRUE)
 })
 
 
@@ -376,51 +376,51 @@ group_select_eeg <- data %>%
 group_select_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::group_by(condition) %>%
-  dplyr::select(Y)
+   group_by(condition) %>%
+   select(Y)
 
 
 group_select_summarize_eeg <- data %>%
-  group_by(.sample_id) %>%
-  summarize_all_ch(mean) %>%
+  group_by(.sample) %>%
+  summarize_at(channel_names(.),mean) %>%
   select(X)
 
 group_select_summarize_tbl <- data %>%
   as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-  dplyr::group_by(.time) %>%
-  dplyr::summarise(X = mean(X)) %>%
-  dplyr::select(X)
+   group_by(.time) %>%
+   summarise(X = mean(X)) %>%
+   select(X)
 
 
 
 test_that("select on grouped variables doesn't change data", {
   # in the signal table
-  expect_equal(group_select_eeg$signal[, c(".id", ".sample_id", "Y")],
-               data$signal[, c(".id", ".sample_id", "Y")])
+  expect_equal(group_select_eeg$.signal[, c(".id", ".sample", "Y")],
+               data$.signal[, c(".id", ".sample", "Y")])
   # in the segments table
-  expect_equal(group_select_eeg$segments, data$segments)
+  expect_equal(group_select_eeg$.segments, data$.segments)
 })
 
 
 test_that("select on grouped variable removes the right events data", {
-  expect_true(nrow(filter(group_select_eeg$events, .channel == "X")) == 0)
+  expect_true(nrow(filter(group_select_eeg$.events, .channel == "X")) == 0)
 })
 
 
 test_that("select on group vars works same in eeg_lst and tibble", {
-  expect_setequal(as.matrix(group_select_eeg$signal$Y),
+  expect_setequal(as.matrix(group_select_eeg$.signal$Y),
                   as.matrix(group_select_tbl$Y))
-  expect_setequal(as.matrix(group_select_eeg$segments$condition),
+  expect_setequal(as.matrix(group_select_eeg$.segments$condition),
                   as.matrix(select(group_select_tbl, condition)))
-  expect_equal(as.matrix(group_select_summarize_eeg$signal$X),
+  expect_equal(as.matrix(group_select_summarize_eeg$.signal$X),
                as.matrix(group_select_summarize_tbl$X))
 })
 
 
 test_that("the classes of channels of signal_tbl haven't changed", {
-  expect_equal(is_channel_dbl(group_select_eeg$signal$Y), TRUE)
-  expect_equal(is_channel_dbl(group_select_summarize_eeg$signal$X), TRUE)
+  expect_equal(is_channel_dbl(group_select_eeg$.signal$Y), TRUE)
+  expect_equal(is_channel_dbl(group_select_summarize_eeg$.signal$X), TRUE)
 })
 
 

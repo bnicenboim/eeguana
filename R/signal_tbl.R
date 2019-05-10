@@ -1,22 +1,22 @@
 #' Builds a signal_tbl table
 #' 
 #' The eeg_lst `signal` table is organised into columns representing timestamps 
-#' (`.sample_id`) and individual electrodes. Each `.sample_id` corresponds to
+#' (`.sample`) and individual electrodes. Each `.sample` corresponds to
 #' 1 sample in the original recording, i.e. if the sampling rate of the EEG
-#' recording is 500 Hz, then each `.sample_id` corresponds to 2 milliseconds. 
+#' recording is 500 Hz, then each `.sample` corresponds to 2 milliseconds. 
 #' These timestamps correspond to `.initial` in the `events` table, which 
 #' displays only the timestamps where logged events began.
 #'
 #' @param .id Integers indicating to which group the row of the signal matrix belongs.
 #' @param signal_matrix Matrix or table of channels with their signal.
-#' @param .sample_id Vector of integers.
+#' @param .sample Vector of integers.
 #' @param channels_tbl A table with information about each channel (such as the one produced by `channels_tbl``)
 #' 
 #' @family signal_tbl
 #' 
 #' @return A valid `signal_tbl`.
 #' @noRd
-new_signal_tbl <- function(.id=NULL , .sample_id=NULL , signal_matrix=NULL, channels_tbl=NULL ) {
+new_signal_tbl <- function(.id=NULL , .sample=NULL , signal_matrix=NULL, channels_tbl=NULL ) {
 
     if(!data.table::is.data.table(signal_matrix)) {
         signal_matrix <- data.table::data.table(signal_matrix)
@@ -26,11 +26,11 @@ new_signal_tbl <- function(.id=NULL , .sample_id=NULL , signal_matrix=NULL, chan
     ## }
   signal_tbl <- signal_matrix[, (update_channel_meta_data(.SD, channels_tbl)),.SDcols=colnames(signal_matrix)]
 
-    signal_tbl[, .id := .id][, .sample_id := .sample_id]
+    signal_tbl[, .id := .id][, .sample := .sample]
     data.table::setnames(signal_tbl, make_names(colnames(signal_tbl)))
-  data.table::setcolorder(signal_tbl, c(".id", ".sample_id"))
+  data.table::setcolorder(signal_tbl, c(".id", ".sample"))
   data.table::setattr(signal_tbl, "class",c("signal_tbl",class(signal_tbl)))
-  data.table::setkey(signal_tbl, .id, .sample_id)
+  data.table::setkey(signal_tbl, .id, .sample)
   signal_tbl[]
 }
 
@@ -43,7 +43,7 @@ as_signal_tbl.data.table <- function(.data){
     .data <- data.table::copy(.data)
     .data[,.id := as.integer(.id)]
     data.table::setattr(.data, "class", c("signal_tbl",class(.data)))
-    data.table::setkey(.data,.id,.sample_id)
+    data.table::setkey(.data,.id,.sample)
     validate_signal_tbl(.data)
 }
 #' @noRd
@@ -58,7 +58,7 @@ as_signal_tbl.data.frame <- function(.data){
 
 #' @noRd
 as_signal_tbl.NULL <- function(.data){
-    .data <- data.table::data.table(.id= integer(0),.sample_id= integer(0))
+    .data <- data.table::data.table(.id= integer(0),.sample= integer(0))
     as_signal_tbl(.data)
 }
 #' @param signal_tbl 
@@ -66,12 +66,12 @@ as_signal_tbl.NULL <- function(.data){
 #' @noRd
 validate_signal_tbl <- function(signal_tbl) {
     ## if(is.null(signal_tbl)) {
-    ##     signal_tbl <- data.table::data.table(.id= integer(0),.sample_id= integer(0))
-    ##     data.table::setkey(signal_tbl,.id,.sample_id)
+    ##     signal_tbl <- data.table::data.table(.id= integer(0),.sample= integer(0))
+    ##     data.table::setkey(signal_tbl,.id,.sample)
     ## }
    ##  if(!data.table::is.data.table(signal_tbl) && is.data.frame(signal_tbl)) {
    ##      signal <- data.table::as.data.table(signal_tbl)
-   ##      data.table::setkey(signal_tbl,.id,.sample_id)
+   ##      data.table::setkey(signal_tbl,.id,.sample)
     # fs# }     
     if (!data.table::is.data.table(signal_tbl)) {
         warning("'signal' should be a data.table.",
@@ -87,14 +87,14 @@ validate_signal_tbl <- function(signal_tbl) {
                 )
     }
 
-    if(!identical(data.table::key(signal_tbl), c(".id",".sample_id"))) {
+    if(!identical(data.table::key(signal_tbl), c(".id",".sample"))) {
         warning("`keys` of signal table are missing.",
                 call. = FALSE
                 )
     }
 
-    ## Validates .sample_id
-    if (!is_sample_int(signal_tbl$.sample_id)) {
+    ## Validates .sample
+    if (!is_sample_int(signal_tbl$.sample)) {
         warning("Values of .initial should be samples",
                 call. = FALSE
                 )
@@ -111,7 +111,7 @@ validate_signal_tbl <- function(signal_tbl) {
     ## Validates channels 
     signal_tbl[, lapply(.SD,validate_channel_dbl), .SDcols= sapply(signal_tbl, is_channel_dbl)] 
     ## reorders
-    dplyr::select(signal_tbl, obligatory_cols[["signal"]], dplyr::everything())
+    dplyr::select(signal_tbl, obligatory_cols[[".signal"]], dplyr::everything())
 }
 
 

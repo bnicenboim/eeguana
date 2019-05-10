@@ -1,6 +1,35 @@
 
 
-mu_raw <- list(charToRaw("μ"), charToRaw("µ"))
+#mu_raw <- list(charToRaw("μ"), charToRaw("µ"))
+
+#' Pipe operator
+#'
+#' See \code{magrittr::\link[magrittr]{\%>\%}} for details.
+#'
+#' @name %>%
+#' @rdname pipe
+#' @keywords internal
+#' @export
+#' @importFrom magrittr %>%
+#' @usage lhs \%>\% rhs
+NULL
+
+#' := operator
+#'
+#'
+#' @name :=
+#' @rdname set
+#' @noRd
+#' @keywords internal
+#' @importFrom data.table :=
+NULL
+
+#' Unique columns of signal and segments tables.
+#' @noRd
+col_names_main <- function(.eeg_lst) {
+    unique(c(colnames(.eeg_lst$.signal), colnames(.eeg_lst$.segments)))
+}
+
 
 #' @noRd
 seq_len2 <- function(length.out) {
@@ -72,18 +101,25 @@ rowMeans_ch <- function(x, na.rm = FALSE, dims = 1L) {
   channel_dbl(rowMeans(x, na.rm, dims))
 }
 
-row_fun_ch <- function(x, .funs, ...) {
+row_fun_ch <- function(x, .f, pars=list()) {
  # TODO: faster options seem to be melting first (memory usage?):
   #https://stackoverflow.com/questions/7885147/efficient-row-wise-operations-on-a-data-table
 # or with for loop set:
   # https://stackoverflow.com/questions/37667335/row-operations-in-data-table-using-by-i?noredirect=1&lq=1
-  funs <- as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env(),...)
-  fun_txt <- rlang::quo_text(funs[[1]])
+  
+  
+  #funs <- as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env(),...)
+  #fun_txt <- rlang::quo_text(funs[[1]])
   # channel_dbl(purrr::pmap(x, ~ eval(parse(text= fun_txt))))
-  channel_dbl(apply(x, 1, function(.) eval(parse(text= fun_txt))))
+  # .f <- purrr::possibly( match.fun, NULL )(.f)
+  # if( is.null(.f) ){
+    # .f <- purrr::as_mapper(.f)
+    # y <- apply(x, 1, .f)
+  # } else {
+    y <- do.call(apply, c(list(x,1,match.fun(.f)), pars))          
+    # }
+  channel_dbl(y)
 }
-
-
 
 #' Convenience function for range subsets 
 #' 
@@ -97,11 +133,11 @@ between <- data.table::between
 #' @noRd
 repeated_group_col <- function(.eeg_lst){
     group_cols <- group_vars(.eeg_lst)
-    segments <-   .eeg_lst$segments %>%
-        {.[names(.) %in%  c(obligatory_cols$segments, group_cols)]} %>%
+    segments <-   .eeg_lst$.segments %>%
+        {.[names(.) %in%  c(obligatory_cols$.segments, group_cols)]} %>%
         data.table::data.table()
     data.table::setkey(segments,.id)
-    dt <- .eeg_lst$signal[segments, group_cols, with = FALSE]  
+    dt <- .eeg_lst$.signal[segments, group_cols, with = FALSE]  
     if(nrow(dt)==0){
       return(dt)
     } else {
@@ -111,13 +147,13 @@ repeated_group_col <- function(.eeg_lst){
 
 
 #' @noRd
-try_to_downsample <- function(x, max_sample){ 
-    if (all(!is.na(nsamples(x))) && (is.numeric(max_sample) && max_sample != 0 &&
+try_to_downsample <- function(.data, max_sample){ 
+    if (all(!is.na(nsamples(.data))) && (is.numeric(max_sample) && max_sample != 0 &&
                                         # it will downsample if the samples are at least twice as large than the max_sample
-        max(nsamples(x))/ 2 > max_sample)) {
-        x <- eeg_downsample(x, max_sample = max_sample)
+        max(nsamples(.data))/ 2 > max_sample)) {
+        .data <- eeg_downsample(.data, max_sample = max_sample)
     } else {
-        x
+        .data
     }
 }
 
@@ -131,6 +167,6 @@ map_matr <- function(.x,.f,..., .id = NULL){
 #' Cat a message and then a printable object 
 #' @noRd
 message_obj <- function(msg, obj){
-    outp <- paste(capture.output({print(obj)}), collapse = "\n")
+    outp <- paste(utils::capture.output({print(obj)}), collapse = "\n")
     paste0(msg,"\n",outp,"\n")
 }

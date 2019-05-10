@@ -1,6 +1,6 @@
 
 #' @export
-as_eeg_lst.mne.io.base.BaseRaw <- function(.data){
+as_eeg_lst.mne.io.base.BaseRaw <- function(.data,...){
 
     ##create channel info
     ch_names <- .data$ch_names
@@ -71,10 +71,10 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data){
         units_list <- c("mol/m^3","hertz","newton","pascal","joule","watt","coulomb",
                         "volt","farad","ohm",
                         "S","weber","tesla","henry","celsius","lumen","lux") %>%
-            setNames(c(10,101:116) %>% as.character()) %>%
+            stats::setNames(c(10,101:116) %>% as.character()) %>%
             as.list()
         prefix <- c("","deci","centi","milli","micro","nano") %>%
-            setNames(c(0,-1:-3,-6,-9) %>% as.character)
+            stats::setNames(c(0,-1:-3,-6,-9) %>% as.character)
 
         if(!ch$unit %in% as.numeric(names(units_list))) ch$unit <- 107  #default to Volts
 
@@ -96,7 +96,7 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data){
     t_s <- .data$times
     samples <- as_sample_int(c(t_s), sampling_rate= .data$info$sfreq, unit = "s")
     
-    new_signal <- new_signal_tbl(.id = 1L, .sample_id =  samples, signal_matrix =  signal_m, channels_tbl =  ch_info)
+    new_signal <- new_signal_tbl(.id = 1L, .sample =  samples, signal_matrix =  signal_m, channels_tbl =  ch_info)
 
                                         #create events object
     ann <- .data$annotations$`__dict__`
@@ -109,10 +109,12 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data){
                                  as_sample_int(sampling_rate = .data$info$sfreq, unit="s"),
                              .final = as_sample_int(ann$onset + ann$duration,sampling_rate = .data$info$sfreq,unit="s") - 1L,
                              .channel = NA_character_,
-                             descriptions_dt = data.table::data.table(description = ann$description))
+                             descriptions_dt = tidyr::separate(data.table::data.table(annotation= ann$description),
+                                                               col = "annotation", into =c(".type",".description"), sep="/", fill ="left"))
     }
-    eeg_lst(signal = new_signal,
-            events= new_events,
-            segments = tibble::tibble(.id=1L,recording="recording1", segment=1L))
+    data_name <- toString(substitute(.data))
+    eeg_lst(signal_tbl  = new_signal,
+            events_tbl = new_events,
+            segments_tbl  = dplyr::tibble(.id=1L,.recording=data_name, segment=1L))
 
 }

@@ -76,7 +76,7 @@ files must be in the same directory." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.7.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.9000</span>
       </span>
     </div>
 
@@ -145,8 +145,8 @@ files must be in the same directory.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>read_vhdr</span>(<span class='no'>file</span>, <span class='kw'>sep</span> <span class='kw'>=</span> <span class='no'>type</span> <span class='kw'>==</span> <span class='st'>"New Segment"</span>, <span class='kw'>zero</span> <span class='kw'>=</span> <span class='no'>type</span> <span class='kw'>==</span> <span class='st'>"Time 0"</span>,
-  <span class='kw'>recording</span> <span class='kw'>=</span> <span class='no'>file</span>)</pre>
+    <pre class="usage"><span class='fu'>read_vhdr</span>(<span class='no'>file</span>, <span class='kw'>sep</span> <span class='kw'>=</span> <span class='no'>.type</span> <span class='kw'>==</span> <span class='st'>"New Segment"</span>, <span class='kw'>zero</span> <span class='kw'>=</span> <span class='no'>.type</span> <span class='kw'>==</span> <span class='st'>"Time 0"</span>,
+  <span class='kw'>.recording</span> <span class='kw'>=</span> <span class='no'>file</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -157,14 +157,14 @@ files must be in the same directory.</p>
     </tr>
     <tr>
       <th>sep</th>
-      <td><p>Segment separation marker. By default: type == "New Segment"</p></td>
+      <td><p>Segment separation marker. By default: .type == "New Segment"</p></td>
     </tr>
     <tr>
       <th>zero</th>
-      <td><p>Time zero marker. By default: type == "Time 0"</p></td>
+      <td><p>Time zero marker. By default: ..type == "Time 0"</p></td>
     </tr>
     <tr>
-      <th>recording</th>
+      <th>.recording</th>
       <td><p>Recording name (file name, by default).</p></td>
     </tr>
     </table>
@@ -176,17 +176,17 @@ file_name.vhdr, and file_name.vmrk.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other read: <code>read_edf</code>, <code>read_ft</code></p></div>
+    <div class='dont-index'><p>Other read: <code><a href='read_edf.html'>read_edf</a></code>, <code><a href='read_ft.html'>read_ft</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"># NOT RUN {
 # load a single subject
-s1 <- read_vhdr("./faces.vhdr", recording = 1)
+s1 <- read_vhdr("./faces.vhdr", .recording = 1)
 
 # load multiple subjects using purrr::map, extracting subject IDs from file names
-faces <- purrr::map(list.files("./","vhdr"), ~
-    read_vhdr(.x, recording = parse_number(.x, na = character()))
+faces <- purrr::map(list.files("./","vhdr"), ~ 
+    read_vhdr(.x, .recording = parse_number(.x, na = character()))
 # }
 <div class='input'>
 </div></pre>

@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.7.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.9000</span>
       </span>
     </div>
 
@@ -142,16 +142,16 @@
     <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
 
     <p>An eeg_lst with the following events:</p><ul>
-<li><p><code>type == "New Segment"</code> indicates the beginning of the recording.</p></li>
-<li><p><code>type == "Bad Interval"</code> indicates an interval marked as an artifact by BrainVision 2.0.</p></li>
-<li><p><code>type == "UserDefined", description == "Blink} indicates an interval marked as a blink by BrainVision 2.0.
-\item \code{type == "Stimulus", description == "s5</code> indicates the beggining of the experiment.</p></li>
-<li><p><code>type == "Stimulus", description == "s111} indicates
-\item \code{type == "Stimulus", description == "s130</code> indicates</p></li>
-<li><p><code>type == "Stimulus", description == "s122} indicates
-\item \code{type == "Stimulus", description == "s121</code> indicates</p></li>
-<li><p><code>type == "Stimulus", description == "s70} indicates that a face was presented.
-\item \code{type == "Stimulus", description == "s71</code> indicates that a non-face was presented.</p></li>
+<li><p><code>.type == "New Segment"</code> indicates the beginning of the recording.</p></li>
+<li><p><code>.type == "Bad Interval"</code> indicates an interval marked as an artifact by BrainVision 2.0.</p></li>
+<li><p><code>.type == "UserDefined", .description == "Blink} indicates an interval marked as a blink by BrainVision 2.0.
+\item \code{.type == "Stimulus", .description == "s5</code> indicates the beggining of the experiment.</p></li>
+<li><p><code>.type == "Stimulus", .description == "s111} indicates
+\item \code{.type == "Stimulus", .description == "s130</code> indicates</p></li>
+<li><p><code>.type == "Stimulus", .description == "s122} indicates
+\item \code{.type == "Stimulus", .description == "s121</code> indicates</p></li>
+<li><p><code>.type == "Stimulus", .description == "s70} indicates that a face was presented.
+\item \code{.type == "Stimulus", .description == "s71</code> indicates that a non-face was presented.</p></li>
 </ul>
     
     <h2 class="hasAnchor" id="source"><a class="anchor" href="#source"></a>Source</h2>

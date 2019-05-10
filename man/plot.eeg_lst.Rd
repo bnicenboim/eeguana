@@ -27,12 +27,12 @@ If necessary, \code{plot} will first downsample the \code{eeg_lst} object so tha
 maximum of 6,400 samples. The \code{eeg_lst} object is then converted to a long-format
 tibble via \code{as_tibble}. In this tibble, the \code{.key} variable is the
 channel/component name and \code{.value} its respective amplitude. The sample
-number (\code{.sample_id} in the \code{eeg_lst} object) is automatically converted to seconds
+number (\code{.sample} in the \code{eeg_lst} object) is automatically converted to seconds
 to create the variable \code{time}. By default, time is then plotted on the
 x-axis and amplitude on the y-axis, and uses \code{scales = "free"}; see \code{\link[ggplot2:facet_grid]{ggplot2::facet_grid()}}.
 
 To add additional components to the plot such as titles and annotations, simply
-use the \code{+} symbol and add layers exactly as you would for \code{ggplot::ggplot}.
+use the \code{+} symbol and add layers exactly as you would for \link[ggplot2:ggplot]{ggplot2::ggplot}.
 }
 \examples{
 
@@ -40,12 +40,18 @@ use the \code{+} symbol and add layers exactly as you would for \code{ggplot::gg
 plot(data_faces_ERPs)
 
 # Add ggplot layers
+library(ggplot2)
 plot(data_faces_ERPs) + 
     coord_cartesian(ylim = c(-500,500))
 
+
 }
 \seealso{
-Other plot: \code{\link{plot_gg}},
-  \code{\link{plot_in_layout}}, \code{\link{plot_topo}}
+Other plotting functions: \code{\link{annotate_events}},
+  \code{\link{annotate_head}},
+  \code{\link{ggplot.eeg_lst}},
+  \code{\link{plot_components}},
+  \code{\link{plot_in_layout}}, \code{\link{plot_topo}},
+  \code{\link{theme_eeguana}}
 }
-\concept{plot}
+\concept{plotting functions}

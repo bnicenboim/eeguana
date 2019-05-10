@@ -40,9 +40,9 @@ chs_mean.character <- function(..., na.rm = FALSE) {
 #' @export
 chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
   #channels_info <- channels_tbl(x)
-  signal <- data.table::copy(x$signal)
+  signal <- data.table::copy(x$.signal)
   signal[,mean := rowMeans_ch(.SD, na.rm = na.rm),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
-  x$signal <- signal
+  x$.signal <- signal
   update_events_channels(x) %>% #update_channels_tbl(channels_info) %>%
       validate_eeg_lst()
 }
@@ -53,10 +53,10 @@ chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
 #' Rereference a channel or group of channels.
 #'
 #' Notice that this function will update the channels one by one when used inside a mutate and not all at the same time.
-#' 
-#' @param ref Channels that will be averaged as the reference.
+#' @param .data An eeg_lst object.
+#' @param ref Character vector of channels that will be averaged as the reference.
 #' @inheritParams base::mean
-#' @inheritParams eeg_artif 
+#' @param ... Channels to include. All the channels by default, but eye channels channels should be removed.
 #' @return An  eeg_lst with some channels re-referenced.
 #' @export
 #'
@@ -69,25 +69,25 @@ chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
 #' faces_segs %>% eeg_rereference(ref = c("M1", "M2"))
 #' }
 #' @export
-eeg_rereference <- function(.data, ..., ref_ch = NULL,na.rm= FALSE) {
+eeg_rereference <- function(.data, ..., ref = NULL,na.rm= FALSE) {
   UseMethod("eeg_rereference")
 }
 #' @export
-eeg_rereference.eeg_lst <- function(.data, ..., ref_ch = NULL, na.rm = FALSE) {
-    signal <- data.table::copy(.data$signal)
+eeg_rereference.eeg_lst <- function(.data, ..., ref = NULL, na.rm = FALSE) {
+    signal <- data.table::copy(.data$.signal)
     sel_ch <- sel_ch(.data,...)
-    ref_ch <- unlist(ref_ch) #rlang::quos_auto_name(dots) %>% names()
-
-  #ref <- rowMeans(.data$signal[,..ref_ch], na.rm = na.rm)
-  reref <- function(x, ref){
-    x <- x - ref 
-    attributes(x)$.reference <- paste0(ref_ch, collapse = ", ")
+    ref <- unlist(ref) #rlang::quos_auto_name(dots) %>% names()
+  
+  #ref <- rowMeans(.data$.signal[,..ref], na.rm = na.rm)
+  reref <- function(x, ref_value){
+    x <- x - ref_value 
+    attributes(x)$.reference <- paste0(ref, collapse = ", ")
     x
   }
    # signal[, (ch_sel) := {ref= rowMeans()   ;lapply(.SD, reref, ref = ref)},.SDcols = c(ch_sel)]
     signal[, (sel_ch) := {ref= rowMeans(.SD);
-                          lapply(mget(sel_ch,inherits=TRUE), reref, ref = ref)},.SDcols = c(ref_ch)]
-  .data$signal <- signal
+                          lapply(mget(sel_ch,inherits=TRUE), reref, ref_value = ref)},.SDcols = c(ref)]
+  .data$.signal <- signal
   update_events_channels(.data) %>%  validate_eeg_lst()
 
 }
@@ -116,39 +116,86 @@ chs_fun <- function(x, .funs, ...) {
 #' @param pars List that contains the additional arguments for the function calls in .funs.
 #' @export
 chs_fun.channel_dbl <- function(...,.funs, pars = list()) {
-if(length(pars) != 0){
-   row_fun_ch(data.table::data.table(...),.funs,  unlist(pars))  
- } else {
-   row_fun_ch(data.table::data.table(...),.funs)  
- }
+  .funs <- rlang::as_function(.funs)
+   row_fun_ch(data.table::data.table(...),.funs, pars)  
 }
 #' @rdname chs_fun
 #' @export
 chs_fun.character <- function(..., .funs, pars = list()) {
   dt_chs <- data.table::as.data.table(mget(..., envir = rlang::caller_env()))
-  if(length(pars) != 0){
-    row_fun_ch(dt_chs,.funs,  unlist(pars))
-  } else {
-    row_fun_ch(dt_chs,.funs)
-  }
+  .funs <- rlang::as_function(.funs)
+  row_fun_ch(data.table::data.table(...),.funs, pars)  
 }
 
 #' @rdname chs_fun
 #' @export
 chs_fun.eeg_lst <- function(x,.funs, pars = list(), ...) {
 
-  signal <- data.table::copy(x$signal)
-  funs <- as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env())
-  # fun_txt <- rlang::quo_text(funs[[1]]) %>% make.names()
-  fun_txt <- names(funs) %>% make_names()
-
-  # TODO a more elegant way, but if pars is list(), then row_fun_ch thinks that ... is NULL, and the function gets an argument NULL
-  if(length(pars) != 0){
-    signal[,(fun_txt) := row_fun_ch(.SD, .funs,  unlist(pars)),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
+  signal <- data.table::copy(x$.signal)
+  if(is.list(.funs)){
+  .funs <- lapply(.funs, rlang::as_function)
   } else {
-    signal[,(fun_txt) := row_fun_ch(.SD, .funs),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
+
+    fun_txt <-toString(substitute(.funs))  %>% make_names()
+    .funs <- list(rlang::as_function(.funs))
+    names(.funs) <-fun_txt
   }
-  x$signal <- signal
+  signal[,names(.funs):=lapply(.funs, function(x) row_fun_ch(.SD, x, pars)),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
+  
+  x$.signal <- signal
   update_events_channels(x) %>% #update_channels_tbl(channels_info) %>%
       validate_eeg_lst()
 }
+#' Baseline an eeg_lst
+#'
+#' Subtract the average or baseline of the points in a defined interval from all points in the segment.
+#'
+#' @param x An `eeg_lst` object or a channel.
+#' @param time A negative number indicating from when to baseline; the interval is defined as \[time,0\]. The default is to use all the negative times.
+#' @param sample_id A negative number indicating from when to baseline. The default is to use all the negative times. (`time` is ignored if  sample_id is used).
+#' @param ... Not in use. 
+#'
+#' @family channel
+#' @return An eeg_lst.
+#'
+#'
+#' @export
+ch_baseline <- function(x, ...) {
+  UseMethod("ch_baseline")
+}
+#' @name ch_baseline
+#' @export
+ch_baseline.eeg_lst <- function(x, time = -Inf, sample_id = NULL, ...) {
+
+  if (is.null(sample_id) & is.numeric(time)) {
+    sample_id <- time * sampling_rate(x)
+  } else if (is.numeric(sample_id) & is.numeric(time)) {
+    message("# Ignoring time parameter.")
+  }
+ 
+ x$.signal <- data.table::copy(x$.signal)
+ x$.signal <- x$.signal[, (channel_names(x)) := lapply(.SD, fun_baseline, .sample, sample_id) ,
+             .SDcols = (channel_names(x)),
+              by = .id ]
+  x
+}
+#' @name ch_baseline
+#' @export
+ch_baseline.channel_dbl <- function(x, time = -Inf, sample_id = NULL,...) {
+
+  signal <- signal_from_parent_frame(env = parent.frame(1))
+
+  if(is.null(sample_id) & is.numeric(time)){
+   sample_id <- time * attributes(signal$.sample)$sampling_rate
+  } else if( is.numeric(sample_id) & is.numeric(time)) {
+    message("# Ignoring time parameter.")
+  }
+# 
+  fun_baseline(x, signal[[".sample"]], sample_id)  
+}
+
+
+fun_baseline <- function(x,.sample, lower) {
+  x - mean(x[between(.sample, lower, 0)],na.rm=TRUE)
+}
+

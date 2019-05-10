@@ -1,21 +1,21 @@
 Package: eeguana
 Type: Package
 Title: A package for flexible manipulation of EEG data
-Version: 0.0.7.9000
+Version: 0.1.0.9000
 Authors@R: c(
     person("Bruno", "Nicenboim", email = "bruno.nicenboim@uni-potsdam.de", role = c("aut", "cre")),
     person("Kate", "Stone", email = "kate.stone@uni-potsdam.de", role = "ctb"))
-Description: Flexible manipulation of EEG data.
+Description: The package *eeguana* provides a framework for doing simple pre-processing with specialized functions (starting with `eeg_` and `ch_`) and manipulating EEG data with *dplyr* verbs (e.g., `mutate`, `filter`, `summarize`) extended to a new class `eeg_lst`, and `ggplot` wrapper functions.  The new class is inspired by tidyverse principles but it's not really "tidy" (due to space considerations), it's a list of (i) a wide table that contains the signal amplitudes at every sample point of the EEG,  (ii) an events table with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant (`.recording`), conditions, etc.
 URL: https://github.com/bnicenboim/eeguana
 BugReports: https://github.com/bnicenboim/eeguana/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 6.1.1
 Depends:
-    R (>= 3.1.0),
-    ggplot2 (>= 3.1.0),
-    dplyr (>= 0.8.0)
+    R (>= 3.1.0)
 Imports:
+    ggplot2 (>= 3.1.0),
+    dplyr (>= 0.8.0),
     tidyr (>= 0.8.2),
     ini (>= 0.3.1),
     purrr (>= 0.2.5),
@@ -23,27 +23,31 @@ Imports:
     stringr (>= 1.3.1),
     tools,
     magrittr (>= 1.5),
-    rlang  (>= 0.3.1),
-    signal,
-    MBA,
-    tibble,
+    rlang (>= 0.3.1),
+    signal (>= 0.7.6),
+    MBA (>= 0.0.9),
+    tibble (>= 2.1.1),
     data.table (>= 1.12.2),
-    edfReader,
-    gtable,
-    scales,
-    fICA (>= 1.1)
+    edfReader (>= 1.2.0),
+    gtable (>= 0.2.0),
+    scales (>= 1.0.0),
+    fICA (>= 1.1),
+    JADE (>= 2.0.1),
+    MASS,
+    RcppRoll (>= 0.3.0),
+    ellipsis (>= 0.1.0)
 Suggests:
-    akima,
-    plotly,
-    R.matlab,
+    akima (>= 0.6.2),
+    plotly (>= 4.8.0),
+    R.matlab (>= 3.6.2),
     fastICA (>= 1.2),
-    reticulate  (>= 1.11.1),
-    testthat,
-    roxygen2,
-    knitr,
-    rmarkdown,
-    spelling,
-    covr
+    reticulate (>= 1.11.1),
+    testthat (>= 2.0.1),
+    roxygen2 (>= 6.1.1),
+    knitr (>= 1.21),
+    rmarkdown (>= 1.11),
+    spelling (>= 2.0),
+    covr (>= 3.2.1)
 LazyData: true
 VignetteBuilder: knitr
 Language: en-US

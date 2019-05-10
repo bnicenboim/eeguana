@@ -9,18 +9,18 @@
 #' maximum of 6,400 samples. The `eeg_lst` object is then converted to a long-format
 #' tibble via `as_tibble`. In this tibble, the `.key` variable is the 
 #' channel/component name and `.value` its respective amplitude. The sample 
-#' number (`.sample_id` in the `eeg_lst` object) is automatically converted to seconds
+#' number (`.sample` in the `eeg_lst` object) is automatically converted to seconds
 #' to create the variable `time`. By default, time is then plotted on the 
 #' x-axis and amplitude on the y-axis, and uses `scales = "free"`; see [ggplot2::facet_grid()].
 #' 
 #' To add additional components to the plot such as titles and annotations, simply
-#' use the `+` symbol and add layers exactly as you would for `ggplot::ggplot`.
+#' use the `+` symbol and add layers exactly as you would for [ggplot2::ggplot].
 #' 
 #' 
 #' @param x An `eeg_lst` object.
 #' @param max_sample Downsample to approximately 6400 samples by default.
 #' @param ... Not in use.
-#' @family plot
+#' @family plotting functions
 #' 
 #' @return A ggplot object
 #' 
@@ -30,12 +30,12 @@
 #' plot(data_faces_ERPs)
 #' 
 #' # Add ggplot layers
+#' library(ggplot2)
 #' plot(data_faces_ERPs) + 
 #'     coord_cartesian(ylim = c(-500,500))
 #' 
-#' @importFrom magrittr %>%
 #'
-#' @export
+#' @export 
 plot.eeg_lst <- function(x, max_sample = 6400, ...) {
     ellipsis::check_dots_unnamed()
     plot <- ggplot2::ggplot(x, ggplot2::aes(x = .time, y = .value, group = .id)) +
@@ -50,73 +50,8 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
   plot
 }
 
-#' Create an ERP plot
-#' 
-#' `plot_gg` initializes a ggplot object which takes an `eeg_lst` object as
-#' its input data. Layers can then be added in the same way as for a 
-#' `ggplot2::ggplot` object.
-#' 
-#' If necessary, `plot_gg` will first downsample the `eeg_lst` object so that there is a 
-#' maximum of 6400 samples. The `eeg_lst` object is then converted to a long-format
-#' tibble via [as_tibble]. In this tibble, the `.key` variable is the 
-#' channel/component name and `.value` its respective amplitude. The sample 
-#' number (`.sample_id` in the `eeg_lst` object) is automatically converted to milliseconds
-#' to create the variable `time`. By default, time is plotted on the 
-#' x-axis and amplitude on the y-axis.
-#' 
-#' To add additional components to the plot such as titles and annotations, simply
-#' use the `+` symbol and add layers exactly as you would for `ggplot::ggplot`.
-#' 
-#' @param .data An `eeg_lst` object.
-#' @inheritParams  ggplot2::aes
-#' @param max_sample Downsample to approximately 2400 samples by default.
-#'
-#' @family plot
-#' @return A ggplot object
-#' 
-#' @examples 
-#' 
-#' # Plot grand averages for selected channels
-#' data_faces_ERPs %>% 
-#'   # select the desired electrodes
-#'   select(O1, O2, P7, P8) %>% 
-#'   plot_gg() + 
-#'       # add a grand average wave
-#'       stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1.5, 
-#'                aes(color = condition)) +
-#'       # facet by channel
-#'       facet_wrap(~ .key) + 
-#'       theme(legend.position = "bottom") 
-#'
-#' @export
-plot_gg <- function(.data, ...) {
-  UseMethod("plot_gg")
-}
-#' @rdname plot_gg
-#' @export
-plot_gg.eeg_lst <- function(.data, x = .time, y = .value, ..., max_sample = 2400) {
-  x <- rlang::enquo(x)
-  y <- rlang::enquo(y)
-  dots <- rlang::enquos(...)
-   plot <- ggplot2::ggplot(.data, ggplot2::aes(x = !!x, y = !!y, !!!dots)) +
-    ggplot2::scale_colour_brewer(type = "qual", palette = "Dark2") +
-    theme_eeguana()
-  plot
-}
 
-#' @export
-plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
-  dots <- rlang::enquos(...)
-  x <- rlang::enquo(x)
-  y <- rlang::enquo(y)
-  plot <- ggplot2::ggplot(
-    .data,
-    ggplot2::aes(x = !!x, y = !!y, !!!dots)
-  ) +
-    ggplot2::scale_colour_brewer(type = "qual", palette = "Dark2") +
-    theme_eeguana()
-  plot
-}
+
 
 
 #' Create a topographic plot
@@ -146,25 +81,26 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 #' size, and even head size, etc.
 #' 
 #' To add additional components to the plot such as titles and annotations, simply
-#' use the `+` symbol and add layers exactly as you would for `ggplot::ggplot`.
+#' use the `+` symbol and add layers exactly as you would for [ggplot2::ggplot].
 #'
 #'
 #' @param data A table of interpolated electrodes as produced by `eeg_interpolate_tbl`, or an `eeg_lst`, or `ica_lst` appropiately grouped. 
 #' @param ... If data are an `eeg_lst` or `ica_lst`, these are arguments passed to `eeg_interpolate_tbl`, such as, radius, size, etc.
 #'
-#' @family plot
+#' @family plotting functions
 #'
 #' @return A ggplot object
 #' 
 #' @examples 
-#' 
+#' library(dplyr)
+#' library(ggplot2)
 #' # Calculate mean amplitude between 100-200 ms and plot the topography
 #' data_faces_ERPs %>% 
 #'     # select the time window of interest
-#'     filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) %>% 
+#'     filter(between(as_time(.sample, unit = "milliseconds"),100,200)) %>% 
 #'     # compute mean amplitude per condition
 #'     group_by(condition) %>%
-#'     summarize_all_ch(mean, na.rm = TRUE) %>%
+#'     summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
 #'     plot_topo() +
 #'         # add a head and nose shape
 #'         annotate_head() + 
@@ -176,9 +112,9 @@ plot_gg.tbl_df <- function(.data, x = x, y = y,  ...) {
 #'
 #' # The same but with interpolation
 #' data_faces_ERPs %>% 
-#'     filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) %>% 
+#'     filter(between(as_time(.sample, unit = "milliseconds"),100,200)) %>% 
 #'     group_by(condition) %>%
-#'     summarize_all_ch(mean, na.rm = TRUE) %>%
+#'     summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
 #'     eeg_interpolate_tbl() %>%
 #'     plot_topo() +
 #'         annotate_head() + 
@@ -193,7 +129,7 @@ plot_topo <- function(data,  ...) {
 }
 #' @rdname plot_topo
 #' @export
-plot_topo.tbl_df <- function(data, value= .value,  label=.key) {
+plot_topo.tbl_df <- function(data, value= .value,  label=.key, ...) {
 
   value <- rlang::enquo(value)
   label <- rlang::enquo(label)
@@ -243,11 +179,21 @@ plot_topo.eeg_lst <- function(data, projection = "polar", ...) {
     plot_topo()
 }
 
+#' Generates topographic plots of the components after running ICA on an eeg_lst
+#' 
+#' Note that unlike [plot_topo], there is no need for faceting, or adding layers.
+#' 
+#' @param data An eeg_ica_lst
+#'
+#'
+#' @family plotting functions
+#' @family ICA functions
 #' @export
 plot_components <- function(data,  ...) {
   UseMethod("plot_components")
 }
-#' @rdname plot_topo
+#' @inheritParams plot_topo
+#' @rdname plot_components
 #' @export
 plot_components.eeg_ica_lst <- function(data,  projection = "polar", ...) {
     
@@ -255,22 +201,22 @@ plot_components.eeg_ica_lst <- function(data,  projection = "polar", ...) {
     ##TODO: move to data.table, ignore group, just do it by .recording
     long_table <- map_dtr(data$ica, ~ data.table::as.data.table(.x$mixing_matrix) %>%
                             .[, .ICA := {.ICA = paste0("ICA",seq_len(.N));
-                            factor(.ICA, levels = .ICA)}],.id = "recording") %>%
+                            factor(.ICA, levels = .ICA)}],.id = ".recording") %>%
       data.table::melt(variable.name = ".key",
-                       id.vars = c(".ICA","recording"),
+                       id.vars = c(".ICA",".recording"),
                        value.name = ".value")
     long_table[,.key := as.character(.key)]
     
     long_table <- left_join_dt(long_table, data.table::as.data.table(channels_tbl(data)), by = c(".key"= ".channel")) %>% 
-      dplyr::group_by(recording,.ICA) 
+      dplyr::group_by(.recording,.ICA) 
       
        long_table %>% eeg_interpolate_tbl(...) %>%
         plot_topo() +
-      facet_wrap(~.ICA)+
+      ggplot2::facet_wrap(~.ICA)+
       annotate_head() + 
-      geom_contour() +
-      geom_text(colour = "black")+
-         theme(legend.position = "none")
+         ggplot2::geom_contour() +
+         ggplot2::geom_text(colour = "black")+
+         ggplot2::theme(legend.position = "none")
     
 }
 
@@ -290,28 +236,30 @@ plot_components.eeg_ica_lst <- function(data,  projection = "polar", ...) {
 #' argument. White space in the plot can be reduced by changing `ratio`.
 #' 
 #' Additional components such as titles and annotations should be added to the 
-#' plot object using `+` exactly as you would for `ggplot::ggplot`.
+#' plot object using `+` exactly as you would for [ggplot2::ggplot].
 #' Title and legend adjustments will be treated as applying to the 
 #' whole plot object, while other theme adjustments will be treated as applying 
 #' to individual facets. x-axis and y-axis labels cannot be added at this stage.
 #'
 #' @param plot A ggplot object with channels
 #'
-#' @family plot
+#' @family plotting functions
 #' @return A ggplot object
 #' 
 #' 
 #' @examples 
+#' library(ggplot2)
+#' library(dplyr)
 #' 
 #' # Create a ggplot object with some grand averaged ERPs
 #' ERP_plot <- data_faces_ERPs %>% 
 #'    # select a few electrodes
 #'    select(Fz, FC1, FC2, C3, Cz, C4, CP1, CP2, Pz) %>%
 #'    # group by time point and condition
-#'    group_by(.sample_id, condition) %>%
+#'    group_by(.sample, condition) %>%
 #'    # compute averages
-#'    summarize_all_ch(mean,na.rm=TRUE) %>%
-#'    plot_gg() + 
+#'     summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
+#'    ggplot(aes(x = .time, y = .value)) + 
 #'        # plot the averaged waveforms
 #'        geom_line(aes(color = condition)) +
 #'        # facet by channel
@@ -485,15 +433,17 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1,1), ...) {
 #' @param size Size of the head
 #' @param color Color of the head
 #' @param stroke Line thickness
-#'
+#' @family plotting functions
 #' @return A layer for a ggplot
 #' 
 #' @examples
+#' library(dplyr)
+#' library(ggplot2)
 #' 
 #' data_faces_ERPs %>% 
-#'     filter(between(as_time(.sample_id, unit = "milliseconds"),100,200)) %>% 
+#'     filter(between(as_time(.sample, unit = "milliseconds"),100,200)) %>% 
 #'     group_by(condition) %>%
-#'     summarize_all_ch(mean, na.rm = TRUE) %>%
+#'     summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
 #'     plot_topo() +
 #'     annotate_head(size = .9, color = "black", stroke = 1)
 #' 
@@ -512,12 +462,22 @@ annotate_head <- function(size = 1.1, color ="black", stroke=1) {
   
 } 
 
+#' Adds a layer with the events on top of a plot of an eeg_lst.
+#' 
+#' @param data The data to be displayed in this layer. There are three options:
+#'               * If NULL, the default, the events table is inherited from the plot data as specified
+#'               in the call to ggplot().
+#'               * An events table will override the plot events table data. 
+#'
+#' @param alpha new alpha level in 0,1.
+#' @return A [`ggplot`][ggplot2::ggplot] layer.
+#' @family plotting functions
 #' @export
 annotate_events <- function(data=NULL, alpha = .2){
-    layer <- geom_rect(data=data, alpha = alpha,
+    layer <- ggplot2::geom_rect(data=data, alpha = alpha,
               ymin = -Inf, ymax= Inf,
               inherit.aes = FALSE,
-              aes(xmin = xmin,
+              ggplot2::aes(xmin = xmin,
                   xmax =  xmax ,
                   color = Event,
                   fill = Event,
@@ -527,14 +487,13 @@ annotate_events <- function(data=NULL, alpha = .2){
     structure(list(layer = layer), class = "layer_events")
 }
 
-#' @export
 ggplot_add.layer_events <- function(object, plot, object_name) {
     if(length(object$layer$data)==0) {
         events_tbl <- plot$data_events
    } else {
        events_tbl <- object$layer$data
     }
-    info_events   <- setdiff(colnames(events_tbl), obligatory_cols[["events"]])
+    info_events   <- setdiff(colnames(events_tbl), obligatory_cols[[".events"]])
     events_tbl <- data.table::as.data.table(events_tbl)
     events_tbl[,xmin:= as_time(.initial) ]
     events_tbl[,xmax:= as_time(.final) ]
@@ -545,43 +504,57 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
         dplyr::distinct()
   
     events_tbl <- left_join_dt(events_tbl, data.table::as.data.table(segs), by = ".id")
-    ## if(all_chs){
-    ##   events_tbl[, .channel := NA]
-    ## }
     chs <- list(unique(as.character(plot$data$.key)))
    events_tbl[,.key:=lapply(.channel, function(x) as.character(x))]
    events_tbl[is.na(.channel), .key:=list(rep(chs,.N))]
    events_tbl <- tidyr::unnest(events_tbl)
    
    events_tbl[,.key:=factor(.key, levels = levels(plot$data$.key))]
-  # events_all_chs <- events_tbl[is.na(.channel),]
-  # events_all_chs[,.key := rep(list(unique(events_tbl$.channel)),.N)] 
-  # events_all_chs <- tidyr::unnest(events_all_chs)
-  # events_spec_chs <- events_tbl[!is.na(.channel),]
-  # events_spec_chs[, .key := .channel]
-  # events_tbl <- rbind(events_all_chs, events_spec_chs)
-  #   to_plot<- list()
-  #   to_plot$events_all <- filter_dt(events_tbl, .initial == .final, is.na(.channel) )
-  #   to_plot$events_ch <- filter_dt(events_tbl, .initial == .final, !is.na(.channel) ) %>%
-  #       .[, .key := as.factor(.channel)]
-  #   to_plot$intervals_all <- filter_dt(events_tbl, .initial < .final, is.na(.channel) )
-  #   to_plot$intervals_ch <- filter_dt(events_tbl, .initial < .final, !is.na(.channel) )  %>%
-  #       .[, .key := as.factor(.channel)]
-  #   add_to_plot <- purrr::map(to_plot, ~ if(nrow(.x)>0){
-  #                                            layer <- data.table::copy(object$layer)
-  #                                            layer$data <-  .x
-  #                                            layer
-  #                                        }
-  #                                        else {
-  #                                            NULL
-  #                                        }) %>%
-  #     purrr::keep(function(x) !is.null(x))
-  #   
-  object$layer$data <- events_tbl
-   plot + object$layer
-} 
 
-#' @export
+  object$layer$data <- events_tbl
+   ggplot2::`%+%`(plot, object$layer)
+}
+
+
+#' Create an ERP plot
+#' 
+#' `ggplot` initializes a ggplot object which takes an `eeg_lst` object as
+#' its input data. Layers can then be added in the same way as for a 
+#' [ggplot2::ggplot] object.
+#' 
+#' If necessary, t will first downsample the `eeg_lst` object so that there is a 
+#' maximum of 6400 samples. The `eeg_lst` object is then converted to a long-format
+#' tibble via [as_tibble]. In this tibble, the `.key` variable is the 
+#' channel/component name and `.value` its respective amplitude. The sample 
+#' number (`.sample` in the `eeg_lst` object) is automatically converted to milliseconds
+#' to create the variable `.time`. By default, time is plotted on the 
+#' x-axis and amplitude on the y-axis.
+#' 
+#' To add additional components to the plot such as titles and annotations, simply
+#' use the `+` symbol and add layers exactly as you would for [ggplot2::ggplot].
+#' 
+#' @param data An `eeg_lst` object.
+#' @inheritParams  ggplot2::ggplot
+#' @param max_sample Downsample to approximately 2400 samples by default.
+#'
+#' @family plotting functions
+#' @return A ggplot object
+#' 
+#' @examples 
+#' library(ggplot2)
+#' library(dplyr)
+#' # Plot grand averages for selected channels
+#' data_faces_ERPs %>% 
+#'   # select the desired electrodes
+#'   select(O1, O2, P7, P8) %>% 
+#'   ggplot(aes(x=.time, y =.key)) + 
+#'       # add a grand average wave
+#'       stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1.5, 
+#'                aes(color = condition)) +
+#'       # facet by channel
+#'       facet_wrap(~ .key) + 
+#'       theme(legend.position = "bottom") 
+#'
 ggplot.eeg_lst <- function(data = NULL,
                            mapping = ggplot2::aes(),
                            ...,
@@ -599,26 +572,29 @@ ggplot.eeg_lst <- function(data = NULL,
     p
 }
 #'  Eeguana ggplot themes
-#'  These are complete light themes based on [ggplot2::theme_bw()] which control all non-data display. 
-#'  @name theme
+#'
+#' These are complete light themes based on [ggplot2::theme_bw()] which control all non-data display.
+#' @return A ggplot theme.
+#' @family plotting functions
+#' @name theme_eeguana
 NULL
 # > NULL
 
-#' @rdname theme
+#' @rdname theme_eeguana
 #' @export
 theme_eeguana <- function() {
-  ggplot2::theme_bw() %+replace% 
+  ggplot2::`%+replace%`(ggplot2::theme_bw(),  
                 ggplot2::theme(
                     strip.background = ggplot2::element_rect(colour = "transparent", fill = "transparent"),
                     panel.spacing  = ggplot2::unit(.01, "points"),
-                    panel.border = ggplot2::element_rect(colour = "transparent", fill = "transparent"))
+                    panel.border = ggplot2::element_rect(colour = "transparent", fill = "transparent")))
 }
-#' @rdname theme
+#' @rdname theme_eeguana
 #' @export
 theme_eeguana2 <- function() {
- theme_eeguana() %+replace% 
-                    theme(panel.grid = ggplot2::element_line(colour = "transparent"),
+  ggplot2::`%+replace%`(theme_eeguana(), 
+                        ggplot2::theme(panel.grid = ggplot2::element_line(colour = "transparent"),
                       axis.ticks= ggplot2::element_line(colour = "transparent"),
                       axis.text= ggplot2::element_blank(),
-                      axis.title= ggplot2::element_blank())
+                      axis.title= ggplot2::element_blank()))
 }

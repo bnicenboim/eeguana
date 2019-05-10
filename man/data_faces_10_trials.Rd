@@ -6,16 +6,16 @@
 \title{EEGs elicited when one subject saw faces and non-faces objects.}
 \format{An eeg_lst with the following events:
 \itemize{
-\item \code{type == "New Segment"} indicates the beginning of the recording.
-\item \code{type == "Bad Interval"} indicates an interval marked as an artifact by BrainVision 2.0.
-\item \code{type == "UserDefined", description == "Blink} indicates an interval marked as a blink by BrainVision 2.0.
-\item \code{type == "Stimulus", description == "s5} indicates the beggining of the experiment.
-\item \code{type == "Stimulus", description == "s111} indicates
-\item \code{type == "Stimulus", description == "s130} indicates
-\item \code{type == "Stimulus", description == "s122} indicates
-\item \code{type == "Stimulus", description == "s121} indicates
-\item \code{type == "Stimulus", description == "s70} indicates that a face was presented.
-\item \code{type == "Stimulus", description == "s71} indicates that a non-face was presented.
+\item \code{.type == "New Segment"} indicates the beginning of the recording.
+\item \code{.type == "Bad Interval"} indicates an interval marked as an artifact by BrainVision 2.0.
+\item \code{.type == "UserDefined", .description == "Blink} indicates an interval marked as a blink by BrainVision 2.0.
+\item \code{.type == "Stimulus", .description == "s5} indicates the beggining of the experiment.
+\item \code{.type == "Stimulus", .description == "s111} indicates
+\item \code{.type == "Stimulus", .description == "s130} indicates
+\item \code{.type == "Stimulus", .description == "s122} indicates
+\item \code{.type == "Stimulus", .description == "s121} indicates
+\item \code{.type == "Stimulus", .description == "s70} indicates that a face was presented.
+\item \code{.type == "Stimulus", .description == "s71} indicates that a non-face was presented.
 }}
 \source{
 See https://bnicenboim.github.io/eeguana/articles/brainvision_files.html

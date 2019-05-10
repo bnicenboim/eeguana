@@ -1,7 +1,7 @@
 #' Builds an events_tbl table
 #' 
-#' The eeg_lst `events` table is organised into columns representing the `type` of event
-#' associated with the trigger listed under `description`. The timestamp marking
+#' The eeg_lst `events` table is organised into columns representing the `.type` of event
+#' associated with the trigger listed under `.description`. The timestamp marking
 #' the beginning and the end of the event is listed under `.initial` and `.final` (in samples).
 #' The `.channel` column is a
 #' linking variable only, so will generally only contain NAs, unless the 
@@ -37,7 +37,7 @@ new_events_tbl <- function(.id=integer(0),
                            .final = .final,
                            .channel = .channel)
         } else {
-            events <- data.table::data.table(.id = .id,
+          events <- data.table::data.table(.id = .id,
                                              descriptions_dt,
                                              .initial = .initial,
                                              .final = .final,
@@ -66,8 +66,8 @@ as_events_tbl.data.table <- function(.data, sampling_rate = NULL){
         .data[, .final := sample_int(as.integer(.final),
                                    sampling_rate =sampling_rate )]
     }
-    .data <-.data %>% dplyr::select(.id, setdiff(colnames(.data), obligatory_cols[["events"]]),
-                                    obligatory_cols[["events"]][-1])
+    .data <-.data %>% dplyr::select(.id, setdiff(colnames(.data), obligatory_cols[[".events"]]),
+                                    obligatory_cols[[".events"]][-1])
     data.table::setattr(.data, "class", c("events_tbl",class(.data)))
     validate_events_tbl(.data)
 }
@@ -142,37 +142,16 @@ validate_events_tbl <- function(events) {
     events[]
 }
 
-#' @export
-filter_.events_tbl <- function(.data, ..., .dots = list()){
-    as_events_tbl(NextMethod(), sampling_rate(.data))
-}
 
-#' @export
 filter.events_tbl <- function(.data, ..., preserve = FALSE){
   as_events_tbl(NextMethod(), sampling_rate(.data))
 }
-#' @export
-mutate_.events_tbl <- function(.data, ..., .dots = list()){
-    as_events_tbl(NextMethod(), sampling_rate(.data))
-}
-#' @export
 mutate.events_tbl <- function(.data, ...){
     as_events_tbl(NextMethod(), sampling_rate(.data))
 }
-#' @export
-transmute_.events_tbl <- function(.data, ..., .dots = list()){
-    as_events_tbl(NextMethod(), sampling_rate(.data))
-}
-#' @export
 transmute.events_tbl <- function(.data, ...){
     as_events_tbl(NextMethod(), sampling_rate(.data))
 }
-#' @export
-summarise_.events_tbl <- function(.data, ..., .dots = list()){
-    as_events_tbl(NextMethod(), sampling_rate(.data))
-}
-
-#' @export
-summarize.events_tbl <- function(.data, ...){
+summarise.events_tbl <- function(.data, ...){
     as_events_tbl(NextMethod(), sampling_rate(.data))
 }

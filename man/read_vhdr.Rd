@@ -4,17 +4,17 @@
 \alias{read_vhdr}
 \title{Read a BrainVision file into R}
 \usage{
-read_vhdr(file, sep = type == "New Segment", zero = type == "Time 0",
-  recording = file)
+read_vhdr(file, sep = .type == "New Segment", zero = .type == "Time 0",
+  .recording = file)
 }
 \arguments{
 \item{file}{A vhdr file in a folder that contains a .vmrk and .dat files}
 
-\item{sep}{Segment separation marker. By default: type == "New Segment"}
+\item{sep}{Segment separation marker. By default: .type == "New Segment"}
 
-\item{zero}{Time zero marker. By default: type == "Time 0"}
+\item{zero}{Time zero marker. By default: ..type == "Time 0"}
 
-\item{recording}{Recording name (file name, by default).}
+\item{.recording}{Recording name (file name, by default).}
 }
 \value{
 An \code{eeg_lst} object with signal_tbl and event from file_name.dat,
@@ -30,11 +30,11 @@ files must be in the same directory.
 \examples{
 \dontrun{
 # load a single subject
-s1 <- read_vhdr("./faces.vhdr", recording = 1)
+s1 <- read_vhdr("./faces.vhdr", .recording = 1)
 
 # load multiple subjects using purrr::map, extracting subject IDs from file names
-faces <- purrr::map(list.files("./","vhdr"), ~
-    read_vhdr(.x, recording = parse_number(.x, na = character()))
+faces <- purrr::map(list.files("./","vhdr"), ~ 
+    read_vhdr(.x, .recording = parse_number(.x, na = character()))
 }
 
 }

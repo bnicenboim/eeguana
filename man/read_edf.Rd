@@ -4,12 +4,12 @@
 \alias{read_edf}
 \title{Read an edf/edf+/bdf file into R}
 \usage{
-read_edf(file, recording = file)
+read_edf(file, .recording = file)
 }
 \arguments{
 \item{file}{A edf/bdf file}
 
-\item{recording}{Recording name (file name, by default). If set to NULL or NA, the patient name will be used.}
+\item{.recording}{.Recording name (file name, by default). If set to NULL or NA, the patient name will be used.}
 }
 \value{
 An \code{eeg_lst} object.
@@ -18,7 +18,7 @@ An \code{eeg_lst} object.
 Creates an eeg_lst object from edf, edf+, and bdf file export formats.
 }
 \examples{
-\dontrun{s1 <- read_edf("./faces.edf", recording = 1)}
+\dontrun{s1 <- read_edf("./faces.edf", .recording = 1)}
 
 }
 \seealso{

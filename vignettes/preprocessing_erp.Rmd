@@ -73,10 +73,10 @@ However, we want the ERP based on the trigger "S141" that precedes any of these 
 
 ```{r}
 events_tbl(data_judg) <- mutate(events_tbl(data_judg), 
-                            condition = case_when(description == "S141" &
-                                                  lead(description) == "S131" ~ 1 ,
-                                                  description == "S141" & 
-                                                  lead(description) == "S132" ~ 2, 
+                            condition = case_when(.description == "S141" &
+                                                  lead(.description) == "S131" ~ 1 ,
+                                                  .description == "S141" & 
+                                                  lead(.description) == "S132" ~ 2, 
                                                                          TRUE ~ 0))
 data_judg_s <- data_judg %>% eeg_segment(condition %in% c(1,2), lim = c(-0.2,1))
 ```
@@ -93,7 +93,7 @@ data_judg_s <- data_judg_s %>%
                 # The reference channel REF is filled with 0  
                 mutate(REF = channel_dbl(0)) %>% 
                 # All channels are references with REF  
-                eeg_rereference(ref_ch = c("RM","REF"))
+                eeg_rereference(ref = c("RM","REF"))
 
 data_judg_s_p <- data_judg_s %>% 
                 # A low pass filter is applied 
@@ -137,8 +137,8 @@ which was placed below the subjects' left eye.
 
 ```{r}
 data_judg_s_p <- data_judg_s_p %>%
-    eeg_rereference(LEOG, ref_ch = "X53") %>%
-    eeg_rereference(X25, ref_ch = "X57") %>%
+    eeg_rereference(LEOG, ref = "X53") %>%
+    eeg_rereference(X25, ref = "X57") %>%
     rename(eogv = LEOG, eogh = X25) %>%
     select(-X53, X57)
              
@@ -196,7 +196,8 @@ plot_general <- data_summary %>%
                    geom_raster() + 
                    theme(legend.position ="none", axis.text.y =  element_text(size = 6))
 
-plot_channels <- data_summary %>%  ungroup() %>% summarize_all_ch(max) %>% 
+plot_channels <- data_summary %>%  ungroup() %>%
+                   summarize_at(channel_names(.), max) %>% 
                    ggplot(aes(x = .value, y= .key)) + 
                    geom_point()  + 
                    theme(axis.text.y =  element_text(size = 6))
@@ -245,7 +246,7 @@ judgment and human-animal judgment. This is straightforward to do with
 ```{r, message = FALSE}
 
 ERPs <- data_judg_s_p %>% 
-        group_by(.sample_id, condition) %>% 
+        group_by(.sample, condition) %>% 
         summarize_at(channel_names(.), mean,na.rm=TRUE)
 
 ERPs   %>% plot() + 
@@ -260,7 +261,7 @@ The following code allows you to look at the ERP difference waves.
 
 ```{r, message = FALSE}
 diff_ERPs <- data_judg_s_p %>% 
-             group_by(.sample_id) %>% 
+             group_by(.sample) %>% 
              summarize_at(channel_names(.), list(~
                   mean(.[condition==1] - .[condition==2], 
                        na.rm=TRUE)))
