@@ -9,7 +9,7 @@
 \item \code{.type == "New Segment"} indicates the beginning of the recording.
 \item \code{.type == "Bad Interval"} indicates an interval marked as an artifact by BrainVision 2.0.
 \item \code{.type == "UserDefined", .description == "Blink} indicates an interval marked as a blink by BrainVision 2.0.
-\item \code{.type == "Stimulus", .description == "s5} indicates the beggining of the experiment.
+\item \code{.type == "Stimulus", .description == "s5} indicates the beginning of the experiment.
 \item \code{.type == "Stimulus", .description == "s111} indicates
 \item \code{.type == "Stimulus", .description == "s130} indicates
 \item \code{.type == "Stimulus", .description == "s122} indicates
@@ -18,7 +18,7 @@
 \item \code{.type == "Stimulus", .description == "s71} indicates that a non-face was presented.
 }}
 \source{
-See https://bnicenboim.github.io/eeguana/articles/brainvision_files.html
+See \url{https://bnicenboim.github.io/eeguana/articles/brainvision_files.html}
 }
 \usage{
 data_faces_10_trials

@@ -23,7 +23,7 @@ A valid eeg_lst.
 Builds an eeg_lst object composed of two \code{data.table::data.table}
 objects and one  \code{tibble::tibble}. All three are linked by a unique
 identifier \code{.id}. Amplitude values and timestamps appear in the \code{signal}
-table. Triggers, blinks, artefact rejection markings, and other
+table. Triggers, blinks, artifact rejection markings, and other
 events logged by the EEG recording software appear in the \code{events} table.
 Segment information and recording IDs appear in the \code{segments} tibble.
 }

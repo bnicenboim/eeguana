@@ -49,7 +49,7 @@ without any further layers will create an unannotated topographical plot.
 To add a head and nose, add the layer \code{annotate_head}. Add
 contour lines with \code{ggplot2::geom_contour} and electrode labels
 with \code{ggplot2::geom_text}. These arguments are deliberately not
-built into the function so as to allow flexibility in choosing colour, font
+built into the function so as to allow flexibility in choosing color, font
 size, and even head size, etc.
 
 To add additional components to the plot such as titles and annotations, simply
@@ -71,7 +71,7 @@ data_faces_ERPs \%>\%
         # add contour lines
         geom_contour() +
         # add electrode labels
-        geom_text(colour = "black") +
+        geom_text(color = "black") +
         facet_grid(~condition)
 
 # The same but with interpolation
@@ -83,7 +83,7 @@ data_faces_ERPs \%>\%
     plot_topo() +
         annotate_head() + 
         geom_contour() +
-        geom_text(colour = "black") +
+        geom_text(color = "black") +
         facet_grid(~condition)
 
 

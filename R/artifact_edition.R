@@ -6,7 +6,7 @@
 #' `eeg_artif_minmax()`and `eeg_artif_step()` can be used to detect blinks and horizontal eye movements
 #'  in the electro-oculographic (V/HEOG) channels or large voltage jumps in other channels. 
 #'  For the EOG channels, a relatively low threshold (e.g., 30 µV) is recommended. For non EOG channels, a relatively high threshold (e.g., 100 µV) would be 
-#'  more appropiate.
+#'  more appropriate.
 #'    
 #' @param .data An `eeg_lst` object.
 #' @param ... Channels to include. All the channels by default, but eye channels should be removed.
