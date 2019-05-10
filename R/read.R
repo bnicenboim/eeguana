@@ -18,13 +18,13 @@
 #' @examples 
 #' \dontrun{
 #' # load a single subject
-#' s1 <- read_vhdr("./faces.vhdr", .recording = 1)
+#' s1 <- read_vhdr("./faces.vhdr", .recording = "1")
 #' 
 #' # load multiple subjects using purrr::map, extracting subject IDs from file names
 #' faces <- purrr::map(list.files("./","vhdr"), ~ 
 #'     read_vhdr(.x)
 #' )
-#' 
+#' } 
 #' @family read
 #'
 #' @export

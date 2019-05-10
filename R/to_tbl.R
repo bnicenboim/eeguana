@@ -18,8 +18,8 @@ as.data.table.eeg_lst <- function(x, unit = "s") {
       measure.vars = keys,
       value.name = ".value"
     )
-  long_signal[, .key := as.character(.key)]
-  [, .value := `attributes<-`(.value, NULL)]
+  long_signal[, .key := as.character(.key)][
+    , .value := `attributes<-`(.value, NULL)]
 
   long_table <- long_signal %>%
     left_join_dt(., data.table::as.data.table(x$.segments), by = ".id")

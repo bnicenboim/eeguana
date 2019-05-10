@@ -1,7 +1,3 @@
-#' @param .signal
-#' @param .events
-#' @param .segments
-#'
 #' @noRd
 new_eeg_lst <- function(.signal = NULL, .events = NULL, .segments = NULL) {
   x <- list(
