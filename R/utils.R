@@ -1,6 +1,6 @@
 
 
-#mu_raw <- list(charToRaw("μ"), charToRaw("µ"))
+# mu_raw <- list(charToRaw("μ"), charToRaw("µ"))
 
 
 #' := operator
@@ -16,7 +16,7 @@ NULL
 #' Unique columns of signal and segments tables.
 #' @noRd
 col_names_main <- function(.eeg_lst) {
-    unique(c(colnames(.eeg_lst$.signal), colnames(.eeg_lst$.segments)))
+  unique(c(colnames(.eeg_lst$.signal), colnames(.eeg_lst$.segments)))
 }
 
 
@@ -60,13 +60,12 @@ factors <- function(N) {
 
 ## taken from dplyr
 #' @noRd
-cat_line <- function (...) 
-{
+cat_line <- function(...) {
   cat(paste0(..., "\n"), sep = "")
 }
 
 #' @noRd
-make_names <- function(names){
+make_names <- function(names) {
   make.names(names) %>% make.unique()
 }
 
@@ -81,7 +80,7 @@ as_integer <- function(x) {
 
 #' @noRd
 vec_mean <- function(..., na.rm = FALSE) {
-  purrr::pmap_dbl(list(...), ~mean(c(...), na.rm = FALSE))
+  purrr::pmap_dbl(list(...), ~ mean(c(...), na.rm = FALSE))
 }
 
 #' @noRd
@@ -90,62 +89,66 @@ rowMeans_ch <- function(x, na.rm = FALSE, dims = 1L) {
 }
 
 #' @noRd
-row_fun_ch <- function(x, .f, pars=list()) {
- # TODO: faster options seem to be melting first (memory usage?):
-  #https://stackoverflow.com/questions/7885147/efficient-row-wise-operations-on-a-data-table
-# or with for loop set:
+row_fun_ch <- function(x, .f, pars = list()) {
+  # TODO: faster options seem to be melting first (memory usage?):
+  # https://stackoverflow.com/questions/7885147/efficient-row-wise-operations-on-a-data-table
+  # or with for loop set:
   # https://stackoverflow.com/questions/37667335/row-operations-in-data-table-using-by-i?noredirect=1&lq=1
-  
-  
-  #funs <- as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env(),...)
-  #fun_txt <- rlang::quo_text(funs[[1]])
+
+
+  # funs <- as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env(),...)
+  # fun_txt <- rlang::quo_text(funs[[1]])
   # channel_dbl(purrr::pmap(x, ~ eval(parse(text= fun_txt))))
   # .f <- purrr::possibly( match.fun, NULL )(.f)
   # if( is.null(.f) ){
-    # .f <- purrr::as_mapper(.f)
-    # y <- apply(x, 1, .f)
+  # .f <- purrr::as_mapper(.f)
+  # y <- apply(x, 1, .f)
   # } else {
-    y <- do.call(apply, c(list(x,1,match.fun(.f)), pars))          
-    # }
+  y <- do.call(apply, c(list(x, 1, match.fun(.f)), pars))
+  # }
   channel_dbl(y)
 }
 
 #' @noRd
-repeated_group_col <- function(.eeg_lst){
-    group_cols <- dplyr::group_vars(.eeg_lst)
-    segments <-   .eeg_lst$.segments %>%
-        {.[names(.) %in%  c(obligatory_cols$.segments, group_cols)]} %>%
-        data.table::data.table()
-    data.table::setkey(segments,.id)
-    dt <- .eeg_lst$.signal[segments, group_cols, with = FALSE]  
-    if(nrow(dt)==0){
-      return(dt)
-    } else {
-        return(dt[, .group:=do.call(paste0,.SD)][,(group_cols):=NULL][])
-    }
+repeated_group_col <- function(.eeg_lst) {
+  group_cols <- dplyr::group_vars(.eeg_lst)
+  segments <- .eeg_lst$.segments %>%
+    {
+      .[names(.) %in% c(obligatory_cols$.segments, group_cols)]
+    } %>%
+    data.table::data.table()
+  data.table::setkey(segments, .id)
+  dt <- .eeg_lst$.signal[segments, group_cols, with = FALSE]
+  if (nrow(dt) == 0) {
+    return(dt)
+  } else {
+    return(dt[, .group := do.call(paste0, .SD)][, (group_cols) := NULL][])
+  }
 }
 
 #' @noRd
-try_to_downsample <- function(.data, max_sample){ 
-    if (all(!is.na(nsamples(.data))) && (is.numeric(max_sample) && max_sample != 0 &&
-                                        # it will downsample if the samples are at least twice as large than the max_sample
-        max(nsamples(.data))/ 2 > max_sample)) {
-        .data <- eeg_downsample(.data, max_sample = max_sample)
-    } else {
-        .data
-    }
+try_to_downsample <- function(.data, max_sample) {
+  if (all(!is.na(nsamples(.data))) && (is.numeric(max_sample) && max_sample != 0 &&
+    # it will downsample if the samples are at least twice as large than the max_sample
+    max(nsamples(.data)) / 2 > max_sample)) {
+    .data <- eeg_downsample(.data, max_sample = max_sample)
+  } else {
+    .data
+  }
 }
 
 #' @noRd
-map_matr <- function(.x,.f,..., .id = NULL){
-    .f <- purrr::as_mapper(.f, ...)
-    res <- purrr::map(.x, .f, ...)
-    do.call("rbind", res)
+map_matr <- function(.x, .f, ..., .id = NULL) {
+  .f <- purrr::as_mapper(.f, ...)
+  res <- purrr::map(.x, .f, ...)
+  do.call("rbind", res)
 }
 
-#' Cat a message and then a printable object 
+#' Cat a message and then a printable object
 #' @noRd
-message_obj <- function(msg, obj){
-    outp <- paste(utils::capture.output({print(obj)}), collapse = "\n")
-    paste0(msg,"\n",outp,"\n")
+message_obj <- function(msg, obj) {
+  outp <- paste(utils::capture.output({
+    print(obj)
+  }), collapse = "\n")
+  paste0(msg, "\n", outp, "\n")
 }

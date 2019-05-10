@@ -5,7 +5,7 @@
 #' Wrappers for [dplyr][dplyr::dplyr]'s commands that act on different parts
 #' `eeg_lst` objects.
 #' The following wrappers have been implemented for `eeg_lst` objects:
-#' 
+#'
 #' * `mutate()` adds new variables and preserves existing ones. Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.
 #' * `transmute()` like `mutate` but drops non-used variables of the referred table, except for the obligatory columns starting with `.`.
 #' * `filter()`: finds segments/samples where conditions are true. Segments/samples where the condition evaluates to NA are dropped.
@@ -16,7 +16,7 @@
 #' * `rename()`: keeps all variables.
 #'
 #' In addition, `_at()`, and `_if()` versions of these verbs work as well. Notice that  `_at()` versions are much faster than `_if()` versions of these commands.
-#' 
+#'
 #' These functions always return the entire `eeg_lst` so that
 #' they can be ' piped using [magrittr][magrittr::magrittr] 's pipe, %>%.
 #'
@@ -30,44 +30,46 @@
 #' @family dplyr functions
 #'
 #' @name dplyr_verbs
-#' 
+#'
 #' @examples
 #' \dontrun{
 #' library(dplyr)
 #' # Create new channel in the signal table
 #' data_faces_ERPs %>%
-#'     mutate(tmp = Fz - Cz)
-#'     
+#'   mutate(tmp = Fz - Cz)
+#' 
 #' # Create a new condition in the segments table
 #' data_faces_ERPs %>%
-#'     mutate(code = ifelse(condition == "faces", 1, -1))
+#'   mutate(code = ifelse(condition == "faces", 1, -1))
 #' 
 #' # Create a new channel and drop all others
 #' data_faces_ERPs %>%
-#'     transmute(Occipital = chs_mean(O1, O2, Oz, 
-#'               na.rm = TRUE))
+#'   transmute(Occipital = chs_mean(O1, O2, Oz,
+#'     na.rm = TRUE
+#'   ))
 #' 
 #' # Extract data associated with a condition
 #' data_faces_ERPs %>%
-#'     filter(condition == "faces")
-#'     
-#' # Group and summarize 
+#'   filter(condition == "faces")
+#' 
+#' # Group and summarize
 #' data_faces_ERPs %>%
-#'     # Convert samples to times, filter between timepoints
-#'     filter(between(as_time(.sample, unit = "ms"), 
-#'            100, 200)) %>%
-#'     # Find mean amplitude of Fz for each condition
-#'     group_by(condition) %>%
-#'     summarize(mean.amplitude = mean(Fz))
+#'   # Convert samples to times, filter between timepoints
+#'   filter(between(
+#'     as_time(.sample, unit = "ms"),
+#'     100, 200
+#'   )) %>%
+#'   # Find mean amplitude of Fz for each condition
+#'   group_by(condition) %>%
+#'   summarize(mean.amplitude = mean(Fz))
 #' 
 #' # Select specific electrodes
-#' data_faces_ERPs %>% 
-#'     select(O1, O2, P7, P8)
+#' data_faces_ERPs %>%
+#'   select(O1, O2, P7, P8)
 #' 
 #' # Rename a variable
 #' data_faces_ERPs %>%
-#'     rename(Predictor = condition)
-#'  
+#'   rename(Predictor = condition)
 #' }
 NULL
 # > NULL
@@ -86,25 +88,29 @@ transmute.eeg_lst <- function(.data, ...) {
 }
 #' @rdname dplyr_verbs
 filter.eeg_lst <- function(.data, ..., .preserve = FALSE) {
-  if(.preserve==TRUE) {warning("Ignoring `.preserve` argument.")}
+  if (.preserve == TRUE) {
+    warning("Ignoring `.preserve` argument.")
+  }
   dots <- rlang::quos(...)
   filter_eeg_lst(.data, dots = dots)
 }
-filter.eeg_ica_lst <- function(.data, ..., .preserve= FALSE) {
-    out <- NextMethod()
-    recordings <- unique(out$.segments$.recording)
-    out$ica <- out$ica[recordings]
-    out
+filter.eeg_ica_lst <- function(.data, ..., .preserve = FALSE) {
+  out <- NextMethod()
+  recordings <- unique(out$.segments$.recording)
+  out$ica <- out$ica[recordings]
+  out
 }
 #' @rdname dplyr_verbs
 summarise.eeg_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
- summarize_eeg_lst(.data, dots)
+  summarize_eeg_lst(.data, dots)
 }
 #' @rdname dplyr_verbs
-group_by.eeg_lst <- function(.data, ..., add=FALSE, .drop = FALSE) {
+group_by.eeg_lst <- function(.data, ..., add = FALSE, .drop = FALSE) {
   dots <- rlang::quos(...)
-  if(.drop==TRUE) {warning("Ignoring .drop argument. It hasn't been implemented yet.")}
+  if (.drop == TRUE) {
+    warning("Ignoring .drop argument. It hasn't been implemented yet.")
+  }
   group_by_eeg_lst(.eeg_lst = .data, dots, .add = add)
 }
 #' @rdname dplyr_verbs
@@ -120,12 +126,11 @@ select.eeg_lst <- function(.data, ...) {
 
 #' @rdname dplyr_verbs
 rename.eeg_lst <- function(.data, ...) {
-    select_rename(.data, select = FALSE, ...)
-
+  select_rename(.data, select = FALSE, ...)
 }
 
 #' Return grouping variables.
-#' 
+#'
 #' @param x An eeg_lst.
 #' @name dplyr_groups
 NULL
@@ -133,18 +138,18 @@ NULL
 
 #' @rdname dplyr_groups
 groups.eeg_lst <- function(x) {
-    attributes(x)$vars %>% purrr::map(as.name)
+  attributes(x)$vars %>% purrr::map(as.name)
 }
 
 #' @rdname dplyr_groups
 group_vars.eeg_lst <- function(x) {
-    attributes(x)$vars
+  attributes(x)$vars
 }
 
 
 #' Dplyr functions for joining data frames to the segments of  eeg_lst objects.
 #'
-#' Join a data frames to the segments of an eeg_lst object, and 
+#' Join a data frames to the segments of an eeg_lst object, and
 #' modify the signal table accordingly (dropping rows when necessary).
 #'
 #' Wrappers for [dplyr][dplyr::join]'s commands:
@@ -163,7 +168,7 @@ group_vars.eeg_lst <- function(x) {
 #' @family dplyr functions
 #'
 #' @name join-eeguana
-#' 
+#'
 NULL
 # > NULL
 
@@ -196,7 +201,6 @@ semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   x$.signal <- semi_join_dt(x$.signal, segments, by = ".id")
   x$.events <- semi_join_dt(x$.events, segments, by = ".id")
   x %>% validate_eeg_lst()
-  
 }
 
 tbl_vars.eeg_lst <- function(x) {

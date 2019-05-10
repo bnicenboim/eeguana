@@ -4,14 +4,14 @@
 #' @param .data An eeg_lst object.
 #' @param value An events table.
 #' @param ... Not in use.
-#' 
+#'
 #' @return A table.
 #' @export
 events_tbl <- function(.data, ...) {
   UseMethod("events_tbl")
 }
 #' @export
-events_tbl.eeg_lst <- function(.data,...){
+events_tbl.eeg_lst <- function(.data, ...) {
   .data$.events
 }
 #' @rdname events_tbl
@@ -30,7 +30,7 @@ events_tbl.eeg_lst <- function(.data,...){
 #'
 #' @param .data An eeg_lst object.
 #' @param ... Not in use.
-#' 
+#'
 #' @return A table.
 #' @export
 channels_tbl <- function(.data, ...) {
@@ -39,25 +39,24 @@ channels_tbl <- function(.data, ...) {
 
 #' @export
 channels_tbl.eeg_lst <- function(.data, ...) {
-channels_tbl(.data$.signal)
+  channels_tbl(.data$.signal)
 }
 
 
 #' @export
 channels_tbl.data.frame <- function(.data, ...) {
-
-    channels <- dplyr::select_if(.data,is_channel_dbl) %>% colnames()
-    ## first row is enough and it makes it faster
-    tbl <- .data[1,] %>%
-        dplyr::select(channels) %>%
-        purrr::map_dfr(~attributes(.x)) %>%
-        dplyr::bind_cols( dplyr::tibble(.channel = channels),. ) %>%
-        dplyr::select(-dplyr::contains("class", ignore.case = FALSE))
-    if(tbl %>% nrow== 0) {
-        dplyr::tibble()
-    } else {
-        tbl
-    }
+  channels <- dplyr::select_if(.data, is_channel_dbl) %>% colnames()
+  ## first row is enough and it makes it faster
+  tbl <- .data[1, ] %>%
+    dplyr::select(channels) %>%
+    purrr::map_dfr(~ attributes(.x)) %>%
+    dplyr::bind_cols(dplyr::tibble(.channel = channels), .) %>%
+    dplyr::select(-dplyr::contains("class", ignore.case = FALSE))
+  if (tbl %>% nrow() == 0) {
+    dplyr::tibble()
+  } else {
+    tbl
+  }
 }
 
 #' @rdname channels_tbl
@@ -70,20 +69,25 @@ channels_tbl.data.frame <- function(.data, ...) {
 #' @export
 `channels_tbl<-.eeg_lst` <- function(.data, value) {
   orig_names <- channel_names(.data$.signal)
-  channels_sg <- .data$.signal[, channel_names(.data$.signal), with =FALSE]
+  channels_sg <- .data$.signal[, channel_names(.data$.signal), with = FALSE]
   nochannels_sg <- .data$.signal[, setdiff(colnames(.data$.signal), channel_names(.data$.signal)), with = FALSE]
-  .data$.signal <- cbind(nochannels_sg, 
-                    data.table::as.data.table(
-                      update_channel_meta_data(channels_sg, 
-                                               value))) %>%
+  .data$.signal <- cbind(
+    nochannels_sg,
+    data.table::as.data.table(
+      update_channel_meta_data(
+        channels_sg,
+        value
+      )
+    )
+  ) %>%
     as_signal_tbl()
   new_names <- channel_names(.data$.signal)
-  
+
   .data$.signal <- data.table::copy(.data$.signal)
   for (i in seq_len(nchannels(.data$.signal))) {
-    data.table::set(.data$.signal,which(.data$.signal$.channel == orig_names[i]), ".channel", new_names[i])
+    data.table::set(.data$.signal, which(.data$.signal$.channel == orig_names[i]), ".channel", new_names[i])
   }
-.data
+  .data
 }
 
 #' @export
@@ -101,15 +105,15 @@ channels_tbl.data.frame <- function(.data, ...) {
 #'
 #' @param .data An eeg_lst object.
 #' @param ... Not in use.
-#' 
+#'
 #' @return A table.
 #' @export
 signal_tbl <- function(.data, ...) {
-    UseMethod("signal_tbl")
+  UseMethod("signal_tbl")
 }
 #' @export
-signal_tbl.eeg_lst <- function(.data,...){
-    .data$.signal
+signal_tbl.eeg_lst <- function(.data, ...) {
+  .data$.signal
 }
 
 #' Function to get the segments table of an eeg_lst object.
@@ -117,14 +121,13 @@ signal_tbl.eeg_lst <- function(.data,...){
 #'
 #' @param .data An eeg_lst object.
 #' @param ... Not in use.
-#' 
+#'
 #' @return A table.
 #' @export
 segments_tbl <- function(.data, ...) {
-    UseMethod("segments_tbl")
+  UseMethod("segments_tbl")
 }
 #' @export
-segments_tbl.eeg_lst <- function(.data,...){
-    .data$.segments
+segments_tbl.eeg_lst <- function(.data, ...) {
+  .data$.segments
 }
-

@@ -18,7 +18,7 @@ bind <- function(...) {
   # Checks:
   purrr::iwalk(
     eeg_lsts[seq(2, length(eeg_lsts))],
-    ~if (!identical(channels_tbl(eeg_lsts[[1]]), channels_tbl(.x))) {
+    ~ if (!identical(channels_tbl(eeg_lsts[[1]]), channels_tbl(.x))) {
       warning("Objects with different channels information, see below\n\n", "File ",
         as.character(as.numeric(.y) + 1), " ... \n",
         paste0(
@@ -29,8 +29,7 @@ bind <- function(...) {
         paste0(
           utils::capture.output(setdiff(channels_tbl(.x), channels_tbl(eeg_lsts[[1]]))),
           collapse = "\n"
-        )
-        ,
+        ),
         call. = FALSE
       )
     }
@@ -39,17 +38,17 @@ bind <- function(...) {
   # Binding
   # .id of the new eggbles needs to be adapted
 
-  signal <- purrr::map(eeg_lsts, ~.x$.signal) %>% data.table::rbindlist(idcol=".sid", fill = TRUE)
-  signal[, .id := .GRP, by = .(.sid,.id)][,.sid := NULL]
-  data.table::setkey(signal,.id,.sample)
-  
-  data.table::setattr(signal,"class",c("signal_tbl",class(signal)))
-  events <- purrr::map(eeg_lsts, ~.x$.events) %>% data.table::rbindlist(idcol=".sid", fill = TRUE)
-  events[, .id := .GRP, by = .(.sid,.id)][,.sid := NULL]
+  signal <- purrr::map(eeg_lsts, ~ .x$.signal) %>% data.table::rbindlist(idcol = ".sid", fill = TRUE)
+  signal[, .id := .GRP, by = .(.sid, .id)][, .sid := NULL]
+  data.table::setkey(signal, .id, .sample)
+
+  data.table::setattr(signal, "class", c("signal_tbl", class(signal)))
+  events <- purrr::map(eeg_lsts, ~ .x$.events) %>% data.table::rbindlist(idcol = ".sid", fill = TRUE)
+  events[, .id := .GRP, by = .(.sid, .id)][, .sid := NULL]
   events <- as_events_tbl(events)
 
-  segments <- purrr::map(eeg_lsts, ~data.table::data.table(.x$.segments)) %>% data.table::rbindlist(idcol=".sid", fill = TRUE)
-  segments[, .id := .GRP, by = .(.sid,.id)][,.sid := NULL] 
+  segments <- purrr::map(eeg_lsts, ~ data.table::data.table(.x$.segments)) %>% data.table::rbindlist(idcol = ".sid", fill = TRUE)
+  segments[, .id := .GRP, by = .(.sid, .id)][, .sid := NULL]
   segments <- segments %>% dplyr::as_tibble()
 
   new_eeg_lst <- new_eeg_lst(

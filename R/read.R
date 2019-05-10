@@ -22,8 +22,8 @@
 #' 
 #' # load multiple subjects using purrr::map, extracting subject IDs from file names
 #' faces <- purrr::map(list.files("./","vhdr"), ~ 
-#'     read_vhdr(.x, .recording = parse_number(.x, na = character()))
-#' }
+#'     read_vhdr(.x)
+#' )
 #' 
 #' @family read
 #'

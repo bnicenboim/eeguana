@@ -43,12 +43,18 @@ Here, I exemplify the use of *eeguana* with (pre-processed) EEG data from BrainV
 First we download the data:
 
 ```{r downloading, eval = any(!file.exists("faces.dat","faces.vmrk","faces.dat"))}
-download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.vhdr", 
-              "faces.vhdr", mode="wb")
-download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.vmrk", 
-              "faces.vmrk", mode="wb")
-download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.dat", 
-              "faces.dat", mode="wb")
+download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.vhdr",
+  "faces.vhdr",
+  mode = "wb"
+)
+download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.vmrk",
+  "faces.vmrk",
+  mode = "wb"
+)
+download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.dat",
+  "faces.dat",
+  mode = "wb"
+)
 ```
 
 BrainVision 2.0 exports three files: `faces.vhdr`, `faces.vmrk`, and
@@ -80,11 +86,12 @@ trigger "s70" was used for faces and "s71" for no faces. We'll segment the data
 using these two triggers.
 
 ```{r}
-faces_segs <- faces %>% 
-               eeg_segment(.description %in% c("s70", "s71"), 
-                        lim = c(-.2,.25)) %>%
-               eeg_events_to_NA(.type == "Bad Interval") %>% 
-               ch_baseline()
+faces_segs <- faces %>%
+  eeg_segment(.description %in% c("s70", "s71"),
+    lim = c(-.2, .25)
+  ) %>%
+  eeg_events_to_NA(.type == "Bad Interval") %>%
+  ch_baseline()
 ```
 
 
@@ -97,10 +104,12 @@ We can also edit the segmentation information and add more descriptive labels. O
 segments_tbl(faces_segs)
 library(dplyr)
 ## We modify the entire object:
-faces_segs_some <- faces_segs %>%  
-                  mutate(condition =
-                  if_else(description == "s70", "faces", "non-faces")) %>% 
-                  select(-type)
+faces_segs_some <- faces_segs %>%
+  mutate(
+    condition =
+      if_else(description == "s70", "faces", "non-faces")
+  ) %>%
+  select(-type)
 
 faces_segs_some
 ```
@@ -109,16 +118,18 @@ With some "regular" `ggplot` skills, we can create customized plots. `ggplot()` 
 
 ```{r plot, fig.dim = c(10,15), out.width = "100%", results = "hide"}
 library(ggplot2)
-faces_segs_some %>% 
-                  select(O1, O2, P7, P8) %>% 
-                  ggplot(aes(x =.time, y =.value)) + 
-                  geom_line(alpha = .1, aes(group = .id, color = condition)) + 
-                  stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1.5, 
-                  aes(color = condition)) +
-                  facet_wrap(~ .key) + 
-                  geom_vline(xintercept = 0, linetype = "dashed") + 
-                  geom_vline(xintercept = .17, linetype = "dotted") + 
-                  theme(legend.position = "bottom") 
+faces_segs_some %>%
+  select(O1, O2, P7, P8) %>%
+  ggplot(aes(x = .time, y = .value)) +
+  geom_line(alpha = .1, aes(group = .id, color = condition)) +
+  stat_summary(
+    fun.y = "mean", geom = "line", alpha = 1, size = 1.5,
+    aes(color = condition)
+  ) +
+  facet_wrap(~.key) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  geom_vline(xintercept = .17, linetype = "dotted") +
+  theme(legend.position = "bottom")
 ```
 
 
@@ -128,15 +139,15 @@ first making segments that include only the interval .1-.2 *s* after the onset
 of the stimuli, creating a table with interpolated amplitudes and using the ggplot wrapper `plot_topo`.
 
 ```{r topo, fig.dim = c(10,5), out.width = "100%", results = "hide"}
-faces_segs_some %>% filter(between(as_time(.sample, unit = "milliseconds"),100,200)) %>% 
-                    group_by(condition) %>%
-                    summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
-                    plot_topo() +
-                    annotate_head() + 
-                    geom_contour() +
-                    geom_text(colour = "black") +
-                    facet_grid(~condition)
-
+faces_segs_some %>%
+  filter(between(as_time(.sample, unit = "milliseconds"), 100, 200)) %>%
+  group_by(condition) %>%
+  summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
+  plot_topo() +
+  annotate_head() +
+  geom_contour() +
+  geom_text(colour = "black") +
+  facet_grid(~condition)
 ```
 
 

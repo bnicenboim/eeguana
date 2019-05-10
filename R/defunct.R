@@ -1,7 +1,7 @@
 #' Defunct functions in eeguana
-#' 
+#'
 #' These functions are defunct.
-#' 
+#'
 #'  * 'downsample()' should be changed to 'eeg_downsample()'.
 #'  * 'segment()' should be changed to 'eeg_segment()'.
 #'  * 'interpolate_tbl()' should be changed to 'eeg_interpolate_tbl()'.
@@ -41,76 +41,76 @@ interpolate_tbl <- function(.data, ...) {
 event_to_ch_NA <- function(x, ...) {
   .Defunct("eeg_events_to_NA")
 }
- 
+
 #' @rdname eeguana-defunct
 #' @inheritParams eeg_events_to_NA
 #' @export
 eeg_intervals_to_NA <- function(x, ...) {
-    .Defunct("eeg_events_to_NA")
-    UseMethod("eeg_events_to_NA")
+  .Defunct("eeg_events_to_NA")
+  UseMethod("eeg_events_to_NA")
 }
 #' @rdname eeguana-defunct
 #' @inheritParams eeg_filt_low_pass
 #' @export
 ch_filt_low_pass <- function(x, ...) {
-    .Defunct("eeg_filt_low_pass")
+  .Defunct("eeg_filt_low_pass")
 }
 
 #' @rdname eeguana-defunct
 #' @inheritParams eeg_filt_high_pass
 #' @export
 ch_filt_high_pass <- function(x, ...) {
-    .Defunct("eeg_filt_high_pass")
+  .Defunct("eeg_filt_high_pass")
 }
 
 #' @rdname eeguana-defunct
 #' @inheritParams eeg_filt_band_pass
 #' @export
 ch_filt_band_pass <- function(x, ...) {
-    .Defunct("eeg_filt_band_pass")
+  .Defunct("eeg_filt_band_pass")
 }
 
 #' @rdname eeguana-defunct
 #' @inheritParams eeg_filt_band_stop
 #' @export
 ch_filt_stop_pass <- function(x, ...) {
-    .Defunct("eeg_filt_band_stop")
+  .Defunct("eeg_filt_band_stop")
 }
 
 #' @rdname eeguana-defunct
-#' @inheritParams events_tbl 
+#' @inheritParams events_tbl
 #' @export
 events <- function(x, ...) {
-    .Defunct("events_tbl")
+  .Defunct("events_tbl")
 }
 #' @rdname eeguana-defunct
-#' @inheritParams events_tbl 
+#' @inheritParams events_tbl
 #' @export
-`events<-` <- function(x,value) {
-    .Defunct("events_tbl<-")
+`events<-` <- function(x, value) {
+  .Defunct("events_tbl<-")
 }
 #' @rdname eeguana-defunct
 #' @export
 summarize_all_ch <- function(x, ...) {
-    .Defunct("summarize_at")
+  .Defunct("summarize_at")
 }
 #' @rdname eeguana-defunct
 #' @export
 summarize_at_ch <- function(x, ...) {
-    .Defunct("summarize_at")
+  .Defunct("summarize_at")
 }
 #' @rdname eeguana-defunct
 #' @export
 summarise_all_ch <- function(x, ...) {
-    .Defunct("summarize_at")
+  .Defunct("summarize_at")
 }
 #' @rdname eeguana-defunct
 #' @export
 summarise_at_ch <- function(x, ...) {
-    .Defunct("summarize_at")
+  .Defunct("summarize_at")
 }
 #' @rdname eeguana-defunct
 #' @export
 plot_gg <- function(x, ...) {
-    .Defunct("ggplot")
+  .Defunct("ggplot")
 }

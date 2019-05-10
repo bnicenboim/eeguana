@@ -25,17 +25,21 @@ data_1 <- eeg_lst(
     3L, "Time 0", NA_character_, 1L, 1L, NA,
     3L, "Bad", NA_character_, 2L, 1L, "Y"
   ),
-  segments = dplyr::tibble(.id = c(1L, 2L, 3L),
-                           recording = "recording1",
-                           segment = c(1L, 2L, 3L),
-                           condition = c("a", "b", "a"))
+  segments = dplyr::tibble(
+    .id = c(1L, 2L, 3L),
+    recording = "recording1",
+    segment = c(1L, 2L, 3L),
+    condition = c("a", "b", "a")
+  )
 )
 
 # just some different X and Y
-data_2 <- mutate(data_1, recording = "recording2",
-                 X = sin(X + 10),
-                 Y = cos(Y - 10),
-                 condition = c("b", "a", "b"))
+data_2 <- mutate(data_1,
+  recording = "recording2",
+  X = sin(X + 10),
+  Y = cos(Y - 10),
+  condition = c("b", "a", "b")
+)
 
 # bind it all together
 data <- bind(data_1, data_2)
@@ -48,5 +52,5 @@ filter_tbl <- as_tibble(data$events) %>%
   group_by(.id, .sample_0) %>%
   filter(-1 %in% seq(.sample_0, by = 1, length.out = .size))
 
-# should be the same 
+# should be the same
 expect_setequal(as.matrix(filter_eeg$events), as.matrix(filter_tbl))

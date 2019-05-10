@@ -6,4 +6,3 @@ obligatory_cols <- list(
   .events = c(.id = ".id", .initial = ".initial", .final = ".final", .channel = ".channel"),
   .segments = c(.id = ".id")
 )
-

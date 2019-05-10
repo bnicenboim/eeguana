@@ -16,34 +16,35 @@ eeg_interpolate_tbl <- function(.data, ...) {
 #' @export
 eeg_interpolate_tbl.eeg_lst <- function(.data, radius = 1.2, diam_points = 200, method = "MBA", ...) {
   grouping <- dplyr::group_vars(.data)
-  .data <- dplyr::as_tibble(.data) %>% 
-    dplyr::left_join(channels_tbl(.data), by = c(".key"=".channel"))%>%
+  .data <- dplyr::as_tibble(.data) %>%
+    dplyr::left_join(channels_tbl(.data), by = c(".key" = ".channel")) %>%
     dplyr::group_by_at(dplyr::vars(grouping))
   dots <- rlang::enquos(...)
   # NextMethod()
   eeg_interpolate_tbl(.data,
-                      radius = radius,
-                      x=!!rlang::quo(.x),
-                      y=!!rlang::quo(.y),
-                      value = !!rlang::quo(.value),
-                      label = !!rlang::quo(.key),
-                      diam_points,
-                      method,
-                      !!!dots)
+    radius = radius,
+    x = !!rlang::quo(.x),
+    y = !!rlang::quo(.y),
+    value = !!rlang::quo(.value),
+    label = !!rlang::quo(.key),
+    diam_points,
+    method,
+    !!!dots
+  )
 }
 
 #' @rdname eeg_interpolate_tbl
 #' @param x Variable storing the x coordinate, generally `.x` (default).
 #' @param y Variable storing the y coordinate, generally `.y` (default).
-#' @param value Values used for the interpolation, generally `.value` (default). 
+#' @param value Values used for the interpolation, generally `.value` (default).
 #' @param label Label of the points that are used for the interpolation, generally `.key` (default).
 #' @export
-eeg_interpolate_tbl.data.frame <- function(.data, 
+eeg_interpolate_tbl.data.frame <- function(.data,
                                            radius = 1.2,
                                            x = .x,
-                                           y = .y, 
-                                           value = .value, 
-                                           label = .key, 
+                                           y = .y,
+                                           value = .value,
+                                           label = .key,
                                            diam_points = 200,
                                            method = "MBA", ...) {
   # x <- rlang::quo(.x)
@@ -55,15 +56,16 @@ eeg_interpolate_tbl.data.frame <- function(.data,
   value <- rlang::enquo(value)
   label <- rlang::enquo(label)
 
-   outside <-  .data %>%  dplyr::ungroup() %>%
-        dplyr::distinct(!!label, !!x, !!y) %>%
-       dplyr::filter(sqrt((!!x)^2 + (!!y)^2) >= 1 * radius)
-  
-    if(nrow(outside)>0){
-        warning(message_obj(paste0("Some points were outside the radius, '", radius,"', of interpolation:"),outside), call. = FALSE)
-}
+  outside <- .data %>%
+    dplyr::ungroup() %>%
+    dplyr::distinct(!!label, !!x, !!y) %>%
+    dplyr::filter(sqrt((!!x)^2 + (!!y)^2) >= 1 * radius)
 
-    .data <- dplyr::select(.data, dplyr::one_of(dplyr::group_vars(.data)), !!x, !!y, !!value, !!label)
+  if (nrow(outside) > 0) {
+    warning(message_obj(paste0("Some points were outside the radius, '", radius, "', of interpolation:"), outside), call. = FALSE)
+  }
+
+  .data <- dplyr::select(.data, dplyr::one_of(dplyr::group_vars(.data)), !!x, !!y, !!value, !!label)
   group_vars <- dplyr::group_vars(.data)
   group_vars <- group_vars[!group_vars %in%
     c(rlang::quo_text(x), rlang::quo_text(y), rlang::quo_text(value), rlang::quo_text(label))]
@@ -78,7 +80,9 @@ eeg_interpolate_tbl.data.frame <- function(.data,
     all(. == 1)
   if (!is_grouped) {
     stop("Data need to grouped or summarized so that each label appears once per group.\n",
-         "Tip: You should do probably need to do `eeg_lst %>% group_by(YOUR_GROUPS) %>% summarize_all_ch(mean)` before calling this function",call. = FALSE)
+      "Tip: You should do probably need to do `eeg_lst %>% group_by(YOUR_GROUPS) %>% summarize_all_ch(mean)` before calling this function",
+      call. = FALSE
+    )
   }
 
 
@@ -100,9 +104,9 @@ eeg_interpolate_tbl.data.frame <- function(.data,
         sp = FALSE,
         extend = TRUE,
         b.box = c(
-          min(c(-1,xyz[[1]]), na.rm = TRUE) * radius,
-          max(c(1,xyz[[1]]), na.rm = TRUE) * radius,
-          min(c(-1,xyz[[2]]), na.rm = TRUE) * radius,
+          min(c(-1, xyz[[1]]), na.rm = TRUE) * radius,
+          max(c(1, xyz[[1]]), na.rm = TRUE) * radius,
+          min(c(-1, xyz[[2]]), na.rm = TRUE) * radius,
           max(c(1, xyz[[2]]), na.rm = TRUE) * radius
         ),
         ...
@@ -123,20 +127,20 @@ eeg_interpolate_tbl.data.frame <- function(.data,
     interpolation_alg <- function(xyz, ...) {
       results <- akima::interp(
         x = xyz[[1]], y = xyz[[2]], z = xyz[[3]],
-        xo = seq(c(-1,min(xyz[[1]]), na.rm = TRUE) * radius, max(c(1,xyz[[1]]), na.rm = TRUE) * radius, length = diam_points),
-        yo = seq(min(c(-1,xyz[[2]]), na.rm = TRUE) * radius, max(c(1,xyz[[2]]), na.rm = TRUE) * radius, length = diam_points),
+        xo = seq(c(-1, min(xyz[[1]]), na.rm = TRUE) * radius, max(c(1, xyz[[1]]), na.rm = TRUE) * radius, length = diam_points),
+        yo = seq(min(c(-1, xyz[[2]]), na.rm = TRUE) * radius, max(c(1, xyz[[2]]), na.rm = TRUE) * radius, length = diam_points),
         extrap = TRUE,
         linear = FALSE,
         duplicate = "error",
         ...
-      ) 
-        dplyr::tibble(
-          !!rlang::quo_name(x) := rep(results$x, times = diam_points),
-          # eq to mba_interp$xyz.est@coords[,1] with sp = TRUE, which requires an extra package
-          !!rlang::quo_name(y) := rep(results$y, each = diam_points),
-          # eq to mba_interp$xyz.est@coords[,2]
-          !!rlang::quo_name(value) := c(results$z)
-        )
+      )
+      dplyr::tibble(
+        !!rlang::quo_name(x) := rep(results$x, times = diam_points),
+        # eq to mba_interp$xyz.est@coords[,1] with sp = TRUE, which requires an extra package
+        !!rlang::quo_name(y) := rep(results$y, each = diam_points),
+        # eq to mba_interp$xyz.est@coords[,2]
+        !!rlang::quo_name(value) := c(results$z)
+      )
     }
   } else {
     stop("Non supported method.")

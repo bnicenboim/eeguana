@@ -1,12 +1,12 @@
 context("test editing functions")
-library(eeguana) 
+library(eeguana)
 
 
-eeg_file <- read_vhdr(system.file("testdata","bv_export_bv_txt_bin_multi.vhdr",package="eeguana"))
+eeg_file <- read_vhdr(system.file("testdata", "bv_export_bv_txt_bin_multi.vhdr", package = "eeguana"))
 
 
 test_that("can read channels metadata", {
-	  channels_df <-  channels_tbl(eeg_file)
+  channels_df <- channels_tbl(eeg_file)
   expect_equal(channels_df$.channel, channel_names(eeg_file))
   expect_equal(length(channels_df$.x), nchannels(eeg_file))
 })

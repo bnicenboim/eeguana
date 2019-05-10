@@ -17,7 +17,7 @@
   register_s3_method("dplyr", "semi_join", "eeg_lst")
   register_s3_method("dplyr", "anti_join", "eeg_lst")
   register_s3_method("dplyr", "as_tibble", "eeg_lst")
-  
+
   register_s3_method("dplyr", "filter", "events_tbl")
   register_s3_method("dplyr", "mutate", "events_tbl")
   register_s3_method("dplyr", "transmute", "events_tbl")
