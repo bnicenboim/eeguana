@@ -21,7 +21,7 @@ eeg_ica <- function(.data, ...){
 #' @export
 eeg_ica.eeg_lst <- function(.data, 
                             ...,
-                            ignore = type == "artifact",
+                            ignore = .type == "artifact",
                     method = adapt_fast_ICA,
                     config= list()
                               ){

@@ -3,8 +3,9 @@ library(eeguana); library(dplyr); library(ggplot2)
 
 test_that("raw brainvision read and converted from MNE match", {
     skip_on_cran()  #it needs MNE installed
-    skip_on_travis() #it needs MNE installed
-    ##reference
+    skip_on_travis() 
+    skip_on_appveyor()
+      ##reference
     bvfile <- system.file("testdata","bv_export_bv_txt_bin_vector.vhdr",package="eeguana")
     eeg_read <- read_vhdr(bvfile, .recording = "r1")
     ## bvfile_pkl <- paste0(bvfile,".pkl")

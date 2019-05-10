@@ -143,7 +143,7 @@ summary.eeg_lst <- function(object, ...) {
     sampling_rate = sampling_rate(object),
     segments = segments_with_incomp_col %>% 
     dplyr::group_by(.recording) %>%
-    dplyr::summarize(n_segments = n(), n_incomplete = sum(incomplete))  %>% 
+    dplyr::summarize(n_segments = dplyr::n(), n_incomplete = sum(incomplete))  %>% 
       data.table::data.table(),
     events = object$.events %>%
       dplyr::group_by_at(dplyr::vars(-.final, -.channel, -.initial, -.id)) %>%
@@ -189,13 +189,17 @@ eeg_ica_cor_lst.eeg_ica_lst <- function(.data,...){
     names(eogs) <- eogs
     comps <- .data %>% eeg_ica_show(component_names(.)) 
 
+    # new cols:
+    .ICA <- NULL
+    cor <- NULL
+
     lapply(eogs, function(eog) 
         comps$.signal %>%
         dplyr::summarize_at(component_names(comps),
                             ~ stats::cor(x=., y = comps$.signal[[eog]], use = "complete")) %>%
         t() %>%
         {dplyr::tibble(.ICA = rownames(.), cor= .[,1])} %>%
-        dplyr::arrange(desc(abs(cor))))
+        dplyr::arrange(dplyr::desc(abs(cor))))
 
 }
 

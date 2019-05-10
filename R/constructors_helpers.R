@@ -149,7 +149,7 @@ validate_eeg_lst <- function(x, recursive = TRUE) {
                 )
     }
 
-    if(any(!group_vars(x) %in% c(colnames(x$.signal),colnames(x$.segments)))){
+    if(any(!dplyr::group_vars(x) %in% c(colnames(x$.signal),colnames(x$.segments)))){
         warning("Grouping variables are missing.",
                 call. = FALSE
                 )

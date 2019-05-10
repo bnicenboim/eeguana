@@ -7,7 +7,7 @@
 \usage{
 eeg_ica(.data, ...)
 
-\method{eeg_ica}{eeg_lst}(.data, ..., ignore = type == "artifact",
+\method{eeg_ica}{eeg_lst}(.data, ..., ignore = .type == "artifact",
   method = adapt_fast_ICA, config = list())
 }
 \arguments{

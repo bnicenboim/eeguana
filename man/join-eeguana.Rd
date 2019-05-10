@@ -7,14 +7,13 @@
 \alias{semi_join.eeg_lst}
 \title{Dplyr functions for joining data frames to the segments of  eeg_lst objects.}
 \usage{
-\method{anti_join}{eeg_lst}(x, y, by = NULL, copy = FALSE,
-  suffix = c(".x", ".y"), ...)
+anti_join.eeg_lst(x, y, by = NULL, copy = FALSE, suffix = c(".x",
+  ".y"), ...)
 
-\method{left_join}{eeg_lst}(x, y, by = NULL, copy = FALSE,
-  suffix = c(".x", ".y"), ...)
+left_join.eeg_lst(x, y, by = NULL, copy = FALSE, suffix = c(".x",
+  ".y"), ...)
 
-\method{semi_join}{eeg_lst}(x, y, by = NULL, suffix = c(".x", ".y"),
-  ...)
+semi_join.eeg_lst(x, y, by = NULL, suffix = c(".x", ".y"), ...)
 }
 \arguments{
 \item{x}{An eeg_lst.}

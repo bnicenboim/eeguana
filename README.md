@@ -8,7 +8,7 @@ status](https://ci.appveyor.com/api/projects/status/github/bnicenboim/eeguana?br
 [![DOI](https://zenodo.org/badge/153299577.svg)](https://zenodo.org/badge/latestdoi/153299577)
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 
-# eeguana <img src="man/figures/logo.png" align="right" height=140/>
+# eeguana <img src="inst/logos/logo.png" align="right" height=140/>
 
 ## Overview
 
@@ -225,6 +225,18 @@ segments_tbl(faces_segs)
 #>  9     9 faces.vhdr       9 Stimulus s70        
 #> 10    10 faces.vhdr      10 Stimulus s70        
 #> # … with 190 more rows
+library(dplyr)
+#> 
+#> Attaching package: 'dplyr'
+#> The following object is masked from 'package:eeguana':
+#> 
+#>     between
+#> The following objects are masked from 'package:stats':
+#> 
+#>     filter, lag
+#> The following objects are masked from 'package:base':
+#> 
+#>     intersect, setdiff, setequal, union
 ## We modify the entire object:
 faces_segs_some <- faces_segs %>%  
                   mutate(condition =
@@ -345,6 +357,7 @@ With some “regular” `ggplot` skills, we can create customized plots.
 into `ggplot`. This object can then be customized.
 
 ``` r
+library(ggplot2)
 faces_segs_some %>% 
                   select(O1, O2, P7, P8) %>% 
                   ggplot(aes(x =.time, y =.value)) + 

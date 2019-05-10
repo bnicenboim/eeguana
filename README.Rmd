@@ -95,6 +95,7 @@ We can also edit the segmentation information and add more descriptive labels. O
 ```{r}
 ## To only see the segments table:
 segments_tbl(faces_segs)
+library(dplyr)
 ## We modify the entire object:
 faces_segs_some <- faces_segs %>%  
                   mutate(condition =
@@ -107,6 +108,7 @@ faces_segs_some
 With some "regular" `ggplot` skills, we can create customized plots. `ggplot()` applied to an `eeg_lst` object will downsample the signals (when needed), and convert them to a long-format data frame that is feed into `ggplot`. This object can then be customized. 
 
 ```{r plot, fig.dim = c(10,15), out.width = "100%", results = "hide"}
+library(ggplot2)
 faces_segs_some %>% 
                   select(O1, O2, P7, P8) %>% 
                   ggplot(aes(x =.time, y =.value)) + 

@@ -6,7 +6,7 @@
 \alias{as_long_tbl.eeg_lst}
 \title{Convert an eeg_lst to a long table in \code{\link[tibble:tibble]{tibble}} format.}
 \usage{
-\method{as_tibble}{eeg_lst}(x, unit = "second")
+as_tibble.eeg_lst(x, unit = "second")
 
 as_data_frame.eeg_lst(x, unit = "second")
 

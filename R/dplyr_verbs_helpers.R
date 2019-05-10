@@ -249,7 +249,7 @@ signal_from_parent_frame <- function(env = parent.frame()) {
 #' @noRd
 extended_signal <- function(.eeg_lst, cond_cols = NULL, events_cols = NULL){
 extended_signal <- NULL  
-  relevant_cols <- c(obligatory_cols$.segments, group_vars(.eeg_lst),cond_cols)
+  relevant_cols <- c(obligatory_cols$.segments, dplyr::group_vars(.eeg_lst),cond_cols)
  if(length(relevant_cols)>1) { #more than just .id
   segments <-  dplyr::ungroup(.eeg_lst$.segments) %>% 
                {.[names(.) %in% relevant_cols]} %>%
