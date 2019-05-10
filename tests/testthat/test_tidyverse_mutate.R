@@ -1,18 +1,18 @@
-context("test tidyverse mutate")
-library(eeguana); library(dplyr); library(ggplot2)
+context("test tidyverse dplyr::mutate")
+library(eeguana) 
 
 # tests when factors are used should be done.
 
 data_1 <- eeg_lst(
   signal_tbl =
- tibble(X = sin(1:30), Y = cos(1:30),
+ dplyr::tibble(X = sin(1:30), Y = cos(1:30),
     .id = rep(c(1L, 2L, 3L), each = 10),
 .sample = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500)),
-   channels_tbl = tibble(
+   channels_tbl = dplyr::tibble(
       .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = c(1, 1), .y = NA_real_, .z = NA_real_
   ),
-   events_tbl = tribble(
+   events_tbl = dplyr::tribble(
     ~.id, ~.type, ~.description, ~.initial, ~.final, ~.channel,
     1L, "New Segment", NA_character_, -4L, -4L, NA,
     1L, "Bad", NA_character_, -2L, 0L, NA,
@@ -25,7 +25,7 @@ data_1 <- eeg_lst(
     3L, "Time 0", NA_character_, 1L, 1L, NA,
     3L, "Bad", NA_character_, 2L, 2L, "Y"
     ),
-  segments_tbl = tibble(.id = c(1L, 2L, 3L),
+  segments_tbl = dplyr::tibble(.id = c(1L, 2L, 3L),
                            .recording = "recording1",
                            segment = c(1L, 2L, 3L),
                            condition = c("a", "b", "a"))
@@ -33,7 +33,7 @@ data_1 <- eeg_lst(
 
 
 # just some different X and Y
-data_2 <- mutate(data_1, .recording = "recording2",
+data_2 <- dplyr::mutate(data_1, .recording = "recording2",
                  X = sin(X + 10),
                  Y = cos(Y - 10),
                  condition = c("b", "a", "b"))
@@ -48,48 +48,48 @@ reference_data <- data.table::copy(data)
 
 
 ##############################################
-### test dplyr mutate on ungrouped eeg_lst ###
+### test dplyr dplyr::mutate on ungrouped eeg_lst ###
 ##############################################
 
-mutate_eeg_lst <- mutate(data, X = X + 10)
+mutate_eeg_lst <- dplyr::mutate(data, X = X + 10)
 
 mutate_tbl <- data %>%
-  as_tibble() %>%
-  filter(.key == "X") %>%
-  mutate(X = .value + 10)
+  dplyr::as_tibble() %>%
+  dplyr::filter(.key == "X") %>%
+  dplyr::mutate(X = .value + 10)
 
 
-mutate2_eeg_lst <- mutate(data, ZZ = X + 10)
+mutate2_eeg_lst <- dplyr::mutate(data, ZZ = X + 10)
 
 mutate2_tbl <- data %>%
-  as_tibble() %>%
-  filter(.key == "X") %>%
-  mutate(ZZ = .value + 10)
+  dplyr::as_tibble() %>%
+  dplyr::filter(.key == "X") %>%
+  dplyr::mutate(ZZ = .value + 10)
 
-mutate3_eeg_lst <- mutate(data, mean = mean(X))
+mutate3_eeg_lst <- dplyr::mutate(data, mean = mean(X))
 
 mutate3_tbl <- data %>%
-  as_tibble() %>%
-  filter(.key == "X") %>%
-  mutate(mean = mean(.value))
+  dplyr::as_tibble() %>%
+  dplyr::filter(.key == "X") %>%
+  dplyr::mutate(mean = mean(.value))
 
-mutate4_eeg_lst <- mutate(data, subject = .recording)
+mutate4_eeg_lst <- dplyr::mutate(data, subject = .recording)
 
 mutate4_tbl <- data %>%
-  as_tibble() %>%
-  filter(.key == "X") %>%
-  distinct(segment, condition, .keep_all = TRUE) %>%
-  mutate(subject = .recording)
+  dplyr::as_tibble() %>%
+  dplyr::filter(.key == "X") %>%
+  dplyr::distinct(segment, condition, .keep_all = TRUE) %>%
+  dplyr::mutate(subject = .recording)
 
-transmute_eeg_lst <- transmute(data, X = X + 1)
+transmute_eeg_lst <- dplyr::transmute(data, X = X + 1)
 
 transmute_tbl <- data %>%
-  as_tibble() %>%
-  filter(.key == "X") %>%
-  transmute(X = .value + 1)
+  dplyr::as_tibble() %>%
+  dplyr::filter(.key == "X") %>%
+  dplyr::transmute(X = .value + 1)
 
 
-test_that("mutate functions work correctly on ungrouped data", {
+test_that("dplyr::mutate functions work correctly on ungrouped data", {
   expect_equal(as.double(mutate_eeg_lst$.signal[["X"]]), mutate_tbl$X)
   expect_equal(as.double(mutate2_eeg_lst$.signal[["ZZ"]]), mutate2_tbl$ZZ)
   expect_equal(as.double(mutate3_eeg_lst$.signal[["mean"]]), mutate3_tbl$mean)
@@ -99,17 +99,17 @@ test_that("mutate functions work correctly on ungrouped data", {
 
 # TODO - I don't think these functions exist yet
 # mutate_all_eeg_lst <- mutate_all_ch(data, mean)
-# mutate_at_eeg_lst <- mutate_at(data, channel_names(data), mean)
+# mutate_at_eeg_lst <- dplyr::mutate_at(data, channel_names(data), mean)
 
 
 # This shouldn't work, the transformed channel is a new channel, and it shouldn't be part of the events
  test_that("new channels shouldn't appear in the events table", {
-   expect_true(nrow(filter(mutate2_eeg_lst$.events, .channel == "ZZ")) == 0)
+   expect_true(nrow(dplyr::filter(mutate2_eeg_lst$.events, .channel == "ZZ")) == 0)
  })
 
 
 test_that("new channels appear in the channels table", {
-  expect_true(nrow(filter(channels_tbl(mutate2_eeg_lst), .channel == "ZZ")) > 0)
+  expect_true(nrow(dplyr::filter(channels_tbl(mutate2_eeg_lst), .channel == "ZZ")) > 0)
 })
 
 
@@ -134,98 +134,98 @@ message("Check that the rest of the object didn't change")
 
 
 ############################################
-### test dplyr mutate on grouped eeg_lst ###
+### test dplyr dplyr::mutate on grouped eeg_lst ###
 ############################################
 
-group_by_eeg_lst <- group_by(data, .sample)
-group2_by_eeg_lst <- group_by(data, .id)
-group3_by_eeg_lst <- group_by(data, .recording)
-group4_by_eeg_lst <- group_by(data, .sample, .recording)
-group5_by_eeg_lst <- group_by(data, .id, .recording)
-group6_by_eeg_lst <- group_by(data, .id, .sample, .recording)
-group7_by_eeg_lst <- group_by(data, .sample, condition)
+group_by_eeg_lst <- dplyr::group_by(data, .sample)
+group2_by_eeg_lst <- dplyr::group_by(data, .id)
+group3_by_eeg_lst <- dplyr::group_by(data, .recording)
+group4_by_eeg_lst <- dplyr::group_by(data, .sample, .recording)
+group5_by_eeg_lst <- dplyr::group_by(data, .id, .recording)
+group6_by_eeg_lst <- dplyr::group_by(data, .id, .sample, .recording)
+group7_by_eeg_lst <- dplyr::group_by(data, .sample, condition)
 
 
-mutate_g_signal_eeg <- mutate(group_by_eeg_lst, X = X + 1)
+mutate_g_signal_eeg <- dplyr::mutate(group_by_eeg_lst, X = X + 1)
 
 mutate_g_tbl <- data %>%
-  as_tibble() %>%
-  group_by(.recording) %>%
-  filter(.key == "X") %>%
-  mutate(X = .value + 1)
+  dplyr::as_tibble() %>%
+  dplyr::group_by(.recording) %>%
+  dplyr::filter(.key == "X") %>%
+  dplyr::mutate(X = .value + 1)
 
-mutate2_g_signal_eeg <- mutate(group3_by_eeg_lst, ZZ = X + 1)
+mutate2_g_signal_eeg <- dplyr::mutate(group3_by_eeg_lst, ZZ = X + 1)
 
 mutate2_g_tbl <- data %>%
-  as_tibble() %>%
-  group_by(.id) %>%
-  filter(.key == "X") %>%
-  mutate(ZZ = .value + 1)
+  dplyr::as_tibble() %>%
+  dplyr::group_by(.id) %>%
+  dplyr::filter(.key == "X") %>%
+  dplyr::mutate(ZZ = .value + 1)
 
-mutate3_g_signal_eeg <- mutate(group3_by_eeg_lst, Y = Y + 1)
+mutate3_g_signal_eeg <- dplyr::mutate(group3_by_eeg_lst, Y = Y + 1)
 
 mutate3_g_tbl <- data %>%
-  as_tibble() %>%
-  group_by(.recording) %>%
-  filter(.key == "Y") %>%
-  mutate(Y = .value + 1)
+  dplyr::as_tibble() %>%
+  dplyr::group_by(.recording) %>%
+  dplyr::filter(.key == "Y") %>%
+  dplyr::mutate(Y = .value + 1)
 
-mutate4_g_signal_eeg <- mutate(group4_by_eeg_lst, X = X + 1)
+mutate4_g_signal_eeg <- dplyr::mutate(group4_by_eeg_lst, X = X + 1)
 
 mutate4_g_tbl <- data %>%
-  as_tibble() %>%
-  group_by(.time, .recording) %>%
-  filter(.key == "X") %>%
-  mutate(X = .value + 1)
+  dplyr::as_tibble() %>%
+  dplyr::group_by(.time, .recording) %>%
+  dplyr::filter(.key == "X") %>%
+  dplyr::mutate(X = .value + 1)
 
-mutate5_g_signal_eeg <- mutate(group5_by_eeg_lst, ZZ = X + 1)
+mutate5_g_signal_eeg <- dplyr::mutate(group5_by_eeg_lst, ZZ = X + 1)
 
 mutate5_g_tbl <- data %>%
-  as_tibble() %>%
-  group_by(.id, .recording) %>%
-  filter(.key == "X") %>%
-  mutate(ZZ = .value + 1)
+  dplyr::as_tibble() %>%
+  dplyr::group_by(.id, .recording) %>%
+  dplyr::filter(.key == "X") %>%
+  dplyr::mutate(ZZ = .value + 1)
 
-mutate6_g_signal_eeg <- mutate(group6_by_eeg_lst, Y = Y + 1)
+mutate6_g_signal_eeg <- dplyr::mutate(group6_by_eeg_lst, Y = Y + 1)
 
 mutate6_g_tbl <- data %>%
-  as_tibble() %>%
-  group_by(.id, .time, .recording) %>%
-  filter(.key == "Y") %>%
-  mutate(Y = .value + 1)
+  dplyr::as_tibble() %>%
+  dplyr::group_by(.id, .time, .recording) %>%
+  dplyr::filter(.key == "Y") %>%
+  dplyr::mutate(Y = .value + 1)
 
-mutate7_g_signal_eeg <- mutate(group7_by_eeg_lst, mean = mean(Y))
+mutate7_g_signal_eeg <- dplyr::mutate(group7_by_eeg_lst, mean = mean(Y))
 
 mutate7_g_tbl <- data %>%
-  as_tibble() %>%
-  filter(.key == "Y") %>%
-  group_by(condition, .time) %>% # have to reverse order
-  mutate(mean = mean(.value))
+  dplyr::as_tibble() %>%
+  dplyr::filter(.key == "Y") %>%
+  dplyr::group_by(condition, .time) %>% # have to reverse order
+  dplyr::mutate(mean = mean(.value))
 
-transmute_g_signal_eeg <- transmute(group_by_eeg_lst, X = X + 1)
+transmute_g_signal_eeg <- dplyr::transmute(group_by_eeg_lst, X = X + 1)
 
 transmute_g_tbl <- data %>%
-  as_tibble() %>%
-  group_by(.time) %>%
-  filter(.key == "X") %>%
-  transmute(X = .value + 1)
+  dplyr::as_tibble() %>%
+  dplyr::group_by(.time) %>%
+  dplyr::filter(.key == "X") %>%
+  dplyr::transmute(X = .value + 1)
 
 # mean of everything except .sample
-mutate_all_g_signal_eeg <- mutate_all(group_by_eeg_lst, mean) 
+mutate_all_g_signal_eeg <- dplyr::mutate_all(group_by_eeg_lst, mean) 
 
 # mean of channels
-mutate_at_g_signal_eeg <- mutate_at(group_by_eeg_lst, channel_names(data), mean) 
+mutate_at_g_signal_eeg <- dplyr::mutate_at(group_by_eeg_lst, channel_names(data), mean) 
 
 mutate_a_tbl <- data %>%
-  as_tibble() %>%
-  group_by(.time, .key) %>%
-  mutate(mean = mean(.value)) %>%
-  select(.id, .time, .key, mean) %>%
+  dplyr::as_tibble() %>%
+  dplyr::group_by(.time, .key) %>%
+  dplyr::mutate(mean = mean(.value)) %>%
+  dplyr::select(.id, .time, .key, mean) %>%
   tidyr::spread(key = .key, value = mean) %>%
-  ungroup()
+  dplyr::ungroup()
 
 
-test_that("mutate works correctly on data grouped by .sample", {
+test_that("dplyr::mutate works correctly on data grouped by .sample", {
   expect_equal(as.double(mutate_g_signal_eeg$.signal[["X"]]), 
                mutate_g_tbl$X)
   expect_equal(as.double(mutate2_g_signal_eeg$.signal[["ZZ"]]), 
@@ -245,19 +245,19 @@ test_that("mutate works correctly on data grouped by .sample", {
   expect_equal(as.matrix(mutate_all_g_signal_eeg$.signal[, c("X", "Y")]), 
                as.matrix(mutate_at_g_signal_eeg$.signal[, c("X", "Y")]))
   expect_equal(as.matrix(mutate_all_g_signal_eeg$.signal[, c("X", "Y")]), 
-               as.matrix(select(mutate_a_tbl, X, Y)))
+               as.matrix(dplyr::select(mutate_a_tbl, X, Y)))
 })
 
 
-test_that("new channels created by mutate shouldn't appear in the events table", {
-  expect_true(nrow(filter(mutate2_g_signal_eeg$.events, .channel == "ZZ")) == 0)
-  expect_true(nrow(filter(mutate5_g_signal_eeg$.events, .channel == "ZZ")) == 0)
+test_that("new channels created by dplyr::mutate shouldn't appear in the events table", {
+  expect_true(nrow(dplyr::filter(mutate2_g_signal_eeg$.events, .channel == "ZZ")) == 0)
+  expect_true(nrow(dplyr::filter(mutate5_g_signal_eeg$.events, .channel == "ZZ")) == 0)
   })
 
 
 test_that("new channels appear in the channels table", {
-  expect_true(nrow(filter(channels_tbl(mutate2_g_signal_eeg), .channel == "ZZ")) > 0)
-  expect_true(nrow(filter(channels_tbl(mutate5_g_signal_eeg), .channel == "ZZ")) > 0)
+  expect_true(nrow(dplyr::filter(channels_tbl(mutate2_g_signal_eeg), .channel == "ZZ")) > 0)
+  expect_true(nrow(dplyr::filter(channels_tbl(mutate5_g_signal_eeg), .channel == "ZZ")) > 0)
   })
 
 
@@ -274,7 +274,7 @@ test_that("the classes of channels of signal_tbl remain in grouped eeg_lst", {
 
 
 # check against original data
-test_that("data didn't change after grouping and mutate functions", {
+test_that("data didn't change after grouping and dplyr::mutate functions", {
   expect_equal(reference_data, data)
 })
 
@@ -282,64 +282,64 @@ test_that("data didn't change after grouping and mutate functions", {
 
 
 ### test as_time conversion  ###
-eeg_time <- suppressWarnings( mutate(data, .time = as_time(.sample, unit = "seconds")) %>%
-  summarize(mean = mean(.time)))
+eeg_time <- suppressWarnings( dplyr::mutate(data, .time = as_time(.sample, unit = "seconds")) %>%
+  dplyr::summarize(mean = mean(.time)))
 
 tbl_time <- data %>%
-  as_tibble() %>%
-  summarize(mean = mean(.time))
+  dplyr::as_tibble() %>%
+  dplyr::summarize(mean = mean(.time))
 
 test_that("as_time works as expected", {
     expect_equal(as.double(eeg_time$.signal[["mean"]]), tbl_time$mean)
-    expect_warning(mutate(data, .time = as_time(.sample, unit = "seconds")) %>%
-        summarize(mean = mean(.time)))
+    expect_warning(dplyr::mutate(data, .time = as_time(.sample, unit = "seconds")) %>%
+        dplyr::summarize(mean = mean(.time)))
 })
 
 
 
 
 ###########################
-### test serial mutates ###
+### test serial dplyr::mutates ###
 ###########################
 
 # Bruno's note: Maybe it's fine that the following fails:
-# mutate(data, .time = as_time(.sample, unit = "milliseconds")) %>% 
-#   group_by(.time) %>% 
-#   summarize(mean(X))
+# dplyr::mutate(data, .time = as_time(.sample, unit = "milliseconds")) %>% 
+#   dplyr::group_by(.time) %>% 
+#   dplyr::summarize(mean(X))
 
-# create new variable with mutate
+# create new variable with dplyr::mutate
 eeg_mutate_1 <- data %>%
-  mutate(bin = ntile(.sample, 5))
+  dplyr::mutate(bin = dplyr::ntile(.sample, 5))
 
 tbl_mutate_1 <- data %>%
-  as_tibble() %>%
-  mutate(bin = ntile(.time, 5))
+  dplyr::as_tibble() %>%
+  dplyr::mutate(bin = dplyr::ntile(.time, 5))
 
 # use new variable in second variable doesn't work in eeg_lst (#35)
-## eeg_mutate_2 <- data %>% mutate(.time = as_time(.sample, unit = "ms"), bin = ntile(time, 5))
+## eeg_mutate_2 <- data %>% dplyr::mutate(.time = as_time(.sample, unit = "ms"), bin = dplyr::ntile(time, 5))
 # work around:
 eeg_mutate_2 <- data %>%
-  mutate(.time = as_time(.sample, unit = "ms")) %>%
-  mutate(bin = ntile(.time, 5))
+  dplyr::mutate(.time = as_time(.sample, unit = "ms")) %>%
+  dplyr::mutate(bin = dplyr::ntile(.time, 5))
 
 tbl_mutate_2 <- data %>%
-  as_tibble() %>%
-  mutate(test = .time + 1, bin = ntile(test, 5))
+  dplyr::as_tibble() %>%
+  dplyr::mutate(test = .time + 1, bin = dplyr::ntile(test, 5))
 
-# can't summarize by a mutated variable within eeg_lst (#43)
+# can't dplyr::summarize by a dplyr::mutated variable within eeg_lst (#43)
 eeg_mutate_3 <- data %>%
-  mutate(bin = ntile(.sample, 5)) %>%
-  group_by(bin) %>%
-  summarize(mean = mean(X))
+  dplyr::mutate(bin = dplyr::ntile(.sample, 5)) %>%
+  dplyr::group_by(bin) %>%
+  dplyr::summarize(mean = mean(X))
 
 tbl_mutate_3 <- data %>%
-  as_tibble() %>%
-  mutate(bin = ntile(.time, 5)) %>%
-  group_by(bin) %>%
-  summarize(mean = mean(.value[.key == "X"]))
+  dplyr::as_tibble() %>%
+  dplyr::mutate(bin = dplyr::ntile(.time, 5)) %>%
+  dplyr::group_by(bin) %>%
+  dplyr::summarize(mean = mean(.value[.key == "X"]))
 
 
-test_that("mutate works the same on eeg_lst as on tibble", {
+test_that("dplyr::mutate works the same on eeg_lst as on tibble", {
   expect_equal(eeg_mutate_1$.signal[["bin"]], tbl_mutate_1$bin[tbl_mutate_1$.key == "X"])
   expect_equal(eeg_mutate_2$.signal[["bin"]], tbl_mutate_2$bin[tbl_mutate_1$.key == "X"])
   expect_equal(eeg_mutate_3$.signal[["bin"]], tbl_mutate_3$bin)

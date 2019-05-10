@@ -28,7 +28,7 @@ information, and (iii) a long table with experimental information, such
 as participant number (`.recording`), conditions, etc.
 
 *eeguana* can do only basic pre-processing for now, more complete
-packages exist for matlab ([FieldTrip](http://www.fieldtriptoolbox.org/)
+packages exist for Matlab ([FieldTrip](http://www.fieldtriptoolbox.org/)
 and [EEGLAB](https://sccn.ucsd.edu/eeglab/index.php)) and python
 ([MNE](https://martinos.org/mne/stable/index.html)).
 

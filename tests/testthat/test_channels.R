@@ -1,16 +1,16 @@
 context("test Channel functions")
-library(eeguana); library(dplyr); library(ggplot2)
+library(eeguana) 
 
 
 data_eeg <- eeg_lst(
   signal_tbl =
-  tibble(X = sin(1:20), Y = cos(1:20),
+  dplyr::tibble(X = sin(1:20), Y = cos(1:20),
     .id = rep(c(1L, 2L), each = 10),
     .sample = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500)),
-   channels_tbl =  tibble(
+   channels_tbl =  dplyr::tibble(
       .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
-),   events_tbl =  tribble(
+),   events_tbl =  dplyr::tribble(
     ~.id, ~.type, ~.description, ~.initial, ~.final, ~.channel,
     1L, "New Segment", NA_character_, -4L, -4L, NA,
     1L, "Bad", NA_character_, -2L, 0L, NA,
@@ -20,14 +20,14 @@ data_eeg <- eeg_lst(
     2L, "Time 0", NA_character_, 1L, 1L, NA,
     2L, "Bad", NA_character_, 2L, 2L, "Y"
     ),
-  segments =  tibble(.id = c(1L, 2L), .recording = "recording1", segment = c(1L, 2L))
+  segments =  dplyr::tibble(.id = c(1L, 2L), .recording = "recording1", segment = c(1L, 2L))
 )
 
 
 
-data_M <- transmute(data_eeg, mean = chs_mean(X,Y))
+data_M <- dplyr::transmute(data_eeg, mean = chs_mean(X,Y))
 
-data_M_q <- transmute(data_eeg, mean = chs_mean(c("X","Y")))
+data_M_q <- dplyr::transmute(data_eeg, mean = chs_mean(c("X","Y")))
 
 test_that("can take the mean of the channels", {
 expect_equal(data_M$.signal$mean %>% as.numeric(), rowMeans(data_eeg$.signal[,.(X,Y)]))
@@ -39,13 +39,13 @@ test_that("both .eeg_lst and .channel_dbl give the same output for chs_mean", {
   expect_equal(data_M, data_M2)
 })
 
-data_M_f <- transmute(data_eeg, mean = chs_fun(X,Y, .funs = mean))
+data_M_f <- dplyr::transmute(data_eeg, mean = chs_fun(X,Y, .funs = mean))
 data_M_fa <- chs_fun(data_eeg, "mean")
 data_M_fa2 <- chs_fun(data_eeg, mean)
 data_M_fa3 <- chs_fun(data_eeg, list(mean = ~ mean(.)))
 data_M_fa4 <- chs_fun(data_eeg, ~ mean(.,na.rm = TRUE)) %>%
-   rename(mean =  X...mean....na.rm...TRUE.)
-data_eeg_NA <- data_eeg %>% mutate(X = if_else(X>.98, channel_dbl(NA), X)) 
+   dplyr::rename(mean =  X...mean....na.rm...TRUE.)
+data_eeg_NA <- data_eeg %>% dplyr::mutate(X = dplyr::if_else(X>.98, channel_dbl(NA), X)) 
 data_M_fa_NA1 <- chs_fun(data_eeg_NA, list(mean = ~ mean(.,na.rm = TRUE)))
 data_M_fa_NA2 <- chs_fun(data_eeg_NA, mean, list(na.rm=TRUE))
 
@@ -60,8 +60,8 @@ test_that("both chs_fun and chs_mean give the same output", {
 
 
 
-## data_reref <- mutate(data_eeg, X = ch_rereference(X, X, Y))
-data_eeg_Z <- data_eeg %>% mutate(Z = channel_dbl(0))
+## data_reref <- dplyr::mutate(data_eeg, X = ch_rereference(X, X, Y))
+data_eeg_Z <- data_eeg %>% dplyr::mutate(Z = channel_dbl(0))
  X_reref <- data_eeg_Z$.signal$X - (data_eeg$.signal$X+data_eeg$.signal$Y)/2
  Y_reref <- data_eeg_Z$.signal$Y - (data_eeg$.signal$X+data_eeg$.signal$Y)/2
 Z_reref <- data_eeg_Z$.signal$Z - (data_eeg$.signal$X+data_eeg$.signal$Y)/2
@@ -83,8 +83,8 @@ test_that(".reference changes", {
 })
 
 
-## data_reref_all <- transmute(data_eeg, X_ref = ch_rereference(X, X, Y), Y_ref = ch_rereference(Y, X, Y))  %>%
-##                     rename(X = X_ref, Y = Y_ref)
+## data_reref_all <- dplyr::transmute(data_eeg, X_ref = ch_rereference(X, X, Y), Y_ref = ch_rereference(Y, X, Y))  %>%
+##                     dplyr::rename(X = X_ref, Y = Y_ref)
 
 
 ## test_that("both .eeg_lst and .channel_dbl give the same values for ch_rereference (it's ok to loose the events and attributes", {

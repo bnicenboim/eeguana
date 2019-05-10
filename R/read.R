@@ -2,15 +2,14 @@
 #' 
 #' Creates an eeg_lst object from BrainVision exported files.The function reads 
 #' metadata from the .vhdr BrainVision file, which draws on 
-#' the .vmrk and .dat files. .eeg files are not recognised at present, but it is
-#' relatively straightforward to export .dat files from BrainVision. All three 
+#' the .vmrk and .dat/.eeg files.  All three 
 #' files must be in the same directory. 
 #' 
 #' 
 #'
 #' @param file A vhdr file in a folder that contains a .vmrk and .dat files
 #' @param sep Segment separation marker. By default: .type == "New Segment"
-#' @param zero Time zero marker. By default: ..type == "Time 0"
+#' @param zero Time zero marker. By default: .type == "Time 0"
 #' @param .recording Recording name (file name, by default).
 #' 
 #' @return An `eeg_lst` object with signal_tbl and event from file_name.dat,
@@ -105,7 +104,7 @@ read_vhdr <- function(file, sep = .type == "New Segment", zero = .type == "Time 
 #' @param file A .mat file containing a fieldtrip struct.
 #' @param .recording Recording name, by default is the file name.
 #' @param layout A .mat [layout from Fieldtrip](http://www.fieldtriptoolbox.org/template/layout)
-#' @return An `eeg_lst` object with signal_tbl and event from a matlab file.
+#' @return An `eeg_lst` object with signal_tbl and event from a Matlab file.
 #' 
 #' @examples 
 #' \dontrun{

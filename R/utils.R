@@ -2,17 +2,6 @@
 
 #mu_raw <- list(charToRaw("μ"), charToRaw("µ"))
 
-#' Pipe operator
-#'
-#' See \code{magrittr::\link[magrittr]{\%>\%}} for details.
-#'
-#' @name %>%
-#' @rdname pipe
-#' @keywords internal
-#' @export
-#' @importFrom magrittr %>%
-#' @usage lhs \%>\% rhs
-NULL
 
 #' := operator
 #'
@@ -51,10 +40,6 @@ say_size <- function(eeg_lst) paste(
     utils::capture.output(print(utils::object.size(eeg_lst), units = "auto"))
   )
 
-
-
-
-
 #' Get integers so that their prod is approx N
 #' @noRd
 factors <- function(N) {
@@ -74,11 +59,13 @@ factors <- function(N) {
 }
 
 ## taken from dplyr
+#' @noRd
 cat_line <- function (...) 
 {
   cat(paste0(..., "\n"), sep = "")
 }
 
+#' @noRd
 make_names <- function(names){
   make.names(names) %>% make.unique()
 }
@@ -97,10 +84,12 @@ vec_mean <- function(..., na.rm = FALSE) {
   purrr::pmap_dbl(list(...), ~mean(c(...), na.rm = FALSE))
 }
 
+#' @noRd
 rowMeans_ch <- function(x, na.rm = FALSE, dims = 1L) {
   channel_dbl(rowMeans(x, na.rm, dims))
 }
 
+#' @noRd
 row_fun_ch <- function(x, .f, pars=list()) {
  # TODO: faster options seem to be melting first (memory usage?):
   #https://stackoverflow.com/questions/7885147/efficient-row-wise-operations-on-a-data-table
@@ -121,18 +110,9 @@ row_fun_ch <- function(x, .f, pars=list()) {
   channel_dbl(y)
 }
 
-#' Convenience function for range subsets 
-#' 
-#' between is a thin wrapper for the between function of [data.table]. It is equivalent to x >= lower & x <= upper when incbounds=TRUE, or x > lower & y < upper when FALSE.
-#' 
-#' @inheritParams  data.table::between
-#' @export
-between <- data.table::between
-
-
 #' @noRd
 repeated_group_col <- function(.eeg_lst){
-    group_cols <- group_vars(.eeg_lst)
+    group_cols <- dplyr::group_vars(.eeg_lst)
     segments <-   .eeg_lst$.segments %>%
         {.[names(.) %in%  c(obligatory_cols$.segments, group_cols)]} %>%
         data.table::data.table()
@@ -144,7 +124,6 @@ repeated_group_col <- function(.eeg_lst){
         return(dt[, .group:=do.call(paste0,.SD)][,(group_cols):=NULL][])
     }
 }
-
 
 #' @noRd
 try_to_downsample <- function(.data, max_sample){ 

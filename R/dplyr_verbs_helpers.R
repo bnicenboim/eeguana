@@ -41,7 +41,7 @@ filter_eeg_lst <- function(.eeg_lst, dots){
      }
     # filter the segments and update the signal_tbl
     if (length(new_dots$.segments) > 0) {
-      grouping <- group_vars(.eeg_lst)[group_vars(.eeg_lst) %in% colnames(.eeg_lst$.segments)]
+      grouping <- dplyr::group_vars(.eeg_lst)[dplyr::group_vars(.eeg_lst) %in% colnames(.eeg_lst$.segments)]
       .eeg_lst$.segments <- .eeg_lst$.segments %>% 
                            dplyr::group_by_at(dplyr::vars(grouping)) %>% 
                            dplyr::filter(!!!new_dots$.segments) %>%
@@ -153,7 +153,7 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
   for (dfs in select_in_df) {
       vars_dfs <- all_vars[all_vars %in% colnames(.eeg_lst[[dfs]])]
                                         #add grouped vars if missing
-      groups <- group_vars(.eeg_lst)[group_vars(.eeg_lst)  %in% colnames(.eeg_lst[[dfs]])]
+      groups <- dplyr::group_vars(.eeg_lst)[dplyr::group_vars(.eeg_lst)  %in% colnames(.eeg_lst[[dfs]])]
       missing_grouped_vars <- setdiff(groups,vars_dfs) %>%
           stats::setNames(.,.)
       vars_dfs <- c(missing_grouped_vars,vars_dfs)
@@ -271,7 +271,7 @@ extended_signal <- function(.eeg_lst, cond_cols = NULL, events_cols = NULL){
 
 #' @noRd
 group_vars_segments <- function(.eeg_lst){
- intersect(group_vars(.eeg_lst), colnames(.eeg_lst$.segments))
+ intersect(dplyr::group_vars(.eeg_lst), colnames(.eeg_lst$.segments))
 } 
 
 #' @noRd

@@ -1,9 +1,9 @@
 context("test eeg artifacts")
-library(eeguana); library(dplyr); library(ggplot2)
+library(eeguana) 
 set.seed(123)
 
 N <- 1000
-signal <-  tibble(.id = 1L,
+signal <-  dplyr::tibble(.id = 1L,
                         .sample = sample_int(seq_len(N), sampling_rate = 500), 
                         Fz = channel_dbl(rep(0,N)),
                         Cz = channel_dbl(rep(0,N)),
@@ -14,33 +14,33 @@ signal$Fz[Fz_10] <- 10
 signal$Cz[Cz_10] <- 10
 data <- eeg_lst(
     signal_tbl = signal, 
-    segments =  tibble(.id = 1L, .recording = "recording1", segment =  1L)
+    segments =  dplyr::tibble(.id = 1L, .recording = "recording1", segment =  1L)
 )
 
 data_1minmax <- eeg_lst(
-    signal_tbl =  tibble( 
+    signal_tbl =  dplyr::tibble( 
         X = channel_dbl(c(0,0,0,-10,10,0,0,0,0)),
         .id = 1L,
         .sample = sample_int(1:9, sampling_rate = 500) 
     ),
-    segments =  tibble(.id = 1L, .recording = "recording1", segment =  1L)
+    segments =  dplyr::tibble(.id = 1L, .recording = "recording1", segment =  1L)
 )
 
 data_1step <- eeg_lst(
-    signal_tbl =  tibble( 
+    signal_tbl =  dplyr::tibble( 
         X = channel_dbl(c(0,0,0,0,10,10,10,10,10)),
         .id = 1L,
         .sample = sample_int(1:9, sampling_rate = 500) 
     ),
-    segments =  tibble(.id = 1L, .recording = "recording1", segment =  1L)
+    segments =  dplyr::tibble(.id = 1L, .recording = "recording1", segment =  1L)
 )
 
 data_more <- eeg_lst(
     signal_tbl =  signal %>%
-        mutate(.id = rep(1:4, each =N/4),
+        dplyr::mutate(.id = rep(1:4, each =N/4),
         .sample = sample_int(rep(seq_len(N/4),times= 4), sampling_rate = 500)) 
     ,
-    segments =  tibble(.id = seq.int(4), .recording = paste0("recording",c(1,1,2,2)), segment =  seq.int(4))
+    segments =  dplyr::tibble(.id = seq.int(4), .recording = paste0("recording",c(1,1,2,2)), segment =  seq.int(4))
 )
 
 ###### voltage steps ######################3
@@ -137,7 +137,7 @@ test_that("window of 22 elements with different .id", {
 })
 
 test_that("missing samples",{
-  data_1skip <- data_1step %>% filter(!.sample %in% c(4,5))
+  data_1skip <- data_1step %>% dplyr::filter(!.sample %in% c(4,5))
     art_events_skipped1 <- data_1skip %>%
         eeg_artif_step(threshold = .01,window=2/500, lim=c(-1000/500,1000/500), unit = "second") %>%
         events_tbl()
@@ -203,7 +203,7 @@ test_that("NAs",{
 })
 
 test_that("missing samples",{
-  data_1skip <- data_1step %>% filter(!.sample %in% c(4,5))
+  data_1skip <- data_1step %>% dplyr::filter(!.sample %in% c(4,5))
     art_events_skipped1 <- data_1skip %>%
         eeg_artif_minmax(threshold = .01, lim=c(-1000/500,1000/500), window =2/500, unit = "second") %>%
         events_tbl()

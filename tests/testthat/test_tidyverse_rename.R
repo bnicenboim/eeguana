@@ -1,18 +1,18 @@
 context("test tidyverse functions rename/select")
-library(eeguana); library(dplyr); library(ggplot2)
+library(eeguana) 
 
 
 # create fake dataset
 data_1 <- eeg_lst(
   signal_tbl =
-  tibble(X = sin(1:30), Y = cos(1:30),
+  dplyr::tibble(X = sin(1:30), Y = cos(1:30),
     .id = rep(c(1L, 2L, 3L), each = 10),
     .sample = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500)),
-   channels_tbl =  tibble(
+   channels_tbl =  dplyr::tibble(
       .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = c(1, 1), .y = NA_real_, .z = NA_real_
   ),
-   events_tbl =  tribble(
+   events_tbl =  dplyr::tribble(
     ~.id, ~.type, ~.description, ~.initial, ~.final, ~.channel,
     1L, "New Segment", NA_character_, -4L, -4L, NA,
     1L, "Bad", NA_character_, -2L, 0L, NA,
@@ -25,14 +25,14 @@ data_1 <- eeg_lst(
     3L, "Time 0", NA_character_, 1L, 1L, NA,
     3L, "Bad", NA_character_, 2L, 2L, "Y"
     ),
-  segments_tbl =  tibble(.id = c(1L, 2L, 3L),
+  segments_tbl =  dplyr::tibble(.id = c(1L, 2L, 3L),
                            .recording = "recording1",
                            segment = c(1L, 2L, 3L),
                            condition = c("a", "b", "a"))
 )
 
 # just some different X and Y
-data_2 <- mutate(data_1, .recording = "recording2",
+data_2 <- dplyr::mutate(data_1, .recording = "recording2",
                  X = sin(X + 10),
                  Y = cos(Y - 10),
                  condition = c("b", "a", "b"))
@@ -61,18 +61,18 @@ test_that("internal (?) variables cannot be renamed", {
 
 ### signal table
 
-rename1_eeg <- rename(data, ZZ = Y) 
+rename1_eeg <- dplyr::rename(data, ZZ = Y) 
 rename1_tbl <- data %>%
-  as_tibble() %>%
+  dplyr::as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-   rename(ZZ = Y) 
+   dplyr::rename(ZZ = Y) 
 
 
-rename2_eeg <- rename(data, x = X)
+rename2_eeg <- dplyr::rename(data, x = X)
 rename2_tbl <- data %>%
-  as_tibble() %>%
+  dplyr::as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-   rename(x = X) 
+   dplyr::rename(x = X) 
 
 
 test_that("renaming in signal table doesn't change data", {
@@ -94,18 +94,18 @@ test_that("events table is correct after rename", {
   ## expect_equal(rename1_eeg$.events, data$.events)
   ## expect_equal(rename2_eeg$.events, data$.events)
   # new names are added
-  expect_true(nrow(filter(rename1_eeg$.events, .channel == "Y")) == 0)
-  expect_true(nrow(filter(rename1_eeg$.events, .channel == "ZZ")) > 0)
-  expect_true(nrow(filter(rename2_eeg$.events, .channel == "X")) == 0)
-  expect_true(nrow(filter(rename2_eeg$.events, .channel == "x")) > 0)
+  expect_true(nrow(dplyr::filter(rename1_eeg$.events, .channel == "Y")) == 0)
+  expect_true(nrow(dplyr::filter(rename1_eeg$.events, .channel == "ZZ")) > 0)
+  expect_true(nrow(dplyr::filter(rename2_eeg$.events, .channel == "X")) == 0)
+  expect_true(nrow(dplyr::filter(rename2_eeg$.events, .channel == "x")) > 0)
 })
 
 
 test_that("rename works the same on eeg_lst as on tibble", {
   expect_setequal(as.matrix(rename1_eeg$.signal[, c("X", "ZZ")]), 
-               as.matrix(select(rename1_tbl, X, ZZ)))
+               as.matrix(dplyr::select(rename1_tbl, X, ZZ)))
   expect_setequal(as.matrix(rename2_eeg$.signal[, c("x", "Y")]), 
-               as.matrix(select(rename2_tbl, x, Y)))
+               as.matrix(dplyr::select(rename2_tbl, x, Y)))
 })
 
 
@@ -123,25 +123,25 @@ test_that("data didn't change", {
 
 ### segments table
 
-rename3_eeg <- rename(data, subject = .recording)
+rename3_eeg <- dplyr::rename(data, subject = .recording)
 rename3_tbl <- data %>%
-  as_tibble() %>%
+  dplyr::as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-   rename(subject = .recording)
+   dplyr::rename(subject = .recording)
 
 
-rename4_eeg <- rename(data, epoch = segment)
+rename4_eeg <- dplyr::rename(data, epoch = segment)
 rename4_tbl <- data %>%
-  as_tibble() %>%
+  dplyr::as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-   rename(epoch = segment)
+   dplyr::rename(epoch = segment)
 
 
-rename5_eeg <- rename(data, cond = condition)
+rename5_eeg <- dplyr::rename(data, cond = condition)
 rename5_tbl <- data %>%
-  as_tibble() %>%
+  dplyr::as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-   rename(cond = condition)
+   dplyr::rename(cond = condition)
 
 
 test_that("renaming in segments table doesn't change data", {
@@ -154,12 +154,12 @@ test_that("renaming in segments table doesn't change data", {
   expect_equal(rename4_eeg$.events, data$.events)
   expect_equal(rename5_eeg$.events, data$.events)
   # in segements table
-  expect_equal(as.matrix(select(rename3_eeg$.segments, -subject)), 
-               as.matrix(select(data$.segments, -.recording)))
-  expect_equal(as.matrix(select(rename4_eeg$.segments, -epoch)), 
-               as.matrix(select(data$.segments, -segment)))  
-  expect_equal(as.matrix(select(rename5_eeg$.segments, -cond)), 
-               as.matrix(select(data$.segments, -condition)))  
+  expect_equal(as.matrix(dplyr::select(rename3_eeg$.segments, -subject)), 
+               as.matrix(dplyr::select(data$.segments, -.recording)))
+  expect_equal(as.matrix(dplyr::select(rename4_eeg$.segments, -epoch)), 
+               as.matrix(dplyr::select(data$.segments, -segment)))  
+  expect_equal(as.matrix(dplyr::select(rename5_eeg$.segments, -cond)), 
+               as.matrix(dplyr::select(data$.segments, -condition)))  
   expect_equal(as.character(rename3_eeg$.segments$subject),
                as.character(data$.segments$.recording))
   # equivalent only works for numerical data
@@ -172,11 +172,11 @@ test_that("renaming in segments table doesn't change data", {
 
 test_that("rename works the same on eeg_lst as on tibble", {
   expect_setequal(as.matrix(rename3_eeg$.segments), 
-               as.matrix(select(rename3_tbl, .id, subject, segment, condition)))
+               as.matrix(dplyr::select(rename3_tbl, .id, subject, segment, condition)))
   expect_setequal(as.matrix(rename4_eeg$.segments), 
-                  as.matrix(select(rename4_tbl, .id, .recording, epoch, condition)))
+                  as.matrix(dplyr::select(rename4_tbl, .id, .recording, epoch, condition)))
   expect_setequal(as.matrix(rename5_eeg$.segments), 
-                  as.matrix(select(rename5_tbl, .id, .recording, segment, cond)))
+                  as.matrix(dplyr::select(rename5_tbl, .id, .recording, segment, cond)))
 })
 
 
@@ -197,15 +197,15 @@ test_that("data didn't change", {
 
 ### events table
 
-rename6_eeg <- rename(data$.events, label = .type)
-rename7_eeg <- rename(data$.events, info = .description)
+rename6_eeg <- dplyr::rename(data$.events, label = .type)
+rename7_eeg <- dplyr::rename(data$.events, info = .description)
 
 
 test_that("renaming in events table doesn't change data", {
-  expect_equal(select(rename6_eeg, .id, .initial, .final, .channel), 
-               select(data$.events, .id, .initial, .final, .channel))
-  expect_equal(select(rename7_eeg, .id, .initial, .final, .channel), 
-               select(data$.events, .id, .initial, .final, .channel))
+  expect_equal(dplyr::select(rename6_eeg, .id, .initial, .final, .channel), 
+               dplyr::select(data$.events, .id, .initial, .final, .channel))
+  expect_equal(dplyr::select(rename7_eeg, .id, .initial, .final, .channel), 
+               dplyr::select(data$.events, .id, .initial, .final, .channel))
   expect_equal(as.character(rename6_eeg$label),
                as.character(data$.events$.type))
   expect_equal(as.character(rename7_eeg$info),
@@ -221,14 +221,14 @@ test_that("renaming in events table doesn't change data", {
 ## # these only seem to change the signal table
 ## rename_all1_eeg <- rename_all(data, toupper)
 ## rename_all1_tbl <- data %>%
-##   as_tibble() %>%
+##   dplyr::as_tibble() %>%
 ##   tidyr::spread(key = .key, value = .value) %>%
 ##    rename_all(toupper)
 
 
 ## rename_all2_eeg <- rename_all(data, tolower)
 ## rename_all2_tbl <- data %>%
-##   as_tibble() %>%
+##   dplyr::as_tibble() %>%
 ##   tidyr::spread(key = .key, value = .value) %>%
 ##    rename_all(tolower)
 
@@ -239,16 +239,16 @@ test_that("renaming in events table doesn't change data", {
 ##   expect_equivalent(rename_all1_eeg$.signal, data$.signal)
 ##   expect_equivalent(rename_all2_eeg$.signal, data$.signal)
 ##   expect_setequal(as.matrix(rename_all1_eeg$.signal[, c("X", "Y")]),
-##                   as.matrix(select(rename_all1_tbl, X, Y)))
+##                   as.matrix(dplyr::select(rename_all1_tbl, X, Y)))
 ##   expect_setequal(as.matrix(rename_all2_eeg$.signal[, c("x", "y")]),
-##                   as.matrix(select(rename_all2_tbl, x, y)))
+##                   as.matrix(dplyr::select(rename_all2_tbl, x, y)))
 ##   # in segments table
 ##   expect_equivalent(rename_all1_eeg$.segments, data$.segments)
 ##   expect_equivalent(rename_all2_eeg$.segments, data$.segments)
 ##   expect_setequal(as.matrix(rename_all1_eeg$.segments),
-##                   as.matrix(select(rename_all1_tbl, .ID, RECORDING, SEGMENT, CONDITION)))
+##                   as.matrix(dplyr::select(rename_all1_tbl, .ID, RECORDING, SEGMENT, CONDITION)))
 ##   expect_setequal(as.matrix(rename_all2_eeg$.segments),
-##                   as.matrix(select(rename_all2_tbl, .id, .recording, segment, condition)))
+##                   as.matrix(dplyr::select(rename_all2_tbl, .id, .recording, segment, condition)))
 ##   # in events table
 ##   expect_equal(rename_all1_eeg$.events, data$.events)
 ##   # uh oh
@@ -274,22 +274,22 @@ test_that("data didn't change", {
 ################# rename on new variables #########################
 ###################################################################
 
-rename_select_eeg <- rename(data, ZZ = Y) %>%
-  select(ZZ)
+rename_select_eeg <- dplyr::rename(data, ZZ = Y) %>%
+  dplyr::select(ZZ)
 rename_select_tbl <- data %>%
-  as_tibble() %>%
+  dplyr::as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-   rename(ZZ = Y) %>%
-   select(ZZ)
+   dplyr::rename(ZZ = Y) %>%
+   dplyr::select(ZZ)
 
 
-mutate_rename_eeg <- mutate(data, Z = Y + 1) %>%
-  rename(ZZ = Z)
+mutate_rename_eeg <- dplyr::mutate(data, Z = Y + 1) %>%
+  dplyr::rename(ZZ = Z)
 mutate_rename_tbl <- data %>%
-  as_tibble() %>%
+  dplyr::as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-   mutate(Z = Y + 1) %>%
-   rename(ZZ = Z)
+   dplyr::mutate(Z = Y + 1) %>%
+   dplyr::rename(ZZ = Z)
 
 
 
@@ -309,8 +309,8 @@ test_that("rename on new variables doesn't change data", {
 
 test_that("select on new variables removes the right data from events", {
   # but should the old channel now have the new name?
-  expect_true(nrow(filter(rename_select_eeg$.events, .channel == "X")) == 0)
-  expect_true(nrow(filter(rename_select_eeg$.events, .channel == "ZZ")) > 0)
+  expect_true(nrow(dplyr::filter(rename_select_eeg$.events, .channel == "X")) == 0)
+  expect_true(nrow(dplyr::filter(rename_select_eeg$.events, .channel == "ZZ")) > 0)
   # should the events table get larger with the new "channel"?
   expect_equal(mutate_rename_eeg$.events, data$.events)
 })
@@ -320,9 +320,9 @@ test_that("select works the same on eeg_lst as on tibble", {
   expect_setequal(as.matrix(rename_select_eeg$.signal$ZZ),
                   as.matrix(rename_select_tbl))
   expect_setequal(as.matrix(mutate_rename_eeg$.signal[, !c(".sample")]),
-                  as.matrix(select(mutate_rename_tbl, .id, X, Y, ZZ))) 
+                  as.matrix(dplyr::select(mutate_rename_tbl, .id, X, Y, ZZ))) 
   expect_setequal(as.matrix(mutate_rename_eeg$.segments),
-                  as.matrix(select(mutate_rename_tbl, .id, .recording, segment, condition)))
+                  as.matrix(dplyr::select(mutate_rename_tbl, .id, .recording, segment, condition)))
 })
 
 
@@ -345,35 +345,35 @@ test_that("data didn't change", {
 # strange warning message for grouping by segment table vars only: 
 # Grouping variables are missing.
 group_rename_eeg <- data %>%
-  group_by(.recording) %>%
-  rename(subject = .recording)
+  dplyr::group_by(.recording) %>%
+  dplyr::rename(subject = .recording)
 
 group_rename_tbl <- data %>%
-  as_tibble() %>%
+  dplyr::as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-   group_by(.recording) %>%
-   rename(subject = .recording)
+   dplyr::group_by(.recording) %>%
+   dplyr::rename(subject = .recording)
 
 
 group_rename_summarize_eeg <- data %>%
-  group_by(.recording, condition) %>%
-  summarize_at(channel_names(.),mean) %>%
-  rename(subject = .recording)
+  dplyr::group_by(.recording, condition) %>%
+  dplyr::summarize_at(channel_names(.),mean) %>%
+  dplyr::rename(subject = .recording)
 
 group_rename_summarize_tbl <- data %>%
-  as_tibble() %>%
+  dplyr::as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-   group_by(.recording, condition) %>%
-   summarise(X = mean(X), Y = mean(Y)) %>%
-   rename(subject = .recording)
+   dplyr::group_by(.recording, condition) %>%
+   dplyr::summarise(X = mean(X), Y = mean(Y)) %>%
+   dplyr::rename(subject = .recording)
 
 
 test_that("rename on grouped variables doesn't change data", {
   # in the signal table
   expect_equal(group_rename_eeg$.signal, data$.signal)
   # in the segments table
-  expect_equal(select(group_rename_eeg$.segments, -subject), 
-               select(data$.segments, -.recording))
+  expect_equal(dplyr::select(group_rename_eeg$.segments, -subject), 
+               dplyr::select(data$.segments, -.recording))
   expect_equal(as.character(group_rename_eeg$.segments$subject),
                as.character(data$.segments$.recording))
 })
@@ -388,7 +388,7 @@ test_that("rename on group vars works same in eeg_lst and tibble", {
   expect_setequal(as.matrix(group_rename_eeg$.signal[, !c(".sample")]),
                   as.matrix(group_rename_tbl[, c(".id", "X", "Y")]))
   expect_setequal(as.matrix(group_rename_eeg$.segments),
-                  as.matrix(select(group_rename_tbl, .id, subject, segment, condition)))  
+                  as.matrix(dplyr::select(group_rename_tbl, .id, subject, segment, condition)))  
   expect_setequal(as.matrix(group_rename_summarize_eeg$.signal[, c("X", "Y")]),
                   as.matrix(group_rename_summarize_tbl[, c("X", "Y")]))
   expect_setequal(as.matrix(group_rename_summarize_eeg$.segments[, c("subject", "condition")]),

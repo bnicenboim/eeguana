@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 
 This tutorial is an adaptation (and some parts are a verbatim copy) of *Fieldtrip*'s [Preprocessing - Reading continuous EEG data](http://www.fieldtriptoolbox.org/tutorial/preprocessing_erp). Fieldtrip is a great MATLAB toolbox for MEG and EEG analysis. Here I show, how we would do a very similar analysis with *eeguana*. (No previous experience with Fieldtrip is needed to follow this vignette). 
 
-The preprocessing of data refers to the reading of the data, segmenting the data around interesting events such as triggers, temporal filtering, and optionally rereferencing.
+The preprocessing of data refers to the reading of the data, segmenting the data around interesting events such as triggers, temporal filtering, and optionally re-referencing.
 
 There are largely two alternative approaches for preprocessing, which especially differ in the amount of memory required (and processing time). The first approach is to read all data from the file(s) into memory, apply filters, and subsequently cut the data into interesting segments. The second approach is to segment the data and then apply the filters to those segments only. This tutorial explains the second approach. It should be noticed that filtering distorts the edges of the segments, and this second approach should be followed with care.
 

@@ -1,17 +1,17 @@
 context("test tidyverse functions select")
-library(eeguana); library(dplyr); library(ggplot2)
+library(eeguana) 
 
 
 data_1 <- eeg_lst(
   signal_tbl =
-  tibble(X = sin(1:30), Y = cos(1:30),
+  dplyr::tibble(X = sin(1:30), Y = cos(1:30),
     .id = rep(c(1L, 2L, 3L), each = 10),
 .sample = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500)),
-   channels_tbl =  tibble(
+   channels_tbl =  dplyr::tibble(
       .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
       radius = NA, .x = c(1, 1), .y = NA_real_, .z = NA_real_
   ),
-events_tbl =  tribble(
+events_tbl =  dplyr::tribble(
                         ~.id, ~.type, ~.description, ~.initial, ~.final, ~.channel,
                         1L, "New Segment", NA_character_, -4L, -4L, NA,
                         1L, "Bad", NA_character_, -2L, 0L, NA,
@@ -24,7 +24,7 @@ events_tbl =  tribble(
                         3L, "Time 0", NA_character_, 1L, 1L, NA,
                         3L, "Bad", NA_character_, 2L, 2L, "Y"
                     ),
-  segments_tbl =  tibble(.id = c(1L, 2L, 3L),
+  segments_tbl =  dplyr::tibble(.id = c(1L, 2L, 3L),
                            .recording = "recording1",
                            segment = c(1L, 2L, 3L),
                            condition = c("a", "b", "a"))
@@ -32,7 +32,7 @@ events_tbl =  tribble(
 
 
 # just some different X and Y
-data_2 <- mutate(data_1, .recording = "recording2",
+data_2 <- dplyr::mutate(data_1, .recording = "recording2",
                  X = sin(X + 10),
                  Y = cos(Y - 10),
                  condition = c("b", "a", "b"))
@@ -51,61 +51,61 @@ reference_data <- data.table::copy(data)
 
 
 test_that("selecting non-existent variables returns error", {
-  expect_error(select(data, Z))
-  expect_error(select(data, subject))
+  expect_error(dplyr::select(data, Z))
+  expect_error(dplyr::select(data, subject))
 })
 
 
 ### signal table
 
-select1_eeg <- select(data, X)
+select1_eeg <- dplyr::select(data, X)
 select1_tbl <- data %>%
-  as_tibble() %>%
+  dplyr::as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-   select(X)
+   dplyr::select(X)
 
 
-select2_eeg <- select(data, -Y)
+select2_eeg <- dplyr::select(data, -Y)
 select2_tbl <- data %>%
-  as_tibble() %>%
+  dplyr::as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-   select(-Y)
+   dplyr::select(-Y)
 
 
-select3_eeg <- select(data, starts_with("Y"))
+select3_eeg <- dplyr::select(data, dplyr::starts_with("Y"))
 select3_tbl <- data %>%
-  as_tibble() %>%
+  dplyr::as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-   select(starts_with("Y"))
+   dplyr::select(dplyr::starts_with("Y"))
 
-select4_eeg <- select(data, ends_with("X"))
+select4_eeg <- dplyr::select(data, dplyr::ends_with("X"))
 select4_tbl <- data %>%
-    as_tibble() %>%
+    dplyr::as_tibble() %>%
     tidyr::spread(key = .key, value = .value) %>%
-     select(ends_with("X"))
+     dplyr::select(dplyr::ends_with("X"))
 
-select4.1_eeg <- select(data, one_of("X"))
+select4.1_eeg <- dplyr::select(data, dplyr::one_of("X"))
 select4.1_tbl <- data %>%
-    as_tibble() %>%
+    dplyr::as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-   select(one_of("X"))
+   dplyr::select(dplyr::one_of("X"))
 
-select5_eeg <- select(data, contains("Y"))
+select5_eeg <- dplyr::select(data, dplyr::contains("Y"))
 select5_tbl <- data$.signal %>%
-   select(contains("Y"))
+   dplyr::select(dplyr::contains("Y"))
 
-select5.1_eeg <- select(data, one_of("Y"))
+select5.1_eeg <- dplyr::select(data, dplyr::one_of("Y"))
 select5.1_tbl <- data %>%
-    as_tibble() %>%
+    dplyr::as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-   select(one_of("Y"))
+   dplyr::select(dplyr::one_of("Y"))
 
 
-select6_eeg <- select(data, tidyselect::matches("X"))
+select6_eeg <- dplyr::select(data, tidyselect::matches("X"))
 select6_tbl <- data %>%
-    as_tibble() %>%
+    dplyr::as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-   select(tidyselect::matches("X"))
+   dplyr::select(tidyselect::matches("X"))
 
 
 
@@ -129,16 +129,16 @@ test_that("select in signal table doesn't change the data", {
 
 test_that("select in signal table removes the right data from the events table", {
   # test a select that removed Y events
-  expect_true(nrow(filter(select1_eeg$.events, .channel == "Y")) == 0)
+  expect_true(nrow(dplyr::filter(select1_eeg$.events, .channel == "Y")) == 0)
   # and one that removed X events
-  expect_true(nrow(filter(select3_eeg$.events, .channel == "X")) == 0)
+  expect_true(nrow(dplyr::filter(select3_eeg$.events, .channel == "X")) == 0)
 })
 
 
 test_that("select works the same on eeg_lst as on tibble", {
   expect_setequal(as.matrix(select1_eeg$.signal$X), as.matrix(select1_tbl))
   expect_setequal(as.matrix(select2_eeg$.signal[, !c(".sample")]), 
-                  as.matrix(select(select2_tbl, .id, X)))
+                  as.matrix(dplyr::select(select2_tbl, .id, X)))
   expect_setequal(as.matrix(select3_eeg$.signal$Y), 
                   as.matrix(select3_tbl))
   expect_setequal(as.matrix(select4_eeg$.signal$X), 
@@ -173,25 +173,25 @@ test_that("data didn't change", {
 
 ### segments table
 
-select9_eeg <- select(data, .recording)
+select9_eeg <- dplyr::select(data, .recording)
 select9_tbl <- data %>%
-  as_tibble() %>%
+  dplyr::as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-   select(.recording)
+   dplyr::select(.recording)
 
 
-select10_eeg <- select(data, segment)
+select10_eeg <- dplyr::select(data, segment)
 select10_tbl <- data %>%
-  as_tibble() %>%
+  dplyr::as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-   select(segment)
+   dplyr::select(segment)
 
 
-select11_eeg <- select(data, condition)
+select11_eeg <- dplyr::select(data, condition)
 select11_tbl <- data %>%
-  as_tibble() %>%
+  dplyr::as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-   select(condition)
+   dplyr::select(condition)
 
 
 
@@ -249,14 +249,14 @@ test_that("data didn't change", {
 ## # works only for signal table
 ## select_all1_eeg <- select_all(data, toupper) 
 ## select_all1_tbl <- data %>%
-##   as_tibble() %>%
+##   dplyr::as_tibble() %>%
 ##   tidyr::spread(key = .key, value = .value) %>%
 ##    select_all(toupper)
 
 
 ## select_all2_eeg <- select_all(data, tolower) 
 ## select_all2_tbl <- data %>%
-##   as_tibble() %>%
+##   dplyr::as_tibble() %>%
 ##   tidyr::spread(key = .key, value = .value) %>%
 ##    select_all(tolower)
 
@@ -282,15 +282,15 @@ test_that("data didn't change", {
 
 ## test_that("scoped selects work the same on eeg_lst as tibble", {
 ##   expect_setequal(as.matrix(select_all1_eeg$.signal[, !c(".sample")]),
-##                as.matrix(select(select_all1_tbl, .ID, X, Y)))
+##                as.matrix(dplyr::select(select_all1_tbl, .ID, X, Y)))
 ##   expect_setequal(as.matrix(select_all2_eeg$.signal[, !c(".sample")]),
-##                as.matrix(select(select_all2_tbl, .id, x, y)))
+##                as.matrix(dplyr::select(select_all2_tbl, .id, x, y)))
 ##   # windows doesn't notice the case difference (although it does notice if you try to select lowercase in line 2)
 ##   # can use skip_on_os if it will cause problems
 ##   expect_setequal(as.matrix(select_all1_eeg$.segments),
-##                as.matrix(select(select_all1_tbl, .ID, RECORDING, SEGMENT, CONDITION)))
+##                as.matrix(dplyr::select(select_all1_tbl, .ID, RECORDING, SEGMENT, CONDITION)))
 ##   expect_setequal(as.matrix(select_all2_eeg$.segments),
-##                   as.matrix(select(select_all2_tbl, .id, .recording, segment, condition)))
+##                   as.matrix(dplyr::select(select_all2_tbl, .id, .recording, segment, condition)))
 ## })
 
 
@@ -312,22 +312,22 @@ test_that("data didn't change", {
 ###################################################################
 
 
-mutate_select_eeg <- mutate(data, Z = Y + 1) %>%
-  select(Z)
+mutate_select_eeg <- dplyr::mutate(data, Z = Y + 1) %>%
+  dplyr::select(Z)
 mutate_select_tbl <- data %>%
-  as_tibble() %>%
+  dplyr::as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-   mutate(Z = Y + 1) %>%
-   select(Z)
+   dplyr::mutate(Z = Y + 1) %>%
+   dplyr::select(Z)
 
 
-summarize_all_select_eeg <- summarize_at(data, channel_names(data), mean) %>%
-  select(Y)
+summarize_all_select_eeg <- dplyr::summarize_at(data, channel_names(data), mean) %>%
+  dplyr::select(Y)
 summarize_all_select_tbl <- data %>%
-  as_tibble() %>%
+  dplyr::as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-   summarise(X = mean(X), Y = mean(Y)) %>%
-   select(Y)
+  dplyr::summarise(X = mean(X), Y = mean(Y)) %>%
+   dplyr::select(Y)
 
 
 test_that("select on new variables doesn't change data", {
@@ -341,7 +341,7 @@ test_that("select on new variables doesn't change data", {
 
 
 test_that("select on new variables removes the right data from events", {
-  expect_true(nrow(filter(mutate_select_eeg$.events, .channel == "X")) == 0)
+  expect_true(nrow(dplyr::filter(mutate_select_eeg$.events, .channel == "X")) == 0)
   # should the events table get larger with the new "channel"?
 })
 
@@ -370,27 +370,27 @@ test_that("data didn't change", {
 ### with grouping
 
 group_select_eeg <- data %>%
-  group_by(condition) %>%
-  select(Y)
+  dplyr::group_by(condition) %>%
+  dplyr::select(Y)
 
 group_select_tbl <- data %>%
-  as_tibble() %>%
+  dplyr::as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-   group_by(condition) %>%
-   select(Y)
+   dplyr::group_by(condition) %>%
+   dplyr::select(Y)
 
 
 group_select_summarize_eeg <- data %>%
-  group_by(.sample) %>%
-  summarize_at(channel_names(.),mean) %>%
-  select(X)
+  dplyr::group_by(.sample) %>%
+  dplyr::summarize_at(channel_names(.),mean) %>%
+  dplyr::select(X)
 
 group_select_summarize_tbl <- data %>%
-  as_tibble() %>%
+  dplyr::as_tibble() %>%
   tidyr::spread(key = .key, value = .value) %>%
-   group_by(.time) %>%
-   summarise(X = mean(X)) %>%
-   select(X)
+   dplyr::group_by(.time) %>%
+  dplyr::summarise(X = mean(X)) %>%
+   dplyr::select(X)
 
 
 
@@ -404,7 +404,7 @@ test_that("select on grouped variables doesn't change data", {
 
 
 test_that("select on grouped variable removes the right events data", {
-  expect_true(nrow(filter(group_select_eeg$.events, .channel == "X")) == 0)
+  expect_true(nrow(dplyr::filter(group_select_eeg$.events, .channel == "X")) == 0)
 })
 
 
@@ -412,7 +412,7 @@ test_that("select on group vars works same in eeg_lst and tibble", {
   expect_setequal(as.matrix(group_select_eeg$.signal$Y),
                   as.matrix(group_select_tbl$Y))
   expect_setequal(as.matrix(group_select_eeg$.segments$condition),
-                  as.matrix(select(group_select_tbl, condition)))
+                  as.matrix(dplyr::select(group_select_tbl, condition)))
   expect_equal(as.matrix(group_select_summarize_eeg$.signal$X),
                as.matrix(group_select_summarize_tbl$X))
 })

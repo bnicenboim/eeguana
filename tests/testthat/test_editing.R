@@ -1,5 +1,5 @@
 context("test editing functions")
-library(eeguana); library(dplyr); library(ggplot2)
+library(eeguana) 
 
 
 eeg_file <- read_vhdr(system.file("testdata","bv_export_bv_txt_bin_multi.vhdr",package="eeguana"))

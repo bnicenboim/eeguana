@@ -48,9 +48,9 @@ chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
 }
 
 
-#' Rereference a channel or group of channels.
+#' Re-reference a channel or group of channels.
 #'
-#' Rereference a channel or group of channels.
+#' Re-reference a channel or group of channels.
 #'
 #' Notice that this function will update the channels one by one when used inside a mutate and not all at the same time.
 #' @param .data An eeg_lst object.
@@ -64,7 +64,7 @@ chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
 #'
 #' @examples
 #' \dontrun{
-#' # Rereference all channels used the linked mastoids (average of the two mastoids)
+#' # Re-reference all channels used the linked mastoids (average of the two mastoids)
 #'
 #' faces_segs %>% eeg_rereference(ref = c("M1", "M2"))
 #' }

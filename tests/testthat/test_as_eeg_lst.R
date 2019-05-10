@@ -1,5 +1,5 @@
 context("convert formats")
-library(eeguana); library(dplyr); library(ggplot2)
+library(eeguana) 
 
 test_that("raw brainvision read and converted from MNE match", {
     skip_on_cran()  #it needs MNE installed
@@ -16,11 +16,11 @@ test_that("raw brainvision read and converted from MNE match", {
     ## eeg_pkl <- reticulate::py_load_object(bvfile_pkl, pickle = "pickle")
 
     eeg_mne <- as_eeg_lst(eeg_mne_obj) %>%
-         mutate(.recording="r1")
+         dplyr::mutate(.recording="r1")
 
     # events_tbl(eeg_read) <- events_tbl(eeg_read) %>%
-        # mutate(.description=paste0(.type,"/",.description)) %>% select(-.type)
-    channels_tbl(eeg_read) <- channels_tbl(eeg_read) %>% select(.channel,.x,.y,.z,unit, .reference) %>% mutate(.reference=NA)
+        # dplyr::mutate(.description=paste0(.type,"/",.description)) %>% dplyr::select(-.type)
+    channels_tbl(eeg_read) <- channels_tbl(eeg_read) %>% dplyr::select(.channel,.x,.y,.z,unit, .reference) %>% dplyr::mutate(.reference=NA)
     channels_tbl(eeg_mne)
 
     expect_equal(eeg_read,eeg_mne)

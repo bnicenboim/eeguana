@@ -1,5 +1,5 @@
 context("test eeg ica")
-library(eeguana); library(dplyr); library(ggplot2)
+library(eeguana) 
 set.seed(123)
 
 ## simulate eye movements
@@ -12,57 +12,57 @@ blink <-  rbinom(N, 1, .003) %>%
 noise <- rpink(N)
 alpha <- (abs(sin(10 * seq_len(N) / fs)) - 0.5)/2
 
-s_tbl <-  tibble(sample = rep(seq_len(N),times=3), A = c(blink, noise, alpha), component = rep(c("blink","noise", "alpha"), each = N) ) 
+s_tbl <-  dplyr::tibble(sample = rep(seq_len(N),times=3), A = c(blink, noise, alpha), component = rep(c("blink","noise", "alpha"), each = N) ) 
 #ggplot(s_tbl,aes(x=sample,y=A)) + geom_line() + facet_grid(component~.)
 
 # And they mix depending on the distance of S_pos:
 
-signal_blinks <-  tibble(Fz = blink * 2 + alpha *.1 + noise,
+signal_blinks <-  dplyr::tibble(Fz = blink * 2 + alpha *.1 + noise,
                  Cz = blink * 1 + alpha * .15 + noise,
                  Pz = blink * .1 + alpha * .1 + noise)  %>%
-     mutate_all(channel_dbl)
+     dplyr::mutate_all(channel_dbl)
 
 
-signal <-  tibble(Fz =  alpha *.1 + noise,
+signal <-  dplyr::tibble(Fz =  alpha *.1 + noise,
                         Cz =  alpha * .15 + noise,
                         Pz =  alpha * .1 + noise) %>%
-     mutate_all(channel_dbl)
+     dplyr::mutate_all(channel_dbl)
 
 data <- eeg_lst(
     signal_tbl = signal  %>%
- mutate(
+ dplyr::mutate(
         .id = 1L,
         .sample = sample_int(seq_len(N), sampling_rate = 500) 
     ),
-    segments_tbl =  tibble(.id = 1L, .recording = "recording1", segment =  1L)
+    segments_tbl =  dplyr::tibble(.id = 1L, .recording = "recording1", segment =  1L)
 )
 
 data_blinks <- eeg_lst(
     signal_tbl = signal_blinks  %>%
- mutate(
+ dplyr::mutate(
         .id = 1L,
         .sample = sample_int(seq_len(N), sampling_rate = 500) 
     ),
-    segments_tbl =  tibble(.id = 1L, .recording = "recording1", segment =  1L)
+    segments_tbl =  dplyr::tibble(.id = 1L, .recording = "recording1", segment =  1L)
 )
 
 
 data_blinks_more <- eeg_lst(
     signal_tbl = signal_blinks  %>%
- mutate(
+ dplyr::mutate(
         .id = rep(1:4, each =N/4),
         .sample = sample_int(rep(seq_len(N/4),times= 4), sampling_rate = 500) 
     ),
-    segments_tbl =  tibble(.id = seq.int(4), .recording = paste0("recording",c(1,1,2,2)), segment =  seq.int(4))
+    segments_tbl =  dplyr::tibble(.id = seq.int(4), .recording = paste0("recording",c(1,1,2,2)), segment =  seq.int(4))
 )
 
 data_more <- eeg_lst(
     signal_tbl = signal %>%
- mutate(
+ dplyr::mutate(
         .id = rep(1:4, each =N/4),
         .sample = sample_int(rep(seq_len(N/4),times= 4), sampling_rate = 500) 
     ),
-    segments_tbl =  tibble(.id = seq.int(4), .recording = paste0("recording",c(1,1,2,2)), segment =  seq.int(4))
+    segments_tbl =  dplyr::tibble(.id = seq.int(4), .recording = paste0("recording",c(1,1,2,2)), segment =  seq.int(4))
 )
 
 data_blinks_more_NA <- data_blinks_more
@@ -97,7 +97,7 @@ data_no_blinks <- data_ica_default %>% eeg_ica_keep(-ICA1)
 ## data_no_blinks %>% plot()
 #data_ica_default %>% eeg_ica_keep(ICA2,ICA3) %>% plot()
 
-data_blinks_ref <- mutate(data_blinks, R= channel_dbl(0))
+data_blinks_ref <- dplyr::mutate(data_blinks, R= channel_dbl(0))
 data_ica_default_ref <- eeg_ica(data_blinks_ref, -R)
 data_no_blinks_ref <- data_ica_default_ref %>% eeg_ica_keep(-ICA1)
 
@@ -142,13 +142,13 @@ data_b_m_rec_Fz <- eeg_ica(data_blinks_more, -Fz) %>% eeg_ica_keep(ICA1, ICA2)
 data_blinks_more_no_blinks <- data_ica_b_m %>%
     eeg_ica_keep(-ICA1)
 
-data_rec2 <- data_ica_b_m %>% filter(.recording!="recording1") %>% eeg_ica_keep(-ICA1)
+data_rec2 <- data_ica_b_m %>% dplyr::filter(.recording!="recording1") %>% eeg_ica_keep(-ICA1)
 
 test_that("ica grouped works",{ 
     expect_equal(data_blinks_more$.signal,data_b_m_rec$.signal)
     expect_equal(data_blinks_more$.signal,data_b_m_rec_Fz$.signal)
     expect_equal(data_more$.signal,data_blinks_more_no_blinks$.signal , tolerance = .009) 
-    expect_equal(filter(data_more, .recording =="recording2")$.signal,data_rec2$.signal,
+    expect_equal(dplyr::filter(data_more, .recording =="recording2")$.signal,data_rec2$.signal,
                  tolerance = .01)
 })
 
@@ -159,13 +159,13 @@ data_ica_b_m_NA %>% eeg_ica_show(ICA1,ICA2,ICA3) %>% plot()
 data_b_m_rec_NA <-   eeg_ica_keep(data_ica_b_m_NA, ICA1, ICA2, ICA3)
 
 test_that("ica with NAs is a reversible",{
-    expect_equal(filter(data_blinks_more_NA, !(.id==1 & .sample ==1 | .sample==5))$.signal ,
-                 filter(data_b_m_rec_NA, !(.id==1 & .sample ==1 | .sample==5))$.signal )
+    expect_equal(dplyr::filter(data_blinks_more_NA, !(.id==1 & .sample ==1 | .sample==5))$.signal ,
+                 dplyr::filter(data_b_m_rec_NA, !(.id==1 & .sample ==1 | .sample==5))$.signal )
   })
 
 test_that("other functions work correctly in the eeg_ica_lst", {
 ##TODO take care of changes in channel names
-    ## expect_error(channels_tbl(data_ica_default) <- channels_tbl(data_ica_default) %>% mutate(.channel = paste(.channel, "1")))
+    ## expect_error(channels_tbl(data_ica_default) <- channels_tbl(data_ica_default) %>% dplyr::mutate(.channel = paste(.channel, "1")))
     expect_error(select(data_ica_default, -Fz) %>% eeg_ica_keep(ICA1,ICA2,ICA3)) #TODO, better error
     expect_equal(class(as_eeg_lst(data_ica_default)), "eeg_lst" )
 })
