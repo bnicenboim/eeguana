@@ -4,7 +4,7 @@
 \alias{ggplot.eeg_lst}
 \title{Create an ERP plot}
 \usage{
-ggplot.eeg_lst(data = NULL, mapping = ggplot2::aes(), ...,
+\method{ggplot}{eeg_lst}(data = NULL, mapping = ggplot2::aes(), ...,
   max_sample = 2400, environment = parent.frame())
 }
 \arguments{

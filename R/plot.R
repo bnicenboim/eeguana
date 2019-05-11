@@ -541,6 +541,7 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
 #'
 #' @family plotting functions
 #' @return A ggplot object
+#' @importFrom ggplot2 ggplot
 #'
 #' @examples
 #' library(ggplot2)

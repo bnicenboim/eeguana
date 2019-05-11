@@ -10,34 +10,75 @@
 \alias{ungroup.eeg_lst}
 \alias{select.eeg_lst}
 \alias{rename.eeg_lst}
+\alias{groups.eeg_lst}
+\alias{group_vars.eeg_lst}
+\alias{anti_join.eeg_lst}
+\alias{left_join.eeg_lst}
+\alias{semi_join.eeg_lst}
 \title{Dplyr verbs overloaded for manipulating eeg_lst objects.}
 \usage{
-mutate.eeg_lst(.data, ...)
+\method{mutate}{eeg_lst}(.data, ...)
 
-transmute.eeg_lst(.data, ...)
+\method{transmute}{eeg_lst}(.data, ...)
 
-filter.eeg_lst(.data, ..., .preserve = FALSE)
+\method{filter}{eeg_lst}(.data, ..., .preserve = FALSE)
 
-summarise.eeg_lst(.data, ...)
+\method{summarise}{eeg_lst}(.data, ...)
 
-group_by.eeg_lst(.data, ..., add = FALSE, .drop = FALSE)
+\method{group_by}{eeg_lst}(.data, ..., add = FALSE, .drop = FALSE)
 
-ungroup.eeg_lst(.data, ...)
+\method{ungroup}{eeg_lst}(.data, ...)
 
-select.eeg_lst(.data, ...)
+\method{select}{eeg_lst}(.data, ...)
 
-rename.eeg_lst(.data, ...)
+\method{rename}{eeg_lst}(.data, ...)
+
+\method{groups}{eeg_lst}(x)
+
+\method{group_vars}{eeg_lst}(x)
+
+\method{anti_join}{eeg_lst}(x, y, by = NULL, copy = FALSE,
+  suffix = c(".x", ".y"), ...)
+
+\method{left_join}{eeg_lst}(x, y, by = NULL, copy = FALSE,
+  suffix = c(".x", ".y"), ...)
+
+\method{semi_join}{eeg_lst}(x, y, by = NULL, suffix = c(".x", ".y"),
+  ...)
 }
 \arguments{
 \item{.data}{An eeg_lst.}
 
-\item{...}{Name-value pairs of expressions; see \link[dplyr:dplyr]{dplyr} for more help}
+\item{...}{Name-value pairs of expressions; see \link[dplyr:dplyr]{dplyr} for more help.}
 
 \item{.preserve}{Not in use, for compatibility reasons.}
 
 \item{add}{Not in use, for compatibility reasons.}
 
 \item{.drop}{When .drop = TRUE, empty groups are dropped. (FALSE by default.)}
+
+\item{x}{An eeg_lst.}
+
+\item{y}{A data frame, tibble, or data.table.}
+
+\item{by}{a character vector of variables to join by.  If \code{NULL}, the
+default, \code{*_join()} will do a natural join, using all variables with
+common names across the two tables. A message lists the variables so
+that you can check they're right (to suppress the message, simply
+explicitly list the variables that you want to join).
+
+To join by different variables on x and y use a named vector.
+For example, \code{by = c("a" = "b")} will match \code{x.a} to
+\code{y.b}.}
+
+\item{copy}{If \code{x} and \code{y} are not from the same data source,
+and \code{copy} is \code{TRUE}, then \code{y} will be copied into the
+same src as \code{x}.  This allows you to join tables across srcs, but
+it is a potentially expensive operation so you must opt into it.}
+
+\item{suffix}{If there are non-joined duplicate variables in \code{x} and
+\code{y}, these suffixes will be added to the output to disambiguate them.
+Should be a character vector of length 2.}
 }
 \value{
 An eeg_lst object.
@@ -50,6 +91,9 @@ Wrappers for \link[dplyr:dplyr]{dplyr}'s commands that act on different parts
 \code{eeg_lst} objects.
 The following wrappers have been implemented for \code{eeg_lst} objects:
 \itemize{
+\item \code{left_join()}: left-joins an external table to the segments table of the eeg_lst.
+\item \code{semi_join()}: semi-joins an external table to the segments table of the eeg_lst.
+\item \code{anti_join()}: anti-joins an external table to the segments table of the eeg_lst.
 \item \code{mutate()} adds new variables and preserves existing ones. Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.
 \item \code{transmute()} like \code{mutate} but drops non-used variables of the referred table, except for the obligatory columns starting with \code{.}.
 \item \code{filter()}: finds segments/samples where conditions are true. Segments/samples where the condition evaluates to NA are dropped.
@@ -66,7 +110,6 @@ These functions always return the entire \code{eeg_lst} so that
 they can be ' piped using \link[magrittr:magrittr]{magrittr} 's pipe, %>%.
 }
 \examples{
-\dontrun{
 library(dplyr)
 # Create new channel in the signal table
 data_faces_ERPs \%>\%
@@ -104,9 +147,5 @@ data_faces_ERPs \%>\%
 # Rename a variable
 data_faces_ERPs \%>\%
   rename(Predictor = condition)
-}
-}
-\seealso{
-Other dplyr functions: \code{\link{join-eeguana}}
 }
 \concept{dplyr functions}

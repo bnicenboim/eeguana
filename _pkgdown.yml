@@ -50,27 +50,40 @@ reference:
       Functions that overload some `dplyr` functions and always return an `eeg_lst`. 
     contents: 
     - '`dplyr_verbs`'
-    - '`join-eeguana`'
     - '`bind`'
   - title: "Specialized summarizing functions"
     desc: >
-      Functions that apply a series of `dplyr` functions to return useful summaries.
+      Functions that return useful summaries.
     contents: 
      - '`summary`'
+     - '`count_complete_cases_tbl`'
+     - '`eeg_ica_cor_lst`'
   - title: "EEG-specialized functions"
     desc: >
       Functions for applying specialized actions on the signal 
       table, channel, or the entire `eeg_lst`. 
     contents:
-    - starts_with("eeg_")
-    - starts_with("ch_")
-    - starts_with("chs_")
+    - '`eeg_artif`'
+    - '`eeg_downsample`'
+    - '`eeg_events_to_NA`'
+    - '`eeg_ica`'
+    - '`eeg_ica_keep`'
+    - '`eeg_ica_show`'
+    - '`eeg_interpolate_tbl`'
+    - '`eeg_rereference`'
+    - '`eeg_segment`'
+    - '`filt`'
+    - '`ch_baseline`'
+    - '`chs_mean`'
+    - '`chs_fun`'
   - title: "Plot functions"
     desc: >
       Wrappers to `ggplot` functions that first transform the `eeg_lst` to a wide `tibble`, together with some transformation (downsampling, interpolation, etc).
     contents: 
+    - '`ggplot.eeg_lst`'
     - starts_with("plot")
     - starts_with("annotate")
+    - starts_with("theme")
   - title: "'base'-inspired functions"
     desc: >
       Functions for getting specific information about the objects that compose an `eeg_lst`.
@@ -89,17 +102,20 @@ reference:
     - '`channels_tbl`'
   - title: "Constructor functions"
     desc: >
-      Internal functions for creating objects.
+      Functions for creating objects.
     contents: 
     - '`eeg_lst`'
     - '`sample_int`'
     - '`channel_dbl`'
+    - '`component_dbl`'
   - title: "Others"
     desc: >
       Some other useful functions.
     contents:
     - '`change_coord`'
     - '`rpink`'
+    - '`ica`'
+    - '`between`'
   - title: "Example data sets"
     desc: >
       Example data sets in eeg_lst format.
