@@ -110,10 +110,18 @@ test_that("ica can remove blinks", {
   expect_equal(data$.signal, data_no_blinks_ref$.signal[, -6], tolerance = .008)
 })
 
+skip_on_appveyor2 <-
+function () 
+{
+    if (!identical(Sys.getenv("APPVEYOR"), "True")) {
+        return(TRUE)
+    }
+    skip("On Appveyor")
+}
 
 
 test_that("can use other (python) functions", {
-  skip_on_appveyor()
+  skip_on_appveyor2()
   skip_on_travis()
   skip_on_cran()
   py_fica <- function(x) {

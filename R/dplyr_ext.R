@@ -49,7 +49,7 @@ bind <- function(...) {
 
   segments <- purrr::map(eeg_lsts, ~ data.table::data.table(.x$.segments)) %>% data.table::rbindlist(idcol = ".sid", fill = TRUE)
   segments[, .id := .GRP, by = .(.sid, .id)][, .sid := NULL]
-  segments <- segments %>% dplyr::as_tibble()
+  segments <- segments %>% dplyr::as_tibble(.name_repair = "unique")
 
   new_eeg_lst <- new_eeg_lst(
     .signal = signal, .events = events, .segments = segments

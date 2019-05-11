@@ -107,7 +107,7 @@ eeg_segment.eeg_lst <- function(.data, ..., lim = c(-.5, .5), end, unit = "s") {
     dplyr::mutate(.id = 1:dplyr::n())
 
 
-  if (!is.null(.data$.segments$.recording) && !is.na(.data$.segments$.recording)) {
+  if (!is.null(.data$.segments$.recording) && !anyNA(.data$.segments$.recording)) {
     .data$.segments <- .data$.segments %>%
       dplyr::group_by(.recording) %>%
       dplyr::mutate(segment = 1:dplyr::n()) %>%

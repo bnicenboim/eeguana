@@ -44,17 +44,8 @@ as.data.table.eeg_lst <- function(x, unit = "s") {
 #'
 as_tibble.eeg_lst <- function(x, unit = "second") {
   data.table::as.data.table(x, unit) %>%
-    dplyr::as_tibble()
+    dplyr::as_tibble(.name_repair = "unique")
 }
-
-
-as_tibble.mixing_lst <- function(x, ..., .rows = NULL,
-                                 .name_repair = c("check_unique", "unique", "universal", "minimal"),
-                                 rownames) {
-  NextMethod()
-}
-
-
 
 
 as_tibble.signal_tbl <- function(x, ..., .rows = NULL,

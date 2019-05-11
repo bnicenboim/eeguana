@@ -234,41 +234,45 @@ read_vmrk <- function(file) {
 }
 
 read_vhdr_metadata <- function(file) {
-  vhdr <- ini::read.ini(file)
+    vhdr <- ini::read.ini(file)
 
-  channel_info <- vhdr$`Channel Infos` %>%
-    purrr::imap_dfr(~ c(.y, stringr::str_split(.x, ",")[[1]]) %>%
-      t() %>%
-      dplyr::as_tibble()) %>%
-    {
-      if (ncol(.) == 4) dplyr::mutate(., empty_col = NA_real_) else .
-    } %>%
-    purrr::set_names(c("number", ".channel", ".reference", "resolution", "unit")) %>%
+  channel_info <- vhdr[["Channel Infos"]] %>%
+    imap_dtr(~ c(.y, stringr::str_split(.x, ",")[[1]]) %>%
+                      t() %>%
+                      data.table::as.data.table()) 
+   
+      if (ncol(channel_info) == 4) {
+        channel_info <- dplyr::mutate(channel_info, empty_col = NA_real_)
+        }
+ 
+    
+  channel_info <- channel_info %>%
+      stats::setNames(c("number", ".channel", ".reference", "resolution", "unit")) %>%
     dplyr::mutate(
       resolution = as.double(resolution),
       unit = "microvolt"
     )
-  # To avoid problems with the unicode characters, it seems that brainvision uses "mu" instead of "micro"
+   # To avoid problems with the unicode characters, it seems that brainvision uses "mu" instead of "micro"
   # TODO: check if the unit could be different here
+
 
   if (is.null(vhdr$Coordinates)) {
     coordinates <- dplyr::tibble(number = channel_info$number, radius = NA_real_, theta = NA_real_, phi = NA_real_)
   } else {
     coordinates <- vhdr$Coordinates %>%
-      purrr::imap_dfr(~ c(.y, stringr::str_split(.x, ",")[[1]]) %>%
+      imap_dtr(~ c(.y, stringr::str_split(.x, ",")[[1]]) %>%
         t() %>%
-        dplyr::as_tibble()) %>%
-      purrr::set_names(c("number", "radius", "theta", "phi")) %>%
+        data.table::as.data.table(.name_repair = "unique")) %>%
+      stats::setNames(c("number", "radius", "theta", "phi")) %>%
       dplyr::mutate_at(dplyr::vars(c("radius", "theta", "phi")), as.numeric)
   }
-
 
   # this is in case it can't find DataPoints and DataType in the header file
   DataPoints <- NA
   DataType <- "time"
 
-  common_info <- vhdr$`Common Infos` %>%
-    dplyr::as_tibble() %>%
+  common_info <- vhdr[["Common Infos"]] %>%
+    data.table::as.data.table() %>%
     dplyr::transmute(
       data_points = as.numeric(DataPoints),
       # seg_data_points = as.numeric(SegmentDataPoints),
@@ -284,16 +288,15 @@ read_vhdr_metadata <- function(file) {
   if (common_info$format == "ASCII") {
     common_info <- common_info %>%
       dplyr::mutate(
-        DecimalSymbol = vhdr$`ASCII Infos`$DecimalSymbol,
-        SkipColumns = vhdr$`ASCII Infos`$SkipColumns %>% as.integer(),
-        SkipLines = vhdr$`ASCII Infos`$SkipLines %>% as.integer()
+        DecimalSymbol = vhdr[["ASCII Infos"]][["DecimalSymbol"]],
+        SkipColumns = vhdr[["ASCII Infos"]][["SkipColumns"]] %>% as.integer(),
+        SkipLines = vhdr[["ASCII Infos"]][["SkipLines"]] %>% as.integer()
       )
   } else if (common_info$format == "BINARY") {
     common_info <- common_info %>%
-      dplyr::mutate(bits = vhdr$`Binary Infos`$BinaryFormat)
+      dplyr::mutate(bits = vhdr[["Binary Infos"]][["BinaryFormat"]])
   }
-
-
+  
   if (stringr::str_sub(common_info$domain, 1, nchar("time")) %>%
     stringr::str_to_lower() != "time") {
     stop("DataType needs to be 'time'")

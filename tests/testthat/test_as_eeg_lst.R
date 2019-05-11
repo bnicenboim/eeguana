@@ -1,18 +1,10 @@
 context("convert formats")
 library(eeguana)
-skip_on_appveyor2 <-
-function () 
-{
-    if (!identical(Sys.getenv("APPVEYOR"), "True")) {
-        return(TRUE)
-    }
-    skip("On Appveyor")
-}
-
 test_that("raw brainvision read and converted from MNE match", {
-  skip_on_cran() # it needs MNE installed
+
+   skip_on_cran() # it needs MNE installed
   skip_on_travis()
-  skip_on_appveyor2()
+  ## skip_on_appveyor()
   ## reference
   bvfile <- system.file("testdata", "bv_export_bv_txt_bin_vector.vhdr", package = "eeguana")
   eeg_read <- read_vhdr(file = bvfile, .recording = "r1")
@@ -31,5 +23,5 @@ test_that("raw brainvision read and converted from MNE match", {
   channels_tbl(eeg_read) <- channels_tbl(eeg_read) %>% dplyr::select(.channel, .x, .y, .z, unit, .reference) %>% dplyr::mutate(.reference = NA)
   channels_tbl(eeg_mne)
 
-  expect_equal(eeg_read, eeg_mne)
+   expect_equal(eeg_read, eeg_mne)
 })

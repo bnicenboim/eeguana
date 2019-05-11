@@ -30,9 +30,8 @@
 #' @export
 read_vhdr <- function(file, sep = .type == "New Segment", zero = .type == "Time 0",
                       .recording = file) {
-  
+  message("Reading file ", file, "..." )  
   if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
-
   sep <- rlang::enquo(sep)
   zero <- rlang::enquo(zero)
   # sep = rlang::quo(.type == "New Segment")
@@ -42,18 +41,24 @@ read_vhdr <- function(file, sep = .type == "New Segment", zero = .type == "Time 
   file_path <- stringr::str_match(file, "(.*(/|\\\\)).")[, 2] %>% {
     if (is.na(.)) NULL else .
   }
-  header_info <- tryCatch(read_vhdr_metadata(file),
-        error=function(cond) {
-            message(paste("Error in the metadata of:", file))
-            message(paste(cond,"\n"))
-            return(NA)
-        },
-        warning=function(cond) {
-            message(paste("Warning in the metadata of:", file))
-            message(paste(cond,"\n"))
-            return(NULL)
-        })
-
+  
+  
+  header_info <- read_vhdr_metadata(file)
+  
+  # header_info <- tryCatch(read_vhdr_metadata(file),
+  #       error=function(cond) {
+  #           message(paste("Error in the metadata of:", file))
+  #           message(paste(cond,"\n"))
+  #           return(NA)
+  #       },
+  #       warning=function(cond) {
+  #           message(paste("Warning in the metadata of:", file))
+  #           message(paste(cond,"\n"))
+  #           return(NULL)
+  #       })
+   if(is.null(header_info)){
+   stop("Header info in ", file, " could not be read.", call. = FALSE)
+ }
   data_file <- header_info$common_info$data_file
   data_ext <- tools::file_ext(data_file)
   # It only accepts .dat files (for now)
@@ -61,7 +66,6 @@ read_vhdr <- function(file, sep = .type == "New Segment", zero = .type == "Time 
 
   file_vmrk <- paste0(file_path, vmrk_file)
   if (!file.exists(file_vmrk)) stop(sprintf("File %s not found in %s",file, getwd()))
-
   events <- 
    tryCatch(read_vmrk(file = file_vmrk),
         error=function(cond) {
@@ -74,7 +78,6 @@ read_vhdr <- function(file, sep = .type == "New Segment", zero = .type == "Time 
             message(paste(cond,"\n"))
             return(NULL)
         })
-
   if (data_ext == "dat" || data_ext == "eeg") {
     x <- read_dat(
       file = paste0(file_path, data_file),
@@ -212,18 +215,20 @@ read_ft <- function(file, layout = NULL, .recording = file) {
     # # segment lengths, initial, final, offset
     slengths <- mat[[1]][, , 1]$cfg[, , 1]$trl %>%
       apply(., c(1, 2), as.integer) %>%
-      dplyr::as_tibble(.)
+      data.table::as.data.table()
   ## events df:
   events <- mat[[1]][, , 1]$cfg[, , 1]$event[, 1, ] %>%
     t() %>%
-    dplyr::as_tibble() %>%
+    dplyr::as_tibble(.name_repair = "unique") %>%
     dplyr::select(-offset) %>%
     dplyr::mutate_all(as_first_non0) %>%
     dplyr::rename(duration = dplyr::matches("duration"), .initial = sample, .type = type, .description = value) %>%
     dplyr::mutate(.final = .initial + duration -1, .id = 1L) %>% 
     dplyr::select(-duration) %>%
     add_event_channel(channel_names)
-      segmentation <- data.table::data.table(.lower = slengths$V1, .first_sample = slengths$V1 - slengths$V3, .upper= slengths$V2)
+    segmentation <- data.table::data.table(.lower = slengths$V1,
+                                           .first_sample = slengths$V1 - slengths$V3,
+                                           .upper= slengths$V2)
 
       segmentation[,.new_id := seq_len(.N)][, .id := 1]
      events <- update_events(as_events_tbl(events,sampling_rate), segmentation)
