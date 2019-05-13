@@ -36,7 +36,7 @@
 #' @export
 plot.eeg_lst <- function(x, max_sample = 6400, ...) {
   ellipsis::check_dots_unnamed()
-  plot <- ggplot2::ggplot(x, ggplot2::aes(x = .time, y = .value, group = .id)) +
+  plot <- ggplot.eeg_lst(x, ggplot2::aes(x = .time, y = .value, group = .id)) +
     ggplot2::geom_line() +
     ggplot2::facet_grid(.key ~ .,
       labeller = ggplot2::label_wrap_gen(multi_line = FALSE),
