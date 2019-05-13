@@ -2,12 +2,9 @@
 % Please edit documentation in R/ica.R
 \name{eeg_ica}
 \alias{eeg_ica}
-\alias{eeg_ica.eeg_lst}
 \title{EEG signal decomposition using Independent Component Analysis (ICA)}
 \usage{
-eeg_ica(.data, ...)
-
-\method{eeg_ica}{eeg_lst}(.data, ..., ignore = .type == "artifact",
+eeg_ica(.data, ..., ignore = .type == "artifact",
   method = adapt_fast_ICA, config = list())
 }
 \arguments{
@@ -36,5 +33,11 @@ EEG signal decomposition using Independent Component Analysis (ICA)
 Other ICA functions: \code{\link{eeg_ica_cor_lst}},
   \code{\link{eeg_ica_keep}}, \code{\link{eeg_ica_show}},
   \code{\link{plot_components}}
+
+Other preprocessing functions: \code{\link{eeg_baseline}},
+  \code{\link{eeg_downsample}}, \code{\link{eeg_ica_keep}},
+  \code{\link{eeg_rereference}}, \code{\link{eeg_segment}},
+  \code{\link{filt}}
 }
 \concept{ICA functions}
+\concept{preprocessing functions}

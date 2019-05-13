@@ -21,11 +21,13 @@
 #' s1 <- read_vhdr("./faces.vhdr", .recording = "1")
 #' 
 #' # load multiple subjects using purrr::map, extracting subject IDs from file names
-#' faces <- purrr::map(list.files("./","vhdr"), ~ 
+#' faces_list <- purrr::map(list.files("./","vhdr"), ~ 
 #'     read_vhdr(.x)
 #' )
-#' } 
-#' @family read
+#' faces <- bind(faces_list)
+#' }
+#'  
+#' @family reading functions
 #'
 #' @export
 read_vhdr <- function(file, sep = .type == "New Segment", zero = .type == "Time 0",
@@ -114,7 +116,7 @@ read_vhdr <- function(file, sep = .type == "New Segment", zero = .type == "Time 
 #' s1 <- read_ft("./subject1.mat", layout = "easycapM25.mat", .recording = 1)
 #' }
 #' 
-#' @family read
+#' @family reading functions
 #' 
 #'
 #' @export
@@ -277,7 +279,7 @@ read_ft <- function(file, layout = NULL, .recording = file) {
 #' @examples 
 #' \dontrun{s1 <- read_edf("./faces.edf", .recording = 1)}
 #' 
-#' @family read
+#' @family reading functions
 #'
 #' @export
 read_edf <- function(file, .recording = file) {

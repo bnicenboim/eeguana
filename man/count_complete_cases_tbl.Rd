@@ -24,8 +24,8 @@ faces_segs_some \%>\% count_complete_cases(.recording, .description)
 }
 }
 \seealso{
-Other summarize: \code{\link{summary}}
-
-Other summarize: \code{\link{summary}}
+Other summary functions: \code{\link{eeg_ica_cor_lst}},
+  \code{\link{summaries}}, \code{\link{summary.eeg_lst}}
 }
 \concept{summarize}
+\concept{summary functions}

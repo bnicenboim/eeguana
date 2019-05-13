@@ -87,12 +87,12 @@ data_judg_s <- data_judg %>% eeg_segment(condition %in% c(1, 2), lim = c(-0.2, 1
 
 ## Pre-processing and re-referencing
 
-In this raw BrainVision dataset, the signal from all electrodes is monopolar and referenced to the left mastoid. We want the signal to be referenced to linked (left and right) mastoids. During the acquisition the 'RM' electrode (number 32) had been placed on the right mastoid. We first baseline the signal with `ch_baseline()`. In order to re-reference the data (e.g. including also the right mastoid in the reference) we add implicit channel 'REF' to the channels (which represents the left mastoid) by creating a channel with `channel_dbl()` and filling it with zeros using `mutate()` overloaded by *eeguana* to work with `eeg_lst's` (see `` ?`dplyr-eeguana` ``). The we re-reference the data using 'REF' and 'RM', the left and right mastoids respectively using `eeg_rereference()`. Finally we apply a low-pass filter with a stop band frequency of 100 Hz using `eeg_filt_low_pass()`:
+In this raw BrainVision dataset, the signal from all electrodes is monopolar and referenced to the left mastoid. We want the signal to be referenced to linked (left and right) mastoids. During the acquisition the 'RM' electrode (number 32) had been placed on the right mastoid. We first baseline the signal with `eeg_baseline()`. In order to re-reference the data (e.g. including also the right mastoid in the reference) we add implicit channel 'REF' to the channels (which represents the left mastoid) by creating a channel with `channel_dbl()` and filling it with zeros using `mutate()` overloaded by *eeguana* to work with `eeg_lst's` (see `` ?`dplyr-eeguana` ``). The we re-reference the data using 'REF' and 'RM', the left and right mastoids respectively using `eeg_rereference()`. Finally we apply a low-pass filter with a stop band frequency of 100 Hz using `eeg_filt_low_pass()`:
 
 ```{r}
 data_judg_s <- data_judg_s %>%
   # From the beginning of our desired segment length:
-  ch_baseline(-.2) %>%
+  eeg_baseline(-.2) %>%
   # The reference channel REF is filled with 0
   mutate(REF = channel_dbl(0)) %>%
   # All channels are references with REF

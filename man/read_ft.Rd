@@ -30,6 +30,7 @@ s1 <- read_ft("./subject1.mat", layout = "easycapM25.mat", .recording = 1)
 
 }
 \seealso{
-Other read: \code{\link{read_edf}}, \code{\link{read_vhdr}}
+Other reading functions: \code{\link{read_edf}},
+  \code{\link{read_vhdr}}
 }
-\concept{read}
+\concept{reading functions}

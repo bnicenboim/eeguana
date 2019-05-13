@@ -11,7 +11,7 @@ status](https://ci.appveyor.com/api/projects/status/github/bnicenboim/eeguana?br
 has not yet been a stable, usable release suitable for the
 public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 
-# eeguana <img src="inst/logos/logo.png" align="right" height=140/>
+# eeguana <img src="man/figures/logo.png" align="right" height=140/>
 
 ## Overview
 
@@ -58,12 +58,18 @@ First we download the
 data:
 
 ``` r
-download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.vhdr", 
-              "faces.vhdr", mode="wb")
-download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.vmrk", 
-              "faces.vmrk", mode="wb")
-download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.dat", 
-              "faces.dat", mode="wb")
+download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.vhdr",
+  "faces.vhdr",
+  mode = "wb"
+)
+download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.vmrk",
+  "faces.vmrk",
+  mode = "wb"
+)
+download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.dat",
+  "faces.dat",
+  mode = "wb"
+)
 ```
 
 BrainVision 2.0 exports three files: `faces.vhdr`, `faces.vmrk`, and
@@ -80,6 +86,7 @@ We first need to read the data:
 
 ``` r
 faces <- read_vhdr("faces.vhdr")
+#> Reading file faces.vhdr...
 #> # Data from faces.dat was read.
 #> # Data from 1 segment(s) and 34 channels was loaded.
 #> # Object size in memory 140.5 Mb
@@ -194,13 +201,16 @@ experiment, the trigger “s70” was used for faces and “s71” for no faces.
 We’ll segment the data using these two triggers.
 
 ``` r
-faces_segs <- faces %>% 
-               eeg_segment(.description %in% c("s70", "s71"), 
-                        lim = c(-.2,.25)) %>%
-               eeg_events_to_NA(.type == "Bad Interval") %>% 
-               ch_baseline()
+faces_segs <- faces %>%
+  eeg_segment(.description %in% c("s70", "s71"),
+    lim = c(-.2, .25)
+  ) %>%
+  eeg_events_to_NA(.type == "Bad Interval") %>%
+  eeg_baseline()
 #> # Total of 200 segments found.
 #> # Object size in memory 12.2 Mb after segmentation.
+#> Warning in new_sample_int(values, sampling_rate): NAs introduced by
+#> coercion to integer range
 ```
 
 We can also edit the segmentation information and add more descriptive
@@ -241,10 +251,12 @@ library(dplyr)
 #> 
 #>     intersect, setdiff, setequal, union
 ## We modify the entire object:
-faces_segs_some <- faces_segs %>%  
-                  mutate(condition =
-                  if_else(description == "s70", "faces", "non-faces")) %>% 
-                  select(-type)
+faces_segs_some <- faces_segs %>%
+  mutate(
+    condition =
+      if_else(description == "s70", "faces", "non-faces")
+  ) %>%
+  select(-type)
 
 faces_segs_some
 #> # EEG data:
@@ -361,16 +373,18 @@ into `ggplot`. This object can then be customized.
 
 ``` r
 library(ggplot2)
-faces_segs_some %>% 
-                  select(O1, O2, P7, P8) %>% 
-                  ggplot(aes(x =.time, y =.value)) + 
-                  geom_line(alpha = .1, aes(group = .id, color = condition)) + 
-                  stat_summary(fun.y = "mean", geom ="line", alpha = 1, size = 1.5, 
-                  aes(color = condition)) +
-                  facet_wrap(~ .key) + 
-                  geom_vline(xintercept = 0, linetype = "dashed") + 
-                  geom_vline(xintercept = .17, linetype = "dotted") + 
-                  theme(legend.position = "bottom") 
+faces_segs_some %>%
+  select(O1, O2, P7, P8) %>%
+  ggplot(aes(x = .time, y = .value)) +
+  geom_line(alpha = .1, aes(group = .id, color = condition)) +
+  stat_summary(
+    fun.y = "mean", geom = "line", alpha = 1, size = 1.5,
+    aes(color = condition)
+  ) +
+  facet_wrap(~.key) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  geom_vline(xintercept = .17, linetype = "dotted") +
+  theme(legend.position = "bottom")
 ```
 
 <img src="man/figures/README-plot-1.png" width="100%" />
@@ -378,18 +392,18 @@ faces_segs_some %>%
 Another possibility is to create a topographic plot of the two
 conditions, by first making segments that include only the interval
 .1-.2 *s* after the onset of the stimuli, creating a table with
-interpolated amplitudes and using the ggplot wrapper
-`plot_topo`.
+interpolated amplitudes and using the ggplot wrapper `plot_topo`.
 
 ``` r
-faces_segs_some %>% filter(between(as_time(.sample, unit = "milliseconds"),100,200)) %>% 
-                    group_by(condition) %>%
-                    summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
-                    plot_topo() +
-                    annotate_head() + 
-                    geom_contour() +
-                    geom_text(colour = "black") +
-                    facet_grid(~condition)
+faces_segs_some %>%
+  filter(between(as_time(.sample, unit = "milliseconds"), 100, 200)) %>%
+  group_by(condition) %>%
+  summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
+  plot_topo() +
+  annotate_head() +
+  geom_contour() +
+  geom_text(colour = "black") +
+  facet_grid(~condition)
 ```
 
 <img src="man/figures/README-topo-1.png" width="100%" />

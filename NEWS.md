@@ -15,6 +15,7 @@
                 - `summarize_all_ch(...)` should be changed to `summarize_at(channel_names(.),...)`.
                 - `summarize_at_ch(...)` should be changed to `summarize_at(...)`.
                 - `ch_filt_*` functions were renamed to `eeg_filt_*` and they get a `...` argument to select the relevant channels.
+                - `ch_baseline()` was renamed to `eeg_baseline`.
    - Bugs
       - Events in Brain Vision version 1.0 file are now correctly read. 
       - Various minor bugs fixed.

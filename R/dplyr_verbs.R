@@ -2,26 +2,16 @@
 #'
 #' Manipulate the signal table and the segments table of an eeg_lst.
 #'
-#' Wrappers for [dplyr][dplyr::dplyr]'s commands that act on different parts
-#' `eeg_lst` objects.
-#' The following wrappers have been implemented for `eeg_lst` objects:
+#' Wrappers for [`dplyr`][dplyr::dplyr]'s commands that act on different parts
+#' `eeg_lst` objects. Functions that drop or rename column won't remove columns starting with a dot.
+#' The following wrappers act in a special way for `eeg_lst` objects:
 #'
-#' * `left_join()`: left-joins an external table to the segments table of the eeg_lst.
-#' * `semi_join()`: semi-joins an external table to the segments table of the eeg_lst.
-#' * `anti_join()`: anti-joins an external table to the segments table of the eeg_lst.
-#' * `mutate()` adds new variables and preserves existing ones. Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.
-#' * `transmute()` like `mutate` but drops non-used variables of the referred table, except for the obligatory columns starting with `.`.
-#' * `filter()`: finds segments/samples where conditions are true. Segments/samples where the condition evaluates to NA are dropped.
-#' * `summarize()` summarizes the channel of the signal_tbl table
-#' * `group_by()`: allows that operations would be performed "by group".
-#' * `ungroup()`: removes the grouping created by group_by.
-#' * `select()` keeps only the mentioned variables from the referred table, except for the obligatory columns starting with `.`.
-#' * `rename()`: keeps all variables.
+#' * `*_join()`: joins an external table to the *segments* table of the eeg_lst.
+#' * `mutate()` and `transmute()` Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.
+#' * `summarize()` summarizes the channel of the signal_tbl table.
 #'
-#' In addition, `_at()`, and `_if()` versions of these verbs work as well. Notice that  `_at()` versions are much faster than `_if()` versions of these commands.
-#'
-#' These functions always return the entire `eeg_lst` so that
-#' they can be ' piped using [magrittr][magrittr::magrittr] 's pipe, %>%.
+#' In addition, `_at()`, and `_if()` versions of the functions should work as well. Notice that  the `_at()` versions are 
+#' much faster than the `_if()` versions of these commands.
 #'
 #' @param .data An eeg_lst.
 #' @param x An eeg_lst.
@@ -31,7 +21,7 @@
 #' @param .preserve Not in use, for compatibility reasons.
 #' @param add Not in use, for compatibility reasons.
 #' @param .drop When .drop = TRUE, empty groups are dropped. (FALSE by default.)
-#' @importFrom dplyr filter select mutate transmute summarise rename
+#' @importFrom dplyr  select mutate transmute summarise rename
 #' @importFrom dplyr group_by ungroup group_vars
 #' @importFrom dplyr groups
 #' @importFrom dplyr anti_join left_join right_join full_join semi_join inner_join
@@ -98,7 +88,6 @@ transmute.eeg_lst <- function(.data, ...) {
   mutate_eeg_lst(.data, dots, keep_cols = FALSE)
 }
 #' @rdname dplyr_verbs
-#' @export
 filter.eeg_lst <- function(.data, ..., .preserve = FALSE) {
   if (.preserve == TRUE) {
     warning("Ignoring `.preserve` argument.")
@@ -106,7 +95,7 @@ filter.eeg_lst <- function(.data, ..., .preserve = FALSE) {
   dots <- rlang::quos(...)
   filter_eeg_lst(.data, dots = dots)
 }
-#' @export
+#' @rdname dplyr_verbs
 filter.eeg_ica_lst <- function(.data, ..., .preserve = FALSE) {
   out <- NextMethod()
   recordings <- unique(out$.segments$.recording)
@@ -194,6 +183,7 @@ semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   x$.events <- semi_join_dt(x$.events, segments, by = ".id")
   x %>% validate_eeg_lst()
 }
+#' @rdname dplyr_verbs
 #' @export
 tbl_vars.eeg_lst <- function(x) {
   setdiff(dplyr::tbl_vars(x$.signal), c(dplyr::tbl_vars(x$.segments), c(".id", ".sample")))

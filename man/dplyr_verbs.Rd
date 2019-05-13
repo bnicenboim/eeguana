@@ -5,6 +5,7 @@
 \alias{mutate.eeg_lst}
 \alias{transmute.eeg_lst}
 \alias{filter.eeg_lst}
+\alias{filter.eeg_ica_lst}
 \alias{summarise.eeg_lst}
 \alias{group_by.eeg_lst}
 \alias{ungroup.eeg_lst}
@@ -15,13 +16,16 @@
 \alias{anti_join.eeg_lst}
 \alias{left_join.eeg_lst}
 \alias{semi_join.eeg_lst}
+\alias{tbl_vars.eeg_lst}
 \title{Dplyr verbs overloaded for manipulating eeg_lst objects.}
 \usage{
 \method{mutate}{eeg_lst}(.data, ...)
 
 \method{transmute}{eeg_lst}(.data, ...)
 
-\method{filter}{eeg_lst}(.data, ..., .preserve = FALSE)
+filter.eeg_lst(.data, ..., .preserve = FALSE)
+
+filter.eeg_ica_lst(.data, ..., .preserve = FALSE)
 
 \method{summarise}{eeg_lst}(.data, ...)
 
@@ -45,6 +49,8 @@
 
 \method{semi_join}{eeg_lst}(x, y, by = NULL, suffix = c(".x", ".y"),
   ...)
+
+tbl_vars.eeg_lst(x)
 }
 \arguments{
 \item{.data}{An eeg_lst.}
@@ -87,27 +93,17 @@ An eeg_lst object.
 Manipulate the signal table and the segments table of an eeg_lst.
 }
 \details{
-Wrappers for \link[dplyr:dplyr]{dplyr}'s commands that act on different parts
-\code{eeg_lst} objects.
-The following wrappers have been implemented for \code{eeg_lst} objects:
+Wrappers for \code{\link[dplyr:dplyr]{dplyr}}'s commands that act on different parts
+\code{eeg_lst} objects. Functions that drop or rename column won't remove columns starting with a dot.
+The following wrappers act in a special way for \code{eeg_lst} objects:
 \itemize{
-\item \code{left_join()}: left-joins an external table to the segments table of the eeg_lst.
-\item \code{semi_join()}: semi-joins an external table to the segments table of the eeg_lst.
-\item \code{anti_join()}: anti-joins an external table to the segments table of the eeg_lst.
-\item \code{mutate()} adds new variables and preserves existing ones. Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.
-\item \code{transmute()} like \code{mutate} but drops non-used variables of the referred table, except for the obligatory columns starting with \code{.}.
-\item \code{filter()}: finds segments/samples where conditions are true. Segments/samples where the condition evaluates to NA are dropped.
-\item \code{summarize()} summarizes the channel of the signal_tbl table
-\item \code{group_by()}: allows that operations would be performed "by group".
-\item \code{ungroup()}: removes the grouping created by group_by.
-\item \code{select()} keeps only the mentioned variables from the referred table, except for the obligatory columns starting with \code{.}.
-\item \code{rename()}: keeps all variables.
+\item \code{*_join()}: joins an external table to the \emph{segments} table of the eeg_lst.
+\item \code{mutate()} and \code{transmute()} Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.
+\item \code{summarize()} summarizes the channel of the signal_tbl table.
 }
 
-In addition, \code{_at()}, and \code{_if()} versions of these verbs work as well. Notice that  \code{_at()} versions are much faster than \code{_if()} versions of these commands.
-
-These functions always return the entire \code{eeg_lst} so that
-they can be ' piped using \link[magrittr:magrittr]{magrittr} 's pipe, %>%.
+In addition, \code{_at()}, and \code{_if()} versions of the functions should work as well. Notice that  the \code{_at()} versions are
+much faster than the \code{_if()} versions of these commands.
 }
 \examples{
 library(dplyr)

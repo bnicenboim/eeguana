@@ -51,7 +51,7 @@ library(dplyr)
 library(ggplot2)
 data("data_faces_ERPs")
 data_ERPs_filtered <- data_faces_ERPs \%>\%
-  eeg_filt_low_pass(freq = 5)
+  eeg_filt_low_pass(freq = 1)
 # Compare the ERPs
 data_faces_ERPs \%>\%
   select(O1, O2, P7, P8) \%>\%
@@ -62,3 +62,10 @@ data_ERPs_filtered \%>\%
   plot() +
   facet_wrap(~.key)
 }
+\seealso{
+Other preprocessing functions: \code{\link{eeg_baseline}},
+  \code{\link{eeg_downsample}}, \code{\link{eeg_ica_keep}},
+  \code{\link{eeg_ica}}, \code{\link{eeg_rereference}},
+  \code{\link{eeg_segment}}
+}
+\concept{preprocessing functions}

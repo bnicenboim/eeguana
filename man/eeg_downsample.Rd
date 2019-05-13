@@ -26,11 +26,25 @@ eeg_downsample(.data, q = 2, max_sample = NULL, n = if (ftype ==
 Downsample a signal_tbl by a factor \code{q}, using an FIR or IIR filter.
 This is a wrapper for \code{\link[signal:decimate]{decimate}} from the
 \code{\link[signal:signal]{signal}} package, see its documentation for details. Notice that
-the code of the signal package might be outdated.
+the code of the signal package might be outdated. This function is used in plotting functions.
 }
 \details{
 A factor q larger than 13 can result in NAs. To avoid this,
 the downsampling can be done in steps. For example, instead of setting
 \code{q = 20}, it is possible to set \code{q = c(2,10)}.
 }
-\concept{eeg}
+\seealso{
+Other preprocessing functions: \code{\link{eeg_baseline}},
+  \code{\link{eeg_ica_keep}}, \code{\link{eeg_ica}},
+  \code{\link{eeg_rereference}}, \code{\link{eeg_segment}},
+  \code{\link{filt}}
+
+Other plotting functions: \code{\link{annotate_events}},
+  \code{\link{annotate_head}},
+  \code{\link{ggplot.eeg_lst}}, \code{\link{plot.eeg_lst}},
+  \code{\link{plot_components}},
+  \code{\link{plot_in_layout}}, \code{\link{plot_topo}},
+  \code{\link{theme_eeguana}}
+}
+\concept{plotting functions}
+\concept{preprocessing functions}

@@ -5,8 +5,17 @@
 #' @param ... `eeg_lst` objects to combine.
 #'
 #' @return An `eeg_lst` object.
-#'
-#'
+#' @examples 
+#' \dontrun{
+#' 
+#' # Load multiple subjects using purrr::map, extracting subject IDs from file names.
+#' faces_list <- purrr::map(list.files("./","vhdr"), ~ 
+#'     read_vhdr(.x)
+#' )
+#' # Bind all the eeg_lsts into a large one:
+#' faces <- bind(faces_list)
+#' }
+#'  
 #' @export
 bind <- function(...) {
   eeg_lsts <- list(...)

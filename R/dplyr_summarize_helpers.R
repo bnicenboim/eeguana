@@ -33,29 +33,35 @@ summarize_segments <- function(segments, segments_groups, last_id) {
     ### IMPORTANT: segments need to be grouped and summarized as data.table does, which is differently than dplyr
     # unique(data.table::data.table(segments), by = c(segments_groups))[, segments_groups, with = FALSE] %>%
       # dplyr::as_tibble() %>%
-    segments %>% dplyr::group_by_at(dplyr::vars(segments_groups)) %>%
-      dplyr::summarize() %>%
-      {
-        if (!".id" %in% dplyr::tbl_vars(.)) {
-          hd_add_column(., .id = seq_len(last_id))
-        } else {
-          {
-            .
-          } %>% {
-            if (!".recording" %in% dplyr::tbl_vars(.)) {
-              hd_add_column(., .recording = NA)
-            } else {
-              .
-            }
-          }
-        }
-      } %>%
-      dplyr::select(.id, dplyr::everything())
+    grouped_seg <- segments %>% dplyr::group_by_at(dplyr::vars(segments_groups))
+    
+      ## see if I can add recording as a group
+        group_rec <- dplyr::group_by(grouped_seg, .recording, add=TRUE)
+       if(same_grouping(x = grouped_seg, y =group_rec)){
+         grouped_seg <- group_rec
+       }
+        
+        grouped_seg <- grouped_seg %>% dplyr::summarize()
+        
+      
+        if (!".id" %in% dplyr::tbl_vars(grouped_seg)) {
+          grouped_seg <- hd_add_column(grouped_seg, .id = seq_len(last_id))
+        } 
+        if (!".recording" %in% dplyr::tbl_vars(grouped_seg)) {
+           
+          grouped_seg <-  hd_add_column(grouped_seg, .recording = NA)
+              
+        } 
+        
+        grouped_seg <- grouped_seg %>% dplyr::select(.id, dplyr::everything())
   } else {
-    dplyr::tibble(.id = seq_len(last_id))
+    dplyr::tibble(.id = seq_len(last_id), .recording = NA)
   }
 }
 
+same_grouping <-  function(x,y) {
+  identical(attributes(x)$groups$.rows, attributes(y)$groups$.rows)
+}
 
 summarize_eval_signal <- function(.eeg_lst, dots) {
   cond_cols <- names_other_col(.eeg_lst, dots, ".segments")

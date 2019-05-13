@@ -22,6 +22,7 @@ Creates an eeg_lst object from edf, edf+, and bdf file export formats.
 
 }
 \seealso{
-Other read: \code{\link{read_ft}}, \code{\link{read_vhdr}}
+Other reading functions: \code{\link{read_ft}},
+  \code{\link{read_vhdr}}
 }
-\concept{read}
+\concept{reading functions}

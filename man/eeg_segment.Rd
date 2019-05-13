@@ -2,13 +2,9 @@
 % Please edit documentation in R/segmentation.R
 \name{eeg_segment}
 \alias{eeg_segment}
-\alias{eeg_segment.eeg_lst}
 \title{Segment an eeg_lst.}
 \usage{
-eeg_segment(.data, ...)
-
-\method{eeg_segment}{eeg_lst}(.data, ..., lim = c(-0.5, 0.5), end,
-  unit = "s")
+eeg_segment(.data, ..., lim = c(-0.5, 0.5), end, unit = "s")
 }
 \arguments{
 \item{.data}{An \code{eeg_lst} object.}
@@ -30,3 +26,10 @@ segmentation, the \code{eeg_lst} contain one segment. (Fieldtrip calls the
 segment "trials".) The limits of \code{segment} are inclusive: If, for
 example, \code{lim = c(0,0)}, the segment would contain only sample 1.
 }
+\seealso{
+Other preprocessing functions: \code{\link{eeg_baseline}},
+  \code{\link{eeg_downsample}}, \code{\link{eeg_ica_keep}},
+  \code{\link{eeg_ica}}, \code{\link{eeg_rereference}},
+  \code{\link{filt}}
+}
+\concept{preprocessing functions}

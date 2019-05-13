@@ -15,14 +15,14 @@
 #' @param config Other parameters passed in a list to the ICA method. (Not implemented)
 #' @param na.rm =TRUE will set to NA the entire segment that contains an NA, otherwise the filter will stop with an error.
 #' @return A channel or an eeg_lst.
-#'
+#' @family preprocessing functions
 #'
 #' @examples
 #' library(dplyr)
 #' library(ggplot2)
 #' data("data_faces_ERPs")
 #' data_ERPs_filtered <- data_faces_ERPs %>%
-#'   eeg_filt_low_pass(freq = 5)
+#'   eeg_filt_low_pass(freq = 1)
 #' # Compare the ERPs
 #' data_faces_ERPs %>%
 #'   select(O1, O2, P7, P8) %>%
@@ -111,12 +111,8 @@ eeg_filt_band_pass.eeg_lst <- function(.data, ..., freq = NULL, config = list(),
 #' @noRd
 filt_eeg_lst <- function(.signal, ..., h, na.rm = FALSE) {
   .signal <- data.table::copy(.signal)
-  dots <- rlang::enquos(...)
-  if (rlang::is_empty(dots)) {
-    ch_sel <- channel_names(.signal)
-  } else {
-    ch_sel <- tidyselect::vars_select(channel_names(.signal), !!!dots)
-  }
+ 
+  ch_sel <- sel_ch(.signal, ...)
 
   if (na.rm == FALSE) {
     NA_channels <- ch_sel[.signal[, purrr::map_lgl(.SD, anyNA), .SDcols = (ch_sel)]]

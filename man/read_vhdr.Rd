@@ -32,12 +32,15 @@ files must be in the same directory.
 s1 <- read_vhdr("./faces.vhdr", .recording = "1")
 
 # load multiple subjects using purrr::map, extracting subject IDs from file names
-faces <- purrr::map(list.files("./","vhdr"), ~ 
+faces_list <- purrr::map(list.files("./","vhdr"), ~ 
     read_vhdr(.x)
 )
-} 
+faces <- bind(faces_list)
+}
+ 
 }
 \seealso{
-Other read: \code{\link{read_edf}}, \code{\link{read_ft}}
+Other reading functions: \code{\link{read_edf}},
+  \code{\link{read_ft}}
 }
-\concept{read}
+\concept{reading functions}

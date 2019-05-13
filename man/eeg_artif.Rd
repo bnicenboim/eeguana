@@ -3,39 +3,27 @@
 \name{eeg_artif}
 \alias{eeg_artif}
 \alias{eeg_artif_minmax}
-\alias{eeg_artif_minmax.eeg_lst}
 \alias{eeg_artif_step}
-\alias{eeg_artif_step.eeg_lst}
 \alias{eeg_artif_amplitude}
-\alias{eeg_artif_amplitude.eeg_lst}
 \title{Detect artifacts and add them in the events table of an eeg_lst.}
 \usage{
 eeg_artif_minmax(.data, ..., threshold = 100, window = 0.2,
   lim = c(-window, window), unit = "s")
 
-\method{eeg_artif_minmax}{eeg_lst}(.data, ..., threshold = 100,
-  window = 0.2, lim = c(-window, window), unit = "s")
-
 eeg_artif_step(.data, ..., threshold = 50, window = 0.2,
   lim = c(-window, window), unit = "s")
 
-\method{eeg_artif_step}{eeg_lst}(.data, ..., threshold = 50,
-  window = 0.2, lim = c(-window, window), unit = "s")
-
 eeg_artif_amplitude(.data, ..., threshold = c(-200, 200), lim = c(-0.2,
   0.2), unit = "s")
-
-\method{eeg_artif_amplitude}{eeg_lst}(.data, ..., threshold = c(-200,
-  200), lim = c(-0.2, 0.2), unit = "s")
 }
 \arguments{
 \item{.data}{An \code{eeg_lst} object.}
 
 \item{...}{Channels to include. All the channels by default, but eye channels should be removed.}
 
-\item{threshold}{Voltage threshold that indicates an artifact. This is between two consecutive data points for \code{eeg_artif_step}, and in a \code{window} for \code{eeg_artif_minmax}.}
+\item{threshold}{Voltage threshold that indicates an artifact}
 
-\item{window}{Sliding window length for the artifact detection (same unit as \code{lim}).}
+\item{window}{Sliding window length for the artifact detection (same unit as \code{lim}). This is the full width of the step function: this means that we are looking for a period of one voltage for half of the window  immediately followed by a period of a different voltage (indicated by the threshold) for half of the window.}
 
 \item{lim}{Vector indicating the time before and after the artifact that will be included in events_tbl (by default the size the window before and afterwards).}
 
@@ -45,16 +33,29 @@ eeg_artif_amplitude(.data, ..., threshold = c(-200, 200), lim = c(-0.2,
 An \code{eeg_lst}.
 }
 \description{
-\itemize{
-\item \code{eeg_artif_step()}
-\itemize{
-\item \code{eeg_artif_minmax()}
-}
-}
-}
-\details{
+These functions search for artifacts on the signal table based on a threshold and a
+sliding window (when relevant), and annotate an event in the events table that spans
+from \code{-lim} to \code{+lim}. The signal table remains unchanged until \code{\link[=eeg_events_to_NA]{eeg_events_to_NA()}}.
+
 \code{eeg_artif_minmax()}and \code{eeg_artif_step()} can be used to detect blinks and horizontal eye movements
 in the electro-oculographic (V/HEOG) channels or large voltage jumps in other channels.
 For the EOG channels, a relatively low threshold (e.g., 30 µV) is recommended. For non EOG channels, a relatively high threshold (e.g., 100 µV) would be
 more appropriate.
 }
+\examples{
+\dontrun{ 
+# Artifacts are annotated in the events table:
+faces_seg_artif <- faces_seg \%>\%
+  eeg_artif_minmax(-HEOG, -VEOG, threshold = 100, window = 150, unit = "ms") \%>\%
+  eeg_artif_step(-HEOG, -VEOG, threshold = 50, window = 200, unit = "ms")
+# Signals with artifacts are turned into NA values
+faces_clean <-  faces_seg_artif \%>\%
+   eeg_events_to_NA(.type == "artifact", entire_seg = TRUE, all_chans = FALSE, drop_events = TRUE)
+}
+
+}
+\seealso{
+Other events functions: \code{\link{eeg_events_to_NA}}
+}
+\concept{artifact detection functions}
+\concept{events functions}

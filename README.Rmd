@@ -91,7 +91,7 @@ faces_segs <- faces %>%
     lim = c(-.2, .25)
   ) %>%
   eeg_events_to_NA(.type == "Bad Interval") %>%
-  ch_baseline()
+  eeg_baseline()
 ```
 
 

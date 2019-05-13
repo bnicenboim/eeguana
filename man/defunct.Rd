@@ -18,6 +18,7 @@
 \alias{summarise_all_ch}
 \alias{summarise_at_ch}
 \alias{plot_gg}
+\alias{ch_baseline}
 \title{Defunct functions in eeguana}
 \usage{
 downsample(x, q = 2, max_sample = NULL, ...)
@@ -51,6 +52,8 @@ summarise_all_ch(x, ...)
 summarise_at_ch(x, ...)
 
 plot_gg(x, ...)
+
+ch_baseline(x, ...)
 }
 \arguments{
 \item{x}{Variable storing the x coordinate, generally \code{.x} (default).}
@@ -78,9 +81,11 @@ These functions are defunct.
 \item 'ch_filt_high_pass()' should be changed to 'eeg_filt_high_pass()'.
 \item 'ch_filt_band_pass()' should be changed to 'eeg_filt_band_pass()'.
 \item 'ch_filt_stop_pass()' should be changed to 'eeg_filt_band_stop()'.
+\item 'ch_baseline()' should be changed to 'eeg_baseline()'.
 \item 'events()' should be changed to 'events_tbl()'.
 \item 'plot_gg()' should be changed to 'ggplot(aes(x=.time, y=.value))'.
 \item 'summarize_all_ch(...)' should be changed to \code{summarize_at(channel_names(.),...)}.
 \item 'summarize_at_ch(...)' should be changed to \code{summarize_at(...)}.
 }
 }
+\keyword{internal}

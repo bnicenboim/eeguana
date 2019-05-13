@@ -8,18 +8,18 @@
 #' @param .data An `eeg_lst` object.
 #' @param ... Description of the event.
 #' @param unit Unit
+#' @param lim Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments
+#' @param end Description of the event that indicates the end of the segment, if this is used, `lim` is ignored.
+#' @inheritParams as_time
+#' @family preprocessing functions
 #'
 #' @return An `eeg_lst`.
 #'
 #'
 #' @export
-eeg_segment <- function(.data, ...) {
+eeg_segment <- function(.data, ..., lim = c(-.5, .5), end, unit = "s") {
   UseMethod("eeg_segment")
 }
-#' @rdname eeg_segment
-#' @param lim Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments
-#' @param end Description of the event that indicates the end of the segment, if this is used, `lim` is ignored.
-#' @inheritParams as_time
 #' @export
 eeg_segment.eeg_lst <- function(.data, ..., lim = c(-.5, .5), end, unit = "s") {
   dots <- rlang::enquos(...)

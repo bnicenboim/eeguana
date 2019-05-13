@@ -204,14 +204,14 @@ faces_seg_artif %>%
   theme(legend.position = "bottom")
 
 faces_seg <- faces_seg_artif %>%
-  eeg_events_to_NA(.type == "artifact", entire_seg = TRUE, all_chans = FALSE, drop_events = TRUE)
+  eeg_events_to_NA(.type == "artifact", entire_seg = TRUE, all_chs = FALSE, drop_events = TRUE)
 
 summary(faces_seg)
 ```
 Finally, we can baseline the segments:
 
 ```{r}
-faces_seg <- faces_seg %>% ch_baseline()
+faces_seg <- faces_seg %>% eeg_baseline()
 ```
 
 ## Visualization

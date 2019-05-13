@@ -87,7 +87,7 @@ baselines <- dplyr::summarize(dplyr::group_by(
 signal_with_baselines <- dplyr::left_join(dplyr::as_tibble(data$.signal), baselines)
 signal_with_baselines$new_X <- signal_with_baselines$X - signal_with_baselines$bX
 signal_with_baselines$new_Y <- signal_with_baselines$Y - signal_with_baselines$bY
-baselined <- ch_baseline(data)
+baselined <- eeg_baseline(data)
 
 
 test_that("baseline works", {
@@ -117,10 +117,10 @@ test_that("can clean files with entire_seg = FALSE", {
 })
 
 test_that("can clean whole channels in files", {
-  clean_data_chan <- eeg_events_to_NA(data, .type == "Bad", all_chans = TRUE, entire_seg = FALSE)
+  clean_data_chan <- eeg_events_to_NA(data, .type == "Bad", all_chs = TRUE, entire_seg = FALSE)
   clean_data_chan2 <- eeg_events_to_NA(data_NA, .type == "Bad", entire_seg = FALSE)
-  clean_data_chan3 <- eeg_events_to_NA(data_NA, .type == "Bad", all_chans = TRUE, entire_seg = FALSE)
-  clean_data_XY2 <- eeg_events_to_NA(data_XY, .type == "Bad", all_chans = TRUE, entire_seg = FALSE)
+  clean_data_chan3 <- eeg_events_to_NA(data_NA, .type == "Bad", all_chs = TRUE, entire_seg = FALSE)
+  clean_data_XY2 <- eeg_events_to_NA(data_XY, .type == "Bad", all_chs = TRUE, entire_seg = FALSE)
   expect_equal(clean_data_chan, clean_data_chan2)
   expect_equal(clean_data_chan, clean_data_chan3)
   expect_equal(clean_data_chan, clean_data_XY2)

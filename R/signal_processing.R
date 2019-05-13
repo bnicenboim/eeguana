@@ -3,8 +3,8 @@
 #' Downsample a signal_tbl by a factor `q`, using an FIR or IIR filter.
 #' This is a wrapper for [`decimate`][signal::decimate] from the
 #' [`signal`][signal::signal] package, see its documentation for details. Notice that
-#' the code of the signal package might be outdated.
-#'
+#' the code of the signal package might be outdated. This function is used in plotting functions.
+#' 
 #' A factor q larger than 13 can result in NAs. To avoid this,
 #' the downsampling can be done in steps. For example, instead of setting
 #' `q = 20`, it is possible to set `q = c(2,10)`.
@@ -16,7 +16,8 @@
 #' @inheritParams signal::decimate
 #' @param ... Not in use.
 #'
-#' @family eeg
+#' @family preprocessing functions
+#' @family plotting functions
 #'
 #' @export
 eeg_downsample <- function(.data, q = 2, max_sample = NULL,

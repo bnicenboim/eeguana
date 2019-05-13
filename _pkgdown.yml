@@ -55,7 +55,7 @@ reference:
     desc: >
       Functions that return useful summaries.
     contents: 
-     - '`summary`'
+     - has_concept("summary functions")
      - '`count_complete_cases_tbl`'
      - '`eeg_ica_cor_lst`'
   - title: "EEG-specialized functions"
@@ -63,19 +63,11 @@ reference:
       Functions for applying specialized actions on the signal 
       table, channel, or the entire `eeg_lst`. 
     contents:
-    - '`eeg_artif`'
-    - '`eeg_downsample`'
-    - '`eeg_events_to_NA`'
-    - '`eeg_ica`'
-    - '`eeg_ica_keep`'
-    - '`eeg_ica_show`'
-    - '`eeg_interpolate_tbl`'
-    - '`eeg_rereference`'
-    - '`eeg_segment`'
-    - '`filt`'
-    - '`ch_baseline`'
-    - '`chs_mean`'
-    - '`chs_fun`'
+    - has_concept("events functions")
+    - has_concept("artifact detection functions")
+    - starts_with("eeg_ica")
+    - has_concept("preprocessing functions")
+    - has_concept("channel functions")
   - title: "Plot functions"
     desc: >
       Wrappers to `ggplot` functions that first transform the `eeg_lst` to a wide `tibble`, together with some transformation (downsampling, interpolation, etc).
@@ -112,6 +104,7 @@ reference:
     desc: >
       Some other useful functions.
     contents:
+    - '`eeg_interpolate_tbl`'
     - '`change_coord`'
     - '`rpink`'
     - '`ica`'
@@ -121,7 +114,7 @@ reference:
       Example data sets in eeg_lst format.
     contents: 
     - starts_with("data_")
-  - title: "Layout"
+  - title: "Layouts"
     desc: >
       Layout of caps 
     contents: 

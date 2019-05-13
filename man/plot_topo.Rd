@@ -89,6 +89,7 @@ data_faces_ERPs \%>\%
 \seealso{
 Other plotting functions: \code{\link{annotate_events}},
   \code{\link{annotate_head}},
+  \code{\link{eeg_downsample}},
   \code{\link{ggplot.eeg_lst}}, \code{\link{plot.eeg_lst}},
   \code{\link{plot_components}},
   \code{\link{plot_in_layout}}, \code{\link{theme_eeguana}}

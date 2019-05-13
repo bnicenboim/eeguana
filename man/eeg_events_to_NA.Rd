@@ -2,21 +2,18 @@
 % Please edit documentation in R/artifact_edition.R
 \name{eeg_events_to_NA}
 \alias{eeg_events_to_NA}
-\alias{eeg_events_to_NA.eeg_lst}
-\title{Remove (transform to NA) problematic events from an eeg_lst.}
+\title{Remove (transform to NA) problematic events from the signal table of an eeg_lst.}
 \usage{
-eeg_events_to_NA(x, ...)
-
-\method{eeg_events_to_NA}{eeg_lst}(x, ..., all_chans = FALSE,
-  entire_seg = TRUE, drop_events = TRUE)
+eeg_events_to_NA(x, ..., all_chs = FALSE, entire_seg = TRUE,
+  drop_events = TRUE)
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
 
 \item{...}{Description of the problematic event.}
 
-\item{all_chans}{If set to \code{TRUE},
-it will consider samples from all channels (Default:  \code{all_chans = FALSE}).}
+\item{all_chs}{If set to \code{TRUE},
+it will consider samples from all channels (Default:  \code{all_chs = FALSE}).}
 
 \item{entire_seg}{If set to \code{FALSE}, it will consider only the marked part of the segment,
 otherwise it will consider the entire segment (Default: entire_seg = TRUE).}
@@ -27,5 +24,9 @@ otherwise it will consider the entire segment (Default: entire_seg = TRUE).}
 An eeg_lst.
 }
 \description{
-Remove (transform to NA) problematic events from an eeg_lst.
+Remove (transform to NA) problematic events from the signal table of an eeg_lst.
 }
+\seealso{
+Other events functions: \code{\link{eeg_artif}}
+}
+\concept{events functions}

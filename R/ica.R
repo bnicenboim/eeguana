@@ -1,11 +1,5 @@
 #' EEG signal decomposition using Independent Component Analysis (ICA)
-#'
-#' @export
-eeg_ica <- function(.data, ...) {
-  UseMethod("eeg_ica")
-}
-
-#' @rdname eeg_ica
+#' 
 #' @param .data An eeg_lst object
 #' @param ... Channels to include in ICA transformation. All the channels by default, but eye channels
 #' and reference channels should be removed.
@@ -17,7 +11,18 @@ eeg_ica <- function(.data, ...) {
 #' @param config Other parameters passed in a list to the ICA method. See the documentation of the relevant method.
 #' @param ignore Events that should be ignored in the ICA, set to NULL for not using the events table.
 #' @family ICA functions
+#' @family preprocessing functions
 #' @return An eeg_ica_lst object
+#' @export
+eeg_ica <- function(.data,
+                    ...,
+                    ignore = .type == "artifact",
+                    method = adapt_fast_ICA,
+                    config = list()) {
+  UseMethod("eeg_ica")
+}
+
+
 #' @export
 eeg_ica.eeg_lst <- function(.data,
                             ...,
@@ -41,7 +46,7 @@ eeg_ica.eeg_lst <- function(.data,
 
   if (!rlang::quo_is_null(ignore)) {
     rejected_data <- eeg_events_to_NA(.data, !!ignore,
-      all_chans = FALSE,
+      all_chs = FALSE,
       entire_seg = FALSE,
       drop_events = FALSE
     )
@@ -148,6 +153,7 @@ eeg_ica_show.eeg_ica_lst <- function(.data, ...) {
 #'
 #' @param .data An eeg_ica_lst object
 #' @param ... Components to keep from the mixing matrix of the ICA transformation. See [dplyr::select] and [tidyselect::select_helpers] for details.
+#' @family preprocessing functions
 #' @family ICA functions
 #' @export
 eeg_ica_keep <- function(.data, ...) {

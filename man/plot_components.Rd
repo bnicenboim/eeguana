@@ -22,6 +22,7 @@ Note that unlike \link{plot_topo}, there is no need for faceting, or adding laye
 \seealso{
 Other plotting functions: \code{\link{annotate_events}},
   \code{\link{annotate_head}},
+  \code{\link{eeg_downsample}},
   \code{\link{ggplot.eeg_lst}}, \code{\link{plot.eeg_lst}},
   \code{\link{plot_in_layout}}, \code{\link{plot_topo}},
   \code{\link{theme_eeguana}}

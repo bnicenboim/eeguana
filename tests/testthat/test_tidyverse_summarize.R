@@ -263,8 +263,6 @@ data_s4 <- data_s3 %>%
   dplyr::summarize(X = mean(X), Y = mean(Y))
 
 
-.eeg_lst <- data %>% dplyr::group_by(condition, .sample, .recording)
-dots <- rlang::quos(X = mean(X), Y = mean(Y))
 
 
 
@@ -306,10 +304,10 @@ test_that("summarizing by groups works as expected for the segments", {
   expect_equal(data_s1$.segments, dplyr::as_tibble(s_data_s1) %>%
     dplyr::mutate(.id = 1:dplyr::n()))
   expect_equal(data_s2$.segments, dplyr::as_tibble(s_data_s2) %>%
-    dplyr::mutate(.id = 1:dplyr::n()))
+                                  dplyr::mutate(.id = 1:dplyr::n(), .recording =NA))
   expect_equal(data_s3$.segments, dplyr::as_tibble(s_data_s3) %>%
-    dplyr::mutate(.id = 1:dplyr::n()))
-  expect_equal(data_s4$.segments, dplyr::tibble(.id = 1L))
+                                  dplyr::mutate(.id = 1:dplyr::n(), .recording =NA))
+  expect_equal(data_s4$.segments, dplyr::tibble(.id = 1L, .recording =NA))
 })
 
 

@@ -4,15 +4,20 @@
 \alias{between}
 \title{Convenience function for range subsets}
 \description{
-\code{between`` is a thin wrapper for the between function of [}data.table\code{][data.table::between].  It is equivalent to x >= lower & x <= upper when incbounds=TRUE, or x > lower & y < upper when FALSE. In comparison with [dplyr::between], it doesn't loose the class of its argument, and it's more appropiate for manipulating  the column }.sample`.
+\code{between} is a thin wrapper for the between function of \code{\link[data.table:between]{data.table}}.
+It is equivalent to x >= lower & x <= upper when incbounds=TRUE, or x > lower & y < upper when FALSE. In comparison
+with \link[dplyr:between]{dplyr::between}, it doesn't loose the class of its argument, and it's more appropiate for manipulating
+the column \code{.sample}.
 }
 \examples{
 
 library(dplyr)
-data_faces_ERPs \%>\% filter(.sample \%>\% between(10,100))
+data_faces_ERPs \%>\% 
+     filter(.sample \%>\% between(10,100))
 
 # Compare with:
 \dontrun{
-data_faces_ERPs \%>\% filter(.sample \%>\% dplyr::between(10,100))
+data_faces_ERPs \%>\% 
+     filter(.sample \%>\% dplyr::between(10,100))
 }
 }

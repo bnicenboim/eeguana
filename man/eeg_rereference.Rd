@@ -26,15 +26,17 @@ Re-reference a channel or group of channels.
 Notice that this function will update the channels one by one when used inside a mutate and not all at the same time.
 }
 \examples{
-\dontrun{
-# Re-reference all channels used the linked mastoids (average of the two mastoids)
+# Re-reference all channels using the left mastoid.
+data_faces_ERPs_M1 <- data_faces_ERPs \%>\% eeg_rereference(ref = "M1")
 
-faces_segs \%>\% eeg_rereference(ref = c("M1", "M2"))
-}
+# Re-reference using the linked mastoids.
+data_faces_ERPs_M1M2 <- data_faces_ERPs \%>\% eeg_rereference(ref = c("M1","M2"))
+
 }
 \seealso{
-Other channel: \code{\link{ch_baseline}},
-  \code{\link{channel_dbl}}, \code{\link{chs_mean}},
-  \code{\link{is_channel_dbl}}
+Other preprocessing functions: \code{\link{eeg_baseline}},
+  \code{\link{eeg_downsample}}, \code{\link{eeg_ica_keep}},
+  \code{\link{eeg_ica}}, \code{\link{eeg_segment}},
+  \code{\link{filt}}
 }
-\concept{channel}
+\concept{preprocessing functions}
