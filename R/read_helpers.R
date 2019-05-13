@@ -42,11 +42,9 @@ read_dat <- function(file, header_info = NULL, events = NULL,
         . / 8
       }
 
-
     amps <- readBin(file,
-      what = type, n = file.info(file)$size,
-      size = bytes
-    )
+      what = type, n = file.info(file)$size/bytes,
+      size = bytes)
 
     raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = multiplexed) %>%
       data.table::as.data.table()
