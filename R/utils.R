@@ -154,6 +154,6 @@ message_obj <- function(msg, obj) {
 }
 
 is_wholenumber <-  function(x, tol = .Machine$double.eps^0.5) {
-    abs(x - round(x)) < tol || all(is.infinite(x)) || all(is.na(x))
+    abs(x - round(x)) < tol | is.infinite(x) | is.na(x)
 
 }
