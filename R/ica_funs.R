@@ -11,7 +11,6 @@
 #' @family ica methods
 #' @inheritParams fastICA::fastICA
 #' @return A list with the unmixing matrix W and the mixing matrix A.
-#' @name fastICA
 #' @export
 fast_ICA <-function(X, n.comp=NULL, alg.typ = "parallel",
             fun = "logcosh", alpha = 1.0, method = "C",
