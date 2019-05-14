@@ -20,11 +20,11 @@ new_eeg_lst <- function(.signal = NULL, .events = NULL, .segments = NULL) {
 #'
 #' @noRd
 new_sample_int <- function(values, sampling_rate) {
-  if (!all(is.na(values)) && !all.equal(values, round(values))) {
+  if (!all(is_wholenumber(values))) {
     stop("Sample integer values should be round numbers.",
       call. = FALSE
     )
-  } else {
+  } else if(all(!is.infinite(values))){
     values <- as.integer(values)
   }
   values <- unclass(values)
@@ -38,8 +38,10 @@ new_sample_int <- function(values, sampling_rate) {
 #'
 #' @noRd
 validate_sample_int <- function(.sample) {
-  if (!is.integer(.sample)) {
-    stop("Values should be integers.",
+  if (!is.integer(.sample) && 
+      ## I also want to accept one Inf number, for e.g., baseline
+      !(length(.sample)==1 && is.infinite(.sample))) {
+    warning("Samples should be integers.",
       call. = FALSE
     )
   }

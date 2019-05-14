@@ -144,9 +144,9 @@ data_b_m_rec <- eeg_ica_keep(data_ica_b_m, ICA1, ICA2, ICA3)
 data_b_m_rec_Fz <- eeg_ica(data_blinks_more, -Fz, method = fast_ICA) %>% eeg_ica_keep(ICA1, ICA2)
 
 data_blinks_more_no_blinks <- data_ica_b_m %>%
-  eeg_ica_keep(-ICA3)
+  eeg_ica_keep(recording1 = -ICA3, recording2=-ICA1)
 
-data_rec2 <- data_ica_b_m %>% dplyr::filter(.recording != "recording1") %>% eeg_ica_keep(-ICA3)
+data_rec2 <- data_ica_b_m %>% dplyr::filter(.recording != "recording1") %>% eeg_ica_keep(-ICA1)
 
 
 
@@ -160,8 +160,8 @@ test_that("ica grouped works", {
 })
 
 data_ica_b_m_NA <- data_blinks_more_NA %>% eeg_ica()
-data_ica_b_m_NA %>% eeg_ica_show(ICA1, ICA2, ICA3) %>% plot()
-data_b_m_rec_NA <- eeg_ica_keep(data_ica_b_m_NA, ICA1, ICA2, ICA3)
+data_ica_b_m_NA %>% eeg_ica_show(ICA1, ICA2, ICA3) 
+data_b_m_rec_NA <- eeg_ica_keep(data_ica_b_m_NA, ICA1:ICA3)
 
 test_that("ica with NAs is a reversible", {
   expect_equal(
@@ -176,3 +176,4 @@ test_that("other functions work correctly in the eeg_ica_lst", {
   expect_error(select(data_ica_default, -Fz) %>% eeg_ica_keep(ICA1, ICA2, ICA3)) # TODO, better error
   expect_equal(class(as_eeg_lst(data_ica_default)), "eeg_lst")
 })
+

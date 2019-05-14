@@ -130,12 +130,12 @@ faces_ls %>%
   theme(legend.position = "bottom")
 ```
 
-Now we can run ICA (by default `fica::adapt_fICA()`), removing the EOG and reference electrodes, and ignoring the artifacts.
+Now we can run ICA, removing the EOG and reference electrodes, and ignoring the artifacts.
 
 ```{r ICA, cache=TRUE}
 ## By default will ignore artifacts
 faces_ica <- faces_ls %>%
-  eeg_ica(-HEOG, -VEOG, -M1, -M2, ignore = .type == "artifact")
+  eeg_ica(-HEOG, -VEOG, -M1, -M2, method = adapt_fast_ICA, ignore = .type == "artifact")
 ```
 
 We can now check the different topographic plots of the ICAs with `plot_components()`, and their correlation with the EOG channels looking a the summary of the object.

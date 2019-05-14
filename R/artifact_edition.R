@@ -47,12 +47,11 @@ eeg_artif_minmax <- function(.data, ...,
 }
 
 #' @export
-eeg_artif_minmax.eeg_lst <- function(.data,
-                                     ...,
-                                     threshold,
-                                     window,
-                                     lim = c(-window, window),
-                                     unit = "s") {
+eeg_artif_minmax.eeg_lst <- function(.data, ...,
+                             threshold = 100,
+                             window = .2,
+                             lim = c(-window, window),
+                             unit = "s") {
   if (!is.numeric(window) || window < 0) {
     stop("`window` should be a positive number.", call. = FALSE)
   }
@@ -76,10 +75,10 @@ eeg_artif_step <- function(.data, ...,
 }
 #' @export
 eeg_artif_step.eeg_lst <- function(.data, ...,
-                                   threshold,
-                                   window,
-                                   lim = c(-window, window),
-                                   unit = "s") {
+                           threshold = 50,
+                           window = .2,
+                           lim = c(-window, window),
+                           unit = "s") {
   if (!is.numeric(window) || window < 0) {
     stop("`window` should be a positive number.", call. = FALSE)
   }
@@ -103,9 +102,9 @@ eeg_artif_amplitude <- function(.data, ...,
 
 #' @export
 eeg_artif_amplitude.eeg_lst <- function(.data, ...,
-                                        threshold,
-                                        lim = c(-.2, .2),
-                                        unit = "s") {
+                                threshold = c(-200, 200),
+                                lim = c(-.2, .2),
+                                unit = "s") {
   if (length(threshold) < 2) {
     stop("Two thresholds are needed", call. = FALSE)
   }

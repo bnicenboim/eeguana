@@ -22,7 +22,7 @@ and reference channels should be removed.}
 \item{ignore}{Events that should be ignored in the ICA, set to NULL for not using the events table.}
 
 \item{method}{Methods from different packages: \link{fast_ICA}, a wrapper of \link[fastICA:fastICA]{fastICA::fastICA}, (default), and some more experimental methods:
-\link{adapt_fast_ICA}, \link{reloaded_fast_ICA}, and  \link{fast_ICA},adapted from \link[fICA:fICA]{fICA} package. It can also accept a custom function, see details.}
+\link{fast_ICA2} and \link{adapt_fast_ICA} adapted from \link[fICA:fICA]{fICA} package. It can also accept a custom function, see details.}
 
 \item{config}{Other parameters passed in a list to the ICA method. See the documentation of the relevant method.}
 }

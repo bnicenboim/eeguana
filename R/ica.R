@@ -15,7 +15,7 @@
 #' @param ... Channels to include in ICA transformation. All the channels by default, but eye channels
 #' and reference channels should be removed.
 #' @param method Methods from different packages: [fast_ICA], a wrapper of [fastICA::fastICA], (default), and some more experimental methods:
-#'  [adapt_fast_ICA], [reloaded_fast_ICA], and  [fast_ICA],adapted from [fICA][fICA::fICA] package. It can also accept a custom function, see details.
+#' [fast_ICA2] and [adapt_fast_ICA] adapted from [fICA][fICA::fICA] package. It can also accept a custom function, see details.
 #' @param config Other parameters passed in a list to the ICA method. See the documentation of the relevant method.
 #' @param ignore Events that should be ignored in the ICA, set to NULL for not using the events table.
 #' @family ICA functions
@@ -170,19 +170,38 @@ eeg_ica_keep <- function(.data, ...) {
 
 #' @export
 eeg_ica_keep.eeg_ica_lst <- function(.data, ...) {
-  dots <- rlang::enquos(...)
-  comp_sel <- tidyselect::vars_select(component_names(.data), !!!dots)
+    dots <- rlang::enquos(...)
+    if(all(unique(names(dots))!="")){
+        ## in case recording1 = ICA1, ... syntax is used
+        comp_sel <- lapply(dots, function(dot) {
+            tidyselect::vars_select(component_names(.data), !!dot)
+        })
+                                        #names and order
+        comp_sel <- purrr::imap(.data$ica, ~{
+            if(.y %in% names(comp_sel)){
+                comp_sel[[.y]]
+            } else {
+                                        #all
+                comp_sel <- colnames(.x$unmixing_matrix)
+                names(comp_sel) <- comp_sel
+                comp_sel
+            }
+        }
+        )
+    } else {
+        comp_sel <- purrr::imap(.data$ica, ~ {
+            tidyselect::vars_select(component_names(.data), !!!dots)
+        })
+    }
+
+    .data$ica <- purrr::map2(comp_sel, .data$ica, function(sel, ica) {
+        list(
+            unmixing_matrix = ica$unmixing_matrix[, sel, drop = FALSE],
+            mixing_matrix = ica$mixing_matrix[sel, , drop = FALSE]
+        )
+    }
+)
   chs <- colnames(.data$ica[[1]]$mixing_matrix)
-
-
-  .data$ica <- lapply(.data$ica, function(ica) {
-    list(
-      unmixing_matrix = ica$unmixing_matrix[, comp_sel, drop = FALSE],
-      mixing_matrix = ica$mixing_matrix[comp_sel, , drop = FALSE]
-    )
-  })
-
-
 
   signal_raw <- .data$.signal[, c(".id", chs), with = FALSE][
     data.table::as.data.table(.data$.segments)

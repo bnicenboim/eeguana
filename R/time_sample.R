@@ -40,10 +40,8 @@ as_sample_int <- function(x, ...) {
 #' @export
 as_sample_int.numeric <- function(x, sampling_rate = NULL, unit = "s", ...) {
   if (is.null(sampling_rate)) stop("'sampling_rate' needs to be specified", call. = FALSE)
-  samples <- (x * scaling(sampling_rate, unit = unit) + 1) 
- if(all(!is.infinite(samples))){
-   samples <- as.integer(samples)
- }
+  samples <- round(x * scaling(sampling_rate, unit = unit) + 1) 
+ 
   sample_int(samples, sampling_rate)
 }
 #' @export

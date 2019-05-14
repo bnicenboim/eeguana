@@ -35,12 +35,12 @@ Imports:
     JADE (>= 2.0.1),
     MASS,
     RcppRoll (>= 0.3.0),
-    ellipsis (>= 0.1.0)
+    ellipsis (>= 0.1.0),
+    fastICA
 Suggests:
     akima (>= 0.6.2),
     plotly (>= 4.8.0),
     R.matlab (>= 3.6.2),
-    fastICA (>= 1.2),
     reticulate (>= 1.11.1),
     testthat (>= 2.0.1),
     roxygen2 (>= 6.1.1),
