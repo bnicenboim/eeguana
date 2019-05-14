@@ -107,7 +107,7 @@ reference:
     - '`eeg_interpolate_tbl`'
     - '`change_coord`'
     - '`rpink`'
-    - '`ica`'
+    -  has_concept("ica methods")
     - '`between`'
   - title: "Example data sets"
     desc: >

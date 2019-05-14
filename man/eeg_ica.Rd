@@ -2,10 +2,16 @@
 % Please edit documentation in R/ica.R
 \name{eeg_ica}
 \alias{eeg_ica}
-\title{EEG signal decomposition using Independent Component Analysis (ICA)}
+\title{EEG signal decomposition using Independent Component Analysis (ICA)
+
+This function returns an extended \code{eeg_lst}, \code{eeg_ica_lst}, with the mixing and unmixing
+matrix of every recording. It is possible to visualize the topography
+of the components with \code{\link[=plot_components]{plot_components()}}. In order to extract the amplitude of
+the components with respect to time use \code{\link[=eeg_ica_show]{eeg_ica_show()}}, see examples section. To remove the
+unwanted components, use \code{\link[=eeg_ica_keep]{eeg_ica_keep()}}.}
 \usage{
-eeg_ica(.data, ..., ignore = .type == "artifact",
-  method = adapt_fast_ICA, config = list())
+eeg_ica(.data, ..., ignore = .type == "artifact", method = fast_ICA,
+  config = list())
 }
 \arguments{
 \item{.data}{An eeg_lst object}
@@ -15,11 +21,8 @@ and reference channels should be removed.}
 
 \item{ignore}{Events that should be ignored in the ICA, set to NULL for not using the events table.}
 
-\item{method}{Methods from different packages: \code{adapt_fast_ICA}  (default), \code{reloaded_fast_ICA},
-\code{fast_ICA} (adapted from \code{fICA} package), or a custom function that returns a list that with \code{A}
-(mixing matrix), consistent with the formulation \code{X= S \%*\% A}, where X is matrix
-of N_samples by N_channels and/or \code{W} (unmixing matrix), consistent with the formulation
-\code{X \%*\% W = S}.}
+\item{method}{Methods from different packages: \link{fast_ICA}, a wrapper of \link[fastICA:fastICA]{fastICA::fastICA}, (default), and some more experimental methods:
+\link{adapt_fast_ICA}, \link{reloaded_fast_ICA}, and  \link{fast_ICA},adapted from \link[fICA:fICA]{fICA} package. It can also accept a custom function, see details.}
 
 \item{config}{Other parameters passed in a list to the ICA method. See the documentation of the relevant method.}
 }
@@ -27,7 +30,10 @@ of N_samples by N_channels and/or \code{W} (unmixing matrix), consistent with th
 An eeg_ica_lst object
 }
 \description{
-EEG signal decomposition using Independent Component Analysis (ICA)
+It is possible to also use a custom function in the \code{method} argument. The function should return
+a list that with \code{A} (mixing matrix), consistent with the formulation \code{X = S \%*\% A}, where X is matrix
+of N_samples by N_channels and/or \code{W} (unmixing matrix), consistent with the formulation \code{X \%*\% W = S}.
+Some packages with other ICA methods or implementations: \code{steadyICA} and \code{ica}.
 }
 \seealso{
 Other ICA functions: \code{\link{eeg_ica_cor_lst}},

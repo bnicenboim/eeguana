@@ -1,13 +1,21 @@
 #' EEG signal decomposition using Independent Component Analysis (ICA)
+#'  
+#' This function returns an extended `eeg_lst`, `eeg_ica_lst`, with the mixing and unmixing 
+#' matrix of every recording. It is possible to visualize the topography
+#'  of the components with [plot_components()]. In order to extract the amplitude of
+#'   the components with respect to time use [eeg_ica_show()], see examples section. To remove the 
+#'   unwanted components, use [eeg_ica_keep()].
+#' 
+#' It is possible to also use a custom function in the `method` argument. The function should return
+#'  a list that with `A` (mixing matrix), consistent with the formulation `X = S %*% A`, where X is matrix
+#'   of N_samples by N_channels and/or `W` (unmixing matrix), consistent with the formulation `X %*% W = S`.
+#' Some packages with other ICA methods or implementations: `steadyICA` and `ica`.
 #' 
 #' @param .data An eeg_lst object
 #' @param ... Channels to include in ICA transformation. All the channels by default, but eye channels
 #' and reference channels should be removed.
-#' @param method Methods from different packages: `adapt_fast_ICA`  (default), `reloaded_fast_ICA`,
-#'  `fast_ICA` (adapted from `fICA` package), or a custom function that returns a list that with `A`
-#'   (mixing matrix), consistent with the formulation `X= S %*% A`, where X is matrix
-#'   of N_samples by N_channels and/or `W` (unmixing matrix), consistent with the formulation
-#'    `X %*% W = S`.
+#' @param method Methods from different packages: [fast_ICA], a wrapper of [fastICA::fastICA], (default), and some more experimental methods:
+#'  [adapt_fast_ICA], [reloaded_fast_ICA], and  [fast_ICA],adapted from [fICA][fICA::fICA] package. It can also accept a custom function, see details.
 #' @param config Other parameters passed in a list to the ICA method. See the documentation of the relevant method.
 #' @param ignore Events that should be ignored in the ICA, set to NULL for not using the events table.
 #' @family ICA functions
@@ -17,7 +25,7 @@
 eeg_ica <- function(.data,
                     ...,
                     ignore = .type == "artifact",
-                    method = adapt_fast_ICA,
+                    method = fast_ICA,
                     config = list()) {
   UseMethod("eeg_ica")
 }
@@ -27,7 +35,7 @@ eeg_ica <- function(.data,
 eeg_ica.eeg_lst <- function(.data,
                             ...,
                             ignore = .type == "artifact",
-                            method = adapt_fast_ICA,
+                            method = fast_ICA,
                             config = list()) {
   start_time <- Sys.time()
 

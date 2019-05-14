@@ -1,6 +1,47 @@
-#' Wrapper for   FastICA methods for Independent Component Analysis from fICA package
+#' Wrapper for FastICA method for Independent Component Analysis from fastICA package
 #'
-#' This is a wrapper for [fICA::adapt_fICA] and [fICA::fICA] that only run in C, and return a transposed
+#' `fast_ICA()` is a wrapper for [fastICA::fastICA], with different defaults (runs in C, 
+#' maximum teration = 1000, tolerance = 1e-04, verbose), and that throws a warning in case of non-convergence.
+#' It returns an estimated unmixing matrix W (equivalent to the original `K %*% W`), and the mixing matrix A,
+#' consistent with the formulation `X= S %*% A`, and `X %*% W = S` where X is the matrix of data with
+#'  N_samples by N_channels, and S is a matrix of sources with N_samples by N_sources.
+#'  They are meant to be  used with [eeg_ica()].
+#'
+#' @param X A matrix or data frame.
+#' @family ica methods
+#' @inheritParams fastICA::fastICA
+#' @return A list with the unmixing matrix W and the mixing matrix A.
+#' @name fastICA
+#' @export
+fast_ICA <-function(X, n.comp=NULL, alg.typ = "parallel",
+            fun = "logcosh", alpha = 1.0, method = "C",
+            row.norm = FALSE, maxit = 1000, tol = 1e-06,
+            w.init = NULL){
+  if(is.null(n.comp)){
+    n.comp = ncol(X)
+  } 
+ capture <-  utils::capture.output(res <- fastICA::fastICA(X=X, n.comp=n.comp, alg.typ = alg.typ,
+          fun = fun, alpha = alpha, method = method,
+          row.norm = row.norm, maxit = maxit, tol = tol, verbose = TRUE,
+          w.init = w.init))
+  last_line <- stringr::str_match(capture[length(capture)], "Iteration (\\d*) tol=(.*)")
+  
+  out_tol <- as.numeric(last_line[,3])
+  out_maxit <- as.numeric(last_line[,2])
+ if(out_tol > tol){
+   warning("fastICA didn't converge. Expected tolerance: ", tol,
+           ". Tolerance: ",res$tol,". Increase the number of iterations to more than ",
+           maxit," with `maxit`")
+ }
+ message("# ICA finished in ", out_maxit," iterations. With a tolerance of ",out_tol,
+         ". (Maximum expected tolerance: ",tol,".)")
+ list(A= res$A, W =res$K %*% res$W)
+}
+
+
+#' Wrapper for FastICA methods for Independent Component Analysis from fICA package
+#'
+#' `adapt_fast_ICA()` and `fast_ICA2()` are wrappers for [fICA::adapt_fICA] and [fICA::fICA] that only run in C, and return a transposed
 #' version
 #' of the original estimated unmixing matrix in W, and the mixing matrix A,
 #' consistent with the formulation `X= S %*% A`, where X is the matrix of data with
@@ -10,15 +51,15 @@
 #' source components.
 #'
 #' @param X A matrix of data frame.
-#'
+#' @family ica methods
 #' @inheritParams fICA::adapt_fICA
 #' @inheritParams fICA::fICA
 #' @return A list with the unmixing matrix W and the mixing matrix A.
-#' @name ica
+#' @name fICA
 NULL
 # > NULL
 
-#' @rdname ica
+#' @rdname fICA
 #' @export
 adapt_fast_ICA <-
   function(X, gs = fICA::gf, dgs = fICA::dgf, kj = 0, eps = 1e-06, maxiter = 1000) {
@@ -62,10 +103,10 @@ adapt_fast_ICA <-
     list(W = W, A = A)
   }
 
-#' @rdname ica
+#' @rdname fICA
 #' @export
-fast_ICA <- function(X, g = "tanh", dg = NULL, G = NULL, init = NULL, n.init = 1,
-                     method = "sym2", eps = 1e-06, maxiter = 1000) {
+fast_ICA2 <- function(X, g = "tanh", dg = NULL, G = NULL, init = NULL, n.init = 1,
+                     method = "def", eps = 1e-06, maxiter = 1000) {
   X <- as.matrix(X)
   n <- nrow(X)
   p <- ncol(X)
@@ -96,9 +137,9 @@ fast_ICA <- function(X, g = "tanh", dg = NULL, G = NULL, init = NULL, n.init = 1
   V <- switch(method, sym2 = {
     if (!(is.function(g) && is.function(dg) && is.function(G))) {
       gi <- which(name == g[1])
-      g1 <- gf[[gi]]
-      dg1 <- dgf[[gi]]
-      G1 <- Gf[[gi]]
+      g1 <- fICA::gf[[gi]]
+      dg1 <- fICA::dgf[[gi]]
+      G1 <- fICA::Gf[[gi]]
     } else {
       g1 <- g
       dg1 <- dg

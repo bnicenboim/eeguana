@@ -211,7 +211,7 @@ plot_components.eeg_ica_lst <- function(data, projection = "polar", ...) {
   long_table %>%
     eeg_interpolate_tbl(...) %>%
     plot_topo() +
-    ggplot2::facet_wrap(~.ICA + .recording) +
+    ggplot2::facet_wrap(~.recording + .ICA) +
     annotate_head() +
     ggplot2::geom_contour() +
     ggplot2::geom_text(color = "black") +
