@@ -38,6 +38,9 @@ data_1 <- eeg_lst(
   )
 )
 
+##TODO: get rid of this:
+suppressWarnings( dplyr::funs())
+funs <- dplyr::funs
 
 
 # just some different X and Y
@@ -65,7 +68,23 @@ summarize_tbl <- data %>%
 summarize_at_eeg <- dplyr::summarize_at(data, channel_names(data), mean)
 summarize_all_eeg <- dplyr::summarize_at(data, channel_names(data), mean)
 summarize_all2_eeg <- dplyr::summarize_at(data, channel_names(data), "mean")
-summarize_all3_eeg <- dplyr::summarize_at(data, channel_names(data), list(~ mean(.)))
+##TODO : syntax with ~ was working until 0.8.0
+summarize_all3_eeg <- dplyr::summarize_at(data, channel_names(data), rlang::as_function(~ mean(.)))
+
+## dots <- at(data, channel_names(data),
+## dots <- at(data, channel_names(data), list(~mean(.[condition == "a"] -
+##      .[condition == "b"])))
+## class(dots[[1]])
+
+## at <- function(.tbl, .vars, .funs, ..., .cols = NULL) 
+## {
+##     .vars <- dplyr:::check_dot_cols(.vars, .cols)
+##     dplyr:::manip_at(.tbl, .vars, .funs, enquo(.funs), rlang::caller_env(), 
+##                      ...)
+## }
+## dots[[1]]
+
+## rlang::as_function(~mean(.[condition == "a"] - .[condition == "b"]))(100)
 
 
 summarize2_tbl <- data %>%
@@ -74,7 +93,7 @@ summarize2_tbl <- data %>%
   dplyr::summarize(mean = mean(.value)) %>%
   tidyr::spread(key = .key, value = mean)
 
-summarize_all4_eeg <- dplyr::summarize_at(data, channel_names(data), list(mean = ~ mean(.)))
+summarize_all4_eeg <- dplyr::summarize_at(data, channel_names(data), funs(mean = mean(.)))
 
 summarize4_tbl <- data %>%
   dplyr::as_tibble() %>%
@@ -357,8 +376,10 @@ tbl_diff_means_1 <- data %>%
   dplyr::summarize(mean = mean(.value[condition == "a"] - .value[condition == "b"]))
 
 eeg_diff_means_2 <- dplyr::group_by(data, .sample) %>%
-  dplyr::summarize_at(channel_names(.), list(~ mean(.[condition == "a"] -
+  dplyr::summarize_at(channel_names(.), funs( mean(.[condition == "a"] -
     .[condition == "b"])))
+
+
 
 tbl_diff_means_2 <- data %>%
   dplyr::as_tibble() %>%
@@ -378,7 +399,7 @@ tbl_diff_means_3 <- data %>%
   dplyr::summarize(mean = mean(.value[condition == "a" & .recording == "recording1"] - .value[condition == "b" & .recording == "recording2"]))
 
 eeg_diff_means_4 <- dplyr::group_by(data, .sample) %>%
-  dplyr::summarize_at(channel_names(.), list(~ mean(.[condition == "a" & .recording == "recording1"] -
+  dplyr::summarize_at(channel_names(.), funs(mean(.[condition == "a" & .recording == "recording1"] -
     .[condition == "b" & .recording == "recording2"])))
 
 tbl_diff_means_4 <- data %>%

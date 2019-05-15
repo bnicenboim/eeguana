@@ -95,12 +95,19 @@ summarize_eval_signal <- function(.eeg_lst, dots) {
 
   env <- lapply(dots, rlang::quo_get_env) %>% unique()
   if (length(env) != 1) stop("Need to fix env", env)
-  print(dots_txt)
-  print(env)
-  extended_signal <- extended_signal[, eval(parse(text = dots_txt), envir = env), keyby = c(by)]
+
+ extended_signal <- extended_signal[, eval(parse(text = dots_txt), envir = env), keyby = c(by)]
   added_cols <- paste0("V", seq_len(length(dots)))
   data.table::setnames(extended_signal, added_cols, add_names)
-  # add class to the columns that lost their class
+ 
+#   # extended_signal <- 
+# microbenchmark::microbenchmark(
+#   rlang::eval_tidy(rlang::quo(extended_signal[, .(!!!dots), keyby = c(by)]), data=extended_signal), #this is slow
+#   extended_signal[, eval(parse(text = dots_txt), envir = env), keyby = c(by)]
+# )
+#   # 
+ 
+     #add class to the columns that lost their class
   extended_signal[, (add_names) := purrr::map2(.SD, old_attributes, ~
   if (is_channel_dbl(.x) | is_component_dbl(.x)) .x else `attributes<-`(.x, .y)), .SDcols = add_names]
 
