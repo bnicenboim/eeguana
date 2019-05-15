@@ -78,7 +78,7 @@ summarize_eval_signal <- function(.eeg_lst, dots) {
   # .dots_expr <- rlang::get_expr(.dots)
   # https://stackoverflow.com/questions/14837902/how-to-write-a-function-that-calls-a-function-that-calls-data-table
   # https://stackoverflow.com/questions/15790743/data-table-meta-programming
-
+#TODO: check if I can use quos with the eval_tidy inside, and it's not that slow...
   dots_txt <- purrr::map(dots, rlang::quo_text) %>%
     paste(collapse = ", ") %>%
     {
@@ -95,8 +95,9 @@ summarize_eval_signal <- function(.eeg_lst, dots) {
 
   env <- lapply(dots, rlang::quo_get_env) %>% unique()
   if (length(env) != 1) stop("Need to fix env", env)
+  print(dots_txt)
+  print(env)
   extended_signal <- extended_signal[, eval(parse(text = dots_txt), envir = env), keyby = c(by)]
-
   added_cols <- paste0("V", seq_len(length(dots)))
   data.table::setnames(extended_signal, added_cols, add_names)
   # add class to the columns that lost their class

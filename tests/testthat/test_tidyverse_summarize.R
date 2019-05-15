@@ -67,6 +67,7 @@ summarize_all_eeg <- dplyr::summarize_at(data, channel_names(data), mean)
 summarize_all2_eeg <- dplyr::summarize_at(data, channel_names(data), "mean")
 summarize_all3_eeg <- dplyr::summarize_at(data, channel_names(data), list(~ mean(.)))
 
+
 summarize2_tbl <- data %>%
   dplyr::as_tibble() %>%
   dplyr::group_by(.key) %>%

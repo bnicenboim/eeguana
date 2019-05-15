@@ -79,7 +79,14 @@ adapt_fast_ICA <-
     X <- sweep(X, 2, colMeans(X))
     name <- fICA::gnames
     # garbage collection before calling the function:
-    gc(full = TRUE)
+    #TODO: may need to clean this up later
+    if("full" %in% formalArgs(gc)){
+      gc(full = TRUE)
+    } else {
+      #older version of R
+      gc()
+    }
+    
     res <- .Call("adfica", X, eps, maxiter, PACKAGE = "fICA")
     cnam <- paste("comp", 1:p)
     V <- res$W
