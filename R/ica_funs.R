@@ -75,10 +75,12 @@ adapt_fast_ICA <-
       W0 <- JADE::k_JADE(X, k = kj, eps = eps, maxiter = maxiter)$W
       init_est <- paste(kj, "-JADE", sep = "")
     }
-    Z <- tcrossprod(X, W0)
-    Z <- sweep(Z, 2, colMeans(Z))
+    X <- tcrossprod(X, W0)
+    X <- sweep(X, 2, colMeans(X))
     name <- fICA::gnames
-    res <- .Call("adfica", Z, eps, maxiter, PACKAGE = "fICA")
+    # garbage collection before calling the function:
+    gc(full = TRUE)
+    res <- .Call("adfica", X, eps, maxiter, PACKAGE = "fICA")
     cnam <- paste("comp", 1:p)
     V <- res$W
     alphas <- res$alphas
@@ -122,7 +124,7 @@ fast_ICA2 <- function(X, g = "tanh", dg = NULL, G = NULL, init = NULL, n.init = 
     diag(EVD$values^(-0.5)),
     EVD$vectors
   )
-  Z <- tcrossprod(sweep(X, 2, colMeans(X)), S0.5inv)
+  X <- tcrossprod(sweep(X, 2, colMeans(X)), S0.5inv)
   if (is.null(init)) {
     VN <- diag(p)
   }
@@ -144,19 +146,16 @@ fast_ICA2 <- function(X, g = "tanh", dg = NULL, G = NULL, init = NULL, n.init = 
       dg1 <- dg
       G1 <- G
     }
-    warning("c++ code not available for method sym2 yet. Computations are done in R.")
-    V <- fICA.sym2(Z, VN,
-      g = g1, dg = dg1, G = G1, n.init = n.init,
-      eps = p * eps, maxiter = maxiter
-    )
+    stop("c++ code not available for method sym2 yet. Use fICA::fICA")
+    
   }, sym = {
     gi <- which(name == g[1])
-    V <- .Call("ficasym", Z, gi, VN, p * eps, maxiter,
+    V <- .Call("ficasym", X, gi, VN, p * eps, maxiter,
       PACKAGE = "fICA"
     )
   }, def = {
     gi <- which(name == g[1])
-    V <- .Call("ficadef", Z, gi, VN, eps, maxiter, PACKAGE = "fICA")
+    V <- .Call("ficadef", X, gi, VN, eps, maxiter, PACKAGE = "fICA")
   })
   if (sum(abs(V$W)) > 0) {
     W <- crossprod(V$W, S0.5inv)

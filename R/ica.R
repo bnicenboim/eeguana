@@ -53,13 +53,15 @@ eeg_ica.eeg_lst <- function(.data,
   ignore <- rlang::enquo(ignore)
 
   if (!rlang::quo_is_null(ignore)) {
-    rejected_data <- eeg_events_to_NA(.data, !!ignore,
+    signal_raw <-  eeg_events_to_NA(.data, !!ignore,
       all_chs = FALSE,
       entire_seg = FALSE,
       drop_events = FALSE
-    )
+    ) %>% .$.signal
+  } else {
+    signal_raw <- .data$.signal
   }
-  signal_raw <- rejected_data$.signal %>%
+  signal_raw <- signal_raw %>%
     dplyr::select(.id, channel_names(.data))
   ## remove more if dots are used
   if (!rlang::is_empty(dots)) {
@@ -69,14 +71,15 @@ eeg_ica.eeg_lst <- function(.data,
 
   ## creates a DT with length length(signal_tbl) where the grouping var is repeated,
   ## This is used to split the signal_tbl, in case that there are many recordings together
-  signal_complete <- signal_raw[stats::complete.cases(signal_raw), ][
+  signal_raw <- signal_raw[stats::complete.cases(signal_raw), ][
     data.table::as.data.table(.data$.segments)
     [, .(.id, .recording)],
     on = ".id",
     nomatch = 0
   ][, .id := NULL][]
-
-  l_signal <- split(signal_complete, by = ".recording", keep.by = FALSE)
+  
+  #TODO maybe it can be done inside data.table?
+  signal_raw <- split(signal_raw, by = ".recording", keep.by = FALSE)
 
   method_label <- rlang::as_label(method)
   message(paste0("# ICA is being done using ", method_label, "..."))
@@ -102,7 +105,7 @@ eeg_ica.eeg_lst <- function(.data,
     do.call(rlang::eval_tidy(method), c(list(x), config)) %>% data_out()
   }
 
-  l_ica <- lapply(l_signal, function(x) {
+  l_ica <- lapply(signal_raw, function(x) {
     ica <- ICA_fun(x)
     # A:
     colnames(ica$mixing_matrix) <- colnames(x)
