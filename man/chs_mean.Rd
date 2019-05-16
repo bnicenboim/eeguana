@@ -2,18 +2,9 @@
 % Please edit documentation in R/channel_functions.R
 \name{chs_mean}
 \alias{chs_mean}
-\alias{chs_mean.channel_dbl}
-\alias{chs_mean.character}
-\alias{chs_mean.eeg_lst}
 \title{Get the by-sample (or by-row) mean of the specified channels.}
 \usage{
 chs_mean(x, ..., na.rm = FALSE)
-
-\method{chs_mean}{channel_dbl}(..., na.rm = FALSE)
-
-\method{chs_mean}{character}(..., na.rm = FALSE)
-
-\method{chs_mean}{eeg_lst}(x, ..., na.rm = FALSE)
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
@@ -33,16 +24,16 @@ Wrapper of \code{rowMeans} that performs a by-sample mean of the specified chann
 \dontrun{
 
 faces_segs_some \%>\%
-               transmute(Occipital = chs_mean(O1, O2, Oz, na.rm = TRUE),
-                         Parietal = chs_mean(P3, P4, P7,  P8, Pz, na.rm = TRUE))
+  transmute(
+    Occipital = chs_mean(O1, O2, Oz, na.rm = TRUE),
+    Parietal = chs_mean(P3, P4, P7, P8, Pz, na.rm = TRUE)
+  )
 
 faces_segs_some \%>\%
-               chs_mean(na.rm = TRUE)
+  chs_mean(na.rm = TRUE)
 }
 }
 \seealso{
-Other channel: \code{\link{ch_baseline}},
-  \code{\link{ch_rereference}}, \code{\link{channel_dbl}},
-  \code{\link{is_channel_dbl}}
+Other channel functions: \code{\link{chs_fun}}
 }
-\concept{channel}
+\concept{channel functions}

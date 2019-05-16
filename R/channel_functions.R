@@ -6,155 +6,175 @@
 #' @param ... A channel or a group of unquoted or quoted channels (if an `eeg_lst` is not specified).
 #' @inheritParams base::mean
 #' @return A new channel or an `eeg_lst` object with a `mean` channel instead of the previous channels.
-#' @family channel
+#' @family channel functions
 #'
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#'
+#' 
 #' faces_segs_some %>%
-#'                transmute(Occipital = chs_mean(O1, O2, Oz, na.rm = TRUE),
-#'                          Parietal = chs_mean(P3, P4, P7,  P8, Pz, na.rm = TRUE))
-#'
+#'   transmute(
+#'     Occipital = chs_mean(O1, O2, Oz, na.rm = TRUE),
+#'     Parietal = chs_mean(P3, P4, P7, P8, Pz, na.rm = TRUE)
+#'   )
+#' 
 #' faces_segs_some %>%
-#'                chs_mean(na.rm = TRUE)
+#'   chs_mean(na.rm = TRUE)
 #' }
 #' @export
-chs_mean <- function(x, ..., na.rm= FALSE) {
+chs_mean <- function(x, ..., na.rm = FALSE) {
   UseMethod("chs_mean")
 }
-#' @rdname chs_mean
 #' @export
 chs_mean.channel_dbl <- function(..., na.rm = FALSE) {
   dt_chs <- data.table::data.table(...)
-  rowMeans_ch(dt_chs, na.rm = na.rm) 
+  rowMeans_ch(dt_chs, na.rm = na.rm)
 }
-#' @rdname chs_mean
-#' @export
 chs_mean.character <- function(..., na.rm = FALSE) {
   dt_chs <- data.table::as.data.table(mget(..., envir = rlang::caller_env()))
-  rowMeans_ch(dt_chs, na.rm = na.rm) 
+  print(dt_chs)
+  rowMeans_ch(dt_chs, na.rm = na.rm)
 }
-#' @rdname chs_mean
 #' @export
 chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
-  #channels_info <- channels_tbl(x)
-  signal <- data.table::copy(x$signal)
-  signal[,mean := rowMeans_ch(.SD, na.rm = na.rm),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
-  x$signal <- signal
-  update_events_channels(x) %>% #update_channels_tbl(channels_info) %>%
-      validate_eeg_lst()
+  # channels_info <- channels_tbl(x)
+  signal <- data.table::copy(x$.signal)
+  signal[, mean := rowMeans_ch(.SD, na.rm = na.rm), .SDcols = channel_names(x)][, `:=`(channel_names(x), NULL)]
+  x$.signal <- signal
+  update_events_channels(x) %>% # update_channels_tbl(channels_info) %>%
+    validate_eeg_lst()
 }
 
 
-#' Rereference a channel or group of channels.
+#' Re-reference a channel or group of channels.
 #'
-#' Rereference a channel or group of channels.
+#' Re-reference a channel or group of channels.
 #'
 #' Notice that this function will update the channels one by one when used inside a mutate and not all at the same time.
-#' 
-#' @param x A channel to be referenced an eeg_lst where all the channels will be re-referenced (except for the ones in exclude).
-#' @param ... Channels that will be averaged as the reference.
+#' @param .data An eeg_lst object.
+#' @param ref Character vector of channels that will be averaged as the reference.
 #' @inheritParams base::mean
-#' @return A rereferenced channel or an eeg_lst with all channels re-referenced.
+#' @param ... Channels to include. All the channels by default, but eye channels channels should be removed.
+#' @return An  eeg_lst with some channels re-referenced.
 #' @export
 #'
-#' @family channel
+#' @family preprocessing functions
 #'
 #' @examples
-#' \dontrun{
-#' # Rereference all channels used the linked mastoids (average of the two mastoids)
-#'
-#' faces_segs %>% ch_rereference(M1, M2)
-#' }
+#' # Re-reference all channels using the left mastoid.
+#' data_faces_ERPs_M1 <- data_faces_ERPs %>% eeg_rereference(ref = "M1")
+#' 
+#' # Re-reference using the linked mastoids.
+#' data_faces_ERPs_M1M2 <- data_faces_ERPs %>% eeg_rereference(ref = c("M1","M2"))
+#' 
 #' @export
-ch_rereference <- function(x, ...,na.rm= FALSE) {
-  UseMethod("ch_rereference")
+eeg_rereference <- function(.data, ..., ref = NULL, na.rm = FALSE) {
+  UseMethod("eeg_rereference")
 }
-#' @rdname ch_rereference
 #' @export
-ch_rereference.channel_dbl <- function(x, ..., na.rm = FALSE) {
-   dots <- rlang::enquos(...)
-   new_ref <-  purrr::map_chr(dots, rlang::quo_text) %>% paste0(collapse = ", ")
+eeg_rereference.eeg_lst <- function(.data, ..., ref = NULL, na.rm = FALSE) {
+  signal <- data.table::copy(.data$.signal)
+  sel_ch <- sel_ch(.data, ...)
+  ref <- unlist(ref) # rlang::quos_auto_name(dots) %>% names()
 
-  {x - rowMeans(data.table::data.table(...), na.rm = na.rm)}  %>%
-   { `attributes<-`(., c(attributes(.), 
-                        list(.reference = new_ref))
-                        ) }
-  # {`attributes<-`(., list(.reference=2))}
- }
-#' @rdname ch_rereference
-#' @param exclude  A character vector of channels to exclude from referencing.
-#' @export
-ch_rereference.eeg_lst <- function(x,..., na.rm = FALSE, exclude = NULL) {
-  #channels_info <- channels_tbl(x)
-  signal <- data.table::copy(x$signal)
-  dots <- rlang::enquos(...)
-  cols <- rlang::quos_auto_name(dots) %>% names()
-  ref <- rowMeans(x$signal[,..cols], na.rm = na.rm)
-  reref <- function(x){
-    x <- x - ref 
-    attributes(x)$.reference <- purrr::map_chr(dots, rlang::quo_text) %>% paste0(collapse = ", ")
-    # print(x)
+  # ref <- rowMeans(.data$.signal[,..ref], na.rm = na.rm)
+  reref <- function(x, ref_value) {
+    x <- x - ref_value
+    attributes(x)$.reference <- paste0(ref, collapse = ", ")
     x
   }
-
-  signal[, (channel_names(x)[!channel_names(x) %in% exclude]) := purrr::map(.SD, reref),.SDcols = channel_names(x)]
-  x$signal <- signal
-  update_events_channels(x) %>% #update_channels_tbl(channels_info) %>%
-      validate_eeg_lst()
-
+  # signal[, (ch_sel) := {ref= rowMeans()   ;lapply(.SD, reref, ref = ref)},.SDcols = c(ch_sel)]
+  signal[, (sel_ch) := {
+    ref <- rowMeans(.SD)
+    lapply(mget(sel_ch, inherits = TRUE), reref, ref_value = ref)
+  }, .SDcols = c(ref)]
+  .data$.signal <- signal
+  update_events_channels(.data) %>% validate_eeg_lst()
 }
 
+sel_ch <- function(data, ...) {
+  dots <- rlang::enquos(...)
+  if (rlang::is_empty(dots)) {
+    ch_sel <- channel_names(data)
+  } else {
+    ch_sel <- tidyselect::vars_select(channel_names(data), !!!dots)
+  }
+  ch_sel
+}
 
 
 #' Get the by-sample (or by-row) function of the specified channels.
-#' 
+#'
 #' @inheritParams chs_mean
 #' @return A new channel or an `eeg_lst` object with a channel where a function was instead of the previous channels.
-#' @inheritParams dplyr::summarize_at 
+#' @inheritParams dplyr::summarize_at
+#' @param x An eeg_lst.
+#' @param pars List that contains the additional arguments for the function calls in .funs.
+#' @family channel functions
 #' @export
-chs_fun <- function(x, .funs, ...) {
+chs_fun <- function(x, .funs, ..., pars = list()) {
   UseMethod("chs_fun")
 }
-#' @rdname chs_fun
-#' @param pars List that contains the additional arguments for the function calls in .funs.
 #' @export
-chs_fun.channel_dbl <- function(...,.funs, pars = list()) {
-if(length(pars) != 0){
-   row_fun_ch(data.table::data.table(...),.funs,  unlist(pars))  
- } else {
-   row_fun_ch(data.table::data.table(...),.funs)  
- }
+chs_fun.channel_dbl <- function(..., .funs, pars = list()) {
+  .funs <- rlang::as_function(.funs)
+  row_fun_ch(data.table::data.table(...), .funs, pars)
 }
-#' @rdname chs_fun
 #' @export
 chs_fun.character <- function(..., .funs, pars = list()) {
   dt_chs <- data.table::as.data.table(mget(..., envir = rlang::caller_env()))
-  if(length(pars) != 0){
-    row_fun_ch(dt_chs,.funs,  unlist(pars))
-  } else {
-    row_fun_ch(dt_chs,.funs)
-  }
+  .funs <- rlang::as_function(.funs)
+  row_fun_ch(data.table::data.table(...), .funs, pars)
 }
 
-#' @rdname chs_fun
 #' @export
-chs_fun.eeg_lst <- function(x,.funs, pars = list(), ...) {
-
-  signal <- data.table::copy(x$signal)
-  funs <- as_fun_list(.funs, rlang::enquo(.funs), rlang::caller_env())
-  # fun_txt <- rlang::quo_text(funs[[1]]) %>% make.names()
-  fun_txt <- names(funs) %>% make.names()
-
-  # TODO a more elegant way, but if pars is list(), then row_fun_ch thinks that ... is NULL, and the function gets an argument NULL
-  if(length(pars) != 0){
-    signal[,(fun_txt) := row_fun_ch(.SD, .funs,  unlist(pars)),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
+chs_fun.eeg_lst <- function(x, .funs, pars = list(), ...) {
+  signal <- data.table::copy(x$.signal)
+  if (is.list(.funs)) {
+    .funs <- lapply(.funs, rlang::as_function)
   } else {
-    signal[,(fun_txt) := row_fun_ch(.SD, .funs),.SDcols = channel_names(x)][,`:=`(channel_names(x), NULL)]
+    fun_txt <- toString(substitute(.funs)) %>% make_names()
+    .funs <- list(rlang::as_function(.funs))
+    names(.funs) <- fun_txt
   }
-  x$signal <- signal
-  update_events_channels(x) %>% #update_channels_tbl(channels_info) %>%
-      validate_eeg_lst()
+  signal[, names(.funs) := lapply(.funs, function(x) row_fun_ch(.SD, x, pars)), .SDcols = channel_names(x)][, `:=`(channel_names(x), NULL)]
+
+  x$.signal <- signal
+  update_events_channels(x) %>% # update_channels_tbl(channels_info) %>%
+    validate_eeg_lst()
+}
+#' Baseline an eeg_lst
+#'
+#' Subtract the average or baseline of the points in a defined interval from all points in the segment.
+#'
+#' @param x An `eeg_lst` object or a channel.
+#' @param lim A negative number indicating from when to baseline; the interval is defined as \[lim,0\]. The default is to use all the negative times.
+#' @param ... Channels to include. All channels by default.
+#' @inheritParams eeg_artif
+#'
+#' @family preprocessing functions
+#' @return An eeg_lst.
+#'
+#'
+#' @export
+eeg_baseline <- function(x, lim = -Inf, unit = "s", ...) {
+  UseMethod("eeg_baseline")
+}
+#' @export
+eeg_baseline.eeg_lst <- function(x, lim = -Inf, unit = "s", ...) {
+  
+  ch_sel <- sel_ch(x, ...)
+  sample_id <- as_sample_int(lim, sampling_rate = sampling_rate(x), unit = unit)
+  
+  x$.signal <- data.table::copy(x$.signal)
+  x$.signal <- x$.signal[, (ch_sel) := lapply(.SD, fun_baseline, .sample, sample_id),
+    .SDcols = (ch_sel),
+    by = .id
+  ]
+  x
+}
+
+fun_baseline <- function(x, .sample, lower) {
+  x - mean(x[between(.sample, lower, 0)], na.rm = TRUE)
 }

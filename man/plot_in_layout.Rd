@@ -3,7 +3,7 @@
 \name{plot_in_layout}
 \alias{plot_in_layout}
 \alias{plot_in_layout.gg}
-\title{Place channels in a layout.}
+\title{Arrange ERP plots according to scalp layout}
 \usage{
 plot_in_layout(plot, ...)
 
@@ -23,10 +23,53 @@ plot_in_layout(plot, ...)
 A ggplot object
 }
 \description{
-Reorganizes a ggplot so that the plot of each channel is in their correct position in the scalp.
+Arranges a ggplot so that the facet for each channel appears in its position
+on the scalp.
+}
+\details{
+This function requires two steps: first, a ggplot object must be created with
+ERPs facetted by channel (\code{.key}).
+Then, the ggplot object is called in \code{plot_in_layout}. The function uses grobs
+arranged according to .x .y coordinates extracted from the \code{eeg_lst} object, by
+default in polar arrangement. The arrangement can be changed with the \code{projection}
+argument. White space in the plot can be reduced by changing \code{ratio}.
+
+Additional components such as titles and annotations should be added to the
+plot object using \code{+} exactly as you would for \link[ggplot2:ggplot]{ggplot2::ggplot}.
+Title and legend adjustments will be treated as applying to the
+whole plot object, while other theme adjustments will be treated as applying
+to individual facets. x-axis and y-axis labels cannot be added at this stage.
+}
+\examples{
+library(ggplot2)
+library(dplyr)
+
+# Create a ggplot object with some grand averaged ERPs
+ERP_plot <- data_faces_ERPs \%>\%
+  # select a few electrodes
+  select(Fz, FC1, FC2, C3, Cz, C4, CP1, CP2, Pz) \%>\%
+  # group by time point and condition
+  group_by(.sample, condition) \%>\%
+  # compute averages
+  summarize_at(channel_names(.), mean, na.rm = TRUE) \%>\%
+  ggplot(aes(x = .time, y = .value)) +
+  # plot the averaged waveforms
+  geom_line(aes(color = condition)) +
+  # facet by channel
+  facet_wrap(~.key) +
+  # add a legend and title
+  theme(legend.position = "bottom") +
+  ggtitle("ERPs for faces vs non-faces")
+
+# Call the ggplot object with the layout function
+plot_in_layout(ERP_plot)
 }
 \seealso{
-Other plot: \code{\link{plot.eeg_lst}},
-  \code{\link{plot_gg}}, \code{\link{plot_topo}}
+Other plotting functions: \code{\link{annotate_events}},
+  \code{\link{annotate_head}},
+  \code{\link{eeg_downsample}},
+  \code{\link{ggplot.eeg_lst}}, \code{\link{plot.eeg_lst}},
+  \code{\link{plot_components}}, \code{\link{plot_topo}},
+  \code{\link{theme_eeguana}}
 }
-\concept{plot}
+\concept{plotting functions}

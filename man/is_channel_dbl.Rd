@@ -18,8 +18,6 @@ Test if the object is a channel
 This function returns  TRUE for channels.
 }
 \seealso{
-Other channel: \code{\link{ch_baseline}},
-  \code{\link{ch_rereference}}, \code{\link{channel_dbl}},
-  \code{\link{chs_mean}}
+Other channel: \code{\link{channel_dbl}}
 }
 \concept{channel}

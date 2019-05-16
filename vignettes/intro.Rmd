@@ -1,0 +1,350 @@
+---
+title: "Introduction - Preprocessing and visualization of EEG data."
+author: "Bruno Nicenboim"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction - Preprocessing and visualization of EEG data.}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+options(width = 80)
+```
+
+The package *eeguana* provides a framework for doing simple pre-processing with specialized functions (starting with `eeg_` and `ch_`) and manipulating EEG data with *dplyr* verbs (e.g., `mutate`, `filter`, `summarize`) extended to a new class `eeg_lst`, and `ggplot` wrapper functions.  The new class is inspired by tidyverse principles but it's not really "tidy" (due to space considerations), it's a list of (i) a wide table that contains the signal amplitudes at every sample point of the EEG,  (ii) an events table with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant (`recording`), conditions, etc.  
+
+While it's possible to transform the `eeg_lst` to a `data.frame`, `data.table` or a `tibble` (with `as.data.frame()`, `as.data.table()` and `as_tibble()`), the motivation for manipulating the data in the `eeg_lst` format has to do with size considerations. In this case, the original file was 113 MB, converting it to a long format entails a lot of repetition and generates an object of 556 MB. While this will still work here, a long format quickly becomes prohibitive in real settings with longer recordings.
+
+# Working with eeguana
+
+Dplyr verbs always return an `eeg_lst` object, which allows us to use `magrittr`'s pipe, `%>%`  (see `` ?`dplyr-eeguana` ``).
+In addition, `eeg_`/`ch_` functions will also return an `eeg_lst` unless they have a suffix  `_tbl` that indicates they return a data frame. In general, we will work with the `eeg_lst`, unless we want to modify the channels information (with `channels_tbl()`) or the events table containing markers, artifacts ans custom annotations (whith `events_tbl`).
+
+# A practical example: the N170 effect
+
+Here, I exemplify the use of *eeguana* with EEG data from BrainVision 1.0. The data belong to a simple experiment  where a participant was presented 100 faces and 100 assorted images in random order. The task of the experiment was to mentally count the number of faces.
+
+First we download the data:
+
+```{r downloading, eval = any(!file.exists("s1_faces.vhdr","s1_faces.vmrk","s1_faces.eeg")), cache=TRUE}
+download.file("http://www.ling.uni-potsdam.de/~nicenboim/files/s1_faces.vhdr",
+  mode = "wb", destfile = "./s1_faces.vhdr"
+)
+download.file("http://www.ling.uni-potsdam.de/~nicenboim/files/s1_faces.vmrk",
+  mode = "wb", destfile = "./s1_faces.vmrk"
+)
+download.file("http://www.ling.uni-potsdam.de/~nicenboim/files/s1_faces.eeg",
+  mode = "wb", destfile = "./s1_faces.eeg"
+)
+```
+
+BrainVision 1.0 exports three files: `s1_faces.vhdr`, `s1_faces.vmrk`, and
+`s1_faces.eeg`. The file `s1_faces.vhdr` contains the metadata and links to the other
+two files, `s1_faces.vmrk` contains the triggers and other events in the samples,
+and `s1_faces.eeg` contains the signals at every sample for every channel recorded.
+
+
+```{r libs, message = FALSE}
+library(dplyr)
+library(ggplot2)
+library(eeguana)
+set.seed(123) # ICA will always find the same components
+```
+
+We first need to read the data:
+
+```{r}
+faces <- read_vhdr("s1_faces.vhdr")
+```
+
+The function `read_vhdr()` creates a list with data frames for the signal, events,
+segments information, and incorporates in its attributes generic EEG information.
+
+```{r}
+faces
+summary(faces)
+```
+
+We see that there is no electrode positions in the object, but since we know that the layout was a standard 10/20, we'll add this layout to the object, using the dataset `layout_32_1020`.
+
+```{r}
+channels_tbl(faces)
+## In case the order of the electrodes is different, we do a left_join instead of replacing the table:
+channels_tbl(faces) <- select(channels_tbl(faces), .channel) %>%
+  left_join(layout_32_1020)
+```
+
+The plots that **eeguana** produce are `ggplot` objects that can be modified like regular `ggplot`.
+
+```{r, fig.dim = c(10,15), out.width = "100%"}
+plot(faces) +
+  ggtitle("All the experiment")
+```
+
+
+## Pre-processing
+
+### Rereferencing
+In this dataset, the signal from all electrodes is monopolar and referenced to the left mastoid (M1). We want the signal (excluding the EOG channels) to be referenced to linked (left and right) mastoids (M1 and M2).
+
+```{r}
+faces <- eeg_rereference(faces, -VEOG, -HEOG, ref = c("M1", "M2"))
+```
+
+## Filtering
+
+We apply a band pass filter of 0.1 to 30 Hz to all the channels except the EOG channels, where we apply a stronger filter to be able to detect eye movements later. We don't segment yet, because discontinuities in the signal create artifacts on the edges.
+
+```{r}
+faces_filt <- eeg_filt_band_pass(faces, -HEOG, -VEOG, freq = c(.1, 30)) %>%
+  eeg_filt_band_pass(HEOG, VEOG, freq = c(1, 10))
+```
+
+
+## ICA
+
+We want to apply ICA to as much data as possible, but to "representative" data, that is part of the experiments and not when the participants are moving or reading the instructions. For the same reason, we want to the ignore "crazy" artifacts: regions with extreme amplitudes in the signal.
+
+We first cut a large segment that excludes data before and after the experiment was ran using `eeg_segment()` (that is, only data from the marker "s111" to "s121"), and then we mark differences of 100 microvolts between peaks with `eeg_artif_minmax()`.
+
+
+```{r, fig.dim = c(10,15), out.width = "100%"}
+faces_ls <- eeg_segment(faces_filt, .description == "s111", end = .description == "s121") %>%
+  eeg_artif_minmax(-HEOG, -VEOG, threshold = 200, window = 200, unit = "ms")
+```
+
+`eeg_artif_minimax()` only adds the artifacts in the events table, and doesn't modify the signal. We can have a look at the type of artifacts that were detected, by plotting the signal and the events with `annotate_events()`. It would be a good idea to just check a couple of seconds of the signal, for that we use the `dplyr` "verb" `filter()` which is overloaded to work with `eeg_lst`s.
+
+
+```{r, fig.dim = c(10,15), out.width = "100%"}
+faces_ls %>%
+  filter(as_time(.sample, unit = "s") %>% between(0, 90)) %>%
+  plot() +
+  annotate_events() +
+  theme(legend.position = "bottom")
+```
+
+Now we can run ICA, removing the EOG and reference electrodes, and ignoring the artifacts.
+
+```{r ICA, cache=TRUE}
+## By default will ignore artifacts
+faces_ica <- faces_ls %>%
+  eeg_ica(-HEOG, -VEOG, -M1, -M2, method = adapt_fast_ICA, ignore = .type == "artifact")
+```
+
+We can now check the different topographic plots of the ICAs with `plot_components()`, and their correlation with the EOG channels looking a the summary of the object.
+
+```{r, fig.dim = c(10,15), out.width = "100%"}
+faces_ica %>% plot_components()
+summary(faces_ica)
+```
+
+We'll look closer at the ICA that are more likely to be related to eye movements, and we'll compare with signals that look like blinks and saccades:
+
+```{r,  fig.dim = c(10,5)}
+ICAs <- c("ICA1", "ICA2", "ICA3", "ICA4", "ICA5", "ICA6")
+faces_ica_b <- faces_ica %>%
+  eeg_artif_step(HEOG, threshold = 30, window = 200, unit = "ms") %>%
+  eeg_artif_minmax(VEOG, threshold = 50, window = 200, unit = "ms")
+```
+
+We don't want to plot everything, so we'll produce the most promising components with `eeg_ica_show`, and we'll use some dplyr-verbs to see only a piece of the signal (with `filter()`), to select the desired components and the eye channels (with `select()`), and to enlarge the components (because their amplitude is much smaller than EOG channels and it will be difficult to see)
+
+```{r, fig.dim = c(10,15), out.width = "100%"}
+faces_ica_b %>%
+  ## we take a 200 seconds of the signal:
+  filter(as_time(.sample) %>% between(0, 200)) %>%
+  ## we produce some components for this piece
+  eeg_ica_show(one_of(ICAs)) %>%
+  ## we select want we want to show:
+  select(c(ICAs, "VEOG", "HEOG")) %>%
+  ## we enlarge the components
+  mutate_if(is_component_dbl, ~ . * 10) %>%
+  ## finally we plot here:
+  plot() +
+  coord_cartesian(ylim = c(-50, 50)) +
+  annotate_events() +
+  theme(legend.position = "bottom")
+```
+
+The clearest ones are the ICA1, ICA2, and ICA3, and so we'll just remove that ones.
+
+```{r}
+faces_icaed <- faces_ica %>%
+  eeg_ica_keep(-ICA1, -ICA5) %>%
+  as_eeg_lst()
+```
+
+Now we'll segment the data to appropriate check if there are still artifacts.
+
+```{r, fig.dim = c(10,15), out.width = "100%"}
+
+events_tbl(faces_icaed) <- events_tbl(faces_icaed) %>% filter(!.type %in% "artifact")
+
+faces_seg <- faces_icaed %>%
+  select(-description, -type) %>%
+  eeg_segment(.description %in% c("s70", "s71"), lim = c(-.1, .5))
+
+faces_seg_artif <- faces_seg %>%
+  eeg_artif_minmax(-HEOG, -VEOG, threshold = 100, window = 150, unit = "ms") %>%
+  eeg_artif_step(-HEOG, -VEOG, threshold = 50, window = 200, unit = "ms")
+
+bad <- filter(events_tbl(faces_seg_artif), .type == "artifact") %>% pull(.id) %>% unique()
+faces_seg_artif %>%
+  filter(.id == bad) %>%
+  select(-VEOG, -HEOG) %>%
+  plot() +
+  annotate_events() +
+  theme(legend.position = "bottom")
+
+faces_seg <- faces_seg_artif %>%
+  eeg_events_to_NA(.type == "artifact", entire_seg = TRUE, all_chs = FALSE, drop_events = TRUE)
+
+summary(faces_seg)
+```
+Finally, we can baseline the segments:
+
+```{r}
+faces_seg <- faces_seg %>% eeg_baseline()
+```
+
+## Visualization
+
+We edit the segmentation information and add more descriptive labels.
+
+```{r,  fig.dim = c(10,5)}
+faces_seg <- faces_seg %>%
+  mutate(
+    condition =
+      if_else(description == "s70", "faces", "non-faces")
+  ) %>%
+  select(-type)
+
+faces_seg
+```
+
+With some `ggplot` skills, we can create customized plots. `ggplot` is overloaded to work on an `eeg_lst` by first downsampling the signal when necessary, and converting it to a long-format data frame that is feed into `ggplot`. This object can then be customized. (Notice that the channels, or component names are in a `.key` column and their amplitude in `.value` column, and instead of samples there are now `.time` in seconds).
+
+
+```{r, fig.dim = c(10,10), out.width = "100%"}
+## ggplot uses internally a table that looks like this:
+faces_seg %>% filter(.id %in% 1:3) %>% as_tibble()
+
+faces_seg %>%
+  select(O1, O2, P7, P8) %>%
+  ggplot(aes(x = .time, y = .value)) +
+  geom_line(alpha = .1, aes(group = .id, color = condition)) +
+  stat_summary(
+    fun.y = "mean", geom = "line", alpha = 1, size = 1.5,
+    aes(color = condition)
+  ) +
+  facet_wrap(~.key) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  geom_vline(xintercept = .17, linetype = "dotted") +
+  theme(legend.position = "bottom")
+```
+
+We can see here the N170 component in the faces condition for the average trial on a single participant. We can investigate the signal by averaging the channels of the occipital and parietal lobes using `transmute()`, and the special function, `chs_mean()`, a wrapper for `rowMeans()`, which takes as arguments the relevant channels and whether missing values should be omitted from the calculations.
+                                                              
+```{r, fig.dim = c(10,5), out.width = "100%"}
+faces_seg %>%
+  transmute(
+    Occipital = chs_mean(O1, O2, Oz, na.rm = TRUE),
+    Parietal = chs_mean(P3, P4, P7, P8, Pz, na.rm = TRUE)
+  ) %>%
+  ggplot(aes(x = .time, y = .value)) +
+  geom_line(alpha = .1, aes(group = .id, color = condition)) +
+  stat_summary(
+    fun.y = "mean", geom = "line", alpha = 1, size = 1,
+    aes(color = condition)
+  ) +
+  facet_wrap(~.key) +
+  theme(legend.position = "bottom")
+```
+
+We can also calculate the ERPs and then plot them in their layout (and we'll add the same theme that plot uses for `eeg_lst`s):
+
+```{r layout, fig.dim = c(10,10), out.width = "100%"}
+ERP_faces <- faces_seg %>%
+  group_by(.sample, condition) %>%
+  summarize_at(channel_names(.), mean, na.rm = TRUE)
+
+ERP_plot <- ERP_faces %>%
+  ggplot(aes(x = .time, y = .value)) +
+  geom_line(aes(color = condition)) +
+  facet_wrap(~.key) +
+  theme(legend.position = "bottom") +
+  ggtitle("ERPs for faces vs non-faces") +
+  theme_eeguana()
+
+ERP_plot %>% plot_in_layout()
+```
+
+Another possibility is to create a topographic plot of the two conditions, by first making segments that include only the interval .1-.2 *s* after the onset of the stimuli, creating a table with interpolated amplitudes and using the ggplot wrapper `plot_topo()`.
+
+```{r topo, fig.dim = c(10,5), out.width = "100%"}
+faces_seg %>%
+  filter(between(as_time(.sample, unit = "s"), .1, .2)) %>%
+  group_by(condition) %>%
+  summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
+  plot_topo() +
+  annotate_head() +
+  geom_contour() +
+  geom_text(colour = "black") +
+  facet_grid(~condition)
+```
+
+
+
+For more specialized plots or analyses, it might be necessary to extract the data  in long data frame format first. Even though, we can do this without transforming the object, here, we transform the data first and then we visualize independent t-tests at every electrode and time point.
+
+```{r}
+df <- faces_seg %>%
+  select(O1, O2, P7, P8) %>%
+  as_tibble() %>%
+  # We can use regular dplyr functions now
+  group_by(.key, .time) %>%
+  summarize(
+    `t-value` = t.test(
+      .value[condition == "faces"],
+      .value[condition == "non-faces"]
+    )$statistic
+  )
+
+df
+```
+
+Then we just load the data frame into `ggplot`.
+
+```{r, fig.dim = c(10,10), out.width = "100%"}
+ggplot(df, aes(x = .time, y = `t-value`)) + geom_line() +
+  facet_wrap(~.key)
+```
+
+However, this can be also done in the without transforming the `eeg_lst` object:
+
+```{r, fig.dim = c(10,10), out.width = "100%"}
+faces_seg_t <-
+  faces_seg %>%
+  select(O1, O2, P7, P8) %>%
+  group_by(.sample) %>%
+  summarize_at(channel_names(.), list(t =  ~t.test(
+    .[condition == "faces"],
+    .[condition == "non-faces"]
+  )$statistic))
+
+faces_seg_t %>%
+  ggplot(aes(x = .time, y = .value)) +
+  geom_line(alpha = .1, aes(group = .id)) +
+  stat_summary(fun.y = "mean", geom = "line", alpha = 1, size = 1) +
+  facet_wrap(~.key) +
+  theme(legend.position = "bottom")
+```
+
+

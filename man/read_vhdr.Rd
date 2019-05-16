@@ -2,28 +2,45 @@
 % Please edit documentation in R/read.R
 \name{read_vhdr}
 \alias{read_vhdr}
-\title{Read a BrainVision file into an eeg_lst object.}
+\title{Read a BrainVision file into R}
 \usage{
-read_vhdr(file, sep = type == "New Segment", zero = type == "Time 0",
-  recording = file)
+read_vhdr(file, sep = .type == "New Segment", zero = .type == "Time 0",
+  .recording = file)
 }
 \arguments{
 \item{file}{A vhdr file in a folder that contains a .vmrk and .dat files}
 
-\item{sep}{Segment separation marker. By default: type == "New Segment"}
+\item{sep}{Segment separation marker. By default: .type == "New Segment"}
 
-\item{zero}{Time zero marker. By default: type == "Time 0"}
+\item{zero}{Time zero marker. By default: .type == "Time 0"}
 
-\item{recording}{Recording name (file name, by default).}
+\item{.recording}{Recording name (file name, by default).}
 }
 \value{
 An \code{eeg_lst} object with signal_tbl and event from file_name.dat,
 file_name.vhdr, and file_name.vmrk.
 }
 \description{
-Read a BrainVision file into an eeg_lst object.
+Creates an eeg_lst object from BrainVision exported files.The function reads
+metadata from the .vhdr BrainVision file, which draws on
+the .vmrk and .dat/.eeg files.  All three
+files must be in the same directory.
+}
+\examples{
+\dontrun{
+# load a single subject
+s1 <- read_vhdr("./faces.vhdr", .recording = "1")
+
+# load multiple subjects using purrr::map, extracting subject IDs from file names
+faces_list <- purrr::map(list.files("./","vhdr"), ~ 
+    read_vhdr(.x)
+)
+faces <- bind(faces_list)
+}
+ 
 }
 \seealso{
-Other read: \code{\link{read_edf}}, \code{\link{read_ft}}
+Other reading functions: \code{\link{read_edf}},
+  \code{\link{read_ft}}
 }
-\concept{read}
+\concept{reading functions}

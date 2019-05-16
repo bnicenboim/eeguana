@@ -10,37 +10,60 @@ eeg_interpolate_tbl <- function(.data, ...) {
   UseMethod("eeg_interpolate_tbl")
 }
 #' @rdname eeg_interpolate_tbl
-#' @param size Indicates how much to extrapolate, `1` indicates no extrapolation beyond the position of the electrodes.
+#' @param radius Indicates the radius of the extrapolation, for standard locations of electrodes,  `1` indicates no extrapolation beyond the position of the electrodes, `1.2` is the default
 #' @param method Method of interpolation (`"MBA"` Multilevel B-splines using the function `mba.surf` of the package `MBA` or (`"akima"` bicubic spline Akima interpolation algorithm using the function `interp` of the package `akima`.)..).
-#' @param x Variable storing the x coordinate, generally `.x` (default).
-#' @param y Variable storing the y coordinate, generally `.y` (default).
-#' @param value Values used for the interpolation, generally `amplitude` (default). 
-#' @param label Label of the points that are used for the interpolation, generally `channel` (default).
 #' @param diam_points Density of the interpolation (number of points that are interpolated in the diameter of the scalp).
 #' @export
-eeg_interpolate_tbl.eeg_lst <- function(.data, size = 1.2, x = .x, y = .y, value = amplitude, label = channel, diam_points = 200, method = "MBA", ...) {
-  grouping <- group_chr(.data)
-  .data <- dplyr::as_tibble(.data) %>% dplyr::group_by_at(dplyr::vars(grouping))
-  x <- rlang::enquo(x)
-  y <- rlang::enquo(y)
-  value <- rlang::enquo(value)
-  label <- rlang::enquo(label)
+eeg_interpolate_tbl.eeg_lst <- function(.data, radius = 1.2, diam_points = 200, method = "MBA", ...) {
+  grouping <- dplyr::group_vars(.data)
+  .data <- dplyr::as_tibble(.data) %>%
+    dplyr::left_join(channels_tbl(.data), by = c(".key" = ".channel")) %>%
+    dplyr::group_by_at(dplyr::vars(grouping))
   dots <- rlang::enquos(...)
   # NextMethod()
-  eeg_interpolate_tbl(.data, size = size, !!x, !!y, !!value, !!label, diam_points, method, !!!dots)
+  eeg_interpolate_tbl(.data,
+    radius = radius,
+    x = !!rlang::quo(.x),
+    y = !!rlang::quo(.y),
+    value = !!rlang::quo(.value),
+    label = !!rlang::quo(.key),
+    diam_points,
+    method,
+    !!!dots
+  )
 }
+
 #' @rdname eeg_interpolate_tbl
+#' @param x Variable storing the x coordinate, generally `.x` (default).
+#' @param y Variable storing the y coordinate, generally `.y` (default).
+#' @param value Values used for the interpolation, generally `.value` (default).
+#' @param label Label of the points that are used for the interpolation, generally `.key` (default).
 #' @export
-eeg_interpolate_tbl.tbl_df <- function(.data, size = 1.2, x = .x, y = .y, value = amplitude, label = channel, diam_points = 200,
-                                   method = "MBA", ...) {
+eeg_interpolate_tbl.data.frame <- function(.data,
+                                           radius = 1.2,
+                                           x = .x,
+                                           y = .y,
+                                           value = .value,
+                                           label = .key,
+                                           diam_points = 200,
+                                           method = "MBA", ...) {
   # x <- rlang::quo(.x)
   # y <- rlang::quo(.y)
-  # value <- rlang::quo(amplitude)
-  # label <- rlang::quo(channel)
+  # value <- rlang::quo(.value)
+  # label <- rlang::quo(.key)
   x <- rlang::enquo(x)
   y <- rlang::enquo(y)
   value <- rlang::enquo(value)
   label <- rlang::enquo(label)
+
+  outside <- .data %>%
+    dplyr::ungroup() %>%
+    dplyr::distinct(!!label, !!x, !!y) %>%
+    dplyr::filter(sqrt((!!x)^2 + (!!y)^2) >= 1 * radius)
+
+  if (nrow(outside) > 0) {
+    warning(message_obj(paste0("Some points were outside the radius, '", radius, "', of interpolation:"), outside), call. = FALSE)
+  }
 
   .data <- dplyr::select(.data, dplyr::one_of(dplyr::group_vars(.data)), !!x, !!y, !!value, !!label)
   group_vars <- dplyr::group_vars(.data)
@@ -51,13 +74,15 @@ eeg_interpolate_tbl.tbl_df <- function(.data, size = 1.2, x = .x, y = .y, value 
   is_grouped <- .data %>%
     dplyr::group_by_at(group_vars) %>%
     dplyr::group_by(!!label, add = TRUE) %>%
-    dplyr::summarize(L = n()) %>%
+    dplyr::summarize(L = dplyr::n()) %>%
     # dplyr::filter(!is.na(!!x) |!is.na(!!y)) %>%
     dplyr::pull(L) %>%
     all(. == 1)
   if (!is_grouped) {
-    stop("Data needs to grouped or summarized so that each label appears one per group.\n",
-         "Tip: You should do probably need to do `eeg_lst %>% group_by(YOUR_GROUPS) %>% summarize_all_ch(mean)` before calling this function",call. = FALSE)
+    stop("Data need to grouped or summarized so that each label appears once per group.\n",
+      "Tip: You should do probably need to do `eeg_lst %>% group_by(YOUR_GROUPS) %>% summarize_all_ch(mean)` before calling this function",
+      call. = FALSE
+    )
   }
 
 
@@ -79,10 +104,10 @@ eeg_interpolate_tbl.tbl_df <- function(.data, size = 1.2, x = .x, y = .y, value 
         sp = FALSE,
         extend = TRUE,
         b.box = c(
-          min(xyz[[1]], na.rm = TRUE) * size,
-          max(xyz[[1]], na.rm = TRUE) * size,
-          min(xyz[[2]], na.rm = TRUE) * size,
-          max(xyz[[2]], na.rm = TRUE) * size
+          min(c(-1, xyz[[1]]), na.rm = TRUE) * radius,
+          max(c(1, xyz[[1]]), na.rm = TRUE) * radius,
+          min(c(-1, xyz[[2]]), na.rm = TRUE) * radius,
+          max(c(1, xyz[[2]]), na.rm = TRUE) * radius
         ),
         ...
       )
@@ -102,20 +127,20 @@ eeg_interpolate_tbl.tbl_df <- function(.data, size = 1.2, x = .x, y = .y, value 
     interpolation_alg <- function(xyz, ...) {
       results <- akima::interp(
         x = xyz[[1]], y = xyz[[2]], z = xyz[[3]],
-        xo = seq(min(xyz[[1]], na.rm = TRUE) * size, max(xyz[[1]], na.rm = TRUE) * size, length = diam_points),
-        yo = seq(min(xyz[[2]], na.rm = TRUE) * size, max(xyz[[2]], na.rm = TRUE) * size, length = diam_points),
+        xo = seq(c(-1, min(xyz[[1]]), na.rm = TRUE) * radius, max(c(1, xyz[[1]]), na.rm = TRUE) * radius, length = diam_points),
+        yo = seq(min(c(-1, xyz[[2]]), na.rm = TRUE) * radius, max(c(1, xyz[[2]]), na.rm = TRUE) * radius, length = diam_points),
         extrap = TRUE,
         linear = FALSE,
         duplicate = "error",
         ...
-      ) 
-        dplyr::tibble(
-          !!rlang::quo_name(x) := rep(results$x, times = diam_points),
-          # eq to mba_interp$xyz.est@coords[,1] with sp = TRUE, which requires an extra package
-          !!rlang::quo_name(y) := rep(results$y, each = diam_points),
-          # eq to mba_interp$xyz.est@coords[,2]
-          !!rlang::quo_name(value) := c(results$z)
-        )
+      )
+      dplyr::tibble(
+        !!rlang::quo_name(x) := rep(results$x, times = diam_points),
+        # eq to mba_interp$xyz.est@coords[,1] with sp = TRUE, which requires an extra package
+        !!rlang::quo_name(y) := rep(results$y, each = diam_points),
+        # eq to mba_interp$xyz.est@coords[,2]
+        !!rlang::quo_name(value) := c(results$z)
+      )
     }
   } else {
     stop("Non supported method.")
@@ -152,7 +177,7 @@ eeg_interpolate_tbl.tbl_df <- function(.data, size = 1.2, x = .x, y = .y, value 
 
       interpolation_alg(interpolate_from) %>%
         # eq to mba_interp$xyz.est@data$z
-        dplyr::filter(((!!x)^2 + (!!y)^2 <= 1 * size)) %>%
+        dplyr::filter(sqrt((!!x)^2 + (!!y)^2) <= 1 * radius) %>%
         {
           dplyr::bind_cols(dplyr::slice(common, rep(1, each = nrow(.))), .)
         }
@@ -255,10 +280,10 @@ orthographic <- function(x, y, z) {
 #' Change coordinate system from 3D to 2D
 #'
 #'
-#' @param data A tbl created with channels_tbl
+#' @param data A tbl created with .keys_tbl
 #' @param projection projection type
 #'
-#' @return A modified channels_tbl
+#' @return A modified .keys_tbl
 #'
 #' @export
 change_coord <- function(data, projection = "polar") {
@@ -278,6 +303,6 @@ change_coord <- function(data, projection = "polar") {
   new_coord <- project(data$.x, data$.y, data$.z)
   data$.x <- new_coord$x
   data$.y <- new_coord$y
-  data$.z <- NA
+  data$.z <- NA_real_
   data
 }

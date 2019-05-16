@@ -2,14 +2,14 @@
 % Please edit documentation in R/plot.R
 \name{plot.eeg_lst}
 \alias{plot.eeg_lst}
-\title{Simple plot an eeg_lst object.}
+\title{Create a basic signal plot}
 \usage{
-\method{plot}{eeg_lst}(x, max_sample = 64000, ...)
+\method{plot}{eeg_lst}(x, max_sample = 6400, ...)
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
 
-\item{max_sample}{Downsample to approximately 64000 samples by default.}
+\item{max_sample}{Downsample to approximately 6400 samples by default.}
 
 \item{...}{Not in use.}
 }
@@ -17,10 +17,40 @@
 A ggplot object
 }
 \description{
-Simple plot an eeg_lst object.
+\code{plot} creates a ggplot object in which the EEG signal over the whole
+recording is plotted by electrode. Useful as a quick visual check for major
+noise issues in the recording.
+}
+\details{
+Note that for normal-size datasets, the plot may take some time to compile.
+If necessary, \code{plot} will first downsample the \code{eeg_lst} object so that there is a
+maximum of 6,400 samples. The \code{eeg_lst} object is then converted to a long-format
+tibble via \code{as_tibble}. In this tibble, the \code{.key} variable is the
+channel/component name and \code{.value} its respective amplitude. The sample
+number (\code{.sample} in the \code{eeg_lst} object) is automatically converted to seconds
+to create the variable \code{time}. By default, time is then plotted on the
+x-axis and amplitude on the y-axis, and uses \code{scales = "free"}; see \code{\link[ggplot2:facet_grid]{ggplot2::facet_grid()}}.
+
+To add additional components to the plot such as titles and annotations, simply
+use the \code{+} symbol and add layers exactly as you would for \link[ggplot2:ggplot]{ggplot2::ggplot}.
+}
+\examples{
+
+# Basic plot
+plot(data_faces_ERPs)
+
+# Add ggplot layers
+library(ggplot2)
+plot(data_faces_ERPs) +
+  coord_cartesian(ylim = c(-500, 500))
 }
 \seealso{
-Other plot: \code{\link{plot_gg}},
-  \code{\link{plot_in_layout}}, \code{\link{plot_topo}}
+Other plotting functions: \code{\link{annotate_events}},
+  \code{\link{annotate_head}},
+  \code{\link{eeg_downsample}},
+  \code{\link{ggplot.eeg_lst}},
+  \code{\link{plot_components}},
+  \code{\link{plot_in_layout}}, \code{\link{plot_topo}},
+  \code{\link{theme_eeguana}}
 }
-\concept{plot}
+\concept{plotting functions}

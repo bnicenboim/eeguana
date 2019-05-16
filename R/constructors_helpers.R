@@ -1,14 +1,30 @@
-#' @param values 
+#' @noRd
+new_eeg_lst <- function(.signal = NULL, .events = NULL, .segments = NULL) {
+  x <- list(
+    .signal = .signal,
+    .events = .events,
+    .segments = .segments
+  )
+  x <- unclass(x)
+  structure(x,
+    class = c("eeg_lst"),
+    vars = character(0)
+  )
+}
+
+
+
+#' @param values
 #'
-#' @param sampling_rate 
+#' @param sampling_rate
 #'
 #' @noRd
 new_sample_int <- function(values, sampling_rate) {
-  if (!all(is.na(values)) && !all.equal(values, round(values))) {
+  if (!all(is_wholenumber(values))) {
     stop("Sample integer values should be round numbers.",
       call. = FALSE
     )
-  } else {
+  } else if(all(!is.infinite(values))){
     values <- as.integer(values)
   }
   values <- unclass(values)
@@ -18,31 +34,30 @@ new_sample_int <- function(values, sampling_rate) {
   )
 }
 
-
-
-
-#' @param sample_id 
+#' @param .sample
 #'
 #' @noRd
-validate_sample_int <- function(sample_id) {
-  if (!is.integer(sample_id)) {
-    stop("Values should be integers.",
+validate_sample_int <- function(.sample) {
+  if (!is.integer(.sample) && 
+      ## I also want to accept one Inf number, for e.g., baseline
+      !(length(.sample)==1 && is.infinite(.sample))) {
+    warning("Samples should be integers.",
       call. = FALSE
     )
   }
-  if (length(sample_id) > 0) {
-    if (attributes(sample_id)$sampling_rate <= 0) {
+  if (length(.sample) > 0) {
+    if (attributes(.sample)$sampling_rate <= 0) {
       warning("Attribute sampling_rate should be a positive value.",
         call. = FALSE
       )
     }
   }
-  sample_id
+  .sample
 }
 
 #' @noRd
 new_channel_dbl <- function(values, channel_info = list()) {
-  values <- unclass(values) %>% as.double
+  values <- unclass(values) %>% as.double()
   attributes(values) <- c(
     class = "channel_dbl",
     channel_info
@@ -52,7 +67,7 @@ new_channel_dbl <- function(values, channel_info = list()) {
 
 
 
-#' @param channel 
+#' @param channel
 #'
 #' @noRd
 validate_channel_dbl <- function(channel) {
@@ -66,210 +81,130 @@ validate_channel_dbl <- function(channel) {
     warning(sprintf("Attribute %s should be a number.", .),
       call. = FALSE
     )
-  } )
+  })
 
-  if (is.null(attributes(channel)$.reference)) {
-    warning("Attribute .reference is missing.",
-      call. = FALSE
-    )
-  }
+  # if (is.null(attributes(channel)$.reference)) {
+  #   warning("Attribute .reference is missing.",
+  #     call. = FALSE
+  #   )
+  # }
   channel
 }
 
-#' @param signal_matrix 
+
+#' @param channels
 #'
-#' @param ids 
-#' @param sample_ids 
-#' @param channel_info 
-#'
-#' @noRd
-new_signal_tbl <- function(signal_matrix = matrix(), ids = c(), sample_ids = c(), channel_info = dplyr::tibble()) {
-
-  if(!data.table::is.data.table(signal_matrix)) {
-    signal_matrix <- data.table::data.table(signal_matrix)
-  }
-
-  signal_tbl <- signal_matrix[, (update_channel_meta_data(.SD, channel_info)),.SDcols=colnames(signal_matrix)]
-
-  signal_tbl[, .id := ids][, .sample_id := sample_ids]
-  data.table::setcolorder(signal_tbl, c(".id", ".sample_id"))
-  data.table::setattr(signal_tbl, "class",c("signal_tbl",class(signal_tbl)))
-  data.table::setkey(signal_tbl, .id, .sample_id)
-  signal_tbl[]
-}
-
-#' @param channels 
-#'
-#' @param channel_info 
+#' @param channels_tbl
 #'
 #' @noRd
-update_channel_meta_data <- function(channels, channel_info) {
-  if (nrow(channel_info) == 0 | is.null(channel_info)) {
+update_channel_meta_data <- function(channels, channels_tbl) {
+  if (nrow(channels_tbl) == 0 || is.null(channels_tbl)) {
     channels <- purrr::map(
       channels,
       function(sig) {
-        channel <- new_channel_dbl(values = sig)
+        .channel <- new_channel_dbl(
+          values = sig,
+          channel_info = list(
+            .x = NA_real_,
+            .y = NA_real_,
+            .z = NA_real_,
+            .reference = NA_real_
+          )
+        )
       }
     )
   } else {
     channels <- purrr::map2(
-      channels %>% stats::setNames(make.names(channel_info$channel)), purrr::transpose(dplyr::select(channel_info, -channel)),
+      channels %>% stats::setNames(make_names(channels_tbl$.channel)),
+      purrr::transpose(dplyr::select(channels_tbl, -.channel)),
       function(sig, chan_info) {
-        channel <- new_channel_dbl(values = sig, as.list(chan_info))
+        .channel <- new_channel_dbl(values = sig, as.list(chan_info))
       }
     )
   }
   channels
 }
 
-# purrr::map2(
-#       channels , purrr::transpose(channel_info),
-#       function(sig, chan_info) {
-#         channel <- new_channel_dbl(value = sig, as.list(chan_info))
-#       }
-# )
-
-#' @param signal_tbl 
-#'
-#' @param events 
-#' @param segments 
+#
+#' @param x
 #'
 #' @noRd
-new_eeg_lst <- function(signal = NULL, events = NULL, segments = NULL) {
-  x <- list(
-    signal = signal, events = events,
-    segments = segments
-  )
-  x <- unclass(x)
-  structure(x,
-    class = c("eeg_lst"),
-    vars = character(0)
-  )
-   
-}
-
-#' @param x 
-#'
-#' @noRd
-validate_eeg_lst <- function(x) {
-    x$signal <- validate_signal_tbl(x$signal)
-    x$events <- validate_events(x$events, channel_names(x))
-    x$segments <- validate_segments(x$segments)
-    if (!all.equal(unique(x$signal$.id), unique(x$segments$.id))) {
-        warning("The values of .ids mismatch between tables.",
-                call. = FALSE
-                )
-    }
-
-    if(any(!group_chr(x) %in% c(colnames(x$signal),colnames(x$segments)))){
-        warning("Grouping variables are missing.",
-                call. = FALSE
-                )
-    }
-
-    x
-}
-#' @param signal_tbl 
-#'
-#' @noRd
-validate_signal_tbl <- function(signal_tbl) {
-    if(is.null(signal_tbl)) {
-        signal_tbl <- data.table::data.table(.id= integer(0),.sample_id= integer(0))
-        data.table::setkey(signal_tbl,.id,.sample_id)
-    }
-    if(!data.table::is.data.table(signal_tbl) && is.data.frame(signal_tbl)) {
-        signal <- data.table::as.data.table(signal_tbl)
-        data.table::setkey(signal_tbl,.id,.sample_id)
-   }     
-  if (!data.table::is.data.table(signal_tbl)) {
-    warning("'signal' be a data.table.",
-      call. = FALSE
-    )
+validate_eeg_lst <- function(x, recursive = TRUE) {
+  if (!is_eeg_lst(x)) {
+    warning("Class is not eeg_lst", call. = FALSE)
   }
 
-  if (!is.integer(signal_tbl$.id)) {
-    warning(".id should be an integer.",
-      call. = FALSE
-    )
+  if (recursive) {
+    x$.signal <- validate_signal_tbl(x$.signal)
+    x$.events <- validate_events_tbl(x$.events)
+    x$.segments <- validate_segments(x$.segments)
   }
-
-
-  if(!identical(data.table::key(signal_tbl), c(".id",".sample_id"))) {
-    warning("`keys` of signal table are missing.",
-      call. = FALSE
-    )
-  }
-
-  # Validates sample_id
-  validate_sample_int(signal_tbl$.sample_id)
-
-  #checks if there are channels
-    if(nrow(signal_tbl)>0){
-      nchannels <- sum(sapply(signal_tbl, is_channel_dbl))
-      ncomponents <- sum(sapply(signal_tbl, is_component_dbl))
-      if(nchannels ==0 & ncomponents ==0  )
-        warning("No channels or components found.")
-  }
-
-  # Validates channels 
-  signal_tbl[, lapply(.SD,validate_channel_dbl), .SDcols= sapply(signal_tbl, is_channel_dbl)] 
-
-  signal_tbl
-}
-#' @param events 
-#'
-#' @param channels 
-#'
-#' @noRd
-validate_events <- function(events, channels) {
-    if(is.null(events)) {
-        events <- data.table::data.table(.id= integer(0),
-                                         .sample_0= integer(0),
-                                         .size= integer(0),
-                                         .channel= integer(0))
-    }
-    if(!data.table::is.data.table(events) && is.data.frame(events)) {
-        events <- data.table::as.data.table(events)
-    }
-
-if (!data.table::is.data.table(events)) {
-    warning("'events' be a data.table.",
-      call. = FALSE
-    )
-  }
-
-  if (!is.integer(events$.sample_0)) {
-    warning("Values of .sample_0 should be integers",
-      call. = FALSE
-    )
-  }
-
-  if (!is.integer(events$.size)) {
-    warning("Values of .size should be integers",
-      call. = FALSE
-    )
-  }
-
-  diff_channels <- setdiff(events$.channel, channels)
+  diff_channels <- setdiff(x$.events$.channel, channel_names(x))
   if (length(diff_channels) != 0 & any(!is.na(diff_channels))) {
     warning("Unknown channel in table of events",
       call. = FALSE
     )
   }
+  if (!all.equal(unique(x$.signal$.id), unique(x$.segments$.id))) {
+    warning("The values of .id mismatch between tables.",
+      call. = FALSE
+    )
+  }
 
-  events
+  if (any(!dplyr::group_vars(x) %in% c(colnames(x$.signal), colnames(x$.segments)))) {
+    warning("Grouping variables are missing.",
+      call. = FALSE
+    )
+  }
+  ## nulls should be caught by the recursive=TRUE
+  if (!is.null(sampling_rate(x$.events)) && !is.null(sampling_rate(x$.signal)) &&
+    sampling_rate(x$.events) != sampling_rate(x$.signal)) {
+    warning("Sampling rates in events and signal table are different",
+      call. = FALSE
+    )
+  }
+  x
 }
-#' @param segments 
+
+#' @param segments
 #'
 #' @noRd
 validate_segments <- function(segments) {
-    if(is.null(segments)) {
-        segments <- dplyr::tibble(.id = integer(0))
-    }
-   if( length(segments$.id) != length(unique(segments$.id)) ){
-     warning("Some .ids are repeated in the segments table, there is something wrong going on. Please open an issue with a reproducible example in https://github.com/bnicenboim/eeguana/issues",
+  if (is.null(segments)) {
+    segments <- dplyr::tibble(.id = integer(0))
+  }
+  if (!is.integer(segments$.id)) {
+    warning("Column .id of segments table is not an integer.")
+  }
+  if (length(segments$.id) != length(unique(segments$.id))) {
+    warning("Some .id are repeated in the segments table, there is something wrong going on. Please open an issue with a reproducible example in https://github.com/bnicenboim/eeguana/issues",
       call. = FALSE
     )
   }
   segments
+}
+
+#' @param values
+#'
+#' @noRd
+new_component_dbl <- function(values) {
+  values <- unclass(values) %>% as.double()
+  attributes(values) <- list(
+    class = "component_dbl"
+  )
+  values
+}
+
+
+
+#' @param component
+#'
+#' @noRd
+validate_component_dbl <- function(component) {
+  if (!is.double(component)) {
+    stop("Values should be double.",
+      call. = FALSE
+    )
+  }
+  component
 }

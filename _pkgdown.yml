@@ -22,9 +22,9 @@ navbar:
     articles:
       text: Articles
       menu:
-      - text: Introduction - Manipulating a clean EEG file exported from BrainVision
+      - text: Introduction - Preprocessing and visualization of EEG data.
           2.0
-        href: articles/brainvision_files.html
+        href: articles/intro.html
       - text: Preprocessing of EEG data and computing ERPs (Fieldtrip tutorial)
         href: articles/preprocessing_erp.html
     news:
@@ -42,49 +42,40 @@ reference:
     - '`eeguana`'
   - title: "Reading functions"
     desc: >
-      Functions for reading external files (BrainVision and mat
-      files from Fieldtrip) and return an `eeg_lst`. (Upcoming: eeglab and edf files).
+      Functions for reading external files and return an `eeg_lst`.
     contents: 
     - starts_with("read")
-  - title: "Tidyverse 'dplyr'(-like) functions and extensions"
+  - title: "Dplyr verbs (and extensions)"
     desc: >
       Functions that overload some `dplyr` functions and always return an `eeg_lst`. 
     contents: 
-    - '`dplyr-eeguana`'
-    - '`join-eeguana`'
+    - '`dplyr_verbs`'
     - '`bind`'
-    - '`summarize_ch`'
   - title: "Specialized summarizing functions"
     desc: >
-      Functions that apply a series of `dplyr` functions to return useful summaries.
+      Functions that return useful summaries.
     contents: 
-     - '`summary`'
+     - has_concept("summary functions")
      - '`count_complete_cases_tbl`'
-
-  - title: "Channel functions"
-    desc: >
-      Functions that act on the channels of the signal table. They have a default version that acts on all the channels, and can be used inside a `mutate` call for more control.
-    contents: 
-    - starts_with("ch_")
-    - starts_with("chs_")
-
+     - '`eeg_ica_cor_lst`'
   - title: "EEG-specialized functions"
     desc: >
-      Functions for applying specialized actions on signal 
-      table or the entire `eeg_lst`. 
-    contents: 
-    - eeg_downsample
-    - eeg_segment
-    - eeg_interpolate_tbl
-    - eeg_intervals_to_NA
-
+      Functions for applying specialized actions on the signal 
+      table, channel, or the entire `eeg_lst`. 
+    contents:
+    - has_concept("events functions")
+    - has_concept("artifact detection functions")
+    - starts_with("eeg_ica")
+    - has_concept("preprocessing functions")
+    - has_concept("channel functions")
   - title: "Plot functions"
     desc: >
       Wrappers to `ggplot` functions that first transform the `eeg_lst` to a wide `tibble`, together with some transformation (downsampling, interpolation, etc).
     contents: 
+    - '`ggplot.eeg_lst`'
     - starts_with("plot")
     - starts_with("annotate")
-
+    - starts_with("theme")
   - title: "'base'-inspired functions"
     desc: >
       Functions for getting specific information about the objects that compose an `eeg_lst`.
@@ -93,25 +84,38 @@ reference:
     - starts_with("as.")
     - starts_with("is_")
     - starts_with("n")
-
   - title: "Editing functions"
     desc: >
-      Functions for editing `eeg_lst` objects.
+      Functions for showing (and sometimes editing) `eeg_lst` objects parts.
     contents: 
-    - '`events`'
+    - '`signal_tbl`'
+    - '`events_tbl`'
+    - '`segments_tbl`'
     - '`channels_tbl`'
-
   - title: "Constructor functions"
     desc: >
-      Internal functions for creating objects.
+      Functions for creating objects.
     contents: 
     - '`eeg_lst`'
     - '`sample_int`'
     - '`channel_dbl`'
-    - '`signal_tbl`'
-    
+    - '`component_dbl`'
   - title: "Others"
     desc: >
       Some other useful functions.
     contents:
+    - '`eeg_interpolate_tbl`'
     - '`change_coord`'
+    - '`rpink`'
+    -  has_concept("ica methods")
+    - '`between`'
+  - title: "Example data sets"
+    desc: >
+      Example data sets in eeg_lst format.
+    contents: 
+    - starts_with("data_")
+  - title: "Layouts"
+    desc: >
+      Layout of caps 
+    contents: 
+    - starts_with("layout_")

@@ -2,84 +2,70 @@
 % Please edit documentation in R/filters.R
 \name{filt}
 \alias{filt}
-\alias{ch_filt_low_pass}
-\alias{ch_filt_high_pass}
-\alias{ch_filt_band_pass}
-\alias{ch_filt_stop_pass}
-\alias{ch_filt_high_pass.channel_dbl}
-\alias{ch_filt_band_pass.channel_dbl}
-\alias{ch_filt_stop_pass.channel_dbl}
-\alias{ch_filt_low_pass.eeg_lst}
-\alias{ch_filt_high_pass.eeg_lst}
-\alias{ch_filt_stop_pass.eeg_lst}
-\alias{ch_filt_band_pass.eeg_lst}
-\title{Apply a Butterworth IIR filter.}
+\alias{eeg_filt_low_pass}
+\alias{eeg_filt_high_pass}
+\alias{eeg_filt_band_pass}
+\alias{eeg_filt_band_stop}
+\title{Apply a zero-phase low-pass, high-pass, band-pass, or band-stop FIR filter.}
 \usage{
-ch_filt_low_pass(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
+eeg_filt_low_pass(.data, ..., freq = NULL, config = list(),
+  na.rm = FALSE)
 
-ch_filt_high_pass(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
+eeg_filt_high_pass(.data, ..., freq = NULL, config = list(),
+  na.rm = FALSE)
 
-ch_filt_band_pass(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
+eeg_filt_band_pass(.data, ..., freq = NULL, config = list(),
+  na.rm = FALSE)
 
-ch_filt_stop_pass(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
-
-\method{ch_filt_high_pass}{channel_dbl}(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
-
-\method{ch_filt_band_pass}{channel_dbl}(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
-
-\method{ch_filt_stop_pass}{channel_dbl}(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
-
-\method{ch_filt_low_pass}{eeg_lst}(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
-
-\method{ch_filt_high_pass}{eeg_lst}(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
-
-\method{ch_filt_high_pass}{eeg_lst}(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
-
-\method{ch_filt_stop_pass}{eeg_lst}(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
-
-\method{ch_filt_band_pass}{eeg_lst}(x, band_edge = NULL, order = 6,
-  direction = "twopass", ...)
+eeg_filt_band_stop(.data, ..., freq = NULL, config = list(),
+  na.rm = FALSE)
 }
 \arguments{
-\item{x}{A channel or an eeg_lst.}
+\item{.data}{A channel or an eeg_lst.}
 
-\item{band_edge}{A single cut frequency for \code{filt_low_pass_ch} and \code{filt_high_pass_ch}, two edges for  \code{filt_band_pass_ch} and \code{filt_stop_pass_ch}.}
+\item{...}{Channels to apply the filters to. All the channels by default.}
 
-\item{order}{Filter order (default is 6).}
+\item{freq}{A single cut frequency for \code{eeg_filt_low_pass} and \code{eeg_filt_high_pass}, two edges for
+\code{eeg_filt_band_pass} and \code{eeg_filt_band_stop}.}
 
-\item{direction}{"twopass" (default) filters the signal twice (once forwards, then again backwards).}
+\item{config}{Other parameters passed in a list to the ICA method. (Not implemented)}
 
-\item{...}{The sample rate can be included as \code{sampling_rate}, when the function is called outside mutate/summarize.}
+\item{na.rm}{=TRUE will set to NA the entire segment that contains an NA, otherwise the filter will stop with an error.}
 }
 \value{
 A channel or an eeg_lst.
 }
 \description{
-Apply a Butterworth IIR filter using \code{signal::filt_filt}. Based on
-Matt Craddock's code of \code{eegUtils} \email{matt@mattcraddock.com}.
+Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter of the  FIR (finite impulse response) class to every segment of an \code{eeg_lst}. These filters are adapted from the default filters in \href{https://mne-tools.github.io}{MNE package} (v 0.0.17.1)  of \href{https://www.python.org/}{python}. For background information about the FIR vs IIR filters, see \href{https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py}{here}.
 }
 \details{
 \itemize{
-\item \code{filt_low_pass_ch()} Low-pass or high-cut filter.
-\item \code{filt_high_pass_ch()} High-pass or low-cut filter.
-\item \code{filt_band_pass_ch()} Band-pass filter.
-\item \code{filt_stop_pass_ch()} Stop-pass filter.
+\item \code{eeg_filt_low_pass()} Low-pass or high-cut filter.
+\item \code{eeg_filt_high_pass()} High-pass or low-cut filter.
+\item \code{eeg_filt_band_pass()} Band-pass filter.
+\item \code{eeg_filt_band_stop()} Band-stop filter.
 }
 }
 \examples{
-\dontrun{
-
-faces_segs \%>\% filt_low_pass_ch(band_edge = 100, order = 4)
+library(dplyr)
+library(ggplot2)
+data("data_faces_ERPs")
+data_ERPs_filtered <- data_faces_ERPs \%>\%
+  eeg_filt_low_pass(freq = 1)
+# Compare the ERPs
+data_faces_ERPs \%>\%
+  select(O1, O2, P7, P8) \%>\%
+  plot() +
+  facet_wrap(~.key)
+data_ERPs_filtered \%>\%
+  select(O1, O2, P7, P8) \%>\%
+  plot() +
+  facet_wrap(~.key)
 }
+\seealso{
+Other preprocessing functions: \code{\link{eeg_baseline}},
+  \code{\link{eeg_downsample}}, \code{\link{eeg_ica_keep}},
+  \code{\link{eeg_ica}}, \code{\link{eeg_rereference}},
+  \code{\link{eeg_segment}}
 }
+\concept{preprocessing functions}
