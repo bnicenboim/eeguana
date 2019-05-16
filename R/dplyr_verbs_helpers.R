@@ -157,7 +157,10 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
     # add grouped vars if missing
     groups <- dplyr::group_vars(.eeg_lst)[dplyr::group_vars(.eeg_lst) %in% colnames(.eeg_lst[[dfs]])]
     missing_grouped_vars <- setdiff(groups, vars_dfs) %>%
-      stats::setNames(., .)
+        stats::setNames(., .)
+    if(length(missing_grouped_vars)>0) {
+        message("Adding missing grouping variables: ", paste0(missing_grouped_vars, collapse = ", "))
+    }
     vars_dfs <- c(missing_grouped_vars, vars_dfs)
 
     # by adding these, select won't remove the obligatory columns

@@ -92,11 +92,10 @@ summarize_eval_signal <- function(.eeg_lst, dots) {
   )
 
   old_attributes <- stats::setNames(old_attributes, add_names)
-
   env <- lapply(dots, rlang::quo_get_env) %>% unique()
   if (length(env) != 1) stop("Need to fix env", env)
-
- extended_signal <- extended_signal[, eval(parse(text = dots_txt), envir = env), keyby = c(by)]
+  print(dots_txt)
+ extended_signal <- extended_signal[, eval(parse(text = dots_txt), envir = rlang::caller_env()), keyby = c(by)]
   added_cols <- paste0("V", seq_len(length(dots)))
   data.table::setnames(extended_signal, added_cols, add_names)
  

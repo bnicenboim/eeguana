@@ -71,22 +71,6 @@ summarize_all2_eeg <- dplyr::summarize_at(data, channel_names(data), "mean")
 ##TODO : syntax with ~ was working until 0.8.0
 summarize_all3_eeg <- dplyr::summarize_at(data, channel_names(data), rlang::as_function(~ mean(.)))
 
-## dots <- at(data, channel_names(data),
-## dots <- at(data, channel_names(data), list(~mean(.[condition == "a"] -
-##      .[condition == "b"])))
-## class(dots[[1]])
-
-## at <- function(.tbl, .vars, .funs, ..., .cols = NULL) 
-## {
-##     .vars <- dplyr:::check_dot_cols(.vars, .cols)
-##     dplyr:::manip_at(.tbl, .vars, .funs, enquo(.funs), rlang::caller_env(), 
-##                      ...)
-## }
-## dots[[1]]
-
-## rlang::as_function(~mean(.[condition == "a"] - .[condition == "b"]))(100)
-
-
 summarize2_tbl <- data %>%
   dplyr::as_tibble() %>%
   dplyr::group_by(.key) %>%
