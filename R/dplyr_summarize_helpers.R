@@ -64,47 +64,37 @@ same_grouping <-  function(x,y) {
 }
 
 summarize_eval_signal <- function(.eeg_lst, dots) {
+   # https://community.rstudio.com/t/clarifying-question-when-is-manual-data-mask-needed-in-rlang-eval-tidy/11186
+  # https://stackoverflow.com/questions/14837902/how-to-write-a-function-that-calls-a-function-that-calls-data-table
+  # https://stackoverflow.com/questions/15790743/data-table-meta-programming
   cond_cols <- names_other_col(.eeg_lst, dots, ".segments")
   extended_signal <- extended_signal(.eeg_lst, cond_cols)
   by <- dplyr::group_vars(.eeg_lst)
-
-  # https://community.rstudio.com/t/clarifying-question-when-is-manual-data-mask-needed-in-rlang-eval-tidy/11186
-  # left joins then evaluates the summary by groups:
-  # The following is very slow when grouping by ".sample"    "segment"
-  # col_expr <- rlang::get_expr(.dots)
-  # extended_signal <- rlang::quo(.eeg_lst$.signal[segments, ..all_cols][
-  #                 ,.(!!!col_expr), by = c(by)]) %>%
-  #   rlang::eval_tidy(data = .eeg_lst$.signal)
-  # .dots_expr <- rlang::get_expr(.dots)
-  # https://stackoverflow.com/questions/14837902/how-to-write-a-function-that-calls-a-function-that-calls-data-table
-  # https://stackoverflow.com/questions/15790743/data-table-meta-programming
-#TODO: check if I can use quos with the eval_tidy inside, and it's not that slow...
-  dots_txt <- purrr::map(dots, rlang::quo_text) %>%
-    paste(collapse = ", ") %>%
-    {
-      paste(".(", ., ")")
-    }
+  dots <- rlang::quos_auto_name(dots)
   add_names <- rlang::quos_auto_name(dots) %>% names()
-
   old_attributes <- purrr::map(
     add_names %>% stringr::str_split("_"),
     ~ attributes(.eeg_lst$.signal[[.x[[1]]]])
   )
-
   old_attributes <- stats::setNames(old_attributes, add_names)
-  env <- lapply(dots, rlang::quo_get_env) %>% unique()
-  if (length(env) != 1) stop("Need to fix env", env)
-  print(dots_txt)
- extended_signal <- extended_signal[, eval(parse(text = dots_txt), envir = rlang::caller_env()), keyby = c(by)]
-  added_cols <- paste0("V", seq_len(length(dots)))
-  data.table::setnames(extended_signal, added_cols, add_names)
+  extended_signal <-extended_signal[, lapply(dots, rlang::eval_tidy, 
+                                             data= rlang::as_data_mask(.SD)), keyby = c(by)]
  
-#   # extended_signal <- 
+ 
+     
+     
 # microbenchmark::microbenchmark(
-#   rlang::eval_tidy(rlang::quo(extended_signal[, .(!!!dots), keyby = c(by)]), data=extended_signal), #this is slow
-#   extended_signal[, eval(parse(text = dots_txt), envir = env), keyby = c(by)]
+#  {dots_txt <- purrr::map(dots2, rlang::quo_text) %>%
+#     paste(collapse = ", ") %>%
+#     {
+#       paste(".(", ., ")")
+#     }
+#   env <- lapply(dots2, rlang::quo_get_env) %>% unique()
+#  extended_signal[, eval(parse(text = dots_txt), envir = env), keyby = c(by)]},
+#  # extended_signal[, .(eval(rlang::get_expr(dots)), envir = env), keyby = c(by)],
+#   rlang::eval_tidy(rlang::quo(extended_signal[, .(!!!dots), keyby = c(by)]), data= extended_signal)
 # )
-#   # 
+
  
      #add class to the columns that lost their class
   extended_signal[, (add_names) := purrr::map2(.SD, old_attributes, ~

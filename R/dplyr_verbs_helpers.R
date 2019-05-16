@@ -220,16 +220,22 @@ names_other_col <- function(.eeg_lst, dots, tbl = NULL) {
   } else {
     cols <- setdiff(colnames(.eeg_lst[[tbl]]), ".id") # removes .id
   }
-  names_o <- c()
-  for (n in seq_len(length(dots))) {
-    # get the AST of each call and unlist it
-    names_o <- c(names_o, getAST(dots[[n]]) %>%
-      unlist(.) %>%
-      # make it a vector of strings
-      purrr::map_chr(~ rlang::quo_text(.x)) %>%
-      dplyr::intersect(cols))
-  }
-  unique(names_o)
+  # names_o <- c()
+ 
+  #col name, checking that before or after there is no part of a word \\w or .
+  cols_regex <- paste0("(?<![\\w.])", cols, "(?![\\w.])")
+  names_o <- lapply(dots, function(dot){
+    stringr::str_extract(rlang::quo_text(dot),cols_regex )
+  }) %>% unlist() %>% unique()
+   #for (n in seq_len(length(dots))) {
+  #   # get the AST of each call and unlist it
+  #   names_o <- c(names_o, getAST(dots[[n]]) %>%
+  #     unlist(.) %>%
+  #     # make it a vector of strings
+  #     purrr::map_chr(~ rlang::quo_text(.x)) %>%
+  #     dplyr::intersect(cols))
+  # }
+  names_o[!is.na(names_o)]
 }
 
 
