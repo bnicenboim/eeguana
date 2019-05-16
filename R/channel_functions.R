@@ -31,9 +31,9 @@ chs_mean.channel_dbl <- function(..., na.rm = FALSE) {
   dt_chs <- data.table::data.table(...)
   rowMeans_ch(dt_chs, na.rm = na.rm)
 }
-#' @export
 chs_mean.character <- function(..., na.rm = FALSE) {
   dt_chs <- data.table::as.data.table(mget(..., envir = rlang::caller_env()))
+  print(dt_chs)
   rowMeans_ch(dt_chs, na.rm = na.rm)
 }
 #' @export

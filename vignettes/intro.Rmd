@@ -334,7 +334,7 @@ faces_seg_t <-
   faces_seg %>%
   select(O1, O2, P7, P8) %>%
   group_by(.sample) %>%
-  summarize_at(channel_names(.), funs(t =  t.test(
+  summarize_at(channel_names(.), list(t =  ~t.test(
     .[condition == "faces"],
     .[condition == "non-faces"]
   )$statistic))

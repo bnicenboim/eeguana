@@ -76,6 +76,7 @@ filter_dt <- function(.data, ..., group_by_ = character(0)) {
   ## TODO: check why this happens: for some reason if I don't do that, I modify the index of .data
   ## .data <- data.table::copy(.data)
   ## .data[eval(parse(text = cnds), envir =envs[[1]]),]
+  ## TODO eval_tidy
   .data[.data[, .I[eval(parse(text = cnds), envir = env)], by = c(group_by_)]$V1]
 }
 #' binds cols of dt and adds the class of the first object

@@ -80,7 +80,7 @@ adapt_fast_ICA <-
     name <- fICA::gnames
     # garbage collection before calling the function:
     #TODO: may need to clean this up later
-    if("full" %in% formalArgs(gc)){
+    if("full" %in% methods::formalArgs(gc)){
       gc(full = TRUE)
     } else {
       #older version of R

@@ -219,8 +219,8 @@ test_that("selecting in segments table doesn't change data", {
   expect_equal(select11_eeg$.signal, data$.signal)
   # in segments table
   expect_equal(select9_eeg$.segments, data$.segments[c(".id", ".recording")])
-  expect_equal(select10_eeg$.segments, data$.segments[c(".id", "segment")])
-  expect_equal(select11_eeg$.segments, data$.segments[c(".id", "condition")])
+  expect_equal(select10_eeg$.segments, data$.segments[c(".id", ".recording","segment")])
+  expect_equal(select11_eeg$.segments, data$.segments[c(".id", ".recording","condition")])
   # in events table
   expect_equal(select9_eeg$.events, data$.events)
   expect_equal(select10_eeg$.events, data$.events)
