@@ -33,6 +33,7 @@ Imports:
     scales (>= 1.0.0),
     fICA (>= 1.1),
     JADE (>= 2.0.1),
+    methods,
     MASS,
     RcppRoll (>= 0.3.0),
     ellipsis (>= 0.1.0),
