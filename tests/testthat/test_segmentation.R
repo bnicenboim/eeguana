@@ -91,8 +91,36 @@ test_that("can segment using lim", {
 test_that("can segment using end", {
   # TODO:  I should add an expect_equal
   data_s_e <- eeg_segment(data, .type == "New Segment", end = .type == "Time 0")
-})
+  data_s_e_c <- eeg_segment(data, .type == "New Segment",lim = c(0,5), unit="sample")
+  expect_equal(data_s_e,data_s_e_c)
+  
+  data_unm0 <- data
+  events_tbl(data_unm0) <- events_tbl(data_unm0) %>% dplyr::slice(-1)
+  expect_warning(eeg_segment(data_unm0, .type == "New Segment", end = .type == "Time 0"))
+  data_unm0 <- suppressWarnings(eeg_segment(data_unm0, .type == "New Segment", end = .type == "Time 0"))
 
+  data_unm0_2 <- data
+  events_tbl(data_unm0_2) <- events_tbl(data_unm0_2) %>% dplyr::slice(-5)
+  expect_warning(eeg_segment(data_unm0_2, .type == "New Segment", end = .type == "Time 0"))
+  data_unm0_2 <- suppressWarnings(eeg_segment(data_unm0_2, .type == "New Segment", end = .type == "Time 0"))
+  
+  data_unme <- data
+  events_tbl(data_unme) <- events_tbl(data_unme) %>% dplyr::slice(-3)
+  expect_warning(eeg_segment(data_unme, .type == "New Segment", end = .type == "Time 0"))
+  data_unme <- suppressWarnings(eeg_segment(data_unme, .type == "New Segment", end = .type == "Time 0"))  
+ 
+  data_unme_2 <- data
+  events_tbl(data_unme_2) <- events_tbl(data_unme_2) %>% dplyr::slice(-6)
+  expect_warning(eeg_segment(data_unme_2, .type == "New Segment", end = .type == "Time 0"))
+  data_unme_2 <- suppressWarnings(eeg_segment(data_unme_2, .type == "New Segment", end = .type == "Time 0"))  
+  
+  data_unm <- data
+  events_tbl(data_unm) <- events_tbl(data_unm) %>% dplyr::slice(-1,-6)
+  expect_warning(eeg_segment(data_unm, .type == "New Segment", end = .type == "Time 0"))
+  data_unm <- suppressWarnings(eeg_segment(data_unm, .type == "New Segment", end = .type == "Time 0"))  
+  
+  })
+warning("unmatched endings need to be better tested")
 
 
 

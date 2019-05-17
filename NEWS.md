@@ -1,3 +1,9 @@
+# eeguana 0.1.1.9000
+  - Changes:
+        `eeg_segment()` accepts unpaired events when `end` argument is used.
+  - Bugs:
+      - `events_tbl<-()` keep attributes
+      
 # eeguana 0.1.0.9000
   - Changes
       - New vignette that introduces the package [here](https://bnicenboim.github.io/eeguana/articles/intro.html).
