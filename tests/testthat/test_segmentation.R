@@ -121,6 +121,7 @@ test_that("can segment using end", {
   
   })
 warning("unmatched endings need to be better tested")
+warning("duplicated triggers should be tested")
 
 
 

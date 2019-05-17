@@ -1,6 +1,6 @@
 # eeguana 0.1.1.9000
   - Changes:
-        `eeg_segment()` accepts unpaired events when `end` argument is used.
+        `eeg_segment()` accepts unpaired events when `end` argument is used, and should be able to deal with duplicated triggers.
   - Bugs:
       - `events_tbl<-()` keep attributes
       
