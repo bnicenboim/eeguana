@@ -57,6 +57,20 @@ detect_minmax <- function(x, args = list(window = NULL, threshold = NULL)) {
   rmax[rmax == -Inf] <- NA
   abs(rmin - rmax) >= args$threshold
 }
+
+
+#' @noRd
+detect_peak <- function(x, args = list(window = NULL, threshold = NULL)){
+    ##TODO better version of findpeaks
+  peaks <-  pracma::findpeaks(c(x), minpeakheight = args$threshold,
+                                minpeakdistance = args$window,
+                                        ##setting threshold for avoiding flat peaks
+                                threshold = .0001)[,2]
+    x <- rep(FALSE, length(x))
+    x[peaks] <- TRUE
+    x
+ }
+
 #' @noRd
 detect_step <- function(x, args = list(window = NULL, threshold = NULL)) {
   means <- RcppRoll::roll_meanr(x, n = args$window / 2, na.rm = FALSE) # na.rm  allows for comparing vectors that include some NA

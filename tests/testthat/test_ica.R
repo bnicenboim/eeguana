@@ -72,7 +72,10 @@ data_more <- eeg_lst(
 data_blinks_more_NA <- data_blinks_more
 data_blinks_more_NA$.signal[1, ]$Fz <- NA_real_
 data_blinks_more_NA$.signal[5, ]$Cz <- NA_real_
-plot(data)
+
+# plot(data_blinks)
+# xx <- eeg_artif_peak(data_blinks,threshold = .3)
+# plot(xx) +annotate_events()
 
 data_ica_default <- eeg_ica(data_blinks, method = fast_ICA)
 data_rec_default <- data_ica_default %>% eeg_ica_keep(ICA1, ICA2, ICA3)

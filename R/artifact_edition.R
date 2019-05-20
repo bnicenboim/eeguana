@@ -118,6 +118,34 @@ eeg_artif_amplitude.eeg_lst <- function(.data, ...,
   )
 }
 
+#' @rdname eeg_artif
+#' @export
+eeg_artif_peak <- function(.data, ...,
+                           threshold = 30,
+                           window = .2,
+                           lim = c(-window, window),
+                           unit = "s") {
+    UseMethod("eeg_artif_peak")
+}
+#' @export
+eeg_artif_peak.eeg_lst <- function(.data, ...,
+                                   threshold = 30,
+                                   window = .2,
+                                   lim = c(-window, window),
+                                   unit = "s") {
+    if (!is.numeric(window) || window < 0) {
+        stop("`window` should be a positive number.", call. = FALSE)
+    }
+    eeg_artif_custom(.data, ...,
+                     fun = detect_peak,
+                     threshold = threshold,
+                     lim = lim,
+                     window = window,
+                     unit = unit
+                     )
+}
+
+
 #' Remove (transform to NA) problematic events from the signal table of an eeg_lst.
 #'
 #' @param x An `eeg_lst` object.
