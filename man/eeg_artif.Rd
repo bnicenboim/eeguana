@@ -5,6 +5,7 @@
 \alias{eeg_artif_minmax}
 \alias{eeg_artif_step}
 \alias{eeg_artif_amplitude}
+\alias{eeg_artif_peak}
 \title{Detect artifacts and add them in the events table of an eeg_lst.}
 \usage{
 eeg_artif_minmax(.data, ..., threshold = 100, window = 0.2,
@@ -15,6 +16,9 @@ eeg_artif_step(.data, ..., threshold = 50, window = 0.2,
 
 eeg_artif_amplitude(.data, ..., threshold = c(-200, 200), lim = c(-0.2,
   0.2), unit = "s")
+
+eeg_artif_peak(.data, ..., threshold = 30, window = 0.2,
+  lim = c(-window, window), unit = "s")
 }
 \arguments{
 \item{.data}{An \code{eeg_lst} object.}
