@@ -7,7 +7,8 @@
 \usage{
 plot_components(data, ...)
 
-\method{plot_components}{eeg_ica_lst}(data, projection = "polar", ...)
+\method{plot_components}{eeg_ica_lst}(data, projection = "polar",
+  standardize = TRUE, ...)
 }
 \arguments{
 \item{data}{An eeg_ica_lst}

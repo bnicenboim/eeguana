@@ -128,21 +128,23 @@ plot_topo <- function(data, ...) {
 plot_topo.tbl_df <- function(data, value = .value, label = .key, ...) {
   value <- rlang::enquo(value)
   label <- rlang::enquo(label)
-
+  data <- data %>%  dplyr::ungroup()
   # Labels positions mess up with geom_raster, they need to be excluded
   # and then add the labels to the data that was interpolated
   d <- dplyr::filter(data, !is.na(.x), !is.na(.y), is.na(!!label)) %>%
     dplyr::select(-!!label)
   label_pos <- dplyr::filter(data, !is.na(.x), !is.na(.y), !is.na(!!label)) %>%
     dplyr::distinct(.x, .y, !!label)
-  label_corrected_pos <- purrr::map_df(label_pos %>% dplyr::select(.x, .y, !!label) %>% purrr::transpose(), function(l) {
+  label_corrected_pos <- purrr::map_df(label_pos %>% 
+                                         dplyr::select(.x, .y, !!label) %>%
+                                         purrr::transpose(), function(l) {
     d %>%
       dplyr::select(-!!value) %>%
       dplyr::filter((.x - l$.x)^2 + (.y - l$.y)^2 == min((.x - l$.x)^2 + (.y - l$.y)^2)) %>%
       # does the original grouping so that I add a label to each group
       dplyr::group_by_at(dplyr::vars(colnames(.)[!colnames(.) %in% c(".x", ".y")])) %>%
       dplyr::slice(1) %>%
-      dplyr::mutate(!!label := l[[3]])
+      dplyr::mutate(!!label := l[[".key"]])
   })
   d <- suppressMessages(dplyr::left_join(d, label_corrected_pos))
 
@@ -190,7 +192,7 @@ plot_components <- function(data, ...) {
 #' @inheritParams plot_topo
 #' @rdname plot_components
 #' @export
-plot_components.eeg_ica_lst <- function(data, projection = "polar", ...) {
+plot_components.eeg_ica_lst <- function(data, projection = "polar",standardize= TRUE, ...) {
   channels_tbl(data) <- change_coord(channels_tbl(data), projection)
   ## TODO: move to data.table, ignore group, just do it by .recording
   long_table <- map_dtr(data$ica, ~ data.table::as.data.table(.x$mixing_matrix) %>%
@@ -207,9 +209,12 @@ plot_components.eeg_ica_lst <- function(data, projection = "polar", ...) {
 
   long_table <- left_join_dt(long_table, data.table::as.data.table(channels_tbl(data)), by = c(".key" = ".channel")) %>%
     dplyr::group_by(.recording, .ICA)
-
-  long_table %>%
+  
+long_table %>%
     eeg_interpolate_tbl(...) %>%
+    dplyr::group_by(.recording, .ICA) %>%
+    dplyr::mutate(.value = c(scale(.value, center = standardize, scale = standardize))) %>% 
+    dplyr::ungroup() %>%
     plot_topo() +
     ggplot2::facet_wrap(~.recording + .ICA) +
     annotate_head() +

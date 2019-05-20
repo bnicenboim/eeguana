@@ -32,7 +32,7 @@ Here, I exemplify the use of *eeguana* with EEG data from BrainVision 1.0. The d
 
 First we download the data:
 
-```{r downloading, eval = any(!file.exists("s1_faces.vhdr","s1_faces.vmrk","s1_faces.eeg")), cache=TRUE}
+```{r downloading, eval=FALSE, cache=TRUE, include=FALSE}
 download.file("http://www.ling.uni-potsdam.de/~nicenboim/files/s1_faces.vhdr",
   mode = "wb", destfile = "./s1_faces.vhdr"
 )
@@ -137,7 +137,7 @@ Now we can run ICA, removing the EOG and reference electrodes, and ignoring the 
 faces_ica <- faces_ls %>%
   eeg_ica(-HEOG, -VEOG, -M1, -M2, method = adapt_fast_ICA, ignore = .type == "artifact")
 ```
-
+  
 We can now check the different topographic plots of the ICAs with `plot_components()`, and their correlation with the EOG channels looking a the summary of the object.
 
 ```{r, fig.dim = c(10,15), out.width = "100%"}
