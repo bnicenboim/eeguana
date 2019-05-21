@@ -203,14 +203,16 @@ plot_components <- function(data, ...) {
 #' @inheritParams plot_topo
 #' @rdname plot_components
 #' @export
-plot_components.eeg_ica_lst <- function(data, projection = "polar",standardize= TRUE, ...) {
+plot_components.eeg_ica_lst <- function(data,...,projection = "polar",standardize= TRUE) {
+  comp_sel <- sel_comp(data,...)
   channels_tbl(data) <- change_coord(channels_tbl(data), projection)
   ## TODO: move to data.table, ignore group, just do it by .recording
-  long_table <- map_dtr(data$ica, ~ data.table::as.data.table(.x$mixing_matrix) %>%
-    .[, .ICA := {
-      .ICA <- paste0("ICA", seq_len(.N))
-      factor(.ICA, levels = .ICA)
-    }], .id = ".recording") %>%
+  long_table <- map_dtr(data$ica, ~ {
+    dt <- .x$mixing_matrix[comp_sel,, drop=FALSE] %>%
+      data.table::as.data.table(keep.rownames = TRUE) 
+    dt[, .ICA := factor(rn, levels = rn)][ , rn := NULL][]
+  },
+  .id = ".recording") %>%
     data.table::melt(
       variable.name = ".key",
       id.vars = c(".ICA", ".recording"),
@@ -222,7 +224,7 @@ plot_components.eeg_ica_lst <- function(data, projection = "polar",standardize= 
     dplyr::group_by(.recording, .ICA)
   
 long_table %>%
-    eeg_interpolate_tbl(...) %>%
+    eeg_interpolate_tbl() %>%
     dplyr::group_by(.recording, .ICA) %>%
     dplyr::mutate(.value = c(scale(.value, center = standardize, scale = standardize))) %>% 
     dplyr::ungroup() %>%
