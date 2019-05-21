@@ -168,8 +168,8 @@ eeg_ica_cor_lst.eeg_ica_lst <- function(.data, ...) {
   }
   names(eogs) <- eogs
   comps <- .data  %>% 
-    eeg_ica_show(component_names(comps)) %>% 
-    dplyr::select(eogs, component_names(comps))
+    eeg_ica_show(component_names(.data)) %>% 
+    dplyr::select(eogs, component_names(.data))
   signal <- extended_signal(comps, ".recording")
   
   # new cols:
