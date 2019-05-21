@@ -185,12 +185,16 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
       # removes the old channels that do not exist anymore 
       ## (needed for e.g., select(ZZ=X))
       ##
-       old_channels[!old_channels %in% new_channels] <- NA
+      rem_pos <- which(!is.na(old_channels) & !old_channels %in% unname(new_channels))
+      old_channels[!old_channels %in% new_channels] <- NA
      ## old_channels <- old_channels[old_channels %in% new_channels]
       
       events_tbl(.eeg_lst)$.channel <- old_channels %>%
         factor(labels = names(new_channels)) %>%
         as.character()
+      if(length(rem_pos)>0){
+        events_tbl(.eeg_lst) <- events_tbl(.eeg_lst)[-rem_pos]
+        }
     }
   }
 
