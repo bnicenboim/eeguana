@@ -71,19 +71,23 @@ eeg_ica.eeg_lst <- function(.data,
 
   ## creates a DT with length length(signal_tbl) where the grouping var is repeated,
   ## This is used to split the signal_tbl, in case that there are many recordings together
+  total <- nrow(signal_raw)
   signal_raw <- signal_raw[stats::complete.cases(signal_raw), ][
     data.table::as.data.table(.data$.segments)
     [, .(.id, .recording)],
     on = ".id",
     nomatch = 0
   ][, .id := NULL][]
-  
+  used <- nrow(signal_raw)
+ 
   #TODO maybe it can be done inside data.table?
   signal_raw <- split(signal_raw, by = ".recording", keep.by = FALSE)
 
   method_label <- rlang::as_label(method)
   message(paste0("# ICA is being done using ", method_label, "..."))
-
+ if(total > used){
+    message("# ",round(used/total,2)*100, "% of the samples will be used.")
+  }
   data_out <- function(x) {
     out <- list()
     if (!is.null(x$A)) {

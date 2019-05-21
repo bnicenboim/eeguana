@@ -36,9 +36,8 @@
 #' @export
 plot.eeg_lst <- function(x, max_sample = 6400, ...) {
   ellipsis::check_dots_unnamed()
-  #pick the first channel:
-  ch <- channel_names(x)[[1]]
-  breaks <- x$.signal[[ch]]  %>% quantile(probs = c(.2,.8), na.rm=TRUE) %>% 
+  #pick the last channel as reference
+   breaks <- x$.signal[[ncol(x$.signal)]]  %>% quantile(probs = c(.2,.8), na.rm=TRUE) %>% 
     signif(2) %>% c(0)
   names(breaks) <- breaks
   lims <-  (breaks * 1.5) %>% 
@@ -55,7 +54,7 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
     ggplot2::scale_y_continuous("Amplitude", 
                                 breaks = breaks,
                                 ) +
-    coord_cartesian(ylim = lims, clip = FALSE, expand = FALSE) +
+    ggplot2::coord_cartesian(ylim = lims, clip = FALSE, expand = FALSE) +
     theme_eeguana()
   plot
 }

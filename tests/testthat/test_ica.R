@@ -180,3 +180,27 @@ test_that("other functions work correctly in the eeg_ica_lst", {
   expect_equal(class(as_eeg_lst(data_ica_default)), "eeg_lst")
 })
 
+
+signal_blinks2 <- dplyr::tibble(
+  Fz = blink * 10  + noise/100,
+  Cz = blink * 1  + noise/100,
+  Pz = blink * .1 + noise/100
+) %>%
+  dplyr::mutate_all(channel_dbl)
+
+
+
+data_blinks2 <- eeg_lst(
+  signal_tbl = signal_blinks2 %>%
+    dplyr::mutate(
+      .id = 1L,
+      .sample = sample_int(seq_len(N), sampling_rate = 500)
+    ),
+  segments_tbl = dplyr::tibble(.id = 1L, .recording = "recording1", segment = 1L)
+)
+# 
+# data_blinks2 <- data_blinks2 %>% eeg_artif_peak(threshold = 1)
+# plot(data_blinks2) + coord_cartesian(ylim=c(-2,2)) + annotate_events()
+# data_ica_default2 <- eeg_ica(data_blinks2, method = adapt_fast_ICA)
+# 
+
