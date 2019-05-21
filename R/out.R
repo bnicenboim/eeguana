@@ -141,8 +141,6 @@ summary.eeg_lst <- function(object, ...) {
 #' @export
 summary.eeg_ica_lst <- function(object, ...) {
   summ <- NextMethod()
-  summ$ica_cor <- eeg_ica_cor_lst(object)
-
   class(summ) <- c("ica_summary", class(summ))
   summ
 }
@@ -166,36 +164,39 @@ eeg_ica_cor_lst.eeg_ica_lst <- function(.data, ...) {
     eogs <- channel_names(.data)[channel_names(.data) %>%
       stringr::str_detect(stringr::regex("eog", ignore_case = TRUE))]
   } else {
-    eogs > -sel_ch(.data, ...)
+    eogs <- sel_ch(.data, ...)
   }
   names(eogs) <- eogs
-  comps <- .data %>% eeg_ica_show(component_names(.))
-
+  comps <- .data  %>% 
+    eeg_ica_show(component_names(comps)) %>% 
+    dplyr::select(eogs, component_names(comps))
+  signal <- extended_signal(comps, ".recording")
+  
   # new cols:
   .ICA <- NULL
   cor <- NULL
 
-  lapply(eogs, function(eog)
-    comps$.signal %>%
-      dplyr::summarize_at(
-        component_names(comps),
-        ~ stats::cor(x = ., y = comps$.signal[[eog]], use = "complete")
-      ) %>%
-      t() %>%
-      {
-        dplyr::tibble(.ICA = rownames(.), cor = .[, 1])
-      } %>%
-      dplyr::arrange(dplyr::desc(abs(cor))))
-}
+  
+ dt_cor <- lapply(eogs, function(eog)
+      signal[,lapply(.SD, function(ica){
+          stats::cor(x = ica, y = comps$.signal[[eog]], use = "complete")
+      }), .SDcols =  component_names(comps), by = .recording ]  %>%
+     data.table::melt(
+      variable.name = ".ICA",
+      id.vars = c(".recording"),
+      value.name = "cor"
+    ) %>% 
+      .[order(-abs(cor))]
+) %>% data.table::rbindlist(idcol = "EOG") 
+  
+    split(dt_cor, keep.by = FALSE, by=c(".recording", "EOG"))
+
+  }
 
 #' @export
 print.ica_summary <- function(x, ...) {
   NextMethod()
   cat_line("")
-  cat_line("# ICA data:")
-  cat_line("")
-  cat_line("# Correlations with EOG channels:")
-  print(x$ica_cor, ...)
   invisible(x)
 }
 
