@@ -36,14 +36,26 @@
 #' @export
 plot.eeg_lst <- function(x, max_sample = 6400, ...) {
   ellipsis::check_dots_unnamed()
+  #pick the first channel:
+  ch <- channel_names(x)[[1]]
+  breaks <- x$.signal[[ch]]  %>% quantile(probs = c(.2,.8), na.rm=TRUE) %>% 
+    signif(2) %>% c(0)
+  names(breaks) <- breaks
+  lims <-  (breaks * 1.5) %>% 
+    c(0) %>% range()
+  
   plot <- ggplot.eeg_lst(x, ggplot2::aes(x = .time, y = .value, group = .id)) +
+    ggplot2::geom_hline(yintercept = 0, color = "gray",alpha =.8) +
     ggplot2::geom_line() +
-    ggplot2::facet_grid(.key ~ .,
+    ggplot2::facet_grid(.key ~ .id,
       labeller = ggplot2::label_wrap_gen(multi_line = FALSE),
-      scales = "free"
+      scales = "free", space= "free"
     ) +
     ggplot2::scale_x_continuous("Time (s)") +
-    ggplot2::scale_y_continuous("Amplitude") +
+    ggplot2::scale_y_continuous("Amplitude", 
+                                breaks = breaks,
+                                ) +
+    coord_cartesian(ylim = lims, clip = FALSE, expand = FALSE) +
     theme_eeguana()
   plot
 }
@@ -595,9 +607,13 @@ theme_eeguana <- function() {
   ggplot2::`%+replace%`(
     ggplot2::theme_bw(),
     ggplot2::theme(
+      #,
+      # panel.grid =ggplot2::element_blank(),
       strip.background = ggplot2::element_rect(color = "transparent", fill = "transparent"),
+      strip.text.y = ggplot2::element_text(angle = 00),
       panel.spacing = ggplot2::unit(.01, "points"),
-      panel.border = ggplot2::element_rect(color = "transparent", fill = "transparent")
+      panel.border = ggplot2::element_rect(color = "transparent", fill = "transparent"),
+      panel.background = ggplot2::element_rect(fill = "transparent", color ="transparent")
     )
   )
 }
