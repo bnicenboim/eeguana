@@ -43,7 +43,7 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
   lims <-  (breaks * 1.5) %>% 
     c(0) %>% range()
   
-  plot <- ggplot.eeg_lst(x, ggplot2::aes(x = .time, y = .value, group = .id)) +
+  plot <- ggplot.eeg_lst(x, ggplot2::aes(x = .time, y = .value, group = .id), max_sample = max_sample) +
     ggplot2::geom_hline(yintercept = 0, color = "gray",alpha =.8) +
     ggplot2::geom_line() +
     ggplot2::facet_grid(.key ~ .id,
@@ -246,7 +246,7 @@ plot_ica <- function(data, ...) {
 #' @inheritParams plot_topo
 #' @rdname plot_components
 #' @export
-plot_ica.eeg_ica_lst <- function(data,...,eog=list(...),.recording=NULL,samples = 1:300, order = c("cor","ica"),projection = "polar",standardize= TRUE) {
+plot_ica.eeg_ica_lst <- function(data,...,eog=list(...),.recording=NULL,samples = 1:300, order = c("cor","ica"),max_sample =2400, topo_config = list(projection = "polar",standardize= TRUE),  interp_config =list(...)) {
 #first filter then this is applied:
   ICAs <- sel_comp(...,data)
   cor <- eeg_ica_cor_lst(data) %>% data.table::rbindlist(., idcol="eog")
@@ -604,7 +604,7 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
 #'
 #' @param data An `eeg_lst` object.
 #' @inheritParams  ggplot2::ggplot
-#' @param max_sample Downsample to approximately 2400 samples by default.
+#' @param max_sample Downsample to approximately 6400 samples by default.
 #'
 #' @family plotting functions
 #' @return A ggplot object
@@ -629,7 +629,7 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
 ggplot.eeg_lst <- function(data = NULL,
                            mapping = ggplot2::aes(),
                            ...,
-                           max_sample = 2400,
+                           max_sample = 64000,
                            environment = parent.frame()) {
   df <- try_to_downsample(data, max_sample) %>%
     data.table::as.data.table()
