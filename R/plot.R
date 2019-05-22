@@ -237,7 +237,56 @@ long_table %>%
 }
 
 
-
+#' @family plotting functions
+#' @family ICA functions
+#' @export
+plot_ica <- function(data, ...) {
+  UseMethod("plot_ica")
+}
+#' @inheritParams plot_topo
+#' @rdname plot_components
+#' @export
+plot_ica.eeg_ica_lst <- function(data,...,eog=list(...),.recording=NULL,samples = 1:300, order = c("cor","ica"),projection = "polar",standardize= TRUE) {
+#first filter then this is applied:
+  ICAs <- sel_comp(...,data)
+  cor <- eeg_ica_cor_lst(data) %>% data.table::rbindlist(., idcol="eog")
+  cor <- cor[order(-abs(cor))] %>% cor[.ICA %in% ICAs,]
+  ## most promising ones: 
+  if(order[[1]]=="cor"){
+    ICAs <- as.character(cor[,.ICA]) 
+  } 
+   if (length(eog) == 0) {
+    eogs <- channel_names(.data)[channel_names(.data) %>%
+      stringr::str_detect(stringr::regex("eog", ignore_case = TRUE))]
+  } else {
+    eogs <- sel_ch(.data, ...)
+  }
+  ampls <- data %>% 
+    eeg_ica_show(one_of(ICAs)) %>%
+    ## we select want we want to show:
+    dplyr::select(c(ICAs,eog)) %>%
+    ## Enlarge the components
+    mutate_if(is_component_dbl, ~ . * 2) %>%
+    plot() + annotate_events()+ theme(legend.position='none')
+  
+  
+  
+  topo <- plot_components(eeg,ICAs)
+  c_text <- cor %>% tidyr::separate(col="eog",into=c(".recording","EOG")) %>%
+    mutate(cor_t = as.character(round(cor,2))) %>%
+    group_by(.recording, .ICA) %>%
+    summarize(text = paste0(EOG,": ", cor_t, collapse ="\n")) %>%
+    mutate(x=1,y=1,.value= NA, .key = NA) %>%
+    semi_join(topo$data, by =c(".recording",".ICA"))
+  
+  
+  topo <-    topo + geom_text(data=c_text, aes(label=text,x=x,y=y), inherit.aes=FALSE)+ coord_cartesian(clip=FALSE) + facet_wrap(~.ICA, ncol=4) + theme(strip.text=element_text(size=12))
+  topo$layers[[5]] <- NULL
+  
+  ## right <- cowplot::plot_grid(topo, legend_p1, ncol=1, rel_heights=c(.8,.2))
+  plot <- cowplot::plot_grid(ampls, topo, ncol=2,rel_widths=c(.6,.4))
+  
+}
 
 #' Arrange ERP plots according to scalp layout
 #'
@@ -631,3 +680,5 @@ theme_eeguana2 <- function() {
     )
   )
 }
+
+
