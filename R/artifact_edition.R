@@ -67,7 +67,7 @@ eeg_artif_minmax.eeg_lst <- function(.data,
       sampling_rate = sampling_rate(.data),
       config = config
     )
-    .signal <- filt_eeg_lst(.data$.signal, ..., h = h, na.rm = na.rm)
+    .signal <- filt_eeg_lst(.data$.signal, ..., h = h, na.rm = TRUE)
   } else {
     .signal <- .data$.signal
   }
@@ -116,7 +116,7 @@ eeg_artif_step.eeg_lst <- function(.data,
       config = config
     )
     .signal <-
-      filt_eeg_lst(.data$.signal, ..., h = h, na.rm = na.rm)
+      filt_eeg_lst(.data$.signal, ..., h = h, na.rm = TRUE)
   } else {
     .signal <- .data$.signal
   }
@@ -168,7 +168,7 @@ eeg_artif_amplitude.eeg_lst <- function(.data,
       config = config
     )
     .signal <-
-      filt_eeg_lst(.data$.signal, ..., h = h, na.rm = na.rm)
+      filt_eeg_lst(.data$.signal, ..., h = h, na.rm = TRUE)
   } else {
     .signal <- .data$.signal
   }
@@ -219,7 +219,7 @@ eeg_artif_peak.eeg_lst <- function(.data,
       config = config
     )
     .signal <-
-      filt_eeg_lst(.data$.signal, ..., h = h, na.rm = na.rm)
+      filt_eeg_lst(.data$.signal, ..., h = h, na.rm = TRUE)
   } else {
     .signal <- .data$.signal
   }
@@ -231,7 +231,7 @@ eeg_artif_peak.eeg_lst <- function(.data,
     args = list(
       threshold = threshold,
       lim_samples = lim_samples(lim, sampling_rate(.data), unit = unit),
-      window_samples = lim_samples(window, sampling_rate(.data), unit = unit)))
+      window_samples = window_samples(window, sampling_rate(.data), unit = unit)))
     
   events_tbl(.data) <- rbind(events_found, .data$.events, fill = TRUE)
   data.table::setorder(.data$.events, .id, .initial, .channel)
