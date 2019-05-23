@@ -179,7 +179,6 @@ eeg_artif_amplitude.eeg_lst <- function(.data,
     fun = detect_amplitude,
     args = list(
       threshold = c(min(threshold), max(threshold)),
-      ,
       lim_samples = lim_samples(lim, sampling_rate(.data), unit = unit)
     )
   )
@@ -230,7 +229,7 @@ eeg_artif_peak.eeg_lst <- function(.data,
     ...,
     fun = detect_peak,
     args = list(
-      threshold = c(min(threshold), max(threshold)),
+      threshold = threshold,
       lim_samples = lim_samples(lim, sampling_rate(.data), unit = unit),
       window_samples = lim_samples(window, sampling_rate(.data), unit = unit)))
     
