@@ -135,3 +135,4 @@ segments_tbl <- function(.data, ...) {
 segments_tbl.eeg_lst <- function(.data, ...) {
   .data$.segments
 }
+

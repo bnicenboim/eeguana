@@ -1,34 +1,41 @@
-#' @noRd
-eeg_artif_custom <- function(.data, ...,
-                             fun,
-                             threshold,
-                             window = .2,
-                             lim = c(-window, window),
-                             unit = "s") {
+
+window_samples <- function(window, sampling_rate, unit) {
+  if (!is.numeric(window) || window < 0) {
+    stop("`window` should be a positive number.", call. = FALSE)
+  }
+  
+  window_s <- round(as_sample_int(window, sampling_rate = sampling_rate, unit = unit) - 1L)
+  
+  if (window_s <= 0)
+    stop("The `window` needs to contain at least one sample.")
+  window_s
+}
+
+
+lim_samples <- function(lim, sampling_rate, unit){
   if (length(lim) < 2) {
     stop("Two values for `lim` are needed", call. = FALSE)
   }
+  as_sample_int(lim, sampling_rate = sampling_rate, unit = unit)
+}
 
-  lim_s <- as_sample_int(lim, sampling_rate = sampling_rate(.data), unit = unit)
 
-  if (!is.null(window)) {
-    window_s <- round(as_sample_int(window, sampling_rate = sampling_rate(.data), unit = unit) - 1L)
 
-    if (window_s <= 0) stop("The `window` needs to contain at least one sample.")
-    if (window_s >= (lim_s[2] - lim_s[1])) {
+#' @noRd
+events_artif_custom <- function(.signal, ...,
+                             fun,
+                              args) {
+
+  if ("window_samples" %in% names(args) && 
+      args$window_samples >= (args$lim_samples[2] - args$lim_samples[1])) {
       warning(
-        "The number of samples in `window` (", window_s,
+        "The number of samples in `window` (", args$window_samples,
         ") should be smaller than half of the samples contained in  `lim` (",
-        (lim_s[2] - lim_s[1]) / 2, ")."
+        (args$lim_samples[2] - args$lim_samples[1]) / 2, ")."
       )
     }
 
-    args <- list(threshold = threshold, window = window_s)
-  } else {
-    args <- list(threshold = threshold)
-  }
-
-  artifacts_found <- search_artifacts(.data$.signal,
+  artifacts_found <- search_artifacts(.signal,
     ...,
     fun = fun,
     args = args
@@ -38,20 +45,21 @@ eeg_artif_custom <- function(.data, ...,
     stringr::str_remove("detect_")
   args_txt <- purrr::imap_chr(args, ~ paste(.y, toString(.x), sep = "=")) %>%
     paste(collapse = "_")
-  events_tbl(.data) <- add_intervals_from_artifacts(
-    old_events = events_tbl(.data),
+
+  # new events table:
+  add_intervals_from_artifacts(
+    sampling_rate = sampling_rate(.signal),
     artifacts_tbl = artifacts_found,
-    sample_range = lim_s,
+    sample_range = args$lim_samples,
     .type = paste(fun_txt, args_txt, sep = "_")
   )
 
-  validate_eeg_lst(.data)
 }
 
 #' @noRd
-detect_minmax <- function(x, args = list(window = NULL, threshold = NULL)) {
-  rmin <- RcppRoll::roll_minr(x, n = args$window, na.rm = TRUE) # na.rm  allows for comparing vectors that include some NA
-  rmax <- RcppRoll::roll_maxr(x, n = args$window, na.rm = TRUE)
+detect_minmax <- function(x, args = list(window_samples = NULL, threshold = NULL)) {
+  rmin <- RcppRoll::roll_minr(x, n = args$window_samples, na.rm = TRUE) # na.rm  allows for comparing vectors that include some NA
+  rmax <- RcppRoll::roll_maxr(x, n = args$window_samples, na.rm = TRUE)
   ## If there is only one non NA value, there should be an NA
   rmin[rmin == Inf] <- NA
   rmax[rmax == -Inf] <- NA
@@ -60,10 +68,10 @@ detect_minmax <- function(x, args = list(window = NULL, threshold = NULL)) {
 
 
 #' @noRd
-detect_peak <- function(x, args = list(window = NULL, threshold = NULL)){
+detect_peak <- function(x, args = list(window_samples = NULL, threshold_samples = NULL)){
     ##TODO better version of findpeaks
   peaks <-  pracma::findpeaks(c(x), minpeakheight = args$threshold,
-                                minpeakdistance = args$window,
+                                minpeakdistance = args$window_samples,
                                         ##setting threshold for avoiding flat peaks
                                 threshold = .0001)[,2]
     x <- rep(FALSE, length(x))
@@ -72,10 +80,10 @@ detect_peak <- function(x, args = list(window = NULL, threshold = NULL)){
  }
 
 #' @noRd
-detect_step <- function(x, args = list(window = NULL, threshold = NULL)) {
-  means <- RcppRoll::roll_meanr(x, n = args$window / 2, na.rm = FALSE) # na.rm  allows for comparing vectors that include some NA
+detect_step <- function(x, args = list(window_samples = NULL, threshold = NULL)) {
+  means <- RcppRoll::roll_meanr(x, n = args$window_samples / 2, na.rm = FALSE) # na.rm  allows for comparing vectors that include some NA
   lmean <- means
-  rmean <- c(means[seq.int(from = args$window / 2 + 1L, to = length(means))], rep(NA, args$window / 2))
+  rmean <- c(means[seq.int(from = args$window_samples / 2 + 1L, to = length(means))], rep(NA, args$window / 2))
   abs(rmean - lmean) >= args$threshold
 }
 #' @noRd
@@ -107,7 +115,7 @@ add_missing_samples <- function(signal) {
 
 #' add events from a table similar to signal, but with TRUE/FALSE depending if an artifact was detected.
 #' @noRd
-add_intervals_from_artifacts <- function(old_events, artifacts_tbl, sample_range, .type) {
+add_intervals_from_artifacts <- function(sampling_rate, artifacts_tbl, sample_range, .type) {
   events_found <- artifacts_tbl %>%
     split(., .$.id) %>%
     map_dtr(function(.eeg)
@@ -119,7 +127,7 @@ add_intervals_from_artifacts <- function(old_events, artifacts_tbl, sample_range
             out[, .id := NULL][ ## I need to remove .id because it gets added by map
               , .initial := sample_int(integer(0),
                 sampling_rate =
-                  sampling_rate(old_events)
+                  sampling_rate
               )
             ][]
           } else {
@@ -140,11 +148,11 @@ add_intervals_from_artifacts <- function(old_events, artifacts_tbl, sample_range
               .description = .type,
               .initial = sample_int(intervals$start,
                 sampling_rate =
-                  sampling_rate(old_events)
+                  sampling_rate
               ),
               .final = sample_int(intervals$stop,
                 sampling_rate =
-                  sampling_rate(old_events)
+                  sampling_rate
               ),
               .channel = .y
             )
@@ -152,7 +160,6 @@ add_intervals_from_artifacts <- function(old_events, artifacts_tbl, sample_range
         }), .id = TRUE)
   events_found[, .id := as.integer(.id)]
   message(paste0("# Number of intervals with artifacts: ", nrow(events_found)))
-  new_events <- rbind(events_found, old_events, fill = TRUE)
-  data.table::setorder(new_events, .id, .initial, .channel)
-  new_events
+  events_found
+
 }
