@@ -152,7 +152,10 @@ eeg_ica_show.eeg_ica_lst <- function(.data, ...) {
 
   ica_c <- map2_dtr(l_signal, .data$ica, ~ {
     X <- scale(.x, scale = FALSE)
-    tcrossprod(as.matrix(X), t(.y$unmixing_matrix[, comp_sel, drop = FALSE])) %>%
+    {tcrossprod(as.matrix(X), t(.y$unmixing_matrix[, comp_sel, drop = FALSE])) *
+      ## I make it 10 times larger so that the components can be plot alongside
+      ## the channels
+       10} %>%
       data.table::as.data.table() %>%
       .[, lapply(.SD, component_dbl)]
   })

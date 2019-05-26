@@ -15,7 +15,7 @@ eeg_ica_show(.data, ...)
 Add independent components (or sources) to the signal table for visualization.
 }
 \seealso{
-Other ICA functions: \code{\link{eeg_ica_cor_lst}},
+Other ICA functions: \code{\link{eeg_ica_cor_tbl}},
   \code{\link{eeg_ica_keep}}, \code{\link{eeg_ica}},
   \code{\link{plot_components}}
 }

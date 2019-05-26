@@ -34,7 +34,7 @@ Other plotting functions: \code{\link{annotate_events}},
   \code{\link{plot_in_layout}}, \code{\link{plot_topo}},
   \code{\link{theme_eeguana}}
 
-Other ICA functions: \code{\link{eeg_ica_cor_lst}},
+Other ICA functions: \code{\link{eeg_ica_cor_tbl}},
   \code{\link{eeg_ica_keep}}, \code{\link{eeg_ica_show}},
   \code{\link{eeg_ica}}
 }

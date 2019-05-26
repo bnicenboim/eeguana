@@ -37,7 +37,7 @@
 plot.eeg_lst <- function(x, max_sample = 6400, ...) {
   ellipsis::check_dots_unnamed()
   #pick the last channel as reference
-   breaks <- x$.signal[[ncol(x$.signal)]]  %>% quantile(probs = c(.2,.8), na.rm=TRUE) %>% 
+  breaks <- x$.signal[[ncol(x$.signal)]]  %>% quantile(probs = c(.025,.975), na.rm=TRUE) %>% 
     signif(2) %>% c(0)
   names(breaks) <- breaks
   lims <-  (breaks * 1.5) %>% 
@@ -52,7 +52,7 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
     ) +
     ggplot2::scale_x_continuous("Time (s)") +
     ggplot2::scale_y_continuous("Amplitude", 
-                                breaks = breaks,
+                                #breaks = breaks,
                                 ) +
     ggplot2::coord_cartesian(ylim = lims, clip = FALSE, expand = FALSE) +
     theme_eeguana()

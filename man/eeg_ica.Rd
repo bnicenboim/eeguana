@@ -36,7 +36,7 @@ of N_samples by N_channels and/or \code{W} (unmixing matrix), consistent with th
 Some packages with other ICA methods or implementations: \code{steadyICA} and \code{ica}.
 }
 \seealso{
-Other ICA functions: \code{\link{eeg_ica_cor_lst}},
+Other ICA functions: \code{\link{eeg_ica_cor_tbl}},
   \code{\link{eeg_ica_keep}}, \code{\link{eeg_ica_show}},
   \code{\link{plot_components}}
 

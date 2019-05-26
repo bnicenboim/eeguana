@@ -154,12 +154,12 @@ summary.eeg_ica_lst <- function(object, ...) {
 #'
 #' @return A list of correlations.
 #' @export
-eeg_ica_cor_lst <- function(.data, ...) {
-  UseMethod("eeg_ica_cor_lst")
+eeg_ica_cor_tbl <- function(.data, ...) {
+  UseMethod("eeg_ica_cor_tbl")
 }
 
 #' @export
-eeg_ica_cor_lst.eeg_ica_lst <- function(.data, ...) {
+eeg_ica_cor_tbl.eeg_ica_lst <- function(.data, ...) {
   if (length(list(...)) == 0) {
     eogs <- channel_names(.data)[channel_names(.data) %>%
       stringr::str_detect(stringr::regex("eog", ignore_case = TRUE))]
@@ -185,13 +185,43 @@ eeg_ica_cor_lst.eeg_ica_lst <- function(.data, ...) {
       variable.name = ".ICA",
       id.vars = c(".recording"),
       value.name = "cor"
-    ) %>% 
-      .[order(-abs(cor))]
+    ) 
 ) %>% data.table::rbindlist(idcol = "EOG") 
-  
-    split(dt_cor, keep.by = FALSE, by=c(".recording", "EOG"))
+  data.table::setcolorder(dt_cor, c(".recording","EOG",".ICA","cor"))
+  # data.table::setorder(dt_cor, .recording, -abs(cor))
+  dt_cor[order(.recording, -abs(cor))]
+    #split(dt_cor, keep.by = FALSE, by=c(".recording", "EOG"))
 
   }
+
+#' @export
+eeg_ica_var_tbl <- function(.data, ...){
+    UseMethod("eeg_ica_var_tbl")
+}
+
+#' @export
+eeg_ica_var_tbl.eeg_ica_lst <- function(.data, ...){
+
+   m_v <- dplyr::group_by(.data, .recording) %>%   extended_signal() %>%
+        split(by=".recording",keep.by = FALSE) %>%
+        lapply(function(dt) mean(var(dt[,channel_ica_names(.data), with=FALSE])))
+
+
+    vars <- map_dtr(component_names(.data), function(ica)
+        .data %>% eeg_ica_keep(c(ica)) %>%
+        extended_signal( ".recording") %>%
+        .[,c(list(.recording=.recording),
+                  purrr::imap(.SD, ~.x - signal_tbl(.data)[[.y]])),
+             .SDcols = channel_ica_names(.data)] %>%
+        split(by=".recording",keep.by = FALSE) %>%
+        map2_dtr(m_v, ~ data.table::data.table( var= 1-mean(var(.x))/.y),.id = ".recording"),
+        .id = ".ICA"
+        )
+
+    data.table::setcolorder(vars, c(".recording",".ICA", "var"))
+    data.table::setorder(vars, -var)
+  vars 
+}
 
 #' @export
 print.ica_summary <- function(x, ...) {
