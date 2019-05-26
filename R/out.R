@@ -145,6 +145,7 @@ summary.eeg_ica_lst <- function(object, ...) {
   summ
 }
 
+
 #' Show correlations between ICA sources and eye (EOG) electrodes.
 #'
 #' @param .data An `eeg_ica_lst` object
@@ -206,8 +207,9 @@ eeg_ica_var_tbl.eeg_ica_lst <- function(.data, ...){
         split(by=".recording",keep.by = FALSE) %>%
         lapply(function(dt) mean(var(dt[,channel_ica_names(.data), with=FALSE])))
 
-
-    vars <- map_dtr(component_names(.data), function(ica)
+comp_names <- list(component_names(.data))
+names(comp_names) <- comp_names
+    vars <- map_dtr(comp_names, function(ica)
         .data %>% eeg_ica_keep(c(ica)) %>%
         extended_signal( ".recording") %>%
         .[,c(list(.recording=.recording),

@@ -246,7 +246,7 @@ plot_ica <- function(data, ...) {
 #' @inheritParams plot_topo
 #' @rdname plot_components
 #' @export
-plot_ica.eeg_ica_lst <- function(data,...,eog=list(...),.recording=NULL,samples = 1:300, order = c("cor","ica"),max_sample =2400, topo_config = list(projection = "polar",standardize= TRUE),  interp_config =list(...)) {
+plot_ica.eeg_ica_lst <- function(data,...,eog=list(...),.recording=NULL,samples = 1:300, order = c("cor","var"),max_sample =2400, topo_config = list(projection = "polar",standardize= TRUE),  interp_config =list(...)) {
 #first filter then this is applied:
   ICAs <- sel_comp(...,data)
   cor <- eeg_ica_cor_lst(data) %>% data.table::rbindlist(., idcol="eog")
