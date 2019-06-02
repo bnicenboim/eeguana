@@ -304,6 +304,8 @@ create_filter <- function(data,
   ## Where ``Fstop = Fp - trans_bandwidth``.
   ## .. versionadded:: 0.14
   ## """
+  if(!is.null(h_freq) && is.na(h_freq)) h_freq <- NULL
+  if(!is.null(l_freq) && is.na(l_freq)) l_freq <- NULL
   if (is.null(sampling_rate) || sampling_rate < 0) stop("sampling_rate must be positive")
   # If no data specified, sanity checking will be skipped
   if (!is.null(h_freq) & any(h_freq > sampling_rate / 2.)) {

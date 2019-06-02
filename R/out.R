@@ -201,13 +201,13 @@ eeg_ica_var_tbl <- function(.data, ...){
 }
 
 #' @export
-eeg_ica_var_tbl.eeg_ica_lst <- function(.data, ...){
-
+eeg_ica_var_tbl.eeg_ica_lst <- function(.data, ..., max_sample =100000){
+.data <- try_to_downsample(.data, max_sample=max_sample)
    m_v <- dplyr::group_by(.data, .recording) %>%   extended_signal() %>%
         split(by=".recording",keep.by = FALSE) %>%
-        lapply(function(dt) mean(var(dt[,channel_ica_names(.data), with=FALSE])))
+        lapply(function(dt) mean(stats::var(dt[,channel_ica_names(.data), with=FALSE])))
 
-comp_names <- list(component_names(.data))
+comp_names <- c(component_names(.data))
 names(comp_names) <- comp_names
     vars <- map_dtr(comp_names, function(ica)
         .data %>% eeg_ica_keep(c(ica)) %>%
@@ -216,14 +216,28 @@ names(comp_names) <- comp_names
                   purrr::imap(.SD, ~.x - signal_tbl(.data)[[.y]])),
              .SDcols = channel_ica_names(.data)] %>%
         split(by=".recording",keep.by = FALSE) %>%
-        map2_dtr(m_v, ~ data.table::data.table( var= 1-mean(var(.x))/.y),.id = ".recording"),
+        map2_dtr(m_v, ~ data.table::data.table( var= 1-mean(stats::var(.x))/.y),.id = ".recording"),
         .id = ".ICA"
         )
 
     data.table::setcolorder(vars, c(".recording",".ICA", "var"))
-    data.table::setorder(vars, -var)
-  vars 
+  vars[order(.recording, -var)]
 }
+
+#' @export
+eeg_ica_summary_tbl <- function(.data, ...){
+    UseMethod("eeg_ica_summary_tbl")
+}
+
+#' @export
+eeg_ica_summary_tbl.eeg_ica_lst <- function(.data, ..., max_sample =100000){
+  summ <- left_join_dt(eeg_ica_var_tbl(.data, max_sample=max_sample),
+                       eeg_ica_cor_tbl(.data,...), 
+               by =c(".recording",".ICA")) %>%
+    .[order(.recording,-var, -abs(cor))]
+    summ[,.ICA:=as.character(.ICA)][]
+
+  }
 
 #' @export
 print.ica_summary <- function(x, ...) {

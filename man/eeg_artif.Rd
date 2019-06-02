@@ -32,9 +32,13 @@ eeg_artif_peak(.data, ..., threshold = 30, window = 0.2,
 
 \item{window}{Sliding window length for the artifact detection (same unit as \code{lim}). This is the full width of the step function: this means that we are looking for a period of one voltage for half of the window  immediately followed by a period of a different voltage (indicated by the threshold) for half of the window.}
 
-\item{lim}{Vector indicating the time before and after the artifact that will be included in events_tbl (by default the size the window before and afterwards).}
+\item{lim}{Vector with two values indicating the time before and after the artifact that will be included in events_tbl (by default the size the window before and afterwards).}
 
 \item{unit}{"seconds" (or "s"), "milliseconds" (or "ms")}
+
+\item{freq}{Vector with two values indicates whether to prefilter the signal prior to the artifact detection. (The filtering is not saved in the signal). For a low pass filter the first value should be \code{NA}, for a high-pass filter the second value should be \code{NA}.}
+
+\item{config}{List with the configuration of the filter.}
 }
 \value{
 An \code{eeg_lst}.

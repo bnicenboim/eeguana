@@ -87,10 +87,9 @@ ica2 <- eeg_ica_show(data_ica_default, ICA1, ICA2,ICA3)
 test_that("summaries work", {
     cors <-structure(list(.recording = c("recording1", "recording1", "recording1", "recording1", "recording1", "recording1"), EOG = c("Cz", "Fz", "Fz", "Cz", "Fz", "Cz"), .ICA = structure(c(3L, 1L, 3L, 1L, 2L, 2L), .Label = c("ICA1", "ICA2", "ICA3"), class = "factor"), cor = c(0.854797434582954, 0.765331348614772, 0.642962932537905, 0.518265793138847, -0.0294379722417139, -0.0268684478992378)), row.names = c(NA, -6L), class = c("data.table", "data.frame"))
           expect_equal(eeg_ica_cor_tbl(data_ica_default, c("Fz","Cz")), cors)
-    vars <- structure(list(.recording = c("recording1", "recording1", "recording1"), .ICA = c(3L, 1L, 2L), var = c(0.717732259918155, 0.281143293329791, 0.0011244467519963)), row.names = c(NA, -3L), class = c("data.table", "data.frame"))
+    vars <- structure(list(.recording = c("recording1", "recording1", "recording1"), .ICA = c("ICA3", "ICA1", "ICA2"), var = c(0.717732259918155, 0.281143293329791, 0.0011244467519963)), row.names = c(NA, -3L), class = c("data.table", "data.frame"))
     expect_equal(eeg_ica_var_tbl(data_ica_default), vars)
 })
-
 
 data_rec <- data_ica_default %>% eeg_ica_keep(ICA1, ICA2, ICA3)
 

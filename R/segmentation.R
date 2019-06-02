@@ -120,10 +120,21 @@ eeg_segment.eeg_lst <- function(.data, ..., lim = c(-.5, .5), end, unit = "s") {
 
   # .sample is now the lower bound
   # x..sample is the original columns
-  new_signal[, .sample := x..sample - .first_sample + 1L][, .first_sample := NULL][, x..sample := NULL ]
+  new_signal[, .sample := x..sample - .first_sample + 1L][
+    , .first_sample := NULL][,
+                             x..sample := NULL ]
+  
   data.table::setnames(new_signal, ".new_id", ".id")
+  ##TODO: this should probablu go sooner, it makes NA all the problematic segments
+  
+  data.table::set(new_signal, 
+                  which(new_signal$.id %in% 
+                          {dplyr::filter(times0, .type =="incorrect segment") %>%
+                    dplyr::pull(.id)}),
+                  c(".sample",channel_names(new_signal)), NA)
   attributes(new_signal$.sample) <- attributes(.data$.signal$.sample)
   data.table::setkey(new_signal, .id, .sample)
+  
   .data$.signal <- new_signal
 
 

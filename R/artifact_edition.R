@@ -13,7 +13,9 @@
 #' @param ... Channels to include. All the channels by default, but eye channels should be removed.
 #' @param threshold Voltage threshold that indicates an artifact
 #' @param window Sliding window length for the artifact detection (same unit as `lim`). This is the full width of the step function: this means that we are looking for a period of one voltage for half of the window  immediately followed by a period of a different voltage (indicated by the threshold) for half of the window.
-#' @param lim Vector indicating the time before and after the artifact that will be included in events_tbl (by default the size the window before and afterwards).
+#' @param lim Vector with two values indicating the time before and after the artifact that will be included in events_tbl (by default the size the window before and afterwards).
+#' @param freq Vector with two values indicates whether to prefilter the signal prior to the artifact detection. (The filtering is not saved in the signal). For a low pass filter the first value should be `NA`, for a high-pass filter the second value should be `NA`.
+#' @param config List with the configuration of the filter.
 #' @inheritParams as_time
 #' @return An `eeg_lst`.
 #'

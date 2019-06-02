@@ -2,17 +2,13 @@
 % Please edit documentation in R/plot.R
 \name{plot_components}
 \alias{plot_components}
-\alias{plot_components.eeg_ica_lst}
 \alias{plot_ica.eeg_ica_lst}
 \title{Generates topographic plots of the components after running ICA on an eeg_lst}
 \usage{
-plot_components(data, ...)
-
-\method{plot_components}{eeg_ica_lst}(data, ..., projection = "polar",
-  standardize = TRUE)
+plot_components(data, ..., projection = "polar", standardize = TRUE)
 
 \method{plot_ica}{eeg_ica_lst}(data, ..., eog = list(...),
-  .recording = NULL, samples = 1:300, order = c("cor", "ica"),
+  .recording = NULL, samples = 1:300, order = c("cor", "var"),
   max_sample = 2400, topo_config = list(projection = "polar",
   standardize = TRUE), interp_config = list(...))
 }

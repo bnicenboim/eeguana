@@ -37,7 +37,8 @@
 plot.eeg_lst <- function(x, max_sample = 6400, ...) {
   ellipsis::check_dots_unnamed()
   #pick the last channel as reference
-  breaks <- x$.signal[[ncol(x$.signal)]]  %>% quantile(probs = c(.025,.975), na.rm=TRUE) %>% 
+  breaks <- x$.signal[[ncol(x$.signal)]]  %>% 
+    stats::quantile(probs = c(.025,.975), na.rm=TRUE) %>% 
     signif(2) %>% c(0)
   names(breaks) <- breaks
   lims <-  (breaks * 1.5) %>% 
@@ -196,12 +197,12 @@ plot_topo.eeg_lst <- function(data, projection = "polar", ...) {
 #'
 #' @family plotting functions
 #' @family ICA functions
-#' @export
-plot_components <- function(data, ...) {
-  UseMethod("plot_components")
-}
 #' @inheritParams plot_topo
 #' @rdname plot_components
+#' @export
+plot_components <- function(data, ...,projection = "polar",standardize= TRUE) {
+  UseMethod("plot_components")
+}
 #' @export
 plot_components.eeg_ica_lst <- function(data,...,projection = "polar",standardize= TRUE) {
   comp_sel <- sel_comp(data,...)
@@ -262,25 +263,28 @@ plot_ica.eeg_ica_lst <- function(data,...,eog=list(...),.recording=NULL,samples 
     eogs <- sel_ch(.data, ...)
   }
   ampls <- data %>% 
-    eeg_ica_show(one_of(ICAs)) %>%
+    eeg_ica_show(dplyr::one_of(ICAs)) %>%
     ## we select want we want to show:
     dplyr::select(c(ICAs,eog)) %>%
     ## Enlarge the components
-    mutate_if(is_component_dbl, ~ . * 2) %>%
-    plot() + annotate_events()+ theme(legend.position='none')
+    dplyr::mutate_if(is_component_dbl, ~ . * 2) %>%
+    plot() + annotate_events()+ ggplot2::theme(legend.position='none')
   
   
   
   topo <- plot_components(eeg,ICAs)
   c_text <- cor %>% tidyr::separate(col="eog",into=c(".recording","EOG")) %>%
-    mutate(cor_t = as.character(round(cor,2))) %>%
-    group_by(.recording, .ICA) %>%
-    summarize(text = paste0(EOG,": ", cor_t, collapse ="\n")) %>%
-    mutate(x=1,y=1,.value= NA, .key = NA) %>%
-    semi_join(topo$data, by =c(".recording",".ICA"))
+    dplyr::mutate(cor_t = as.character(round(cor,2))) %>%
+    dplyr::group_by(.recording, .ICA) %>%
+    dplyr::summarize(text = paste0(EOG,": ", cor_t, collapse ="\n")) %>%
+    dplyr::mutate(x=1,y=1,.value= NA, .key = NA) %>%
+    dplyr::semi_join(topo$data, by =c(".recording",".ICA"))
   
   
-  topo <-    topo + geom_text(data=c_text, aes(label=text,x=x,y=y), inherit.aes=FALSE)+ coord_cartesian(clip=FALSE) + facet_wrap(~.ICA, ncol=4) + theme(strip.text=element_text(size=12))
+  topo <-    topo + ggplot2::geom_text(data=c_text, ggplot2::aes(label=text,x=x,y=y), inherit.aes=FALSE)+ 
+    ggplot2::coord_cartesian(clip=FALSE) + 
+    ggplot2::facet_wrap(~.ICA, ncol=4) +
+    ggplot2::theme(strip.text=ggplot2::element_text(size=12))
   topo$layers[[5]] <- NULL
   
   ## right <- cowplot::plot_grid(topo, legend_p1, ncol=1, rel_heights=c(.8,.2))

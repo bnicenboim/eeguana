@@ -37,7 +37,8 @@ Imports:
     MASS,
     RcppRoll (>= 0.3.0),
     ellipsis (>= 0.1.0),
-    fastICA
+    fastICA,
+    pracma
 Suggests:
     akima (>= 0.6.2),
     plotly (>= 4.8.0),
@@ -48,7 +49,8 @@ Suggests:
     knitr (>= 1.21),
     rmarkdown (>= 1.11),
     spelling (>= 2.0),
-    covr (>= 3.2.1)
+    covr (>= 3.2.1),
+    cowplot
 LazyData: true
 VignetteBuilder: knitr
 Language: en-US
