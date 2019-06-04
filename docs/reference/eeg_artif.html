@@ -41,11 +41,7 @@
 
 <meta property="og:description" content="These functions search for artifacts on the signal table based on a threshold and a
 sliding window (when relevant), and annotate an event in the events table that spans
-from -lim to +lim. The signal table remains unchanged until eeg_events_to_NA().
-eeg_artif_minmax()and eeg_artif_step() can be used to detect blinks and horizontal eye movements
-in the electro-oculographic (V/HEOG) channels or large voltage jumps in other channels.
-For the EOG channels, a relatively low threshold (e.g., 30 µV) is recommended. For non EOG channels, a relatively high threshold (e.g., 100 µV) would be
-more appropriate." />
+from -lim to +lim. The signal table remains unchanged until eeg_events_to_NA()." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -78,7 +74,7 @@ more appropriate." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1.9000</span>
       </span>
     </div>
 
@@ -142,21 +138,23 @@ more appropriate." />
     <p>These functions search for artifacts on the signal table based on a threshold and a
 sliding window (when relevant), and annotate an event in the events table that spans
 from <code>-lim</code> to <code>+lim</code>. The signal table remains unchanged until <code><a href='eeg_events_to_NA.html'>eeg_events_to_NA()</a></code>.</p>
-<p><code>eeg_artif_minmax()</code>and <code>eeg_artif_step()</code> can be used to detect blinks and horizontal eye movements
-in the electro-oculographic (V/HEOG) channels or large voltage jumps in other channels.
-For the EOG channels, a relatively low threshold (e.g., 30 µV) is recommended. For non EOG channels, a relatively high threshold (e.g., 100 µV) would be
-more appropriate.</p>
     
     </div>
 
     <pre class="usage"><span class='fu'>eeg_artif_minmax</span>(<span class='no'>.data</span>, <span class='no'>...</span>, <span class='kw'>threshold</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>window</span> <span class='kw'>=</span> <span class='fl'>0.2</span>,
-  <span class='kw'>lim</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(-<span class='no'>window</span>, <span class='no'>window</span>), <span class='kw'>unit</span> <span class='kw'>=</span> <span class='st'>"s"</span>)
+  <span class='kw'>lim</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(-<span class='no'>window</span>, <span class='no'>window</span>), <span class='kw'>unit</span> <span class='kw'>=</span> <span class='st'>"s"</span>, <span class='kw'>freq</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>config</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>())
 
 <span class='fu'>eeg_artif_step</span>(<span class='no'>.data</span>, <span class='no'>...</span>, <span class='kw'>threshold</span> <span class='kw'>=</span> <span class='fl'>50</span>, <span class='kw'>window</span> <span class='kw'>=</span> <span class='fl'>0.2</span>,
-  <span class='kw'>lim</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(-<span class='no'>window</span>, <span class='no'>window</span>), <span class='kw'>unit</span> <span class='kw'>=</span> <span class='st'>"s"</span>)
+  <span class='kw'>lim</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(-<span class='no'>window</span>, <span class='no'>window</span>), <span class='kw'>unit</span> <span class='kw'>=</span> <span class='st'>"s"</span>, <span class='kw'>freq</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>config</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>())
 
 <span class='fu'>eeg_artif_amplitude</span>(<span class='no'>.data</span>, <span class='no'>...</span>, <span class='kw'>threshold</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(-<span class='fl'>200</span>, <span class='fl'>200</span>), <span class='kw'>lim</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(-<span class='fl'>0.2</span>,
-  <span class='fl'>0.2</span>), <span class='kw'>unit</span> <span class='kw'>=</span> <span class='st'>"s"</span>)</pre>
+  <span class='fl'>0.2</span>), <span class='kw'>unit</span> <span class='kw'>=</span> <span class='st'>"s"</span>, <span class='kw'>freq</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>config</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>())
+
+<span class='fu'>eeg_artif_peak</span>(<span class='no'>.data</span>, <span class='no'>...</span>, <span class='kw'>threshold</span> <span class='kw'>=</span> <span class='fl'>30</span>, <span class='kw'>window</span> <span class='kw'>=</span> <span class='fl'>0.2</span>,
+  <span class='kw'>lim</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(-<span class='no'>window</span>, <span class='no'>window</span>), <span class='kw'>unit</span> <span class='kw'>=</span> <span class='st'>"s"</span>, <span class='kw'>freq</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>config</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>())</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -179,17 +177,32 @@ more appropriate.</p>
     </tr>
     <tr>
       <th>lim</th>
-      <td><p>Vector indicating the time before and after the artifact that will be included in events_tbl (by default the size the window before and afterwards).</p></td>
+      <td><p>Vector with two values indicating the time before and after the artifact that will be included in events_tbl (by default the size the window before and afterwards).</p></td>
     </tr>
     <tr>
       <th>unit</th>
       <td><p>"seconds" (or "s"), "milliseconds" (or "ms")</p></td>
+    </tr>
+    <tr>
+      <th>freq</th>
+      <td><p>Vector with two values indicates whether to prefilter the signal prior to the artifact detection. (The filtering is not saved in the signal). For a low pass filter the first value should be <code>NA</code>, for a high-pass filter the second value should be <code>NA</code>.</p></td>
+    </tr>
+    <tr>
+      <th>config</th>
+      <td><p>List with the configuration of the filter.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>An <code>eeg_lst</code>.</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p><code>eeg_artif_minmax()</code>and <code>eeg_artif_step()</code> can be used to detect blinks and horizontal eye movements
+in the electro-oculographic (V/HEOG) channels or large voltage jumps in other channels.
+For the EOG channels, a relatively low threshold (e.g., 30 µV) is recommended. For non EOG channels, a relatively high threshold (e.g., 100 µV) would be
+more appropriate.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -214,6 +227,8 @@ more appropriate.</p>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
 
       <li><a href="#see-also">See also</a></li>
       

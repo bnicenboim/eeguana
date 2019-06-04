@@ -162,7 +162,7 @@ We'll see how the components explaining the most variance and most correlated to
 ```{r, fig.dim = c(10,15), out.width = "100%"}
 #samples with blinks
 s_peaks <- filter(events_tbl(faces_ica),  str_starts(.description, "peak")) %>% pull(.initial)
-eeguana:::plot_ica(faces_ica, samples = seq(s_peaks[2]-500,s_peaks[2]+1000))
+eeguana:::plot_ica.eeg_ica_lst(faces_ica, samples = seq(s_peaks[2]-500,s_peaks[2]+1000))
 ```
 The clearest ones is ICA5, and so we'll just remove that one.
 

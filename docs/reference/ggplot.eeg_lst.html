@@ -74,7 +74,7 @@ ggplot2::ggplot object." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1.9000</span>
       </span>
     </div>
 
@@ -143,7 +143,7 @@ its input data. Layers can then be added in the same way as for a
 
     <pre class="usage"><span class='co'># S3 method for eeg_lst</span>
 <span class='fu'>ggplot</span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>mapping</span> <span class='kw'>=</span> <span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/aes'>aes</a></span>(), <span class='no'>...</span>,
-  <span class='kw'>max_sample</span> <span class='kw'>=</span> <span class='fl'>2400</span>, <span class='kw'>environment</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/sys.parent'>parent.frame</a></span>())</pre>
+  <span class='kw'>max_sample</span> <span class='kw'>=</span> <span class='fl'>64000</span>, <span class='kw'>environment</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/sys.parent'>parent.frame</a></span>())</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -163,7 +163,7 @@ If not specified, must be supplied in each layer added to the plot.</p></td>
     </tr>
     <tr>
       <th>max_sample</th>
-      <td><p>Downsample to approximately 2400 samples by default.</p></td>
+      <td><p>Downsample to approximately 6400 samples by default.</p></td>
     </tr>
     <tr>
       <th>environment</th>
