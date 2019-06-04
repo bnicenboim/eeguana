@@ -144,4 +144,8 @@ data_faces_ERPs \%>\%
 data_faces_ERPs \%>\%
   rename(Predictor = condition)
 }
+\seealso{
+Other dplyr functions: \code{\link{bind}},
+  \code{\link{slice_signal}}
+}
 \concept{dplyr functions}

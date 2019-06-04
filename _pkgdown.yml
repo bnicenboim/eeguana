@@ -49,8 +49,7 @@ reference:
     desc: >
       Functions that overload some `dplyr` functions and always return an `eeg_lst`. 
     contents: 
-    - '`dplyr_verbs`'
-    - '`bind`'
+     - has_concept("dplyr functions")
   - title: "Specialized summarizing functions"
     desc: >
       Functions that return useful summaries.
