@@ -198,6 +198,7 @@ plot_topo.eeg_lst <- function(data, projection = "polar", ...) {
 #' @family plotting functions
 #' @family ICA functions
 #' @inheritParams plot_topo
+#' @param standardize Whether to standardize the color scale of each topographic plot.
 #' @rdname plot_components
 #' @export
 plot_components <- function(data, ...,projection = "polar",standardize= TRUE) {
@@ -240,56 +241,79 @@ long_table %>%
 
 #' @family plotting functions
 #' @family ICA functions
-#' @export
 plot_ica <- function(data, ...) {
   UseMethod("plot_ica")
 }
 #' @inheritParams plot_topo
-#' @rdname plot_components
-#' @export
-plot_ica.eeg_ica_lst <- function(data,...,eog=list(...),.recording=NULL,samples = 1:300, order = c("cor","var"),max_sample =2400, topo_config = list(projection = "polar",standardize= TRUE),  interp_config =list(...)) {
+plot_ica.eeg_ica_lst <- function(data,
+                                 samples = 1:300,
+                                 components = 1:16,
+                                 eog=c(),
+                                 .recording=NULL,
+                                 scale_comp = 2,
+                                 order = c("var","cor"),
+                                 max_sample =2400,
+                                 topo_config = list(projection = "polar",standardize= TRUE),
+                                 interp_config =list(...)) {
 #first filter then this is applied:
-  ICAs <- sel_comp(...,data)
-  cor <- eeg_ica_cor_lst(data) %>% data.table::rbindlist(., idcol="eog")
-  cor <- cor[order(-abs(cor))] %>% cor[.ICA %in% ICAs,]
-  ## most promising ones: 
-  if(order[[1]]=="cor"){
-    ICAs <- as.character(cor[,.ICA]) 
-  } 
-   if (length(eog) == 0) {
-    eogs <- channel_names(.data)[channel_names(.data) %>%
-      stringr::str_detect(stringr::regex("eog", ignore_case = TRUE))]
+  if(!is.null(.recording)){
+    data <- dplyr::filter(data, .recording == .recording)
   } else {
-    eogs <- sel_ch(.data, ...)
-  }
-  ampls <- data %>% 
+    .recording <- segments_tbl(data)$.recording[1]
+    message("Using recording: ",.recording)
+      data <- dplyr::filter(data, .recording == .recording)
+    }
+
+ 
+   if (length(eog) == 0) {
+    eog <- channel_names(data)[channel_names(data) %>%
+      stringr::str_detect(stringr::regex("eog", ignore_case = TRUE))]
+  } 
+    eog <- sel_ch(data, eog)
+
+  sum <- eeg_ica_summary_tbl(data %>% eeg_filt_band_pass(eog, freq = c(.1, 30)),eog) 
+  data.table::setorderv(sum, order, order = -1)
+  ICAs <- unique(sum$.ICA)[components] 
+  sum <- sum[.ICA %in% ICAs]
+  
+  new_data <- data %>% 
+   slice_signal(samples) %>%
     eeg_ica_show(dplyr::one_of(ICAs)) %>%
     ## we select want we want to show:
     dplyr::select(c(ICAs,eog)) %>%
-    ## Enlarge the components
-    dplyr::mutate_if(is_component_dbl, ~ . * 2) %>%
-    plot() + annotate_events()+ ggplot2::theme(legend.position='none')
+    dplyr::group_by(.id)%>%  
+    dplyr::mutate_at(eog, ~ .- mean(.)) %>%
+    dplyr::mutate_if(is_component_dbl, ~ . * scale_comp) 
+  
+ ampls <- new_data %>%
+    plot() + 
+    annotate_events()+ 
+    ggplot2::theme(legend.position='none')
   
   
+  topo <- plot_components(data,ICAs)
   
-  topo <- plot_components(eeg,ICAs)
-  c_text <- cor %>% tidyr::separate(col="eog",into=c(".recording","EOG")) %>%
-    dplyr::mutate(cor_t = as.character(round(cor,2))) %>%
+  c_text <- sum %>%
+    dplyr::mutate(cor_t = as.character(round(cor,2)), pvar_t = as.character(round(var*100))) %>%
     dplyr::group_by(.recording, .ICA) %>%
-    dplyr::summarize(text = paste0(EOG,": ", cor_t, collapse ="\n")) %>%
-    dplyr::mutate(x=1,y=1,.value= NA, .key = NA) %>%
-    dplyr::semi_join(topo$data, by =c(".recording",".ICA"))
+    dplyr::summarize(text = paste0(stringr::str_extract(EOG,"^."),": ", cor_t, collapse ="\n") %>%
+                paste0("\n",unique(pvar_t),"%")) %>%
+    dplyr::mutate(x=1,y=1,.value= NA, .key = NA) %>% 
+    dplyr::left_join(dplyr::distinct(topo$data,.recording,.ICA) %>% 
+                       dplyr::mutate(.ICA= as.character(.ICA)),., by =c(".recording",".ICA"))%>%
+    dplyr::mutate(.ICA = factor(.ICA, levels = .$.ICA))
   
-  
-  topo <-    topo + ggplot2::geom_text(data=c_text, ggplot2::aes(label=text,x=x,y=y), inherit.aes=FALSE)+ 
+  topo <-    topo + 
+    ggplot2::geom_text(data=c_text, aes(label=text,x=x,y=y), inherit.aes=FALSE) + 
     ggplot2::coord_cartesian(clip=FALSE) + 
-    ggplot2::facet_wrap(~.ICA, ncol=4) +
-    ggplot2::theme(strip.text=ggplot2::element_text(size=12))
+    facet_wrap(~.ICA, ncol=4) +
+    theme(strip.text=element_text(size=12))
+  
   topo$layers[[5]] <- NULL
   
   ## right <- cowplot::plot_grid(topo, legend_p1, ncol=1, rel_heights=c(.8,.2))
   plot <- cowplot::plot_grid(ampls, topo, ncol=2,rel_widths=c(.6,.4))
-  
+ plot  
 }
 
 #' Arrange ERP plots according to scalp layout
@@ -566,6 +590,7 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
   } else {
     events_tbl <- object$layer$data
   }
+  if(nrow(events_tbl)==0) return(NULL)  #nothing to plot
   info_events <- setdiff(colnames(events_tbl), obligatory_cols[[".events"]])
   events_tbl <- data.table::as.data.table(events_tbl)
   events_tbl[, xmin := as_time(.initial) ]

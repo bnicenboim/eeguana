@@ -153,7 +153,7 @@ summary.eeg_ica_lst <- function(object, ...) {
 #' @family ICA functions
 #' @family summary functions
 #'
-#' @return A list of correlations.
+#' @return A table with the correlations between each component and each EOG channel in each recording.
 #' @export
 eeg_ica_cor_tbl <- function(.data, ...) {
   UseMethod("eeg_ica_cor_tbl")
@@ -194,9 +194,22 @@ eeg_ica_cor_tbl.eeg_ica_lst <- function(.data, ...) {
     #split(dt_cor, keep.by = FALSE, by=c(".recording", "EOG"))
 
   }
-
+#' Show the variance explained for each ICA sources.
+#'
+#' This function shows the variance explained by each ICA component following the approach of the matlab function .... 
+#' 
+#' If the dataset is large, this function can take very long to run. Setting a maximum number of samples (`max_sample`) will speed up the calculations by downsampling the data.
+#' 
+#' @param .data An `eeg_ica_lst` object
+#' @param max_sample The maximum number of samples to use for calculating the variance explained.
+#' @param ... Not in use.
+#' @family ICA functions
+#' @family summary functions
+#'
+#' @return A table with the variance explained by each component in each recording.
+#
 #' @export
-eeg_ica_var_tbl <- function(.data, ...){
+eeg_ica_var_tbl <- function(.data, ..., max_sample =100000){
     UseMethod("eeg_ica_var_tbl")
 }
 
@@ -224,7 +237,20 @@ names(comp_names) <- comp_names
   vars[order(.recording, -var)]
 }
 
-#' @export
+#' Show a table with a summary of the results of the ICA. 
+#'
+#' This function generates a table with the variance explained by each ICA component, and the correlations
+#' between ICA components and EOG channels. See more details in [eeg_ica_cor_tbl] and [eeg_ica_var_tbl].
+#' 
+#' 
+#' @param .data An `eeg_ica_lst` object
+#' @inheritParams eeg_ica_cor_tbl
+#' @inheritParams eeg_ica_var_tbl
+#' @family ICA functions
+#' @family summary functions
+#'
+#' @return A table with the variance explained by each component, and the correlation between EOG channels and each components in each recording.
+##' @export
 eeg_ica_summary_tbl <- function(.data, ...){
     UseMethod("eeg_ica_summary_tbl")
 }

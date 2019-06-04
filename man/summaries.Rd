@@ -37,6 +37,8 @@ elements channels or components. Components are only available after running \co
 \seealso{
 Other summary functions: \code{\link{count_complete_cases_tbl}},
   \code{\link{eeg_ica_cor_tbl}},
+  \code{\link{eeg_ica_summary_tbl}},
+  \code{\link{eeg_ica_var_tbl}},
   \code{\link{summary.eeg_lst}}
 }
 \concept{summary functions}

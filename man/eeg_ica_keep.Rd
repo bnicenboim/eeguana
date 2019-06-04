@@ -21,7 +21,9 @@ Other preprocessing functions: \code{\link{eeg_baseline}},
   \code{\link{filt}}
 
 Other ICA functions: \code{\link{eeg_ica_cor_tbl}},
-  \code{\link{eeg_ica_show}}, \code{\link{eeg_ica}},
+  \code{\link{eeg_ica_show}},
+  \code{\link{eeg_ica_summary_tbl}},
+  \code{\link{eeg_ica_var_tbl}}, \code{\link{eeg_ica}},
   \code{\link{plot_components}}
 }
 \concept{ICA functions}

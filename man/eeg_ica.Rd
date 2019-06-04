@@ -38,6 +38,8 @@ Some packages with other ICA methods or implementations: \code{steadyICA} and \c
 \seealso{
 Other ICA functions: \code{\link{eeg_ica_cor_tbl}},
   \code{\link{eeg_ica_keep}}, \code{\link{eeg_ica_show}},
+  \code{\link{eeg_ica_summary_tbl}},
+  \code{\link{eeg_ica_var_tbl}},
   \code{\link{plot_components}}
 
 Other preprocessing functions: \code{\link{eeg_baseline}},
