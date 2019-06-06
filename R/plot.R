@@ -201,7 +201,6 @@ plot_topo.eeg_lst <- function(data, projection = "polar", ...) {
 #'
 #' @family plotting functions
 #' @family ICA functions
-#' @family plotting functions
 #' @family topographic plots and layouts
 #' @inheritParams plot_topo
 #' @param standardize Whether to standardize the color scale of each topographic plot.

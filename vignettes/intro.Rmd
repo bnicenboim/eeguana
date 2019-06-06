@@ -160,7 +160,7 @@ In order to investigate the ICA, we are using an experminal function not yet exp
 
 We'll see how the components explaining the most variance and most correlated to the EOG channels behave:
 
-```{r, fig.dim = c(10,10), out.width = "100%"}
+```{r, fig.dim = c(10,9), out.width = "90%"}
 #samples with blinks
 s_peaks <- filter(events_tbl(faces_ica),  str_starts(.description, "peak")) %>% pull(.initial)
 eeguana:::plot_ica.eeg_ica_lst(faces_ica, samples = seq(s_peaks[1]-2000,s_peaks[1]+2000))
@@ -187,9 +187,13 @@ faces_seg_artif <- faces_seg %>%
   eeg_artif_minmax(-HEOG, -VEOG, threshold = 100, window = 150, unit = "ms") %>%
   eeg_artif_step(-HEOG, -VEOG, threshold = 50, window = 200, unit = "ms")
 
-bad <- filter(events_tbl(faces_seg_artif), .type == "artifact") %>% pull(.id) %>% unique()
+## extracts the ids of the segments with artifacts
+bad <- filter(events_tbl(faces_seg_artif), .type == "artifact") %>% 
+  pull(.id) %>% 
+  unique()
+## Show the segment with artifact and one before and after:
 faces_seg_artif %>%
-  filter(.id == bad) %>%
+  filter(.id %in% c(bad-1, bad, bad+1)) %>%
   select(-VEOG, -HEOG) %>%
   plot() +
   annotate_events() +
