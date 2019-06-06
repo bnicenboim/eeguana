@@ -32,7 +32,8 @@ Here, I exemplify the use of *eeguana* with raw EEG data exported in the format 
 
 First we download the data:
 
-```{r downloading, eval=FALSE, cache=TRUE, include=TRUE}
+```{r downloading, eval=any(!file.exists(c("s1_faces.vhdr","s1_faces.vmrk","s1_faces.eeg"))), cache=TRUE, include=TRUE}
+
 download.file("http://www.ling.uni-potsdam.de/~nicenboim/files/s1_faces.vhdr",
   mode = "wb", destfile = "./s1_faces.vhdr"
 )

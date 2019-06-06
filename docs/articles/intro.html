@@ -93,7 +93,7 @@
       <h1>Introduction - Preprocessing and visualization of EEG data.</h1>
                         <h4 class="author">Bruno Nicenboim</h4>
             
-            <h4 class="date">2019-06-04</h4>
+            <h4 class="date">2019-06-06</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bnicenboim/eeguana/blob/master/vignettes/intro.Rmd"><code>vignettes/intro.Rmd</code></a></small>
       <div class="hidden name"><code>intro.Rmd</code></div>
@@ -112,160 +112,170 @@
 <div id="a-practical-example-the-n170-effect" class="section level1">
 <h1 class="hasAnchor">
 <a href="#a-practical-example-the-n170-effect" class="anchor"></a>A practical example: the N170 effect</h1>
-<p>Here, I exemplify the use of <em>eeguana</em> with EEG data from BrainVision 1.0. The data belong to a simple experiment where a participant was presented 100 faces and 100 assorted images in random order. The task of the experiment was to mentally count the number of faces.</p>
+<p>Here, I exemplify the use of <em>eeguana</em> with raw EEG data exported in the format of BrainVision 1.0. The data belong to a simple experiment where a participant was presented 100 faces and 100 assorted images in random order. The task of the experiment was to mentally count the number of faces.</p>
 <p>First we download the data:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/download.file">download.file</a></span>(<span class="st">"http://www.ling.uni-potsdam.de/~nicenboim/files/s1_faces.vhdr"</span>,</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">  <span class="dt">mode =</span> <span class="st">"wb"</span>, <span class="dt">destfile =</span> <span class="st">"./s1_faces.vhdr"</span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">)</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/download.file">download.file</a></span>(<span class="st">"http://www.ling.uni-potsdam.de/~nicenboim/files/s1_faces.vmrk"</span>,</a>
+<a class="sourceLine" id="cb1-6" data-line-number="6">  <span class="dt">mode =</span> <span class="st">"wb"</span>, <span class="dt">destfile =</span> <span class="st">"./s1_faces.vmrk"</span></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7">)</a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/download.file">download.file</a></span>(<span class="st">"http://www.ling.uni-potsdam.de/~nicenboim/files/s1_faces.eeg"</span>,</a>
+<a class="sourceLine" id="cb1-9" data-line-number="9">  <span class="dt">mode =</span> <span class="st">"wb"</span>, <span class="dt">destfile =</span> <span class="st">"./s1_faces.eeg"</span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10">)</a></code></pre></div>
 <p>BrainVision 1.0 exports three files: <code>s1_faces.vhdr</code>, <code>s1_faces.vmrk</code>, and <code>s1_faces.eeg</code>. The file <code>s1_faces.vhdr</code> contains the metadata and links to the other two files, <code>s1_faces.vmrk</code> contains the triggers and other events in the samples, and <code>s1_faces.eeg</code> contains the signals at every sample for every channel recorded.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(dplyr)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ggplot2)</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(stringr)</a>
-<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(eeguana)</a>
-<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">123</span>) <span class="co"># ICA will always find the same components</span></a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(dplyr)</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ggplot2)</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(stringr)</a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(eeguana)</a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">123</span>) <span class="co"># ICA will always find the same components</span></a></code></pre></div>
 <p>We first need to read the data:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">faces &lt;-<span class="st"> </span><span class="kw"><a href="../reference/read_vhdr.html">read_vhdr</a></span>(<span class="st">"s1_faces.vhdr"</span>)</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="co">#&gt; Reading file s1_faces.vhdr...</span></a>
-<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co">#&gt; # Data from s1_faces.eeg was read.</span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co">#&gt; # Data from 1 segment(s) and 34 channels was loaded.</span></a>
-<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="co">#&gt; # Object size in memory 113.4 Mb</span></a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">faces &lt;-<span class="st"> </span><span class="kw"><a href="../reference/read_vhdr.html">read_vhdr</a></span>(<span class="st">"s1_faces.vhdr"</span>)</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co">#&gt; Reading file s1_faces.vhdr...</span></a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co">#&gt; # Data from s1_faces.eeg was read.</span></a>
+<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="co">#&gt; # Data from 1 segment(s) and 34 channels was loaded.</span></a>
+<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co">#&gt; # Object size in memory 113.4 Mb</span></a></code></pre></div>
 <p>The function <code><a href="../reference/read_vhdr.html">read_vhdr()</a></code> creates a list with data frames for the signal, events, segments information, and incorporates in its attributes generic EEG information.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">faces</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co">#&gt; # EEG data:</span></a>
-<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="co">#&gt; # Signal table:</span></a>
-<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co">#&gt;         .id .sample       Fp1       Fpz       Fp2        F7         F3</span></a>
-<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co">#&gt;      1:   1       1 -17878.56 -8921.395 -14028.81 -284.2541 -1378.1467</span></a>
-<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="co">#&gt;      2:   1       2 -17903.75 -8948.022 -14056.53 -303.9134 -1400.6560</span></a>
-<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="co">#&gt;      3:   1       3 -17916.55 -8961.906 -14070.91 -307.1683 -1407.8466</span></a>
-<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="co">#&gt;      4:   1       4 -17918.17 -8963.691 -14068.63 -299.8859 -1401.9985</span></a>
-<a class="sourceLine" id="cb3-10" data-line-number="10"><span class="co">#&gt;      5:   1       5 -17917.71 -8965.658 -14069.16 -294.7915 -1401.2996</span></a>
-<a class="sourceLine" id="cb3-11" data-line-number="11"><span class="co">#&gt;     ---                                                               </span></a>
-<a class="sourceLine" id="cb3-12" data-line-number="12"><span class="co">#&gt; 424484:   1  424484 -16094.71 -8234.730 -13505.21  609.9043  -236.9552</span></a>
-<a class="sourceLine" id="cb3-13" data-line-number="13"><span class="co">#&gt; 424485:   1  424485 -16140.11 -8280.301 -13547.56  603.1918  -311.0485</span></a>
-<a class="sourceLine" id="cb3-14" data-line-number="14"><span class="co">#&gt; 424486:   1  424486 -16145.24 -8275.078 -13528.22  541.3096  -291.0218</span></a>
-<a class="sourceLine" id="cb3-15" data-line-number="15"><span class="co">#&gt; 424487:   1  424487 -16165.22 -8294.479 -13546.50  467.7130  -302.0740</span></a>
-<a class="sourceLine" id="cb3-16" data-line-number="16"><span class="co">#&gt; 424488:   1  424488 -16167.39 -8305.199 -13561.12  576.3062  -319.2688</span></a>
-<a class="sourceLine" id="cb3-17" data-line-number="17"><span class="co">#&gt;                Fz       F4         F8       FC5       FC1       FC2       FC6</span></a>
-<a class="sourceLine" id="cb3-18" data-line-number="18"><span class="co">#&gt;      1: -8077.128 1167.489 -1663.4490 -2315.080 -9040.689 -795.0549 -3665.146</span></a>
-<a class="sourceLine" id="cb3-19" data-line-number="19"><span class="co">#&gt;      2: -8101.660 1145.292 -1685.9034 -2338.859 -9064.137 -816.1298 -3688.133</span></a>
-<a class="sourceLine" id="cb3-20" data-line-number="20"><span class="co">#&gt;      3: -8114.331 1138.028 -1691.4203 -2343.475 -9071.438 -823.4675 -3690.046</span></a>
-<a class="sourceLine" id="cb3-21" data-line-number="21"><span class="co">#&gt;      4: -8116.114 1139.702 -1683.0713 -2333.746 -9065.608 -817.9690 -3681.642</span></a>
-<a class="sourceLine" id="cb3-22" data-line-number="22"><span class="co">#&gt;      5: -8119.442 1136.373 -1684.2664 -2326.648 -9061.397 -817.2882 -3679.563</span></a>
-<a class="sourceLine" id="cb3-23" data-line-number="23"><span class="co">#&gt;     ---                                                                      </span></a>
-<a class="sourceLine" id="cb3-24" data-line-number="24"><span class="co">#&gt; 424484: -7991.669 1977.146  -162.8618 -2290.511 -9349.164 -318.8641 -2805.395</span></a>
-<a class="sourceLine" id="cb3-25" data-line-number="25"><span class="co">#&gt; 424485: -8045.019 1938.122  -183.0542 -2424.133 -9410.679 -364.1038 -2833.090</span></a>
-<a class="sourceLine" id="cb3-26" data-line-number="26"><span class="co">#&gt; 424486: -8032.237 1965.358  -132.3712 -2291.431 -9379.728 -342.3297 -2811.445</span></a>
-<a class="sourceLine" id="cb3-27" data-line-number="27"><span class="co">#&gt; 424487: -8052.393 1930.877  -180.4978 -2361.589 -9381.456 -358.2924 -2868.325</span></a>
-<a class="sourceLine" id="cb3-28" data-line-number="28"><span class="co">#&gt; 424488: -8065.579 1927.474  -188.0929 -2368.595 -9409.171 -363.8277 -2853.797</span></a>
-<a class="sourceLine" id="cb3-29" data-line-number="29"><span class="co">#&gt;         M1        T7        C3         Cz        C4         T8        M2</span></a>
-<a class="sourceLine" id="cb3-30" data-line-number="30"><span class="co">#&gt;      1:  0 -5156.998 -2466.320 -1568.4097 -4427.577 -10351.511 -1845.363</span></a>
-<a class="sourceLine" id="cb3-31" data-line-number="31"><span class="co">#&gt;      2:  0 -5184.417 -2490.411 -1591.3053 -4450.049 -10372.402 -1850.862</span></a>
-<a class="sourceLine" id="cb3-32" data-line-number="32"><span class="co">#&gt;      3:  0 -5186.146 -2495.726 -1597.7970 -4454.775 -10378.323 -1845.087</span></a>
-<a class="sourceLine" id="cb3-33" data-line-number="33"><span class="co">#&gt;      4:  0 -5174.358 -2487.358 -1591.5627 -4449.590 -10373.983 -1836.370</span></a>
-<a class="sourceLine" id="cb3-34" data-line-number="34"><span class="co">#&gt;      5:  0 -5170.146 -2481.878 -1588.5833 -4446.334 -10370.489 -1841.961</span></a>
-<a class="sourceLine" id="cb3-35" data-line-number="35"><span class="co">#&gt;     ---                                                                 </span></a>
-<a class="sourceLine" id="cb3-36" data-line-number="36"><span class="co">#&gt; 424484:  0 -3703.158 -2301.288  -395.4219 -2952.459  -9502.499 -2128.771</span></a>
-<a class="sourceLine" id="cb3-37" data-line-number="37"><span class="co">#&gt; 424485:  0 -3834.959 -2372.439  -444.3945 -2994.426  -9465.224 -2179.546</span></a>
-<a class="sourceLine" id="cb3-38" data-line-number="38"><span class="co">#&gt; 424486:  0 -3773.260 -2312.064  -419.6414 -2975.410  -9389.198 -2153.340</span></a>
-<a class="sourceLine" id="cb3-39" data-line-number="39"><span class="co">#&gt; 424487:  0 -3746.392 -2304.304  -426.3353 -2986.242  -9369.264 -2141.644</span></a>
-<a class="sourceLine" id="cb3-40" data-line-number="40"><span class="co">#&gt; 424488:  0 -3615.768 -2358.720  -437.9209 -2984.145  -9521.864 -2130.978</span></a>
-<a class="sourceLine" id="cb3-41" data-line-number="41"><span class="co">#&gt;               CP5       CP1        CP2       CP6        P7        P3         Pz</span></a>
-<a class="sourceLine" id="cb3-42" data-line-number="42"><span class="co">#&gt;      1: -8938.128 -4755.838 -1369.6688 -1729.708 -7513.455 -8512.474 -537.63159</span></a>
-<a class="sourceLine" id="cb3-43" data-line-number="43"><span class="co">#&gt;      2: -8963.231 -4778.917 -1391.3324 -1750.029 -7535.836 -8533.438 -557.97095</span></a>
-<a class="sourceLine" id="cb3-44" data-line-number="44"><span class="co">#&gt;      3: -8969.171 -4784.986 -1397.7506 -1757.532 -7541.739 -8537.741 -561.55725</span></a>
-<a class="sourceLine" id="cb3-45" data-line-number="45"><span class="co">#&gt;      4: -8957.989 -4775.938 -1391.9026 -1754.553 -7530.282 -8529.099 -552.78510</span></a>
-<a class="sourceLine" id="cb3-46" data-line-number="46"><span class="co">#&gt;      5: -8950.726 -4772.205 -1388.7207 -1755.197 -7524.361 -8523.562 -549.19885</span></a>
-<a class="sourceLine" id="cb3-47" data-line-number="47"><span class="co">#&gt;     ---                                                                        </span></a>
-<a class="sourceLine" id="cb3-48" data-line-number="48"><span class="co">#&gt; 424484: -8037.571 -4200.332  -677.7635 -1046.501 -5433.473 -8150.485  -34.94090</span></a>
-<a class="sourceLine" id="cb3-49" data-line-number="49"><span class="co">#&gt; 424485: -8083.840 -4253.405  -721.7708 -1080.431 -5470.565 -8197.932  -79.35287</span></a>
-<a class="sourceLine" id="cb3-50" data-line-number="50"><span class="co">#&gt; 424486: -8027.603 -4225.636  -702.5348 -1048.874 -5474.501 -8173.215  -60.83399</span></a>
-<a class="sourceLine" id="cb3-51" data-line-number="51"><span class="co">#&gt; 424487: -8046.398 -4230.160  -709.1735 -1040.856 -5488.533 -8182.244  -64.40166</span></a>
-<a class="sourceLine" id="cb3-52" data-line-number="52"><span class="co">#&gt; 424488: -8060.742 -4244.541  -712.0606 -1053.931 -5478.491 -8187.780  -69.53255</span></a>
-<a class="sourceLine" id="cb3-53" data-line-number="53"><span class="co">#&gt;                 P4        P8       POz        O1        Oz        O2      HEOG</span></a>
-<a class="sourceLine" id="cb3-54" data-line-number="54"><span class="co">#&gt;      1:  -99.10343 -875.6397 -852.6708 -4117.080 -1950.149 -817.4540 -5006.420</span></a>
-<a class="sourceLine" id="cb3-55" data-line-number="55"><span class="co">#&gt;      2: -117.14455 -892.3933 -871.1710 -4136.997 -1965.578 -825.3984 -5027.017</span></a>
-<a class="sourceLine" id="cb3-56" data-line-number="56"><span class="co">#&gt;      3: -122.82701 -892.9816 -873.9114 -4138.725 -1965.137 -824.5893 -5037.775</span></a>
-<a class="sourceLine" id="cb3-57" data-line-number="57"><span class="co">#&gt;      4: -117.75130 -886.6740 -866.0771 -4126.606 -1957.450 -823.7434 -5033.031</span></a>
-<a class="sourceLine" id="cb3-58" data-line-number="58"><span class="co">#&gt;      5: -117.82441 -885.3681 -865.5070 -4127.543 -1967.270 -834.0415 -5031.210</span></a>
-<a class="sourceLine" id="cb3-59" data-line-number="59"><span class="co">#&gt;     ---                                                                       </span></a>
-<a class="sourceLine" id="cb3-60" data-line-number="60"><span class="co">#&gt; 424484:  496.89807 -182.1897 -304.2810 -2730.290 -1170.744  -67.8408 -3137.224</span></a>
-<a class="sourceLine" id="cb3-61" data-line-number="61"><span class="co">#&gt; 424485:  458.84891 -229.4153 -345.6953 -2777.571 -1209.235 -104.1242 -3216.466</span></a>
-<a class="sourceLine" id="cb3-62" data-line-number="62"><span class="co">#&gt; 424486:  476.24600 -226.5095 -342.8815 -2794.121 -1232.792 -135.4974 -3136.874</span></a>
-<a class="sourceLine" id="cb3-63" data-line-number="63"><span class="co">#&gt; 424487:  471.66693 -247.6580 -343.4331 -2790.444 -1224.516 -152.9679 -3105.096</span></a>
-<a class="sourceLine" id="cb3-64" data-line-number="64"><span class="co">#&gt; 424488:  475.47369 -247.5108 -350.5685 -2804.640 -1245.077 -186.8792 -3162.988</span></a>
-<a class="sourceLine" id="cb3-65" data-line-number="65"><span class="co">#&gt;              VEOG</span></a>
-<a class="sourceLine" id="cb3-66" data-line-number="66"><span class="co">#&gt;      1: -9116.806</span></a>
-<a class="sourceLine" id="cb3-67" data-line-number="67"><span class="co">#&gt;      2: -9133.780</span></a>
-<a class="sourceLine" id="cb3-68" data-line-number="68"><span class="co">#&gt;      3: -9138.781</span></a>
-<a class="sourceLine" id="cb3-69" data-line-number="69"><span class="co">#&gt;      4: -9134.222</span></a>
-<a class="sourceLine" id="cb3-70" data-line-number="70"><span class="co">#&gt;      5: -9139.996</span></a>
-<a class="sourceLine" id="cb3-71" data-line-number="71"><span class="co">#&gt;     ---          </span></a>
-<a class="sourceLine" id="cb3-72" data-line-number="72"><span class="co">#&gt; 424484: -8591.514</span></a>
-<a class="sourceLine" id="cb3-73" data-line-number="73"><span class="co">#&gt; 424485: -8672.283</span></a>
-<a class="sourceLine" id="cb3-74" data-line-number="74"><span class="co">#&gt; 424486: -8648.578</span></a>
-<a class="sourceLine" id="cb3-75" data-line-number="75"><span class="co">#&gt; 424487: -8658.159</span></a>
-<a class="sourceLine" id="cb3-76" data-line-number="76"><span class="co">#&gt; 424488: -8660.311</span></a>
-<a class="sourceLine" id="cb3-77" data-line-number="77"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb3-78" data-line-number="78"><span class="co">#&gt; # Events table:</span></a>
-<a class="sourceLine" id="cb3-79" data-line-number="79"><span class="co">#&gt;      .id       .type .description .initial .final .channel</span></a>
-<a class="sourceLine" id="cb3-80" data-line-number="80"><span class="co">#&gt;   1:   1 New Segment                     1      1     &lt;NA&gt;</span></a>
-<a class="sourceLine" id="cb3-81" data-line-number="81"><span class="co">#&gt;   2:   1    Stimulus         s111    10528  10528     &lt;NA&gt;</span></a>
-<a class="sourceLine" id="cb3-82" data-line-number="82"><span class="co">#&gt;   3:   1    Stimulus         s130    10742  10742     &lt;NA&gt;</span></a>
-<a class="sourceLine" id="cb3-83" data-line-number="83"><span class="co">#&gt;   4:   1    Stimulus          s71    11175  11175     &lt;NA&gt;</span></a>
-<a class="sourceLine" id="cb3-84" data-line-number="84"><span class="co">#&gt;   5:   1    Stimulus         s130    12806  12806     &lt;NA&gt;</span></a>
-<a class="sourceLine" id="cb3-85" data-line-number="85"><span class="co">#&gt;  ---                                                      </span></a>
-<a class="sourceLine" id="cb3-86" data-line-number="86"><span class="co">#&gt; 401:   1    Stimulus         s130   411197 411197     &lt;NA&gt;</span></a>
-<a class="sourceLine" id="cb3-87" data-line-number="87"><span class="co">#&gt; 402:   1    Stimulus          s71   411469 411469     &lt;NA&gt;</span></a>
-<a class="sourceLine" id="cb3-88" data-line-number="88"><span class="co">#&gt; 403:   1    Stimulus         s121   412943 412943     &lt;NA&gt;</span></a>
-<a class="sourceLine" id="cb3-89" data-line-number="89"><span class="co">#&gt; 404:   1    Stimulus         s122   412966 412966     &lt;NA&gt;</span></a>
-<a class="sourceLine" id="cb3-90" data-line-number="90"><span class="co">#&gt; 405:   1    Stimulus         s102   412989 412989     &lt;NA&gt;</span></a>
-<a class="sourceLine" id="cb3-91" data-line-number="91"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb3-92" data-line-number="92"><span class="co">#&gt; # Segments table:</span></a>
-<a class="sourceLine" id="cb3-93" data-line-number="93"><span class="co">#&gt; # A tibble: 1 x 3</span></a>
-<a class="sourceLine" id="cb3-94" data-line-number="94"><span class="co">#&gt;     .id .recording    segment</span></a>
-<a class="sourceLine" id="cb3-95" data-line-number="95"><span class="co">#&gt;   &lt;int&gt; &lt;chr&gt;           &lt;int&gt;</span></a>
-<a class="sourceLine" id="cb3-96" data-line-number="96"><span class="co">#&gt; 1     1 s1_faces.vhdr       1</span></a>
-<a class="sourceLine" id="cb3-97" data-line-number="97"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary</a></span>(faces)</a>
-<a class="sourceLine" id="cb3-98" data-line-number="98"><span class="co">#&gt; # EEG data:</span></a>
-<a class="sourceLine" id="cb3-99" data-line-number="99"><span class="co">#&gt; # Sampling rate: 512 Hz.</span></a>
-<a class="sourceLine" id="cb3-100" data-line-number="100"><span class="co">#&gt; # Size in memory: 113.4 Mb.</span></a>
-<a class="sourceLine" id="cb3-101" data-line-number="101"><span class="co">#&gt; # Total duration: 00:13:49.</span></a>
-<a class="sourceLine" id="cb3-102" data-line-number="102"><span class="co">#&gt; # Summary of segments</span></a>
-<a class="sourceLine" id="cb3-103" data-line-number="103"><span class="co">#&gt;       .recording n_segments n_incomplete</span></a>
-<a class="sourceLine" id="cb3-104" data-line-number="104"><span class="co">#&gt; 1: s1_faces.vhdr          1            0</span></a>
-<a class="sourceLine" id="cb3-105" data-line-number="105"><span class="co">#&gt; # Summary of events</span></a>
-<a class="sourceLine" id="cb3-106" data-line-number="106"><span class="co">#&gt;          .type .description   n</span></a>
-<a class="sourceLine" id="cb3-107" data-line-number="107"><span class="co">#&gt; 1: New Segment                1</span></a>
-<a class="sourceLine" id="cb3-108" data-line-number="108"><span class="co">#&gt; 2:    Stimulus         s102   1</span></a>
-<a class="sourceLine" id="cb3-109" data-line-number="109"><span class="co">#&gt; 3:    Stimulus         s111   1</span></a>
-<a class="sourceLine" id="cb3-110" data-line-number="110"><span class="co">#&gt; 4:    Stimulus         s121   1</span></a>
-<a class="sourceLine" id="cb3-111" data-line-number="111"><span class="co">#&gt; 5:    Stimulus         s122   1</span></a>
-<a class="sourceLine" id="cb3-112" data-line-number="112"><span class="co">#&gt; 6:    Stimulus         s130 200</span></a>
-<a class="sourceLine" id="cb3-113" data-line-number="113"><span class="co">#&gt; 7:    Stimulus          s70 100</span></a>
-<a class="sourceLine" id="cb3-114" data-line-number="114"><span class="co">#&gt; 8:    Stimulus          s71 100</span></a></code></pre></div>
-<p>We see that there is no electrode positions in the object, but since we know that the layout was a standard 10/20, we’ll add this layout to the object, using the dataset <code>layout_32_1020</code>.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw"><a href="../reference/channels_tbl.html">channels_tbl</a></span>(faces)</a>
-<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="co">#&gt; # A tibble: 34 x 11</span></a>
-<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="co">#&gt;    .channel number .reference resolution unit  radius theta   phi    .x    .y</span></a>
-<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="co">#&gt;    &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt;           &lt;dbl&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;</span></a>
-<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="co">#&gt;  1 Fp1      Ch1    ""                  1 micr…     NA    NA    NA    NA    NA</span></a>
-<a class="sourceLine" id="cb4-6" data-line-number="6"><span class="co">#&gt;  2 Fpz      Ch2    ""                  1 micr…     NA    NA    NA    NA    NA</span></a>
-<a class="sourceLine" id="cb4-7" data-line-number="7"><span class="co">#&gt;  3 Fp2      Ch3    ""                  1 micr…     NA    NA    NA    NA    NA</span></a>
-<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="co">#&gt;  4 F7       Ch4    ""                  1 micr…     NA    NA    NA    NA    NA</span></a>
-<a class="sourceLine" id="cb4-9" data-line-number="9"><span class="co">#&gt;  5 F3       Ch5    ""                  1 micr…     NA    NA    NA    NA    NA</span></a>
-<a class="sourceLine" id="cb4-10" data-line-number="10"><span class="co">#&gt;  6 Fz       Ch6    ""                  1 micr…     NA    NA    NA    NA    NA</span></a>
-<a class="sourceLine" id="cb4-11" data-line-number="11"><span class="co">#&gt;  7 F4       Ch7    ""                  1 micr…     NA    NA    NA    NA    NA</span></a>
-<a class="sourceLine" id="cb4-12" data-line-number="12"><span class="co">#&gt;  8 F8       Ch8    ""                  1 micr…     NA    NA    NA    NA    NA</span></a>
-<a class="sourceLine" id="cb4-13" data-line-number="13"><span class="co">#&gt;  9 FC5      Ch9    ""                  1 micr…     NA    NA    NA    NA    NA</span></a>
-<a class="sourceLine" id="cb4-14" data-line-number="14"><span class="co">#&gt; 10 FC1      Ch10   ""                  1 micr…     NA    NA    NA    NA    NA</span></a>
-<a class="sourceLine" id="cb4-15" data-line-number="15"><span class="co">#&gt; # … with 24 more rows, and 1 more variable: .z &lt;dbl&gt;</span></a>
-<a class="sourceLine" id="cb4-16" data-line-number="16"><span class="co">## In case the order of the electrodes is different, we do a left_join instead of replacing the table:</span></a>
-<a class="sourceLine" id="cb4-17" data-line-number="17"><span class="kw"><a href="../reference/channels_tbl.html">channels_tbl</a></span>(faces) &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="kw"><a href="../reference/channels_tbl.html">channels_tbl</a></span>(faces), .channel) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb4-18" data-line-number="18"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">left_join</a></span>(layout_<span class="dv">32</span>_<span class="dv">1020</span>)</a>
-<a class="sourceLine" id="cb4-19" data-line-number="19"><span class="co">#&gt; Joining, by = ".channel"</span></a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">faces</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="co">#&gt; # EEG data:</span></a>
+<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="co">#&gt; # Signal table:</span></a>
+<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="co">#&gt;         .id .sample       Fp1       Fpz       Fp2        F7         F3</span></a>
+<a class="sourceLine" id="cb4-6" data-line-number="6"><span class="co">#&gt;      1:   1       1 -17878.56 -8921.395 -14028.81 -284.2541 -1378.1467</span></a>
+<a class="sourceLine" id="cb4-7" data-line-number="7"><span class="co">#&gt;      2:   1       2 -17903.75 -8948.022 -14056.53 -303.9134 -1400.6560</span></a>
+<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="co">#&gt;      3:   1       3 -17916.55 -8961.906 -14070.91 -307.1683 -1407.8466</span></a>
+<a class="sourceLine" id="cb4-9" data-line-number="9"><span class="co">#&gt;      4:   1       4 -17918.17 -8963.691 -14068.63 -299.8859 -1401.9985</span></a>
+<a class="sourceLine" id="cb4-10" data-line-number="10"><span class="co">#&gt;      5:   1       5 -17917.71 -8965.658 -14069.16 -294.7915 -1401.2996</span></a>
+<a class="sourceLine" id="cb4-11" data-line-number="11"><span class="co">#&gt;     ---                                                               </span></a>
+<a class="sourceLine" id="cb4-12" data-line-number="12"><span class="co">#&gt; 424484:   1  424484 -16094.71 -8234.730 -13505.21  609.9043  -236.9552</span></a>
+<a class="sourceLine" id="cb4-13" data-line-number="13"><span class="co">#&gt; 424485:   1  424485 -16140.11 -8280.301 -13547.56  603.1918  -311.0485</span></a>
+<a class="sourceLine" id="cb4-14" data-line-number="14"><span class="co">#&gt; 424486:   1  424486 -16145.24 -8275.078 -13528.22  541.3096  -291.0218</span></a>
+<a class="sourceLine" id="cb4-15" data-line-number="15"><span class="co">#&gt; 424487:   1  424487 -16165.22 -8294.479 -13546.50  467.7130  -302.0740</span></a>
+<a class="sourceLine" id="cb4-16" data-line-number="16"><span class="co">#&gt; 424488:   1  424488 -16167.39 -8305.199 -13561.12  576.3062  -319.2688</span></a>
+<a class="sourceLine" id="cb4-17" data-line-number="17"><span class="co">#&gt;                Fz       F4         F8       FC5       FC1       FC2       FC6</span></a>
+<a class="sourceLine" id="cb4-18" data-line-number="18"><span class="co">#&gt;      1: -8077.128 1167.489 -1663.4490 -2315.080 -9040.689 -795.0549 -3665.146</span></a>
+<a class="sourceLine" id="cb4-19" data-line-number="19"><span class="co">#&gt;      2: -8101.660 1145.292 -1685.9034 -2338.859 -9064.137 -816.1298 -3688.133</span></a>
+<a class="sourceLine" id="cb4-20" data-line-number="20"><span class="co">#&gt;      3: -8114.331 1138.028 -1691.4203 -2343.475 -9071.438 -823.4675 -3690.046</span></a>
+<a class="sourceLine" id="cb4-21" data-line-number="21"><span class="co">#&gt;      4: -8116.114 1139.702 -1683.0713 -2333.746 -9065.608 -817.9690 -3681.642</span></a>
+<a class="sourceLine" id="cb4-22" data-line-number="22"><span class="co">#&gt;      5: -8119.442 1136.373 -1684.2664 -2326.648 -9061.397 -817.2882 -3679.563</span></a>
+<a class="sourceLine" id="cb4-23" data-line-number="23"><span class="co">#&gt;     ---                                                                      </span></a>
+<a class="sourceLine" id="cb4-24" data-line-number="24"><span class="co">#&gt; 424484: -7991.669 1977.146  -162.8618 -2290.511 -9349.164 -318.8641 -2805.395</span></a>
+<a class="sourceLine" id="cb4-25" data-line-number="25"><span class="co">#&gt; 424485: -8045.019 1938.122  -183.0542 -2424.133 -9410.679 -364.1038 -2833.090</span></a>
+<a class="sourceLine" id="cb4-26" data-line-number="26"><span class="co">#&gt; 424486: -8032.237 1965.358  -132.3712 -2291.431 -9379.728 -342.3297 -2811.445</span></a>
+<a class="sourceLine" id="cb4-27" data-line-number="27"><span class="co">#&gt; 424487: -8052.393 1930.877  -180.4978 -2361.589 -9381.456 -358.2924 -2868.325</span></a>
+<a class="sourceLine" id="cb4-28" data-line-number="28"><span class="co">#&gt; 424488: -8065.579 1927.474  -188.0929 -2368.595 -9409.171 -363.8277 -2853.797</span></a>
+<a class="sourceLine" id="cb4-29" data-line-number="29"><span class="co">#&gt;         M1        T7        C3         Cz        C4         T8        M2</span></a>
+<a class="sourceLine" id="cb4-30" data-line-number="30"><span class="co">#&gt;      1:  0 -5156.998 -2466.320 -1568.4097 -4427.577 -10351.511 -1845.363</span></a>
+<a class="sourceLine" id="cb4-31" data-line-number="31"><span class="co">#&gt;      2:  0 -5184.417 -2490.411 -1591.3053 -4450.049 -10372.402 -1850.862</span></a>
+<a class="sourceLine" id="cb4-32" data-line-number="32"><span class="co">#&gt;      3:  0 -5186.146 -2495.726 -1597.7970 -4454.775 -10378.323 -1845.087</span></a>
+<a class="sourceLine" id="cb4-33" data-line-number="33"><span class="co">#&gt;      4:  0 -5174.358 -2487.358 -1591.5627 -4449.590 -10373.983 -1836.370</span></a>
+<a class="sourceLine" id="cb4-34" data-line-number="34"><span class="co">#&gt;      5:  0 -5170.146 -2481.878 -1588.5833 -4446.334 -10370.489 -1841.961</span></a>
+<a class="sourceLine" id="cb4-35" data-line-number="35"><span class="co">#&gt;     ---                                                                 </span></a>
+<a class="sourceLine" id="cb4-36" data-line-number="36"><span class="co">#&gt; 424484:  0 -3703.158 -2301.288  -395.4219 -2952.459  -9502.499 -2128.771</span></a>
+<a class="sourceLine" id="cb4-37" data-line-number="37"><span class="co">#&gt; 424485:  0 -3834.959 -2372.439  -444.3945 -2994.426  -9465.224 -2179.546</span></a>
+<a class="sourceLine" id="cb4-38" data-line-number="38"><span class="co">#&gt; 424486:  0 -3773.260 -2312.064  -419.6414 -2975.410  -9389.198 -2153.340</span></a>
+<a class="sourceLine" id="cb4-39" data-line-number="39"><span class="co">#&gt; 424487:  0 -3746.392 -2304.304  -426.3353 -2986.242  -9369.264 -2141.644</span></a>
+<a class="sourceLine" id="cb4-40" data-line-number="40"><span class="co">#&gt; 424488:  0 -3615.768 -2358.720  -437.9209 -2984.145  -9521.864 -2130.978</span></a>
+<a class="sourceLine" id="cb4-41" data-line-number="41"><span class="co">#&gt;               CP5       CP1        CP2       CP6        P7        P3         Pz</span></a>
+<a class="sourceLine" id="cb4-42" data-line-number="42"><span class="co">#&gt;      1: -8938.128 -4755.838 -1369.6688 -1729.708 -7513.455 -8512.474 -537.63159</span></a>
+<a class="sourceLine" id="cb4-43" data-line-number="43"><span class="co">#&gt;      2: -8963.231 -4778.917 -1391.3324 -1750.029 -7535.836 -8533.438 -557.97095</span></a>
+<a class="sourceLine" id="cb4-44" data-line-number="44"><span class="co">#&gt;      3: -8969.171 -4784.986 -1397.7506 -1757.532 -7541.739 -8537.741 -561.55725</span></a>
+<a class="sourceLine" id="cb4-45" data-line-number="45"><span class="co">#&gt;      4: -8957.989 -4775.938 -1391.9026 -1754.553 -7530.282 -8529.099 -552.78510</span></a>
+<a class="sourceLine" id="cb4-46" data-line-number="46"><span class="co">#&gt;      5: -8950.726 -4772.205 -1388.7207 -1755.197 -7524.361 -8523.562 -549.19885</span></a>
+<a class="sourceLine" id="cb4-47" data-line-number="47"><span class="co">#&gt;     ---                                                                        </span></a>
+<a class="sourceLine" id="cb4-48" data-line-number="48"><span class="co">#&gt; 424484: -8037.571 -4200.332  -677.7635 -1046.501 -5433.473 -8150.485  -34.94090</span></a>
+<a class="sourceLine" id="cb4-49" data-line-number="49"><span class="co">#&gt; 424485: -8083.840 -4253.405  -721.7708 -1080.431 -5470.565 -8197.932  -79.35287</span></a>
+<a class="sourceLine" id="cb4-50" data-line-number="50"><span class="co">#&gt; 424486: -8027.603 -4225.636  -702.5348 -1048.874 -5474.501 -8173.215  -60.83399</span></a>
+<a class="sourceLine" id="cb4-51" data-line-number="51"><span class="co">#&gt; 424487: -8046.398 -4230.160  -709.1735 -1040.856 -5488.533 -8182.244  -64.40166</span></a>
+<a class="sourceLine" id="cb4-52" data-line-number="52"><span class="co">#&gt; 424488: -8060.742 -4244.541  -712.0606 -1053.931 -5478.491 -8187.780  -69.53255</span></a>
+<a class="sourceLine" id="cb4-53" data-line-number="53"><span class="co">#&gt;                 P4        P8       POz        O1        Oz        O2      HEOG</span></a>
+<a class="sourceLine" id="cb4-54" data-line-number="54"><span class="co">#&gt;      1:  -99.10343 -875.6397 -852.6708 -4117.080 -1950.149 -817.4540 -5006.420</span></a>
+<a class="sourceLine" id="cb4-55" data-line-number="55"><span class="co">#&gt;      2: -117.14455 -892.3933 -871.1710 -4136.997 -1965.578 -825.3984 -5027.017</span></a>
+<a class="sourceLine" id="cb4-56" data-line-number="56"><span class="co">#&gt;      3: -122.82701 -892.9816 -873.9114 -4138.725 -1965.137 -824.5893 -5037.775</span></a>
+<a class="sourceLine" id="cb4-57" data-line-number="57"><span class="co">#&gt;      4: -117.75130 -886.6740 -866.0771 -4126.606 -1957.450 -823.7434 -5033.031</span></a>
+<a class="sourceLine" id="cb4-58" data-line-number="58"><span class="co">#&gt;      5: -117.82441 -885.3681 -865.5070 -4127.543 -1967.270 -834.0415 -5031.210</span></a>
+<a class="sourceLine" id="cb4-59" data-line-number="59"><span class="co">#&gt;     ---                                                                       </span></a>
+<a class="sourceLine" id="cb4-60" data-line-number="60"><span class="co">#&gt; 424484:  496.89807 -182.1897 -304.2810 -2730.290 -1170.744  -67.8408 -3137.224</span></a>
+<a class="sourceLine" id="cb4-61" data-line-number="61"><span class="co">#&gt; 424485:  458.84891 -229.4153 -345.6953 -2777.571 -1209.235 -104.1242 -3216.466</span></a>
+<a class="sourceLine" id="cb4-62" data-line-number="62"><span class="co">#&gt; 424486:  476.24600 -226.5095 -342.8815 -2794.121 -1232.792 -135.4974 -3136.874</span></a>
+<a class="sourceLine" id="cb4-63" data-line-number="63"><span class="co">#&gt; 424487:  471.66693 -247.6580 -343.4331 -2790.444 -1224.516 -152.9679 -3105.096</span></a>
+<a class="sourceLine" id="cb4-64" data-line-number="64"><span class="co">#&gt; 424488:  475.47369 -247.5108 -350.5685 -2804.640 -1245.077 -186.8792 -3162.988</span></a>
+<a class="sourceLine" id="cb4-65" data-line-number="65"><span class="co">#&gt;              VEOG</span></a>
+<a class="sourceLine" id="cb4-66" data-line-number="66"><span class="co">#&gt;      1: -9116.806</span></a>
+<a class="sourceLine" id="cb4-67" data-line-number="67"><span class="co">#&gt;      2: -9133.780</span></a>
+<a class="sourceLine" id="cb4-68" data-line-number="68"><span class="co">#&gt;      3: -9138.781</span></a>
+<a class="sourceLine" id="cb4-69" data-line-number="69"><span class="co">#&gt;      4: -9134.222</span></a>
+<a class="sourceLine" id="cb4-70" data-line-number="70"><span class="co">#&gt;      5: -9139.996</span></a>
+<a class="sourceLine" id="cb4-71" data-line-number="71"><span class="co">#&gt;     ---          </span></a>
+<a class="sourceLine" id="cb4-72" data-line-number="72"><span class="co">#&gt; 424484: -8591.514</span></a>
+<a class="sourceLine" id="cb4-73" data-line-number="73"><span class="co">#&gt; 424485: -8672.283</span></a>
+<a class="sourceLine" id="cb4-74" data-line-number="74"><span class="co">#&gt; 424486: -8648.578</span></a>
+<a class="sourceLine" id="cb4-75" data-line-number="75"><span class="co">#&gt; 424487: -8658.159</span></a>
+<a class="sourceLine" id="cb4-76" data-line-number="76"><span class="co">#&gt; 424488: -8660.311</span></a>
+<a class="sourceLine" id="cb4-77" data-line-number="77"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb4-78" data-line-number="78"><span class="co">#&gt; # Events table:</span></a>
+<a class="sourceLine" id="cb4-79" data-line-number="79"><span class="co">#&gt;      .id       .type .description .initial .final .channel</span></a>
+<a class="sourceLine" id="cb4-80" data-line-number="80"><span class="co">#&gt;   1:   1 New Segment                     1      1     &lt;NA&gt;</span></a>
+<a class="sourceLine" id="cb4-81" data-line-number="81"><span class="co">#&gt;   2:   1    Stimulus         s111    10528  10528     &lt;NA&gt;</span></a>
+<a class="sourceLine" id="cb4-82" data-line-number="82"><span class="co">#&gt;   3:   1    Stimulus         s130    10742  10742     &lt;NA&gt;</span></a>
+<a class="sourceLine" id="cb4-83" data-line-number="83"><span class="co">#&gt;   4:   1    Stimulus          s71    11175  11175     &lt;NA&gt;</span></a>
+<a class="sourceLine" id="cb4-84" data-line-number="84"><span class="co">#&gt;   5:   1    Stimulus         s130    12806  12806     &lt;NA&gt;</span></a>
+<a class="sourceLine" id="cb4-85" data-line-number="85"><span class="co">#&gt;  ---                                                      </span></a>
+<a class="sourceLine" id="cb4-86" data-line-number="86"><span class="co">#&gt; 401:   1    Stimulus         s130   411197 411197     &lt;NA&gt;</span></a>
+<a class="sourceLine" id="cb4-87" data-line-number="87"><span class="co">#&gt; 402:   1    Stimulus          s71   411469 411469     &lt;NA&gt;</span></a>
+<a class="sourceLine" id="cb4-88" data-line-number="88"><span class="co">#&gt; 403:   1    Stimulus         s121   412943 412943     &lt;NA&gt;</span></a>
+<a class="sourceLine" id="cb4-89" data-line-number="89"><span class="co">#&gt; 404:   1    Stimulus         s122   412966 412966     &lt;NA&gt;</span></a>
+<a class="sourceLine" id="cb4-90" data-line-number="90"><span class="co">#&gt; 405:   1    Stimulus         s102   412989 412989     &lt;NA&gt;</span></a>
+<a class="sourceLine" id="cb4-91" data-line-number="91"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb4-92" data-line-number="92"><span class="co">#&gt; # Segments table:</span></a>
+<a class="sourceLine" id="cb4-93" data-line-number="93"><span class="co">#&gt; # A tibble: 1 x 3</span></a>
+<a class="sourceLine" id="cb4-94" data-line-number="94"><span class="co">#&gt;     .id .recording    segment</span></a>
+<a class="sourceLine" id="cb4-95" data-line-number="95"><span class="co">#&gt;   &lt;int&gt; &lt;chr&gt;           &lt;int&gt;</span></a>
+<a class="sourceLine" id="cb4-96" data-line-number="96"><span class="co">#&gt; 1     1 s1_faces.vhdr       1</span></a>
+<a class="sourceLine" id="cb4-97" data-line-number="97"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary</a></span>(faces)</a>
+<a class="sourceLine" id="cb4-98" data-line-number="98"><span class="co">#&gt; # EEG data:</span></a>
+<a class="sourceLine" id="cb4-99" data-line-number="99"><span class="co">#&gt; # Sampling rate: 512 Hz.</span></a>
+<a class="sourceLine" id="cb4-100" data-line-number="100"><span class="co">#&gt; # Size in memory: 113.4 Mb.</span></a>
+<a class="sourceLine" id="cb4-101" data-line-number="101"><span class="co">#&gt; # Total duration: 00:13:49.</span></a>
+<a class="sourceLine" id="cb4-102" data-line-number="102"><span class="co">#&gt; # Summary of segments</span></a>
+<a class="sourceLine" id="cb4-103" data-line-number="103"><span class="co">#&gt;       .recording n_segments n_incomplete</span></a>
+<a class="sourceLine" id="cb4-104" data-line-number="104"><span class="co">#&gt; 1: s1_faces.vhdr          1            0</span></a>
+<a class="sourceLine" id="cb4-105" data-line-number="105"><span class="co">#&gt; # Summary of events</span></a>
+<a class="sourceLine" id="cb4-106" data-line-number="106"><span class="co">#&gt;          .type .description   n</span></a>
+<a class="sourceLine" id="cb4-107" data-line-number="107"><span class="co">#&gt; 1: New Segment                1</span></a>
+<a class="sourceLine" id="cb4-108" data-line-number="108"><span class="co">#&gt; 2:    Stimulus         s102   1</span></a>
+<a class="sourceLine" id="cb4-109" data-line-number="109"><span class="co">#&gt; 3:    Stimulus         s111   1</span></a>
+<a class="sourceLine" id="cb4-110" data-line-number="110"><span class="co">#&gt; 4:    Stimulus         s121   1</span></a>
+<a class="sourceLine" id="cb4-111" data-line-number="111"><span class="co">#&gt; 5:    Stimulus         s122   1</span></a>
+<a class="sourceLine" id="cb4-112" data-line-number="112"><span class="co">#&gt; 6:    Stimulus         s130 200</span></a>
+<a class="sourceLine" id="cb4-113" data-line-number="113"><span class="co">#&gt; 7:    Stimulus          s70 100</span></a>
+<a class="sourceLine" id="cb4-114" data-line-number="114"><span class="co">#&gt; 8:    Stimulus          s71 100</span></a></code></pre></div>
+<p>We see that there is no electrode positions in the object, but since we know that the layout was a standard 10/20, we’ll add this layout to the object, using the dataset <code>layout_32_1020</code>. This is required to be able to create topographic plots.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw"><a href="../reference/channels_tbl.html">channels_tbl</a></span>(faces)</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="co">#&gt; # A tibble: 34 x 11</span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="co">#&gt;    .channel number .reference resolution unit  radius theta   phi    .x    .y</span></a>
+<a class="sourceLine" id="cb5-4" data-line-number="4"><span class="co">#&gt;    &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt;           &lt;dbl&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="co">#&gt;  1 Fp1      Ch1    ""                  1 micr…     NA    NA    NA    NA    NA</span></a>
+<a class="sourceLine" id="cb5-6" data-line-number="6"><span class="co">#&gt;  2 Fpz      Ch2    ""                  1 micr…     NA    NA    NA    NA    NA</span></a>
+<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="co">#&gt;  3 Fp2      Ch3    ""                  1 micr…     NA    NA    NA    NA    NA</span></a>
+<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="co">#&gt;  4 F7       Ch4    ""                  1 micr…     NA    NA    NA    NA    NA</span></a>
+<a class="sourceLine" id="cb5-9" data-line-number="9"><span class="co">#&gt;  5 F3       Ch5    ""                  1 micr…     NA    NA    NA    NA    NA</span></a>
+<a class="sourceLine" id="cb5-10" data-line-number="10"><span class="co">#&gt;  6 Fz       Ch6    ""                  1 micr…     NA    NA    NA    NA    NA</span></a>
+<a class="sourceLine" id="cb5-11" data-line-number="11"><span class="co">#&gt;  7 F4       Ch7    ""                  1 micr…     NA    NA    NA    NA    NA</span></a>
+<a class="sourceLine" id="cb5-12" data-line-number="12"><span class="co">#&gt;  8 F8       Ch8    ""                  1 micr…     NA    NA    NA    NA    NA</span></a>
+<a class="sourceLine" id="cb5-13" data-line-number="13"><span class="co">#&gt;  9 FC5      Ch9    ""                  1 micr…     NA    NA    NA    NA    NA</span></a>
+<a class="sourceLine" id="cb5-14" data-line-number="14"><span class="co">#&gt; 10 FC1      Ch10   ""                  1 micr…     NA    NA    NA    NA    NA</span></a>
+<a class="sourceLine" id="cb5-15" data-line-number="15"><span class="co">#&gt; # … with 24 more rows, and 1 more variable: .z &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb5-16" data-line-number="16"><span class="co">## In case the order of the electrodes is different, we do a left_join instead of replacing the table:</span></a>
+<a class="sourceLine" id="cb5-17" data-line-number="17"><span class="kw"><a href="../reference/channels_tbl.html">channels_tbl</a></span>(faces) &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="kw"><a href="../reference/channels_tbl.html">channels_tbl</a></span>(faces), .channel) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb5-18" data-line-number="18"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">left_join</a></span>(layout_<span class="dv">32</span>_<span class="dv">1020</span>)</a>
+<a class="sourceLine" id="cb5-19" data-line-number="19"><span class="co">#&gt; Joining, by = ".channel"</span></a></code></pre></div>
 <p>The plots that <strong>eeguana</strong> produce are <code>ggplot</code> objects that can be modified like regular <code>ggplot</code>.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(faces) <span class="op">+</span></a>
-<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/labs">ggtitle</a></span>(<span class="st">"All the experiment"</span>)</a>
-<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="co">#&gt; # Downsampling from 512Hz to 7.76Hz.</span></a>
-<a class="sourceLine" id="cb5-4" data-line-number="4"><span class="co">#&gt; # Object size in memory 1.8 Mb</span></a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(faces) <span class="op">+</span></a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/labs">ggtitle</a></span>(<span class="st">"All the experiment"</span>)</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="co">#&gt; # Downsampling from 512Hz to 7.76Hz.</span></a>
+<a class="sourceLine" id="cb6-4" data-line-number="4"><span class="co">#&gt; # Object size in memory 1.8 Mb</span></a></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-4-1.png" width="100%"></p>
 <div id="pre-processing" class="section level2">
 <h2 class="hasAnchor">
@@ -274,413 +284,417 @@
 <h3 class="hasAnchor">
 <a href="#rereferencing" class="anchor"></a>Rereferencing</h3>
 <p>In this dataset, the signal from all electrodes is monopolar and referenced to the left mastoid (M1). We want the signal (excluding the EOG channels) to be referenced to linked (left and right) mastoids (M1 and M2).</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">faces &lt;-<span class="st"> </span><span class="kw"><a href="../reference/eeg_rereference.html">eeg_rereference</a></span>(faces, <span class="op">-</span>VEOG, <span class="op">-</span>HEOG, <span class="dt">ref =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"M1"</span>, <span class="st">"M2"</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">faces &lt;-<span class="st"> </span><span class="kw"><a href="../reference/eeg_rereference.html">eeg_rereference</a></span>(faces, <span class="op">-</span>VEOG, <span class="op">-</span>HEOG, <span class="dt">ref =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"M1"</span>, <span class="st">"M2"</span>))</a></code></pre></div>
 </div>
 </div>
 <div id="filtering" class="section level2">
 <h2 class="hasAnchor">
 <a href="#filtering" class="anchor"></a>Filtering</h2>
 <p>We apply a band pass filter of 0.1 to 30 Hz to all the channels except the EOG channels. We don’t segment yet, because discontinuities in the signal create artifacts on the edges.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">faces_filt &lt;-<span class="st"> </span><span class="kw"><a href="../reference/filt.html">eeg_filt_band_pass</a></span>(faces, <span class="op">-</span>HEOG, <span class="op">-</span>VEOG, <span class="dt">freq =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(.<span class="dv">1</span>, <span class="dv">30</span>)) </a>
-<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="co">#&gt; Setting up band-pass filter from 0.1 - 30 Hz</span></a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">faces_filt &lt;-<span class="st"> </span><span class="kw"><a href="../reference/filt.html">eeg_filt_band_pass</a></span>(faces, <span class="op">-</span>HEOG, <span class="op">-</span>VEOG, <span class="dt">freq =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(.<span class="dv">1</span>, <span class="dv">30</span>)) </a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="co">#&gt; Setting up band-pass filter from 0.1 - 30 Hz</span></a></code></pre></div>
 </div>
 <div id="ica" class="section level2">
 <h2 class="hasAnchor">
 <a href="#ica" class="anchor"></a>ICA</h2>
 <p>We want to apply ICA to as much data as possible, but to “representative” data, that is part of the experiments and not when the participants are moving or reading the instructions. For the same reason, we want to the ignore “crazy” artifacts: regions with extreme amplitudes in the signal.</p>
 <p>We first cut a large segment that excludes data before and after the experiment was ran using <code><a href="../reference/eeg_segment.html">eeg_segment()</a></code> (that is, only data from the marker “s111” to “s121”), and then we mark differences of 200 microvolts between peaks with <code><a href="../reference/eeg_artif.html">eeg_artif_minmax()</a></code>.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">faces_ls &lt;-<span class="st"> </span><span class="kw"><a href="../reference/eeg_segment.html">eeg_segment</a></span>(faces_filt, .description <span class="op">==</span><span class="st"> "s111"</span>, <span class="dt">end =</span> .description <span class="op">==</span><span class="st"> "s121"</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="../reference/eeg_artif.html">eeg_artif_minmax</a></span>(<span class="op">-</span>HEOG, <span class="op">-</span>VEOG, <span class="dt">threshold =</span> <span class="dv">200</span>, <span class="dt">window =</span> <span class="dv">200</span>, <span class="dt">unit =</span> <span class="st">"ms"</span>)</a>
-<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="co">#&gt; # Total of 1 segments found.</span></a>
-<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="co">#&gt; # Object size in memory 107.5 Mb after segmentation.</span></a>
-<a class="sourceLine" id="cb8-5" data-line-number="5"><span class="co">#&gt; # Number of intervals with artifacts: 118</span></a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">faces_ls &lt;-<span class="st"> </span><span class="kw"><a href="../reference/eeg_segment.html">eeg_segment</a></span>(faces_filt, .description <span class="op">==</span><span class="st"> "s111"</span>, <span class="dt">end =</span> .description <span class="op">==</span><span class="st"> "s121"</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="../reference/eeg_artif.html">eeg_artif_minmax</a></span>(<span class="op">-</span>HEOG, <span class="op">-</span>VEOG, <span class="dt">threshold =</span> <span class="dv">200</span>, <span class="dt">window =</span> <span class="dv">200</span>, <span class="dt">unit =</span> <span class="st">"ms"</span>)</a>
+<a class="sourceLine" id="cb9-3" data-line-number="3"><span class="co">#&gt; # Total of 1 segments found.</span></a>
+<a class="sourceLine" id="cb9-4" data-line-number="4"><span class="co">#&gt; # Object size in memory 107.5 Mb after segmentation.</span></a>
+<a class="sourceLine" id="cb9-5" data-line-number="5"><span class="co">#&gt; # Number of intervals with artifacts: 118</span></a></code></pre></div>
 <p><code>eeg_artif_minimax()</code> only adds the artifacts in the events table and doesn’t modify the signal. We can have a look at the type of artifacts that were detected, by plotting the signal and the events with <code><a href="../reference/annotate_events.html">annotate_events()</a></code>. It would be a good idea to just check a couple of seconds of the signal, for that we use the <code>dplyr</code> “verb” <code><a href="https://dplyr.tidyverse.org/reference/filter.html">filter()</a></code> which is overloaded to work with <code>eeg_lst</code>s.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">faces_ls <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="op">-</span>HEOG, <span class="op">-</span>VEOG)<span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb9-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="kw"><a href="../reference/as_time.html">as_time</a></span>(.sample, <span class="dt">unit =</span> <span class="st">"s"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="../reference/between.html">between</a></span>(<span class="dv">0</span>, <span class="dv">90</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb9-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb9-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="../reference/annotate_events.html">annotate_events</a></span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb9-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/theme">theme</a></span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>)</a>
-<a class="sourceLine" id="cb9-7" data-line-number="7"><span class="co">#&gt; # Downsampling from 512Hz to 73.14Hz.</span></a>
-<a class="sourceLine" id="cb9-8" data-line-number="8"><span class="co">#&gt; # Object size in memory 1.7 Mb</span></a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">faces_ls <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="op">-</span>HEOG, <span class="op">-</span>VEOG)<span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="kw"><a href="../reference/as_time.html">as_time</a></span>(.sample, <span class="dt">unit =</span> <span class="st">"s"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="../reference/between.html">between</a></span>(<span class="dv">0</span>, <span class="dv">90</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb10-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb10-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="../reference/annotate_events.html">annotate_events</a></span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb10-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/theme">theme</a></span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>)</a>
+<a class="sourceLine" id="cb10-7" data-line-number="7"><span class="co">#&gt; # Downsampling from 512Hz to 73.14Hz.</span></a>
+<a class="sourceLine" id="cb10-8" data-line-number="8"><span class="co">#&gt; # Object size in memory 1.7 Mb</span></a></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-8-1.png" width="100%"></p>
 <p>Now we can run ICA, removing the EOG and reference electrodes, and ignoring the artifacts.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="co">## By default, it will ignore artifacts</span></a>
-<a class="sourceLine" id="cb10-2" data-line-number="2">faces_ica &lt;-<span class="st"> </span>faces_ls <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="../reference/eeg_ica.html">eeg_ica</a></span>(<span class="op">-</span>HEOG, <span class="op">-</span>VEOG, <span class="op">-</span>M1, <span class="op">-</span>M2, <span class="dt">method =</span> adapt_fast_ICA, <span class="dt">ignore =</span> .type <span class="op">==</span><span class="st"> "artifact"</span>)</a>
-<a class="sourceLine" id="cb10-4" data-line-number="4"><span class="co">#&gt; # ICA is being done using adapt_fast_ICA...</span></a>
-<a class="sourceLine" id="cb10-5" data-line-number="5"><span class="co">#&gt; # 97% of the samples will be used.</span></a>
-<a class="sourceLine" id="cb10-6" data-line-number="6"><span class="co">#&gt; # ICA took 3.22 mins</span></a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="co">## By default, it will ignore artifacts</span></a>
+<a class="sourceLine" id="cb11-2" data-line-number="2">faces_ica &lt;-<span class="st"> </span>faces_ls <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb11-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="../reference/eeg_ica.html">eeg_ica</a></span>(<span class="op">-</span>HEOG, <span class="op">-</span>VEOG, <span class="op">-</span>M1, <span class="op">-</span>M2, <span class="dt">method =</span> adapt_fast_ICA, <span class="dt">ignore =</span> .type <span class="op">==</span><span class="st"> "artifact"</span>)</a>
+<a class="sourceLine" id="cb11-4" data-line-number="4"><span class="co">#&gt; # ICA is being done using adapt_fast_ICA...</span></a>
+<a class="sourceLine" id="cb11-5" data-line-number="5"><span class="co">#&gt; # 97% of the samples will be used.</span></a>
+<a class="sourceLine" id="cb11-6" data-line-number="6"><span class="co">#&gt; # ICA took 3.03 mins</span></a></code></pre></div>
 <p>We can now check the different topographic plots of the ICAs with <code><a href="../reference/plot_components.html">plot_components()</a></code>, and their correlation with the EOG channels looking a the summary of the object.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">faces_ica <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="../reference/plot_components.html">plot_components</a></span>()</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">faces_ica <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="../reference/plot_components.html">plot_components</a></span>()</a></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-9-1.png" width="100%"></p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="kw"><a href="../reference/eeg_ica_summary_tbl.html">eeg_ica_summary_tbl</a></span>(faces_ica)</a>
-<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="co">#&gt; # Downsampling from 512Hz to 128Hz.</span></a>
-<a class="sourceLine" id="cb12-3" data-line-number="3"><span class="co">#&gt; # Object size in memory 27 Mb</span></a>
-<a class="sourceLine" id="cb12-4" data-line-number="4"><span class="co">#&gt;        .recording  EOG  .ICA           cor           var</span></a>
-<a class="sourceLine" id="cb12-5" data-line-number="5"><span class="co">#&gt;  1: s1_faces.vhdr VEOG  ICA5  0.3110616894  3.753389e-01</span></a>
-<a class="sourceLine" id="cb12-6" data-line-number="6"><span class="co">#&gt;  2: s1_faces.vhdr HEOG  ICA5  0.0060600201  3.753389e-01</span></a>
-<a class="sourceLine" id="cb12-7" data-line-number="7"><span class="co">#&gt;  3: s1_faces.vhdr VEOG ICA14  0.0594109202  7.029386e-02</span></a>
-<a class="sourceLine" id="cb12-8" data-line-number="8"><span class="co">#&gt;  4: s1_faces.vhdr HEOG ICA14  0.0115211860  7.029386e-02</span></a>
-<a class="sourceLine" id="cb12-9" data-line-number="9"><span class="co">#&gt;  5: s1_faces.vhdr VEOG ICA25  0.0191137136  5.730873e-02</span></a>
-<a class="sourceLine" id="cb12-10" data-line-number="10"><span class="co">#&gt;  6: s1_faces.vhdr HEOG ICA25  0.0079409656  5.730873e-02</span></a>
-<a class="sourceLine" id="cb12-11" data-line-number="11"><span class="co">#&gt;  7: s1_faces.vhdr VEOG ICA28  0.0215901453  5.242604e-02</span></a>
-<a class="sourceLine" id="cb12-12" data-line-number="12"><span class="co">#&gt;  8: s1_faces.vhdr HEOG ICA28 -0.0026613292  5.242604e-02</span></a>
-<a class="sourceLine" id="cb12-13" data-line-number="13"><span class="co">#&gt;  9: s1_faces.vhdr VEOG ICA13 -0.0733915974  4.907656e-02</span></a>
-<a class="sourceLine" id="cb12-14" data-line-number="14"><span class="co">#&gt; 10: s1_faces.vhdr HEOG ICA13  0.0028042746  4.907656e-02</span></a>
-<a class="sourceLine" id="cb12-15" data-line-number="15"><span class="co">#&gt; 11: s1_faces.vhdr VEOG ICA16  0.0189808192  3.926765e-02</span></a>
-<a class="sourceLine" id="cb12-16" data-line-number="16"><span class="co">#&gt; 12: s1_faces.vhdr HEOG ICA16 -0.0052139432  3.926765e-02</span></a>
-<a class="sourceLine" id="cb12-17" data-line-number="17"><span class="co">#&gt; 13: s1_faces.vhdr VEOG ICA27 -0.0146958686  3.910267e-02</span></a>
-<a class="sourceLine" id="cb12-18" data-line-number="18"><span class="co">#&gt; 14: s1_faces.vhdr HEOG ICA27 -0.0005737728  3.910267e-02</span></a>
-<a class="sourceLine" id="cb12-19" data-line-number="19"><span class="co">#&gt; 15: s1_faces.vhdr HEOG ICA26 -0.0127623329  3.375848e-02</span></a>
-<a class="sourceLine" id="cb12-20" data-line-number="20"><span class="co">#&gt; 16: s1_faces.vhdr VEOG ICA26 -0.0103929696  3.375848e-02</span></a>
-<a class="sourceLine" id="cb12-21" data-line-number="21"><span class="co">#&gt; 17: s1_faces.vhdr VEOG ICA21 -0.0110379588  3.217283e-02</span></a>
-<a class="sourceLine" id="cb12-22" data-line-number="22"><span class="co">#&gt; 18: s1_faces.vhdr HEOG ICA21  0.0041385932  3.217283e-02</span></a>
-<a class="sourceLine" id="cb12-23" data-line-number="23"><span class="co">#&gt; 19: s1_faces.vhdr VEOG ICA30 -0.0318988532  3.214984e-02</span></a>
-<a class="sourceLine" id="cb12-24" data-line-number="24"><span class="co">#&gt; 20: s1_faces.vhdr HEOG ICA30 -0.0049492927  3.214984e-02</span></a>
-<a class="sourceLine" id="cb12-25" data-line-number="25"><span class="co">#&gt; 21: s1_faces.vhdr HEOG ICA11 -0.0080689883  1.514023e-02</span></a>
-<a class="sourceLine" id="cb12-26" data-line-number="26"><span class="co">#&gt; 22: s1_faces.vhdr VEOG ICA11 -0.0022034332  1.514023e-02</span></a>
-<a class="sourceLine" id="cb12-27" data-line-number="27"><span class="co">#&gt; 23: s1_faces.vhdr VEOG  ICA8 -0.0061078333  1.502970e-02</span></a>
-<a class="sourceLine" id="cb12-28" data-line-number="28"><span class="co">#&gt; 24: s1_faces.vhdr HEOG  ICA8 -0.0033160702  1.502970e-02</span></a>
-<a class="sourceLine" id="cb12-29" data-line-number="29"><span class="co">#&gt; 25: s1_faces.vhdr VEOG ICA22 -0.0729992398  1.344010e-02</span></a>
-<a class="sourceLine" id="cb12-30" data-line-number="30"><span class="co">#&gt; 26: s1_faces.vhdr HEOG ICA22 -0.0075857794  1.344010e-02</span></a>
-<a class="sourceLine" id="cb12-31" data-line-number="31"><span class="co">#&gt; 27: s1_faces.vhdr VEOG ICA19 -0.0113037545  1.277640e-02</span></a>
-<a class="sourceLine" id="cb12-32" data-line-number="32"><span class="co">#&gt; 28: s1_faces.vhdr HEOG ICA19  0.0040990970  1.277640e-02</span></a>
-<a class="sourceLine" id="cb12-33" data-line-number="33"><span class="co">#&gt; 29: s1_faces.vhdr HEOG ICA29 -0.0098960226  1.276932e-02</span></a>
-<a class="sourceLine" id="cb12-34" data-line-number="34"><span class="co">#&gt; 30: s1_faces.vhdr VEOG ICA29  0.0082034132  1.276932e-02</span></a>
-<a class="sourceLine" id="cb12-35" data-line-number="35"><span class="co">#&gt; 31: s1_faces.vhdr VEOG ICA10  0.0029772146  1.076050e-02</span></a>
-<a class="sourceLine" id="cb12-36" data-line-number="36"><span class="co">#&gt; 32: s1_faces.vhdr HEOG ICA10 -0.0012705350  1.076050e-02</span></a>
-<a class="sourceLine" id="cb12-37" data-line-number="37"><span class="co">#&gt; 33: s1_faces.vhdr VEOG ICA23 -0.0139531104  1.074568e-02</span></a>
-<a class="sourceLine" id="cb12-38" data-line-number="38"><span class="co">#&gt; 34: s1_faces.vhdr HEOG ICA23  0.0080386572  1.074568e-02</span></a>
-<a class="sourceLine" id="cb12-39" data-line-number="39"><span class="co">#&gt; 35: s1_faces.vhdr VEOG  ICA1  0.0590125612  9.970590e-03</span></a>
-<a class="sourceLine" id="cb12-40" data-line-number="40"><span class="co">#&gt; 36: s1_faces.vhdr HEOG  ICA1 -0.0556782278  9.970590e-03</span></a>
-<a class="sourceLine" id="cb12-41" data-line-number="41"><span class="co">#&gt; 37: s1_faces.vhdr VEOG  ICA2 -0.0126428949  7.958425e-03</span></a>
-<a class="sourceLine" id="cb12-42" data-line-number="42"><span class="co">#&gt; 38: s1_faces.vhdr HEOG  ICA2 -0.0078820112  7.958425e-03</span></a>
-<a class="sourceLine" id="cb12-43" data-line-number="43"><span class="co">#&gt; 39: s1_faces.vhdr VEOG ICA24 -0.0121801971  4.918023e-03</span></a>
-<a class="sourceLine" id="cb12-44" data-line-number="44"><span class="co">#&gt; 40: s1_faces.vhdr HEOG ICA24 -0.0016042248  4.918023e-03</span></a>
-<a class="sourceLine" id="cb12-45" data-line-number="45"><span class="co">#&gt; 41: s1_faces.vhdr HEOG  ICA7 -0.0020891334  3.183135e-03</span></a>
-<a class="sourceLine" id="cb12-46" data-line-number="46"><span class="co">#&gt; 42: s1_faces.vhdr VEOG  ICA7 -0.0003910153  3.183135e-03</span></a>
-<a class="sourceLine" id="cb12-47" data-line-number="47"><span class="co">#&gt; 43: s1_faces.vhdr VEOG ICA12  0.0144307012  1.610403e-03</span></a>
-<a class="sourceLine" id="cb12-48" data-line-number="48"><span class="co">#&gt; 44: s1_faces.vhdr HEOG ICA12  0.0128083915  1.610403e-03</span></a>
-<a class="sourceLine" id="cb12-49" data-line-number="49"><span class="co">#&gt; 45: s1_faces.vhdr HEOG ICA17 -0.0091874914  1.281939e-03</span></a>
-<a class="sourceLine" id="cb12-50" data-line-number="50"><span class="co">#&gt; 46: s1_faces.vhdr VEOG ICA17  0.0017426840  1.281939e-03</span></a>
-<a class="sourceLine" id="cb12-51" data-line-number="51"><span class="co">#&gt; 47: s1_faces.vhdr VEOG ICA18 -0.0131764353  8.239126e-04</span></a>
-<a class="sourceLine" id="cb12-52" data-line-number="52"><span class="co">#&gt; 48: s1_faces.vhdr HEOG ICA18 -0.0117696565  8.239126e-04</span></a>
-<a class="sourceLine" id="cb12-53" data-line-number="53"><span class="co">#&gt; 49: s1_faces.vhdr HEOG  ICA4 -0.0190202998  4.964455e-04</span></a>
-<a class="sourceLine" id="cb12-54" data-line-number="54"><span class="co">#&gt; 50: s1_faces.vhdr VEOG  ICA4 -0.0171506626  4.964455e-04</span></a>
-<a class="sourceLine" id="cb12-55" data-line-number="55"><span class="co">#&gt; 51: s1_faces.vhdr VEOG  ICA6 -0.0089105463  4.348409e-05</span></a>
-<a class="sourceLine" id="cb12-56" data-line-number="56"><span class="co">#&gt; 52: s1_faces.vhdr HEOG  ICA6  0.0049753303  4.348409e-05</span></a>
-<a class="sourceLine" id="cb12-57" data-line-number="57"><span class="co">#&gt; 53: s1_faces.vhdr VEOG ICA20 -0.0062150226  1.836297e-06</span></a>
-<a class="sourceLine" id="cb12-58" data-line-number="58"><span class="co">#&gt; 54: s1_faces.vhdr HEOG ICA20 -0.0011994425  1.836297e-06</span></a>
-<a class="sourceLine" id="cb12-59" data-line-number="59"><span class="co">#&gt; 55: s1_faces.vhdr HEOG  ICA9 -0.0019097967 -4.096781e-04</span></a>
-<a class="sourceLine" id="cb12-60" data-line-number="60"><span class="co">#&gt; 56: s1_faces.vhdr VEOG  ICA9  0.0015343447 -4.096781e-04</span></a>
-<a class="sourceLine" id="cb12-61" data-line-number="61"><span class="co">#&gt; 57: s1_faces.vhdr VEOG ICA15 -0.0265727074 -1.025237e-03</span></a>
-<a class="sourceLine" id="cb12-62" data-line-number="62"><span class="co">#&gt; 58: s1_faces.vhdr HEOG ICA15 -0.0041488999 -1.025237e-03</span></a>
-<a class="sourceLine" id="cb12-63" data-line-number="63"><span class="co">#&gt; 59: s1_faces.vhdr VEOG  ICA3  0.0866623859 -7.471465e-03</span></a>
-<a class="sourceLine" id="cb12-64" data-line-number="64"><span class="co">#&gt; 60: s1_faces.vhdr HEOG  ICA3 -0.0019740756 -7.471465e-03</span></a>
-<a class="sourceLine" id="cb12-65" data-line-number="65"><span class="co">#&gt;        .recording  EOG  .ICA           cor           var</span></a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw"><a href="../reference/eeg_ica_summary_tbl.html">eeg_ica_summary_tbl</a></span>(faces_ica)</a>
+<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="co">#&gt; # Downsampling from 512Hz to 128Hz.</span></a>
+<a class="sourceLine" id="cb13-3" data-line-number="3"><span class="co">#&gt; # Object size in memory 27 Mb</span></a>
+<a class="sourceLine" id="cb13-4" data-line-number="4"><span class="co">#&gt;        .recording  EOG  .ICA           cor           var</span></a>
+<a class="sourceLine" id="cb13-5" data-line-number="5"><span class="co">#&gt;  1: s1_faces.vhdr VEOG  ICA5  0.3110616894  3.753389e-01</span></a>
+<a class="sourceLine" id="cb13-6" data-line-number="6"><span class="co">#&gt;  2: s1_faces.vhdr HEOG  ICA5  0.0060600201  3.753389e-01</span></a>
+<a class="sourceLine" id="cb13-7" data-line-number="7"><span class="co">#&gt;  3: s1_faces.vhdr VEOG ICA14  0.0594109202  7.029386e-02</span></a>
+<a class="sourceLine" id="cb13-8" data-line-number="8"><span class="co">#&gt;  4: s1_faces.vhdr HEOG ICA14  0.0115211860  7.029386e-02</span></a>
+<a class="sourceLine" id="cb13-9" data-line-number="9"><span class="co">#&gt;  5: s1_faces.vhdr VEOG ICA25  0.0191137136  5.730873e-02</span></a>
+<a class="sourceLine" id="cb13-10" data-line-number="10"><span class="co">#&gt;  6: s1_faces.vhdr HEOG ICA25  0.0079409656  5.730873e-02</span></a>
+<a class="sourceLine" id="cb13-11" data-line-number="11"><span class="co">#&gt;  7: s1_faces.vhdr VEOG ICA28  0.0215901453  5.242604e-02</span></a>
+<a class="sourceLine" id="cb13-12" data-line-number="12"><span class="co">#&gt;  8: s1_faces.vhdr HEOG ICA28 -0.0026613292  5.242604e-02</span></a>
+<a class="sourceLine" id="cb13-13" data-line-number="13"><span class="co">#&gt;  9: s1_faces.vhdr VEOG ICA13 -0.0733915974  4.907656e-02</span></a>
+<a class="sourceLine" id="cb13-14" data-line-number="14"><span class="co">#&gt; 10: s1_faces.vhdr HEOG ICA13  0.0028042746  4.907656e-02</span></a>
+<a class="sourceLine" id="cb13-15" data-line-number="15"><span class="co">#&gt; 11: s1_faces.vhdr VEOG ICA16  0.0189808192  3.926765e-02</span></a>
+<a class="sourceLine" id="cb13-16" data-line-number="16"><span class="co">#&gt; 12: s1_faces.vhdr HEOG ICA16 -0.0052139432  3.926765e-02</span></a>
+<a class="sourceLine" id="cb13-17" data-line-number="17"><span class="co">#&gt; 13: s1_faces.vhdr VEOG ICA27 -0.0146958686  3.910267e-02</span></a>
+<a class="sourceLine" id="cb13-18" data-line-number="18"><span class="co">#&gt; 14: s1_faces.vhdr HEOG ICA27 -0.0005737728  3.910267e-02</span></a>
+<a class="sourceLine" id="cb13-19" data-line-number="19"><span class="co">#&gt; 15: s1_faces.vhdr HEOG ICA26 -0.0127623329  3.375848e-02</span></a>
+<a class="sourceLine" id="cb13-20" data-line-number="20"><span class="co">#&gt; 16: s1_faces.vhdr VEOG ICA26 -0.0103929696  3.375848e-02</span></a>
+<a class="sourceLine" id="cb13-21" data-line-number="21"><span class="co">#&gt; 17: s1_faces.vhdr VEOG ICA21 -0.0110379588  3.217283e-02</span></a>
+<a class="sourceLine" id="cb13-22" data-line-number="22"><span class="co">#&gt; 18: s1_faces.vhdr HEOG ICA21  0.0041385932  3.217283e-02</span></a>
+<a class="sourceLine" id="cb13-23" data-line-number="23"><span class="co">#&gt; 19: s1_faces.vhdr VEOG ICA30 -0.0318988532  3.214984e-02</span></a>
+<a class="sourceLine" id="cb13-24" data-line-number="24"><span class="co">#&gt; 20: s1_faces.vhdr HEOG ICA30 -0.0049492927  3.214984e-02</span></a>
+<a class="sourceLine" id="cb13-25" data-line-number="25"><span class="co">#&gt; 21: s1_faces.vhdr HEOG ICA11 -0.0080689883  1.514023e-02</span></a>
+<a class="sourceLine" id="cb13-26" data-line-number="26"><span class="co">#&gt; 22: s1_faces.vhdr VEOG ICA11 -0.0022034332  1.514023e-02</span></a>
+<a class="sourceLine" id="cb13-27" data-line-number="27"><span class="co">#&gt; 23: s1_faces.vhdr VEOG  ICA8 -0.0061078333  1.502970e-02</span></a>
+<a class="sourceLine" id="cb13-28" data-line-number="28"><span class="co">#&gt; 24: s1_faces.vhdr HEOG  ICA8 -0.0033160702  1.502970e-02</span></a>
+<a class="sourceLine" id="cb13-29" data-line-number="29"><span class="co">#&gt; 25: s1_faces.vhdr VEOG ICA22 -0.0729992398  1.344010e-02</span></a>
+<a class="sourceLine" id="cb13-30" data-line-number="30"><span class="co">#&gt; 26: s1_faces.vhdr HEOG ICA22 -0.0075857794  1.344010e-02</span></a>
+<a class="sourceLine" id="cb13-31" data-line-number="31"><span class="co">#&gt; 27: s1_faces.vhdr VEOG ICA19 -0.0113037545  1.277640e-02</span></a>
+<a class="sourceLine" id="cb13-32" data-line-number="32"><span class="co">#&gt; 28: s1_faces.vhdr HEOG ICA19  0.0040990970  1.277640e-02</span></a>
+<a class="sourceLine" id="cb13-33" data-line-number="33"><span class="co">#&gt; 29: s1_faces.vhdr HEOG ICA29 -0.0098960226  1.276932e-02</span></a>
+<a class="sourceLine" id="cb13-34" data-line-number="34"><span class="co">#&gt; 30: s1_faces.vhdr VEOG ICA29  0.0082034132  1.276932e-02</span></a>
+<a class="sourceLine" id="cb13-35" data-line-number="35"><span class="co">#&gt; 31: s1_faces.vhdr VEOG ICA10  0.0029772146  1.076050e-02</span></a>
+<a class="sourceLine" id="cb13-36" data-line-number="36"><span class="co">#&gt; 32: s1_faces.vhdr HEOG ICA10 -0.0012705350  1.076050e-02</span></a>
+<a class="sourceLine" id="cb13-37" data-line-number="37"><span class="co">#&gt; 33: s1_faces.vhdr VEOG ICA23 -0.0139531104  1.074568e-02</span></a>
+<a class="sourceLine" id="cb13-38" data-line-number="38"><span class="co">#&gt; 34: s1_faces.vhdr HEOG ICA23  0.0080386572  1.074568e-02</span></a>
+<a class="sourceLine" id="cb13-39" data-line-number="39"><span class="co">#&gt; 35: s1_faces.vhdr VEOG  ICA1  0.0590125612  9.970590e-03</span></a>
+<a class="sourceLine" id="cb13-40" data-line-number="40"><span class="co">#&gt; 36: s1_faces.vhdr HEOG  ICA1 -0.0556782278  9.970590e-03</span></a>
+<a class="sourceLine" id="cb13-41" data-line-number="41"><span class="co">#&gt; 37: s1_faces.vhdr VEOG  ICA2 -0.0126428949  7.958425e-03</span></a>
+<a class="sourceLine" id="cb13-42" data-line-number="42"><span class="co">#&gt; 38: s1_faces.vhdr HEOG  ICA2 -0.0078820112  7.958425e-03</span></a>
+<a class="sourceLine" id="cb13-43" data-line-number="43"><span class="co">#&gt; 39: s1_faces.vhdr VEOG ICA24 -0.0121801971  4.918023e-03</span></a>
+<a class="sourceLine" id="cb13-44" data-line-number="44"><span class="co">#&gt; 40: s1_faces.vhdr HEOG ICA24 -0.0016042248  4.918023e-03</span></a>
+<a class="sourceLine" id="cb13-45" data-line-number="45"><span class="co">#&gt; 41: s1_faces.vhdr HEOG  ICA7 -0.0020891334  3.183135e-03</span></a>
+<a class="sourceLine" id="cb13-46" data-line-number="46"><span class="co">#&gt; 42: s1_faces.vhdr VEOG  ICA7 -0.0003910153  3.183135e-03</span></a>
+<a class="sourceLine" id="cb13-47" data-line-number="47"><span class="co">#&gt; 43: s1_faces.vhdr VEOG ICA12  0.0144307012  1.610403e-03</span></a>
+<a class="sourceLine" id="cb13-48" data-line-number="48"><span class="co">#&gt; 44: s1_faces.vhdr HEOG ICA12  0.0128083915  1.610403e-03</span></a>
+<a class="sourceLine" id="cb13-49" data-line-number="49"><span class="co">#&gt; 45: s1_faces.vhdr HEOG ICA17 -0.0091874914  1.281939e-03</span></a>
+<a class="sourceLine" id="cb13-50" data-line-number="50"><span class="co">#&gt; 46: s1_faces.vhdr VEOG ICA17  0.0017426840  1.281939e-03</span></a>
+<a class="sourceLine" id="cb13-51" data-line-number="51"><span class="co">#&gt; 47: s1_faces.vhdr VEOG ICA18 -0.0131764353  8.239126e-04</span></a>
+<a class="sourceLine" id="cb13-52" data-line-number="52"><span class="co">#&gt; 48: s1_faces.vhdr HEOG ICA18 -0.0117696565  8.239126e-04</span></a>
+<a class="sourceLine" id="cb13-53" data-line-number="53"><span class="co">#&gt; 49: s1_faces.vhdr HEOG  ICA4 -0.0190202998  4.964455e-04</span></a>
+<a class="sourceLine" id="cb13-54" data-line-number="54"><span class="co">#&gt; 50: s1_faces.vhdr VEOG  ICA4 -0.0171506626  4.964455e-04</span></a>
+<a class="sourceLine" id="cb13-55" data-line-number="55"><span class="co">#&gt; 51: s1_faces.vhdr VEOG  ICA6 -0.0089105463  4.348409e-05</span></a>
+<a class="sourceLine" id="cb13-56" data-line-number="56"><span class="co">#&gt; 52: s1_faces.vhdr HEOG  ICA6  0.0049753303  4.348409e-05</span></a>
+<a class="sourceLine" id="cb13-57" data-line-number="57"><span class="co">#&gt; 53: s1_faces.vhdr VEOG ICA20 -0.0062150226  1.836297e-06</span></a>
+<a class="sourceLine" id="cb13-58" data-line-number="58"><span class="co">#&gt; 54: s1_faces.vhdr HEOG ICA20 -0.0011994425  1.836297e-06</span></a>
+<a class="sourceLine" id="cb13-59" data-line-number="59"><span class="co">#&gt; 55: s1_faces.vhdr HEOG  ICA9 -0.0019097967 -4.096781e-04</span></a>
+<a class="sourceLine" id="cb13-60" data-line-number="60"><span class="co">#&gt; 56: s1_faces.vhdr VEOG  ICA9  0.0015343447 -4.096781e-04</span></a>
+<a class="sourceLine" id="cb13-61" data-line-number="61"><span class="co">#&gt; 57: s1_faces.vhdr VEOG ICA15 -0.0265727074 -1.025237e-03</span></a>
+<a class="sourceLine" id="cb13-62" data-line-number="62"><span class="co">#&gt; 58: s1_faces.vhdr HEOG ICA15 -0.0041488999 -1.025237e-03</span></a>
+<a class="sourceLine" id="cb13-63" data-line-number="63"><span class="co">#&gt; 59: s1_faces.vhdr VEOG  ICA3  0.0866623859 -7.471465e-03</span></a>
+<a class="sourceLine" id="cb13-64" data-line-number="64"><span class="co">#&gt; 60: s1_faces.vhdr HEOG  ICA3 -0.0019740756 -7.471465e-03</span></a>
+<a class="sourceLine" id="cb13-65" data-line-number="65"><span class="co">#&gt;        .recording  EOG  .ICA           cor           var</span></a></code></pre></div>
 <p>We’ll look closer at the ICA that are more likely to be related to eye movements, and we’ll compare with signals that look like blinks and saccades:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">faces_ica &lt;-<span class="st"> </span>faces_ica <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="../reference/eeg_artif.html">eeg_artif_step</a></span>(HEOG, VEOG, <span class="dt">threshold =</span> <span class="dv">30</span>, <span class="dt">window =</span> <span class="dv">200</span>, <span class="dt">unit =</span> <span class="st">"ms"</span>, <span class="dt">freq=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>,<span class="dv">10</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb13-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="../reference/eeg_artif.html">eeg_artif_peak</a></span>(VEOG, <span class="dt">freq=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>,<span class="dv">10</span>))</a>
-<a class="sourceLine" id="cb13-4" data-line-number="4"><span class="co">#&gt; Setting up band-pass filter from 1 - 10 Hz</span></a>
-<a class="sourceLine" id="cb13-5" data-line-number="5"><span class="co">#&gt; # Number of intervals with artifacts: 407</span></a>
-<a class="sourceLine" id="cb13-6" data-line-number="6"><span class="co">#&gt; Setting up band-pass filter from 1 - 10 Hz</span></a>
-<a class="sourceLine" id="cb13-7" data-line-number="7"><span class="co">#&gt; # Number of intervals with artifacts: 257</span></a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">faces_ica &lt;-<span class="st"> </span>faces_ica <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="../reference/eeg_artif.html">eeg_artif_step</a></span>(HEOG, VEOG, <span class="dt">threshold =</span> <span class="dv">30</span>, <span class="dt">window =</span> <span class="dv">200</span>, <span class="dt">unit =</span> <span class="st">"ms"</span>, <span class="dt">freq=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>,<span class="dv">10</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb14-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="../reference/eeg_artif.html">eeg_artif_peak</a></span>(VEOG, <span class="dt">threshold=</span><span class="dv">100</span>, <span class="dt">freq=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>,<span class="dv">10</span>))</a>
+<a class="sourceLine" id="cb14-4" data-line-number="4"><span class="co">#&gt; Setting up band-pass filter from 1 - 10 Hz</span></a>
+<a class="sourceLine" id="cb14-5" data-line-number="5"><span class="co">#&gt; # Number of intervals with artifacts: 407</span></a>
+<a class="sourceLine" id="cb14-6" data-line-number="6"><span class="co">#&gt; Setting up band-pass filter from 1 - 10 Hz</span></a>
+<a class="sourceLine" id="cb14-7" data-line-number="7"><span class="co">#&gt; # Number of intervals with artifacts: 158</span></a></code></pre></div>
 <p>In order to investigate the ICA, we are using an experminal function not yet exported (that’s why we use the :::). This function will problably converted into a shiny app. It’s possible to get the same plots by using a combination of <code>plot_topo</code>, <code>eeg_ica_show</code>, <code>eeg_ica_summary_tbl</code>, and some <code>ggplot</code> and <code>cowplot</code> functions.</p>
 <p>We’ll see how the components explaining the most variance and most correlated to the EOG channels behave:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="co">#samples with blinks</span></a>
-<a class="sourceLine" id="cb14-2" data-line-number="2">s_peaks &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="kw"><a href="../reference/events_tbl.html">events_tbl</a></span>(faces_ica),  <span class="kw"><a href="https://stringr.tidyverse.org/reference/str_starts.html">str_starts</a></span>(.description, <span class="st">"peak"</span>)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(.initial)</a>
-<a class="sourceLine" id="cb14-3" data-line-number="3">eeguana<span class="op">:::</span><span class="kw">plot_ica.eeg_ica_lst</span>(faces_ica, <span class="dt">samples =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(s_peaks[<span class="dv">2</span>]<span class="op">-</span><span class="dv">500</span>,s_peaks[<span class="dv">2</span>]<span class="op">+</span><span class="dv">1000</span>))</a>
-<a class="sourceLine" id="cb14-4" data-line-number="4"><span class="co">#&gt; Using recording: s1_faces.vhdr</span></a>
-<a class="sourceLine" id="cb14-5" data-line-number="5"><span class="co">#&gt; Setting up band-pass filter from 0.1 - 30 Hz</span></a>
-<a class="sourceLine" id="cb14-6" data-line-number="6"><span class="co">#&gt; # Downsampling from 512Hz to 128Hz.</span></a>
-<a class="sourceLine" id="cb14-7" data-line-number="7"><span class="co">#&gt; # Object size in memory 27 Mb</span></a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="co">#samples with blinks</span></a>
+<a class="sourceLine" id="cb15-2" data-line-number="2">s_peaks &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="kw"><a href="../reference/events_tbl.html">events_tbl</a></span>(faces_ica),  <span class="kw"><a href="https://stringr.tidyverse.org/reference/str_starts.html">str_starts</a></span>(.description, <span class="st">"peak"</span>)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(.initial)</a>
+<a class="sourceLine" id="cb15-3" data-line-number="3">eeguana<span class="op">:::</span><span class="kw">plot_ica.eeg_ica_lst</span>(faces_ica, <span class="dt">samples =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(s_peaks[<span class="dv">1</span>]<span class="op">-</span><span class="dv">2000</span>,s_peaks[<span class="dv">1</span>]<span class="op">+</span><span class="dv">2000</span>))</a>
+<a class="sourceLine" id="cb15-4" data-line-number="4"><span class="co">#&gt; Warning in eeguana:::plot_ica.eeg_ica_lst(faces_ica, samples = seq(s_peaks[1]</span></a>
+<a class="sourceLine" id="cb15-5" data-line-number="5"><span class="co">#&gt; - : This is an experimental function, and it might change or dissapear in the</span></a>
+<a class="sourceLine" id="cb15-6" data-line-number="6"><span class="co">#&gt; future. (Or it might be transformed into a shinyapp)</span></a>
+<a class="sourceLine" id="cb15-7" data-line-number="7"><span class="co">#&gt; Using recording: s1_faces.vhdr</span></a>
+<a class="sourceLine" id="cb15-8" data-line-number="8"><span class="co">#&gt; Calculating the correlation of ICA components with filtered EOG channels...</span></a>
+<a class="sourceLine" id="cb15-9" data-line-number="9"><span class="co">#&gt; Setting up band-pass filter from 0.1 - 30 Hz</span></a>
+<a class="sourceLine" id="cb15-10" data-line-number="10"><span class="co">#&gt; # Downsampling from 512Hz to 128Hz.</span></a>
+<a class="sourceLine" id="cb15-11" data-line-number="11"><span class="co">#&gt; # Object size in memory 27 Mb</span></a></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-11-1.png" width="100%"> The clearest ones is ICA5, and so we’ll just remove that one.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">faces_icaed &lt;-<span class="st"> </span>faces_ica <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb15-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="../reference/eeg_ica_keep.html">eeg_ica_keep</a></span>(<span class="op">-</span>ICA5) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb15-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="../reference/as_eeg_lst.html">as_eeg_lst</a></span>()</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">faces_icaed &lt;-<span class="st"> </span>faces_ica <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb16-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="../reference/eeg_ica_keep.html">eeg_ica_keep</a></span>(<span class="op">-</span>ICA5) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb16-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="../reference/as_eeg_lst.html">as_eeg_lst</a></span>()</a></code></pre></div>
 <p>Now we’ll segment the data to appropriate check if there are still artifacts.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"></a>
-<a class="sourceLine" id="cb16-2" data-line-number="2"><span class="kw"><a href="../reference/events_tbl.html">events_tbl</a></span>(faces_icaed) &lt;-<span class="st"> </span><span class="kw"><a href="../reference/events_tbl.html">events_tbl</a></span>(faces_icaed) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="op">!</span>.type <span class="op">%in%</span><span class="st"> "artifact"</span>)</a>
-<a class="sourceLine" id="cb16-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb16-4" data-line-number="4">faces_seg &lt;-<span class="st"> </span>faces_icaed <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb16-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="op">-</span>description, <span class="op">-</span>type) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb16-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="../reference/eeg_segment.html">eeg_segment</a></span>(.description <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"s70"</span>, <span class="st">"s71"</span>), <span class="dt">lim =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="op">-</span>.<span class="dv">1</span>, <span class="fl">.5</span>))</a>
-<a class="sourceLine" id="cb16-7" data-line-number="7"><span class="co">#&gt; # Total of 200 segments found.</span></a>
-<a class="sourceLine" id="cb16-8" data-line-number="8"><span class="co">#&gt; # Object size in memory 16.5 Mb after segmentation.</span></a>
-<a class="sourceLine" id="cb16-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb16-10" data-line-number="10">faces_seg_artif &lt;-<span class="st"> </span>faces_seg <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb16-11" data-line-number="11"><span class="st">  </span><span class="kw"><a href="../reference/eeg_artif.html">eeg_artif_minmax</a></span>(<span class="op">-</span>HEOG, <span class="op">-</span>VEOG, <span class="dt">threshold =</span> <span class="dv">100</span>, <span class="dt">window =</span> <span class="dv">150</span>, <span class="dt">unit =</span> <span class="st">"ms"</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb16-12" data-line-number="12"><span class="st">  </span><span class="kw"><a href="../reference/eeg_artif.html">eeg_artif_step</a></span>(<span class="op">-</span>HEOG, <span class="op">-</span>VEOG, <span class="dt">threshold =</span> <span class="dv">50</span>, <span class="dt">window =</span> <span class="dv">200</span>, <span class="dt">unit =</span> <span class="st">"ms"</span>)</a>
-<a class="sourceLine" id="cb16-13" data-line-number="13"><span class="co">#&gt; # Number of intervals with artifacts: 0</span></a>
-<a class="sourceLine" id="cb16-14" data-line-number="14"><span class="co">#&gt; # Number of intervals with artifacts: 1</span></a>
-<a class="sourceLine" id="cb16-15" data-line-number="15"></a>
-<a class="sourceLine" id="cb16-16" data-line-number="16">bad &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="kw"><a href="../reference/events_tbl.html">events_tbl</a></span>(faces_seg_artif), .type <span class="op">==</span><span class="st"> "artifact"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(.id) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/unique">unique</a></span>()</a>
-<a class="sourceLine" id="cb16-17" data-line-number="17">faces_seg_artif <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb16-18" data-line-number="18"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(.id <span class="op">==</span><span class="st"> </span>bad) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb16-19" data-line-number="19"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="op">-</span>VEOG, <span class="op">-</span>HEOG) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb16-20" data-line-number="20"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb16-21" data-line-number="21"><span class="st">  </span><span class="kw"><a href="../reference/annotate_events.html">annotate_events</a></span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb16-22" data-line-number="22"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/theme">theme</a></span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>)</a></code></pre></div>
-<p><img src="intro_files/figure-html/unnamed-chunk-13-1.png" width="100%"></p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1"></a>
-<a class="sourceLine" id="cb17-2" data-line-number="2">faces_seg &lt;-<span class="st"> </span>faces_seg_artif <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb17-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="../reference/eeg_events_to_NA.html">eeg_events_to_NA</a></span>(.type <span class="op">==</span><span class="st"> "artifact"</span>, <span class="dt">entire_seg =</span> <span class="ot">TRUE</span>, <span class="dt">all_chs =</span> <span class="ot">FALSE</span>, <span class="dt">drop_events =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb17-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb17-5" data-line-number="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary</a></span>(faces_seg)</a>
-<a class="sourceLine" id="cb17-6" data-line-number="6"><span class="co">#&gt; # EEG data:</span></a>
-<a class="sourceLine" id="cb17-7" data-line-number="7"><span class="co">#&gt; # Sampling rate: 512 Hz.</span></a>
-<a class="sourceLine" id="cb17-8" data-line-number="8"><span class="co">#&gt; # Size in memory: 16.5 Mb.</span></a>
-<a class="sourceLine" id="cb17-9" data-line-number="9"><span class="co">#&gt; # Total duration: 00:02:00.</span></a>
-<a class="sourceLine" id="cb17-10" data-line-number="10"><span class="co">#&gt; # Summary of segments</span></a>
-<a class="sourceLine" id="cb17-11" data-line-number="11"><span class="co">#&gt;       .recording n_segments n_incomplete</span></a>
-<a class="sourceLine" id="cb17-12" data-line-number="12"><span class="co">#&gt; 1: s1_faces.vhdr        200            1</span></a>
-<a class="sourceLine" id="cb17-13" data-line-number="13"><span class="co">#&gt; # Summary of events</span></a>
-<a class="sourceLine" id="cb17-14" data-line-number="14"><span class="co">#&gt;       .type .description   n</span></a>
-<a class="sourceLine" id="cb17-15" data-line-number="15"><span class="co">#&gt; 1: Stimulus          s70 100</span></a>
-<a class="sourceLine" id="cb17-16" data-line-number="16"><span class="co">#&gt; 2: Stimulus          s71 100</span></a></code></pre></div>
+<a class="sourceLine" id="cb17-2" data-line-number="2"><span class="kw"><a href="../reference/events_tbl.html">events_tbl</a></span>(faces_icaed) &lt;-<span class="st"> </span><span class="kw"><a href="../reference/events_tbl.html">events_tbl</a></span>(faces_icaed) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="op">!</span>.type <span class="op">%in%</span><span class="st"> "artifact"</span>)</a>
+<a class="sourceLine" id="cb17-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb17-4" data-line-number="4">faces_seg &lt;-<span class="st"> </span>faces_icaed <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb17-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="op">-</span>description, <span class="op">-</span>type) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb17-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="../reference/eeg_segment.html">eeg_segment</a></span>(.description <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"s70"</span>, <span class="st">"s71"</span>), <span class="dt">lim =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="op">-</span>.<span class="dv">1</span>, <span class="fl">.5</span>))</a>
+<a class="sourceLine" id="cb17-7" data-line-number="7"><span class="co">#&gt; # Total of 200 segments found.</span></a>
+<a class="sourceLine" id="cb17-8" data-line-number="8"><span class="co">#&gt; # Object size in memory 16.5 Mb after segmentation.</span></a>
+<a class="sourceLine" id="cb17-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb17-10" data-line-number="10">faces_seg_artif &lt;-<span class="st"> </span>faces_seg <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb17-11" data-line-number="11"><span class="st">  </span><span class="kw"><a href="../reference/eeg_artif.html">eeg_artif_minmax</a></span>(<span class="op">-</span>HEOG, <span class="op">-</span>VEOG, <span class="dt">threshold =</span> <span class="dv">100</span>, <span class="dt">window =</span> <span class="dv">150</span>, <span class="dt">unit =</span> <span class="st">"ms"</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb17-12" data-line-number="12"><span class="st">  </span><span class="kw"><a href="../reference/eeg_artif.html">eeg_artif_step</a></span>(<span class="op">-</span>HEOG, <span class="op">-</span>VEOG, <span class="dt">threshold =</span> <span class="dv">50</span>, <span class="dt">window =</span> <span class="dv">200</span>, <span class="dt">unit =</span> <span class="st">"ms"</span>)</a>
+<a class="sourceLine" id="cb17-13" data-line-number="13"><span class="co">#&gt; # Number of intervals with artifacts: 0</span></a>
+<a class="sourceLine" id="cb17-14" data-line-number="14"><span class="co">#&gt; # Number of intervals with artifacts: 1</span></a>
+<a class="sourceLine" id="cb17-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb17-16" data-line-number="16">bad &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="kw"><a href="../reference/events_tbl.html">events_tbl</a></span>(faces_seg_artif), .type <span class="op">==</span><span class="st"> "artifact"</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span>(.id) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/unique">unique</a></span>()</a>
+<a class="sourceLine" id="cb17-17" data-line-number="17">faces_seg_artif <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb17-18" data-line-number="18"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(.id <span class="op">==</span><span class="st"> </span>bad) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb17-19" data-line-number="19"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="op">-</span>VEOG, <span class="op">-</span>HEOG) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb17-20" data-line-number="20"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb17-21" data-line-number="21"><span class="st">  </span><span class="kw"><a href="../reference/annotate_events.html">annotate_events</a></span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb17-22" data-line-number="22"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/theme">theme</a></span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>)</a></code></pre></div>
+<p><img src="intro_files/figure-html/unnamed-chunk-13-1.png" width="100%"></p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"></a>
+<a class="sourceLine" id="cb18-2" data-line-number="2">faces_seg &lt;-<span class="st"> </span>faces_seg_artif <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb18-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="../reference/eeg_events_to_NA.html">eeg_events_to_NA</a></span>(.type <span class="op">==</span><span class="st"> "artifact"</span>, <span class="dt">entire_seg =</span> <span class="ot">TRUE</span>, <span class="dt">all_chs =</span> <span class="ot">FALSE</span>, <span class="dt">drop_events =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb18-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb18-5" data-line-number="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary</a></span>(faces_seg)</a>
+<a class="sourceLine" id="cb18-6" data-line-number="6"><span class="co">#&gt; # EEG data:</span></a>
+<a class="sourceLine" id="cb18-7" data-line-number="7"><span class="co">#&gt; # Sampling rate: 512 Hz.</span></a>
+<a class="sourceLine" id="cb18-8" data-line-number="8"><span class="co">#&gt; # Size in memory: 16.5 Mb.</span></a>
+<a class="sourceLine" id="cb18-9" data-line-number="9"><span class="co">#&gt; # Total duration: 00:02:00.</span></a>
+<a class="sourceLine" id="cb18-10" data-line-number="10"><span class="co">#&gt; # Summary of segments</span></a>
+<a class="sourceLine" id="cb18-11" data-line-number="11"><span class="co">#&gt;       .recording n_segments n_incomplete</span></a>
+<a class="sourceLine" id="cb18-12" data-line-number="12"><span class="co">#&gt; 1: s1_faces.vhdr        200            1</span></a>
+<a class="sourceLine" id="cb18-13" data-line-number="13"><span class="co">#&gt; # Summary of events</span></a>
+<a class="sourceLine" id="cb18-14" data-line-number="14"><span class="co">#&gt;       .type .description   n</span></a>
+<a class="sourceLine" id="cb18-15" data-line-number="15"><span class="co">#&gt; 1: Stimulus          s70 100</span></a>
+<a class="sourceLine" id="cb18-16" data-line-number="16"><span class="co">#&gt; 2: Stimulus          s71 100</span></a></code></pre></div>
 <p>Finally, we can baseline the segments:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">faces_seg &lt;-<span class="st"> </span>faces_seg <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="../reference/eeg_baseline.html">eeg_baseline</a></span>()</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1">faces_seg &lt;-<span class="st"> </span>faces_seg <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="../reference/eeg_baseline.html">eeg_baseline</a></span>()</a></code></pre></div>
 </div>
 <div id="visualization" class="section level2">
 <h2 class="hasAnchor">
 <a href="#visualization" class="anchor"></a>Visualization</h2>
 <p>We edit the segmentation information and add more descriptive labels.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1">faces_seg &lt;-<span class="st"> </span>faces_seg <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb19-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(</a>
-<a class="sourceLine" id="cb19-3" data-line-number="3">    <span class="dt">condition =</span></a>
-<a class="sourceLine" id="cb19-4" data-line-number="4">      <span class="kw"><a href="https://dplyr.tidyverse.org/reference/if_else.html">if_else</a></span>(description <span class="op">==</span><span class="st"> "s70"</span>, <span class="st">"faces"</span>, <span class="st">"non-faces"</span>)</a>
-<a class="sourceLine" id="cb19-5" data-line-number="5">  ) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb19-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="op">-</span>type)</a>
-<a class="sourceLine" id="cb19-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb19-8" data-line-number="8">faces_seg</a>
-<a class="sourceLine" id="cb19-9" data-line-number="9"><span class="co">#&gt; # EEG data:</span></a>
-<a class="sourceLine" id="cb19-10" data-line-number="10"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb19-11" data-line-number="11"><span class="co">#&gt; # Signal table:</span></a>
-<a class="sourceLine" id="cb19-12" data-line-number="12"><span class="co">#&gt;        .id .sample        Fp1       Fpz        Fp2         F7       F3</span></a>
-<a class="sourceLine" id="cb19-13" data-line-number="13"><span class="co">#&gt;     1:   1     -50 -0.2239737  2.926696  0.1088197 -0.1107286 3.793132</span></a>
-<a class="sourceLine" id="cb19-14" data-line-number="14"><span class="co">#&gt;     2:   1     -49  0.9975430  3.910457  0.7585352  0.7172289 4.038747</span></a>
-<a class="sourceLine" id="cb19-15" data-line-number="15"><span class="co">#&gt;     3:   1     -48  2.2477072  4.853125  1.5129425  1.7686192 4.340948</span></a>
-<a class="sourceLine" id="cb19-16" data-line-number="16"><span class="co">#&gt;     4:   1     -47  3.3361201  5.596977  2.2208750  2.9135916 4.642705</span></a>
-<a class="sourceLine" id="cb19-17" data-line-number="17"><span class="co">#&gt;     5:   1     -46  4.0950011  6.007830  2.7411833  4.0297893 4.899710</span></a>
-<a class="sourceLine" id="cb19-18" data-line-number="18"><span class="co">#&gt;    ---                                                                </span></a>
-<a class="sourceLine" id="cb19-19" data-line-number="19"><span class="co">#&gt; 61596: 200     253 -7.4272958 -4.030794 -3.3414518  2.5704919 4.188729</span></a>
-<a class="sourceLine" id="cb19-20" data-line-number="20"><span class="co">#&gt; 61597: 200     254 -7.0028675 -4.076854 -3.7139526  1.3456003 3.356811</span></a>
-<a class="sourceLine" id="cb19-21" data-line-number="21"><span class="co">#&gt; 61598: 200     255 -6.3948136 -4.124318 -4.0795149  0.2178476 2.644884</span></a>
-<a class="sourceLine" id="cb19-22" data-line-number="22"><span class="co">#&gt; 61599: 200     256 -5.7744059 -4.236721 -4.4670174 -0.8343465 1.996052</span></a>
-<a class="sourceLine" id="cb19-23" data-line-number="23"><span class="co">#&gt; 61600: 200     257 -5.3225204 -4.474952 -4.9176401 -1.8464510 1.323714</span></a>
-<a class="sourceLine" id="cb19-24" data-line-number="24"><span class="co">#&gt;                Fz         F4          F8        FC5       FC1        FC2</span></a>
-<a class="sourceLine" id="cb19-25" data-line-number="25"><span class="co">#&gt;     1:   4.228278   2.840110 -3.15472635  1.6113910  1.592771  -2.364200</span></a>
-<a class="sourceLine" id="cb19-26" data-line-number="26"><span class="co">#&gt;     2:   4.270218   2.382479 -2.35472265  2.0405680  1.860704  -2.861841</span></a>
-<a class="sourceLine" id="cb19-27" data-line-number="27"><span class="co">#&gt;     3:   4.421612   2.013301 -1.24644410  2.4513040  2.219617  -3.123105</span></a>
-<a class="sourceLine" id="cb19-28" data-line-number="28"><span class="co">#&gt;     4:   4.591250   1.709526  0.05225002  2.8087541  2.615841  -3.167049</span></a>
-<a class="sourceLine" id="cb19-29" data-line-number="29"><span class="co">#&gt;     5:   4.700407   1.452931  1.40978255  3.1051410  3.005053  -3.015121</span></a>
-<a class="sourceLine" id="cb19-30" data-line-number="30"><span class="co">#&gt;    ---                                                                  </span></a>
-<a class="sourceLine" id="cb19-31" data-line-number="31"><span class="co">#&gt; 61596:  -8.730353 -12.167556 -1.36556543  4.6994268 -3.708406 -19.005953</span></a>
-<a class="sourceLine" id="cb19-32" data-line-number="32"><span class="co">#&gt; 61597:  -9.453131 -11.842863 -2.17206941  3.4988400 -4.958880 -19.459708</span></a>
-<a class="sourceLine" id="cb19-33" data-line-number="33"><span class="co">#&gt; 61598:  -9.985577 -11.460650 -2.78238153  2.2688876 -6.309382 -19.836152</span></a>
-<a class="sourceLine" id="cb19-34" data-line-number="34"><span class="co">#&gt; 61599: -10.366157 -11.047480 -3.20156158  1.0080235 -7.730844 -20.137723</span></a>
-<a class="sourceLine" id="cb19-35" data-line-number="35"><span class="co">#&gt; 61600: -10.661645 -10.644149 -3.46204537 -0.3005228 -9.204715 -20.380105</span></a>
-<a class="sourceLine" id="cb19-36" data-line-number="36"><span class="co">#&gt;                FC6        M1       T7         C3         Cz         C4</span></a>
-<a class="sourceLine" id="cb19-37" data-line-number="37"><span class="co">#&gt;     1:  -1.8391090 -2.030141 8.787014 -2.0086889  -5.711339  -0.795271</span></a>
-<a class="sourceLine" id="cb19-38" data-line-number="38"><span class="co">#&gt;     2:  -1.1455898 -1.922150 9.114149 -2.1197829  -5.858017  -1.282006</span></a>
-<a class="sourceLine" id="cb19-39" data-line-number="39"><span class="co">#&gt;     3:  -0.1976263 -1.785010 8.977623 -2.2059909  -5.721134  -1.762303</span></a>
-<a class="sourceLine" id="cb19-40" data-line-number="40"><span class="co">#&gt;     4:   0.8983126 -1.654058 8.398226 -2.2445165  -5.330143  -2.204568</span></a>
-<a class="sourceLine" id="cb19-41" data-line-number="41"><span class="co">#&gt;     5:   2.0401272 -1.545839 7.452935 -2.1993214  -4.723109  -2.557211</span></a>
-<a class="sourceLine" id="cb19-42" data-line-number="42"><span class="co">#&gt;    ---                                                                </span></a>
-<a class="sourceLine" id="cb19-43" data-line-number="43"><span class="co">#&gt; 61596: -12.4167239  4.310870 4.908478 -0.5437559 -14.854063 -34.752050</span></a>
-<a class="sourceLine" id="cb19-44" data-line-number="44"><span class="co">#&gt; 61597: -13.3369315  4.454409 4.680512 -2.1197706 -16.258766 -35.506742</span></a>
-<a class="sourceLine" id="cb19-45" data-line-number="45"><span class="co">#&gt; 61598: -14.2119912  4.482182 4.315460 -3.8504649 -17.808367 -36.200622</span></a>
-<a class="sourceLine" id="cb19-46" data-line-number="46"><span class="co">#&gt; 61599: -14.9925296  4.394789 3.730447 -5.6655686 -19.413279 -36.808126</span></a>
-<a class="sourceLine" id="cb19-47" data-line-number="47"><span class="co">#&gt; 61600: -15.6416067  4.203761 2.864558 -7.5086186 -20.985826 -37.301315</span></a>
-<a class="sourceLine" id="cb19-48" data-line-number="48"><span class="co">#&gt;                T8        M2        CP5        CP1        CP2         CP6</span></a>
-<a class="sourceLine" id="cb19-49" data-line-number="49"><span class="co">#&gt;     1:   3.910053  2.030141  2.1730493  -5.558311  -3.912675   2.0442154</span></a>
-<a class="sourceLine" id="cb19-50" data-line-number="50"><span class="co">#&gt;     2:   5.477720  1.922150  1.6874719  -5.681516  -4.454747   1.4513845</span></a>
-<a class="sourceLine" id="cb19-51" data-line-number="51"><span class="co">#&gt;     3:   7.069972  1.785010  1.0244766  -5.664134  -4.852158   0.8377522</span></a>
-<a class="sourceLine" id="cb19-52" data-line-number="52"><span class="co">#&gt;     4:   8.401729  1.654058  0.2760940  -5.506764  -5.089553   0.2248167</span></a>
-<a class="sourceLine" id="cb19-53" data-line-number="53"><span class="co">#&gt;     5:   9.193991  1.545839 -0.4454964  -5.204630  -5.150715  -0.3509800</span></a>
-<a class="sourceLine" id="cb19-54" data-line-number="54"><span class="co">#&gt;    ---                                                                  </span></a>
-<a class="sourceLine" id="cb19-55" data-line-number="55"><span class="co">#&gt; 61596: -25.822482 -4.310870  3.4352795  -5.102525 -31.824672 -29.5344073</span></a>
-<a class="sourceLine" id="cb19-56" data-line-number="56"><span class="co">#&gt; 61597: -27.019577 -4.454409  2.4188361  -6.646814 -33.109751 -30.5440118</span></a>
-<a class="sourceLine" id="cb19-57" data-line-number="57"><span class="co">#&gt; 61598: -27.809796 -4.482182  1.1739532  -8.403855 -34.341884 -31.5585170</span></a>
-<a class="sourceLine" id="cb19-58" data-line-number="58"><span class="co">#&gt; 61599: -28.198220 -4.394789 -0.2539754 -10.263130 -35.433438 -32.5685325</span></a>
-<a class="sourceLine" id="cb19-59" data-line-number="59"><span class="co">#&gt; 61600: -28.211914 -4.203761 -1.8208137 -12.116925 -36.299732 -33.5345508</span></a>
-<a class="sourceLine" id="cb19-60" data-line-number="60"><span class="co">#&gt;                P7         P3         Pz          P4          P8       POz</span></a>
-<a class="sourceLine" id="cb19-61" data-line-number="61"><span class="co">#&gt;     1: -1.8486407 -2.6437673  -3.191924  -0.6720984   0.5889623 -1.233383</span></a>
-<a class="sourceLine" id="cb19-62" data-line-number="62"><span class="co">#&gt;     2: -2.6139953 -3.1920017  -3.790144  -1.4646696  -1.8056977 -2.397317</span></a>
-<a class="sourceLine" id="cb19-63" data-line-number="63"><span class="co">#&gt;     3: -3.1638517 -3.6552420  -4.342437  -2.1770814  -4.0661883 -3.500260</span></a>
-<a class="sourceLine" id="cb19-64" data-line-number="64"><span class="co">#&gt;     4: -3.4395628 -3.9730269  -4.813028  -2.7552677  -5.9136674 -4.440224</span></a>
-<a class="sourceLine" id="cb19-65" data-line-number="65"><span class="co">#&gt;     5: -3.4148548 -4.0892851  -5.160562  -3.1471226  -7.1129100 -5.124399</span></a>
-<a class="sourceLine" id="cb19-66" data-line-number="66"><span class="co">#&gt;    ---                                                                   </span></a>
-<a class="sourceLine" id="cb19-67" data-line-number="67"><span class="co">#&gt; 61596:  2.7192767  2.7365646 -12.488676 -27.5485924 -23.0238529 -5.742807</span></a>
-<a class="sourceLine" id="cb19-68" data-line-number="68"><span class="co">#&gt; 61597:  2.3539444  1.6113645 -13.716290 -28.1890858 -22.9764754 -6.553364</span></a>
-<a class="sourceLine" id="cb19-69" data-line-number="69"><span class="co">#&gt; 61598:  1.6063736  0.2901116 -14.977399 -28.6721202 -22.1172213 -7.394155</span></a>
-<a class="sourceLine" id="cb19-70" data-line-number="70"><span class="co">#&gt; 61599:  0.5699239 -1.1512356 -16.183334 -28.9837949 -20.4604781 -8.207270</span></a>
-<a class="sourceLine" id="cb19-71" data-line-number="71"><span class="co">#&gt; 61600: -0.6454750 -2.6374742 -17.250028 -29.1134647 -18.1089704 -8.943773</span></a>
-<a class="sourceLine" id="cb19-72" data-line-number="72"><span class="co">#&gt;                O1         Oz         O2       HEOG       VEOG</span></a>
-<a class="sourceLine" id="cb19-73" data-line-number="73"><span class="co">#&gt;     1: -3.5386535 -0.7969323  0.8721568  -8.172153  -4.070868</span></a>
-<a class="sourceLine" id="cb19-74" data-line-number="74"><span class="co">#&gt;     2: -4.7377453 -2.2782486 -0.7106985 -15.399203 -10.286688</span></a>
-<a class="sourceLine" id="cb19-75" data-line-number="75"><span class="co">#&gt;     3: -5.8496010 -3.7413040 -2.2901256 -17.091586  -4.218329</span></a>
-<a class="sourceLine" id="cb19-76" data-line-number="76"><span class="co">#&gt;     4: -6.7658792 -5.0345596 -3.6833116 -22.001254  -2.728094</span></a>
-<a class="sourceLine" id="cb19-77" data-line-number="77"><span class="co">#&gt;     5: -7.3928468 -6.0157379 -4.7178515 -14.368930   3.892999</span></a>
-<a class="sourceLine" id="cb19-78" data-line-number="78"><span class="co">#&gt;    ---                                                       </span></a>
-<a class="sourceLine" id="cb19-79" data-line-number="79"><span class="co">#&gt; 61596:  2.5152642 -3.0701651 -5.1484950  40.897595 104.275391</span></a>
-<a class="sourceLine" id="cb19-80" data-line-number="80"><span class="co">#&gt; 61597:  1.8963234 -3.5788828 -3.8985745  19.307751  67.568359</span></a>
-<a class="sourceLine" id="cb19-81" data-line-number="81"><span class="co">#&gt; 61598:  1.0904936 -4.1790541 -2.9052267  24.585583  66.189453</span></a>
-<a class="sourceLine" id="cb19-82" data-line-number="82"><span class="co">#&gt; 61599:  0.2077071 -4.8230480 -2.2435981   4.779675  43.698242</span></a>
-<a class="sourceLine" id="cb19-83" data-line-number="83"><span class="co">#&gt; 61600: -0.6593847 -5.4755758 -1.9725447  -2.815540  36.453125</span></a>
-<a class="sourceLine" id="cb19-84" data-line-number="84"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb19-85" data-line-number="85"><span class="co">#&gt; # Events table:</span></a>
-<a class="sourceLine" id="cb19-86" data-line-number="86"><span class="co">#&gt;      .id    .type .description .initial .final .channel</span></a>
-<a class="sourceLine" id="cb19-87" data-line-number="87"><span class="co">#&gt;   1:   1 Stimulus          s71        1      1     &lt;NA&gt;</span></a>
-<a class="sourceLine" id="cb19-88" data-line-number="88"><span class="co">#&gt;   2:   2 Stimulus          s71        1      1     &lt;NA&gt;</span></a>
-<a class="sourceLine" id="cb19-89" data-line-number="89"><span class="co">#&gt;   3:   3 Stimulus          s71        1      1     &lt;NA&gt;</span></a>
-<a class="sourceLine" id="cb19-90" data-line-number="90"><span class="co">#&gt;   4:   4 Stimulus          s71        1      1     &lt;NA&gt;</span></a>
-<a class="sourceLine" id="cb19-91" data-line-number="91"><span class="co">#&gt;   5:   5 Stimulus          s71        1      1     &lt;NA&gt;</span></a>
-<a class="sourceLine" id="cb19-92" data-line-number="92"><span class="co">#&gt;  ---                                                   </span></a>
-<a class="sourceLine" id="cb19-93" data-line-number="93"><span class="co">#&gt; 196: 196 Stimulus          s71        1      1     &lt;NA&gt;</span></a>
-<a class="sourceLine" id="cb19-94" data-line-number="94"><span class="co">#&gt; 197: 197 Stimulus          s70        1      1     &lt;NA&gt;</span></a>
-<a class="sourceLine" id="cb19-95" data-line-number="95"><span class="co">#&gt; 198: 198 Stimulus          s71        1      1     &lt;NA&gt;</span></a>
-<a class="sourceLine" id="cb19-96" data-line-number="96"><span class="co">#&gt; 199: 199 Stimulus          s71        1      1     &lt;NA&gt;</span></a>
-<a class="sourceLine" id="cb19-97" data-line-number="97"><span class="co">#&gt; 200: 200 Stimulus          s71        1      1     &lt;NA&gt;</span></a>
-<a class="sourceLine" id="cb19-98" data-line-number="98"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb19-99" data-line-number="99"><span class="co">#&gt; # Segments table:</span></a>
-<a class="sourceLine" id="cb19-100" data-line-number="100"><span class="co">#&gt; # A tibble: 200 x 5</span></a>
-<a class="sourceLine" id="cb19-101" data-line-number="101"><span class="co">#&gt;      .id .recording    segment description condition</span></a>
-<a class="sourceLine" id="cb19-102" data-line-number="102"><span class="co">#&gt;    &lt;int&gt; &lt;chr&gt;           &lt;int&gt; &lt;chr&gt;       &lt;chr&gt;    </span></a>
-<a class="sourceLine" id="cb19-103" data-line-number="103"><span class="co">#&gt;  1     1 s1_faces.vhdr       1 s71         non-faces</span></a>
-<a class="sourceLine" id="cb19-104" data-line-number="104"><span class="co">#&gt;  2     2 s1_faces.vhdr       2 s71         non-faces</span></a>
-<a class="sourceLine" id="cb19-105" data-line-number="105"><span class="co">#&gt;  3     3 s1_faces.vhdr       3 s71         non-faces</span></a>
-<a class="sourceLine" id="cb19-106" data-line-number="106"><span class="co">#&gt;  4     4 s1_faces.vhdr       4 s71         non-faces</span></a>
-<a class="sourceLine" id="cb19-107" data-line-number="107"><span class="co">#&gt;  5     5 s1_faces.vhdr       5 s71         non-faces</span></a>
-<a class="sourceLine" id="cb19-108" data-line-number="108"><span class="co">#&gt;  6     6 s1_faces.vhdr       6 s71         non-faces</span></a>
-<a class="sourceLine" id="cb19-109" data-line-number="109"><span class="co">#&gt;  7     7 s1_faces.vhdr       7 s70         faces    </span></a>
-<a class="sourceLine" id="cb19-110" data-line-number="110"><span class="co">#&gt;  8     8 s1_faces.vhdr       8 s70         faces    </span></a>
-<a class="sourceLine" id="cb19-111" data-line-number="111"><span class="co">#&gt;  9     9 s1_faces.vhdr       9 s70         faces    </span></a>
-<a class="sourceLine" id="cb19-112" data-line-number="112"><span class="co">#&gt; 10    10 s1_faces.vhdr      10 s70         faces    </span></a>
-<a class="sourceLine" id="cb19-113" data-line-number="113"><span class="co">#&gt; # … with 190 more rows</span></a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">faces_seg &lt;-<span class="st"> </span>faces_seg <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb20-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(</a>
+<a class="sourceLine" id="cb20-3" data-line-number="3">    <span class="dt">condition =</span></a>
+<a class="sourceLine" id="cb20-4" data-line-number="4">      <span class="kw"><a href="https://dplyr.tidyverse.org/reference/if_else.html">if_else</a></span>(description <span class="op">==</span><span class="st"> "s70"</span>, <span class="st">"faces"</span>, <span class="st">"non-faces"</span>)</a>
+<a class="sourceLine" id="cb20-5" data-line-number="5">  ) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb20-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="op">-</span>type)</a>
+<a class="sourceLine" id="cb20-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb20-8" data-line-number="8">faces_seg</a>
+<a class="sourceLine" id="cb20-9" data-line-number="9"><span class="co">#&gt; # EEG data:</span></a>
+<a class="sourceLine" id="cb20-10" data-line-number="10"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb20-11" data-line-number="11"><span class="co">#&gt; # Signal table:</span></a>
+<a class="sourceLine" id="cb20-12" data-line-number="12"><span class="co">#&gt;        .id .sample        Fp1       Fpz        Fp2         F7       F3</span></a>
+<a class="sourceLine" id="cb20-13" data-line-number="13"><span class="co">#&gt;     1:   1     -50 -0.2239737  2.926696  0.1088197 -0.1107286 3.793132</span></a>
+<a class="sourceLine" id="cb20-14" data-line-number="14"><span class="co">#&gt;     2:   1     -49  0.9975430  3.910457  0.7585352  0.7172289 4.038747</span></a>
+<a class="sourceLine" id="cb20-15" data-line-number="15"><span class="co">#&gt;     3:   1     -48  2.2477072  4.853125  1.5129425  1.7686192 4.340948</span></a>
+<a class="sourceLine" id="cb20-16" data-line-number="16"><span class="co">#&gt;     4:   1     -47  3.3361201  5.596977  2.2208750  2.9135916 4.642705</span></a>
+<a class="sourceLine" id="cb20-17" data-line-number="17"><span class="co">#&gt;     5:   1     -46  4.0950011  6.007830  2.7411833  4.0297893 4.899710</span></a>
+<a class="sourceLine" id="cb20-18" data-line-number="18"><span class="co">#&gt;    ---                                                                </span></a>
+<a class="sourceLine" id="cb20-19" data-line-number="19"><span class="co">#&gt; 61596: 200     253 -7.4272958 -4.030794 -3.3414518  2.5704919 4.188729</span></a>
+<a class="sourceLine" id="cb20-20" data-line-number="20"><span class="co">#&gt; 61597: 200     254 -7.0028675 -4.076854 -3.7139526  1.3456003 3.356811</span></a>
+<a class="sourceLine" id="cb20-21" data-line-number="21"><span class="co">#&gt; 61598: 200     255 -6.3948136 -4.124318 -4.0795149  0.2178476 2.644884</span></a>
+<a class="sourceLine" id="cb20-22" data-line-number="22"><span class="co">#&gt; 61599: 200     256 -5.7744059 -4.236721 -4.4670174 -0.8343465 1.996052</span></a>
+<a class="sourceLine" id="cb20-23" data-line-number="23"><span class="co">#&gt; 61600: 200     257 -5.3225204 -4.474952 -4.9176401 -1.8464510 1.323714</span></a>
+<a class="sourceLine" id="cb20-24" data-line-number="24"><span class="co">#&gt;                Fz         F4          F8        FC5       FC1        FC2</span></a>
+<a class="sourceLine" id="cb20-25" data-line-number="25"><span class="co">#&gt;     1:   4.228278   2.840110 -3.15472635  1.6113910  1.592771  -2.364200</span></a>
+<a class="sourceLine" id="cb20-26" data-line-number="26"><span class="co">#&gt;     2:   4.270218   2.382479 -2.35472265  2.0405680  1.860704  -2.861841</span></a>
+<a class="sourceLine" id="cb20-27" data-line-number="27"><span class="co">#&gt;     3:   4.421612   2.013301 -1.24644410  2.4513040  2.219617  -3.123105</span></a>
+<a class="sourceLine" id="cb20-28" data-line-number="28"><span class="co">#&gt;     4:   4.591250   1.709526  0.05225002  2.8087541  2.615841  -3.167049</span></a>
+<a class="sourceLine" id="cb20-29" data-line-number="29"><span class="co">#&gt;     5:   4.700407   1.452931  1.40978255  3.1051410  3.005053  -3.015121</span></a>
+<a class="sourceLine" id="cb20-30" data-line-number="30"><span class="co">#&gt;    ---                                                                  </span></a>
+<a class="sourceLine" id="cb20-31" data-line-number="31"><span class="co">#&gt; 61596:  -8.730353 -12.167556 -1.36556543  4.6994268 -3.708406 -19.005953</span></a>
+<a class="sourceLine" id="cb20-32" data-line-number="32"><span class="co">#&gt; 61597:  -9.453131 -11.842863 -2.17206941  3.4988400 -4.958880 -19.459708</span></a>
+<a class="sourceLine" id="cb20-33" data-line-number="33"><span class="co">#&gt; 61598:  -9.985577 -11.460650 -2.78238153  2.2688876 -6.309382 -19.836152</span></a>
+<a class="sourceLine" id="cb20-34" data-line-number="34"><span class="co">#&gt; 61599: -10.366157 -11.047480 -3.20156158  1.0080235 -7.730844 -20.137723</span></a>
+<a class="sourceLine" id="cb20-35" data-line-number="35"><span class="co">#&gt; 61600: -10.661645 -10.644149 -3.46204537 -0.3005228 -9.204715 -20.380105</span></a>
+<a class="sourceLine" id="cb20-36" data-line-number="36"><span class="co">#&gt;                FC6        M1       T7         C3         Cz         C4</span></a>
+<a class="sourceLine" id="cb20-37" data-line-number="37"><span class="co">#&gt;     1:  -1.8391090 -2.030141 8.787014 -2.0086889  -5.711339  -0.795271</span></a>
+<a class="sourceLine" id="cb20-38" data-line-number="38"><span class="co">#&gt;     2:  -1.1455898 -1.922150 9.114149 -2.1197829  -5.858017  -1.282006</span></a>
+<a class="sourceLine" id="cb20-39" data-line-number="39"><span class="co">#&gt;     3:  -0.1976263 -1.785010 8.977623 -2.2059909  -5.721134  -1.762303</span></a>
+<a class="sourceLine" id="cb20-40" data-line-number="40"><span class="co">#&gt;     4:   0.8983126 -1.654058 8.398226 -2.2445165  -5.330143  -2.204568</span></a>
+<a class="sourceLine" id="cb20-41" data-line-number="41"><span class="co">#&gt;     5:   2.0401272 -1.545839 7.452935 -2.1993214  -4.723109  -2.557211</span></a>
+<a class="sourceLine" id="cb20-42" data-line-number="42"><span class="co">#&gt;    ---                                                                </span></a>
+<a class="sourceLine" id="cb20-43" data-line-number="43"><span class="co">#&gt; 61596: -12.4167239  4.310870 4.908478 -0.5437559 -14.854063 -34.752050</span></a>
+<a class="sourceLine" id="cb20-44" data-line-number="44"><span class="co">#&gt; 61597: -13.3369315  4.454409 4.680512 -2.1197706 -16.258766 -35.506742</span></a>
+<a class="sourceLine" id="cb20-45" data-line-number="45"><span class="co">#&gt; 61598: -14.2119912  4.482182 4.315460 -3.8504649 -17.808367 -36.200622</span></a>
+<a class="sourceLine" id="cb20-46" data-line-number="46"><span class="co">#&gt; 61599: -14.9925296  4.394789 3.730447 -5.6655686 -19.413279 -36.808126</span></a>
+<a class="sourceLine" id="cb20-47" data-line-number="47"><span class="co">#&gt; 61600: -15.6416067  4.203761 2.864558 -7.5086186 -20.985826 -37.301315</span></a>
+<a class="sourceLine" id="cb20-48" data-line-number="48"><span class="co">#&gt;                T8        M2        CP5        CP1        CP2         CP6</span></a>
+<a class="sourceLine" id="cb20-49" data-line-number="49"><span class="co">#&gt;     1:   3.910053  2.030141  2.1730493  -5.558311  -3.912675   2.0442154</span></a>
+<a class="sourceLine" id="cb20-50" data-line-number="50"><span class="co">#&gt;     2:   5.477720  1.922150  1.6874719  -5.681516  -4.454747   1.4513845</span></a>
+<a class="sourceLine" id="cb20-51" data-line-number="51"><span class="co">#&gt;     3:   7.069972  1.785010  1.0244766  -5.664134  -4.852158   0.8377522</span></a>
+<a class="sourceLine" id="cb20-52" data-line-number="52"><span class="co">#&gt;     4:   8.401729  1.654058  0.2760940  -5.506764  -5.089553   0.2248167</span></a>
+<a class="sourceLine" id="cb20-53" data-line-number="53"><span class="co">#&gt;     5:   9.193991  1.545839 -0.4454964  -5.204630  -5.150715  -0.3509800</span></a>
+<a class="sourceLine" id="cb20-54" data-line-number="54"><span class="co">#&gt;    ---                                                                  </span></a>
+<a class="sourceLine" id="cb20-55" data-line-number="55"><span class="co">#&gt; 61596: -25.822482 -4.310870  3.4352795  -5.102525 -31.824672 -29.5344073</span></a>
+<a class="sourceLine" id="cb20-56" data-line-number="56"><span class="co">#&gt; 61597: -27.019577 -4.454409  2.4188361  -6.646814 -33.109751 -30.5440118</span></a>
+<a class="sourceLine" id="cb20-57" data-line-number="57"><span class="co">#&gt; 61598: -27.809796 -4.482182  1.1739532  -8.403855 -34.341884 -31.5585170</span></a>
+<a class="sourceLine" id="cb20-58" data-line-number="58"><span class="co">#&gt; 61599: -28.198220 -4.394789 -0.2539754 -10.263130 -35.433438 -32.5685325</span></a>
+<a class="sourceLine" id="cb20-59" data-line-number="59"><span class="co">#&gt; 61600: -28.211914 -4.203761 -1.8208137 -12.116925 -36.299732 -33.5345508</span></a>
+<a class="sourceLine" id="cb20-60" data-line-number="60"><span class="co">#&gt;                P7         P3         Pz          P4          P8       POz</span></a>
+<a class="sourceLine" id="cb20-61" data-line-number="61"><span class="co">#&gt;     1: -1.8486407 -2.6437673  -3.191924  -0.6720984   0.5889623 -1.233383</span></a>
+<a class="sourceLine" id="cb20-62" data-line-number="62"><span class="co">#&gt;     2: -2.6139953 -3.1920017  -3.790144  -1.4646696  -1.8056977 -2.397317</span></a>
+<a class="sourceLine" id="cb20-63" data-line-number="63"><span class="co">#&gt;     3: -3.1638517 -3.6552420  -4.342437  -2.1770814  -4.0661883 -3.500260</span></a>
+<a class="sourceLine" id="cb20-64" data-line-number="64"><span class="co">#&gt;     4: -3.4395628 -3.9730269  -4.813028  -2.7552677  -5.9136674 -4.440224</span></a>
+<a class="sourceLine" id="cb20-65" data-line-number="65"><span class="co">#&gt;     5: -3.4148548 -4.0892851  -5.160562  -3.1471226  -7.1129100 -5.124399</span></a>
+<a class="sourceLine" id="cb20-66" data-line-number="66"><span class="co">#&gt;    ---                                                                   </span></a>
+<a class="sourceLine" id="cb20-67" data-line-number="67"><span class="co">#&gt; 61596:  2.7192767  2.7365646 -12.488676 -27.5485924 -23.0238529 -5.742807</span></a>
+<a class="sourceLine" id="cb20-68" data-line-number="68"><span class="co">#&gt; 61597:  2.3539444  1.6113645 -13.716290 -28.1890858 -22.9764754 -6.553364</span></a>
+<a class="sourceLine" id="cb20-69" data-line-number="69"><span class="co">#&gt; 61598:  1.6063736  0.2901116 -14.977399 -28.6721202 -22.1172213 -7.394155</span></a>
+<a class="sourceLine" id="cb20-70" data-line-number="70"><span class="co">#&gt; 61599:  0.5699239 -1.1512356 -16.183334 -28.9837949 -20.4604781 -8.207270</span></a>
+<a class="sourceLine" id="cb20-71" data-line-number="71"><span class="co">#&gt; 61600: -0.6454750 -2.6374742 -17.250028 -29.1134647 -18.1089704 -8.943773</span></a>
+<a class="sourceLine" id="cb20-72" data-line-number="72"><span class="co">#&gt;                O1         Oz         O2       HEOG       VEOG</span></a>
+<a class="sourceLine" id="cb20-73" data-line-number="73"><span class="co">#&gt;     1: -3.5386535 -0.7969323  0.8721568  -8.172153  -4.070868</span></a>
+<a class="sourceLine" id="cb20-74" data-line-number="74"><span class="co">#&gt;     2: -4.7377453 -2.2782486 -0.7106985 -15.399203 -10.286688</span></a>
+<a class="sourceLine" id="cb20-75" data-line-number="75"><span class="co">#&gt;     3: -5.8496010 -3.7413040 -2.2901256 -17.091586  -4.218329</span></a>
+<a class="sourceLine" id="cb20-76" data-line-number="76"><span class="co">#&gt;     4: -6.7658792 -5.0345596 -3.6833116 -22.001254  -2.728094</span></a>
+<a class="sourceLine" id="cb20-77" data-line-number="77"><span class="co">#&gt;     5: -7.3928468 -6.0157379 -4.7178515 -14.368930   3.892999</span></a>
+<a class="sourceLine" id="cb20-78" data-line-number="78"><span class="co">#&gt;    ---                                                       </span></a>
+<a class="sourceLine" id="cb20-79" data-line-number="79"><span class="co">#&gt; 61596:  2.5152642 -3.0701651 -5.1484950  40.897595 104.275391</span></a>
+<a class="sourceLine" id="cb20-80" data-line-number="80"><span class="co">#&gt; 61597:  1.8963234 -3.5788828 -3.8985745  19.307751  67.568359</span></a>
+<a class="sourceLine" id="cb20-81" data-line-number="81"><span class="co">#&gt; 61598:  1.0904936 -4.1790541 -2.9052267  24.585583  66.189453</span></a>
+<a class="sourceLine" id="cb20-82" data-line-number="82"><span class="co">#&gt; 61599:  0.2077071 -4.8230480 -2.2435981   4.779675  43.698242</span></a>
+<a class="sourceLine" id="cb20-83" data-line-number="83"><span class="co">#&gt; 61600: -0.6593847 -5.4755758 -1.9725447  -2.815540  36.453125</span></a>
+<a class="sourceLine" id="cb20-84" data-line-number="84"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb20-85" data-line-number="85"><span class="co">#&gt; # Events table:</span></a>
+<a class="sourceLine" id="cb20-86" data-line-number="86"><span class="co">#&gt;      .id    .type .description .initial .final .channel</span></a>
+<a class="sourceLine" id="cb20-87" data-line-number="87"><span class="co">#&gt;   1:   1 Stimulus          s71        1      1     &lt;NA&gt;</span></a>
+<a class="sourceLine" id="cb20-88" data-line-number="88"><span class="co">#&gt;   2:   2 Stimulus          s71        1      1     &lt;NA&gt;</span></a>
+<a class="sourceLine" id="cb20-89" data-line-number="89"><span class="co">#&gt;   3:   3 Stimulus          s71        1      1     &lt;NA&gt;</span></a>
+<a class="sourceLine" id="cb20-90" data-line-number="90"><span class="co">#&gt;   4:   4 Stimulus          s71        1      1     &lt;NA&gt;</span></a>
+<a class="sourceLine" id="cb20-91" data-line-number="91"><span class="co">#&gt;   5:   5 Stimulus          s71        1      1     &lt;NA&gt;</span></a>
+<a class="sourceLine" id="cb20-92" data-line-number="92"><span class="co">#&gt;  ---                                                   </span></a>
+<a class="sourceLine" id="cb20-93" data-line-number="93"><span class="co">#&gt; 196: 196 Stimulus          s71        1      1     &lt;NA&gt;</span></a>
+<a class="sourceLine" id="cb20-94" data-line-number="94"><span class="co">#&gt; 197: 197 Stimulus          s70        1      1     &lt;NA&gt;</span></a>
+<a class="sourceLine" id="cb20-95" data-line-number="95"><span class="co">#&gt; 198: 198 Stimulus          s71        1      1     &lt;NA&gt;</span></a>
+<a class="sourceLine" id="cb20-96" data-line-number="96"><span class="co">#&gt; 199: 199 Stimulus          s71        1      1     &lt;NA&gt;</span></a>
+<a class="sourceLine" id="cb20-97" data-line-number="97"><span class="co">#&gt; 200: 200 Stimulus          s71        1      1     &lt;NA&gt;</span></a>
+<a class="sourceLine" id="cb20-98" data-line-number="98"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb20-99" data-line-number="99"><span class="co">#&gt; # Segments table:</span></a>
+<a class="sourceLine" id="cb20-100" data-line-number="100"><span class="co">#&gt; # A tibble: 200 x 5</span></a>
+<a class="sourceLine" id="cb20-101" data-line-number="101"><span class="co">#&gt;      .id .recording    segment description condition</span></a>
+<a class="sourceLine" id="cb20-102" data-line-number="102"><span class="co">#&gt;    &lt;int&gt; &lt;chr&gt;           &lt;int&gt; &lt;chr&gt;       &lt;chr&gt;    </span></a>
+<a class="sourceLine" id="cb20-103" data-line-number="103"><span class="co">#&gt;  1     1 s1_faces.vhdr       1 s71         non-faces</span></a>
+<a class="sourceLine" id="cb20-104" data-line-number="104"><span class="co">#&gt;  2     2 s1_faces.vhdr       2 s71         non-faces</span></a>
+<a class="sourceLine" id="cb20-105" data-line-number="105"><span class="co">#&gt;  3     3 s1_faces.vhdr       3 s71         non-faces</span></a>
+<a class="sourceLine" id="cb20-106" data-line-number="106"><span class="co">#&gt;  4     4 s1_faces.vhdr       4 s71         non-faces</span></a>
+<a class="sourceLine" id="cb20-107" data-line-number="107"><span class="co">#&gt;  5     5 s1_faces.vhdr       5 s71         non-faces</span></a>
+<a class="sourceLine" id="cb20-108" data-line-number="108"><span class="co">#&gt;  6     6 s1_faces.vhdr       6 s71         non-faces</span></a>
+<a class="sourceLine" id="cb20-109" data-line-number="109"><span class="co">#&gt;  7     7 s1_faces.vhdr       7 s70         faces    </span></a>
+<a class="sourceLine" id="cb20-110" data-line-number="110"><span class="co">#&gt;  8     8 s1_faces.vhdr       8 s70         faces    </span></a>
+<a class="sourceLine" id="cb20-111" data-line-number="111"><span class="co">#&gt;  9     9 s1_faces.vhdr       9 s70         faces    </span></a>
+<a class="sourceLine" id="cb20-112" data-line-number="112"><span class="co">#&gt; 10    10 s1_faces.vhdr      10 s70         faces    </span></a>
+<a class="sourceLine" id="cb20-113" data-line-number="113"><span class="co">#&gt; # … with 190 more rows</span></a></code></pre></div>
 <p>With some <code>ggplot</code> skills, we can create customized plots. <code>ggplot</code> is overloaded to work on an <code>eeg_lst</code> by first downsampling the signal when necessary, and converting it to a long-format data frame that is feed into <code>ggplot</code>. This object can then be customized. (Notice that the channels, or component names are in a <code>.key</code> column and their amplitude in <code>.value</code> column, and instead of samples there are now <code>.time</code> in seconds).</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1"><span class="co">## ggplot uses internally a table that looks like this:</span></a>
-<a class="sourceLine" id="cb20-2" data-line-number="2">faces_seg <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(.id <span class="op">%in%</span><span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">3</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/reexports.html">as_tibble</a></span>()</a>
-<a class="sourceLine" id="cb20-3" data-line-number="3"><span class="co">#&gt; # A tibble: 31,416 x 8</span></a>
-<a class="sourceLine" id="cb20-4" data-line-number="4"><span class="co">#&gt;      .time   .id .recording    segment description condition .key  .value</span></a>
-<a class="sourceLine" id="cb20-5" data-line-number="5"><span class="co">#&gt;      &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;           &lt;int&gt; &lt;chr&gt;       &lt;chr&gt;     &lt;chr&gt;  &lt;dbl&gt;</span></a>
-<a class="sourceLine" id="cb20-6" data-line-number="6"><span class="co">#&gt;  1 -0.0996     1 s1_faces.vhdr       1 s71         non-faces Fp1   -0.224</span></a>
-<a class="sourceLine" id="cb20-7" data-line-number="7"><span class="co">#&gt;  2 -0.0977     1 s1_faces.vhdr       1 s71         non-faces Fp1    0.998</span></a>
-<a class="sourceLine" id="cb20-8" data-line-number="8"><span class="co">#&gt;  3 -0.0957     1 s1_faces.vhdr       1 s71         non-faces Fp1    2.25 </span></a>
-<a class="sourceLine" id="cb20-9" data-line-number="9"><span class="co">#&gt;  4 -0.0938     1 s1_faces.vhdr       1 s71         non-faces Fp1    3.34 </span></a>
-<a class="sourceLine" id="cb20-10" data-line-number="10"><span class="co">#&gt;  5 -0.0918     1 s1_faces.vhdr       1 s71         non-faces Fp1    4.10 </span></a>
-<a class="sourceLine" id="cb20-11" data-line-number="11"><span class="co">#&gt;  6 -0.0898     1 s1_faces.vhdr       1 s71         non-faces Fp1    4.40 </span></a>
-<a class="sourceLine" id="cb20-12" data-line-number="12"><span class="co">#&gt;  7 -0.0879     1 s1_faces.vhdr       1 s71         non-faces Fp1    4.19 </span></a>
-<a class="sourceLine" id="cb20-13" data-line-number="13"><span class="co">#&gt;  8 -0.0859     1 s1_faces.vhdr       1 s71         non-faces Fp1    3.49 </span></a>
-<a class="sourceLine" id="cb20-14" data-line-number="14"><span class="co">#&gt;  9 -0.0840     1 s1_faces.vhdr       1 s71         non-faces Fp1    2.36 </span></a>
-<a class="sourceLine" id="cb20-15" data-line-number="15"><span class="co">#&gt; 10 -0.0820     1 s1_faces.vhdr       1 s71         non-faces Fp1    0.972</span></a>
-<a class="sourceLine" id="cb20-16" data-line-number="16"><span class="co">#&gt; # … with 31,406 more rows</span></a>
-<a class="sourceLine" id="cb20-17" data-line-number="17"></a>
-<a class="sourceLine" id="cb20-18" data-line-number="18">faces_seg <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb20-19" data-line-number="19"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(O1, O2, P7, P8) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb20-20" data-line-number="20"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/ggplot">ggplot</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">x =</span> .time, <span class="dt">y =</span> .value)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb20-21" data-line-number="21"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_path">geom_line</a></span>(<span class="dt">alpha =</span> <span class="fl">.1</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">group =</span> .id, <span class="dt">color =</span> condition)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb20-22" data-line-number="22"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/stat_summary">stat_summary</a></span>(</a>
-<a class="sourceLine" id="cb20-23" data-line-number="23">    <span class="dt">fun.y =</span> <span class="st">"mean"</span>, <span class="dt">geom =</span> <span class="st">"line"</span>, <span class="dt">alpha =</span> <span class="dv">1</span>, <span class="dt">size =</span> <span class="fl">1.5</span>,</a>
-<a class="sourceLine" id="cb20-24" data-line-number="24">    <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">color =</span> condition)</a>
-<a class="sourceLine" id="cb20-25" data-line-number="25">  ) <span class="op">+</span></a>
-<a class="sourceLine" id="cb20-26" data-line-number="26"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/facet_wrap">facet_wrap</a></span>(<span class="op">~</span>.key) <span class="op">+</span></a>
-<a class="sourceLine" id="cb20-27" data-line-number="27"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_abline">geom_vline</a></span>(<span class="dt">xintercept =</span> <span class="dv">0</span>, <span class="dt">linetype =</span> <span class="st">"dashed"</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb20-28" data-line-number="28"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_abline">geom_vline</a></span>(<span class="dt">xintercept =</span> <span class="fl">.17</span>, <span class="dt">linetype =</span> <span class="st">"dotted"</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb20-29" data-line-number="29"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/theme">theme</a></span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="co">## ggplot uses internally a table that looks like this:</span></a>
+<a class="sourceLine" id="cb21-2" data-line-number="2">faces_seg <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(.id <span class="op">%in%</span><span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">3</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/reexports.html">as_tibble</a></span>()</a>
+<a class="sourceLine" id="cb21-3" data-line-number="3"><span class="co">#&gt; # A tibble: 31,416 x 8</span></a>
+<a class="sourceLine" id="cb21-4" data-line-number="4"><span class="co">#&gt;      .time   .id .recording    segment description condition .key  .value</span></a>
+<a class="sourceLine" id="cb21-5" data-line-number="5"><span class="co">#&gt;      &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;           &lt;int&gt; &lt;chr&gt;       &lt;chr&gt;     &lt;chr&gt;  &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb21-6" data-line-number="6"><span class="co">#&gt;  1 -0.0996     1 s1_faces.vhdr       1 s71         non-faces Fp1   -0.224</span></a>
+<a class="sourceLine" id="cb21-7" data-line-number="7"><span class="co">#&gt;  2 -0.0977     1 s1_faces.vhdr       1 s71         non-faces Fp1    0.998</span></a>
+<a class="sourceLine" id="cb21-8" data-line-number="8"><span class="co">#&gt;  3 -0.0957     1 s1_faces.vhdr       1 s71         non-faces Fp1    2.25 </span></a>
+<a class="sourceLine" id="cb21-9" data-line-number="9"><span class="co">#&gt;  4 -0.0938     1 s1_faces.vhdr       1 s71         non-faces Fp1    3.34 </span></a>
+<a class="sourceLine" id="cb21-10" data-line-number="10"><span class="co">#&gt;  5 -0.0918     1 s1_faces.vhdr       1 s71         non-faces Fp1    4.10 </span></a>
+<a class="sourceLine" id="cb21-11" data-line-number="11"><span class="co">#&gt;  6 -0.0898     1 s1_faces.vhdr       1 s71         non-faces Fp1    4.40 </span></a>
+<a class="sourceLine" id="cb21-12" data-line-number="12"><span class="co">#&gt;  7 -0.0879     1 s1_faces.vhdr       1 s71         non-faces Fp1    4.19 </span></a>
+<a class="sourceLine" id="cb21-13" data-line-number="13"><span class="co">#&gt;  8 -0.0859     1 s1_faces.vhdr       1 s71         non-faces Fp1    3.49 </span></a>
+<a class="sourceLine" id="cb21-14" data-line-number="14"><span class="co">#&gt;  9 -0.0840     1 s1_faces.vhdr       1 s71         non-faces Fp1    2.36 </span></a>
+<a class="sourceLine" id="cb21-15" data-line-number="15"><span class="co">#&gt; 10 -0.0820     1 s1_faces.vhdr       1 s71         non-faces Fp1    0.972</span></a>
+<a class="sourceLine" id="cb21-16" data-line-number="16"><span class="co">#&gt; # … with 31,406 more rows</span></a>
+<a class="sourceLine" id="cb21-17" data-line-number="17"></a>
+<a class="sourceLine" id="cb21-18" data-line-number="18">faces_seg <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb21-19" data-line-number="19"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(O1, O2, P7, P8) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb21-20" data-line-number="20"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/ggplot">ggplot</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">x =</span> .time, <span class="dt">y =</span> .value)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb21-21" data-line-number="21"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_path">geom_line</a></span>(<span class="dt">alpha =</span> <span class="fl">.1</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">group =</span> .id, <span class="dt">color =</span> condition)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb21-22" data-line-number="22"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/stat_summary">stat_summary</a></span>(</a>
+<a class="sourceLine" id="cb21-23" data-line-number="23">    <span class="dt">fun.y =</span> <span class="st">"mean"</span>, <span class="dt">geom =</span> <span class="st">"line"</span>, <span class="dt">alpha =</span> <span class="dv">1</span>, <span class="dt">size =</span> <span class="fl">1.5</span>,</a>
+<a class="sourceLine" id="cb21-24" data-line-number="24">    <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">color =</span> condition)</a>
+<a class="sourceLine" id="cb21-25" data-line-number="25">  ) <span class="op">+</span></a>
+<a class="sourceLine" id="cb21-26" data-line-number="26"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/facet_wrap">facet_wrap</a></span>(<span class="op">~</span>.key) <span class="op">+</span></a>
+<a class="sourceLine" id="cb21-27" data-line-number="27"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_abline">geom_vline</a></span>(<span class="dt">xintercept =</span> <span class="dv">0</span>, <span class="dt">linetype =</span> <span class="st">"dashed"</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb21-28" data-line-number="28"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_abline">geom_vline</a></span>(<span class="dt">xintercept =</span> <span class="fl">.17</span>, <span class="dt">linetype =</span> <span class="st">"dotted"</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb21-29" data-line-number="29"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/theme">theme</a></span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>)</a></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-16-1.png" width="100%"></p>
 <p>We can see here the N170 component in the faces condition for the average trial on a single participant. We can investigate the signal by averaging the channels of the occipital and parietal lobes using <code><a href="https://dplyr.tidyverse.org/reference/mutate.html">transmute()</a></code>, and the special function, <code><a href="../reference/chs_mean.html">chs_mean()</a></code>, a wrapper for <code><a href="https://www.rdocumentation.org/packages/base/topics/colSums">rowMeans()</a></code>, which takes as arguments the relevant channels and whether missing values should be omitted from the calculations.</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1">faces_seg <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb21-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">transmute</a></span>(</a>
-<a class="sourceLine" id="cb21-3" data-line-number="3">    <span class="dt">Occipital =</span> <span class="kw"><a href="../reference/chs_mean.html">chs_mean</a></span>(O1, O2, Oz, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>),</a>
-<a class="sourceLine" id="cb21-4" data-line-number="4">    <span class="dt">Parietal =</span> <span class="kw"><a href="../reference/chs_mean.html">chs_mean</a></span>(P3, P4, P7, P8, Pz, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb21-5" data-line-number="5">  ) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb21-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/ggplot">ggplot</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">x =</span> .time, <span class="dt">y =</span> .value)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb21-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_path">geom_line</a></span>(<span class="dt">alpha =</span> <span class="fl">.1</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">group =</span> .id, <span class="dt">color =</span> condition)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb21-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/stat_summary">stat_summary</a></span>(</a>
-<a class="sourceLine" id="cb21-9" data-line-number="9">    <span class="dt">fun.y =</span> <span class="st">"mean"</span>, <span class="dt">geom =</span> <span class="st">"line"</span>, <span class="dt">alpha =</span> <span class="dv">1</span>, <span class="dt">size =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb21-10" data-line-number="10">    <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">color =</span> condition)</a>
-<a class="sourceLine" id="cb21-11" data-line-number="11">  ) <span class="op">+</span></a>
-<a class="sourceLine" id="cb21-12" data-line-number="12"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/facet_wrap">facet_wrap</a></span>(<span class="op">~</span>.key) <span class="op">+</span></a>
-<a class="sourceLine" id="cb21-13" data-line-number="13"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/theme">theme</a></span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">faces_seg <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb22-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">transmute</a></span>(</a>
+<a class="sourceLine" id="cb22-3" data-line-number="3">    <span class="dt">Occipital =</span> <span class="kw"><a href="../reference/chs_mean.html">chs_mean</a></span>(O1, O2, Oz, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>),</a>
+<a class="sourceLine" id="cb22-4" data-line-number="4">    <span class="dt">Parietal =</span> <span class="kw"><a href="../reference/chs_mean.html">chs_mean</a></span>(P3, P4, P7, P8, Pz, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb22-5" data-line-number="5">  ) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb22-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/ggplot">ggplot</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">x =</span> .time, <span class="dt">y =</span> .value)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb22-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_path">geom_line</a></span>(<span class="dt">alpha =</span> <span class="fl">.1</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">group =</span> .id, <span class="dt">color =</span> condition)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb22-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/stat_summary">stat_summary</a></span>(</a>
+<a class="sourceLine" id="cb22-9" data-line-number="9">    <span class="dt">fun.y =</span> <span class="st">"mean"</span>, <span class="dt">geom =</span> <span class="st">"line"</span>, <span class="dt">alpha =</span> <span class="dv">1</span>, <span class="dt">size =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb22-10" data-line-number="10">    <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">color =</span> condition)</a>
+<a class="sourceLine" id="cb22-11" data-line-number="11">  ) <span class="op">+</span></a>
+<a class="sourceLine" id="cb22-12" data-line-number="12"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/facet_wrap">facet_wrap</a></span>(<span class="op">~</span>.key) <span class="op">+</span></a>
+<a class="sourceLine" id="cb22-13" data-line-number="13"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/theme">theme</a></span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>)</a></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-17-1.png" width="100%"></p>
 <p>We can also calculate the ERPs and then plot them in their layout (and we’ll add the same theme that plot uses for <code>eeg_lst</code>s):</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">ERP_faces &lt;-<span class="st"> </span>faces_seg <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb22-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span>(.sample, condition) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb22-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/summarise_all.html">summarize_at</a></span>(<span class="kw"><a href="../reference/summaries.html">channel_names</a></span>(.), mean, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb22-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb22-5" data-line-number="5">ERP_plot &lt;-<span class="st"> </span>ERP_faces <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb22-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/ggplot">ggplot</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">x =</span> .time, <span class="dt">y =</span> .value)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb22-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_path">geom_line</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">color =</span> condition)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb22-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/facet_wrap">facet_wrap</a></span>(<span class="op">~</span>.key) <span class="op">+</span></a>
-<a class="sourceLine" id="cb22-9" data-line-number="9"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/theme">theme</a></span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb22-10" data-line-number="10"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/labs">ggtitle</a></span>(<span class="st">"ERPs for faces vs non-faces"</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb22-11" data-line-number="11"><span class="st">  </span><span class="kw"><a href="../reference/theme_eeguana.html">theme_eeguana</a></span>()</a>
-<a class="sourceLine" id="cb22-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb22-13" data-line-number="13">ERP_plot <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="../reference/plot_in_layout.html">plot_in_layout</a></span>()</a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1">ERP_faces &lt;-<span class="st"> </span>faces_seg <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb23-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span>(.sample, condition) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb23-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/summarise_all.html">summarize_at</a></span>(<span class="kw"><a href="../reference/summaries.html">channel_names</a></span>(.), mean, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb23-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb23-5" data-line-number="5">ERP_plot &lt;-<span class="st"> </span>ERP_faces <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb23-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/ggplot">ggplot</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">x =</span> .time, <span class="dt">y =</span> .value)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb23-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_path">geom_line</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">color =</span> condition)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb23-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/facet_wrap">facet_wrap</a></span>(<span class="op">~</span>.key) <span class="op">+</span></a>
+<a class="sourceLine" id="cb23-9" data-line-number="9"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/theme">theme</a></span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb23-10" data-line-number="10"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/labs">ggtitle</a></span>(<span class="st">"ERPs for faces vs non-faces"</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb23-11" data-line-number="11"><span class="st">  </span><span class="kw"><a href="../reference/theme_eeguana.html">theme_eeguana</a></span>()</a>
+<a class="sourceLine" id="cb23-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb23-13" data-line-number="13">ERP_plot <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="../reference/plot_in_layout.html">plot_in_layout</a></span>()</a></code></pre></div>
 <p><img src="intro_files/figure-html/layout-1.png" width="100%"></p>
 <p>Another possibility is to create a topographic plot of the two conditions, by first making segments that include only the interval .1-.2 <em>s</em> after the onset of the stimuli, creating a table with interpolated amplitudes and using the ggplot wrapper <code><a href="../reference/plot_topo.html">plot_topo()</a></code>.</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1">faces_seg <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb23-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="kw"><a href="../reference/between.html">between</a></span>(<span class="kw"><a href="../reference/as_time.html">as_time</a></span>(.sample, <span class="dt">unit =</span> <span class="st">"s"</span>), <span class="fl">.1</span>, <span class="fl">.2</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb23-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span>(condition) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb23-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/summarise_all.html">summarize_at</a></span>(<span class="kw"><a href="../reference/summaries.html">channel_names</a></span>(.), mean, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb23-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="../reference/plot_topo.html">plot_topo</a></span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb23-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="../reference/annotate_head.html">annotate_head</a></span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb23-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_contour">geom_contour</a></span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb23-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_text">geom_text</a></span>(<span class="dt">colour =</span> <span class="st">"black"</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb23-9" data-line-number="9"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/facet_grid">facet_grid</a></span>(<span class="op">~</span>condition)</a></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1">faces_seg <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb24-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="kw"><a href="../reference/between.html">between</a></span>(<span class="kw"><a href="../reference/as_time.html">as_time</a></span>(.sample, <span class="dt">unit =</span> <span class="st">"s"</span>), <span class="fl">.1</span>, <span class="fl">.2</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb24-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span>(condition) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb24-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/summarise_all.html">summarize_at</a></span>(<span class="kw"><a href="../reference/summaries.html">channel_names</a></span>(.), mean, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb24-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="../reference/plot_topo.html">plot_topo</a></span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb24-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="../reference/annotate_head.html">annotate_head</a></span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb24-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_contour">geom_contour</a></span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb24-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_text">geom_text</a></span>(<span class="dt">colour =</span> <span class="st">"black"</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb24-9" data-line-number="9"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/facet_grid">facet_grid</a></span>(<span class="op">~</span>condition)</a></code></pre></div>
 <p><img src="intro_files/figure-html/topo-1.png" width="100%"></p>
 <p>For more specialized plots or analyses, it might be necessary to extract the data in long data frame format first. Even though, we can do this without transforming the object, here, we transform the data first and then we visualize independent t-tests at every electrode and time point.</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1">df &lt;-<span class="st"> </span>faces_seg <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb24-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(O1, O2, P7, P8) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb24-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/reexports.html">as_tibble</a></span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb24-4" data-line-number="4"><span class="st">  </span><span class="co"># We can use regular dplyr functions now</span></a>
-<a class="sourceLine" id="cb24-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span>(.key, .time) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb24-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarize</a></span>(</a>
-<a class="sourceLine" id="cb24-7" data-line-number="7">    <span class="st">`</span><span class="dt">t-value</span><span class="st">`</span> =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/t.test">t.test</a></span>(</a>
-<a class="sourceLine" id="cb24-8" data-line-number="8">      .value[condition <span class="op">==</span><span class="st"> "faces"</span>],</a>
-<a class="sourceLine" id="cb24-9" data-line-number="9">      .value[condition <span class="op">==</span><span class="st"> "non-faces"</span>]</a>
-<a class="sourceLine" id="cb24-10" data-line-number="10">    )<span class="op">$</span>statistic</a>
-<a class="sourceLine" id="cb24-11" data-line-number="11">  )</a>
-<a class="sourceLine" id="cb24-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb24-13" data-line-number="13">df</a>
-<a class="sourceLine" id="cb24-14" data-line-number="14"><span class="co">#&gt; # A tibble: 1,232 x 3</span></a>
-<a class="sourceLine" id="cb24-15" data-line-number="15"><span class="co">#&gt; # Groups:   .key [4]</span></a>
-<a class="sourceLine" id="cb24-16" data-line-number="16"><span class="co">#&gt;    .key    .time `t-value`</span></a>
-<a class="sourceLine" id="cb24-17" data-line-number="17"><span class="co">#&gt;    &lt;chr&gt;   &lt;dbl&gt;     &lt;dbl&gt;</span></a>
-<a class="sourceLine" id="cb24-18" data-line-number="18"><span class="co">#&gt;  1 O1    -0.0996    0.204 </span></a>
-<a class="sourceLine" id="cb24-19" data-line-number="19"><span class="co">#&gt;  2 O1    -0.0977    0.227 </span></a>
-<a class="sourceLine" id="cb24-20" data-line-number="20"><span class="co">#&gt;  3 O1    -0.0957    0.234 </span></a>
-<a class="sourceLine" id="cb24-21" data-line-number="21"><span class="co">#&gt;  4 O1    -0.0938    0.219 </span></a>
-<a class="sourceLine" id="cb24-22" data-line-number="22"><span class="co">#&gt;  5 O1    -0.0918    0.173 </span></a>
-<a class="sourceLine" id="cb24-23" data-line-number="23"><span class="co">#&gt;  6 O1    -0.0898    0.0880</span></a>
-<a class="sourceLine" id="cb24-24" data-line-number="24"><span class="co">#&gt;  7 O1    -0.0879   -0.0415</span></a>
-<a class="sourceLine" id="cb24-25" data-line-number="25"><span class="co">#&gt;  8 O1    -0.0859   -0.221 </span></a>
-<a class="sourceLine" id="cb24-26" data-line-number="26"><span class="co">#&gt;  9 O1    -0.0840   -0.448 </span></a>
-<a class="sourceLine" id="cb24-27" data-line-number="27"><span class="co">#&gt; 10 O1    -0.0820   -0.713 </span></a>
-<a class="sourceLine" id="cb24-28" data-line-number="28"><span class="co">#&gt; # … with 1,222 more rows</span></a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1">df &lt;-<span class="st"> </span>faces_seg <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb25-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(O1, O2, P7, P8) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb25-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/reexports.html">as_tibble</a></span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb25-4" data-line-number="4"><span class="st">  </span><span class="co"># We can use regular dplyr functions now</span></a>
+<a class="sourceLine" id="cb25-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span>(.key, .time) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb25-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarize</a></span>(</a>
+<a class="sourceLine" id="cb25-7" data-line-number="7">    <span class="st">`</span><span class="dt">t-value</span><span class="st">`</span> =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/t.test">t.test</a></span>(</a>
+<a class="sourceLine" id="cb25-8" data-line-number="8">      .value[condition <span class="op">==</span><span class="st"> "faces"</span>],</a>
+<a class="sourceLine" id="cb25-9" data-line-number="9">      .value[condition <span class="op">==</span><span class="st"> "non-faces"</span>]</a>
+<a class="sourceLine" id="cb25-10" data-line-number="10">    )<span class="op">$</span>statistic</a>
+<a class="sourceLine" id="cb25-11" data-line-number="11">  )</a>
+<a class="sourceLine" id="cb25-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb25-13" data-line-number="13">df</a>
+<a class="sourceLine" id="cb25-14" data-line-number="14"><span class="co">#&gt; # A tibble: 1,232 x 3</span></a>
+<a class="sourceLine" id="cb25-15" data-line-number="15"><span class="co">#&gt; # Groups:   .key [4]</span></a>
+<a class="sourceLine" id="cb25-16" data-line-number="16"><span class="co">#&gt;    .key    .time `t-value`</span></a>
+<a class="sourceLine" id="cb25-17" data-line-number="17"><span class="co">#&gt;    &lt;chr&gt;   &lt;dbl&gt;     &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb25-18" data-line-number="18"><span class="co">#&gt;  1 O1    -0.0996    0.204 </span></a>
+<a class="sourceLine" id="cb25-19" data-line-number="19"><span class="co">#&gt;  2 O1    -0.0977    0.227 </span></a>
+<a class="sourceLine" id="cb25-20" data-line-number="20"><span class="co">#&gt;  3 O1    -0.0957    0.234 </span></a>
+<a class="sourceLine" id="cb25-21" data-line-number="21"><span class="co">#&gt;  4 O1    -0.0938    0.219 </span></a>
+<a class="sourceLine" id="cb25-22" data-line-number="22"><span class="co">#&gt;  5 O1    -0.0918    0.173 </span></a>
+<a class="sourceLine" id="cb25-23" data-line-number="23"><span class="co">#&gt;  6 O1    -0.0898    0.0880</span></a>
+<a class="sourceLine" id="cb25-24" data-line-number="24"><span class="co">#&gt;  7 O1    -0.0879   -0.0415</span></a>
+<a class="sourceLine" id="cb25-25" data-line-number="25"><span class="co">#&gt;  8 O1    -0.0859   -0.221 </span></a>
+<a class="sourceLine" id="cb25-26" data-line-number="26"><span class="co">#&gt;  9 O1    -0.0840   -0.448 </span></a>
+<a class="sourceLine" id="cb25-27" data-line-number="27"><span class="co">#&gt; 10 O1    -0.0820   -0.713 </span></a>
+<a class="sourceLine" id="cb25-28" data-line-number="28"><span class="co">#&gt; # … with 1,222 more rows</span></a></code></pre></div>
 <p>Then we just load the data frame into <code>ggplot</code>.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/ggplot">ggplot</a></span>(df, <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">x =</span> .time, <span class="dt">y =</span> <span class="st">`</span><span class="dt">t-value</span><span class="st">`</span>)) <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_path">geom_line</a></span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb25-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/facet_wrap">facet_wrap</a></span>(<span class="op">~</span>.key)</a></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/ggplot">ggplot</a></span>(df, <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">x =</span> .time, <span class="dt">y =</span> <span class="st">`</span><span class="dt">t-value</span><span class="st">`</span>)) <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_path">geom_line</a></span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb26-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/facet_wrap">facet_wrap</a></span>(<span class="op">~</span>.key)</a></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-19-1.png" width="100%"></p>
 <p>However, this can be also done in the without transforming the <code>eeg_lst</code> object:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1">faces_seg_t &lt;-</a>
-<a class="sourceLine" id="cb26-2" data-line-number="2"><span class="st">  </span>faces_seg <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb26-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(O1, O2, P7, P8) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb26-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span>(.sample) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb26-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/summarise_all.html">summarize_at</a></span>(<span class="kw"><a href="../reference/summaries.html">channel_names</a></span>(.), <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">t =</span>  <span class="op">~</span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/t.test">t.test</a></span>(</a>
-<a class="sourceLine" id="cb26-6" data-line-number="6">    .[condition <span class="op">==</span><span class="st"> "faces"</span>],</a>
-<a class="sourceLine" id="cb26-7" data-line-number="7">    .[condition <span class="op">==</span><span class="st"> "non-faces"</span>]</a>
-<a class="sourceLine" id="cb26-8" data-line-number="8">  )<span class="op">$</span>statistic))</a>
-<a class="sourceLine" id="cb26-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb26-10" data-line-number="10">faces_seg_t <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb26-11" data-line-number="11"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/ggplot">ggplot</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">x =</span> .time, <span class="dt">y =</span> .value)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb26-12" data-line-number="12"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_path">geom_line</a></span>(<span class="dt">alpha =</span> <span class="fl">.1</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">group =</span> .id)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb26-13" data-line-number="13"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/stat_summary">stat_summary</a></span>(<span class="dt">fun.y =</span> <span class="st">"mean"</span>, <span class="dt">geom =</span> <span class="st">"line"</span>, <span class="dt">alpha =</span> <span class="dv">1</span>, <span class="dt">size =</span> <span class="dv">1</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb26-14" data-line-number="14"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/facet_wrap">facet_wrap</a></span>(<span class="op">~</span>.key) <span class="op">+</span></a>
-<a class="sourceLine" id="cb26-15" data-line-number="15"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/theme">theme</a></span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1">faces_seg_t &lt;-</a>
+<a class="sourceLine" id="cb27-2" data-line-number="2"><span class="st">  </span>faces_seg <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb27-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(O1, O2, P7, P8) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb27-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span>(.sample) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb27-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/summarise_all.html">summarize_at</a></span>(<span class="kw"><a href="../reference/summaries.html">channel_names</a></span>(.), <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">t =</span>  <span class="op">~</span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/t.test">t.test</a></span>(</a>
+<a class="sourceLine" id="cb27-6" data-line-number="6">    .[condition <span class="op">==</span><span class="st"> "faces"</span>],</a>
+<a class="sourceLine" id="cb27-7" data-line-number="7">    .[condition <span class="op">==</span><span class="st"> "non-faces"</span>]</a>
+<a class="sourceLine" id="cb27-8" data-line-number="8">  )<span class="op">$</span>statistic))</a>
+<a class="sourceLine" id="cb27-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb27-10" data-line-number="10">faces_seg_t <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb27-11" data-line-number="11"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/ggplot">ggplot</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">x =</span> .time, <span class="dt">y =</span> .value)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb27-12" data-line-number="12"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_path">geom_line</a></span>(<span class="dt">alpha =</span> <span class="fl">.1</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">group =</span> .id)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb27-13" data-line-number="13"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/stat_summary">stat_summary</a></span>(<span class="dt">fun.y =</span> <span class="st">"mean"</span>, <span class="dt">geom =</span> <span class="st">"line"</span>, <span class="dt">alpha =</span> <span class="dv">1</span>, <span class="dt">size =</span> <span class="dv">1</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb27-14" data-line-number="14"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/facet_wrap">facet_wrap</a></span>(<span class="op">~</span>.key) <span class="op">+</span></a>
+<a class="sourceLine" id="cb27-15" data-line-number="15"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/theme">theme</a></span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>)</a></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-20-1.png" width="100%"></p>
 </div>
 </div>
