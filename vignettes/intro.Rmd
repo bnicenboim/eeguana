@@ -28,11 +28,11 @@ In addition, `eeg_`/`ch_` functions will also return an `eeg_lst` unless they ha
 
 # A practical example: the N170 effect
 
-Here, I exemplify the use of *eeguana* with EEG data from BrainVision 1.0. The data belong to a simple experiment  where a participant was presented 100 faces and 100 assorted images in random order. The task of the experiment was to mentally count the number of faces.
+Here, I exemplify the use of *eeguana* with raw EEG data exported in the format of BrainVision 1.0. The data belong to a simple experiment  where a participant was presented 100 faces and 100 assorted images in random order. The task of the experiment was to mentally count the number of faces.
 
 First we download the data:
 
-```{r downloading, eval=FALSE, cache=TRUE, include=FALSE}
+```{r downloading, eval=FALSE, cache=TRUE, include=TRUE}
 download.file("http://www.ling.uni-potsdam.de/~nicenboim/files/s1_faces.vhdr",
   mode = "wb", destfile = "./s1_faces.vhdr"
 )
@@ -72,7 +72,7 @@ faces
 summary(faces)
 ```
 
-We see that there is no electrode positions in the object, but since we know that the layout was a standard 10/20, we'll add this layout to the object, using the dataset `layout_32_1020`.
+We see that there is no electrode positions in the object, but since we know that the layout was a standard 10/20, we'll add this layout to the object, using the dataset `layout_32_1020`. This is required to be able to create topographic plots.
 
 ```{r}
 channels_tbl(faces)
@@ -151,7 +151,7 @@ We'll look closer at the ICA that are more likely to be related to eye movements
 ```{r,  fig.dim = c(10,5)}
 faces_ica <- faces_ica %>%
   eeg_artif_step(HEOG, VEOG, threshold = 30, window = 200, unit = "ms", freq=c(1,10)) %>%
-  eeg_artif_peak(VEOG, freq=c(1,10))
+  eeg_artif_peak(VEOG, threshold=100, freq=c(1,10))
 ```
 
 
@@ -159,10 +159,10 @@ In order to investigate the ICA, we are using an experminal function not yet exp
 
 We'll see how the components explaining the most variance and most correlated to the EOG channels behave:
 
-```{r, fig.dim = c(10,15), out.width = "100%"}
+```{r, fig.dim = c(10,10), out.width = "100%"}
 #samples with blinks
 s_peaks <- filter(events_tbl(faces_ica),  str_starts(.description, "peak")) %>% pull(.initial)
-eeguana:::plot_ica.eeg_ica_lst(faces_ica, samples = seq(s_peaks[2]-500,s_peaks[2]+1000))
+eeguana:::plot_ica.eeg_ica_lst(faces_ica, samples = seq(s_peaks[1]-2000,s_peaks[1]+2000))
 ```
 The clearest ones is ICA5, and so we'll just remove that one.
 

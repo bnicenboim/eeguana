@@ -11,4 +11,9 @@ layout_32_1020
 \description{
 A dataset containing coordinates ofa 32 electrodes mounted in an elastic cap at the standard 10-20 system (Jasper, 1958)
 }
+\seealso{
+Other topographic plots and layouts: \code{\link{plot_components}},
+  \code{\link{plot_in_layout}}, \code{\link{plot_topo}}
+}
+\concept{topographic plots and layouts}
 \keyword{datasets}

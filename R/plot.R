@@ -42,7 +42,7 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
     signif(2) %>% c(0)
   names(breaks) <- breaks
   lims <-  (breaks * 1.5) %>% 
-    c(0) %>% range()
+    range()
   
   plot <- ggplot.eeg_lst(x, ggplot2::aes(x = .time, y = .value, group = .id), max_sample = max_sample) +
     ggplot2::geom_hline(yintercept = 0, color = "gray",alpha =.8) +
@@ -98,7 +98,7 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
 #' @param ... If data are an `eeg_lst` or `ica_lst`, these are arguments passed to `eeg_interpolate_tbl`, such as, radius, size, etc.
 #'
 #' @family plotting functions
-#'
+#' @family topographic plots and layouts
 #' @return A ggplot object
 #'
 #' @examples
@@ -138,6 +138,10 @@ plot_topo <- function(data, ...) {
 #' @rdname plot_topo
 #' @export
 plot_topo.tbl_df <- function(data, value = .value, label = .key, ...) {
+  if(all(is.na(data$.x)) && all(is.na(data$.y)) ) {
+    stop("X and Y coordinates missing. You probably need to add a layout to the data.", call. = FALSE)}
+  if(all(is.na(data$.x))) {stop("X coordinate missing.", call. = FALSE)}
+  if(all(is.na(data$.y))) {stop("Y coordinate missing.", call. = FALSE)}
   value <- rlang::enquo(value)
   label <- rlang::enquo(label)
   data <- data %>%  dplyr::ungroup()
@@ -197,6 +201,8 @@ plot_topo.eeg_lst <- function(data, projection = "polar", ...) {
 #'
 #' @family plotting functions
 #' @family ICA functions
+#' @family plotting functions
+#' @family topographic plots and layouts
 #' @inheritParams plot_topo
 #' @param standardize Whether to standardize the color scale of each topographic plot.
 #' @rdname plot_components
@@ -246,7 +252,7 @@ plot_ica <- function(data, ...) {
 }
 #' @inheritParams plot_topo
 plot_ica.eeg_ica_lst <- function(data,
-                                 samples = 1:300,
+                                 samples = 1:4000,
                                  components = 1:16,
                                  eog=c(),
                                  .recording=NULL,
@@ -255,7 +261,8 @@ plot_ica.eeg_ica_lst <- function(data,
                                  max_sample =2400,
                                  topo_config = list(projection = "polar",standardize= TRUE),
                                  interp_config =list(...)) {
-#first filter then this is applied:
+warning("This is an experimental function, and it might change or dissapear in the future. (Or it might be transformed into a shinyapp)")
+  #first filter then this is applied:
   if(!is.null(.recording)){
     data <- dplyr::filter(data, .recording == .recording)
   } else {
@@ -270,7 +277,7 @@ plot_ica.eeg_ica_lst <- function(data,
       stringr::str_detect(stringr::regex("eog", ignore_case = TRUE))]
   } 
     eog <- sel_ch(data, eog)
-
+  message("Calculating the correlation of ICA components with filtered EOG channels...")
   sum <- eeg_ica_summary_tbl(data %>% eeg_filt_band_pass(eog, freq = c(.1, 30)),eog) 
   data.table::setorderv(sum, order, order = -1)
   ICAs <- unique(sum$.ICA)[components] 
@@ -337,6 +344,7 @@ plot_ica.eeg_ica_lst <- function(data,
 #' @param plot A ggplot object with channels
 #'
 #' @family plotting functions
+#' @family topographic plots and layouts
 #' @return A ggplot object
 #'
 #'
