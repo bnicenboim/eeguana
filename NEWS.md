@@ -1,3 +1,13 @@
+# eeguana 0.1.1.9000
+  - Changes:
+       - The introductory vignette (https://bnicenboim.github.io/eeguana/articles/intro.html) was slightly modified.
+       - `eeg_segment()` accepts unpaired events when `end` argument is used, and should be able to deal with duplicated triggers.
+       - `eeg_artif_peak()` detect peaks in the EEG signal.
+       - `eeg_ica_cor_tbl()` and `eeg_ica_var_tbl` show the correlation of components (ICA) with EOG channels and their variance explained.
+       - `eeg_ica_summary_tbl()` summarizes `eeg_ica_cor_tbl()` and `eeg_ica_var_tbl()`.
+  - Bugs:
+      - `events_tbl()` keep attributes.
+      
 # eeguana 0.1.0.9000
   - Changes
       - New vignette that introduces the package [here](https://bnicenboim.github.io/eeguana/articles/intro.html).

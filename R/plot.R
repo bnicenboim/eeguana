@@ -36,14 +36,26 @@
 #' @export
 plot.eeg_lst <- function(x, max_sample = 6400, ...) {
   ellipsis::check_dots_unnamed()
-  plot <- ggplot.eeg_lst(x, ggplot2::aes(x = .time, y = .value, group = .id)) +
+  #pick the last channel as reference
+  breaks <- x$.signal[[ncol(x$.signal)]]  %>% 
+    stats::quantile(probs = c(.025,.975), na.rm=TRUE) %>% 
+    signif(2) %>% c(0)
+  names(breaks) <- breaks
+  lims <-  (breaks * 1.5) %>% 
+    range()
+  
+  plot <- ggplot.eeg_lst(x, ggplot2::aes(x = .time, y = .value, group = .id), max_sample = max_sample) +
+    ggplot2::geom_hline(yintercept = 0, color = "gray",alpha =.8) +
     ggplot2::geom_line() +
-    ggplot2::facet_grid(.key ~ .,
+    ggplot2::facet_grid(.key ~ .id,
       labeller = ggplot2::label_wrap_gen(multi_line = FALSE),
-      scales = "free"
+      scales = "free", space= "free"
     ) +
     ggplot2::scale_x_continuous("Time (s)") +
-    ggplot2::scale_y_continuous("Amplitude") +
+    ggplot2::scale_y_continuous("Amplitude", 
+                                #breaks = breaks,
+                                ) +
+    ggplot2::coord_cartesian(ylim = lims, clip = FALSE, expand = FALSE) +
     theme_eeguana()
   plot
 }
@@ -86,7 +98,7 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
 #' @param ... If data are an `eeg_lst` or `ica_lst`, these are arguments passed to `eeg_interpolate_tbl`, such as, radius, size, etc.
 #'
 #' @family plotting functions
-#'
+#' @family topographic plots and layouts
 #' @return A ggplot object
 #'
 #' @examples
@@ -126,23 +138,29 @@ plot_topo <- function(data, ...) {
 #' @rdname plot_topo
 #' @export
 plot_topo.tbl_df <- function(data, value = .value, label = .key, ...) {
+  if(all(is.na(data$.x)) && all(is.na(data$.y)) ) {
+    stop("X and Y coordinates missing. You probably need to add a layout to the data.", call. = FALSE)}
+  if(all(is.na(data$.x))) {stop("X coordinate missing.", call. = FALSE)}
+  if(all(is.na(data$.y))) {stop("Y coordinate missing.", call. = FALSE)}
   value <- rlang::enquo(value)
   label <- rlang::enquo(label)
-
+  data <- data %>%  dplyr::ungroup()
   # Labels positions mess up with geom_raster, they need to be excluded
   # and then add the labels to the data that was interpolated
   d <- dplyr::filter(data, !is.na(.x), !is.na(.y), is.na(!!label)) %>%
     dplyr::select(-!!label)
   label_pos <- dplyr::filter(data, !is.na(.x), !is.na(.y), !is.na(!!label)) %>%
     dplyr::distinct(.x, .y, !!label)
-  label_corrected_pos <- purrr::map_df(label_pos %>% dplyr::select(.x, .y, !!label) %>% purrr::transpose(), function(l) {
+  label_corrected_pos <- purrr::map_df(label_pos %>% 
+                                         dplyr::select(.x, .y, !!label) %>%
+                                         purrr::transpose(), function(l) {
     d %>%
       dplyr::select(-!!value) %>%
       dplyr::filter((.x - l$.x)^2 + (.y - l$.y)^2 == min((.x - l$.x)^2 + (.y - l$.y)^2)) %>%
       # does the original grouping so that I add a label to each group
       dplyr::group_by_at(dplyr::vars(colnames(.)[!colnames(.) %in% c(".x", ".y")])) %>%
       dplyr::slice(1) %>%
-      dplyr::mutate(!!label := l[[3]])
+      dplyr::mutate(!!label := l[[".key"]])
   })
   d <- suppressMessages(dplyr::left_join(d, label_corrected_pos))
 
@@ -183,21 +201,25 @@ plot_topo.eeg_lst <- function(data, projection = "polar", ...) {
 #'
 #' @family plotting functions
 #' @family ICA functions
-#' @export
-plot_components <- function(data, ...) {
-  UseMethod("plot_components")
-}
+#' @family topographic plots and layouts
 #' @inheritParams plot_topo
+#' @param standardize Whether to standardize the color scale of each topographic plot.
 #' @rdname plot_components
 #' @export
-plot_components.eeg_ica_lst <- function(data, projection = "polar", ...) {
+plot_components <- function(data, ...,projection = "polar",standardize= TRUE) {
+  UseMethod("plot_components")
+}
+#' @export
+plot_components.eeg_ica_lst <- function(data,...,projection = "polar",standardize= TRUE) {
+  comp_sel <- sel_comp(data,...)
   channels_tbl(data) <- change_coord(channels_tbl(data), projection)
   ## TODO: move to data.table, ignore group, just do it by .recording
-  long_table <- map_dtr(data$ica, ~ data.table::as.data.table(.x$mixing_matrix) %>%
-    .[, .ICA := {
-      .ICA <- paste0("ICA", seq_len(.N))
-      factor(.ICA, levels = .ICA)
-    }], .id = ".recording") %>%
+  long_table <- map_dtr(data$ica, ~ {
+    dt <- .x$mixing_matrix[comp_sel,, drop=FALSE] %>%
+      data.table::as.data.table(keep.rownames = TRUE) 
+    dt[, .ICA := factor(rn, levels = rn)][ , rn := NULL][]
+  },
+  .id = ".recording") %>%
     data.table::melt(
       variable.name = ".key",
       id.vars = c(".ICA", ".recording"),
@@ -207,9 +229,12 @@ plot_components.eeg_ica_lst <- function(data, projection = "polar", ...) {
 
   long_table <- left_join_dt(long_table, data.table::as.data.table(channels_tbl(data)), by = c(".key" = ".channel")) %>%
     dplyr::group_by(.recording, .ICA)
-
-  long_table %>%
-    eeg_interpolate_tbl(...) %>%
+  
+long_table %>%
+    eeg_interpolate_tbl() %>%
+    dplyr::group_by(.recording, .ICA) %>%
+    dplyr::mutate(.value = c(scale(.value, center = standardize, scale = standardize))) %>% 
+    dplyr::ungroup() %>%
     plot_topo() +
     ggplot2::facet_wrap(~.recording + .ICA) +
     annotate_head() +
@@ -219,7 +244,83 @@ plot_components.eeg_ica_lst <- function(data, projection = "polar", ...) {
 }
 
 
+#' @family plotting functions
+#' @family ICA functions
+plot_ica <- function(data, ...) {
+  UseMethod("plot_ica")
+}
+#' @inheritParams plot_topo
+plot_ica.eeg_ica_lst <- function(data,
+                                 samples = 1:4000,
+                                 components = 1:16,
+                                 eog=c(),
+                                 .recording=NULL,
+                                 scale_comp = 2,
+                                 order = c("var","cor"),
+                                 max_sample =2400,
+                                 topo_config = list(projection = "polar",standardize= TRUE),
+                                 interp_config =list(...)) {
+warning("This is an experimental function, and it might change or dissapear in the future. (Or it might be transformed into a shinyapp)")
+  #first filter then this is applied:
+  if(!is.null(.recording)){
+    data <- dplyr::filter(data, .recording == .recording)
+  } else {
+    .recording <- segments_tbl(data)$.recording[1]
+    message("Using recording: ",.recording)
+      data <- dplyr::filter(data, .recording == .recording)
+    }
 
+ 
+   if (length(eog) == 0) {
+    eog <- channel_names(data)[channel_names(data) %>%
+      stringr::str_detect(stringr::regex("eog", ignore_case = TRUE))]
+  } 
+    eog <- sel_ch(data, eog)
+  message("Calculating the correlation of ICA components with filtered EOG channels...")
+  sum <- eeg_ica_summary_tbl(data %>% eeg_filt_band_pass(eog, freq = c(.1, 30)),eog) 
+  data.table::setorderv(sum, order, order = -1)
+  ICAs <- unique(sum$.ICA)[components] 
+  sum <- sum[.ICA %in% ICAs]
+  
+  new_data <- data %>% 
+   slice_signal(samples) %>%
+    eeg_ica_show(dplyr::one_of(ICAs)) %>%
+    ## we select want we want to show:
+    dplyr::select(c(ICAs,eog)) %>%
+    dplyr::group_by(.id)%>%  
+    dplyr::mutate_at(eog, ~ .- mean(.)) %>%
+    dplyr::mutate_if(is_component_dbl, ~ . * scale_comp) 
+  
+ ampls <- new_data %>%
+    plot() + 
+    annotate_events()+ 
+    ggplot2::theme(legend.position='none')
+  
+  
+  topo <- plot_components(data,ICAs)
+  
+  c_text <- sum %>%
+    dplyr::mutate(cor_t = as.character(round(cor,2)), pvar_t = as.character(round(var*100))) %>%
+    dplyr::group_by(.recording, .ICA) %>%
+    dplyr::summarize(text = paste0(stringr::str_extract(EOG,"^."),": ", cor_t, collapse ="\n") %>%
+                paste0("\n",unique(pvar_t),"%")) %>%
+    dplyr::mutate(x=1,y=1,.value= NA, .key = NA) %>% 
+    dplyr::left_join(dplyr::distinct(topo$data,.recording,.ICA) %>% 
+                       dplyr::mutate(.ICA= as.character(.ICA)),., by =c(".recording",".ICA"))%>%
+    dplyr::mutate(.ICA = factor(.ICA, levels = .$.ICA))
+  
+  topo <-    topo + 
+    ggplot2::geom_text(data=c_text, aes(label=text,x=x,y=y), inherit.aes=FALSE) + 
+    ggplot2::coord_cartesian(clip=FALSE) + 
+    facet_wrap(~.ICA, ncol=4) +
+    theme(strip.text=element_text(size=12))
+  
+  topo$layers[[5]] <- NULL
+  
+  ## right <- cowplot::plot_grid(topo, legend_p1, ncol=1, rel_heights=c(.8,.2))
+  plot <- cowplot::plot_grid(ampls, topo, ncol=2,rel_widths=c(.6,.4))
+ plot  
+}
 
 #' Arrange ERP plots according to scalp layout
 #'
@@ -242,6 +343,7 @@ plot_components.eeg_ica_lst <- function(data, projection = "polar", ...) {
 #' @param plot A ggplot object with channels
 #'
 #' @family plotting functions
+#' @family topographic plots and layouts
 #' @return A ggplot object
 #'
 #'
@@ -495,6 +597,7 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
   } else {
     events_tbl <- object$layer$data
   }
+  if(nrow(events_tbl)==0) return(NULL)  #nothing to plot
   info_events <- setdiff(colnames(events_tbl), obligatory_cols[[".events"]])
   events_tbl <- data.table::as.data.table(events_tbl)
   events_tbl[, xmin := as_time(.initial) ]
@@ -537,7 +640,7 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
 #'
 #' @param data An `eeg_lst` object.
 #' @inheritParams  ggplot2::ggplot
-#' @param max_sample Downsample to approximately 2400 samples by default.
+#' @param max_sample Downsample to approximately 6400 samples by default.
 #'
 #' @family plotting functions
 #' @return A ggplot object
@@ -562,7 +665,7 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
 ggplot.eeg_lst <- function(data = NULL,
                            mapping = ggplot2::aes(),
                            ...,
-                           max_sample = 2400,
+                           max_sample = 64000,
                            environment = parent.frame()) {
   df <- try_to_downsample(data, max_sample) %>%
     data.table::as.data.table()
@@ -590,9 +693,13 @@ theme_eeguana <- function() {
   ggplot2::`%+replace%`(
     ggplot2::theme_bw(),
     ggplot2::theme(
+      #,
+      # panel.grid =ggplot2::element_blank(),
       strip.background = ggplot2::element_rect(color = "transparent", fill = "transparent"),
+      strip.text.y = ggplot2::element_text(angle = 00),
       panel.spacing = ggplot2::unit(.01, "points"),
-      panel.border = ggplot2::element_rect(color = "transparent", fill = "transparent")
+      panel.border = ggplot2::element_rect(color = "transparent", fill = "transparent"),
+      panel.background = ggplot2::element_rect(fill = "transparent", color ="transparent")
     )
   )
 }
@@ -609,3 +716,5 @@ theme_eeguana2 <- function() {
     )
   )
 }
+
+

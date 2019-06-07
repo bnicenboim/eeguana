@@ -141,11 +141,10 @@ summary.eeg_lst <- function(object, ...) {
 #' @export
 summary.eeg_ica_lst <- function(object, ...) {
   summ <- NextMethod()
-  summ$ica_cor <- eeg_ica_cor_lst(object)
-
   class(summ) <- c("ica_summary", class(summ))
   summ
 }
+
 
 #' Show correlations between ICA sources and eye (EOG) electrodes.
 #'
@@ -154,48 +153,122 @@ summary.eeg_ica_lst <- function(object, ...) {
 #' @family ICA functions
 #' @family summary functions
 #'
-#' @return A list of correlations.
+#' @return A table with the correlations between each component and each EOG channel in each recording.
 #' @export
-eeg_ica_cor_lst <- function(.data, ...) {
-  UseMethod("eeg_ica_cor_lst")
+eeg_ica_cor_tbl <- function(.data, ...) {
+  UseMethod("eeg_ica_cor_tbl")
 }
 
 #' @export
-eeg_ica_cor_lst.eeg_ica_lst <- function(.data, ...) {
+eeg_ica_cor_tbl.eeg_ica_lst <- function(.data, ...) {
   if (length(list(...)) == 0) {
     eogs <- channel_names(.data)[channel_names(.data) %>%
       stringr::str_detect(stringr::regex("eog", ignore_case = TRUE))]
   } else {
-    eogs > -sel_ch(.data, ...)
+    eogs <- sel_ch(.data, ...)
   }
   names(eogs) <- eogs
-  comps <- .data %>% eeg_ica_show(component_names(.))
-
+  comps <- .data  %>% 
+    eeg_ica_show(component_names(.data)) %>% 
+    dplyr::select(eogs, component_names(.data))
+  signal <- extended_signal(comps, ".recording")
+  
   # new cols:
   .ICA <- NULL
   cor <- NULL
 
-  lapply(eogs, function(eog)
-    comps$.signal %>%
-      dplyr::summarize_at(
-        component_names(comps),
-        ~ stats::cor(x = ., y = comps$.signal[[eog]], use = "complete")
-      ) %>%
-      t() %>%
-      {
-        dplyr::tibble(.ICA = rownames(.), cor = .[, 1])
-      } %>%
-      dplyr::arrange(dplyr::desc(abs(cor))))
+  
+ dt_cor <- lapply(eogs, function(eog)
+      signal[,lapply(.SD, function(ica){
+          stats::cor(x = ica, y = comps$.signal[[eog]], use = "complete")
+      }), .SDcols =  component_names(comps), by = .recording ]  %>%
+     data.table::melt(
+      variable.name = ".ICA",
+      id.vars = c(".recording"),
+      value.name = "cor"
+    ) 
+) %>% data.table::rbindlist(idcol = "EOG") 
+  data.table::setcolorder(dt_cor, c(".recording","EOG",".ICA","cor"))
+  # data.table::setorder(dt_cor, .recording, -abs(cor))
+  dt_cor[order(.recording, -abs(cor))]
+    #split(dt_cor, keep.by = FALSE, by=c(".recording", "EOG"))
+
+  }
+#' Show the variance explained for each ICA sources.
+#'
+#' This function shows the variance explained by each ICA component following the approach of the matlab function .... 
+#' 
+#' If the dataset is large, this function can take very long to run. Setting a maximum number of samples (`max_sample`) will speed up the calculations by downsampling the data.
+#' 
+#' @param .data An `eeg_ica_lst` object
+#' @param max_sample The maximum number of samples to use for calculating the variance explained.
+#' @param ... Not in use.
+#' @family ICA functions
+#' @family summary functions
+#'
+#' @return A table with the variance explained by each component in each recording.
+#
+#' @export
+eeg_ica_var_tbl <- function(.data, ..., max_sample =100000){
+    UseMethod("eeg_ica_var_tbl")
 }
+
+#' @export
+eeg_ica_var_tbl.eeg_ica_lst <- function(.data, ..., max_sample =100000){
+.data <- try_to_downsample(.data, max_sample=max_sample)
+   m_v <- dplyr::group_by(.data, .recording) %>%   extended_signal() %>%
+        split(by=".recording",keep.by = FALSE) %>%
+        lapply(function(dt) mean(stats::var(dt[,channel_ica_names(.data), with=FALSE])))
+
+comp_names <- c(component_names(.data))
+names(comp_names) <- comp_names
+    vars <- map_dtr(comp_names, function(ica)
+        .data %>% eeg_ica_keep(c(ica)) %>%
+        extended_signal( ".recording") %>%
+        .[,c(list(.recording=.recording),
+                  purrr::imap(.SD, ~.x - signal_tbl(.data)[[.y]])),
+             .SDcols = channel_ica_names(.data)] %>%
+        split(by=".recording",keep.by = FALSE) %>%
+        map2_dtr(m_v, ~ data.table::data.table( var= 1-mean(stats::var(.x))/.y),.id = ".recording"),
+        .id = ".ICA"
+        )
+
+    data.table::setcolorder(vars, c(".recording",".ICA", "var"))
+  vars[order(.recording, -var)]
+}
+
+#' Show a table with a summary of the results of the ICA. 
+#'
+#' This function generates a table with the variance explained by each ICA component, and the correlations
+#' between ICA components and EOG channels. See more details in [eeg_ica_cor_tbl] and [eeg_ica_var_tbl].
+#' 
+#' 
+#' @param .data An `eeg_ica_lst` object
+#' @inheritParams eeg_ica_cor_tbl
+#' @inheritParams eeg_ica_var_tbl
+#' @family ICA functions
+#' @family summary functions
+#'
+#' @return A table with the variance explained by each component, and the correlation between EOG channels and each components in each recording.
+##' @export
+eeg_ica_summary_tbl <- function(.data, ...){
+    UseMethod("eeg_ica_summary_tbl")
+}
+
+#' @export
+eeg_ica_summary_tbl.eeg_ica_lst <- function(.data, ..., max_sample =100000){
+  summ <- left_join_dt(eeg_ica_var_tbl(.data, max_sample=max_sample),
+                       eeg_ica_cor_tbl(.data,...), 
+               by =c(".recording",".ICA")) %>%
+    .[order(.recording,-var, -abs(cor))]
+    summ[,.ICA:=as.character(.ICA)][]
+
+  }
 
 #' @export
 print.ica_summary <- function(x, ...) {
   NextMethod()
   cat_line("")
-  cat_line("# ICA data:")
-  cat_line("")
-  cat_line("# Correlations with EOG channels:")
-  print(x$ica_cor, ...)
   invisible(x)
 }
 

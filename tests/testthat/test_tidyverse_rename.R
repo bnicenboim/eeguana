@@ -73,6 +73,11 @@ rename1_tbl <- data %>%
   tidyr::spread(key = .key, value = .value) %>%
   dplyr::rename(ZZ = Y)
 
+select1_eeg <- dplyr::select(data, ZZ = Y)
+select1_tbl <- data %>%
+  dplyr::as_tibble() %>%
+  tidyr::spread(key = .key, value = .value) %>%
+  dplyr::select(ZZ = Y)
 
 rename2_eeg <- dplyr::rename(data, x = X)
 rename2_tbl <- data %>%
@@ -108,6 +113,8 @@ test_that("events table is correct after rename", {
   expect_true(nrow(dplyr::filter(rename1_eeg$.events, .channel == "ZZ")) > 0)
   expect_true(nrow(dplyr::filter(rename2_eeg$.events, .channel == "X")) == 0)
   expect_true(nrow(dplyr::filter(rename2_eeg$.events, .channel == "x")) > 0)
+  expect_equal(select1_eeg$.events, 
+               data$.events[is.na(.channel) | .channel != "X" ][,.channel:=ifelse(.channel=="Y","ZZ")][])
 })
 
 

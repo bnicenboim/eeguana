@@ -28,11 +28,12 @@ In addition, `eeg_`/`ch_` functions will also return an `eeg_lst` unless they ha
 
 # A practical example: the N170 effect
 
-Here, I exemplify the use of *eeguana* with EEG data from BrainVision 1.0. The data belong to a simple experiment  where a participant was presented 100 faces and 100 assorted images in random order. The task of the experiment was to mentally count the number of faces.
+Here, I exemplify the use of *eeguana* with raw EEG data exported in the format of BrainVision 1.0. The data belong to a simple experiment  where a participant was presented 100 faces and 100 assorted images in random order. The task of the experiment was to mentally count the number of faces.
 
 First we download the data:
 
-```{r downloading, eval = any(!file.exists("s1_faces.vhdr","s1_faces.vmrk","s1_faces.eeg")), cache=TRUE}
+```{r downloading, eval=any(!file.exists(c("s1_faces.vhdr","s1_faces.vmrk","s1_faces.eeg"))), cache=TRUE, include=TRUE}
+
 download.file("http://www.ling.uni-potsdam.de/~nicenboim/files/s1_faces.vhdr",
   mode = "wb", destfile = "./s1_faces.vhdr"
 )
@@ -53,6 +54,7 @@ and `s1_faces.eeg` contains the signals at every sample for every channel record
 ```{r libs, message = FALSE}
 library(dplyr)
 library(ggplot2)
+library(stringr)
 library(eeguana)
 set.seed(123) # ICA will always find the same components
 ```
@@ -71,7 +73,7 @@ faces
 summary(faces)
 ```
 
-We see that there is no electrode positions in the object, but since we know that the layout was a standard 10/20, we'll add this layout to the object, using the dataset `layout_32_1020`.
+We see that there is no electrode positions in the object, but since we know that the layout was a standard 10/20, we'll add this layout to the object, using the dataset `layout_32_1020`. This is required to be able to create topographic plots.
 
 ```{r}
 channels_tbl(faces)
@@ -99,11 +101,10 @@ faces <- eeg_rereference(faces, -VEOG, -HEOG, ref = c("M1", "M2"))
 
 ## Filtering
 
-We apply a band pass filter of 0.1 to 30 Hz to all the channels except the EOG channels, where we apply a stronger filter to be able to detect eye movements later. We don't segment yet, because discontinuities in the signal create artifacts on the edges.
+We apply a band pass filter of 0.1 to 30 Hz to all the channels except the EOG channels. We don't segment yet, because discontinuities in the signal create artifacts on the edges.
 
 ```{r}
-faces_filt <- eeg_filt_band_pass(faces, -HEOG, -VEOG, freq = c(.1, 30)) %>%
-  eeg_filt_band_pass(HEOG, VEOG, freq = c(1, 10))
+faces_filt <- eeg_filt_band_pass(faces, -HEOG, -VEOG, freq = c(.1, 30)) 
 ```
 
 
@@ -111,7 +112,7 @@ faces_filt <- eeg_filt_band_pass(faces, -HEOG, -VEOG, freq = c(.1, 30)) %>%
 
 We want to apply ICA to as much data as possible, but to "representative" data, that is part of the experiments and not when the participants are moving or reading the instructions. For the same reason, we want to the ignore "crazy" artifacts: regions with extreme amplitudes in the signal.
 
-We first cut a large segment that excludes data before and after the experiment was ran using `eeg_segment()` (that is, only data from the marker "s111" to "s121"), and then we mark differences of 100 microvolts between peaks with `eeg_artif_minmax()`.
+We first cut a large segment that excludes data before and after the experiment was ran using `eeg_segment()` (that is, only data from the marker "s111" to "s121"), and then we mark differences of 200 microvolts between peaks with `eeg_artif_minmax()`.
 
 
 ```{r, fig.dim = c(10,15), out.width = "100%"}
@@ -119,11 +120,12 @@ faces_ls <- eeg_segment(faces_filt, .description == "s111", end = .description =
   eeg_artif_minmax(-HEOG, -VEOG, threshold = 200, window = 200, unit = "ms")
 ```
 
-`eeg_artif_minimax()` only adds the artifacts in the events table, and doesn't modify the signal. We can have a look at the type of artifacts that were detected, by plotting the signal and the events with `annotate_events()`. It would be a good idea to just check a couple of seconds of the signal, for that we use the `dplyr` "verb" `filter()` which is overloaded to work with `eeg_lst`s.
+`eeg_artif_minimax()` only adds the artifacts in the events table and doesn't modify the signal. We can have a look at the type of artifacts that were detected, by plotting the signal and the events with `annotate_events()`. It would be a good idea to just check a couple of seconds of the signal, for that we use the `dplyr` "verb" `filter()` which is overloaded to work with `eeg_lst`s.
 
 
 ```{r, fig.dim = c(10,15), out.width = "100%"}
 faces_ls %>%
+  select(-HEOG, -VEOG)%>%
   filter(as_time(.sample, unit = "s") %>% between(0, 90)) %>%
   plot() +
   annotate_events() +
@@ -133,51 +135,41 @@ faces_ls %>%
 Now we can run ICA, removing the EOG and reference electrodes, and ignoring the artifacts.
 
 ```{r ICA, cache=TRUE}
-## By default will ignore artifacts
+## By default, it will ignore artifacts
 faces_ica <- faces_ls %>%
   eeg_ica(-HEOG, -VEOG, -M1, -M2, method = adapt_fast_ICA, ignore = .type == "artifact")
 ```
-
+  
 We can now check the different topographic plots of the ICAs with `plot_components()`, and their correlation with the EOG channels looking a the summary of the object.
 
 ```{r, fig.dim = c(10,15), out.width = "100%"}
 faces_ica %>% plot_components()
-summary(faces_ica)
+eeg_ica_summary_tbl(faces_ica)
 ```
 
 We'll look closer at the ICA that are more likely to be related to eye movements, and we'll compare with signals that look like blinks and saccades:
 
 ```{r,  fig.dim = c(10,5)}
-ICAs <- c("ICA1", "ICA2", "ICA3", "ICA4", "ICA5", "ICA6")
-faces_ica_b <- faces_ica %>%
-  eeg_artif_step(HEOG, threshold = 30, window = 200, unit = "ms") %>%
-  eeg_artif_minmax(VEOG, threshold = 50, window = 200, unit = "ms")
+faces_ica <- faces_ica %>%
+  eeg_artif_step(HEOG, VEOG, threshold = 30, window = 200, unit = "ms", freq=c(1,10)) %>%
+  eeg_artif_peak(VEOG, threshold=100, freq=c(1,10))
 ```
 
-We don't want to plot everything, so we'll produce the most promising components with `eeg_ica_show`, and we'll use some dplyr-verbs to see only a piece of the signal (with `filter()`), to select the desired components and the eye channels (with `select()`), and to enlarge the components (because their amplitude is much smaller than EOG channels and it will be difficult to see)
 
-```{r, fig.dim = c(10,15), out.width = "100%"}
-faces_ica_b %>%
-  ## we take a 200 seconds of the signal:
-  filter(as_time(.sample) %>% between(0, 200)) %>%
-  ## we produce some components for this piece
-  eeg_ica_show(one_of(ICAs)) %>%
-  ## we select want we want to show:
-  select(c(ICAs, "VEOG", "HEOG")) %>%
-  ## we enlarge the components
-  mutate_if(is_component_dbl, ~ . * 10) %>%
-  ## finally we plot here:
-  plot() +
-  coord_cartesian(ylim = c(-50, 50)) +
-  annotate_events() +
-  theme(legend.position = "bottom")
+In order to investigate the ICA, we are using an experminal function not yet exported (that's why we use the :::). This function will problably converted into a shiny app. It's possible to get the same plots by using a combination of `plot_topo`, `eeg_ica_show`, `eeg_ica_summary_tbl`, and some `ggplot` and `cowplot` functions.
+
+We'll see how the components explaining the most variance and most correlated to the EOG channels behave:
+
+```{r, fig.dim = c(10,9), out.width = "90%"}
+#samples with blinks
+s_peaks <- filter(events_tbl(faces_ica),  str_starts(.description, "peak")) %>% pull(.initial)
+eeguana:::plot_ica.eeg_ica_lst(faces_ica, samples = seq(s_peaks[1]-2000,s_peaks[1]+2000))
 ```
-
-The clearest ones are the ICA1, ICA2, and ICA3, and so we'll just remove that ones.
+The clearest ones is ICA5, and so we'll just remove that one.
 
 ```{r}
 faces_icaed <- faces_ica %>%
-  eeg_ica_keep(-ICA1, -ICA5) %>%
+  eeg_ica_keep(-ICA5) %>%
   as_eeg_lst()
 ```
 
@@ -195,9 +187,13 @@ faces_seg_artif <- faces_seg %>%
   eeg_artif_minmax(-HEOG, -VEOG, threshold = 100, window = 150, unit = "ms") %>%
   eeg_artif_step(-HEOG, -VEOG, threshold = 50, window = 200, unit = "ms")
 
-bad <- filter(events_tbl(faces_seg_artif), .type == "artifact") %>% pull(.id) %>% unique()
+## extracts the ids of the segments with artifacts
+bad <- filter(events_tbl(faces_seg_artif), .type == "artifact") %>% 
+  pull(.id) %>% 
+  unique()
+## Show the segment with artifact and one before and after:
 faces_seg_artif %>%
-  filter(.id == bad) %>%
+  filter(.id %in% c(bad-1, bad, bad+1)) %>%
   select(-VEOG, -HEOG) %>%
   plot() +
   annotate_events() +

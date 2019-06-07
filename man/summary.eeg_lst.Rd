@@ -21,6 +21,8 @@ summary(data_faces_ERPs)
 }
 \seealso{
 Other summary functions: \code{\link{count_complete_cases_tbl}},
-  \code{\link{eeg_ica_cor_lst}}, \code{\link{summaries}}
+  \code{\link{eeg_ica_cor_tbl}},
+  \code{\link{eeg_ica_summary_tbl}},
+  \code{\link{eeg_ica_var_tbl}}, \code{\link{summaries}}
 }
 \concept{summary functions}

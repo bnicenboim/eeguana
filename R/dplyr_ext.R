@@ -5,6 +5,7 @@
 #' @param ... `eeg_lst` objects to combine.
 #'
 #' @return An `eeg_lst` object.
+#' @family dplyr functions
 #' @examples 
 #' \dontrun{
 #' 
@@ -66,4 +67,46 @@ bind <- function(...) {
     validate_eeg_lst()
   message(say_size(new_eeg_lst))
   new_eeg_lst
+}
+
+#' Choose samples by the position
+#'
+#' Choose samples by their ordinal position in the signal table. Grouped eeg_lst object use the ordinal position in the signal table within the group.
+#'
+#' @param .data An eeg_lst object.
+#' @inheritParams dplyr::slice
+#' @param .preserve Not in use.
+#' @family dplyr functions
+#'
+#' @export
+slice_signal <- function(.data, ..., .preserve = FALSE){
+UseMethod("slice_signal")
+}
+
+
+#' @export
+slice_signal.eeg_lst <- function(.data, ..., .preserve = FALSE){
+ if(.preserve){
+   warning("`.preserve`` is not implemented.")
+ }
+  slice_signal_eeg_lst(.eeg_lst=.data,...)
+}
+
+slice_signal_eeg_lst <- function(.eeg_lst,...) {
+  extended_signal <- extended_signal(.eeg_lst, "") 
+  by <- as.character(dplyr::group_vars(.eeg_lst))
+  if(length(by)!=0){
+    cols_signal <- colnames(.eeg_lst$.signal)
+    .eeg_lst$.signal <- extended_signal[extended_signal[,.I[...],by=by]$V1] %>%
+      .[, ..cols_signal]
+    } else{
+      .eeg_lst$.signal <- .eeg_lst$.signal[list(...)[[1]],]  
+    }
+    
+  if (nrow(.eeg_lst$.events) > 0) {
+      range_s <- .eeg_lst$.signal[, .(.lower = min(.sample), .upper = max(.sample)), by = .id]
+      .eeg_lst$.events <- update_events(.eeg_lst$.events, range_s)
+  }
+    .eeg_lst$.segments <- dplyr::semi_join(.eeg_lst$.segments, .eeg_lst$.signal, by = ".id")
+    validate_eeg_lst(.eeg_lst)
 }

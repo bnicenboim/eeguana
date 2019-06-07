@@ -14,7 +14,7 @@ eeg_interpolate_tbl <- function(.data, ...) {
 #' @param method Method of interpolation (`"MBA"` Multilevel B-splines using the function `mba.surf` of the package `MBA` or (`"akima"` bicubic spline Akima interpolation algorithm using the function `interp` of the package `akima`.)..).
 #' @param diam_points Density of the interpolation (number of points that are interpolated in the diameter of the scalp).
 #' @export
-eeg_interpolate_tbl.eeg_lst <- function(.data, radius = 1.2, diam_points = 200, method = "MBA", ...) {
+eeg_interpolate_tbl.eeg_lst <- function(.data, radius = 1.2, diam_points = 100, method = "MBA", ...) {
   grouping <- dplyr::group_vars(.data)
   .data <- dplyr::as_tibble(.data) %>%
     dplyr::left_join(channels_tbl(.data), by = c(".key" = ".channel")) %>%
@@ -45,7 +45,7 @@ eeg_interpolate_tbl.data.frame <- function(.data,
                                            y = .y,
                                            value = .value,
                                            label = .key,
-                                           diam_points = 200,
+                                           diam_points = 100,
                                            method = "MBA", ...) {
   # x <- rlang::quo(.x)
   # y <- rlang::quo(.y)
@@ -80,7 +80,7 @@ eeg_interpolate_tbl.data.frame <- function(.data,
     all(. == 1)
   if (!is_grouped) {
     stop("Data need to grouped or summarized so that each label appears once per group.\n",
-      "Tip: You should do probably need to do `eeg_lst %>% group_by(YOUR_GROUPS) %>% summarize_all_ch(mean)` before calling this function",
+      "Tip: You should do probably need to do `YOUR_DATA %>% group_by(YOUR_GROUPS) %>% summarize_at(channel_names(.), mean)` before calling this function",
       call. = FALSE
     )
   }

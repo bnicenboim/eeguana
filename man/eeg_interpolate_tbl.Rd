@@ -9,10 +9,10 @@
 eeg_interpolate_tbl(.data, ...)
 
 \method{eeg_interpolate_tbl}{eeg_lst}(.data, radius = 1.2,
-  diam_points = 200, method = "MBA", ...)
+  diam_points = 100, method = "MBA", ...)
 
 \method{eeg_interpolate_tbl}{data.frame}(.data, radius = 1.2, x = .x,
-  y = .y, value = .value, label = .key, diam_points = 200,
+  y = .y, value = .value, label = .key, diam_points = 100,
   method = "MBA", ...)
 }
 \arguments{

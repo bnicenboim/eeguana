@@ -30,12 +30,14 @@ eeg_segment.eeg_lst <- function(.data, ..., lim = c(-.5, .5), end, unit = "s") {
   ## if not, it calls to filter.events_tbl
   times0 <- dplyr::filter(dplyr::as_tibble(.data$.events), !!!dots) %>%
     dplyr::select(-.channel, -.final) %>%
-    dplyr::rename(.first_sample = .initial)
+    dplyr::rename(.first_sample = .initial) %>%
+    dplyr::distinct()
 
   if (!rlang::quo_is_missing(end)) {
     times_end <- dplyr::filter(dplyr::as_tibble(.data$.events), !!end) %>%
       dplyr::select(-.channel, -.final) %>%
-      dplyr::rename(.first_sample = .initial)
+      dplyr::rename(.first_sample = .initial) %>%
+    dplyr::distinct()
   }
 
   if (rlang::quo_is_missing(end) && any(lim[[2]] < lim[[1]])) {
@@ -56,7 +58,44 @@ eeg_segment.eeg_lst <- function(.data, ..., lim = c(-.5, .5), end, unit = "s") {
       dplyr::select(-dplyr::one_of(seg_names))
   } else if (rlang::quo_is_missing(end)) {
     stop("Wrong dimension of lim")
-  } else if (!rlang::quo_is_missing(end) && (nrow(times0) == nrow(times_end))) {
+  } else if (!rlang::quo_is_missing(end)) {
+    
+#          warning(sprintf("Number of initial markers (%d) doesn't match the number of final markers (%d)", nrow(times0), nrow(times_end)))
+          times0 <- dplyr::mutate(times0,.zero=TRUE)
+          times_end <- dplyr::mutate(times_end,.zero=FALSE) 
+          times <- dplyr::bind_rows(times0,times_end) %>%
+              dplyr::arrange(.id, .first_sample) 
+          unmatched_initial <- times %>%
+              dplyr::filter(dplyr::lead(.zero, default = TRUE), .zero) %>%
+              dplyr::select(-.zero)
+          unmatched_final <- times %>% 
+              dplyr::filter(!dplyr::lag(.zero,default = FALSE), !.zero)%>%
+              dplyr::select(-.zero)
+    if(nrow(unmatched_initial) >0){
+      warning("Unmatched initial segments:\n\n",  paste0(
+          utils::capture.output(unmatched_initial%>%
+        dplyr::rename(.initial = .first_sample)),
+          collapse = "\n"
+        ))
+      times_end <- dplyr::bind_rows(times_end, unmatched_initial) %>%
+                dplyr::arrange(.id, .first_sample)
+      times0 <- dplyr::anti_join(times0, unmatched_initial, by =c(".id",".type",".description",".first_sample")) %>%
+                dplyr::bind_rows(unmatched_initial %>% dplyr::mutate(.type = "incorrect segment")) %>%
+                dplyr::arrange(.id, .first_sample)
+    } 
+    if(nrow(unmatched_final) >0){
+      warning("Unmatched final segments:\n\n",  paste0(
+          utils::capture.output(unmatched_final%>%
+        dplyr::rename(.initial = .first_sample)),
+          collapse = "\n"
+        ))
+      times0 <- dplyr::bind_rows(times0, unmatched_final%>%
+            dplyr::mutate(.type = "incorrect segment")) %>%
+                dplyr::arrange(.id, .first_sample)
+    }
+    times0 <- times0 %>%  dplyr::select(-.zero)
+    times_end <- times_end %>%  dplyr::select(-.zero)
+    
     seg_names <- colnames(times0)[!startsWith(colnames(times0), ".")]
     segmentation_info <- times0 %>%
       dplyr::mutate(
@@ -65,9 +104,7 @@ eeg_segment.eeg_lst <- function(.data, ..., lim = c(-.5, .5), end, unit = "s") {
         .new_id = seq_len(dplyr::n())
       ) %>%
       dplyr::select(-dplyr::one_of(seg_names))
-  } else {
-    stop(sprintf("Number of initial markers (%d) doesn't match the number of final markers (%d)", nrow(times0), nrow(times_end)))
-  }
+  }       
 
   segmentation <- data.table::as.data.table(segmentation_info)
   segmentation[, .first_sample := sample_int(.first_sample, sampling_rate = sampling_rate(.data))]
@@ -83,10 +120,21 @@ eeg_segment.eeg_lst <- function(.data, ..., lim = c(-.5, .5), end, unit = "s") {
 
   # .sample is now the lower bound
   # x..sample is the original columns
-  new_signal[, .sample := x..sample - .first_sample + 1L][, .first_sample := NULL][, x..sample := NULL ]
+  new_signal[, .sample := x..sample - .first_sample + 1L][
+    , .first_sample := NULL][,
+                             x..sample := NULL ]
+  
   data.table::setnames(new_signal, ".new_id", ".id")
+  ##TODO: this should probablu go sooner, it makes NA all the problematic segments
+  
+  data.table::set(new_signal, 
+                  which(new_signal$.id %in% 
+                          {dplyr::filter(times0, .type =="incorrect segment") %>%
+                    dplyr::pull(.id)}),
+                  c(".sample",channel_names(new_signal)), NA)
   attributes(new_signal$.sample) <- attributes(.data$.signal$.sample)
   data.table::setkey(new_signal, .id, .sample)
+  
   .data$.signal <- new_signal
 
 

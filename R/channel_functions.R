@@ -102,7 +102,15 @@ sel_ch <- function(data, ...) {
   }
   ch_sel
 }
-
+sel_comp <- function(data, ...) {
+  dots <- rlang::enquos(...)
+  if (rlang::is_empty(dots)) {
+    ch_sel <- component_names(data)
+  } else {
+    ch_sel <- tidyselect::vars_select(component_names(data), !!!dots)
+  }
+  ch_sel
+}
 
 #' Get the by-sample (or by-row) function of the specified channels.
 #'

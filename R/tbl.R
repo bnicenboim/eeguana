@@ -21,6 +21,10 @@ events_tbl.eeg_lst <- function(.data, ...) {
 }
 #' @export
 `events_tbl<-.eeg_lst` <- function(.data, value) {
+  atti <- attributes(.data$.events$.initial)
+  attf <- attributes(.data$.events$.final)
+  attributes(value$.initial) <- atti
+  attributes(value$.final) <- attf
   .data$.events <- as_events_tbl(value)
   .data
 }
@@ -131,3 +135,4 @@ segments_tbl <- function(.data, ...) {
 segments_tbl.eeg_lst <- function(.data, ...) {
   .data$.segments
 }
+

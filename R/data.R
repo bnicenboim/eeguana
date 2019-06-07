@@ -4,7 +4,7 @@
 #'
 #'
 #' @format An eeg_lst  with 2 conditions (faces, non-faces)
-#' @source See <https://bnicenboim.github.io/eeguana/articles/brainvision_files.html>
+#' @family EEG datasets
 "data_faces_ERPs"
 
 #' EEGs elicited when one subject saw faces and non-faces objects.
@@ -18,12 +18,12 @@
 #'   * `.type == "UserDefined", .description == "Blink` indicates an interval marked as a blink by BrainVision 2.0.
 #'   * `.type == "Stimulus", .description == "s5` indicates the beginning of the experiment.
 #'   * `.type == "Stimulus", .description == "s111` indicates
-#'   * `.type == "Stimulus", .description == "s130` indicates
+#'   * `.type == "Stimulus", .description == "s130` indicates the beginning of the trial.
 #'   * `.type == "Stimulus", .description == "s122` indicates
 #'   * `.type == "Stimulus", .description == "s121` indicates
 #'   * `.type == "Stimulus", .description == "s70` indicates that a face was presented.
 #'   * `.type == "Stimulus", .description == "s71` indicates that a non-face was presented.
-#' @source See <https://bnicenboim.github.io/eeguana/articles/brainvision_files.html>
+#' @family EEG datasets
 "data_faces_10_trials"
 
 
@@ -33,4 +33,5 @@
 #'
 #'
 #' @format An table with channel names and locations
+#' @family topographic plots and layouts
 "layout_32_1020"

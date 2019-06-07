@@ -11,19 +11,20 @@
 \item \code{.type == "UserDefined", .description == "Blink} indicates an interval marked as a blink by BrainVision 2.0.
 \item \code{.type == "Stimulus", .description == "s5} indicates the beginning of the experiment.
 \item \code{.type == "Stimulus", .description == "s111} indicates
-\item \code{.type == "Stimulus", .description == "s130} indicates
+\item \code{.type == "Stimulus", .description == "s130} indicates the beginning of the trial.
 \item \code{.type == "Stimulus", .description == "s122} indicates
 \item \code{.type == "Stimulus", .description == "s121} indicates
 \item \code{.type == "Stimulus", .description == "s70} indicates that a face was presented.
 \item \code{.type == "Stimulus", .description == "s71} indicates that a non-face was presented.
 }}
-\source{
-See \url{https://bnicenboim.github.io/eeguana/articles/brainvision_files.html}
-}
 \usage{
 data_faces_10_trials
 }
 \description{
 A dataset containing 10 trials where  one subject either saw faces or a non-faces objects with preprocessing done in BrainVision 2.0. See also the vignette \href{https://bnicenboim.github.io/eeguana/articles/brainvision_files.html}{Introduction - Manipulating a clean EEG file exported from BrainVision 2.0}.
 }
+\seealso{
+Other EEG datasets: \code{\link{data_faces_ERPs}}
+}
+\concept{EEG datasets}
 \keyword{datasets}

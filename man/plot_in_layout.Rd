@@ -71,5 +71,9 @@ Other plotting functions: \code{\link{annotate_events}},
   \code{\link{ggplot.eeg_lst}}, \code{\link{plot.eeg_lst}},
   \code{\link{plot_components}}, \code{\link{plot_topo}},
   \code{\link{theme_eeguana}}
+
+Other topographic plots and layouts: \code{\link{layout_32_1020}},
+  \code{\link{plot_components}}, \code{\link{plot_topo}}
 }
 \concept{plotting functions}
+\concept{topographic plots and layouts}

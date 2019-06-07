@@ -2,12 +2,9 @@
 % Please edit documentation in R/plot.R
 \name{plot_components}
 \alias{plot_components}
-\alias{plot_components.eeg_ica_lst}
 \title{Generates topographic plots of the components after running ICA on an eeg_lst}
 \usage{
-plot_components(data, ...)
-
-\method{plot_components}{eeg_ica_lst}(data, projection = "polar", ...)
+plot_components(data, ..., projection = "polar", standardize = TRUE)
 }
 \arguments{
 \item{data}{An eeg_ica_lst}
@@ -15,6 +12,8 @@ plot_components(data, ...)
 \item{...}{If data are an \code{eeg_lst} or \code{ica_lst}, these are arguments passed to \code{eeg_interpolate_tbl}, such as, radius, size, etc.}
 
 \item{projection}{Projection type for converting the 3D coordinates of the electrodes into 2d coordinates. Projection types available: "polar" (default), "orthographic", or  "stereographic"}
+
+\item{standardize}{Whether to standardize the color scale of each topographic plot.}
 }
 \description{
 Note that unlike \link{plot_topo}, there is no need for faceting, or adding layers.
@@ -27,9 +26,14 @@ Other plotting functions: \code{\link{annotate_events}},
   \code{\link{plot_in_layout}}, \code{\link{plot_topo}},
   \code{\link{theme_eeguana}}
 
-Other ICA functions: \code{\link{eeg_ica_cor_lst}},
+Other ICA functions: \code{\link{eeg_ica_cor_tbl}},
   \code{\link{eeg_ica_keep}}, \code{\link{eeg_ica_show}},
-  \code{\link{eeg_ica}}
+  \code{\link{eeg_ica_summary_tbl}},
+  \code{\link{eeg_ica_var_tbl}}, \code{\link{eeg_ica}}
+
+Other topographic plots and layouts: \code{\link{layout_32_1020}},
+  \code{\link{plot_in_layout}}, \code{\link{plot_topo}}
 }
 \concept{ICA functions}
 \concept{plotting functions}
+\concept{topographic plots and layouts}

@@ -113,7 +113,9 @@ test_that("No artifacts", {
   art_events <- data %>%
     eeg_artif_step(threshold = 100, window = 2 / 500, lim = c(-10 / 500, 10 / 500), unit = "second") %>%
     events_tbl()
-  expect_equal(art_events, eeguana:::new_events_tbl() %>% .[, .initial := sample_int(integer(0), 500)])
+empty_events <-  eeguana:::new_events_tbl()
+empty_events[, .initial := sample_int(integer(0),500)][,.final:= sample_int(integer(0),500) ]
+  expect_equal(art_events,empty_events )
 })
 
 Fzim <- Fzi - floor(Fzi / 250) * 250
