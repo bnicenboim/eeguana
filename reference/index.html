@@ -70,7 +70,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1.9000</span>
       </span>
     </div>
 
@@ -185,15 +185,21 @@
       <tr>
         
         <td>
+          <p><code><a href="bind.html">bind()</a></code> </p>
+        </td>
+        <td><p>Bind eeg_lst objects.</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="dplyr_verbs.html">mutate(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr_verbs.html">transmute(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr_verbs.html">filter.eeg_lst()</a></code> <code><a href="dplyr_verbs.html">filter.eeg_ica_lst()</a></code> <code><a href="dplyr_verbs.html">summarise(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr_verbs.html">group_by(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr_verbs.html">ungroup(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr_verbs.html">select(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr_verbs.html">rename(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr_verbs.html">groups(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr_verbs.html">group_vars(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr_verbs.html">anti_join(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr_verbs.html">left_join(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr_verbs.html">semi_join(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="dplyr_verbs.html">tbl_vars.eeg_lst()</a></code> </p>
         </td>
         <td><p>Dplyr verbs overloaded for manipulating eeg_lst objects.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="bind.html">bind()</a></code> </p>
+          <p><code><a href="slice_signal.html">slice_signal()</a></code> </p>
         </td>
-        <td><p>Bind eeg_lst objects.</p></td>
+        <td><p>Choose samples by the position</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -211,9 +217,21 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="eeg_ica_cor_lst.html">eeg_ica_cor_lst()</a></code> </p>
+          <p><code><a href="eeg_ica_cor_tbl.html">eeg_ica_cor_tbl()</a></code> </p>
         </td>
         <td><p>Show correlations between ICA sources and eye (EOG) electrodes.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="eeg_ica_summary_tbl.html">eeg_ica_summary_tbl()</a></code> </p>
+        </td>
+        <td><p>Show a table with a summary of the results of the ICA.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="eeg_ica_var_tbl.html">eeg_ica_var_tbl()</a></code> </p>
+        </td>
+        <td><p>Show the variance explained for each ICA sources.</p></td>
       </tr><tr>
         
         <td>
@@ -239,7 +257,7 @@ elements channels or components. Components are only available after running <co
       <tr>
         
         <td>
-          <p><code><a href="eeg_artif.html">eeg_artif_minmax()</a></code> <code><a href="eeg_artif.html">eeg_artif_step()</a></code> <code><a href="eeg_artif.html">eeg_artif_amplitude()</a></code> </p>
+          <p><code><a href="eeg_artif.html">eeg_artif_minmax()</a></code> <code><a href="eeg_artif.html">eeg_artif_step()</a></code> <code><a href="eeg_artif.html">eeg_artif_amplitude()</a></code> <code><a href="eeg_artif.html">eeg_artif_peak()</a></code> </p>
         </td>
         <td><p>Detect artifacts and add them in the events table of an eeg_lst.</p></td>
       </tr><tr>
@@ -263,7 +281,7 @@ unwanted components, use <code>eeg_ica_keep()</code>.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="eeg_ica_cor_lst.html">eeg_ica_cor_lst()</a></code> </p>
+          <p><code><a href="eeg_ica_cor_tbl.html">eeg_ica_cor_tbl()</a></code> </p>
         </td>
         <td><p>Show correlations between ICA sources and eye (EOG) electrodes.</p></td>
       </tr><tr>
@@ -278,6 +296,18 @@ unwanted components, use <code>eeg_ica_keep()</code>.</p></td>
           <p><code><a href="eeg_ica_show.html">eeg_ica_show()</a></code> </p>
         </td>
         <td><p>Add independent components (or sources) to the signal table for visualization.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="eeg_ica_summary_tbl.html">eeg_ica_summary_tbl()</a></code> </p>
+        </td>
+        <td><p>Show a table with a summary of the results of the ICA.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="eeg_ica_var_tbl.html">eeg_ica_var_tbl()</a></code> </p>
+        </td>
+        <td><p>Show the variance explained for each ICA sources.</p></td>
       </tr><tr>
         
         <td>
