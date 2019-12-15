@@ -1,3 +1,6 @@
+# eeguana 0.1.2.9000
+  - Changes:
+  - `drop_incomplete_segments()` added.
 # eeguana 0.1.1.9000
   - Changes:
        - The introductory vignette (https://bnicenboim.github.io/eeguana/articles/intro.html) was slightly modified.

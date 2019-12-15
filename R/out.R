@@ -379,3 +379,17 @@ count_complete_cases_tbl.eeg_lst <- function(x, ...) {
     dplyr::select(-.id, -segment) %>%
     dplyr::count(!!!dots)
 }
+
+
+#' @export
+drop_incomplete_segments <- function(x) {
+  UseMethod("drop_incomplete_segments")
+}
+#' @export
+drop_incomplete_segment.eeg_lst <- function(x) {
+
+    x %>% dplyr::group_by(.id) %>%
+        filter_at(channel_names(.),
+            all_vars(all(!is.na(.))))
+  
+}
