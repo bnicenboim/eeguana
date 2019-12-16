@@ -121,7 +121,7 @@ read_vhdr <- function(file, sep = .type == "New Segment", zero = .type == "Time 
 #'
 #' @export
 read_ft <- function(file, layout = NULL, .recording = file) {
-  # TODO: checks if R.matlab was installed first
+require_pkg("R.matlab")
 
   # It should be based on this:
   # http://www.fieldtriptoolbox.org/reference/ft_datatype_raw
