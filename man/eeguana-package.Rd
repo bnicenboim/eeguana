@@ -4,7 +4,7 @@
 \name{eeguana-package}
 \alias{eeguana}
 \alias{eeguana-package}
-\title{eeguana: A package for flexible manipulation of EEG data}
+\title{eeguana: Flexible Manipulation of EEG Data}
 \description{
 \if{html}{\figure{logo.png}{options: align='right'}}
 
@@ -13,8 +13,8 @@ The package eeguana provides a framework for doing simple pre-processing with sp
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/bnicenboim/eeguana}
-  \item Report bugs at \url{https://github.com/bnicenboim/eeguana/issues}
+  \item \url{<https://github.com/bnicenboim/eeguana>}
+  \item Report bugs at \url{<https://github.com/bnicenboim/eeguana/issues>}
 }
 
 }
