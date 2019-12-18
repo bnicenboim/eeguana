@@ -1,6 +1,27 @@
 context("test Channel functions")
 library(eeguana)
 
+data_sincos2id <- eeguana:::data_sincos2id
+# Baseline to test:
+baselines <- dplyr::summarize(dplyr::group_by(
+                                         dplyr::filter(dplyr::as_tibble(data_sincos2id$.signal), .sample <= 0),
+                                         .id
+                                     ), bX = mean(X), bY = mean(Y))
+
+
+signal_with_baselines <- dplyr::left_join(dplyr::as_tibble(data_sincos2id$.signal), baselines)
+signal_with_baselines$X <- signal_with_baselines$X - signal_with_baselines$bX
+signal_with_baselines$Y <- signal_with_baselines$Y - signal_with_baselines$bY
+signal_with_baselines <- signal_with_baselines[,c(".id",".sample","X","Y")]
+baselined <- eeg_baseline(data_sincos2id)
+
+
+############ BASELINE
+
+test_that("baseline works", {
+    eeguana:::expect_equal_plain_df(signal_tbl(baselined), signal_with_baselines)
+})
+
 
 data_eeg <- eeg_lst(
   signal_tbl =

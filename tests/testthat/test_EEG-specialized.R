@@ -2,104 +2,21 @@ context("test EEG-specialized functions")
 library(eeguana)
 
 
-data <- eeg_lst(
-  signal_tbl = tibble::tibble(
-    X = sin(1:20),
-    Y = cos(1:20),
-    .id = rep(c(1L, 2L), each = 10),
-    .sample = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500)
-  ),
-  channels_tbl =
-    dplyr::tibble(
-      .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
-      radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
-    ),
-  events_tbl = dplyr::tribble(
-    ~.id, ~.type, ~.description, ~.initial, ~.final, ~.channel,
-    1L, "New Segment", NA_character_, -4L, -4L, NA,
-    1L, "Bad", NA_character_, -2L, 0L, NA,
-    1L, "Time 0", NA_character_, 1L, 1L, NA,
-    1L, "Bad", NA_character_, 2L, 3L, "X",
-    2L, "New Segment", NA_character_, -4L, -4L, NA,
-    2L, "Time 0", NA_character_, 1L, 1L, NA,
-    2L, "Bad", NA_character_, 2L, 2L, "Y"
-  ),
-  segments_tbl = dplyr::tibble(.id = c(1L, 2L), .recording = "recording1", segment = c(1L, 2L))
-)
+# Datasets to test:
+data_sincos2id <- eeguana:::data_sincos2id
+data_sincos2id_b <- data_sincos2id
+events_tbl(data_sincos2id_b)$.channel <- NA
 
+data_sincos2id_c <- data_sincos2id
+events_tbl(data_sincos2id_c)$.channel <- NA
 
-data_NA <- eeg_lst(
-  signal_tbl = dplyr::tibble(
-    X = sin(1:20),
-    Y = cos(1:20),
-    .id = rep(c(1L, 2L), each = 10),
-    .sample = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500)
-  ),
-  channels_tbl = dplyr::tibble(
-    .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
-    radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
-  ),
-  events_tbl = dplyr::tribble(
-    ~.id, ~.type, ~.description, ~.initial, ~.final, ~.channel,
-    1L, "New Segment", NA_character_, -4L, -4L, NA_character_,
-    1L, "Bad", NA_character_, -2L, 0L, NA,
-    1L, "Time 0", NA_character_, 1L, 1L, NA,
-    1L, "Bad", NA_character_, 2L, 3L, NA,
-    2L, "New Segment", NA_character_, -4L, -4L, NA,
-    2L, "Time 0", NA_character_, 1L, 1L, NA,
-    2L, "Bad", NA_character_, 2L, 2L, NA
-  ),
-  segments_tbl = dplyr::tibble(.id = c(1L, 2L), .recording = "recording1", segment = c(1L, 2L))
-)
-
-data_XY <- eeg_lst(
-  signal_tbl = dplyr::tibble(
-    X = sin(1:20),
-    Y = cos(1:20),
-    .id = rep(c(1L, 2L), each = 10),
-    .sample = sample_int(rep(seq(-4L, 5L), times = 2),
-      sampling_rate = 500
-    )
-  ),
-  channels_tbl = dplyr::tibble(
-    .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
-    radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
-  ),
-  events_tbl = dplyr::tribble(
-    ~.id, ~.type, ~.description, ~.initial, ~.final, ~.channel,
-    1L, "New Segment", NA_character_, -4L, -4L, NA,
-    1L, "Bad", NA_character_, -2L, 0L, "X",
-    1L, "Bad", NA_character_, -2L, 0L, "Y",
-    1L, "Time 0", NA_character_, 1L, 1L, NA,
-    1L, "Bad", NA_character_, 2L, 3L, "X",
-    2L, "New Segment", NA_character_, -4L, -4L, NA,
-    2L, "Time 0", NA_character_, 1L, 1L, NA,
-    2L, "Bad", NA_character_, 2L, 2L, "Y"
-  ),
-  segments_tbl = dplyr::tibble(.id = c(1L, 2L), .recording = "recording1", segment = c(1L, 2L))
-)
-baselines <- dplyr::summarize(dplyr::group_by(
-  dplyr::filter(dplyr::as_tibble(data$.signal), .sample <= 0),
-  .id
-), bX = mean(X), bY = mean(Y))
-
-
-signal_with_baselines <- dplyr::left_join(dplyr::as_tibble(data$.signal), baselines)
-signal_with_baselines$new_X <- signal_with_baselines$X - signal_with_baselines$bX
-signal_with_baselines$new_Y <- signal_with_baselines$Y - signal_with_baselines$bY
-baselined <- eeg_baseline(data)
-
-
-test_that("baseline works", {
-  expect_equal(dplyr::as_tibble(baselined$.signal)$X, signal_with_baselines$new_X)
-  expect_equal(dplyr::as_tibble(baselined$.signal)$Y, signal_with_baselines$new_Y)
-})
+data_sincos2id_2 <- eeguana:::data_sincos2id_2
 
 
 test_that("can clean files with entire_seg = FALSE", {
-  clean_data <- eeg_events_to_NA(data, .type == "Bad", entire_seg = FALSE)
-  clean_data_XY <- eeg_events_to_NA(data_XY, .type == "Bad", entire_seg = FALSE)
-  expect_equal(clean_data, clean_data_XY)
+  clean_data <- eeg_events_to_NA(data_sincos2id, .type == "Bad", entire_seg = FALSE)
+  clean_data_sincos2id_2 <- eeg_events_to_NA(data_sincos2id_2, .type == "Bad", entire_seg = FALSE)
+  expect_equal(clean_data, clean_data_sincos2id_2)
   expect_equal(nrow(clean_data$.events), 4)
   expect_equal(all(is.na(clean_data$.signal[clean_data$.signal$.sample %in% seq(-2, -3 + 3 - 1) &
     clean_data$.signal$.id == 1, c("X", "Y")])), TRUE)
@@ -117,13 +34,13 @@ test_that("can clean files with entire_seg = FALSE", {
 })
 
 test_that("can clean whole channels in files", {
-  clean_data_chan <- eeg_events_to_NA(data, .type == "Bad", all_chs = TRUE, entire_seg = FALSE)
-  clean_data_chan2 <- eeg_events_to_NA(data_NA, .type == "Bad", entire_seg = FALSE)
-  clean_data_chan3 <- eeg_events_to_NA(data_NA, .type == "Bad", all_chs = TRUE, entire_seg = FALSE)
-  clean_data_XY2 <- eeg_events_to_NA(data_XY, .type == "Bad", all_chs = TRUE, entire_seg = FALSE)
+  clean_data_chan <- eeg_events_to_NA(data_sincos2id, .type == "Bad", all_chs = TRUE, entire_seg = FALSE)
+  clean_data_chan2 <- eeg_events_to_NA(data_sincos2id_b, .type == "Bad", entire_seg = FALSE)
+  clean_data_chan3 <- eeg_events_to_NA(data_sincos2id_b, .type == "Bad", all_chs = TRUE, entire_seg = FALSE)
+  clean_data_sincos2id_22 <- eeg_events_to_NA(data_sincos2id_2, .type == "Bad", all_chs = TRUE, entire_seg = FALSE)
   expect_equal(clean_data_chan, clean_data_chan2)
   expect_equal(clean_data_chan, clean_data_chan3)
-  expect_equal(clean_data_chan, clean_data_XY2)
+  expect_equal(clean_data_chan, clean_data_sincos2id_22)
   expect_equal(nrow(clean_data_chan$.events), 4)
   expect_equal(all(is.na(clean_data_chan$.signal[clean_data_chan$.signal$.sample %in% seq(-2, -3 + 3 - 1) &
     clean_data_chan$.signal$.id == 1, c("X", "Y")])), TRUE)
@@ -144,7 +61,7 @@ test_that("can clean whole channels in files", {
 
 
 test_that("can clean whole segments in files", {
-  clean_data_seg <- eeg_events_to_NA(data, .type == "Bad", entire_seg = TRUE)
+  clean_data_seg <- eeg_events_to_NA(data_sincos2id, .type == "Bad", entire_seg = TRUE)
   expect_equal(nrow(clean_data_seg$.events), 4)
   expect_equal(all(is.na(clean_data_seg$.signal[clean_data_seg$.signal$.id == 1, c("X", "Y")])), TRUE)
   expect_equal(all(is.na(clean_data_seg$.signal[clean_data_seg$.signal$.id == 2, c("Y")])), TRUE)
