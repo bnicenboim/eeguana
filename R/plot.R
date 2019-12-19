@@ -612,7 +612,7 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
   chs <- list(unique(as.character(plot$data$.key)))
   events_tbl[, .key := lapply(.channel, function(x) as.character(x))]
   events_tbl[is.na(.channel), .key := list(rep(chs, .N))]
-  events_tbl <- tidyr::unnest(events_tbl)
+  events_tbl <- unnest_dt(events_tbl, .key)
 
   events_tbl[, .key := factor(.key, levels = levels(plot$data$.key))]
 

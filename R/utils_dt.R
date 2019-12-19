@@ -86,3 +86,17 @@ bind_cols_dt <- function(...) {
   class(new_dt) <- class(list(...)[[1]])
   new_dt
 }
+
+
+#' @noRd
+unnest_dt <- function(.data, col) {
+    #https://www.johannesbgruber.eu/post/a-faster-unnest/#fn1
+    col <- rlang::ensyms(col)
+    clnms <- rlang::syms(setdiff(colnames(.data), as.character(col)))
+    tbl <- eval(
+        rlang::expr(.data[, as.character(unlist(!!!col)), by = list(!!!clnms)])
+    )
+    colnames(.data) <- c(as.character(clnms), as.character(col))
+    .data
+}
+
