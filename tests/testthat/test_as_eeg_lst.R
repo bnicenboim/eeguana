@@ -1,8 +1,8 @@
 context("convert formats")
 library(eeguana)
 test_that("raw brainvision read and converted from MNE match", {
-
-  skip_on_cran() # it needs MNE installed
+  # it needs MNE installed
+  ## skip_on_cran()
   skip_on_travis()
   skip_on_appveyor()
   ## reference

@@ -15,8 +15,6 @@
 \alias{events<-}
 \alias{summarize_all_ch}
 \alias{summarize_at_ch}
-\alias{summarise_all_ch}
-\alias{summarise_at_ch}
 \alias{plot_gg}
 \alias{ch_baseline}
 \title{Defunct functions in eeguana}
@@ -46,10 +44,6 @@ events(x) <- value
 summarize_all_ch(x, ...)
 
 summarize_at_ch(x, ...)
-
-summarise_all_ch(x, ...)
-
-summarise_at_ch(x, ...)
 
 plot_gg(x, ...)
 
