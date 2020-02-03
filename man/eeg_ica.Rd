@@ -10,8 +10,13 @@ of the components with \code{\link[=plot_components]{plot_components()}}. In ord
 the components with respect to time use \code{\link[=eeg_ica_show]{eeg_ica_show()}}, see examples section. To remove the
 unwanted components, use \code{\link[=eeg_ica_keep]{eeg_ica_keep()}}.}
 \usage{
-eeg_ica(.data, ..., ignore = .type == "artifact", method = fast_ICA,
-  config = list())
+eeg_ica(
+  .data,
+  ...,
+  ignore = .type == "artifact",
+  method = fast_ICA,
+  config = list()
+)
 }
 \arguments{
 \item{.data}{An eeg_lst object}
@@ -36,16 +41,21 @@ of N_samples by N_channels and/or \code{W} (unmixing matrix), consistent with th
 Some packages with other ICA methods or implementations: \code{steadyICA} and \code{ica}.
 }
 \seealso{
-Other ICA functions: \code{\link{eeg_ica_cor_tbl}},
-  \code{\link{eeg_ica_keep}}, \code{\link{eeg_ica_show}},
-  \code{\link{eeg_ica_summary_tbl}},
-  \code{\link{eeg_ica_var_tbl}},
-  \code{\link{plot_components}}
+Other ICA functions: 
+\code{\link{eeg_ica_cor_tbl}()},
+\code{\link{eeg_ica_keep}()},
+\code{\link{eeg_ica_show}()},
+\code{\link{eeg_ica_summary_tbl}()},
+\code{\link{eeg_ica_var_tbl}()},
+\code{\link{plot_components}()}
 
-Other preprocessing functions: \code{\link{eeg_baseline}},
-  \code{\link{eeg_downsample}}, \code{\link{eeg_ica_keep}},
-  \code{\link{eeg_rereference}}, \code{\link{eeg_segment}},
-  \code{\link{filt}}
+Other preprocessing functions: 
+\code{\link{eeg_baseline}()},
+\code{\link{eeg_downsample}()},
+\code{\link{eeg_ica_keep}()},
+\code{\link{eeg_rereference}()},
+\code{\link{eeg_segment}()},
+\code{\link{filt}}
 }
 \concept{ICA functions}
 \concept{preprocessing functions}

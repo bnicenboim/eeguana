@@ -18,6 +18,7 @@ Test if the object is a channel
 This function returns  TRUE for channels.
 }
 \seealso{
-Other channel: \code{\link{channel_dbl}}
+Other channel: 
+\code{\link{channel_dbl}()}
 }
 \concept{channel}

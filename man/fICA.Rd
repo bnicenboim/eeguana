@@ -6,11 +6,26 @@
 \alias{fast_ICA2}
 \title{Wrapper for FastICA methods for Independent Component Analysis from fICA package}
 \usage{
-adapt_fast_ICA(X, gs = fICA::gf, dgs = fICA::dgf, kj = 0,
-  eps = 1e-06, maxiter = 1000)
+adapt_fast_ICA(
+  X,
+  gs = fICA::gf,
+  dgs = fICA::dgf,
+  kj = 0,
+  eps = 1e-06,
+  maxiter = 1000
+)
 
-fast_ICA2(X, g = "tanh", dg = NULL, G = NULL, init = NULL,
-  n.init = 1, method = "def", eps = 1e-06, maxiter = 1000)
+fast_ICA2(
+  X,
+  g = "tanh",
+  dg = NULL,
+  G = NULL,
+  init = NULL,
+  n.init = 1,
+  method = "def",
+  eps = 1e-06,
+  maxiter = 1000
+)
 }
 \arguments{
 \item{X}{A matrix of data frame.}
@@ -51,6 +66,7 @@ return the estimated
 source components.
 }
 \seealso{
-Other ica methods: \code{\link{fast_ICA}}
+Other ica methods: 
+\code{\link{fast_ICA}()}
 }
 \concept{ica methods}

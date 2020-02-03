@@ -22,6 +22,7 @@ A new channel or an \code{eeg_lst} object with a channel where a function was in
 Get the by-sample (or by-row) function of the specified channels.
 }
 \seealso{
-Other channel functions: \code{\link{chs_mean}}
+Other channel functions: 
+\code{\link{chs_mean}()}
 }
 \concept{channel functions}

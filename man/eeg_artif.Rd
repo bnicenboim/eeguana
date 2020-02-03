@@ -8,20 +8,48 @@
 \alias{eeg_artif_peak}
 \title{Detect artifacts and add them in the events table of an eeg_lst.}
 \usage{
-eeg_artif_minmax(.data, ..., threshold = 100, window = 0.2,
-  lim = c(-window, window), unit = "s", freq = NULL,
-  config = list())
+eeg_artif_minmax(
+  .data,
+  ...,
+  threshold = 100,
+  window = 0.2,
+  lim = c(-window, window),
+  unit = "s",
+  freq = NULL,
+  config = list()
+)
 
-eeg_artif_step(.data, ..., threshold = 50, window = 0.2,
-  lim = c(-window, window), unit = "s", freq = NULL,
-  config = list())
+eeg_artif_step(
+  .data,
+  ...,
+  threshold = 50,
+  window = 0.2,
+  lim = c(-window, window),
+  unit = "s",
+  freq = NULL,
+  config = list()
+)
 
-eeg_artif_amplitude(.data, ..., threshold = c(-200, 200), lim = c(-0.2,
-  0.2), unit = "s", freq = NULL, config = list())
+eeg_artif_amplitude(
+  .data,
+  ...,
+  threshold = c(-200, 200),
+  lim = c(-0.2, 0.2),
+  unit = "s",
+  freq = NULL,
+  config = list()
+)
 
-eeg_artif_peak(.data, ..., threshold = 30, window = 0.2,
-  lim = c(-window, window), unit = "s", freq = NULL,
-  config = list())
+eeg_artif_peak(
+  .data,
+  ...,
+  threshold = 30,
+  window = 0.2,
+  lim = c(-window, window),
+  unit = "s",
+  freq = NULL,
+  config = list()
+)
 }
 \arguments{
 \item{.data}{An \code{eeg_lst} object.}
@@ -67,7 +95,8 @@ faces_clean <-  faces_seg_artif \%>\%
 
 }
 \seealso{
-Other events functions: \code{\link{eeg_events_to_NA}}
+Other events functions: 
+\code{\link{eeg_events_to_NA}()}
 }
 \concept{artifact detection functions}
 \concept{events functions}

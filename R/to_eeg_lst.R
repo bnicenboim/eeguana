@@ -2,6 +2,17 @@
 #' @export
 as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
 
+  units_list <- c(
+    "mol/m^3", "hertz", "newton", "pascal", "joule", "watt", "coulomb",
+    "volt", "farad", "ohm",
+    "S", "weber", "tesla", "henry", "celsius", "lumen", "lux"
+  ) %>%
+    stats::setNames(c(10, 101:116) %>% as.character()) %>%
+    as.list()
+  prefix <- c("", "deci", "centi", "milli", "micro", "nano") %>%
+    stats::setNames(c(0, -1:-3, -6, -9) %>% as.character())
+  
+  
   ## create channel info
   ch_names <- .data$ch_names
   ## Meaning of kind code: https://github.com/mne-tools/mne-python/blob/2a0a55c6a795f618cf0a1603e22a72ee8e879f62/mne/io/constants.py
@@ -59,28 +70,22 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
     warning("Stimuli channels will be discarded")
   }
 
-  scale_head <- purrr::map_dbl(rel_ch, ~ sqrt(sum((0 - .x$loc)^2))) %>%
+  scale_head <- purrr::map_dbl(rel_ch, ~ sqrt(sum((0 - .x$loc[1:3])^2))) %>%
     .[. != 0] %>% # remove the ones that have all 0
     min(na.rm = TRUE)
 
   ch_info <- rel_ch %>% purrr::map_dfr(function(ch) {
-    if (ch$kind %in% c(502)) { # misc channel
+    if (ch$kind == 502) { # misc channel
       location <- rep(NA_real_, 3)
     } else {
       location <- purrr::map(ch$loc[1:3], ~ round(. / scale_head, 2))
     }
-    units_list <- c(
-      "mol/m^3", "hertz", "newton", "pascal", "joule", "watt", "coulomb",
-      "volt", "farad", "ohm",
-      "S", "weber", "tesla", "henry", "celsius", "lumen", "lux"
-    ) %>%
-      stats::setNames(c(10, 101:116) %>% as.character()) %>%
-      as.list()
-    prefix <- c("", "deci", "centi", "milli", "micro", "nano") %>%
-      stats::setNames(c(0, -1:-3, -6, -9) %>% as.character())
-
-    if (!ch$unit %in% as.numeric(names(units_list))) ch$unit <- 107 # default to Volts
-
+    
+    if (ch$unit$numerator %in% as.numeric(names(units_list))) {
+      ch_unit <-  ch$unit$numerator
+    } else {
+      ch_unit <- 107 # default to Volts
+   }
     list(
       .channel = ch$ch_name,
       .x = location[[1]],
@@ -88,7 +93,7 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
       .z = location[[3]],
       unit = paste0(
         prefix[[log10(ch$range) %>% as.character()]],
-        units_list[[ch$unit %>% as.character()]]
+        units_list[[ch_unit %>% as.character()]]
       ),
       .reference = NA
     )

@@ -19,6 +19,7 @@ Builds a series of sample numbers.
 sample_int(1:100, sampling_rate = 500)
 }
 \seealso{
-Other sample_int: \code{\link{is_sample_int}}
+Other sample_int: 
+\code{\link{is_sample_int}()}
 }
 \concept{sample_int}

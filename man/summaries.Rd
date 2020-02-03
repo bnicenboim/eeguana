@@ -9,7 +9,7 @@
 \alias{ncomponents}
 \alias{nsamples}
 \title{Display information of the eeg_lst object.
-\code{*_names()} functions return a vector of names, \code{n*()} return the number of
+\verb{*_names()} functions return a vector of names, \verb{n*()} return the number of
 elements channels or components. Components are only available after running \code{\link[=eeg_ica]{eeg_ica()}}. \code{channel_ica_names()} refers to channels used in the ICA.}
 \usage{
 channel_names(x, ...)
@@ -31,14 +31,15 @@ nsamples(x, ...)
 }
 \description{
 Display information of the eeg_lst object.
-\code{*_names()} functions return a vector of names, \code{n*()} return the number of
+\verb{*_names()} functions return a vector of names, \verb{n*()} return the number of
 elements channels or components. Components are only available after running \code{\link[=eeg_ica]{eeg_ica()}}. \code{channel_ica_names()} refers to channels used in the ICA.
 }
 \seealso{
-Other summary functions: \code{\link{count_complete_cases_tbl}},
-  \code{\link{eeg_ica_cor_tbl}},
-  \code{\link{eeg_ica_summary_tbl}},
-  \code{\link{eeg_ica_var_tbl}},
-  \code{\link{summary.eeg_lst}}
+Other summary functions: 
+\code{\link{count_complete_cases_tbl}()},
+\code{\link{eeg_ica_cor_tbl}()},
+\code{\link{eeg_ica_summary_tbl}()},
+\code{\link{eeg_ica_var_tbl}()},
+\code{\link{summary.eeg_lst}()}
 }
 \concept{summary functions}

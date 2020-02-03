@@ -4,8 +4,13 @@
 \alias{eeg_events_to_NA}
 \title{Remove (transform to NA) problematic events from the signal table of an eeg_lst.}
 \usage{
-eeg_events_to_NA(x, ..., all_chs = FALSE, entire_seg = TRUE,
-  drop_events = TRUE)
+eeg_events_to_NA(
+  x,
+  ...,
+  all_chs = FALSE,
+  entire_seg = TRUE,
+  drop_events = TRUE
+)
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
@@ -27,6 +32,7 @@ An eeg_lst.
 Remove (transform to NA) problematic events from the signal table of an eeg_lst.
 }
 \seealso{
-Other events functions: \code{\link{eeg_artif}}
+Other events functions: 
+\code{\link{eeg_artif}}
 }
 \concept{events functions}

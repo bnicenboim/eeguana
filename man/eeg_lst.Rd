@@ -4,8 +4,12 @@
 \alias{eeg_lst}
 \title{Create an eeg_lst}
 \usage{
-eeg_lst(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL,
-  channels_tbl = NULL)
+eeg_lst(
+  signal_tbl = NULL,
+  events_tbl = NULL,
+  segments_tbl = NULL,
+  channels_tbl = NULL
+)
 }
 \arguments{
 \item{signal_tbl}{See \code{\link[=signal_tbl]{signal_tbl()}}.}
@@ -52,6 +56,7 @@ into the \code{segments} tibble using non-eeguana merge functions, e.g. the \cod
 join series.
 }
 \seealso{
-Other eeg_lst: \code{\link{is_eeg_lst}}
+Other eeg_lst: 
+\code{\link{is_eeg_lst}()}
 }
 \concept{eeg_lst}

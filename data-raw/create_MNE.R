@@ -5,7 +5,7 @@ eeg_read <- read_vhdr(bvfile, .recording = "bv1")
 bvfile_pkl <- paste0(bvfile, ".pkl")
 
 library(reticulate)
-use_condaenv("mne")
+use_condaenv("anaconda3")
 mne_io <- import("mne.io")
 .data <- mne_io$read_raw_brainvision(bvfile, preload = TRUE, stim_channel = FALSE)
 

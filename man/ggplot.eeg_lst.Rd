@@ -4,8 +4,13 @@
 \alias{ggplot.eeg_lst}
 \title{Create an ERP plot}
 \usage{
-\method{ggplot}{eeg_lst}(data = NULL, mapping = ggplot2::aes(), ...,
-  max_sample = 64000, environment = parent.frame())
+\method{ggplot}{eeg_lst}(
+  data = NULL,
+  mapping = ggplot2::aes(),
+  ...,
+  max_sample = 64000,
+  environment = parent.frame()
+)
 }
 \arguments{
 \item{data}{An \code{eeg_lst} object.}
@@ -57,11 +62,14 @@ data_faces_ERPs \%>\%
   theme(legend.position = "bottom")
 }
 \seealso{
-Other plotting functions: \code{\link{annotate_events}},
-  \code{\link{annotate_head}},
-  \code{\link{eeg_downsample}}, \code{\link{plot.eeg_lst}},
-  \code{\link{plot_components}},
-  \code{\link{plot_in_layout}}, \code{\link{plot_topo}},
-  \code{\link{theme_eeguana}}
+Other plotting functions: 
+\code{\link{annotate_events}()},
+\code{\link{annotate_head}()},
+\code{\link{eeg_downsample}()},
+\code{\link{plot.eeg_lst}()},
+\code{\link{plot_components}()},
+\code{\link{plot_in_layout}()},
+\code{\link{plot_topo}()},
+\code{\link{theme_eeguana}()}
 }
 \concept{plotting functions}

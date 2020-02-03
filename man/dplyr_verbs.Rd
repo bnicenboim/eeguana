@@ -41,14 +41,11 @@ filter.eeg_ica_lst(.data, ..., .preserve = FALSE)
 
 \method{group_vars}{eeg_lst}(x)
 
-\method{anti_join}{eeg_lst}(x, y, by = NULL, copy = FALSE,
-  suffix = c(".x", ".y"), ...)
+\method{anti_join}{eeg_lst}(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
 
-\method{left_join}{eeg_lst}(x, y, by = NULL, copy = FALSE,
-  suffix = c(".x", ".y"), ...)
+\method{left_join}{eeg_lst}(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
 
-\method{semi_join}{eeg_lst}(x, y, by = NULL, suffix = c(".x", ".y"),
-  ...)
+\method{semi_join}{eeg_lst}(x, y, by = NULL, suffix = c(".x", ".y"), ...)
 
 tbl_vars.eeg_lst(x)
 }
@@ -97,13 +94,13 @@ Wrappers for \code{\link[dplyr:dplyr]{dplyr}}'s commands that act on different p
 \code{eeg_lst} objects. Functions that drop or rename column won't remove columns starting with a dot.
 The following wrappers act in a special way for \code{eeg_lst} objects:
 \itemize{
-\item \code{*_join()}: joins an external table to the \emph{segments} table of the eeg_lst.
+\item \verb{*_join()}: joins an external table to the \emph{segments} table of the eeg_lst.
 \item \code{mutate()} and \code{transmute()} Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.
 \item \code{summarize()} summarizes the channel of the signal_tbl table.
 }
 
-In addition, \code{_at()}, and \code{_if()} versions of the functions should work as well. Notice that  the \code{_at()} versions are
-much faster than the \code{_if()} versions of these commands.
+In addition, \verb{_at()}, and \verb{_if()} versions of the functions should work as well. Notice that  the \verb{_at()} versions are
+much faster than the \verb{_if()} versions of these commands.
 }
 \examples{
 library(dplyr)
@@ -145,7 +142,8 @@ data_faces_ERPs \%>\%
   rename(Predictor = condition)
 }
 \seealso{
-Other dplyr functions: \code{\link{bind}},
-  \code{\link{slice_signal}}
+Other dplyr functions: 
+\code{\link{bind}()},
+\code{\link{slice_signal}()}
 }
 \concept{dplyr functions}

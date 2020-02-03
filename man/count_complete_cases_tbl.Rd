@@ -24,10 +24,12 @@ faces_segs_some \%>\% count_complete_cases(.recording, .description)
 }
 }
 \seealso{
-Other summary functions: \code{\link{eeg_ica_cor_tbl}},
-  \code{\link{eeg_ica_summary_tbl}},
-  \code{\link{eeg_ica_var_tbl}}, \code{\link{summaries}},
-  \code{\link{summary.eeg_lst}}
+Other summary functions: 
+\code{\link{eeg_ica_cor_tbl}()},
+\code{\link{eeg_ica_summary_tbl}()},
+\code{\link{eeg_ica_var_tbl}()},
+\code{\link{summaries}},
+\code{\link{summary.eeg_lst}()}
 }
 \concept{summarize}
 \concept{summary functions}

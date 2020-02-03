@@ -26,7 +26,8 @@ these concepts.}
 Choose samples by their ordinal position in the signal table. Grouped eeg_lst object use the ordinal position in the signal table within the group.
 }
 \seealso{
-Other dplyr functions: \code{\link{bind}},
-  \code{\link{dplyr_verbs}}
+Other dplyr functions: 
+\code{\link{bind}()},
+\code{\link{dplyr_verbs}}
 }
 \concept{dplyr functions}

@@ -28,7 +28,8 @@ faces <- bind(faces_list)
  
 }
 \seealso{
-Other dplyr functions: \code{\link{dplyr_verbs}},
-  \code{\link{slice_signal}}
+Other dplyr functions: 
+\code{\link{dplyr_verbs}},
+\code{\link{slice_signal}()}
 }
 \concept{dplyr functions}

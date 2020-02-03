@@ -15,16 +15,21 @@ eeg_ica_keep(.data, ...)
 This function will transform the channels according to the indepent components that are kept or removed.
 }
 \seealso{
-Other preprocessing functions: \code{\link{eeg_baseline}},
-  \code{\link{eeg_downsample}}, \code{\link{eeg_ica}},
-  \code{\link{eeg_rereference}}, \code{\link{eeg_segment}},
-  \code{\link{filt}}
+Other preprocessing functions: 
+\code{\link{eeg_baseline}()},
+\code{\link{eeg_downsample}()},
+\code{\link{eeg_ica}()},
+\code{\link{eeg_rereference}()},
+\code{\link{eeg_segment}()},
+\code{\link{filt}}
 
-Other ICA functions: \code{\link{eeg_ica_cor_tbl}},
-  \code{\link{eeg_ica_show}},
-  \code{\link{eeg_ica_summary_tbl}},
-  \code{\link{eeg_ica_var_tbl}}, \code{\link{eeg_ica}},
-  \code{\link{plot_components}}
+Other ICA functions: 
+\code{\link{eeg_ica_cor_tbl}()},
+\code{\link{eeg_ica_show}()},
+\code{\link{eeg_ica_summary_tbl}()},
+\code{\link{eeg_ica_var_tbl}()},
+\code{\link{eeg_ica}()},
+\code{\link{plot_components}()}
 }
 \concept{ICA functions}
 \concept{preprocessing functions}

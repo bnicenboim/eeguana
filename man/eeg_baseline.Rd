@@ -22,9 +22,12 @@ An eeg_lst.
 Subtract the average or baseline of the points in a defined interval from all points in the segment.
 }
 \seealso{
-Other preprocessing functions: \code{\link{eeg_downsample}},
-  \code{\link{eeg_ica_keep}}, \code{\link{eeg_ica}},
-  \code{\link{eeg_rereference}}, \code{\link{eeg_segment}},
-  \code{\link{filt}}
+Other preprocessing functions: 
+\code{\link{eeg_downsample}()},
+\code{\link{eeg_ica_keep}()},
+\code{\link{eeg_ica}()},
+\code{\link{eeg_rereference}()},
+\code{\link{eeg_segment}()},
+\code{\link{filt}}
 }
 \concept{preprocessing functions}
