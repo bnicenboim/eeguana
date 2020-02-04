@@ -1,4 +1,4 @@
-context("test tidyverse functions rename/select")
+context("test tidyverse functions rename")
 library(eeguana)
 
 
