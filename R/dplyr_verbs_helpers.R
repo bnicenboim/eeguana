@@ -169,6 +169,11 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
     }
     vars_dfs <- c(missing_grouped_vars, vars_dfs)
 
+    renamed_obligatory <- vars_dfs[names(vars_dfs)!=vars_dfs] %>%
+      intersect(obligatory_cols[[dfs]])
+    if(length(renamed_obligatory)>0){
+      warning("Trying to rename obligatory column(s): ", renamed_obligatory)
+    }
     # by adding these, select won't remove the obligatory columns
     vars_dfs <- c(obligatory_cols[[dfs]], vars_dfs)
 
