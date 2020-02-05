@@ -1,12 +1,12 @@
 #' EEG signal decomposition using Independent Component Analysis (ICA)
 #'  
-#' This function returns an extended `eeg_lst`, `eeg_ica_lst`, with the mixing and unmixing 
+#' @description  This function returns an extended `eeg_lst`, `eeg_ica_lst`, with the mixing and unmixing 
 #' matrix of every recording. It is possible to visualize the topography
-#'  of the components with [plot_components()]. In order to extract the amplitude of
-#'   the components with respect to time use [eeg_ica_show()], see examples section. To remove the 
-#'   unwanted components, use [eeg_ica_keep()].
+#' of the components with [plot_components()]. In order to extract the amplitude of
+#' the components with respect to time use [eeg_ica_show()], see examples section. To remove the 
+#' unwanted components, use [eeg_ica_keep()].
 #' 
-#' It is possible to also use a custom function in the `method` argument. The function should return
+#' @details It is possible to also use a custom function in the `method` argument. The function should return
 #'  a list that with `A` (mixing matrix), consistent with the formulation `X = S %*% A`, where X is matrix
 #'   of N_samples by N_channels and/or `W` (unmixing matrix), consistent with the formulation `X %*% W = S`.
 #' Some packages with other ICA methods or implementations: `steadyICA` and `ica`.
@@ -119,7 +119,7 @@ eeg_ica.eeg_lst <- function(.data,
     colnames(ica$unmixing_matrix) <- paste0("ICA", seq_len(ncol(ica$unmixing_matrix)))
     ica
   })
-  .data$ica <- l_ica
+  .data$.ica <- l_ica
 
   end_time <- Sys.time()
   timing <- end_time - start_time
@@ -150,7 +150,7 @@ eeg_ica_show.eeg_ica_lst <- function(.data, ...) {
 
   l_signal <- split(signal_raw, by = ".recording", keep.by = FALSE)
 
-  ica_c <- map2_dtr(l_signal, .data$ica, ~ {
+  ica_c <- map2_dtr(l_signal, .data$.ica, ~ {
     X <- scale(.x, scale = FALSE)
     {tcrossprod(as.matrix(X), t(.y$unmixing_matrix[, comp_sel, drop = FALSE])) *
       ## I make it 10 times larger so that the components can be plot alongside
@@ -187,7 +187,7 @@ eeg_ica_keep.eeg_ica_lst <- function(.data, ...) {
             tidyselect::vars_select(component_names(.data), !!dot)
         })
                                         #names and order
-        comp_sel <- purrr::imap(.data$ica, ~{
+        comp_sel <- purrr::imap(.data$.ica, ~{
             if(.y %in% names(comp_sel)){
                 comp_sel[[.y]]
             } else {
@@ -199,19 +199,19 @@ eeg_ica_keep.eeg_ica_lst <- function(.data, ...) {
         }
         )
     } else {
-        comp_sel <- purrr::imap(.data$ica, ~ {
+        comp_sel <- purrr::imap(.data$.ica, ~ {
             tidyselect::vars_select(component_names(.data), !!!dots)
         })
     }
 
-    .data$ica <- purrr::map2(comp_sel, .data$ica, function(sel, ica) {
+    .data$.ica <- purrr::map2(comp_sel, .data$.ica, function(sel, ica) {
         list(
             unmixing_matrix = ica$unmixing_matrix[, sel, drop = FALSE],
             mixing_matrix = ica$mixing_matrix[sel, , drop = FALSE]
         )
     }
 )
-  chs <- colnames(.data$ica[[1]]$mixing_matrix)
+  chs <- colnames(.data$.ica[[1]]$mixing_matrix)
 
   signal_raw <- .data$.signal[, c(".id", chs), with = FALSE][
     data.table::as.data.table(.data$.segments)
@@ -222,7 +222,7 @@ eeg_ica_keep.eeg_ica_lst <- function(.data, ...) {
 
   l_signal <- split(signal_raw, by = ".recording", keep.by = FALSE)
 
-  signal_back <- map2_dtr(l_signal, .data$ica, ~ {
+  signal_back <- map2_dtr(l_signal, .data$.ica, ~ {
     X <- scale(.x, scale = FALSE)
     proj <- tcrossprod(.y$unmixing_matrix, t(.y$mixing_matrix))
     tcrossprod(X, t(proj)) %>%

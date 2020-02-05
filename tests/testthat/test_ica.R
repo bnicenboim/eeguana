@@ -79,6 +79,12 @@ data_blinks_more_NA$.signal[5, ]$Cz <- NA_real_
 # plot(xx) +annotate_events()
 
 data_ica_default <- eeg_ica(data_blinks, method = fast_ICA)
+data_ica2 <- eeg_ica(data_blinks, method = fast_ICA2)
+test_that("different implementations aren't too different"{
+  
+  expect_equivalent(ica_matrix_lst(data_ica_default),
+                    )
+})
 data_rec_default <- data_ica_default %>% eeg_ica_keep(ICA1, ICA2, ICA3)
 
 ica1 <- eeg_ica_show(data_ica_default, ICA1)

@@ -6,6 +6,7 @@
 #' @param ... Not in use.
 #'
 #' @return A table.
+#' @family functions to expose internal parts of eeg_(ica_)_lst
 #' @export
 events_tbl <- function(.data, ...) {
   UseMethod("events_tbl")
@@ -36,6 +37,7 @@ events_tbl.eeg_lst <- function(.data, ...) {
 #' @param ... Not in use.
 #'
 #' @return A table.
+#' @family functions to expose internal parts of eeg_(ica_)_lst
 #' @export
 channels_tbl <- function(.data, ...) {
   UseMethod("channels_tbl")
@@ -111,6 +113,7 @@ channels_tbl.data.frame <- function(.data, ...) {
 #' @param ... Not in use.
 #'
 #' @return A table.
+#' @family functions to expose internal parts of eeg_(ica_)_lst
 #' @export
 signal_tbl <- function(.data, ...) {
   UseMethod("signal_tbl")
@@ -127,6 +130,7 @@ signal_tbl.eeg_lst <- function(.data, ...) {
 #' @param ... Not in use.
 #'
 #' @return A table.
+#' @family functions to expose internal parts of eeg_(ica_)_lst
 #' @export
 segments_tbl <- function(.data, ...) {
   UseMethod("segments_tbl")
@@ -134,5 +138,22 @@ segments_tbl <- function(.data, ...) {
 #' @export
 segments_tbl.eeg_lst <- function(.data, ...) {
   .data$.segments
+}
+
+#' Function to get the list of mixing and unmixing matrices of an eeg_ica_lst object.
+#'
+#'
+#' @param .data An eeg_ica_lst object.
+#' @param ... Not in use.
+#'
+#' @return A list.
+#' @family functions to expose internal parts of eeg_(ica_)_lst
+#' @export
+ica_matrix_lst <- function(.data, ...) {
+  UseMethod("ica_matrix_lst")
+}
+#' @export
+ica_matrix_lst.eeg_ica_lst <- function(.data, ...) {
+  .data$.ica
 }
 

@@ -17,3 +17,11 @@ A table.
 \description{
 Function to get the segments table of an eeg_lst object.
 }
+\seealso{
+Other functions to expose internal parts of eeg_(ica_)_lst: 
+\code{\link{channels_tbl}()},
+\code{\link{events_tbl}()},
+\code{\link{ica_matrix_lst}()},
+\code{\link{signal_tbl}()}
+}
+\concept{functions to expose internal parts of eeg_(ica_)_lst}

@@ -22,3 +22,11 @@ A table.
 \description{
 Functions to get or set the events table of an eeg_lst object.
 }
+\seealso{
+Other functions to expose internal parts of eeg_(ica_)_lst: 
+\code{\link{channels_tbl}()},
+\code{\link{ica_matrix_lst}()},
+\code{\link{segments_tbl}()},
+\code{\link{signal_tbl}()}
+}
+\concept{functions to expose internal parts of eeg_(ica_)_lst}
