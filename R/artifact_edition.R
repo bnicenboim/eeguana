@@ -284,7 +284,7 @@ eeg_events_to_NA.eeg_lst <-
     baddies <- dplyr::filter(x$.events,!!!dots)
     
     if (all_chs)
-      baddies <- dplyr::mutate(baddies, .channel = NA)
+      baddies <- dplyr::mutate(baddies, .channel = NA_character_)
     
     # For the replacement in parts of the segments
     b_chans <- dplyr::filter(baddies,!is.na(.channel)) %>%
