@@ -30,7 +30,7 @@ fast_ICA <-function(X, n.comp=NULL, alg.typ = "parallel",
  if(out_tol > tol){
    warning("fastICA didn't converge. Expected tolerance: ", tol,
            ". Tolerance: ",res$tol,". Increase the number of iterations to more than ",
-           maxit," with `maxit`")
+           maxit," with `maxit`", call. = FALSE)
  }
  message("# ICA finished in ", out_maxit," iterations. With a tolerance of ",out_tol,
          ". (Maximum expected tolerance: ",tol,".)")

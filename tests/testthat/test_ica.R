@@ -113,7 +113,12 @@ test_that("different implementations aren't too different", {
   expect_equivalent(true_comps, recover_adapt_fast_ICA, tolerance = .3)
 })
 
-
+test_that("warns if problems",{
+  expect_warning(eeg_ica(data_blinks, method = fast_ICA, config=list(maxit =2)))
+## TODO TRY TO produce non convergencies
+  ## expect_warning(eeg_ica(data_blinks, method = adapt_fast_ICA, config=list(eps = 1e-12, maxiter =1)))
+  ## expect_warning(eeg_ica(data_blinks, method = fast_ICA2, config=list(eps = 1e-12, maxiter =1)))
+}
 
 test_that("summaries work", {
   data_rec_default <- data_fast_ICA %>% eeg_ica_keep(ICA1, ICA2, ICA3)
@@ -149,6 +154,7 @@ test_that("ica is a reversible", {
     eeg_ica_keep(ICA1, ICA2)
   ica1 <- eeg_ica_show(data_fast_ICA, ICA1)
   data_rec_default <- data_fast_ICA %>% eeg_ica_keep(ICA1, ICA2, ICA3)
+  expect_equal(data_blinks, as_eeg_lst(data_rec_default))
   expect_equal(data_blinks$.signal, data_rec_default$.signal)
   expect_equal(data_blinks$.signal, data_rec$.signal)
   expect_equal(data_blinks$.signal, data_rec_m$.signal)
