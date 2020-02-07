@@ -1,4 +1,5 @@
 #' Display information of the eeg_lst object.
+#' 
 #' `*_names()` functions return a vector of names, `n*()` return the number of 
 #' elements channels or components. Components are only available after running [eeg_ica()]. `channel_ica_names()` refers to channels used in the ICA.
 #'

@@ -99,7 +99,7 @@ filter.eeg_lst <- function(.data, ..., .preserve = FALSE) {
 filter.eeg_ica_lst <- function(.data, ..., .preserve = FALSE) {
   out <- NextMethod()
   recordings <- unique(out$.segments$.recording)
-  out$ica <- out$ica[recordings]
+  out$.ica <- out$.ica[recordings]
   out
 }
 #' @rdname dplyr_verbs

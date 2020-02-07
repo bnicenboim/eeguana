@@ -8,9 +8,7 @@
 \alias{component_names}
 \alias{ncomponents}
 \alias{nsamples}
-\title{Display information of the eeg_lst object.
-\verb{*_names()} functions return a vector of names, \verb{n*()} return the number of
-elements channels or components. Components are only available after running \code{\link[=eeg_ica]{eeg_ica()}}. \code{channel_ica_names()} refers to channels used in the ICA.}
+\title{Display information of the eeg_lst object.}
 \usage{
 channel_names(x, ...)
 
@@ -30,7 +28,6 @@ nsamples(x, ...)
 \item{...}{Not in use.}
 }
 \description{
-Display information of the eeg_lst object.
 \verb{*_names()} functions return a vector of names, \verb{n*()} return the number of
 elements channels or components. Components are only available after running \code{\link[=eeg_ica]{eeg_ica()}}. \code{channel_ica_names()} refers to channels used in the ICA.
 }
