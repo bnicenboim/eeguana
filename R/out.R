@@ -34,7 +34,12 @@ channel_ica_names <- function(x, ...) {
 }
 #' @export
 channel_ica_names.eeg_ica_lst <- function(x, ...) {
-  rownames(x$ica[[1]]$unmixing_matrix)
+  purrr::map(x$.ica, function(recording) {
+    recording$unmixing_matrix %>%
+      rownames()
+  }) %>%
+    unlist() %>%
+    unique()
 }
 #' @rdname summaries
 #' @export
@@ -53,7 +58,12 @@ component_names <- function(x, ...) {
 }
 #' @export
 component_names.eeg_ica_lst <- function(x, ...) {
-  colnames(x$ica[[1]]$unmixing_matrix)
+  purrr::map(x$.ica, function(recording) {
+    recording$unmixing_matrix %>%
+      colnames()
+  }) %>%
+    unlist() %>%
+    unique()
 }
 #' @export
 component_names.default <- function(x, ...) {

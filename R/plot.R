@@ -214,7 +214,7 @@ plot_components.eeg_ica_lst <- function(data,...,projection = "polar",standardiz
   comp_sel <- sel_comp(data,...)
   channels_tbl(data) <- change_coord(channels_tbl(data), projection)
   ## TODO: move to data.table, ignore group, just do it by .recording
-  long_table <- map_dtr(data$ica, ~ {
+  long_table <- map_dtr(data$.ica, ~ {
     dt <- .x$mixing_matrix[comp_sel,, drop=FALSE] %>%
       data.table::as.data.table(keep.rownames = TRUE) 
     dt[, .ICA := factor(rn, levels = rn)][ , rn := NULL][]

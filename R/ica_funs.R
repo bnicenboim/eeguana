@@ -134,8 +134,12 @@ fast_ICA2 <- function(X, g = "tanh", dg = NULL, G = NULL, init = NULL, n.init = 
   X <- tcrossprod(sweep(X, 2, colMeans(X)), S0.5inv)
   if (is.null(init)) {
     VN <- diag(p)
-  }
-  else {
+  } else {
+    mat.sqrt <- function(A)    {
+      eig <- eigen(A, symmetric = TRUE)
+      eig$vectors %*% (diag(eig$values^(1/2))) %*% t(eig$vectors)
+    }
+    
     VN <- crossprod(t(init), S0.5)
     VN <- crossprod(
       solve(mat.sqrt(tcrossprod(VN, VN))),
@@ -166,7 +170,7 @@ fast_ICA2 <- function(X, g = "tanh", dg = NULL, G = NULL, init = NULL, n.init = 
   })
   if (sum(abs(V$W)) > 0) {
     W <- crossprod(V$W, S0.5inv)
-    W <- tcrossprod(diag(sign(rowMeans(W))), W)
+    W <- t(crossprod(diag(sign(rowMeans(W))), W))
   }
   else {
     stop("no convergence")

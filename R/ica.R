@@ -90,10 +90,10 @@ eeg_ica.eeg_lst <- function(.data,
   }
   data_out <- function(x) {
     out <- list()
-    if (!is.null(x$A)) {
+    if (is.null(x$W)) {
       out$mixing_matrix <- x$A
       out$unmixing_matrix <- MASS::ginv(x$A)
-    } else if (!is.null(x$W)) {
+    } else if (is.null(x$A)) {
       out$mixing_matrix <- MASS::ginv(x$W)
       out$unmixing_matrix <- x$W
     } else {

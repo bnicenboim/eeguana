@@ -78,13 +78,38 @@ data_blinks_more_NA$.signal[5, ]$Cz <- NA_real_
 # xx <- eeg_artif_peak(data_blinks,threshold = .3)
 # plot(xx) +annotate_events()
 
+##### 
+## ## initial matrix to have deterministic ICA mixing and unmixing matrices here:
+## m <- structure(c(-1.316038587729, -0.325231960551256, 3.97869823946626,
+##                  -0.122103882193917, -0.0556199678365175, 1.02305178660224, -2.4335067665471, 
+##                  1.90720205416033, -0.116728090380369), .Dim = c(3L, 3L))
+## data_fast_ICA <- eeg_ica(data_blinks, method = fast_ICA,
+##                                  config = list(w.init = m))
+
+## data_fast_ICA %>% eeg_ica_show(ICA1, ICA2, ICA3) %>% select(ICA1,ICA2,ICA3) %>%
+##   plot()
+## data_adapt_fast_ica <- eeg_ica(data_blinks, method = adapt_fast_ICA)
+
+## data_adapt_fast_ica %>% eeg_ica_show(ICA1, ICA2, ICA3) %>%
+##   select(ICA1, ICA2, ICA3)  %>% plot()
+
+
+## data_fast_ica2<- eeg_ica(data_blinks, method = fast_ICA2)
+
+## data_fast_ica2 %>% eeg_ica_show(ICA1, ICA2, ICA3) %>%
+##   select(ICA1, ICA2, ICA3)  %>% plot()
+
+
+## ica_matrix_lst(data_ica2)
+## test_that("different implementations aren't too different"{
+##   expect_equivalent(ica_matrix_lst(data_ica_default_init),
+##                     ica_matrix_lst(data_ica2))
+## })
+
+
 data_ica_default <- eeg_ica(data_blinks, method = fast_ICA)
-data_ica2 <- eeg_ica(data_blinks, method = fast_ICA2)
-test_that("different implementations aren't too different"{
-  
-  expect_equivalent(ica_matrix_lst(data_ica_default),
-                    )
-})
+
+
 data_rec_default <- data_ica_default %>% eeg_ica_keep(ICA1, ICA2, ICA3)
 
 ica1 <- eeg_ica_show(data_ica_default, ICA1)
