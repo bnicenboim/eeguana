@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Convert an eeg_lst to a long table in <code><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table</a></code> format. — as.data.table.eeg_lst • eeguana</title>
+<title>Drop segments with NAs from the eeg_lst — drop_incomplete_segments • eeguana</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -42,8 +42,8 @@
 
 
 
-<meta property="og:title" content="Convert an eeg_lst to a long table in <code><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table</a></code> format. — as.data.table.eeg_lst" />
-<meta property="og:description" content="Convert the signal_tbl table from wide to long format." />
+<meta property="og:title" content="Drop segments with NAs from the eeg_lst — drop_incomplete_segments" />
+<meta property="og:description" content="Drop segments with NAs from the eeg_lst." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -131,33 +131,37 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Convert an eeg_lst to a long table in <code><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table</a></code> format.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/to_tbl.R'><code>R/to_tbl.R</code></a></small>
-    <div class="hidden name"><code>as.data.table.eeg_lst.Rd</code></div>
+    <h1>Drop segments with NAs from the eeg_lst</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/out.R'><code>R/out.R</code></a></small>
+    <div class="hidden name"><code>drop_incomplete_segments.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Convert the signal_tbl table from wide to long format.</p>
+    <p>Drop segments with NAs from the eeg_lst.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>as.data.table.eeg_lst</span>(<span class='no'>x</span>, <span class='kw'>unit</span> <span class='kw'>=</span> <span class='st'>"s"</span>)</pre>
+    <pre class="usage"><span class='fu'>drop_incomplete_segments</span>(<span class='no'>x</span>)
+
+<span class='fu'>drop_incomplete_segment.eeg_lst</span>(<span class='no'>x</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>An <code>eeg_lst</code> object.</p></td>
-    </tr>
-    <tr>
-      <th>unit</th>
-      <td><p>Unit for the <code>.time</code> column of the transformed object: "s" (default), "ms", "samples".</p></td>
+      <td><p>eeg_lst</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A <code><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table</a></code>.</p>
+    <p>An eeg_lst object</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p>Other tidyverse-like functions: 
+<code>bind()</code>,
+<code>dplyr_verbs</code>,
+<code>slice_signal()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -165,6 +169,7 @@
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
+      <li><a href="#see-also">See also</a></li>
     </ul>
 
   </div>

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Convert an eeg_lst to a long table in <code><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table</a></code> format. — as.data.table.eeg_lst • eeguana</title>
+<title>Show the variance explained for each ICA sources. — eeg_ica_var_tbl • eeguana</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -42,8 +42,8 @@
 
 
 
-<meta property="og:title" content="Convert an eeg_lst to a long table in <code><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table</a></code> format. — as.data.table.eeg_lst" />
-<meta property="og:description" content="Convert the signal_tbl table from wide to long format." />
+<meta property="og:title" content="Show the variance explained for each ICA sources. — eeg_ica_var_tbl" />
+<meta property="og:description" content="This function shows the variance explained by each ICA component following the approach of the matlab function ...." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -131,33 +131,55 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Convert an eeg_lst to a long table in <code><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table</a></code> format.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/to_tbl.R'><code>R/to_tbl.R</code></a></small>
-    <div class="hidden name"><code>as.data.table.eeg_lst.Rd</code></div>
+    <h1>Show the variance explained for each ICA sources.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/out.R'><code>R/out.R</code></a></small>
+    <div class="hidden name"><code>eeg_ica_var_tbl.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Convert the signal_tbl table from wide to long format.</p>
+    <p>This function shows the variance explained by each ICA component following the approach of the matlab function ....</p>
     </div>
 
-    <pre class="usage"><span class='fu'>as.data.table.eeg_lst</span>(<span class='no'>x</span>, <span class='kw'>unit</span> <span class='kw'>=</span> <span class='st'>"s"</span>)</pre>
+    <pre class="usage"><span class='fu'>eeg_ica_var_tbl</span>(<span class='no'>.data</span>, <span class='no'>...</span>, <span class='kw'>max_sample</span> <span class='kw'>=</span> <span class='fl'>1e+05</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
-      <td><p>An <code>eeg_lst</code> object.</p></td>
+      <th>.data</th>
+      <td><p>An <code>eeg_ica_lst</code> object</p></td>
     </tr>
     <tr>
-      <th>unit</th>
-      <td><p>Unit for the <code>.time</code> column of the transformed object: "s" (default), "ms", "samples".</p></td>
+      <th>...</th>
+      <td><p>Not in use.</p></td>
+    </tr>
+    <tr>
+      <th>max_sample</th>
+      <td><p>The maximum number of samples to use for calculating the variance explained.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A <code><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table</a></code>.</p>
+    <p>A table with the variance explained by each component in each recording.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>If the dataset is large, this function can take very long to run. Setting a maximum number of samples (<code>max_sample</code>) will speed up the calculations by downsampling the data.</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p>Other ICA functions: 
+<code>eeg_ica_cor_tbl()</code>,
+<code>eeg_ica_keep()</code>,
+<code>eeg_ica_show()</code>,
+<code>eeg_ica_summary_tbl()</code>,
+<code>eeg_ica()</code>,
+<code>plot_components()</code></p>
+<p>Other summary functions: 
+<code>count_complete_cases_tbl()</code>,
+<code>eeg_ica_cor_tbl()</code>,
+<code>eeg_ica_summary_tbl()</code>,
+<code>summaries</code>,
+<code>summary.eeg_lst()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -165,6 +187,8 @@
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
+      <li><a href="#details">Details</a></li>
+      <li><a href="#see-also">See also</a></li>
     </ul>
 
   </div>
