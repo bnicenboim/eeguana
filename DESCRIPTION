@@ -12,7 +12,7 @@ Description: Flexible manipulation of EEG data in R. It provides a data.table
     and other exported information, and (iii) a long table with experimental
     information, such as participant number (.recording), conditions, etc.
     eeguana can do only basic pre-processing for now.
-Version: 0.1.1.9000
+Version: 0.1.2.9000
 Authors@R: c(
     person("Bruno", "Nicenboim", email = "bruno.nicenboim@uni-potsdam.de", role = c("aut", "cre")),
     person("Kate", "Stone", email = "kate.stone@uni-potsdam.de", role = "ctb"))
@@ -60,6 +60,7 @@ Suggests:
     rmarkdown (>= 1.11),
     spelling (>= 2.0),
     covr (>= 3.2.1),
+    httr,
     cowplot
 LazyData: true
 VignetteBuilder: knitr

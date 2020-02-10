@@ -45,18 +45,18 @@ reference:
       Functions for reading external files and return an `eeg_lst`.
     contents: 
     - starts_with("read")
-  - title: "Dplyr verbs (and extensions)"
+  - title: "Tidyverse verbs (and extensions)"
     desc: >
-      Functions that overload some `dplyr` functions and always return an `eeg_lst`. 
+      Functions that overload some tidyverse functions and always return an `eeg_lst`. 
     contents: 
-     - has_concept("dplyr functions")
+     - has_concept("tidyverse-like functions")
   - title: "Specialized summarizing functions"
     desc: >
       Functions that return useful summaries.
     contents: 
      - has_concept("summary functions")
      - '`count_complete_cases_tbl`'
-     - '`eeg_ica_cor_lst`'
+     - '`eeg_ica_cor_tbl`'
   - title: "EEG-specialized functions"
     desc: >
       Functions for applying specialized actions on the signal 
