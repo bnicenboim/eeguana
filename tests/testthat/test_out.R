@@ -1,8 +1,9 @@
 context("test out")
 library(eeguana)
 
+options(width = 80)
 test_that("prints correctly", {
-## dput(capture.output(data_faces_10_trials))
+  ## dput(capture.output(data_faces_10_trials))
 printed <- c("# EEG data:", "", "# Signal table:", "       .id .sample       Fp1       Fpz        Fp2          F7         F3", 
 "    1:   1   15000 -75.03562 -28.57522 -28.165712 -35.1809807 -29.561008", 
 "    2:   1   15001 -65.61619 -33.53533 -24.389921 -24.2422733 -26.622681", 
@@ -106,5 +107,6 @@ test_that("summary is correct", {
               "6:     Stimulus          s70   4", "7:     Stimulus          s71   5", 
               "8:  UserDefined        Blink   6")
   expect_equal(capture.output(summary(data_faces_10_trials)), printed)
-  expect_invisible(summary(data_faces_10_trials))
 })
+
+

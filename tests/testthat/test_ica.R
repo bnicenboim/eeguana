@@ -118,13 +118,14 @@ test_that("warns if problems",{
 ## TODO TRY TO produce non convergencies
   ## expect_warning(eeg_ica(data_blinks, method = adapt_fast_ICA, config=list(eps = 1e-12, maxiter =1)))
   ## expect_warning(eeg_ica(data_blinks, method = fast_ICA2, config=list(eps = 1e-12, maxiter =1)))
-}
+})
 
-test_that("summaries work", {
+
+test_that("summaries work",{
+
   data_rec_default <- data_fast_ICA %>% eeg_ica_keep(ICA1, ICA2, ICA3)
   ica1 <- eeg_ica_show(data_fast_ICA, ICA1)
   ica2 <- eeg_ica_show(data_fast_ICA, ICA1, ICA2,ICA3)
-
   cors <- structure(list(.recording = c("recording1", "recording1", "recording1", "recording1", "recording1", "recording1"), EOG = c("Cz", "Fz", "Fz", "Cz", "Fz", "Cz"), .ICA = structure(c(2L, 3L, 2L, 3L, 1L, 1L), .Label = c("ICA1", "ICA2", "ICA3"), class = "factor"), cor = c(-0.854894402022447, -0.765208111591799, -0.643107011726606, -0.518101988618226, 0.0294943625487529, 0.0269423603363018)), row.names = c(NA, -6L), class = c("data.table", "data.frame"))
 
 
@@ -155,6 +156,7 @@ test_that("ica is a reversible", {
   ica1 <- eeg_ica_show(data_fast_ICA, ICA1)
   data_rec_default <- data_fast_ICA %>% eeg_ica_keep(ICA1, ICA2, ICA3)
   expect_equal(data_blinks, as_eeg_lst(data_rec_default))
+  expect_equal(data_blinks, as_eeg_lst(data_blinks))
   expect_equal(data_blinks$.signal, data_rec_default$.signal)
   expect_equal(data_blinks$.signal, data_rec$.signal)
   expect_equal(data_blinks$.signal, data_rec_m$.signal)

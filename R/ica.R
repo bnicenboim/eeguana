@@ -256,5 +256,5 @@ as_eeg_lst.eeg_ica_lst <- function(.data, ...) {
 }
 #' @export
 as_eeg_lst.eeg_lst <- function(.data, ...) {
-  validate_eeg_lst(eeg_lst)
+  validate_eeg_lst(.data)
 }
