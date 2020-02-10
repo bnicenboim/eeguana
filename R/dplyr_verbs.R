@@ -28,7 +28,7 @@
 #' 
 #' @return An eeg_lst object.
 #'
-#' @family dplyr functions
+#' @family tidyverse-like functions
 #'
 #' @name dplyr_verbs
 #'

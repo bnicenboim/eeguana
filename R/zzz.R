@@ -7,11 +7,11 @@ if (getRversion() >= "2.15.1") {
       "..cols_signal_temp", ".GRP", ".I", ".N", ".SD", ".lower", ".new_id", ".sid", ".upper", ".x", ".y",
       "BinaryFormat", "DataFile", "DataFormat", "DataOrientation", "L", "MarkerFile",
       "Mk_number=Type", "SamplingInterval", "V1", "V2", "amplitude",
-      "channel", "", "i..initial",
+      "channel", "", "i..initial","i..final","x..upper",
       "i..size", "lowerb", "mk", "n", "offset", "", ".recording", "resolution",
       "time", ".type", "value", "x..lower", "x..sample",
       "xmin", "xmax", "Event", ".key", ".value", ".time",
-      ".first_sample"
+      ".first_sample", ".ICA",".group"
     )
   )
 }

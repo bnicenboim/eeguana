@@ -121,7 +121,10 @@ read_vhdr <- function(file, sep = .type == "New Segment", zero = .type == "Time 
 #'
 #' @export
 read_ft <- function(file, layout = NULL, .recording = file) {
-require_pkg("R.matlab")
+  # to avoid no visible binding for global variable
+  type <- NULL
+  
+  require_pkg("R.matlab")
 
   # It should be based on this:
   # http://www.fieldtriptoolbox.org/reference/ft_datatype_raw

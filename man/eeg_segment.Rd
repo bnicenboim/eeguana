@@ -15,7 +15,7 @@ eeg_segment(.data, ..., lim = c(-0.5, 0.5), end, unit = "s")
 
 \item{end}{Description of the event that indicates the end of the segment, if this is used, \code{lim} is ignored.}
 
-\item{unit}{Unit}
+\item{unit}{"seconds" (or "s"), "milliseconds" (or "ms"), or samples.}
 }
 \value{
 An \code{eeg_lst}.

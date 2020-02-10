@@ -28,8 +28,9 @@ faces <- bind(faces_list)
  
 }
 \seealso{
-Other dplyr functions: 
+Other tidyverse-like functions: 
 \code{\link{dplyr_verbs}},
+\code{\link{drop_incomplete_segments}()},
 \code{\link{slice_signal}()}
 }
-\concept{dplyr functions}
+\concept{tidyverse-like functions}

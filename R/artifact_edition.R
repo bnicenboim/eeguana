@@ -1,10 +1,10 @@
-#' Detect artifacts and add them in the events table of an eeg_lst.
+#'  Detect artifacts and add them in the events table of an eeg_lst.
 #'
 #'  These functions search for artifacts on the signal table based on a threshold and a
-#'   sliding window (when relevant), and annotate an event in the events table that spans
-#'   from `-lim` to `+lim`. The signal table remains unchanged until [eeg_events_to_NA()].
-#'
-#'   `eeg_artif_minmax()`and `eeg_artif_step()` can be used to detect blinks and horizontal eye movements
+#'  sliding window (when relevant), and annotate an event in the events table that spans
+#'  from `-lim` to `+lim`. The signal table remains unchanged until [eeg_events_to_NA()].
+#'   
+#'  `eeg_artif_minmax()` and `eeg_artif_step()` can be used to detect blinks and horizontal eye movements
 #'  in the electro-oculographic (V/HEOG) channels or large voltage jumps in other channels.
 #'  For the EOG channels, a relatively low threshold (e.g., 30 µV) is recommended. For non EOG channels, a relatively high threshold (e.g., 100 µV) would be
 #'  more appropriate.
@@ -21,7 +21,6 @@
 #'
 #' @family artifact detection functions
 #' @family events functions
-#' @name eeg_artif
 #'
 #' @examples
 #' \dontrun{
@@ -33,7 +32,7 @@
 #' faces_clean <-  faces_seg_artif %>%
 #'    eeg_events_to_NA(.type == "artifact", entire_seg = TRUE, all_chans = FALSE, drop_events = TRUE)
 #' }
-#'
+#' @name eeg_artif
 NULL
 #' > NULL
 

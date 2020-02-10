@@ -121,6 +121,9 @@ nsamples.eeg_lst <- function(x, ...) {
 #' 
 #' @export
 summary.eeg_lst <- function(object, ...) {
+  # to avoid no visible binding for global variable
+  incomplete <- NULL
+  
   segments_with_incomp_col <- object %>%
     signal_tbl() %>%
     dplyr::select(-.sample) %>%
@@ -185,7 +188,6 @@ eeg_ica_cor_tbl.eeg_ica_lst <- function(.data, ...) {
   signal <- extended_signal(comps, ".recording")
   
   # new cols:
-  .ICA <- NULL
   cor <- NULL
 
   
@@ -226,6 +228,10 @@ eeg_ica_var_tbl <- function(.data, ..., max_sample =100000){
 
 #' @export
 eeg_ica_var_tbl.eeg_ica_lst <- function(.data, ..., max_sample =100000){
+  # to avoid no visible global function definition
+  var <- NULL
+  cor <- NULL
+  
 .data <- try_to_downsample(.data, max_sample=max_sample)
    m_v <- dplyr::group_by(.data, .recording) %>%   extended_signal() %>%
         split(by=".recording",keep.by = FALSE) %>%
@@ -268,7 +274,11 @@ eeg_ica_summary_tbl <- function(.data, ...){
 
 #' @export
 eeg_ica_summary_tbl.eeg_ica_lst <- function(.data, ..., max_sample =100000){
-  summ <- left_join_dt(eeg_ica_var_tbl(.data, max_sample=max_sample),
+ # to avoid no visible global function definition
+  var <- NULL
+  cor <- NULL
+  
+   summ <- left_join_dt(eeg_ica_var_tbl(.data, max_sample = max_sample),
                        eeg_ica_cor_tbl(.data,...), 
                by =c(".recording",".ICA")) %>%
     .[order(.recording,-var, -abs(cor))]
@@ -391,16 +401,22 @@ count_complete_cases_tbl.eeg_lst <- function(x, ...) {
     dplyr::count(!!!dots)
 }
 
-
+#' Drop segments with NAs from the eeg_lst
+#' 
+#' Drop segments with NAs from the eeg_lst.
+#' 
+#' @param x eeg_lst
+#' @returns An eeg_lst object
+#' @family tidyverse-like functions
 #' @export
 drop_incomplete_segments <- function(x) {
   UseMethod("drop_incomplete_segments")
 }
+
+#' @rdname drop_incomplete_segments
 #' @export
 drop_incomplete_segment.eeg_lst <- function(x) {
-
     x %>% dplyr::group_by(.id) %>%
-        filter_at(channel_names(.),
-            all_vars(all(!is.na(.))))
-  
+        dplyr::filter_at(channel_names(.),
+            dplyr::all_vars(all(!is.na(.))))
 }

@@ -75,9 +75,8 @@ An \code{eeg_lst}.
 These functions search for artifacts on the signal table based on a threshold and a
 sliding window (when relevant), and annotate an event in the events table that spans
 from \code{-lim} to \code{+lim}. The signal table remains unchanged until \code{\link[=eeg_events_to_NA]{eeg_events_to_NA()}}.
-}
-\details{
-\code{eeg_artif_minmax()}and \code{eeg_artif_step()} can be used to detect blinks and horizontal eye movements
+
+\code{eeg_artif_minmax()} and \code{eeg_artif_step()} can be used to detect blinks and horizontal eye movements
 in the electro-oculographic (V/HEOG) channels or large voltage jumps in other channels.
 For the EOG channels, a relatively low threshold (e.g., 30 µV) is recommended. For non EOG channels, a relatively high threshold (e.g., 100 µV) would be
 more appropriate.
@@ -92,7 +91,6 @@ faces_seg_artif <- faces_seg \%>\%
 faces_clean <-  faces_seg_artif \%>\%
    eeg_events_to_NA(.type == "artifact", entire_seg = TRUE, all_chans = FALSE, drop_events = TRUE)
 }
-
 }
 \seealso{
 Other events functions: 

@@ -23,8 +23,8 @@ Flexible manipulation of EEG data in R. It provides a data.table
 \seealso{
 Useful links:
 \itemize{
-  \item \url{<https://github.com/bnicenboim/eeguana>}
-  \item Report bugs at \url{<https://github.com/bnicenboim/eeguana/issues>}
+  \item \url{https://github.com/bnicenboim/eeguana}
+  \item Report bugs at \url{https://github.com/bnicenboim/eeguana/issues}
 }
 
 }

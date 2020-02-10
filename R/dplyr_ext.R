@@ -5,7 +5,7 @@
 #' @param ... `eeg_lst` objects to combine.
 #'
 #' @return An `eeg_lst` object.
-#' @family dplyr functions
+#' @family tidyverse-like functions
 #' @examples 
 #' \dontrun{
 #' 
@@ -76,7 +76,7 @@ bind <- function(...) {
 #' @param .data An eeg_lst object.
 #' @inheritParams dplyr::slice
 #' @param .preserve Not in use.
-#' @family dplyr functions
+#' @family tidyverse-like functions
 #'
 #' @export
 slice_signal <- function(.data, ..., .preserve = FALSE){
