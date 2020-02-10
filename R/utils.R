@@ -159,3 +159,9 @@ is_wholenumber <-  function(x, tol = .Machine$double.eps^0.5) {
     abs(x - round(x)) < tol | is.infinite(x) | is.na(x)
 
 }
+require_pkg <- function(pkg){
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    stop(paste0("Package '",pkg,"'  needed for this function to work. Please install it."),
+         call. = FALSE)
+  }
+}

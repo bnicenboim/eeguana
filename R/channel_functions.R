@@ -31,11 +31,12 @@ chs_mean.channel_dbl <- function(..., na.rm = FALSE) {
   dt_chs <- data.table::data.table(...)
   rowMeans_ch(dt_chs, na.rm = na.rm)
 }
-chs_mean.character <- function(..., na.rm = FALSE) {
-  dt_chs <- data.table::as.data.table(mget(..., envir = rlang::caller_env()))
-  print(dt_chs)
-  rowMeans_ch(dt_chs, na.rm = na.rm)
-}
+## This should work with tidyselect #115
+## chs_mean.character <- function(..., na.rm = FALSE) {
+##   dt_chs <- data.table::as.data.table(mget(..., envir = rlang::caller_env()))
+##   print(dt_chs)
+##   rowMeans_ch(dt_chs, na.rm = na.rm)
+## }
 #' @export
 chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
   # channels_info <- channels_tbl(x)
@@ -102,15 +103,7 @@ sel_ch <- function(data, ...) {
   }
   ch_sel
 }
-sel_comp <- function(data, ...) {
-  dots <- rlang::enquos(...)
-  if (rlang::is_empty(dots)) {
-    ch_sel <- component_names(data)
-  } else {
-    ch_sel <- tidyselect::vars_select(component_names(data), !!!dots)
-  }
-  ch_sel
-}
+
 
 #' Get the by-sample (or by-row) function of the specified channels.
 #'

@@ -128,6 +128,9 @@ validate_events_tbl <- function(events) {
   if (!is_events_tbl(events)) {
     warning("Class is not events_tbl", call. = FALSE)
   }
+  if(!all(obligatory_cols[[".events"]] %in% colnames(events))) {
+    warning("Missing tables in the events table, some functions may not work correctly", call. = FALSE)
+  }
   if (!data.table::is.data.table(events)) {
     warning("'events' should be a data.table.",
       call. = FALSE
@@ -139,12 +142,18 @@ validate_events_tbl <- function(events) {
       call. = FALSE
     )
   }
+  if (!is.character(events$.channel)) {
+    warning("Values of .channel should be characters (or NA_chararacter_)",
+            call. = FALSE
+    )
+  }
   if (!is_sample_int(events$.final)) {
     warning("Values of .final should be samples",
       call. = FALSE
     )
   }
-  if (any(events$.final < events$.initial)) {
+  if (is.numeric(events$.initial) && is.numeric(events$.final) &&
+      any(events$.final < events$.initial)) {
     warning("Values of .final should be larger than values of .initial",
       call. = FALSE
     )

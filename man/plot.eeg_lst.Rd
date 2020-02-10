@@ -45,12 +45,14 @@ plot(data_faces_ERPs) +
   coord_cartesian(ylim = c(-500, 500))
 }
 \seealso{
-Other plotting functions: \code{\link{annotate_events}},
-  \code{\link{annotate_head}},
-  \code{\link{eeg_downsample}},
-  \code{\link{ggplot.eeg_lst}},
-  \code{\link{plot_components}},
-  \code{\link{plot_in_layout}}, \code{\link{plot_topo}},
-  \code{\link{theme_eeguana}}
+Other plotting functions: 
+\code{\link{annotate_events}()},
+\code{\link{annotate_head}()},
+\code{\link{eeg_downsample}()},
+\code{\link{ggplot.eeg_lst}()},
+\code{\link{plot_components}()},
+\code{\link{plot_in_layout}()},
+\code{\link{plot_topo}()},
+\code{\link{theme_eeguana}()}
 }
 \concept{plotting functions}

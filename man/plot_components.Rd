@@ -19,20 +19,28 @@ plot_components(data, ..., projection = "polar", standardize = TRUE)
 Note that unlike \link{plot_topo}, there is no need for faceting, or adding layers.
 }
 \seealso{
-Other plotting functions: \code{\link{annotate_events}},
-  \code{\link{annotate_head}},
-  \code{\link{eeg_downsample}},
-  \code{\link{ggplot.eeg_lst}}, \code{\link{plot.eeg_lst}},
-  \code{\link{plot_in_layout}}, \code{\link{plot_topo}},
-  \code{\link{theme_eeguana}}
+Other plotting functions: 
+\code{\link{annotate_events}()},
+\code{\link{annotate_head}()},
+\code{\link{eeg_downsample}()},
+\code{\link{ggplot.eeg_lst}()},
+\code{\link{plot.eeg_lst}()},
+\code{\link{plot_in_layout}()},
+\code{\link{plot_topo}()},
+\code{\link{theme_eeguana}()}
 
-Other ICA functions: \code{\link{eeg_ica_cor_tbl}},
-  \code{\link{eeg_ica_keep}}, \code{\link{eeg_ica_show}},
-  \code{\link{eeg_ica_summary_tbl}},
-  \code{\link{eeg_ica_var_tbl}}, \code{\link{eeg_ica}}
+Other ICA functions: 
+\code{\link{eeg_ica_cor_tbl}()},
+\code{\link{eeg_ica_keep}()},
+\code{\link{eeg_ica_show}()},
+\code{\link{eeg_ica_summary_tbl}()},
+\code{\link{eeg_ica_var_tbl}()},
+\code{\link{eeg_ica}()}
 
-Other topographic plots and layouts: \code{\link{layout_32_1020}},
-  \code{\link{plot_in_layout}}, \code{\link{plot_topo}}
+Other topographic plots and layouts: 
+\code{\link{layout_32_1020}},
+\code{\link{plot_in_layout}()},
+\code{\link{plot_topo}()}
 }
 \concept{ICA functions}
 \concept{plotting functions}

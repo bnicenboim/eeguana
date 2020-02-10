@@ -12,7 +12,8 @@ data_faces_ERPs
 A dataset containing the ERPs elicited when one subject saw faces and non-faces objects. See also the vignette \href{https://bnicenboim.github.io/eeguana/articles/brainvision_files.html}{Introduction - Manipulating a clean EEG file exported from BrainVision 2.0}.
 }
 \seealso{
-Other EEG datasets: \code{\link{data_faces_10_trials}}
+Other EEG datasets: 
+\code{\link{data_faces_10_trials}}
 }
 \concept{EEG datasets}
 \keyword{datasets}

@@ -34,9 +34,12 @@ data_faces_ERPs_M1M2 <- data_faces_ERPs \%>\% eeg_rereference(ref = c("M1","M2")
 
 }
 \seealso{
-Other preprocessing functions: \code{\link{eeg_baseline}},
-  \code{\link{eeg_downsample}}, \code{\link{eeg_ica_keep}},
-  \code{\link{eeg_ica}}, \code{\link{eeg_segment}},
-  \code{\link{filt}}
+Other preprocessing functions: 
+\code{\link{eeg_baseline}()},
+\code{\link{eeg_downsample}()},
+\code{\link{eeg_ica_keep}()},
+\code{\link{eeg_ica}()},
+\code{\link{eeg_segment}()},
+\code{\link{filt}}
 }
 \concept{preprocessing functions}

@@ -23,15 +23,20 @@ This function shows the variance explained by each ICA component following the a
 If the dataset is large, this function can take very long to run. Setting a maximum number of samples (\code{max_sample}) will speed up the calculations by downsampling the data.
 }
 \seealso{
-Other ICA functions: \code{\link{eeg_ica_cor_tbl}},
-  \code{\link{eeg_ica_keep}}, \code{\link{eeg_ica_show}},
-  \code{\link{eeg_ica_summary_tbl}}, \code{\link{eeg_ica}},
-  \code{\link{plot_components}}
+Other ICA functions: 
+\code{\link{eeg_ica_cor_tbl}()},
+\code{\link{eeg_ica_keep}()},
+\code{\link{eeg_ica_show}()},
+\code{\link{eeg_ica_summary_tbl}()},
+\code{\link{eeg_ica}()},
+\code{\link{plot_components}()}
 
-Other summary functions: \code{\link{count_complete_cases_tbl}},
-  \code{\link{eeg_ica_cor_tbl}},
-  \code{\link{eeg_ica_summary_tbl}},
-  \code{\link{summaries}}, \code{\link{summary.eeg_lst}}
+Other summary functions: 
+\code{\link{count_complete_cases_tbl}()},
+\code{\link{eeg_ica_cor_tbl}()},
+\code{\link{eeg_ica_summary_tbl}()},
+\code{\link{summaries}},
+\code{\link{summary.eeg_lst}()}
 }
 \concept{ICA functions}
 \concept{summary functions}

@@ -169,6 +169,12 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
     }
     vars_dfs <- c(missing_grouped_vars, vars_dfs)
 
+    renamed_obligatory <- vars_dfs[names(vars_dfs)!=vars_dfs] %>%
+      intersect(obligatory_cols[[dfs]])
+    if(length(renamed_obligatory)>0){
+      warning("Trying to rename obligatory column(s): ", renamed_obligatory,
+              call. = FALSE)
+    }
     # by adding these, select won't remove the obligatory columns
     vars_dfs <- c(obligatory_cols[[dfs]], vars_dfs)
 
@@ -367,4 +373,13 @@ rename_sel_comp <- function(mixing, sel) {
       return(r)
     }
   })][]
+}
+sel_comp <- function(data, ...) {
+  dots <- rlang::enquos(...)
+  if (rlang::is_empty(dots)) {
+    ch_sel <- component_names(data)
+  } else {
+    ch_sel <- tidyselect::vars_select(component_names(data), !!!dots)
+  }
+  ch_sel
 }

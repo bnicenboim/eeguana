@@ -25,3 +25,4 @@ experimental
 ^vignettes\.*\.Rmd
 ^vignettes.*
 ^pkgdown.*
+^_pipeline.*

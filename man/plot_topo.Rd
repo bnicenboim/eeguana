@@ -87,16 +87,20 @@ data_faces_ERPs \%>\%
   facet_grid(~condition)
 }
 \seealso{
-Other plotting functions: \code{\link{annotate_events}},
-  \code{\link{annotate_head}},
-  \code{\link{eeg_downsample}},
-  \code{\link{ggplot.eeg_lst}}, \code{\link{plot.eeg_lst}},
-  \code{\link{plot_components}},
-  \code{\link{plot_in_layout}}, \code{\link{theme_eeguana}}
+Other plotting functions: 
+\code{\link{annotate_events}()},
+\code{\link{annotate_head}()},
+\code{\link{eeg_downsample}()},
+\code{\link{ggplot.eeg_lst}()},
+\code{\link{plot.eeg_lst}()},
+\code{\link{plot_components}()},
+\code{\link{plot_in_layout}()},
+\code{\link{theme_eeguana}()}
 
-Other topographic plots and layouts: \code{\link{layout_32_1020}},
-  \code{\link{plot_components}},
-  \code{\link{plot_in_layout}}
+Other topographic plots and layouts: 
+\code{\link{layout_32_1020}},
+\code{\link{plot_components}()},
+\code{\link{plot_in_layout}()}
 }
 \concept{plotting functions}
 \concept{topographic plots and layouts}

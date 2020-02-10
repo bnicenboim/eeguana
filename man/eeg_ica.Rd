@@ -2,16 +2,15 @@
 % Please edit documentation in R/ica.R
 \name{eeg_ica}
 \alias{eeg_ica}
-\title{EEG signal decomposition using Independent Component Analysis (ICA)
-
-This function returns an extended \code{eeg_lst}, \code{eeg_ica_lst}, with the mixing and unmixing
-matrix of every recording. It is possible to visualize the topography
-of the components with \code{\link[=plot_components]{plot_components()}}. In order to extract the amplitude of
-the components with respect to time use \code{\link[=eeg_ica_show]{eeg_ica_show()}}, see examples section. To remove the
-unwanted components, use \code{\link[=eeg_ica_keep]{eeg_ica_keep()}}.}
+\title{EEG signal decomposition using Independent Component Analysis (ICA)}
 \usage{
-eeg_ica(.data, ..., ignore = .type == "artifact", method = fast_ICA,
-  config = list())
+eeg_ica(
+  .data,
+  ...,
+  ignore = .type == "artifact",
+  method = fast_ICA,
+  config = list()
+)
 }
 \arguments{
 \item{.data}{An eeg_lst object}
@@ -30,22 +29,34 @@ and reference channels should be removed.}
 An eeg_ica_lst object
 }
 \description{
+This function returns an extended \code{eeg_lst}, \code{eeg_ica_lst}, with the mixing and unmixing
+matrix of every recording. It is possible to visualize the topography
+of the components with \code{\link[=plot_components]{plot_components()}}. In order to extract the amplitude of
+the components with respect to time use \code{\link[=eeg_ica_show]{eeg_ica_show()}}, see examples section. To remove the
+unwanted components, use \code{\link[=eeg_ica_keep]{eeg_ica_keep()}}.
+}
+\details{
 It is possible to also use a custom function in the \code{method} argument. The function should return
 a list that with \code{A} (mixing matrix), consistent with the formulation \code{X = S \%*\% A}, where X is matrix
 of N_samples by N_channels and/or \code{W} (unmixing matrix), consistent with the formulation \code{X \%*\% W = S}.
 Some packages with other ICA methods or implementations: \code{steadyICA} and \code{ica}.
 }
 \seealso{
-Other ICA functions: \code{\link{eeg_ica_cor_tbl}},
-  \code{\link{eeg_ica_keep}}, \code{\link{eeg_ica_show}},
-  \code{\link{eeg_ica_summary_tbl}},
-  \code{\link{eeg_ica_var_tbl}},
-  \code{\link{plot_components}}
+Other ICA functions: 
+\code{\link{eeg_ica_cor_tbl}()},
+\code{\link{eeg_ica_keep}()},
+\code{\link{eeg_ica_show}()},
+\code{\link{eeg_ica_summary_tbl}()},
+\code{\link{eeg_ica_var_tbl}()},
+\code{\link{plot_components}()}
 
-Other preprocessing functions: \code{\link{eeg_baseline}},
-  \code{\link{eeg_downsample}}, \code{\link{eeg_ica_keep}},
-  \code{\link{eeg_rereference}}, \code{\link{eeg_segment}},
-  \code{\link{filt}}
+Other preprocessing functions: 
+\code{\link{eeg_baseline}()},
+\code{\link{eeg_downsample}()},
+\code{\link{eeg_ica_keep}()},
+\code{\link{eeg_rereference}()},
+\code{\link{eeg_segment}()},
+\code{\link{filt}}
 }
 \concept{ICA functions}
 \concept{preprocessing functions}

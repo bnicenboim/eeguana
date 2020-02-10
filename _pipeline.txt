@@ -1,0 +1,4 @@
+#update the metadata:
+write_codemeta(".")
+spelling::spell_check_package()
+goodpractice:gp()

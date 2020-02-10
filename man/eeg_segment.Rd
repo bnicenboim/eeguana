@@ -15,7 +15,7 @@ eeg_segment(.data, ..., lim = c(-0.5, 0.5), end, unit = "s")
 
 \item{end}{Description of the event that indicates the end of the segment, if this is used, \code{lim} is ignored.}
 
-\item{unit}{Unit}
+\item{unit}{"seconds" (or "s"), "milliseconds" (or "ms"), or samples.}
 }
 \value{
 An \code{eeg_lst}.
@@ -27,9 +27,12 @@ segment "trials".) The limits of \code{segment} are inclusive: If, for
 example, \code{lim = c(0,0)}, the segment would contain only sample 1.
 }
 \seealso{
-Other preprocessing functions: \code{\link{eeg_baseline}},
-  \code{\link{eeg_downsample}}, \code{\link{eeg_ica_keep}},
-  \code{\link{eeg_ica}}, \code{\link{eeg_rereference}},
-  \code{\link{filt}}
+Other preprocessing functions: 
+\code{\link{eeg_baseline}()},
+\code{\link{eeg_downsample}()},
+\code{\link{eeg_ica_keep}()},
+\code{\link{eeg_ica}()},
+\code{\link{eeg_rereference}()},
+\code{\link{filt}}
 }
 \concept{preprocessing functions}

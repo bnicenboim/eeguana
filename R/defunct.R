@@ -53,7 +53,6 @@ event_to_ch_NA <- function(x, ...) {
 #' @export
 eeg_intervals_to_NA <- function(x, ...) {
   .Defunct("eeg_events_to_NA")
-  UseMethod("eeg_events_to_NA")
 }
 #' @rdname defunct
 #' @inheritParams eeg_filt_low_pass
@@ -111,18 +110,6 @@ summarize_all_ch <- function(x, ...) {
 #' @keywords internal
 #' @export
 summarize_at_ch <- function(x, ...) {
-  .Defunct("summarize_at")
-}
-#' @rdname defunct
-#' @keywords internal
-#' @export
-summarise_all_ch <- function(x, ...) {
-  .Defunct("summarize_at")
-}
-#' @rdname defunct
-#' @keywords internal
-#' @export
-summarise_at_ch <- function(x, ...) {
   .Defunct("summarize_at")
 }
 #' @rdname defunct

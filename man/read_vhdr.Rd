@@ -4,8 +4,12 @@
 \alias{read_vhdr}
 \title{Read a BrainVision file into R}
 \usage{
-read_vhdr(file, sep = .type == "New Segment", zero = .type == "Time 0",
-  .recording = file)
+read_vhdr(
+  file,
+  sep = .type == "New Segment",
+  zero = .type == "Time 0",
+  .recording = file
+)
 }
 \arguments{
 \item{file}{A vhdr file in a folder that contains a .vmrk and .dat files}
@@ -40,7 +44,8 @@ faces <- bind(faces_list)
  
 }
 \seealso{
-Other reading functions: \code{\link{read_edf}},
-  \code{\link{read_ft}}
+Other reading functions: 
+\code{\link{read_edf}()},
+\code{\link{read_ft}()}
 }
 \concept{reading functions}

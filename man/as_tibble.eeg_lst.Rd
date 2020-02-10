@@ -24,6 +24,7 @@ A \code{\link[tibble:tibble]{tibble}}
 Convert the signal_tbl table from wide to long format.
 }
 \seealso{
-Other tibble: \code{\link{as.data.frame.eeg_lst}}
+Other tibble: 
+\code{\link{as.data.frame.eeg_lst}()}
 }
 \concept{tibble}

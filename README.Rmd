@@ -42,18 +42,20 @@ Here, I exemplify the use of *eeguana* with (pre-processed) EEG data from BrainV
 
 First we download the data:
 
-```{r downloading, eval = any(!file.exists("faces.dat","faces.vmrk","faces.dat"))}
-download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.vhdr",
-  "faces.vhdr",
-  mode = "wb"
+```{r downloading, results='hide', eval = any(!file.exists("faces.vhdr","faces.vmrk","faces.dat"))}
+# Run the following or just download the files from brain_vision folder in https://osf.io/tbwvz/
+library(httr)
+GET("https://osf.io/q6b7x//?action=download",
+  write_disk("./faces.vhdr", overwrite = TRUE),
+  progress()
 )
-download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.vmrk",
-  "faces.vmrk",
-  mode = "wb"
+GET("https://osf.io/ft5ge//?action=download",
+  write_disk("./faces.vmrk", overwrite = TRUE),
+  progress()
 )
-download.file("https://www.ling.uni-potsdam.de/~nicenboim/files/faces.dat",
-  "faces.dat",
-  mode = "wb"
+GET("https://osf.io/85dgj//?action=download",
+  write_disk("./faces.dat", overwrite = TRUE),
+  progress()
 )
 ```
 

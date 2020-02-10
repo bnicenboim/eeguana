@@ -13,12 +13,11 @@ NULL
 
 #' Convenience function for range subsets
 #'
-#' `between` is a thin wrapper for the between function of [`data.table`][data.table::between]. 
+#' `between` is a thin wrapper for the between function of [data.table::between]. 
 #' It is equivalent to x >= lower & x <= upper when incbounds=TRUE, or x > lower & y < upper when FALSE. In comparison
 #' with [dplyr::between], it doesn't loose the class of its argument, and it's more appropiate for manipulating 
-#' the column `.sample`.
+#' the column `.sample`. For more information and the description of the arguments, see [data.table::between].
 #' @name between
-#' @inheritParams  data.table::between
 #' @importFrom data.table between
 #' 
 #' @examples 

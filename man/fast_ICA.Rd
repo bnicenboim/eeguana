@@ -4,9 +4,18 @@
 \alias{fast_ICA}
 \title{Wrapper for FastICA method for Independent Component Analysis from fastICA package}
 \usage{
-fast_ICA(X, n.comp = NULL, alg.typ = "parallel", fun = "logcosh",
-  alpha = 1, method = "C", row.norm = FALSE, maxit = 1000,
-  tol = 1e-06, w.init = NULL)
+fast_ICA(
+  X,
+  n.comp = NULL,
+  alg.typ = "parallel",
+  fun = "logcosh",
+  alpha = 1,
+  method = "C",
+  row.norm = FALSE,
+  maxit = 1000,
+  tol = 1e-06,
+  w.init = NULL
+)
 }
 \arguments{
 \item{X}{A matrix or data frame.}
@@ -55,6 +64,7 @@ N_samples by N_channels, and S is a matrix of sources with N_samples by N_source
 They are meant to be  used with \code{\link[=eeg_ica]{eeg_ica()}}.
 }
 \seealso{
-Other ica methods: \code{\link{fICA}}
+Other ica methods: 
+\code{\link{fICA}}
 }
 \concept{ica methods}

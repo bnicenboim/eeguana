@@ -214,7 +214,7 @@ plot_components.eeg_ica_lst <- function(data,...,projection = "polar",standardiz
   comp_sel <- sel_comp(data,...)
   channels_tbl(data) <- change_coord(channels_tbl(data), projection)
   ## TODO: move to data.table, ignore group, just do it by .recording
-  long_table <- map_dtr(data$ica, ~ {
+  long_table <- map_dtr(data$.ica, ~ {
     dt <- .x$mixing_matrix[comp_sel,, drop=FALSE] %>%
       data.table::as.data.table(keep.rownames = TRUE) 
     dt[, .ICA := factor(rn, levels = rn)][ , rn := NULL][]
@@ -259,8 +259,23 @@ plot_ica.eeg_ica_lst <- function(data,
                                  order = c("var","cor"),
                                  max_sample =2400,
                                  topo_config = list(projection = "polar",standardize= TRUE),
-                                 interp_config =list(...)) {
-warning("This is an experimental function, and it might change or dissapear in the future. (Or it might be transformed into a shinyapp)")
+                                 interp_config =list()) {
+# to avoid no visible binding for global variable
+  cor <- NULL
+  var <- NULL
+  EOG <- NULL
+  cor_t <- NULL
+  pvar_t <- NULL
+  text <- NULL
+  x <- NULL
+  y <- NULL
+  type <- NULL
+  .group <- NULL
+  i..final <- NULL
+  x..upper <- NULL
+  incomplete <- NULL
+  
+  warning("This is an experimental function, and it might change or dissapear in the future. (Or it might be transformed into a shinyapp)")
   #first filter then this is applied:
   if(!is.null(.recording)){
     data <- dplyr::filter(data, .recording == .recording)
@@ -280,6 +295,7 @@ warning("This is an experimental function, and it might change or dissapear in t
   sum <- eeg_ica_summary_tbl(data %>% eeg_filt_band_pass(eog, freq = c(.1, 30)),eog) 
   data.table::setorderv(sum, order, order = -1)
   ICAs <- unique(sum$.ICA)[components] 
+  
   sum <- sum[.ICA %in% ICAs]
   
   new_data <- data %>% 
@@ -310,10 +326,10 @@ warning("This is an experimental function, and it might change or dissapear in t
     dplyr::mutate(.ICA = factor(.ICA, levels = .$.ICA))
   
   topo <-    topo + 
-    ggplot2::geom_text(data=c_text, aes(label=text,x=x,y=y), inherit.aes=FALSE) + 
+    ggplot2::geom_text(data=c_text, ggplot2::aes(label=text,x=x,y=y), inherit.aes=FALSE) + 
     ggplot2::coord_cartesian(clip=FALSE) + 
-    facet_wrap(~.ICA, ncol=4) +
-    theme(strip.text=element_text(size=12))
+    ggplot2::facet_wrap(~.ICA, ncol=4) +
+    ggplot2::theme(strip.text=ggplot2::element_text(size=12))
   
   topo$layers[[5]] <- NULL
   
@@ -612,7 +628,7 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
   chs <- list(unique(as.character(plot$data$.key)))
   events_tbl[, .key := lapply(.channel, function(x) as.character(x))]
   events_tbl[is.na(.channel), .key := list(rep(chs, .N))]
-  events_tbl <- tidyr::unnest(events_tbl)
+  events_tbl <- unnest_dt(events_tbl, .key)
 
   events_tbl[, .key := factor(.key, levels = levels(plot$data$.key))]
 

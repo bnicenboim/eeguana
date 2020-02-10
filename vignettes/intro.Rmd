@@ -32,16 +32,20 @@ Here, I exemplify the use of *eeguana* with raw EEG data exported in the format 
 
 First we download the data:
 
-```{r downloading, eval=any(!file.exists(c("s1_faces.vhdr","s1_faces.vmrk","s1_faces.eeg"))), cache=TRUE, include=TRUE}
-
-download.file("http://www.ling.uni-potsdam.de/~nicenboim/files/s1_faces.vhdr",
-  mode = "wb", destfile = "./s1_faces.vhdr"
+```{r downloading, eval=any(!file.exists(c("s1_faces.vhdr","s1_faces.vmrk","s1_faces.eeg"))), cache=TRUE, include=TRUE, results='hide'}
+# Run the following or just download the files from raw_faces folder in https://osf.io/tbwvz/
+library(httr)
+GET("https://osf.io/wv5hp//?action=download",
+  write_disk("./s1_faces.vhdr", overwrite = TRUE), 
+  progress()
 )
-download.file("http://www.ling.uni-potsdam.de/~nicenboim/files/s1_faces.vmrk",
-  mode = "wb", destfile = "./s1_faces.vmrk"
+GET("https://osf.io/c8wea//?action=download",
+  write_disk("./s1_faces.vmrk", overwrite = TRUE), 
+  progress()
 )
-download.file("http://www.ling.uni-potsdam.de/~nicenboim/files/s1_faces.eeg",
-  mode = "wb", destfile = "./s1_faces.eeg"
+GET("https://osf.io/uhsde//?action=download",
+  write_disk("./s1_faces.eeg", overwrite = TRUE), 
+  progress()
 )
 ```
 

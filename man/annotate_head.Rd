@@ -31,11 +31,14 @@ data_faces_ERPs \%>\%
   annotate_head(size = .9, color = "black", stroke = 1)
 }
 \seealso{
-Other plotting functions: \code{\link{annotate_events}},
-  \code{\link{eeg_downsample}},
-  \code{\link{ggplot.eeg_lst}}, \code{\link{plot.eeg_lst}},
-  \code{\link{plot_components}},
-  \code{\link{plot_in_layout}}, \code{\link{plot_topo}},
-  \code{\link{theme_eeguana}}
+Other plotting functions: 
+\code{\link{annotate_events}()},
+\code{\link{eeg_downsample}()},
+\code{\link{ggplot.eeg_lst}()},
+\code{\link{plot.eeg_lst}()},
+\code{\link{plot_components}()},
+\code{\link{plot_in_layout}()},
+\code{\link{plot_topo}()},
+\code{\link{theme_eeguana}()}
 }
 \concept{plotting functions}

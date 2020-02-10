@@ -7,8 +7,7 @@
 \usage{
 as_sample_int(x, ...)
 
-\method{as_sample_int}{numeric}(x, sampling_rate = NULL, unit = "s",
-  ...)
+\method{as_sample_int}{numeric}(x, sampling_rate = NULL, unit = "s", ...)
 }
 \arguments{
 \item{x}{A vector of numeric values.}

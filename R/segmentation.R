@@ -7,10 +7,9 @@
 #'
 #' @param .data An `eeg_lst` object.
 #' @param ... Description of the event.
-#' @param unit Unit
+#' @param unit "seconds" (or "s"), "milliseconds" (or "ms"), or samples.
 #' @param lim Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments
 #' @param end Description of the event that indicates the end of the segment, if this is used, `lim` is ignored.
-#' @inheritParams as_time
 #' @family preprocessing functions
 #'
 #' @return An `eeg_lst`.
@@ -22,6 +21,9 @@ eeg_segment <- function(.data, ..., lim = c(-.5, .5), end, unit = "s") {
 }
 #' @export
 eeg_segment.eeg_lst <- function(.data, ..., lim = c(-.5, .5), end, unit = "s") {
+  #to avoid no visible binding for global variable
+  first_sample <- NULL
+  
   dots <- rlang::enquos(...)
   end <- rlang::enquo(end)
 
@@ -59,7 +61,8 @@ eeg_segment.eeg_lst <- function(.data, ..., lim = c(-.5, .5), end, unit = "s") {
   } else if (rlang::quo_is_missing(end)) {
     stop("Wrong dimension of lim")
   } else if (!rlang::quo_is_missing(end)) {
-    
+    # to avoid no visible binding for global variable
+        .zero <- NULL
 #          warning(sprintf("Number of initial markers (%d) doesn't match the number of final markers (%d)", nrow(times0), nrow(times_end)))
           times0 <- dplyr::mutate(times0,.zero=TRUE)
           times_end <- dplyr::mutate(times_end,.zero=FALSE) 

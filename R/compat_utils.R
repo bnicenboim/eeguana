@@ -1,34 +1,4 @@
-.onLoad <- function(libname, pkgname) {
-  register_s3_method("dplyr", "group_by", "eeg_lst")
-  register_s3_method("dplyr", "groups", "eeg_lst")
-  register_s3_method("dplyr", "group_vars", "eeg_lst")
-  register_s3_method("dplyr", "ungroup", "eeg_lst")
-  register_s3_method("dplyr", "tbl_vars", "eeg_lst")
 
-  register_s3_method("dplyr", "filter", "eeg_lst")
-  register_s3_method("dplyr", "filter", "eeg_ica_lst")
-  register_s3_method("dplyr", "summarise", "eeg_lst")
-  register_s3_method("dplyr", "mutate", "eeg_lst")
-  register_s3_method("dplyr", "transmute", "eeg_lst")
-  register_s3_method("dplyr", "select", "eeg_lst")
-  register_s3_method("dplyr", "rename", "eeg_lst")
-
-  register_s3_method("dplyr", "left_join", "eeg_lst")
-  register_s3_method("dplyr", "semi_join", "eeg_lst")
-  register_s3_method("dplyr", "anti_join", "eeg_lst")
-  register_s3_method("dplyr", "as_tibble", "eeg_lst")
-
-  register_s3_method("dplyr", "filter", "events_tbl")
-  register_s3_method("dplyr", "mutate", "events_tbl")
-  register_s3_method("dplyr", "transmute", "events_tbl")
-  register_s3_method("dplyr", "summarise", "events_tbl")
-  register_s3_method("dplyr", "as_data_frame", "eeg_lst")
-  register_s3_method("ggplot2", "ggplot", "eeg_lst")
-  register_s3_method("ggplot2", "ggplot_add", "layer_events")
-  register_s3_method("data.table", "as.data.table", "eeg_lst")
-
-  invisible()
-}
 
 register_s3_method <- function(pkg, generic, class, fun = NULL) {
   stopifnot(is.character(pkg), length(pkg) == 1)

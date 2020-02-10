@@ -4,8 +4,15 @@
 \alias{eeg_downsample}
 \title{Downsample EEG data}
 \usage{
-eeg_downsample(.data, q = 2, max_sample = NULL, n = if (ftype ==
-  "iir") 8 else 30, ftype = "iir", multiple_times = FALSE, ...)
+eeg_downsample(
+  .data,
+  q = 2,
+  max_sample = NULL,
+  n = if (ftype == "iir") 8 else 30,
+  ftype = "iir",
+  multiple_times = FALSE,
+  ...
+)
 }
 \arguments{
 \item{.data}{An eeg_lst object.}
@@ -34,17 +41,23 @@ the downsampling can be done in steps. For example, instead of setting
 \code{q = 20}, it is possible to set \code{q = c(2,10)}.
 }
 \seealso{
-Other preprocessing functions: \code{\link{eeg_baseline}},
-  \code{\link{eeg_ica_keep}}, \code{\link{eeg_ica}},
-  \code{\link{eeg_rereference}}, \code{\link{eeg_segment}},
-  \code{\link{filt}}
+Other preprocessing functions: 
+\code{\link{eeg_baseline}()},
+\code{\link{eeg_ica_keep}()},
+\code{\link{eeg_ica}()},
+\code{\link{eeg_rereference}()},
+\code{\link{eeg_segment}()},
+\code{\link{filt}}
 
-Other plotting functions: \code{\link{annotate_events}},
-  \code{\link{annotate_head}},
-  \code{\link{ggplot.eeg_lst}}, \code{\link{plot.eeg_lst}},
-  \code{\link{plot_components}},
-  \code{\link{plot_in_layout}}, \code{\link{plot_topo}},
-  \code{\link{theme_eeguana}}
+Other plotting functions: 
+\code{\link{annotate_events}()},
+\code{\link{annotate_head}()},
+\code{\link{ggplot.eeg_lst}()},
+\code{\link{plot.eeg_lst}()},
+\code{\link{plot_components}()},
+\code{\link{plot_in_layout}()},
+\code{\link{plot_topo}()},
+\code{\link{theme_eeguana}()}
 }
 \concept{plotting functions}
 \concept{preprocessing functions}

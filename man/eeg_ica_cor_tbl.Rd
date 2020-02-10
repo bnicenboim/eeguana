@@ -18,16 +18,20 @@ A table with the correlations between each component and each EOG channel in eac
 Show correlations between ICA sources and eye (EOG) electrodes.
 }
 \seealso{
-Other ICA functions: \code{\link{eeg_ica_keep}},
-  \code{\link{eeg_ica_show}},
-  \code{\link{eeg_ica_summary_tbl}},
-  \code{\link{eeg_ica_var_tbl}}, \code{\link{eeg_ica}},
-  \code{\link{plot_components}}
+Other ICA functions: 
+\code{\link{eeg_ica_keep}()},
+\code{\link{eeg_ica_show}()},
+\code{\link{eeg_ica_summary_tbl}()},
+\code{\link{eeg_ica_var_tbl}()},
+\code{\link{eeg_ica}()},
+\code{\link{plot_components}()}
 
-Other summary functions: \code{\link{count_complete_cases_tbl}},
-  \code{\link{eeg_ica_summary_tbl}},
-  \code{\link{eeg_ica_var_tbl}}, \code{\link{summaries}},
-  \code{\link{summary.eeg_lst}}
+Other summary functions: 
+\code{\link{count_complete_cases_tbl}()},
+\code{\link{eeg_ica_summary_tbl}()},
+\code{\link{eeg_ica_var_tbl}()},
+\code{\link{summaries}},
+\code{\link{summary.eeg_lst}()}
 }
 \concept{ICA functions}
 \concept{summary functions}
