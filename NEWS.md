@@ -1,8 +1,8 @@
 # eeguana 0.1.2.9000
   - Changes:
-  - `drop_incomplete_segments()` added.
-  - More tests.
-  - Some minor bugs fixed.
+    - `drop_incomplete_segments()` added.
+    - More unit tests.
+    - Some minor bugs fixed.
 
 # eeguana 0.1.1.9000
   - Changes:
