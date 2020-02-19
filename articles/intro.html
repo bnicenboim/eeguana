@@ -95,7 +95,7 @@
       <h1>Introduction - Preprocessing and visualization of EEG data.</h1>
                         <h4 class="author">Bruno Nicenboim</h4>
             
-            <h4 class="date">2020-02-10</h4>
+            <h4 class="date">2020-02-19</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bnicenboim/eeguana/blob/master/vignettes/intro.Rmd"><code>vignettes/intro.Rmd</code></a></small>
       <div class="hidden name"><code>intro.Rmd</code></div>
@@ -326,7 +326,7 @@
 <a class="sourceLine" id="cb11-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/eeguana/man/eeg_ica.html">eeg_ica</a></span>(<span class="op">-</span>HEOG, <span class="op">-</span>VEOG, <span class="op">-</span>M1, <span class="op">-</span>M2, <span class="dt">method =</span> adapt_fast_ICA, <span class="dt">ignore =</span> .type <span class="op">==</span><span class="st"> "artifact"</span>)</a>
 <a class="sourceLine" id="cb11-4" data-line-number="4"><span class="co">#&gt; # ICA is being done using adapt_fast_ICA...</span></a>
 <a class="sourceLine" id="cb11-5" data-line-number="5"><span class="co">#&gt; # 97% of the samples will be used.</span></a>
-<a class="sourceLine" id="cb11-6" data-line-number="6"><span class="co">#&gt; # ICA took 3 mins</span></a></code></pre></div>
+<a class="sourceLine" id="cb11-6" data-line-number="6"><span class="co">#&gt; # ICA took 3.17 mins</span></a></code></pre></div>
 <p>We can now check the different topographic plots of the ICAs with <code><a href="https://rdrr.io/pkg/eeguana/man/plot_components.html">plot_components()</a></code>, and their correlation with the EOG channels looking a the summary of the object.</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">faces_ica <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/eeguana/man/plot_components.html">plot_components</a></span>()</a></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-9-1.png" width="100%"></p>
