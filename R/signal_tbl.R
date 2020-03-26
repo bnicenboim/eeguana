@@ -16,7 +16,7 @@
 #'
 #' @return A valid `signal_tbl`.
 #' @noRd
-new_signal_tbl <- function(.id = NULL, .sample = NULL, signal_matrix = NULL, channels_tbl = NULL) {
+new_signal_tbl <- function(.id = integer(0), .sample = integer(0), signal_matrix = NULL, channels_tbl = NULL) {
   if (!data.table::is.data.table(signal_matrix)) {
     signal_matrix <- data.table::data.table(signal_matrix)
   }
@@ -57,7 +57,7 @@ as_signal_tbl.data.frame <- function(.data) {
 
 #' @noRd
 as_signal_tbl.NULL <- function(.data) {
-  .data <- data.table::data.table(.id = integer(0), .sample = integer(0))
+  .data <- data.table::data.table(.id = integer(0), .sample = sample_int(integer(0), integer(0)))
   as_signal_tbl(.data)
 }
 #' @param signal_tbl
@@ -94,7 +94,7 @@ validate_signal_tbl <- function(signal_tbl) {
 
   ## Validates .sample
   if (!is_sample_int(signal_tbl$.sample)) {
-    warning("Values of .initial should be samples",
+    warning("Values of .sample should be samples",
       call. = FALSE
     )
   }

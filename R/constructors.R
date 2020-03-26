@@ -67,7 +67,11 @@ eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, c
   } else {
     events_tbl <- validate_events_tbl(events_tbl)
   }
+  if (is.null(segments_tbl)) {
+    segments_tbl <- dplyr::tibble(.id = unique(signal_tbl$.id), .recording = NA_character_)
+  }
   segments_tbl <- validate_segments(segments_tbl)
+  
   validate_eeg_lst(x = new_eeg_lst(
     .signal = signal_tbl,
     .events = events_tbl,
