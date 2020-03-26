@@ -273,7 +273,7 @@ read_ft <- function(file, layout = NULL, .recording = file) {
 #' 
 #' Creates an eeg_lst object from edf, edf+, and bdf file export formats.
 #'
-#' When trigger information is stored in a "Status" channel, the trigger value is stored only when the value of the channel increases. This follows the default behavior of [find_events in MNE 0.18](https://mne.tools/0.18/generated/mne.find_events.html?highlight=find_events#mne.find_events). If you have a case where this assumption is incorrect, please open an issue in [https://github.com/bnicenboim/eeguana/issues].
+#' When trigger information is stored in a "Status" or "Trigger" channel, the trigger value is stored only when the value of the channel increases. This follows the default behavior of [find_events in MNE 0.18](https://mne.tools/0.18/generated/mne.find_events.html?highlight=find_events#mne.find_events). If you have a case where this assumption is incorrect, please open an issue in [https://github.com/bnicenboim/eeguana/issues].
 #' 
 #'
 #' @param file A edf/bdf file
@@ -312,8 +312,8 @@ read_edf <- function(file, .recording = file, samples = c(1, Inf)) {
   signal_edf <- edfReader::readEdfSignals(header_edf, from = times[1], till = times[2], simplify = FALSE)
 
   non_signal <- purrr::map_lgl(signal_edf, ~ .x$isAnnotation |
-                                           .x$label == "Status" |
-                                           .x$name == "Status")
+                                           tolower(.x$label) %in% c("status", "trigger") |
+                                           tolower(.x$name) %in% c("status", "trigger"))
 
   if(sum(non_signal)>=2){
     warning("eeguana cannot deal with more than one annotation or status. It will use the first one.\n If you have a file like that, please open an issue in ", url_issues, " with a link to the offending file")

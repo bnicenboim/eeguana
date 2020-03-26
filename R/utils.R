@@ -154,14 +154,23 @@ message_obj <- function(msg, obj) {
   }), collapse = "\n")
   paste0(msg, "\n", outp, "\n")
 }
-
+#' @noRd
 is_wholenumber <-  function(x, tol = .Machine$double.eps^0.5) {
     abs(x - round(x)) < tol | is.infinite(x) | is.na(x)
 
 }
+#' @noRd
 require_pkg <- function(pkg){
   if (!requireNamespace(pkg, quietly = TRUE)) {
     stop(paste0("Package '",pkg,"'  needed for this function to work. Please install it."),
          call. = FALSE)
   }
 }
+
+#' @noRd
+`%||%` <- function (x, y) {
+  if (is.null(x) || length(x)==0)
+  y
+  else x
+}
+

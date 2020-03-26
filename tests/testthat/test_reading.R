@@ -84,8 +84,13 @@ test_that("edf and bdf files match", {
   expect_equal(edf_test, bdf_test, tolerance = .1)
 })
 
-bdf_test <- read_edf(file = system.file("testdata", "Newtest17-256.bdf", package = "eeguana"), .recording = "bdf")
+test_that("bdf  match the bdf created by MNE", {
+  bdf_file <- system.file("testdata", "Newtest17-256.bdf", package = "eeguana")
+  mne_bdf <- eeguana:::mne_bdf
+  bdf <- read_edf(file = bdf_file, .recording = "bdf")
 
+  expect_equal(bdf, mne_bdf)
+})
 
 ## segmented
 seged_ascii <- multiplexed_ascii_bv2 %>% eeg_segment(.description %in% c("s10", "s11", "s12"), lim = c(0, .499))
