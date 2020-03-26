@@ -272,11 +272,14 @@ read_ft <- function(file, layout = NULL, .recording = file) {
 #' Read an edf/edf+/bdf file into R
 #' 
 #' Creates an eeg_lst object from edf, edf+, and bdf file export formats.
+#'
+#' When trigger information is stored in a "Status" channel, the trigger value is stored only when the value of the channel increases. This follows the default behavior of [find_events in MNE 0.18](https://mne.tools/0.18/generated/mne.find_events.html?highlight=find_events#mne.find_events). If you have a case where this assumption is incorrect, please open an issue in [https://github.com/bnicenboim/eeguana/issues].
 #' 
 #'
 #' @param file A edf/bdf file
-#' @param .recording .Recording name (file name, by default). If set to NULL or NA, the patient name will be used.
-#'
+#' @param .recording Recording name (file name, by default). If set to NULL or NA, the patient name will be used.
+#' @param samples Whether to subset the reading; by default starting from sample 1  until the end of the recording.
+#' 
 #' @return An `eeg_lst` object.
 #' 
 #' @examples 
@@ -285,8 +288,7 @@ read_ft <- function(file, layout = NULL, .recording = file) {
 #' @family reading functions
 #'
 #' @export
-read_edf <- function(file, .recording = file) {
-  
+read_edf <- function(file, .recording = file, samples = c(1, Inf)) {
   if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
   
   header_edf <- edfReader::readEdfHeader(file)  
@@ -296,28 +298,33 @@ read_edf <- function(file, .recording = file) {
       stop("Patient information is missing.")
     }
   }
-  signal_edf <- edfReader::readEdfSignals(header_edf)
-  if(header_edf$nSignals == 1) {
-    signal_edf <- list(signal_edf) %>% #convert to list for compatibility
-                stats::setNames(header_edf$sHeaders[[1]])
-  }
-  if(is.list(signal_edf))
-  annot_item <- purrr::map_lgl(signal_edf, ~ .x$isAnnotation)
-  if(sum(annot_item)>=2){
-    stop("eeguana cannot read a file with more than one annotation. Please open an issue in ", url_issues)
-  }
-  l_annot <- signal_edf[annot_item]
-  channel_names <- header_edf$sHeaders$label[!annot_item]
-
-  signal_edf[annot_item] <- NULL
-  signal_dt <- purrr::map(signal_edf, ~.x$signal) %>% 
-                data.table::as.data.table()
-  sampling_rate <- purrr::map_dbl(signal_edf, ~.x$sRate) %>% 
-                  unique() 
+  sampling_rate <-  header_edf$sHeaders$sRate %>%
+    .[!is.na(.)] %>%
+    unique()
   if(length(sampling_rate)>1) {
     stop("Channels with different sampling rates are not supported.")
-  }  
-  
+  }
+
+  # so that includes the last sample as well
+  times <- sample_int(c(samples[1], samples[2] + 1), sampling_rate =sampling_rate) %>%
+    as_time()
+
+  signal_edf <- edfReader::readEdfSignals(header_edf, from = times[1], till = times[2], simplify = FALSE)
+
+  non_signal <- purrr::map_lgl(signal_edf, ~ .x$isAnnotation |
+                                           .x$label == "Status" |
+                                           .x$name == "Status")
+
+  if(sum(non_signal)>=2){
+    warning("eeguana cannot deal with more than one annotation or status. It will use the first one.\n If you have a file like that, please open an issue in ", url_issues, " with a link to the offending file")
+  }
+  event_channel <- signal_edf[non_signal]
+  channel_names <- header_edf$sHeaders$label[!non_signal]
+
+  signal_edf[non_signal] <- NULL
+
+  signal_dt <- lapply_dtc(signal_edf, function(x) x$signal)
+
   if(header_edf$isContinuous && all(purrr::map_lgl(signal_edf, ~.x$isContinuous)) ) {
     s_id <- rep(1L,nrow(signal_dt))
     sample_id <- sample_int(seq_len(nrow(signal_dt)),sampling_rate = sampling_rate)
@@ -331,21 +338,42 @@ read_edf <- function(file, .recording = file) {
   signal <- new_signal_tbl(signal_matrix = signal_dt,.id = s_id,
                       .sample = sample_id, 
                       channels_tbl = channel_info)
-  if(length(l_annot)==0){
-      events <- new_events_tbl(, sampling_rate = sampling_rate)
-  } else {
-      edf_events <- l_annot[[1]]$annotations
-      desc <- data.table::data.table(.type = NA, .description = edf_events[["annotation"]] )
-      init_events <- sample_int(round(edf_events$onset * sampling_rate) + 1L , sampling_rate = sampling_rate)
+  if(length(event_channel)==0){
+      events <- new_events_tbl(sampling_rate = sampling_rate)
+  } else if (event_channel[[1]]$isAnnotation){
+
+    edf_events <- event_channel[[1]]$annotations
+    desc <- data.table::data.table(.type = NA, .description = edf_events[["annotation"]] )
+    init_events <- sample_int(round(edf_events$onset * sampling_rate) + 1L , sampling_rate = sampling_rate)
     events <- new_events_tbl(.id=1L, 
                              .initial = init_events,
-                         descriptions_dt = desc, 
-                         .final = ( dplyr::case_when(!is.na(edf_events$duration) ~
-                                                      round(edf_events$duration* sampling_rate),
-                                                   !is.na(edf_events$end) ~
-                                                       round((edf_events$end - edf_events$onset + 1)* sampling_rate),
-                                                   TRUE ~ 0) %>% as.integer() ) +init_events,
-                                     .channel= NA_character_)
+                             descriptions_dt = desc, 
+                             .final = ( dplyr::case_when(!is.na(edf_events$duration) ~
+                                                           round(edf_events$duration* sampling_rate),
+                                                         !is.na(edf_events$end) ~
+                                                           round((edf_events$end - edf_events$onset + 1)* sampling_rate),
+                                                         TRUE ~ 0) %>% as.integer() ) +init_events,
+                             .channel= NA_character_)
+  } else {
+    ## Biosemi devices trigger codes are encoded in 16-bit format, whereas system
+    ## codes (CMS in/out-of range, battery low, etc.) are coded in bits 16-23 of
+    ## the status channel (see http://www.biosemi.com/faq/trigger_signals.htm).
+    ## To retrieve correct event values (bits 1-16), one could do:
+
+    triggers <- bitwAnd(event_channel[[1]]$signal, (2^16 -1))
+
+    # for now it only reports growing changes
+    init_events <- (which(diff(triggers) > 0) + 1) %>%
+      sample_int(sampling_rate = sampling_rate)
+    
+    desc <- data.table::data.table(.type = NA, .description = triggers[init_events] )
+    events <- new_events_tbl(.id=1L,
+                             .initial = init_events,
+                             descriptions_dt = desc,
+                             .final = init_events,
+                             .channel= NA_character_)
+
+
 
   }
    

@@ -1,3 +1,9 @@
+# eeguana 0.1.3.9000
+  - Changes:
+    - `read_` functions get a `samples` arguments to read a segment of samples from the file. 
+  - Bugs:
+    - `read_edf()` wasn't reading events from the status channel
+    - other minor bugs
 # eeguana 0.1.2.9000
   - Changes:
     - `drop_incomplete_segments()` added.

@@ -58,7 +58,7 @@ new_events_tbl <- function(.id = integer(0),
     )]
   }
   data.table::setattr(events, "class", c("events_tbl", class(events)))
-  events
+  events[]
 }
 as_events_tbl <- function(.data, ...) {
   UseMethod("as_events_tbl")
