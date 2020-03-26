@@ -1,7 +1,8 @@
-#' Helper function to read the dat files directly
+#' Helper function to read the dat files directly,
+#' samples doesn't do anything for now
 #' @noRd
 read_dat <- function(file, header_info = NULL, events = NULL,
-                     .recording, sep, zero) {
+                     .recording, sep, zero, samples) {
   n_chan <- nrow(header_info$chan_info)
   common_info <- header_info$common_info
 
@@ -46,6 +47,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
       what = type, n = file.info(file)$size/bytes,
       size = bytes)
 
+    # TODO: check to optimize the following line
     raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = multiplexed) %>%
       data.table::as.data.table()
   } else if (common_info$format == "ASCII") {
@@ -70,7 +72,9 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
   # TODO maybe convert to data.table directly
   # Adding the channel names to event table
-  events <- add_event_channel(events, header_info$chan_info$.channel) %>% data.table::as.data.table()
+  events <- add_event_channel(events, header_info$chan_info$.channel) %>%
+    data.table::as.data.table() 
+
 
   # Initial samples as in Brainvision
   max_sample <- nrow(raw_signal)
@@ -248,7 +252,8 @@ read_vhdr_metadata <- function(file) {
       stats::setNames(c("number", ".channel", ".reference", "resolution", "unit")) %>%
     dplyr::mutate(
       resolution = as.double(resolution),
-      unit = "microvolt"
+      unit = "microvolt",
+      .reference = data.table::fifelse(.reference=="", NA_character_,.reference)
     )
    # To avoid problems with the unicode characters, it seems that brainvision uses "mu" instead of "micro"
   # TODO: check if the unit could be different here

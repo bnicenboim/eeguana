@@ -4,7 +4,7 @@
 \alias{read_edf}
 \title{Read an edf/edf+/bdf file into R}
 \usage{
-read_edf(file, .recording = file, samples = c(1, Inf))
+read_edf(file, .recording = file)
 }
 \arguments{
 \item{file}{A edf/bdf file}

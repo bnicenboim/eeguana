@@ -278,7 +278,6 @@ read_ft <- function(file, layout = NULL, .recording = file) {
 #'
 #' @param file A edf/bdf file
 #' @param .recording Recording name (file name, by default). If set to NULL or NA, the patient name will be used.
-#' @param samples Whether to subset the reading; by default starting from sample 1  until the end of the recording.
 #' 
 #' @return An `eeg_lst` object.
 #' 
@@ -288,7 +287,12 @@ read_ft <- function(file, layout = NULL, .recording = file) {
 #' @family reading functions
 #'
 #' @export
-read_edf <- function(file, .recording = file, samples = c(1, Inf)) {
+read_edf <- function(file, .recording = file) {
+
+  #' @param samples Whether to subset the reading; by default starting from sample 1  until the end of the recording.
+#less samples doesn't speed up reading data, for now I'm hiding it:
+  samples = c(1, Inf)
+
   if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
   
   header_edf <- edfReader::readEdfHeader(file)  

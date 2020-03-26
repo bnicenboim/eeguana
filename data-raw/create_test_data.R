@@ -121,6 +121,5 @@ events_tbl(mne_bdf) <- eeguana:::new_events_tbl(.id=1, .initial=events_found[,1]
 channels_tbl(mne_bdf) <- channels_tbl(mne_bdf)[,-5] # remove unit
 
 
-
 usethis::use_data(data_sincos2id, data_sincos2id_2,data_sincos2id_1000,
                   data_sincos3id, mne_bdf, internal = TRUE, overwrite = TRUE)

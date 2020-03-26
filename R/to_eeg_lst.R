@@ -89,7 +89,7 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
       ch_unit <- 107 # default to Volts
     }
     pref_id <- round(log10(ch$range)) %>% as.character()
-    if(pref_id %in% names(pref_id)){
+    if(pref_id %in% names(prefix)){
       unit <- paste0(
         prefix[[pref_id]],
         units_list[[ch_unit %>% as.character()]]
