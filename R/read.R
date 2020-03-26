@@ -289,7 +289,7 @@ read_ft <- function(file, layout = NULL, .recording = file) {
 #' @export
 read_edf <- function(file, .recording = file) {
 
-  #' @param samples Whether to subset the reading; by default starting from sample 1  until the end of the recording.
+# samples Whether to subset the reading; by default starting from sample 1  until the end of the recording.
 #less samples doesn't speed up reading data, for now I'm hiding it:
   samples = c(1, Inf)
 

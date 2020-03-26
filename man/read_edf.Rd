@@ -10,8 +10,6 @@ read_edf(file, .recording = file)
 \item{file}{A edf/bdf file}
 
 \item{.recording}{Recording name (file name, by default). If set to NULL or NA, the patient name will be used.}
-
-\item{samples}{Whether to subset the reading; by default starting from sample 1  until the end of the recording.}
 }
 \value{
 An \code{eeg_lst} object.
