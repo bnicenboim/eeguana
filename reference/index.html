@@ -17,23 +17,27 @@
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/all.min.css" integrity="sha256-PbSmjxuVAzJ6FPvNYsrXygfGhNJYyZ2GktDbkMBqQZg=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/v4-shims.min.css" integrity="sha256-A6jcAdwFD48VMjlI3GDxUd+eCQa7/KWy6G9oe/ovaPA=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -44,7 +48,6 @@
 
 <meta property="og:title" content="Function reference" />
 <meta property="og:image" content="/logo.png" />
-<meta name="twitter:card" content="summary" />
 
 
 
@@ -62,7 +65,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-index">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -76,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.2.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.3.9000</span>
       </span>
     </div>
 
@@ -148,6 +151,11 @@
           <p class="section-desc"></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -162,6 +170,11 @@
           <p class="section-desc"><p>Functions for reading external files and return an <code>eeg_lst</code>.</p></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -188,6 +201,11 @@
           <p class="section-desc"><p>Functions that overload some tidyverse functions and always return an <code>eeg_lst</code>.</p></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -220,6 +238,11 @@
           <p class="section-desc"><p>Functions that return useful summaries.</p></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -264,6 +287,11 @@
           <p class="section-desc"><p>Functions for applying specialized actions on the signal table, channel, or the entire <code>eeg_lst</code>.</p></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -362,6 +390,11 @@
           <p class="section-desc"><p>Wrappers to <code>ggplot</code> functions that first transform the <code>eeg_lst</code> to a wide <code>tibble</code>, together with some transformation (downsampling, interpolation, etc).</p></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -418,6 +451,11 @@
           <p class="section-desc"><p>Functions for getting specific information about the objects that compose an <code>eeg_lst</code>.</p></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -510,6 +548,11 @@ This function returns  TRUE for signals.</p></td>
           <p class="section-desc"><p>Functions for showing (and sometimes editing) <code>eeg_lst</code> objects parts.</p></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -519,7 +562,7 @@ This function returns  TRUE for signals.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="events_tbl.html">events_tbl()</a></code> <code><a href="events_tbl.html">`events_tbl<-`()</a></code> </p>
+          <p><code><a href="events_tbl.html">events_tbl()</a></code> <code><a href="events_tbl.html">`events_tbl&lt;-`()</a></code> </p>
         </td>
         <td><p>Functions to get or set the events table of an eeg_lst object.</p></td>
       </tr><tr>
@@ -531,7 +574,7 @@ This function returns  TRUE for signals.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="channels_tbl.html">channels_tbl()</a></code> <code><a href="channels_tbl.html">`channels_tbl<-`()</a></code> </p>
+          <p><code><a href="channels_tbl.html">channels_tbl()</a></code> <code><a href="channels_tbl.html">`channels_tbl&lt;-`()</a></code> </p>
         </td>
         <td><p>Functions to get or set the channel information of an eeg_lst object.</p></td>
       </tr>
@@ -542,6 +585,11 @@ This function returns  TRUE for signals.</p></td>
           <p class="section-desc"><p>Functions for creating objects.</p></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -574,6 +622,11 @@ This function returns  TRUE for signals.</p></td>
           <p class="section-desc"><p>Some other useful functions.</p></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -618,6 +671,11 @@ This function returns  TRUE for signals.</p></td>
           <p class="section-desc"><p>Example data sets in eeg_lst format.</p></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -638,6 +696,11 @@ This function returns  TRUE for signals.</p></td>
           <p class="section-desc"><p>Layout of caps</p></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -650,21 +713,9 @@ This function returns  TRUE for signals.</p></td>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-about">About</a></li>
-      <li><a href="#section-reading-functions">Reading functions</a></li>
-      <li><a href="#section-tidyverse-verbs-and-extensions-">Tidyverse verbs (and extensions)</a></li>
-      <li><a href="#section-specialized-summarizing-functions">Specialized summarizing functions</a></li>
-      <li><a href="#section-eeg-specialized-functions">EEG-specialized functions</a></li>
-      <li><a href="#section-plot-functions">Plot functions</a></li>
-      <li><a href="#section--base-inspired-functions">'base'-inspired functions</a></li>
-      <li><a href="#section-editing-functions">Editing functions</a></li>
-      <li><a href="#section-constructor-functions">Constructor functions</a></li>
-      <li><a href="#section-others">Others</a></li>
-      <li><a href="#section-example-data-sets">Example data sets</a></li>
-      <li><a href="#section-layouts">Layouts</a></li>
-    </ul>
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
@@ -675,7 +726,7 @@ This function returns  TRUE for signals.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
 </div>
 
       </footer>
