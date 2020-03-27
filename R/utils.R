@@ -21,20 +21,6 @@ col_names_main <- function(.eeg_lst) {
 
 
 #' @noRd
-seq_len2 <- function(length.out) {
-  if (length(length.out) == 0) {
-    base::seq_len(0)
-  } else if (length.out == -Inf) {
-    warning("length.out is -Inf, using 0 instead.")
-    base::seq_len(0)
-  } else {
-    base::seq_len(length.out)
-  }
-}
-
-
-
-#' @noRd
 say_size <- function(eeg_lst) paste(
     "# Object size in memory",
     utils::capture.output(print(utils::object.size(eeg_lst), units = "auto"))
@@ -78,10 +64,10 @@ as_integer <- function(x) {
 }
 
 
-#' @noRd
-vec_mean <- function(..., na.rm = FALSE) {
-  purrr::pmap_dbl(list(...), ~ mean(c(...), na.rm = FALSE))
-}
+#' #' @noRd
+#' vec_mean <- function(..., na.rm = FALSE) {
+#'   purrr::pmap_dbl(list(...), ~ mean(c(...), na.rm = FALSE))
+#' }
 
 #' @noRd
 rowMeans_ch <- function(x, na.rm = FALSE, dims = 1L) {
@@ -109,22 +95,22 @@ row_fun_ch <- function(x, .f, pars = list()) {
   channel_dbl(y)
 }
 
-#' @noRd
-repeated_group_col <- function(.eeg_lst) {
-  group_cols <- dplyr::group_vars(.eeg_lst)
-  segments <- .eeg_lst$.segments %>%
-    {
-      .[names(.) %in% c(obligatory_cols$.segments, group_cols)]
-    } %>%
-    data.table::data.table()
-  data.table::setkey(segments, .id)
-  dt <- .eeg_lst$.signal[segments, group_cols, with = FALSE]
-  if (nrow(dt) == 0) {
-    return(dt)
-  } else {
-    return(dt[, .group := do.call(paste0, .SD)][, (group_cols) := NULL][])
-  }
-}
+#' #' @noRd
+#' repeated_group_col <- function(.eeg_lst) {
+#'   group_cols <- dplyr::group_vars(.eeg_lst)
+#'   segments <- .eeg_lst$.segments %>%
+#'     {
+#'       .[names(.) %in% c(obligatory_cols$.segments, group_cols)]
+#'     } %>%
+#'     data.table::data.table()
+#'   data.table::setkey(segments, .id)
+#'   dt <- .eeg_lst$.signal[segments, group_cols, with = FALSE]
+#'   if (nrow(dt) == 0) {
+#'     return(dt)
+#'   } else {
+#'     return(dt[, .group := do.call(paste0, .SD)][, (group_cols) := NULL][])
+#'   }
+#' }
 
 #' @noRd
 try_to_downsample <- function(.data, max_sample) {
@@ -154,14 +140,23 @@ message_obj <- function(msg, obj) {
   }), collapse = "\n")
   paste0(msg, "\n", outp, "\n")
 }
-
+#' @noRd
 is_wholenumber <-  function(x, tol = .Machine$double.eps^0.5) {
     abs(x - round(x)) < tol | is.infinite(x) | is.na(x)
 
 }
+#' @noRd
 require_pkg <- function(pkg){
   if (!requireNamespace(pkg, quietly = TRUE)) {
     stop(paste0("Package '",pkg,"'  needed for this function to work. Please install it."),
          call. = FALSE)
   }
 }
+
+#' @noRd
+`%||%` <- function (x, y) {
+  if (is.null(x) || length(x)==0)
+  y
+  else x
+}
+

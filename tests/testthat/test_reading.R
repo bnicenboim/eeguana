@@ -45,10 +45,10 @@ ft <- read_ft(file = system.file("testdata", "fieldtrip_matrix.mat", package = "
 channels_tbl(ft) <- channels_tbl(multiplexed_bin_bv2)
 
 test_that("can read fieldtrip files", {
-  # expect_equal(ft,multiplexed_bin_bv2)
+#  expect_equal(ft,multiplexed_bin_bv2)
 })
 
-
+## EDF tests
 
 edf <- read_edf(file = system.file("testdata", "asalab_export_edf_Segment_1.edf", package = "eeguana"), .recording = "edf")
 edf_bv <- read_edf(file = system.file("testdata", "bv_export_edf.edf", package = "eeguana"), .recording = "edf")
@@ -84,6 +84,15 @@ test_that("edf and bdf files match", {
   expect_equal(edf_test, bdf_test, tolerance = .1)
 })
 
+test_that("bdf  match the bdf created by MNE", {
+  bdf_file <- system.file("testdata", "Newtest17-256.bdf", package = "eeguana")
+  mne_bdf <- eeguana:::mne_bdf
+  bdf <- read_edf(file = bdf_file, .recording = "bdf")
+
+  expect_equal(bdf, mne_bdf)
+})
+
+## segmented
 seged_ascii <- multiplexed_ascii_bv2 %>% eeg_segment(.description %in% c("s10", "s11", "s12"), lim = c(0, .499))
 seg_ascii_bv2 <- read_vhdr(file = system.file("testdata", "bv_segexport_ascii.vhdr", package = "eeguana"), .recording = "bv2")
 

@@ -16,7 +16,7 @@ as_sample_int(x, ...)
 
 \item{sampling_rate}{Sampling rate in Hz}
 
-\item{unit}{"seconds" (or "s"), "milliseconds" (or "ms")}
+\item{unit}{"seconds" (or "s"), "milliseconds" (or "ms"), or "samples"}
 }
 \value{
 A sample_int object.

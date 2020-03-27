@@ -40,30 +40,39 @@
 #' @return A valid eeg_lst.
 #' @export
 eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, channels_tbl = NULL) {
-  if (is.null(signal_tbl) || !is_signal_tbl(signal_tbl)) {
+  if(is.null(signal_tbl) ){
+    signal_tbl <- new_signal_tbl()
+  } else if (!is_signal_tbl(signal_tbl)) {
     signal_tbl <- data.table::as.data.table(signal_tbl)
     if (!is.null(channels_tbl)) {
       data.table::set(signal_tbl,
-        ## columns with channels
-        j = channels_tbl$.channel,
-        ## columns that need to be updated with attributes
-        value = signal_tbl[, (update_channel_meta_data(.SD, channels_tbl)),
-          .SDcols = (channels_tbl$.channel)
-        ]
+                      ## columns with channels
+                      j = channels_tbl$.channel,
+                      ## columns that need to be updated with attributes
+                      value = signal_tbl[, (update_channel_meta_data(.SD, channels_tbl)),
+                                         .SDcols = (channels_tbl$.channel)
+                                         ]
       )
     }
-
+    
     signal_tbl <- as_signal_tbl(signal_tbl)
   } else {
     signal_tbl <- validate_signal_tbl(signal_tbl)
   }
-  if (is.null(events_tbl) || !is_events_tbl(events_tbl)) {
+  if(is.null(events_tbl) ) {
+    events_tbl <- new_events_tbl(sampling_rate = sampling_rate(signal_tbl))
+  } else if ( !is_events_tbl(events_tbl)){
+    
     events_tbl <- as_events_tbl(events_tbl, sampling_rate = sampling_rate(signal_tbl))
   } else {
     events_tbl <- validate_events_tbl(events_tbl)
   }
+  if (is.null(segments_tbl)) {
+    segments_tbl <- dplyr::tibble(.id = unique(signal_tbl$.id), .recording = NA_character_)
+  }
   segments_tbl <- validate_segments(segments_tbl)
-  validate_eeg_lst(new_eeg_lst(
+  
+  validate_eeg_lst(x = new_eeg_lst(
     .signal = signal_tbl,
     .events = events_tbl,
     .segments = segments_tbl
@@ -142,10 +151,10 @@ channel_dbl <- function(values, x = NA_real_, y = NA_real_, z = NA_real_, refere
 #' @return `TRUE` if the object inherits from the `sampl` class.
 #' @export
 is_channel_dbl <- function(x) {
-  if (class(x) == "channel") {
-    message("channel class is deprecated")
-    return(TRUE)
-  }
+  # if (class(x) == "channel") {
+  #   message("channel class is deprecated")
+  #   return(TRUE)
+  # }
   class(x) == "channel_dbl"
 }
 

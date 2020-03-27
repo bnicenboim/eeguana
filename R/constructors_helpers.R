@@ -24,8 +24,8 @@ new_sample_int <- function(values, sampling_rate) {
     stop("Sample integer values should be round numbers.",
       call. = FALSE
     )
-  } else if(all(!is.infinite(values))){
-    values <- as.integer(values)
+  } else {
+    values <- as_integer(values)
   }
   values <- unclass(values)
   structure(values,

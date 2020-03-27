@@ -1,4 +1,10 @@
 #' @noRd
+lapply_dtc <- function(X, FUN, ...){
+  lapply(X, FUN, ...) %>%
+    data.table::setDT()
+}
+
+#' @noRd
 map_dtr <- function(.x, .f, ..., .id = NULL) {
   .f <- purrr::as_mapper(.f, ...)
   res <- purrr::map(.x, .f, ...)

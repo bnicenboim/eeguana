@@ -1,3 +1,8 @@
+# eeguana 0.1.3.9000
+  - More unit testing.
+  - Bugs:
+    - `read_edf()` wasn't reading events from the status channel
+    - fixed some inconsistencies with `.reference` argument
 # eeguana 0.1.2.9000
   - Changes:
     - `drop_incomplete_segments()` added.

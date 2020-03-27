@@ -164,6 +164,19 @@ test_that("window of 22 element, with NAs", {
 })
 
 
+test_that("freq works", {
+  events_h100<- data %>%
+    eeg_filt_high_pass(freq=10) %>%
+    eeg_artif_minmax(threshold = 10, lim = c(0 / 500, 4 / 500), window = 2 / 500, unit = "second") %>%
+    events_tbl()
+  
+  step_h10 <- data %>%
+    eeg_artif_minmax(threshold = 10, lim = c(0 / 500, 4 / 500), window = 2 / 500, unit = "second", freq = c(10, NA) )
+  expect_equal(events_h100, events_tbl(step_h10))
+  expect_equal(signal_tbl(data), signal_tbl(step_h10))
+
+})
+
 
 ###### voltage minmax ######################3
 test_that("minmax: window of 1 step", {
@@ -230,3 +243,18 @@ test_that("simple window", {
   expect_equal(art_events[.channel == "X", ]$.initial %>% as.numeric(), c(5))
   expect_equal(art_events[.channel == "X", ]$.final %>% as.numeric(), 9)
 })
+
+test_that("low freq works", {
+
+  events_l100<- data_1minmax %>%
+  eeg_filt_low_pass(freq=100) %>%
+  eeg_artif_minmax(threshold = 10, lim = c(0 / 500, 4 / 500), window = 2 / 500, unit = "second") %>%
+  events_tbl()
+
+minmax_l100 <- data_1minmax %>%
+  eeg_artif_minmax(threshold = 10, lim = c(0 / 500, 4 / 500), window = 2 / 500, unit = "second", freq = c(NA, 100) )
+expect_equal(events_l100, events_tbl(minmax_l100))
+expect_equal(data_1minmax, minmax_l100)
+
+})
+

@@ -57,7 +57,7 @@ lineplot_eeg <- data_faces_ERPs %>%
   ggplot2::ggplot(ggplot2::aes(x = .time, y = .value)) +
   ggplot2::geom_line(ggplot2::aes(group = .id, colour = condition), alpha = .5) +
   ggplot2::stat_summary(
-    fun.y = "mean", geom = "line",
+    fun = "mean", geom = "line",
     ggplot2::aes(colour = condition), alpha = 1, size = 1
   ) +
   # only .key works dynamically but only channel works with test()!
@@ -102,3 +102,4 @@ test_that("plot functions create ggplot2::ggplots", {
   data_shorter <- dplyr::filter(data_faces_10_trials, between(as_time(.sample), 91, 93))
   expect_gg(plot(data_shorter) + annotate_events())
 })
+

@@ -2,7 +2,7 @@
 #' @export
 as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
 
-  units_list <- c(
+   units_list <- c(
     "mol/m^3", "hertz", "newton", "pascal", "joule", "watt", "coulomb",
     "volt", "farad", "ohm",
     "S", "weber", "tesla", "henry", "celsius", "lumen", "lux"
@@ -67,15 +67,17 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
     purrr::keep(~ .x$kind == 3) %>%
     purrr::map_chr(~ .x$ch_name)
   if (length(sti_ch_names) > 0) {
-    warning("Stimuli channels will be discarded")
+    warning("Stimuli channels will be discarded. Use find_events from mne to add them.", call. = FALSE)
   }
 
   scale_head <- purrr::map_dbl(rel_ch, ~ sqrt(sum((0 - .x$loc[1:3])^2))) %>%
     .[. != 0] %>% # remove the ones that have all 0
+    #1 by default if there is no electrode info
+    {. %||% 0} %>%
     min(na.rm = TRUE)
 
   ch_info <- rel_ch %>% purrr::map_dfr(function(ch) {
-    if (ch$kind == 502) { # misc channel
+    if (ch$kind == 502 | scale_head == 0) { # misc channel
       location <- rep(NA_real_, 3)
     } else {
       location <- purrr::map(ch$loc[1:3], ~ round(. / scale_head, 2))
@@ -85,17 +87,24 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
       ch_unit <-  ch$unit$numerator
     } else {
       ch_unit <- 107 # default to Volts
-   }
+    }
+    pref_id <- round(log10(ch$range)) %>% as.character()
+    if(pref_id %in% names(prefix)){
+      unit <- paste0(
+        prefix[[pref_id]],
+        units_list[[ch_unit %>% as.character()]]
+      )
+    } else {
+      warning("Unit cannot be identified", call. = FALSE)
+      unit <-NA 
+    }
     list(
       .channel = ch$ch_name,
       .x = location[[1]],
       .y = location[[2]],
       .z = location[[3]],
-      unit = paste0(
-        prefix[[log10(ch$range) %>% as.character()]],
-        units_list[[ch_unit %>% as.character()]]
-      ),
-      .reference = NA
+      unit = unit,
+      .reference = NA_character_
     )
   })
 
@@ -115,6 +124,8 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
   if (length(ann$onset) == 0) {
     new_events <- new_events_tbl(
       .initial =
+        sample_int(integer(0), sampling_rate = .data$info$sfreq),
+      .final =
         sample_int(integer(0), sampling_rate = .data$info$sfreq)
     )
   } else {
@@ -135,4 +146,5 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
     events_tbl = new_events,
     segments_tbl = dplyr::tibble(.id = 1L, .recording = data_name, segment = 1L)
   )
+
 }
