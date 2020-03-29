@@ -69,6 +69,10 @@ eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, c
   }
   if (is.null(segments_tbl)) {
     segments_tbl <- dplyr::tibble(.id = unique(signal_tbl$.id), .recording = NA_character_)
+  } else {
+    if(!".recording" %in% colnames(segments_tbl)){
+      segments_tbl <- dplyr::mutate(segments_tbl, .recording = NA)
+    }
   }
   segments_tbl <- validate_segments(segments_tbl)
   

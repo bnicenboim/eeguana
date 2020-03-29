@@ -171,15 +171,23 @@ validate_eeg_lst <- function(x, recursive = TRUE) {
 #' @noRd
 validate_segments <- function(segments) {
   if (is.null(segments)) {
-    segments <- dplyr::tibble(.id = integer(0))
+    segments <- dplyr::tibble(.id = integer(0), .recording = character(0))
   }
-  if (!is.integer(segments$.id)) {
+  if(nrow(segments)>0){
+    if (!is.integer(segments$.id) & all(is_wholenumber(segments$.id))) {
+      segments <- dplyr::mutate(segments, .id = as.integer(.id))
+    } else if (!is.integer(segments$.id)) {
     warning("Column .id of segments table is not an integer.")
+    }
+  
+    if (!".recording" %in% colnames(segments)) {
+    warning("Column .recording of segments table is missing.")
   }
   if (length(segments$.id) != length(unique(segments$.id))) {
     warning("Some .id are repeated in the segments table, there is something wrong going on. Please open an issue with a reproducible example in https://github.com/bnicenboim/eeguana/issues",
       call. = FALSE
     )
+  }
   }
   segments
 }
