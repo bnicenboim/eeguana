@@ -404,3 +404,14 @@ read_edf <- function(file, .recording = file) {
   message(say_size(eeg_lst))
   eeg_lst
 }
+
+
+#' @param file 
+#'
+#' @param layout 
+#' @param .recording 
+#'
+#' @export
+read_set <- function(file, layout = NULL, .recording = file) {
+  # https://sccn.ucsd.edu/wiki/A05:_Data_Structures
+}  

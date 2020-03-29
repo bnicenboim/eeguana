@@ -89,12 +89,12 @@ mutate_eeg_lst <- function(.eeg_lst, dots, keep_cols = TRUE) {
 
     new_dots$.signal <- rlang::quos_auto_name(new_dots$.signal)
     for (i in seq_len(length(new_dots$.signal))) {
-      # extended_signal[, `:=`(names(new_dots$.signal[i]),
-                             # eval(parse(text = rlang::quo_text(new_dots$.signal[[i]])))), by = c(by)]
-    extended_signal[, `:=`(names(new_dots$.signal[i]),
-                             rlang::eval_tidy(new_dots$.signal[[i]],
-                                              data= rlang::as_data_mask(.SD))),
-                           by = c(by)]
+      extended_signal[, `:=`(names(new_dots$.signal[i]),
+      eval(parse(text = rlang::quo_text(new_dots$.signal[[i]])))), by = c(by)]
+    # extended_signal[, `:=`(names(new_dots$.signal[i]),
+    #                          rlang::eval_tidy(new_dots$.signal[[i]],
+    #                                           data= rlang::as_data_mask(.SD))), #?.SD
+    #                        by = c(by)]
     }
 
     

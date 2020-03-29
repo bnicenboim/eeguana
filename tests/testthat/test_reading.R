@@ -86,10 +86,10 @@ test_that("edf and bdf files match", {
 
 test_that("bdf  match the bdf created by MNE", {
   bdf_file <- system.file("testdata", "Newtest17-256.bdf", package = "eeguana")
-  mne_bdf <- eeguana:::mne_bdf
+  data_mne_bdf <- eeguana:::data_mne_bdf
   bdf <- read_edf(file = bdf_file, .recording = "bdf")
 
-  expect_equal(bdf, mne_bdf)
+  expect_equal(bdf, data_mne_bdf)
 })
 
 ## segmented

@@ -114,12 +114,12 @@ reticulate::use_condaenv("anaconda3")
 mne <- reticulate::import("mne")
 bdf_file <- system.file("testdata", "Newtest17-256.bdf", package = "eeguana")
 eeg_mne_bdf <- mne$io$read_raw_bdf(bdf_file, preload = TRUE, stim_channel = "Status")
-mne_bdf <- as_eeg_lst(.data = eeg_mne_bdf) %>%
+data_mne_bdf <- as_eeg_lst(.data = eeg_mne_bdf) %>%
     dplyr::mutate(.recording = "bdf")
 events_found <-   mne$find_events(eeg_mne_bdf)
-events_tbl(mne_bdf) <- eeguana:::new_events_tbl(.id=1, .initial=events_found[,1]+1, .final= events_found[,1]+1,descriptions_dt = data.table::data.table(.type=NA, .description = events_found[,3]))
-channels_tbl(mne_bdf) <- channels_tbl(mne_bdf)[,-5] # remove unit
+events_tbl(data_mne_bdf) <- eeguana:::new_events_tbl(.id=1, .initial=events_found[,1]+1, .final= events_found[,1]+1,descriptions_dt = data.table::data.table(.type=NA, .description = events_found[,3]))
+channels_tbl(data_mne_bdf) <- channels_tbl(data_mne_bdf)[,-5] # remove unit
 
 
 usethis::use_data(data_sincos2id, data_sincos2id_2,data_sincos2id_1000,
-                  data_sincos3id, mne_bdf, internal = TRUE, overwrite = TRUE)
+                  data_sincos3id, data_mne_bdf, internal = TRUE, overwrite = TRUE)
