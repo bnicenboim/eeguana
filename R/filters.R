@@ -1,6 +1,13 @@
 #' Apply a zero-phase low-pass, high-pass, band-pass, or band-stop FIR filter.
 #'
-#' Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter of the  FIR (finite impulse response) class to every segment of an `eeg_lst`. These filters are adapted from the default filters in [MNE package](https://mne-tools.github.io) (v 0.0.17.1)  of [python](https://www.python.org/). For background information about the FIR vs IIR filters, see [here](https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py).
+#' Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter of the  
+#' FIR (finite impulse response) class to every segment of an `eeg_lst`. 
+#' **It's advisable to avoid filtering short segments of data.** In general, these filters are relatively fast, a
+#'  considerable slowdown can be due to incorrectly specified filters (e.g., confusing
+#'   low with high pass filters) or to filtering too many short segments. All these filters
+#'  are adapted from the default filters in
+#'   [MNE package](https://mne-tools.github.io) (v 0.0.17.1)
+#'     of [python](https://www.python.org/). For background information about the FIR vs IIR filters, see [here](https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py).
 #'
 #' * `eeg_filt_low_pass()` Low-pass or high-cut filter.
 #' * `eeg_filt_high_pass()` High-pass or low-cut filter.

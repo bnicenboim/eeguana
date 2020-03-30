@@ -32,7 +32,14 @@ eeg_filt_band_stop(.data, ..., freq = NULL, config = list(), na.rm = FALSE)
 A channel or an eeg_lst.
 }
 \description{
-Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter of the  FIR (finite impulse response) class to every segment of an \code{eeg_lst}. These filters are adapted from the default filters in \href{https://mne-tools.github.io}{MNE package} (v 0.0.17.1)  of \href{https://www.python.org/}{python}. For background information about the FIR vs IIR filters, see \href{https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py}{here}.
+Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter of the
+FIR (finite impulse response) class to every segment of an \code{eeg_lst}.
+\strong{It's advisable to avoid filtering short segments of data.} In general, these filters are relatively fast, a
+considerable slowdown can be due to incorrectly specified filters (e.g., confusing
+low with high pass filters) or to filtering too many short segments. All these filters
+are adapted from the default filters in
+\href{https://mne-tools.github.io}{MNE package} (v 0.0.17.1)
+of \href{https://www.python.org/}{python}. For background information about the FIR vs IIR filters, see \href{https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py}{here}.
 }
 \details{
 \itemize{
