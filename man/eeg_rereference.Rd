@@ -23,14 +23,16 @@ An  eeg_lst with some channels re-referenced.
 Re-reference a channel or group of channels.
 }
 \details{
-Notice that this function will update the channels one by one when used inside a mutate and not all at the same time.
+Notice that this function will also rereference the eye electrodes unless excluded. See examples.
 }
 \examples{
-# Re-reference all channels using the left mastoid.
-data_faces_ERPs_M1 <- data_faces_ERPs \%>\% eeg_rereference(ref = "M1")
+# Re-reference all channels using the left mastoid excluding the eye electrodes.
+data_faces_ERPs_M1 <- data_faces_ERPs \%>\% 
+                      eeg_rereference(-EOGV, -EOGH, ref = "M1")
 
-# Re-reference using the linked mastoids.
-data_faces_ERPs_M1M2 <- data_faces_ERPs \%>\% eeg_rereference(ref = c("M1","M2"))
+# Re-reference using the linked mastoids excluding the eye electrodes.
+data_faces_ERPs_M1M2 <- data_faces_ERPs \%>\% 
+                        eeg_rereference(-EOGV, -EOGH, ref = c("M1","M2"))
 
 }
 \seealso{
