@@ -77,10 +77,36 @@ summarize_eval_signal <- function(.eeg_lst, dots) {
     ~ attributes(.eeg_lst$.signal[[.x[[1]]]])
   )
   old_attributes <- stats::setNames(old_attributes, add_names)
-  extended_signal <-extended_signal[, lapply(dots, rlang::eval_tidy, 
-                                             data= rlang::as_data_mask(.SD)), keyby = c(by)]
+  # extended_signal <-extended_signal[, lapply(dots, rlang::eval_tidy, 
+  #                                            data= rlang::as_data_mask(.SD)), keyby = c(by)]
+  # 
+  if(length(by)>0) {  
+    extended_signal <-extended_signal[, lapply(dots, rlang::eval_tidy, 
+                                               data= rlang::as_data_mask(cbind(.SD,data.table::as.data.table(.BY)))),
+                                      keyby = c(by)]
+    
+    # extended_signal[, `:=`(names(dots),
+    #                        eval(parse(text = rlang::quo_text(dots)), 
+    #                             # so that I can use elements of the .SD or the group
+    #                             envir = cbind(.SD,data.table::as.data.table(.BY)), # envir = .SD,
+    #                             # in case I need something outside the data table,
+    #                             # it should be from the caller env, and not from inside the package
+    #                             enclos = rlang::caller_env())), by = c(by)]
+  } else {
+    extended_signal <-extended_signal[, lapply(dots, rlang::eval_tidy, 
+                                               data= rlang::as_data_mask(.SD))]
+    
+    # extended_signal[, `:=`(names(dots),
+    #                        eval(parse(text = rlang::quo_text(dots)), 
+    #                             # so that I can use elements of the .SD or the group
+    #                             envir = .SD, # envir = .SD,
+    #                             # in case I need something outside the data table,
+    #                             # it should be from the caller env, and not from inside the package
+    #                             enclos = rlang::caller_env()))]
+  }
+
  
- 
+  
      
      
 # microbenchmark::microbenchmark(

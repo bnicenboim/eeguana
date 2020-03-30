@@ -79,8 +79,8 @@ mutate_eeg_lst <- function(.eeg_lst, dots, keep_cols = TRUE) {
     } %>%
       c(., new_cols) %>%
       unique()
+    
     cond_cols <- names_other_col(.eeg_lst, dots, ".segments")
-
 
     extended_signal <- extended_signal(.eeg_lst, cond_cols)
     by <- dplyr::group_vars(.eeg_lst) 
@@ -89,9 +89,40 @@ mutate_eeg_lst <- function(.eeg_lst, dots, keep_cols = TRUE) {
 
     new_dots$.signal <- rlang::quos_auto_name(new_dots$.signal)
     for (i in seq_len(length(new_dots$.signal))) {
-      extended_signal[, `:=`(names(new_dots$.signal[i]),
-      eval(parse(text = rlang::quo_text(new_dots$.signal[[i]])))), by = c(by)]
-    # extended_signal[, `:=`(names(new_dots$.signal[i]),
+
+      if(length(by)>0) {
+        
+        extended_signal[, `:=`(names(new_dots$.signal[i]),
+                                 rlang::eval_tidy(new_dots$.signal[[i]],
+                                                  data= rlang::as_data_mask(
+                                                    cbind(.SD,data.table::as.data.table(.BY))
+                                                  ))), #?.SD
+                               by = c(by)]
+        
+      # extended_signal[, `:=`(names(new_dots$.signal[i]),
+      #                        eval(parse(text = rlang::quo_text(new_dots$.signal[[i]])), 
+      #                             # so that I can use elements of the .SD or the group
+      #                             envir = cbind(.SD,data.table::as.data.table(.BY)), # envir = .SD,
+      #                             # in case I need something outside the data table,
+      #                             # it should be from the caller env, and not from inside the package
+      #                             enclos = rlang::caller_env())), by = c(by)]
+      } else {
+        extended_signal[, `:=`(names(new_dots$.signal[i]),
+                               rlang::eval_tidy(new_dots$.signal[[i]],
+                                                data= rlang::as_data_mask(
+                                                  .SD
+                                                )))]
+        
+        # extended_signal[, `:=`(names(new_dots$.signal[i]),
+        #                        eval(parse(text = rlang::quo_text(new_dots$.signal[[i]])), 
+        #                             # so that I can use elements of the .SD or the group
+        #                             envir = .SD, # envir = .SD,
+        #                             # in case I need something outside the data table,
+        #                             # it should be from the caller env, and not from inside the package
+        #                             enclos = rlang::caller_env()))]
+      }
+
+          # extended_signal[, `:=`(names(new_dots$.signal[i]),
     #                          rlang::eval_tidy(new_dots$.signal[[i]],
     #                                           data= rlang::as_data_mask(.SD))), #?.SD
     #                        by = c(by)]

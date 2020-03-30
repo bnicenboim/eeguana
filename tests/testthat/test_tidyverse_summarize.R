@@ -5,38 +5,38 @@ library(eeguana)
 
 # create fake dataset
 
-
-data_1 <- eeg_lst(
-  signal_tbl =
-    dplyr::tibble(
-      X = sin(1:30), Y = cos(1:30),
-      .id = rep(c(1L, 2L, 3L), each = 10),
-      .sample = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500)
-    ),
-  channels_tbl = dplyr::tibble(
-    .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
-    radius = NA, .x = c(1, 1), .y = NA_real_, .z = NA_real_
-  ),
-  events_tbl = dplyr::tribble(
-    ~.id, ~.type, ~.description, ~.initial, ~.final, ~.channel,
-    1L, "New Segment", NA_character_, -4L, -4L, NA,
-    1L, "Bad", NA_character_, -2L, 0L, NA,
-    1L, "Time 0", NA_character_, 1L, 1L, NA,
-    1L, "Bad", NA_character_, 2L, 3L, "X",
-    2L, "New Segment", NA_character_, -4L, -4L, NA,
-    2L, "Time 0", NA_character_, 1L, 1L, NA,
-    2L, "Bad", NA_character_, 2L, 2L, "Y",
-    3L, "New Segment", NA_character_, -4L, -4L, NA,
-    3L, "Time 0", NA_character_, 1L, 1L, NA,
-    3L, "Bad", NA_character_, 2L, 2L, "Y"
-  ),
-  segments_tbl = dplyr::tibble(
-    .id = c(1L, 2L, 3L),
-    .recording = "recording1",
-    segment = c(1L, 2L, 3L),
-    condition = c("a", "b", "a")
-  )
-)
+data_1 <- eeguana:::data_sincos3id
+# data_1 <- eeg_lst(
+#   signal_tbl =
+#     dplyr::tibble(
+#       X = sin(1:30), Y = cos(1:30),
+#       .id = rep(c(1L, 2L, 3L), each = 10),
+#       .sample = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500)
+#     ),
+#   channels_tbl = dplyr::tibble(
+#     .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
+#     radius = NA, .x = c(1, 1), .y = NA_real_, .z = NA_real_
+#   ),
+#   events_tbl = dplyr::tribble(
+#     ~.id, ~.type, ~.description, ~.initial, ~.final, ~.channel,
+#     1L, "New Segment", NA_character_, -4L, -4L, NA,
+#     1L, "Bad", NA_character_, -2L, 0L, NA,
+#     1L, "Time 0", NA_character_, 1L, 1L, NA,
+#     1L, "Bad", NA_character_, 2L, 3L, "X",
+#     2L, "New Segment", NA_character_, -4L, -4L, NA,
+#     2L, "Time 0", NA_character_, 1L, 1L, NA,
+#     2L, "Bad", NA_character_, 2L, 2L, "Y",
+#     3L, "New Segment", NA_character_, -4L, -4L, NA,
+#     3L, "Time 0", NA_character_, 1L, 1L, NA,
+#     3L, "Bad", NA_character_, 2L, 2L, "Y"
+#   ),
+#   segments_tbl = dplyr::tibble(
+#     .id = c(1L, 2L, 3L),
+#     .recording = "recording1",
+#     segment = c(1L, 2L, 3L),
+#     condition = c("a", "b", "a")
+#   )
+# )
 
 ##TODO: get rid of this:
 suppressWarnings( dplyr::funs())
@@ -86,6 +86,15 @@ summarize4_tbl <- data %>%
   tidyr::spread(key = .key, value = mean) %>%
   dplyr::rename(X_mean = X, Y_mean = Y)
 
+nsamples <- 100
+nsamples_ <- 100
+
+test_that("summarize has the right scope",{
+expect_equal(data %>% dplyr::summarize(X = mean(X) + nsamples),
+             data %>% dplyr::summarize(X = mean(X) + 100))
+  expect_equal(data %>% dplyr::summarize(X = mean(X) + nsamples),
+               data %>% dplyr::summarize(X = mean(X) + nsamples_))
+})
 
 test_that("dplyr::summarize works correctly on ungrouped data", {
   expect_equal(
@@ -147,7 +156,7 @@ group4_by_eeg_lst <- dplyr::group_by(data, .sample, .recording)
 group5_by_eeg_lst <- dplyr::group_by(data, .id, .recording)
 group6_by_eeg_lst <- dplyr::group_by(data, .id, .sample, .recording)
 group7_by_eeg_lst <- dplyr::group_by(data, .sample, condition)
-
+group8_by_eeg_lst <- dplyr::group_by(data, segment)
 
 summarize_g_signal_eeg <- dplyr::summarize(group_by_eeg_lst, mean = mean(X))
 
@@ -213,6 +222,15 @@ summarize_g7_tbl <- data %>%
   dplyr::filter(.key == "X") %>%
   dplyr::group_by(condition, .time) %>% # have to reverse order
   dplyr::summarise(mean = mean(.value))
+
+
+
+test_that(" summarize can use grouping variable",{
+  expect_equal(group8_by_eeg_lst %>% dplyr::summarize(X = mean(X)+ mean(segment)*100),
+               group8_by_eeg_lst %>% dplyr::mutate(seg = segment) %>%
+                 dplyr::summarize(X = mean(X)+ mean(seg)*100 ))
+  
+})
 
 
 test_that("dplyr::summarize works correctly on  data grouped by .sample", {

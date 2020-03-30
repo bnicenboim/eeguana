@@ -62,6 +62,16 @@ transmute_tbl <- data %>%
   dplyr::filter(.key == "X") %>%
   dplyr::transmute(X = .value + 1)
 
+nsamples <- 100
+nsamples_ <- 100
+data_nsamples_ <- data %>% dplyr::mutate(Z = X + nsamples_)
+data_100 <- data %>% dplyr::mutate(Z = X + 100)
+data_nsamples <- data %>% dplyr::mutate(Z = X + nsamples)
+
+test_that("dplyr:mutate functions understand the right scope",{
+  expect_equal(data_100, data_nsamples)
+  expect_equal(data_nsamples_, data_nsamples)
+})
 
 test_that("dplyr::mutate functions work correctly on ungrouped data", {
   expect_equal(as.double(mutate_eeg_lst$.signal[["X"]]), mutate_tbl$X)
@@ -118,7 +128,7 @@ group4_by_eeg_lst <- dplyr::group_by(data, .sample, .recording)
 group5_by_eeg_lst <- dplyr::group_by(data, .id, .recording)
 group6_by_eeg_lst <- dplyr::group_by(data, .id, .sample, .recording)
 group7_by_eeg_lst <- dplyr::group_by(data, .sample, condition)
-group8_by_eeg_lst <- dplyr::group_by(data, segment)
+group8_by_eeg_lst <- dplyr::mutate(data, trial = segment) %>% dplyr::group_by(trial)
 
 
 mutate_g_signal_eeg <- dplyr::mutate(group_by_eeg_lst, X = X + 1)
@@ -268,8 +278,8 @@ test_that("the classes of channels of signal_tbl remain in grouped eeg_lst", {
 })
 
 test_that("use a group in mutate",{
-expect_equal(group8_by_eeg_lst %>% dplyr::mutate(X = X * segment) %>% dplyr::ungroup(),
-  data %>% dplyr::mutate(X = X * segment))
+expect_equal(group8_by_eeg_lst %>% dplyr::mutate(X = X * trial) %>% dplyr::ungroup(),
+  data %>% dplyr::mutate(trial= segment) %>% dplyr::mutate(X = X * trial))
 })
 
 
