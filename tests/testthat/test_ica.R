@@ -127,9 +127,7 @@ test_that("summaries work",{
   ica1 <- eeg_ica_show(data_fast_ICA, ICA1)
   ica2 <- eeg_ica_show(data_fast_ICA, ICA1, ICA2,ICA3)
   cors <- structure(list(.recording = c("recording1", "recording1", "recording1", "recording1", "recording1", "recording1"), EOG = c("Cz", "Fz", "Fz", "Cz", "Fz", "Cz"), .ICA = structure(c(2L, 3L, 2L, 3L, 1L, 1L), .Label = c("ICA1", "ICA2", "ICA3"), class = "factor"), cor = c(-0.854894402022447, -0.765208111591799, -0.643107011726606, -0.518101988618226, 0.0294943625487529, 0.0269423603363018)), row.names = c(NA, -6L), class = c("data.table", "data.frame"))
-
-
-  expect_equal(eeg_ica_cor_tbl(data_fast_ICA, c("Fz","Cz")), cors)
+  expect_equal(eeg_ica_cor_tbl(data_fast_ICA, tidyselect::all_of(c("Fz","Cz"))), cors)
   vars <- structure(list(.recording = c("recording1", "recording1", "recording1"),
                          .ICA = c("ICA2", "ICA3", "ICA1"),
                          var = c(0.71789949085039, 0.280971141808226, 0.00112936734134494)),

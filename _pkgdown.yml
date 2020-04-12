@@ -118,3 +118,8 @@ reference:
       Layout of caps 
     contents: 
     - starts_with("layout_")
+  - title: "Signal processing"
+    desc: >
+      Miscellanous signal processing functions (mostly adapted from python and matlab) 
+    contents: 
+    - starts_with("sig_")

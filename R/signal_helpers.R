@@ -3,15 +3,79 @@ sinc <- function(x) {
   ifelse(x == 0, 1, sin(pi * x) / (pi * x))
 }
 
-ifft <- function(x, N = NULL) {
-  if (is.null(N) || N == length(x)) {
+#' Compute the one-dimensional inverse discrete Fourier Transform.
+#' 
+#' This function computes the inverse of the one-dimensional n-point discrete Fourier
+#'  transform computed by fft using a wrapper of `fft(z, inverse= TRUE)/length(z)` with
+#'   an extra argument making it similar to   [numpy.fft.ifft](https://docs.scipy.org/doc/numpy-1.17.0/reference/generated/numpy.fft.ifft.html#numpy.fft.ifft). 
+#'  For a general description of the algorithm and definitions, see [fft](stats::fft) and [numpy.fft](https://docs.scipy.org/doc/numpy-1.17.0/reference/generated/numpy.fft.ifft.html#numpy.fft.ifft).
+#' 
+#' The input should be ordered in the same way as is returned by fft, i.e.,
+#' (*if I converted the indexes from python correctly*)
+#' 
+#' * `a[1]` should contain the zero frequency term,
+#' * `a[2:ceiling(n/2)]` should contain the positive-frequency terms,
+#' * `a[ceiling(n/2) + 2:length(a)]` should contain the negative-frequency terms, 
+#' in increasing order starting from the most negative frequency.
+#' * For an even number of input points, `a[ceiling(n/2)]` represents 
+#' the sum of the values at the positive and negative Nyquist frequencies, 
+#' as the two are aliased together. See see [numpy.fft](https://docs.scipy.org/doc/numpy-1.17.0/reference/generated/numpy.fft.ifft.html#numpy.fft.ifft) for details.
+#' 
+#' **Notes**
+#' 
+#' If the input parameter `n` is larger than the size of the input, 
+#' the input is padded by appending zeros at the end. Even though this is 
+#' the common approach, it might lead to surprising results. If a different padding 
+#' is desired, it must be performed before calling ifft.
+#' 
+#' @inheritParams sig_fft
+#' @return A vector
+#' @export
+#'
+#' @examples
+#' 
+#' a <- c(0, 4, 0, 0)
+#' sig_ifft(a)
+#' sig_ifft(sig_fft(a)) == a  
+#'  
+sig_ifft <- function(x, n = NULL) {
+  if (is.null(n) || n == length(x)) {
     x
-  } else if (N < length(x)) {
-    x <- x[seq.int(1, N)]
+  } else if (n < length(x)) {
+    x <- x[seq.int(1, n)]
   } else {
-    x <- c(x, rep(0, N - length(x)))
+    x <- c(x, rep(0, n - length(x)))
   }
   stats::fft(x, inverse = TRUE) / length(x)
+}
+
+#' Compute the one-dimensional discrete Fourier Transform.
+#' 
+#' Computes the Discrete Fourier Transform (DFT) of an array 
+#' with a fast algorithm, the “Fast Fourier Transform” (FFT). Wrapper 
+#' of [fft](stats::fft) with an extra argument similar to python's [numpy.fft.fft](https://docs.scipy.org/doc/numpy/reference/generated/numpy.fft.fft.html#numpy.fft.fft).
+#'
+#' @param x A vector
+#' @param n Length of the transformed axis of the output. If `n` is smaller
+#'  than the length of the input, the input is cropped. If it is larger, the input 
+#'  is padded with zeros. If n is not given, the length of the input along 
+#'  the axis specified by axis is used. 
+#'
+#'
+#' @examples
+#' a <- c(0, 4, 0, 0)
+#' sig_fft(a)
+#' 
+#' @export
+sig_fft <- function(x, n = NULL) {
+  if (is.null(n) || n == length(x)) {
+    x
+  } else if (n < length(x)) {
+    x <- x[seq.int(1, n)]
+  } else {
+    x <- c(x, rep(0, n - length(x)))
+  }
+  stats::fft(x) #/ length(x)
 }
 
 
@@ -39,7 +103,7 @@ irfft <- function(x, N = NULL) {
   xn[seq_len(length(x))] <- x
   s <- N - length(x) + 1
   xn[seq.int(length(x) + 1, N, by = 1)] <- Conj(xn[seq(s, to = 2, by = -1)])
-  Re(ifft(xn))
+  Re(sig_ifft(xn))
 }
 
 

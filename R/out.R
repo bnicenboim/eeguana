@@ -176,11 +176,13 @@ eeg_ica_cor_tbl <- function(.data, ...) {
 #' @export
 eeg_ica_cor_tbl.eeg_ica_lst <- function(.data, ...) {
   if (length(list(...)) == 0) {
-    eogs <- channel_names(.data)[channel_names(.data) %>%
-      stringr::str_detect(stringr::regex("eog", ignore_case = TRUE))]
+    eogs <- sel_ch(data, c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
+    tidyselect::vars_select(channel_names(data), c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
+    message("EOG channels detected as: ", toString(eog))
   } else {
-    eogs <- sel_ch(.data, ...)
+    eogs <- sel_ch(data, ...)
   }
+  
   names(eogs) <- eogs
   comps <- .data  %>% 
     eeg_ica_show(component_names(.data)) %>% 

@@ -285,12 +285,14 @@ plot_ica.eeg_ica_lst <- function(data,
       data <- dplyr::filter(data, .recording == .recording)
     }
 
- 
-   if (length(eog) == 0) {
-    eog <- channel_names(data)[channel_names(data) %>%
-      stringr::str_detect(stringr::regex("eog", ignore_case = TRUE))]
-  } 
-    eog <- sel_ch(data, eog)
+  if (length(eog) == 0) {
+    eog <-  sel_ch(data, c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
+      #fixtidyselect::vars_select(channel_names(data), c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
+    message("EOG channels detected as: ", toString(eog))
+  } else {
+    eog <-  sel_ch(data, tidyselect::all_of(eog))
+  }
+    
   message("Calculating the correlation of ICA components with filtered EOG channels...")
   sum <- eeg_ica_summary_tbl(data %>% eeg_filt_band_pass(eog, freq = c(.1, 30)),eog) 
   data.table::setorderv(sum, order, order = -1)
