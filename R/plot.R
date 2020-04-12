@@ -304,7 +304,7 @@ plot_ica.eeg_ica_lst <- function(data,
    slice_signal(samples) %>%
     eeg_ica_show(dplyr::one_of(ICAs)) %>%
     ## we select want we want to show:
-    dplyr::select(c(ICAs,eog)) %>%
+    dplyr::select(tidyselect::all_of(c(ICAs,eog))) %>%
     dplyr::group_by(.id)%>%  
     dplyr::mutate_at(eog, ~ .- mean(.)) %>%
     dplyr::mutate_if(is_component_dbl, ~ . * scale_comp) 

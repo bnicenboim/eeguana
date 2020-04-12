@@ -2,20 +2,24 @@
 % Please edit documentation in R/constructors.R
 \name{is_channel_dbl}
 \alias{is_channel_dbl}
-\title{Test if the object is a channel
-This function returns  TRUE for channels.}
+\alias{is_eog_channel_dbl}
+\title{Test if the object is a channel or EOG channel}
 \usage{
 is_channel_dbl(x)
+
+is_eog_channel_dbl(x)
 }
 \arguments{
 \item{x}{An object.}
 }
 \value{
-\code{TRUE} if the object inherits from the \code{sampl} class.
+\code{TRUE} if the object inherits from the \code{channel_dbl} or \code{eog_channel_dbl} class.
 }
 \description{
-Test if the object is a channel
-This function returns  TRUE for channels.
+\itemize{
+\item \code{is_channel_dbl()} returns TRUE for all  channels including EOG channels.
+\item \code{is_eog_channel_dbl()} returns TRUE only for EOG channels.
+}
 }
 \seealso{
 Other channel: 

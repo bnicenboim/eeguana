@@ -411,7 +411,6 @@ read_edf <- function(file, .recording = file) {
 #' @param layout 
 #' @param .recording 
 #'
-#' @export
 read_set <- function(file, layout = NULL, .recording = file) {
   # https://sccn.ucsd.edu/wiki/A05:_Data_Structures
 }  

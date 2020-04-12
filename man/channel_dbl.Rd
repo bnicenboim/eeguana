@@ -2,9 +2,19 @@
 % Please edit documentation in R/constructors.R
 \name{channel_dbl}
 \alias{channel_dbl}
+\alias{eog_channel_dbl}
 \title{Builds a channel.}
 \usage{
 channel_dbl(
+  values,
+  x = NA_real_,
+  y = NA_real_,
+  z = NA_real_,
+  reference = NA,
+  ...
+)
+
+eog_channel_dbl(
   values,
   x = NA_real_,
   y = NA_real_,
@@ -27,11 +37,13 @@ channel_dbl(
 \item{...}{further arguments passed to or from other methods.}
 }
 \description{
-Builds a channel.
+Builds a (EOG) channel from a vector of numbers. Channels that are of type
+\code{eog_channel_dbl} class are treated differently by some functions, for example, they are excluded by default of ICA analysis in \code{eeg_ica()}
 }
 \examples{
 
 Cz <- channel_dbl(runif(100, -5, 5))
+VEOG <- eog_channel_dbl(runif(100, -5, 5))
 }
 \seealso{
 Other channel: 

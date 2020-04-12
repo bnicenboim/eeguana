@@ -65,6 +65,19 @@ new_channel_dbl <- function(values, channel_info = list()) {
   values
 }
 
+#' @noRd
+new_eog_channel_dbl <- function(values, channel_info = list()) {
+  values <- new_channel_dbl(values, channel_info)
+  class(values) <- c("eog_channel_dbl", class(values))
+  values
+}
+
+#' @param channel
+#'
+#' @noRd
+validate_eog_channel_dbl <- function(channel) {
+  validate_channel_dbl(channel)
+}
 
 
 #' @param channel
@@ -82,7 +95,6 @@ validate_channel_dbl <- function(channel) {
       call. = FALSE
     )
   })
-
   # if (is.null(attributes(channel)$.reference)) {
   #   warning("Attribute .reference is missing.",
   #     call. = FALSE

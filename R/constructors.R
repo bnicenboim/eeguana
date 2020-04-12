@@ -127,6 +127,9 @@ is_sample_int <- function(x) {
 }
 
 #' Builds a channel.
+#' 
+#' Builds a (EOG) channel from a vector of numbers. Channels that are of type 
+#' `eog_channel_dbl` class are treated differently by some functions, for example, they are excluded by default of ICA analysis in `eeg_ica()`
 #'
 #' @param values Vector of doubles indicating amplitudes.
 #' @param x Position in the scalp.
@@ -141,27 +144,39 @@ is_sample_int <- function(x) {
 #' @examples
 #' 
 #' Cz <- channel_dbl(runif(100, -5, 5))
+#' VEOG <- eog_channel_dbl(runif(100, -5, 5))
 channel_dbl <- function(values, x = NA_real_, y = NA_real_, z = NA_real_, reference = NA, ...) {
   validate_channel_dbl(new_channel_dbl(values, channel_info = list(.x = x, .y = y, .z = z, .reference = reference, ...)))
 }
 
-#' Test if the object is a channel
-#' This function returns  TRUE for channels.
+#' @rdname channel_dbl
+#' @export
+eog_channel_dbl <- function(values, x = NA_real_, y = NA_real_, z = NA_real_, reference = NA, ...) {
+  validate_eog_channel_dbl(new_eog_channel_dbl(values, channel_info = list(.x = x, .y = y, .z = z, .reference = reference, ...)))
+}
+
+
+#' Test if the object is a channel or EOG channel
+#' 
+#' * `is_channel_dbl()` returns TRUE for all  channels including EOG channels.
+#' * `is_eog_channel_dbl()` returns TRUE only for EOG channels.
 #'
 #' @param x An object.
 #'
 #' @family channel
 #'
-#' @return `TRUE` if the object inherits from the `sampl` class.
+#' @return `TRUE` if the object inherits from the `channel_dbl` or `eog_channel_dbl` class.
 #' @export
 is_channel_dbl <- function(x) {
-  # if (class(x) == "channel") {
-  #   message("channel class is deprecated")
-  #   return(TRUE)
-  # }
-  class(x) == "channel_dbl"
+  "channel_dbl" %in% class(x) 
 }
 
+
+#' @rdname is_channel_dbl
+#' @export
+is_eog_channel_dbl <- function(x) {
+  "eog_channel_dbl" %in% class(x) 
+}
 
 #' @export
 `[.channel_dbl` <- function(x, i, ...) {
