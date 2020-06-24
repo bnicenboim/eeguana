@@ -9,16 +9,14 @@ slice_signal(.data, ..., .preserve = FALSE)
 \arguments{
 \item{.data}{An eeg_lst object.}
 
-\item{...}{Integer row values.  Provide either positive values to keep,
-or negative values to drop. The values provided must be either all
-positive or all negative.  Indices beyond the number of rows in the
-input are silently ignored.
+\item{...}{For \code{slice()}: <\code{\link[dplyr:dplyr_data_masking]{data-masking}}> Integer row
+values.
 
-The arguments in \code{...} are automatically \link[rlang:quo]{quoted} and
-\link[rlang:eval_tidy]{evaluated} in the context of the data
-frame. They support \link[rlang:quasiquotation]{unquoting} and
-splicing. See \code{vignette("programming")} for an introduction to
-these concepts.}
+Provide either positive values to keep, or negative values to drop.
+The values provided must be either all positive or all negative.
+Indices beyond the number of rows in the input are silently ignored.
+
+For \code{slice_helpers()}, these arguments are passed on to methods.}
 
 \item{.preserve}{Not in use.}
 }

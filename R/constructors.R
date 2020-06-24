@@ -149,12 +149,29 @@ channel_dbl <- function(values, x = NA_real_, y = NA_real_, z = NA_real_, refere
   validate_channel_dbl(new_channel_dbl(values, channel_info = list(.x = x, .y = y, .z = z, .reference = reference, ...)))
 }
 
-#' @rdname channel_dbl
 #' @export
-eog_channel_dbl <- function(values, x = NA_real_, y = NA_real_, z = NA_real_, reference = NA, ...) {
-  validate_eog_channel_dbl(new_eog_channel_dbl(values, channel_info = list(.x = x, .y = y, .z = z, .reference = reference, ...)))
+as_channel_dbl <- function(x){
+  class(x) <- c("channel_dbl", "numeric")
+  validate_channel_dbl(x)
 }
 
+#' @export
+print.channel_dbl <- function(x) {
+  attrs <- attributes(x)[names(attributes(x))!="class"] %>%
+    purrr::imap_chr(~ paste0(.y,": ",.x)) %>%
+    paste0(collapse = "; ")
+  
+  channel_name <- names(x) 
+    
+  if(!is.null(channel_name)) {
+    cat(paste("# Channel named ", channel_name,"\n"))
+    }
+  cat(paste("#", attrs,"\n"))
+  cat(paste("# Values \n"))
+  
+  print(as.numeric(x))
+  invisible(x)
+}
 
 #' Test if the object is a channel or EOG channel
 #' 
@@ -172,11 +189,6 @@ is_channel_dbl <- function(x) {
 }
 
 
-#' @rdname is_channel_dbl
-#' @export
-is_eog_channel_dbl <- function(x) {
-  "eog_channel_dbl" %in% class(x) 
-}
 
 #' @export
 `[.channel_dbl` <- function(x, i, ...) {
@@ -262,7 +274,7 @@ component_dbl <- function(values) {
 #' @return `TRUE` if the object inherits from the `sample_id` class.
 #' @export
 is_component_dbl <- function(x) {
-  class(x) == "component_dbl"
+  "component_dbl" %in%  class(x)
 }
 
 #' @export

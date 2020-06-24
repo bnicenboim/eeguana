@@ -1,7 +1,8 @@
 # eeguana 0.1.4.9000
   -Changes
     - Signal processing functions added `sig_fft()`, `sig_ifft()`.
-
+    - Better print method for channels.
+    
 # eeguana 0.1.3.9000
   - More unit testing.
   - Bugs:

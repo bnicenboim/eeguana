@@ -55,9 +55,12 @@ channels_tbl.data.frame <- function(.data, ...) {
   ## first row is enough and it makes it faster
   tbl <- .data[1, ] %>%
     dplyr::select(channels) %>%
-    purrr::map_dfr(~ attributes(.x)) %>%
-    dplyr::bind_cols(dplyr::tibble(.channel = channels), .) %>%
-    dplyr::select(-dplyr::contains("class", ignore.case = FALSE))
+    purrr::map_dfr(~ {
+      attrs <- attributes(.x)
+      attrs[names(attrs) != "class"]
+      }) %>%
+    dplyr::bind_cols(dplyr::tibble(.channel = channels), .) 
+  
   if (tbl %>% nrow() == 0) {
     dplyr::tibble()
   } else {

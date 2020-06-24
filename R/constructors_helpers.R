@@ -58,27 +58,13 @@ validate_sample_int <- function(.sample) {
 #' @noRd
 new_channel_dbl <- function(values, channel_info = list()) {
   values <- unclass(values) %>% as.double()
-  attributes(values) <- c(
-    class = "channel_dbl",
+  # class(values) <- c("channel_dbl", class(values))
+  class(values) <- "channel_dbl"
+    attributes(values) <- c(attributes(values),
     channel_info
   )
   values
 }
-
-#' @noRd
-new_eog_channel_dbl <- function(values, channel_info = list()) {
-  values <- new_channel_dbl(values, channel_info)
-  class(values) <- c("eog_channel_dbl", class(values))
-  values
-}
-
-#' @param channel
-#'
-#' @noRd
-validate_eog_channel_dbl <- function(channel) {
-  validate_channel_dbl(channel)
-}
-
 
 #' @param channel
 #'
@@ -209,12 +195,9 @@ validate_segments <- function(segments) {
 #' @noRd
 new_component_dbl <- function(values) {
   values <- unclass(values) %>% as.double()
-  attributes(values) <- list(
-    class = "component_dbl"
-  )
+  class(values) <- c("component_dbl", class(values))
   values
 }
-
 
 
 #' @param component

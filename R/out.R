@@ -21,7 +21,7 @@ channel_names.signal_tbl <- function(x, ...) {
   NextMethod()
 }
 #' @export
-channel_names.default <- function(x, ...) {
+channel_names.data.table <- function(x, ...) {
   colnames(x)[x[, purrr::map_lgl(.SD, is_channel_dbl)]]
 }
 #' @export

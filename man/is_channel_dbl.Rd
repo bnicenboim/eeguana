@@ -2,12 +2,9 @@
 % Please edit documentation in R/constructors.R
 \name{is_channel_dbl}
 \alias{is_channel_dbl}
-\alias{is_eog_channel_dbl}
 \title{Test if the object is a channel or EOG channel}
 \usage{
 is_channel_dbl(x)
-
-is_eog_channel_dbl(x)
 }
 \arguments{
 \item{x}{An object.}

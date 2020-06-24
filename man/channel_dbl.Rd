@@ -2,19 +2,9 @@
 % Please edit documentation in R/constructors.R
 \name{channel_dbl}
 \alias{channel_dbl}
-\alias{eog_channel_dbl}
 \title{Builds a channel.}
 \usage{
 channel_dbl(
-  values,
-  x = NA_real_,
-  y = NA_real_,
-  z = NA_real_,
-  reference = NA,
-  ...
-)
-
-eog_channel_dbl(
   values,
   x = NA_real_,
   y = NA_real_,
