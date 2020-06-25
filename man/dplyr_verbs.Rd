@@ -17,6 +17,7 @@
 \alias{left_join.eeg_lst}
 \alias{semi_join.eeg_lst}
 \alias{tbl_vars.eeg_lst}
+\alias{pull.eeg_lst}
 \title{Dplyr verbs overloaded for manipulating eeg_lst objects.}
 \usage{
 \method{mutate}{eeg_lst}(.data, ...)
@@ -27,9 +28,9 @@ filter.eeg_lst(.data, ..., .preserve = FALSE)
 
 filter.eeg_ica_lst(.data, ..., .preserve = FALSE)
 
-\method{summarise}{eeg_lst}(.data, ...)
+\method{summarise}{eeg_lst}(.data, ..., .groups = "keep")
 
-\method{group_by}{eeg_lst}(.data, ..., add = FALSE, .drop = FALSE)
+\method{group_by}{eeg_lst}(.data, ..., .add = FALSE, .drop = FALSE)
 
 \method{ungroup}{eeg_lst}(.data, ...)
 
@@ -48,6 +49,8 @@ filter.eeg_ica_lst(.data, ..., .preserve = FALSE)
 \method{semi_join}{eeg_lst}(x, y, by = NULL, suffix = c(".x", ".y"), ...)
 
 tbl_vars.eeg_lst(x)
+
+pull.eeg_lst(.data, var = -1, name = NULL, ...)
 }
 \arguments{
 \item{.data}{An eeg_lst.}
@@ -56,9 +59,11 @@ tbl_vars.eeg_lst(x)
 
 \item{.preserve}{Not in use, for compatibility reasons.}
 
-\item{add}{Not in use, for compatibility reasons.}
+\item{.groups}{Only .groups = "keep" is avaialble.  Same grouping structure as .data.}
 
-\item{.drop}{When .drop = TRUE, empty groups are dropped. (FALSE by default.)}
+\item{.add}{When FALSE, the default, group_by() will override existing groups. To add to the existing groups, use .add = TRUE.}
+
+\item{.drop}{Only .drop = FALSE is avaialble, empty groups are never dropped.}
 
 \item{x}{An eeg_lst.}
 
@@ -105,10 +110,13 @@ The following wrappers act in a special way for \code{eeg_lst} objects:
 \item \verb{*_join()}: joins an external table to the \emph{segments} table of the eeg_lst.
 \item \code{mutate()} and \code{transmute()} Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.
 \item \code{summarize()} summarizes the channel of the signal_tbl table.
+\item \code{pull()} only pulls columns of the signal table
 }
 
 In addition, \verb{_at()}, and \verb{_if()} versions of the functions should work as well. Notice that  the \verb{_at()} versions are
 much faster than the \verb{_if()} versions of these commands.
+
+Notice that these verbs have different defaults for \code{eeg_lst}
 }
 \examples{
 library(dplyr)

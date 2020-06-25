@@ -1,9 +1,9 @@
-summarize_eeg_lst <- function(.eeg_lst, dots) {
+summarize_eeg_lst <- function(.eeg_lst, dots, .groups) {
   .eeg_lst$.signal <- summarize_eval_signal(.eeg_lst, dots)
-  update_summarized_eeg_lst(.eeg_lst)
+  update_summarized_eeg_lst(.eeg_lst, .groups)
 }
 
-update_summarized_eeg_lst <- function(.eeg_lst) {
+update_summarized_eeg_lst <- function(.eeg_lst,  .groups) {
 
   ## Restructure segments table to fit the new signal table
   if (nrow(.eeg_lst$.signal) != 0) {
@@ -15,7 +15,8 @@ update_summarized_eeg_lst <- function(.eeg_lst) {
   .eeg_lst$.segments <- summarize_segments(
     segments = .eeg_lst$.segments,
     segments_groups = group_vars_segments(.eeg_lst),
-    last_id = last_id
+    last_id = last_id,
+    .groups =  .groups
   )
   ## Restructure events table
   # TODO maybe I can do some type of summary of the events table, instead
@@ -27,33 +28,34 @@ update_summarized_eeg_lst <- function(.eeg_lst) {
 
 
 #' @noRd
-summarize_segments <- function(segments, segments_groups, last_id) {
+summarize_segments <- function(segments, segments_groups, last_id, .groups) {
   # data.table::data.table(segments)[,unique(.SD),.SDcols=c(segments_groups)][] %>% dplyr::as_tibble() %>%
   if (length(segments_groups) != 0) {
     ### IMPORTANT: segments need to be grouped and summarized as data.table does, which is differently than dplyr
     # unique(data.table::data.table(segments), by = c(segments_groups))[, segments_groups, with = FALSE] %>%
       # dplyr::as_tibble() %>%
-    grouped_seg <- segments %>% dplyr::group_by_at(dplyr::vars(segments_groups))
+    grouped_seg <- segments %>% 
+      dplyr::group_by_at(dplyr::vars(segments_groups))
     
       ## see if I can add recording as a group
-        group_rec <- dplyr::group_by(grouped_seg, .recording, add=TRUE)
+        group_rec <- dplyr::group_by(grouped_seg, .recording, .add = TRUE)
        if(same_grouping(x = grouped_seg, y =group_rec)){
          grouped_seg <- group_rec
        }
         
-        grouped_seg <- grouped_seg %>% dplyr::summarize()
-        
-      
+        grouped_seg <- grouped_seg %>% 
+          dplyr::summarize(.groups = .groups) %>%
+          dplyr::ungroup()
+
         if (!".id" %in% dplyr::tbl_vars(grouped_seg)) {
           grouped_seg <- hd_add_column(grouped_seg, .id = seq_len(last_id))
         } 
         if (!".recording" %in% dplyr::tbl_vars(grouped_seg)) {
-           
           grouped_seg <-  hd_add_column(grouped_seg, .recording = NA)
-              
         } 
         
-        grouped_seg <- grouped_seg %>% dplyr::select(.id, dplyr::everything())
+        grouped_seg <- grouped_seg %>% 
+          dplyr::select(obligatory_cols[[".segments"]], dplyr::everything())
   } else {
     dplyr::tibble(.id = seq_len(last_id), .recording = NA)
   }

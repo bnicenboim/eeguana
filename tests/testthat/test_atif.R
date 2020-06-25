@@ -10,10 +10,8 @@ data_grouped_descr <- data_faces_10_trials %>%
 
 segment_summ <- data.table::data.table(data_grouped_descr$.segments) %>%
   .[,.(.recording = unique(.recording)), by ="description"] %>%
-  dplyr::bind_cols(dplyr::tibble(.id = c(1L,2L)),.)
-
-
-    
+  dplyr::bind_cols(dplyr::tibble(.id = c(1L,2L)),.)  %>% 
+  dplyr::select(eeguana:::obligatory_cols[[".segments"]], dplyr::everything())
 
 test_that("summarize ats (and rename) no extra args", {
 
@@ -139,6 +137,10 @@ test_that("summarize ats vars", {
 varifs <- data_grouped_descr %>%
     dplyr::summarize_if(is_channel_dbl, var, na.rm=TRUE)
 
+funs <- dplyr:::manip_if(data_grouped_descr, is_channel_dbl, .funs= var, rlang::enquo(.funs), rlang::caller_env(), .caller = "summarise_if")
+
+dplyr::summarise(data_grouped_descr, !!!funs)
+
 varifs2 <- data_grouped_descr  %>%
     dplyr::summarize_if(is_channel_dbl, "var", na.rm=TRUE)
 
@@ -148,7 +150,7 @@ varifs3 <- data_grouped_descr %>%
 varifs4 <- data_grouped_descr %>%
     dplyr::summarize_if(is_channel_dbl, list(~ var(., na.rm=TRUE)))
 
-                                        # Change title
+# Change title
 varifs5 <- data_grouped_descr %>%
     dplyr::summarize_if(is_channel_dbl, list(M= ~ var(., na.rm=TRUE)))
 
@@ -204,3 +206,4 @@ data_grouped_descr %>% dplyr::filter(.id !=2) %>% dplyr::group_by( .sample) %>%
 ## rlang::eval_tidy(rlang::quo(mean(1:10^6))),
 ##  mean(1:10^6)
 ## )
+

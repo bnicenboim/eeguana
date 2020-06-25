@@ -59,27 +59,22 @@ filter_eeg_lst <- function(.eeg_lst, dots) {
 
 
 #' @noRd
-mutate_eeg_lst <- function(.eeg_lst, dots, keep_cols = TRUE) {
-
-  # .dots <- rlang::quos(.recording == "0")
+mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE) {
+  # What to do by table in the object:
+  dots <- rlang::quos(...)
   new_dots <- dots_by_tbl_quos(.eeg_lst, dots)
-
   if (length(new_dots$.signal) > 0) {
-    # channels_info <- channels_tbl(.eeg_lst)
-
+    
+    # New columns name:
     new_cols <- rlang::quos_auto_name(new_dots$.signal) %>%
       names()
 
-    cols_signal <- {
-      if (keep_cols) {
-        colnames(.eeg_lst$.signal)
-      } else {
-        obligatory_cols$.signal
-      }
-    } %>%
-      c(., new_cols) %>%
-      unique()
-    
+    if (keep_cols) {
+      cols_signal <-  unique(c(colnames(.eeg_lst$.signal), new_cols))
+    } else {
+      cols_signal <- c(obligatory_cols$.signal, new_cols)
+    }
+ 
     cond_cols <- names_other_col(.eeg_lst, dots, ".segments")
 
     extended_signal <- extended_signal(.eeg_lst, cond_cols)
@@ -127,11 +122,7 @@ mutate_eeg_lst <- function(.eeg_lst, dots, keep_cols = TRUE) {
     #                                           data= rlang::as_data_mask(.SD))), #?.SD
     #                        by = c(by)]
     }
-
-    
     .eeg_lst$.signal <- extended_signal[, ..cols_signal][]
-
-
     # updates the events and the channels
     .eeg_lst <- .eeg_lst %>% update_events_channels()
     data.table::setkey(.eeg_lst$.signal, .id, .sample)
@@ -155,7 +146,6 @@ mutate_eeg_lst <- function(.eeg_lst, dots, keep_cols = TRUE) {
       !!!new_dots$.segments
     )
   }
-
   .eeg_lst %>% validate_eeg_lst()
 }
 
@@ -315,10 +305,9 @@ extended_signal <- function(.eeg_lst, cond_cols = NULL, events_cols = NULL) {
   extended_signal <- NULL
   relevant_cols <- c(obligatory_cols$.segments, dplyr::group_vars(.eeg_lst), cond_cols)
   if (length(relevant_cols) > 1) { # more than just .id
+    #TODO change this when segments are data tables
     segments <- dplyr::ungroup(.eeg_lst$.segments) %>%
-      {
-        .[names(.) %in% relevant_cols]
-      } %>%
+      {.[names(.) %in% relevant_cols]} %>%
       data.table::data.table()
     data.table::setkey(segments, .id)
     extended_signal <- .eeg_lst$.signal[segments]
