@@ -160,18 +160,20 @@ create_filter <- function(data,
                           l_freq = NULL,
                           h_freq = NULL,
                           config = list()) {
-  if (length(config) == 0) {
+  #if (length(config) == 0) {
     filter_length <- "auto"
     l_trans_bandwidth <- "auto"
+    if(!is.null(config$l_trans_bandwidth)) l_trans_bandwidth <- config$l_trans_bandwidth
     h_trans_bandwidth <- "auto"
+    if(!is.null(config$h_trans_bandwidth)) h_trans_bandwidth <- config$h_trans_bandwidth
     method <- "fir"
     iir_params <- NULL
     phase <- "zero"
     fir_window <- "hamming"
     fir_design <- "firwin"
-  } else {
-    stop("`config` parameter of the filters is not yet implemented", call. = FALSE)
-  }
+  #} else {
+  #  stop("`config` parameter of the filters is not yet implemented", call. = FALSE)
+  #}
   ## """Create a FIR or IIR filter.
   ## ``l_freq`` and ``h_freq`` are the frequencies below which and above
   ## which, respectively, to filter out of the data. Thus the uses are:
@@ -351,11 +353,16 @@ create_filter <- function(data,
 
   if (l_trans_bandwidth == "auto") {
     l_trans_bandwidth <- min(max(l_freq * 0.25, 2), l_freq)
+    if(options()$eeguana.verbose) 
+      message("Width of the transition band at the low cut-off frequency is ", 
+              l_trans_bandwidth, " Hz" )
   }
   if (h_trans_bandwidth == "auto") {
     h_trans_bandwidth <- min(max(0.25 * h_freq, 2.), sampling_rate / 2. - h_freq)
+    if(options()$eeguana.verbose) 
+      message("Width of the transition band at the high cut-off frequency is ",h_trans_bandwidth, " Hz" )
   }
-  ## if(!is.null(l_trans_bandwidth)) message("'l_trans_bandwidth' chosen to be ",l_trans_bandwidth, " Hz" )
+  ## if(!is.null(l_trans_bandwidth)) 
   ## if(!is.null(h_trans_bandwidth)) message("'h_trans_bandwidth' chosen to be ",h_trans_bandwidth, " Hz" )
   h_check <- if (!is.null(h_freq)) h_trans_bandwidth else Inf
   l_check <- if (!is.null(l_freq)) l_trans_bandwidth else Inf
@@ -591,24 +598,28 @@ smart_pad <- function(x, n_pad, pad = "reflect_limited") {
   }
 }
 
+#' Filter the signal x using h with overlap-add FFTs.
+#'
+#' @param x 1 dimension, Signals to filter.
+#' @param h  1d array.   Filter impulse response (FIR filter coefficients).
+#'  Must be odd length     if phase == "linear".
+#' @param n_fft int,  Length of the FFT. If None, the best size is determined automatically.
+#' @param phase  str. If "zero", the delay for the filter is compensated (and it must be
+#'   an odd-length symmetric filter). If "linear", the response is
+#'   uncompensated. If "zero-double", the filter is applied in the
+#'   forward and reverse directions. If "minimum", a minimum-phase
+#'   filter will be used.
+#' @param pad str. Padding type for ``_smart_pad``.
+#'
+#' @return array, shape (n_signals, n_times)
+#' @noRd
+#'
+#' @examples
 overlap_add_filter <- function(x, h, n_fft = NULL, phase = "zero",
                                pad = "reflect_limited") {
-  ## """Filter the signal x using h with overlap-add FFTs.
+  ## """
   ## Parameters
   ## ----------
-  ## x : 1 dimention
-  ##     Signals to filter.
-  ## h : 1d array
-  ##     Filter impulse response (FIR filter coefficients). Must be odd length
-  ##     if phase == "linear".
-  ## n_fft : int
-  ##     Length of the FFT. If None, the best size is determined automatically.
-  ## phase : str
-  ##     If "zero", the delay for the filter is compensated (and it must be
-  ##     an odd-length symmetric filter). If "linear", the response is
-  ##     uncompensated. If "zero-double", the filter is applied in the
-  ##     forward and reverse directions. If "minimum", a minimum-phase
-  ##     filter will be used.
   ## picks : list | None
   ##     See calling functions.
   ## n_jobs : int | str
@@ -617,12 +628,8 @@ overlap_add_filter <- function(x, h, n_fft = NULL, phase = "zero",
   ## copy : bool
   ##     If True, a copy of x, filtered, is returned. Otherwise, it operates
   ##     on x in place.
-  ## pad : str
-  ##     Padding type for ``_smart_pad``.
   ## Returns
   ## -------
-  ## xf : array, shape (n_signals, n_times)
-  ##     x filtered.
   ## """
   # Extend the signal by mirroring the edges to reduce transient filter
   # response

@@ -24,7 +24,10 @@ eeg_filt_band_stop(.data, ..., freq = NULL, config = list(), na.rm = FALSE)
 \item{freq}{A single cut frequency for \code{eeg_filt_low_pass} and \code{eeg_filt_high_pass}, two edges for
 \code{eeg_filt_band_pass} and \code{eeg_filt_band_stop}.}
 
-\item{config}{Other parameters passed in a list to the ICA method. (Not implemented)}
+\item{config}{Other parameters passed in a list to the method. At the moment, only the
+width of the transition band at the (high and/or low) cut-off frequencies can
+be modified: \code{l_trans_bandwidth}, \code{h_trans_bandwidth}, by default they are set to "auto".
+For now the filters can only have a phase of zero (the delay for the filter is compensated).}
 
 \item{na.rm}{=TRUE will set to NA the entire segment that contains an NA, otherwise the filter will stop with an error.}
 }
@@ -55,7 +58,7 @@ library(dplyr)
 library(ggplot2)
 data("data_faces_ERPs")
 data_ERPs_filtered <- data_faces_ERPs \%>\%
-  eeg_filt_low_pass(freq = 1)
+  eeg_filt_low_pass(freq = 50)
 # Compare the ERPs
 data_faces_ERPs \%>\%
   select(O1, O2, P7, P8) \%>\%
