@@ -6,8 +6,9 @@
 #'  considerable slowdown can be due to incorrectly specified filters (e.g., confusing
 #'   low with high pass filters) or to filtering too many short segments. All these filters
 #'  are adapted from the default filters in
-#'   [MNE package](https://mne-tools.github.io) (v 0.0.17.1)
-#'     of [python](https://www.python.org/). For background information about the FIR vs IIR filters, see [here](https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py).
+#'   [MNE package](https://mne.tools/0.17/generated/mne.filter.filter_data.html#mne.filter.filter_data) (v 0.0.17.1)
+#'     of [python](https://www.python.org/). For background information
+#'      about the FIR vs IIR filters, see [here](https://mne.tools/dev/auto_tutorials/discussions/plot_background_filtering.html).
 #'
 #' * `eeg_filt_low_pass()` Low-pass or high-cut filter.
 #' * `eeg_filt_high_pass()` High-pass or low-cut filter.
