@@ -103,11 +103,25 @@ channels_tbl.data.frame <- function(.data, ...) {
 `channels_tbl<-.data.frame` <- function(.data, value) {
   orig_names <- channel_names(.data)
   channels <- dplyr::select(.data, orig_names)
-  nochannels <- dplyr::select(.data, -dplyr::one_of(channel_names(.data)))
-  .data <- dplyr::bind_cols(nochannels, update_channel_meta_data(channels, value))
-  .data
+  nochannels <- dplyr::select(.data, -dplyr::all_of(orig_names))
+  dplyr::bind_cols(nochannels, update_channel_meta_data(channels, value))
 }
 
+#' @export
+`channels_tbl<-.data.table` <- function(.data, value) {
+  orig_names <- channel_names(.data)
+  channels <- .data[,..orig_names]
+  nochannels <- .data[,-..orig_names]
+  update <- data.table::setDT(update_channel_meta_data(channels, value))
+  cbind(nochannels, update)
+}
+
+#' @export
+`channels_tbl<-.signal_tbl` <- function(.data, value) {
+  .data <- NextMethod()
+  #cbind from data.table method removes the class
+  data.table::setattr(.data, "class", c("signal_tbl", class(.data)))
+}
 
 #' Function to get the signal table of an eeg_lst object.
 #'

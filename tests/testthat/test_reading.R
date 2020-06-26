@@ -63,7 +63,7 @@ channels_tbl(edf_f) <- ch_tbl
 channels_tbl(edf) <- channels_tbl(edf_bv)
 channels_tbl(edf_plus_bv) <- channels_tbl(edf_bv)
 events_bv <- events_tbl(multiplexed_bin_bv2) %>%
-  dplyr::mutate(.type = NA, .description = ifelse(.description == "", "New Segment", .description)) %>%
+  dplyr::mutate(.type = NA_character_, .description = ifelse(.description == "", "New Segment", .description)) %>%
   dplyr::as_tibble()
 events_edf <- events_tbl(edf_plus_bv) %>% dplyr::as_tibble()
 
@@ -110,3 +110,4 @@ test_that("seg matches", {
   expect_equal(events_tbl(seg_bin_bv2)[.type == "Stimulus"], events_tbl(seged_bin))
   expect_equal(seg_bin_bv2$.segments, dplyr::select(seged_bin$.segments, -type, -description))
 })
+
