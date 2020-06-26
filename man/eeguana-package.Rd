@@ -6,6 +6,8 @@
 \alias{eeguana-package}
 \title{eeguana: Flexible Manipulation of EEG Data}
 \description{
+\if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
+
 Flexible manipulation of EEG data in R. It provides a data.table 
     powered framework for manipulating EEG data with dplyr-based functions
     (e.g., `mutate`, `filter`, `summarize`) extended to a new class, eeg_lst,
