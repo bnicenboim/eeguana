@@ -10,7 +10,7 @@ is_channel_dbl(x)
 \item{x}{An object.}
 }
 \value{
-\code{TRUE} if the object inherits from the \code{channel_dbl} or \code{eog_channel_dbl} class.
+\code{TRUE} if the object inherits from the \code{channel_dbl} class.
 }
 \description{
 \itemize{
@@ -20,6 +20,7 @@ is_channel_dbl(x)
 }
 \seealso{
 Other channel: 
+\code{\link{as_channel_dbl}()},
 \code{\link{channel_dbl}()}
 }
 \concept{channel}

@@ -95,6 +95,23 @@ it is a potentially expensive operation so you must opt into it.}
 \item{suffix}{If there are non-joined duplicate variables in \code{x} and
 \code{y}, these suffixes will be added to the output to disambiguate them.
 Should be a character vector of length 2.}
+
+\item{var}{A variable specified as:
+\itemize{
+\item a literal variable name
+\item a positive integer, giving the position counting from the left
+\item a negative integer, giving the position counting from the right.
+}
+
+The default returns the last column (on the assumption that's the
+column you've created most recently).
+
+This argument is taken by expression and supports
+\link[rlang:quasiquotation]{quasiquotation} (you can unquote column
+names and column locations).}
+
+\item{name}{An optional parameter that specifies the column to be used
+as names for a named vector. Specified in a similar manner as \code{var}.}
 }
 \value{
 An eeg_lst object.

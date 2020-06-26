@@ -11,7 +11,7 @@ if (getRversion() >= "2.15.1") {
       "i..size", "lowerb", "mk", "n", "offset", "", ".recording", "resolution",
       "time", ".type", "value", "x..lower", "x..sample",
       "xmin", "xmax", "Event", ".key", ".value", ".time",
-      ".first_sample", ".ICA",".group"
+      ".first_sample", ".ICA",".group", ".BY", ".reference", "orig_names", "..orig_names"
     )
   )
 }

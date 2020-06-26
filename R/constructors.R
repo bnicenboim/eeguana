@@ -139,6 +139,7 @@ is_sample_int <- function(x) {
 #'
 #' @family channel
 #'
+#' @return  A channel_dbl.
 #' @export
 #' @examples
 #' 
@@ -147,14 +148,23 @@ channel_dbl <- function(values, x = NA_real_, y = NA_real_, z = NA_real_, refere
   validate_channel_dbl(new_channel_dbl(values, channel_info = list(.x = x, .y = y, .z = z, .reference = reference, ...)))
 }
 
-#' @export
+#' Coerce a vector of real (double) numbers into a channel object
+#' @param x A vector.
+#' @return  A channel_dbl.
+#' @family channel
+#' @export 
 as_channel_dbl <- function(x){
   class(x) <- c("channel_dbl", "numeric")
+  for( . in c(".x", ".y", ".z",".reference")){
+                if (is.null(attr(x, .))) {
+                  attr(x, .) <- NA_real_
+                }
+    }
   validate_channel_dbl(x)
 }
 
 #' @export
-print.channel_dbl <- function(x) {
+print.channel_dbl <- function(x,...) {
   attrs <- attributes(x)[names(attributes(x))!="class"] %>%
     purrr::imap_chr(~ paste0(.y,": ",.x)) %>%
     paste0(collapse = "; ")
@@ -180,7 +190,7 @@ print.channel_dbl <- function(x) {
 #'
 #' @family channel
 #'
-#' @return `TRUE` if the object inherits from the `channel_dbl` or `eog_channel_dbl` class.
+#' @return `TRUE` if the object inherits from the `channel_dbl` class.
 #' @export
 is_channel_dbl <- function(x) {
   "channel_dbl" %in% class(x) 

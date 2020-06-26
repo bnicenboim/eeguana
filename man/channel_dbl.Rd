@@ -26,17 +26,19 @@ channel_dbl(
 
 \item{...}{further arguments passed to or from other methods.}
 }
+\value{
+A channel_dbl.
+}
 \description{
-Builds a (EOG) channel from a vector of numbers. Channels that are of type
-\code{eog_channel_dbl} class are treated differently by some functions, for example, they are excluded by default of ICA analysis in \code{eeg_ica()}
+Builds a channel from a vector of numbers.
 }
 \examples{
 
 Cz <- channel_dbl(runif(100, -5, 5))
-VEOG <- eog_channel_dbl(runif(100, -5, 5))
 }
 \seealso{
 Other channel: 
+\code{\link{as_channel_dbl}()},
 \code{\link{is_channel_dbl}()}
 }
 \concept{channel}

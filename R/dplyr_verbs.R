@@ -20,6 +20,7 @@
 #' @param x An eeg_lst.
 #' @param y A data frame, tibble, or data.table.
 #' @inheritParams dplyr::join
+#' @inheritParams dplyr::pull
 #' @param ... Name-value pairs of expressions; see [dplyr][dplyr::dplyr] for more help.
 #' @param .preserve Not in use, for compatibility reasons.
 #' @param .add When FALSE, the default, group_by() will override existing groups. To add to the existing groups, use .add = TRUE.
