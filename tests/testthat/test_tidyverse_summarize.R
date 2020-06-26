@@ -323,13 +323,17 @@ test_that("summarizing by groups works as expected for the .key values", {
 
 
 test_that("summarizing by groups works as expected for the segments", {
-  expect_equal(data_s1$.segments, dplyr::as_tibble(s_data_s1) %>%
-    dplyr::mutate(.id = 1:dplyr::n()))
+  ds <- dplyr::as_tibble(s_data_s1) %>%
+    dplyr::mutate(.id = 1:dplyr::n()) %>%
+    dplyr::select(.id, .recording, condition)
+  expect_equal(data_s1$.segments, ds,check.attributes = FALSE)
   expect_equal(data_s2$.segments, dplyr::as_tibble(s_data_s2) %>%
-                                  dplyr::mutate(.id = 1:dplyr::n(), .recording =NA))
+                                  dplyr::mutate(.id = 1:dplyr::n(), .recording =NA)%>%
+                 dplyr::select(.id, .recording, condition),check.attributes = FALSE)
   expect_equal(data_s3$.segments, dplyr::as_tibble(s_data_s3) %>%
-                                  dplyr::mutate(.id = 1:dplyr::n(), .recording =NA))
-  expect_equal(data_s4$.segments, dplyr::tibble(.id = 1L, .recording =NA))
+                                  dplyr::mutate(.id = 1:dplyr::n(), .recording =NA)%>%
+                 dplyr::select(.id, .recording, condition),check.attributes = FALSE)
+  expect_equal(data_s4$.segments, dplyr::tibble(.id = 1L, .recording =NA),check.attributes = FALSE)
 })
 
 
@@ -443,3 +447,4 @@ test_that("summarising functions work the same on eeg_lst as on tibble", {
     as.matrix(dplyr::select(tbl_means_5, X, Y))
   )
 })
+
