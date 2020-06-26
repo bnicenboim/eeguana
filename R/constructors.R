@@ -128,8 +128,7 @@ is_sample_int <- function(x) {
 
 #' Builds a channel.
 #' 
-#' Builds a (EOG) channel from a vector of numbers. Channels that are of type 
-#' `eog_channel_dbl` class are treated differently by some functions, for example, they are excluded by default of ICA analysis in `eeg_ica()`
+#' Builds a channel from a vector of numbers. 
 #'
 #' @param values Vector of doubles indicating amplitudes.
 #' @param x Position in the scalp.
@@ -144,7 +143,6 @@ is_sample_int <- function(x) {
 #' @examples
 #' 
 #' Cz <- channel_dbl(runif(100, -5, 5))
-#' VEOG <- eog_channel_dbl(runif(100, -5, 5))
 channel_dbl <- function(values, x = NA_real_, y = NA_real_, z = NA_real_, reference = NA, ...) {
   validate_channel_dbl(new_channel_dbl(values, channel_info = list(.x = x, .y = y, .z = z, .reference = reference, ...)))
 }

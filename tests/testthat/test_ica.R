@@ -87,26 +87,31 @@ data_fast_ICA <- eeg_ica(
   .data = data_blinks, method = fast_ICA,
   config = list(w.init = m)
 )
-
+data_fast_ICA2 <- eeg_ica(
+  .data = data_blinks %>%
+    dplyr::mutate(XEOG = channel_dbl(rnorm(nsamples(data_blinks)))),
+  -XEOG, method = fast_ICA,
+  config = list(w.init = m)
+)
 test_that("ica summaries", {
-  data_fast_ICA2 <- eeg_ica(
-    .data = data_blinks %>%
-      dplyr::mutate(XEOG = channel_dbl(rnorm(nsamples(data_blinks)))),
-    -XEOG, method = fast_ICA,
-    config = list(w.init = m)
-  )
-  out1 <- structure(list(.recording = c("recording1", "recording1", "recording1"), EOG = c("Fz", "Fz", "Fz"), .ICA = c("ICA2", "ICA3", "ICA1"), cor = c(-0.643107011726606, -0.765208111591799, 0.0294943625487529), var = c(0.71789949085039, 0.280971141808226, 0.00112936734134494)), class = c("data.table", "data.frame"), row.names = c(
+
+  out1 <- structure(list(.recording = c("recording1", "recording1", 
+                                        "recording1"), 
+                         EOG = c("Fz", "Fz", "Fz"), 
+                         .ICA = c("ICA2", "ICA3", "ICA1"),
+                         cor = c(-0.643107011726606, -0.765208111591799, 0.0294943625487529),
+                         var = c(0.71789949085039, 0.280971141808226, 0.00112936734134494)), 
+                    class = c("data.table", "data.frame"), row.names = c(
     NA,
     -3L
   ))
 
-  out2 <- structure(list(.recording = c("recording1", "recording1", "recording1"), EOG = c("XEOG", "XEOG", "XEOG"), .ICA = c(
-    "ICA2", "ICA3",
-    "ICA1"
-  ), cor = c(0.0240325018993, -0.00999040828710776, 0.00681508468717244), var = c(0.71789949085039, 0.280971141808226, 0.00112936734134494)), class = c("data.table", "data.frame"), row.names = c(
-    NA,
-    -3L
-  ))
+  out2 <- structure(list(.recording = c("recording1", "recording1", "recording1"
+  ), EOG = c("XEOG", "XEOG", "XEOG"), .ICA = c("ICA2", "ICA3", 
+                                               "ICA1"), cor = c(-0.0113051429911744, 0.0136562903764449, 0.00953493200108279
+                                               ), var = c(0.71789949085039, 0.280971141808226, 0.00112936734134494
+                                               )), class = c("data.table", "data.frame"), row.names = c(NA, 
+                                                                                                        -3L))
 
   expect_equal(eeg_ica_summary_tbl(data_fast_ICA, "Fz"), out1, check.attributes = FALSE)
   expect_equal(eeg_ica_summary_tbl(data_fast_ICA2), out2, check.attributes = FALSE)
