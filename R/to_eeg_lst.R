@@ -135,7 +135,7 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
     new_events <- new_events_tbl(
       .id = 1L,
       .type = descriptions_dt$.type,
-      .description = descriptions_dt$.type,
+      .description = descriptions_dt$.description,
       .initial = ann$onset %>%
         as_sample_int(sampling_rate = .data$info$sfreq, unit = "s"),
       .final = as_sample_int(ann$onset + ann$duration, sampling_rate = .data$info$sfreq, unit = "s") - 1L,

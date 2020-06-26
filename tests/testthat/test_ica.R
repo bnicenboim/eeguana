@@ -84,6 +84,7 @@ m <- structure(c(-1.316038587729, -0.325231960551256, 3.97869823946626,
 data_fast_ICA <- eeg_ica(.data= data_blinks, method = fast_ICA,
                          config = list(w.init = m))
 
+
 test_that("different implementations aren't too different", {
 ## initial matrix to have deterministic ICA mixing and unmixing matrices here:
   recover_fast_ICA <- data_fast_ICA %>% eeg_ica_show(ICA1, ICA2, ICA3) %>%

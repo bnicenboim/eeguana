@@ -3,6 +3,7 @@
   - Changes
     - Signal processing functions added `sig_fft()`, `sig_ifft()`.
     - Better print method for channels.
+    - More consistent events_tbl with obligatory .type and .description
     
     
 # eeguana 0.1.3.9000
