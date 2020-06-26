@@ -616,7 +616,7 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
     events_tbl <- object$layer$data
   }
   if(nrow(events_tbl)==0) return(NULL)  #nothing to plot
-  info_events <- setdiff(colnames(events_tbl), obligatory_cols[[".events"]])
+  info_events <- c(".type", ".description") 
   events_tbl <- data.table::as.data.table(events_tbl)
   events_tbl[, xmin := as_time(.initial) ]
   events_tbl[, xmax := as_time(.final) ]
