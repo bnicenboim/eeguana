@@ -73,7 +73,7 @@ as_events_tbl.data.table <- function(.data, sampling_rate = NULL) {
 }
 
 as_events_tbl.events_tbl <- function(.data, sampling_rate = NULL) {
-  if (!is.null(sampling_rate) && sampling_rate != sampling_rate(.data)) {
+  if (!is.null(sampling_rate)) {
     .data <- data.table::copy(.data)
     .data[, .initial := sample_int(as.integer(.initial),
       sampling_rate = sampling_rate

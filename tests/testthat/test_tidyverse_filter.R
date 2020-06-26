@@ -136,8 +136,6 @@ filter1_events <- events_tbl(data) %>%
   dplyr::filter(.initial >= 0 | .final >= 0) %>%
   dplyr::mutate(.final = ifelse(.initial < 0, 0, .final), .initial = ifelse(.initial < 0, 0, .initial))
 
-
-
 filter2_sign_eeg <- dplyr::filter(data, .id == 1 & .sample == 2)
 filter2_sign_tbl <- dplyr::left_join(dplyr::as_tibble(data$.signal), dplyr::as_tibble(data$.segments)) %>%
   dplyr::filter(.id == 1 & .sample == 2)
@@ -759,3 +757,4 @@ test_that("dplyr::filter_at and grouped dplyr::filtered at", {
 test_that("data didn't change", {
   expect_equal(reference_data, data)
 })
+
