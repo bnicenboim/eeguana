@@ -350,11 +350,11 @@ read_edf <- function(file, .recording = file) {
   } else if (event_channel[[1]]$isAnnotation){
 
     edf_events <- event_channel[[1]]$annotations
-    desc <- data.table::data.table(.type = NA, .description = edf_events[["annotation"]] )
     init_events <- sample_int(round(edf_events$onset * sampling_rate) + 1L , sampling_rate = sampling_rate)
     events <- new_events_tbl(.id=1L, 
                              .initial = init_events,
-                             descriptions_dt = desc, 
+                             .type = NA_character_, 
+                             .description = edf_events[["annotation"]],
                              .final = ( dplyr::case_when(!is.na(edf_events$duration) ~
                                                            round(edf_events$duration* sampling_rate),
                                                          !is.na(edf_events$end) ~
@@ -373,10 +373,11 @@ read_edf <- function(file, .recording = file) {
     init_events <- (which(diff(triggers) > 0) + 1) %>%
       sample_int(sampling_rate = sampling_rate)
     
-    desc <- data.table::data.table(.type = NA, .description = triggers[init_events] )
+    
     events <- new_events_tbl(.id=1L,
                              .initial = init_events,
-                             descriptions_dt = desc,
+                             .description = triggers[init_events],
+                             .type = NA_character_,
                              .final = init_events,
                              .channel= NA_character_)
 

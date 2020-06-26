@@ -81,7 +81,7 @@ data_blinks_more_NA$.signal[5, ]$Cz <- NA_real_
 m <- structure(c(-1.316038587729, -0.325231960551256, 3.97869823946626,
                  -0.122103882193917, -0.0556199678365175, 1.02305178660224, -2.4335067665471, 
                  1.90720205416033, -0.116728090380369), .Dim = c(3L, 3L))
-data_fast_ICA <- eeg_ica(data_blinks, method = fast_ICA,
+data_fast_ICA <- eeg_ica(.data= data_blinks, method = fast_ICA,
                          config = list(w.init = m))
 
 test_that("different implementations aren't too different", {

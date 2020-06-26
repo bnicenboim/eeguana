@@ -117,7 +117,7 @@ eeg_mne_bdf <- mne$io$read_raw_bdf(bdf_file, preload = TRUE, stim_channel = "Sta
 data_mne_bdf <- as_eeg_lst(.data = eeg_mne_bdf) %>%
     dplyr::mutate(.recording = "bdf")
 events_found <-   mne$find_events(eeg_mne_bdf)
-events_tbl(data_mne_bdf) <- eeguana:::new_events_tbl(.id=1, .initial=events_found[,1]+1, .final= events_found[,1]+1,descriptions_dt = data.table::data.table(.type=NA, .description = events_found[,3]))
+events_tbl(data_mne_bdf) <- eeguana:::new_events_tbl(.id=1, .initial=events_found[,1]+1, .final= events_found[,1]+1,.type=NA, .description = events_found[,3])
 channels_tbl(data_mne_bdf) <- channels_tbl(data_mne_bdf)[,-5] # remove unit
 
 

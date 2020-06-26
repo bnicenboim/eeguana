@@ -280,7 +280,7 @@ eeg_events_to_NA.eeg_lst <-
     
     # Hack for match 2 columns with 2 columns, similar to semi_join but allowing
     # for assignment
-    baddies <- dplyr::filter(x$.events,!!!dots)
+    baddies <- eeguana:::filter_dt(x$.events,!!!dots)
     
     if (all_chs)
       baddies <- dplyr::mutate(baddies, .channel = NA_character_)
