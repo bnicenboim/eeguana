@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Functions to get or set the channel information of an eeg_lst object. — channels_tbl • eeguana</title>
+<title>Coerce a vector of real (double) numbers into a channel object — as_channel_dbl • eeguana</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,8 @@
 
 
 
-<meta property="og:title" content="Functions to get or set the channel information of an eeg_lst object. — channels_tbl" />
-<meta property="og:description" content="Functions to get or set the channel information of an eeg_lst object." />
+<meta property="og:title" content="Coerce a vector of real (double) numbers into a channel object — as_channel_dbl" />
+<meta property="og:description" content="Coerce a vector of real (double) numbers into a channel object" />
 
 
 
@@ -133,46 +133,34 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Functions to get or set the channel information of an eeg_lst object.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/tbl.R'><code>R/tbl.R</code></a></small>
-    <div class="hidden name"><code>channels_tbl.Rd</code></div>
+    <h1>Coerce a vector of real (double) numbers into a channel object</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/constructors.R'><code>R/constructors.R</code></a></small>
+    <div class="hidden name"><code>as_channel_dbl.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Functions to get or set the channel information of an eeg_lst object.</p>
+    <p>Coerce a vector of real (double) numbers into a channel object</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/channels_tbl.html'>channels_tbl</a></span>(<span class='kw'>.data</span>, <span class='kw'>...</span>)
-
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/channels_tbl.html'>channels_tbl</a></span>(<span class='kw'>.data</span>) <span class='op'>&lt;-</span> <span class='kw'>value</span></pre>
+    <pre class="usage"><span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/as_channel_dbl.html'>as_channel_dbl</a></span>(<span class='kw'>x</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>.data</th>
-      <td><p>An eeg_lst object.</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Not in use.</p></td>
-    </tr>
-    <tr>
-      <th>value</th>
-      <td><p>A channel table.</p></td>
+      <th>x</th>
+      <td><p>A vector.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A table.</p>
+    <p>A channel_dbl.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other functions to expose internal parts of eeg_(ica_)_lst: 
-<code><a href='https://rdrr.io/pkg/eeguana/man/events_tbl.html'>events_tbl</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/ica_matrix_lst.html'>ica_matrix_lst</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/segments_tbl.html'>segments_tbl</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/signal_tbl.html'>signal_tbl</a>()</code></p></div>
+    <div class='dont-index'><p>Other channel: 
+<code><a href='https://rdrr.io/pkg/eeguana/man/channel_dbl.html'>channel_dbl</a>()</code>,
+<code><a href='https://rdrr.io/pkg/eeguana/man/is_channel_dbl.html'>is_channel_dbl</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

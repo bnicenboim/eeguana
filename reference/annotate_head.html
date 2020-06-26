@@ -48,7 +48,6 @@
 
 <meta property="og:title" content="Add a head shape to a ggplot — annotate_head" />
 <meta property="og:description" content="Adds the outline of a head and nose to a ggplot." />
-<meta property="og:image" content="/logo.png" />
 
 
 
@@ -80,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.3.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.9000</span>
       </span>
     </div>
 
@@ -143,7 +142,7 @@
     <p>Adds the outline of a head and nose to a ggplot.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>annotate_head</span>(<span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>1.1</span>, <span class='kw'>color</span> <span class='kw'>=</span> <span class='st'>"black"</span>, <span class='kw'>stroke</span> <span class='kw'>=</span> <span class='fl'>1</span>)</pre>
+    <pre class="usage"><span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/annotate_head.html'>annotate_head</a></span>(size = <span class='fl'>1.1</span>, color = <span class='st'>"black"</span>, stroke = <span class='fl'>1</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -168,31 +167,31 @@
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other plotting functions: 
-<code>annotate_events()</code>,
-<code>eeg_downsample()</code>,
-<code>ggplot.eeg_lst()</code>,
-<code>plot.eeg_lst()</code>,
-<code>plot_components()</code>,
-<code>plot_in_layout()</code>,
-<code>plot_topo()</code>,
-<code>theme_eeguana()</code></p></div>
+<code><a href='https://rdrr.io/pkg/eeguana/man/annotate_events.html'>annotate_events</a>()</code>,
+<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_downsample.html'>eeg_downsample</a>()</code>,
+<code><a href='https://rdrr.io/pkg/eeguana/man/ggplot.eeg_lst.html'>ggplot.eeg_lst</a>()</code>,
+<code><a href='https://rdrr.io/pkg/eeguana/man/plot.eeg_lst.html'>plot.eeg_lst</a>()</code>,
+<code><a href='https://rdrr.io/pkg/eeguana/man/plot_components.html'>plot_components</a>()</code>,
+<code><a href='https://rdrr.io/pkg/eeguana/man/plot_in_layout.html'>plot_in_layout</a>()</code>,
+<code><a href='https://rdrr.io/pkg/eeguana/man/plot_topo.html'>plot_topo</a>()</code>,
+<code><a href='https://rdrr.io/pkg/eeguana/man/theme_eeguana.html'>theme_eeguana</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>dplyr</span>)</div><div class='output co'>#&gt; <span class='message'></span>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='https://dplyr.tidyverse.org'>dplyr</a></span>)</div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>Attaching package: ‘dplyr’</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from ‘package:eeguana’:</span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>    between</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:stats’:</span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>    filter, lag</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:base’:</span>
 #&gt; <span class='message'></span>
-#&gt; <span class='message'>    intersect, setdiff, setequal, union</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>ggplot2</span>)
+#&gt; <span class='message'>    intersect, setdiff, setequal, union</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='http://ggplot2.tidyverse.org'>ggplot2</a></span>)
 
-<span class='no'>data_faces_ERPs</span> <span class='kw'>%&gt;%</span>
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span>(<span class='fu'><a href='https://dplyr.tidyverse.org/reference/between.html'>between</a></span>(<span class='fu'>as_time</span>(<span class='no'>.sample</span>, <span class='kw'>unit</span> <span class='kw'>=</span> <span class='st'>"milliseconds"</span>), <span class='fl'>100</span>, <span class='fl'>200</span>)) <span class='kw'>%&gt;%</span>
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span>(<span class='no'>condition</span>) <span class='kw'>%&gt;%</span>
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise_all.html'>summarize_at</a></span>(<span class='fu'>channel_names</span>(<span class='no'>.</span>), <span class='no'>mean</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>) <span class='kw'>%&gt;%</span>
-  <span class='fu'>plot_topo</span>() +
-  <span class='fu'>annotate_head</span>(<span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>.9</span>, <span class='kw'>color</span> <span class='kw'>=</span> <span class='st'>"black"</span>, <span class='kw'>stroke</span> <span class='kw'>=</span> <span class='fl'>1</span>)</div><div class='img'><img src='annotate_head-1.png' alt='' width='700' height='433' /></div></pre>
+<span class='kw'>data_faces_ERPs</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span>(<span class='fu'><a href='https://dplyr.tidyverse.org/reference/between.html'>between</a></span>(<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/as_time.html'>as_time</a></span>(<span class='kw'>.sample</span>, unit = <span class='st'>"milliseconds"</span>), <span class='fl'>100</span>, <span class='fl'>200</span>)) <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span>(<span class='kw'>condition</span>) <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise_all.html'>summarize_at</a></span>(<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/summaries.html'>channel_names</a></span>(<span class='kw'>.</span>), <span class='kw'>mean</span>, na.rm = <span class='fl'>TRUE</span>) <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/plot_topo.html'>plot_topo</a></span>() <span class='op'>+</span>
+  <span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/annotate_head.html'>annotate_head</a></span>(size = <span class='fl'>.9</span>, color = <span class='st'>"black"</span>, stroke = <span class='fl'>1</span>)</div><div class='img'><img src='annotate_head-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -208,7 +207,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

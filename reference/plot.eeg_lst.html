@@ -50,7 +50,6 @@
 <meta property="og:description" content="plot creates a ggplot object in which the EEG signal over the whole
 recording is plotted by electrode. Useful as a quick visual check for major
 noise issues in the recording." />
-<meta property="og:image" content="/logo.png" />
 
 
 
@@ -82,7 +81,7 @@ noise issues in the recording." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.3.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.9000</span>
       </span>
     </div>
 
@@ -148,7 +147,7 @@ noise issues in the recording.</p>
     </div>
 
     <pre class="usage"><span class='co'># S3 method for eeg_lst</span>
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>x</span>, <span class='kw'>max_sample</span> <span class='kw'>=</span> <span class='fl'>6400</span>, <span class='no'>...</span>)</pre>
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>x</span>, max_sample = <span class='fl'>6400</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -181,27 +180,27 @@ number (<code>.sample</code> in the <code>eeg_lst</code> object) is automaticall
 to create the variable <code>time</code>. By default, time is then plotted on the
 x-axis and amplitude on the y-axis, and uses <code>scales = "free"</code>; see <code><a href='https://ggplot2.tidyverse.org/reference/facet_grid.html'>ggplot2::facet_grid()</a></code>.</p>
 <p>To add additional components to the plot such as titles and annotations, simply
-use the <code>+</code> symbol and add layers exactly as you would for <a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot2::ggplot</a>.</p>
+use the <code><a href='https://rdrr.io/r/base/Arithmetic.html'>+</a></code> symbol and add layers exactly as you would for <a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot2::ggplot</a>.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other plotting functions: 
-<code>annotate_events()</code>,
-<code>annotate_head()</code>,
-<code>eeg_downsample()</code>,
-<code>ggplot.eeg_lst()</code>,
-<code>plot_components()</code>,
-<code>plot_in_layout()</code>,
-<code>plot_topo()</code>,
-<code>theme_eeguana()</code></p></div>
+<code><a href='https://rdrr.io/pkg/eeguana/man/annotate_events.html'>annotate_events</a>()</code>,
+<code><a href='https://rdrr.io/pkg/eeguana/man/annotate_head.html'>annotate_head</a>()</code>,
+<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_downsample.html'>eeg_downsample</a>()</code>,
+<code><a href='https://rdrr.io/pkg/eeguana/man/ggplot.eeg_lst.html'>ggplot.eeg_lst</a>()</code>,
+<code><a href='https://rdrr.io/pkg/eeguana/man/plot_components.html'>plot_components</a>()</code>,
+<code><a href='https://rdrr.io/pkg/eeguana/man/plot_in_layout.html'>plot_in_layout</a>()</code>,
+<code><a href='https://rdrr.io/pkg/eeguana/man/plot_topo.html'>plot_topo</a>()</code>,
+<code><a href='https://rdrr.io/pkg/eeguana/man/theme_eeguana.html'>theme_eeguana</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
 <span class='co'># Basic plot</span>
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>data_faces_ERPs</span>)</div><div class='img'><img src='plot.eeg_lst-1.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>data_faces_ERPs</span>)</div><div class='img'><img src='plot.eeg_lst-1.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># Add ggplot layers</span>
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>ggplot2</span>)
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>data_faces_ERPs</span>) +
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/coord_cartesian.html'>coord_cartesian</a></span>(<span class='kw'>ylim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(-<span class='fl'>500</span>, <span class='fl'>500</span>))</div><div class='output co'>#&gt; <span class='message'>Coordinate system already present. Adding new coordinate system, which will replace the existing one.</span></div><div class='img'><img src='plot.eeg_lst-2.png' alt='' width='700' height='433' /></div></pre>
+<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='http://ggplot2.tidyverse.org'>ggplot2</a></span>)
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>data_faces_ERPs</span>) <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/coord_cartesian.html'>coord_cartesian</a></span>(ylim = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='op'>-</span><span class='fl'>500</span>, <span class='fl'>500</span>))</div><div class='output co'>#&gt; <span class='message'>Coordinate system already present. Adding new coordinate system, which will replace the existing one.</span></div><div class='img'><img src='plot.eeg_lst-2.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -217,7 +216,7 @@ use the <code>+</code> symbol and add layers exactly as you would for <a href='h
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

@@ -53,7 +53,6 @@ It returns an estimated unmixing matrix W (equivalent to the original K %*% W), 
 consistent with the formulation X= S %*% A, and X %*% W = S where X is the matrix of data with
 N_samples by N_channels, and S is a matrix of sources with N_samples by N_sources.
 They are meant to be  used with eeg_ica()." />
-<meta property="og:image" content="/logo.png" />
 
 
 
@@ -85,7 +84,7 @@ They are meant to be  used with eeg_ica()." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.3.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.9000</span>
       </span>
     </div>
 
@@ -145,25 +144,25 @@ They are meant to be  used with eeg_ica()." />
     </div>
 
     <div class="ref-description">
-    <p><code>fast_ICA()</code> is a wrapper for <a href='https://rdrr.io/pkg/fastICA/man/fastICA.html'>fastICA::fastICA</a>, with different defaults (runs in C,
+    <p><code><a href='https://rdrr.io/pkg/eeguana/man/fast_ICA.html'>fast_ICA()</a></code> is a wrapper for <a href='https://rdrr.io/pkg/fastICA/man/fastICA.html'>fastICA::fastICA</a>, with different defaults (runs in C,
 maximum teration = 1000, tolerance = 1e-04, verbose), and that throws a warning in case of non-convergence.
 It returns an estimated unmixing matrix W (equivalent to the original <code>K %*% W</code>), and the mixing matrix A,
 consistent with the formulation <code>X= S %*% A</code>, and <code>X %*% W = S</code> where X is the matrix of data with
 N_samples by N_channels, and S is a matrix of sources with N_samples by N_sources.
-They are meant to be  used with <code>eeg_ica()</code>.</p>
+They are meant to be  used with <code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica.html'>eeg_ica()</a></code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>fast_ICA</span>(
-  <span class='no'>X</span>,
-  <span class='kw'>n.comp</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>alg.typ</span> <span class='kw'>=</span> <span class='st'>"parallel"</span>,
-  <span class='kw'>fun</span> <span class='kw'>=</span> <span class='st'>"logcosh"</span>,
-  <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"C"</span>,
-  <span class='kw'>row.norm</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>maxit</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
-  <span class='kw'>tol</span> <span class='kw'>=</span> <span class='fl'>1e-06</span>,
-  <span class='kw'>w.init</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+    <pre class="usage"><span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/fast_ICA.html'>fast_ICA</a></span>(
+  <span class='kw'>X</span>,
+  n.comp = <span class='kw'>NULL</span>,
+  alg.typ = <span class='st'>"parallel"</span>,
+  fun = <span class='st'>"logcosh"</span>,
+  alpha = <span class='fl'>1</span>,
+  method = <span class='st'>"C"</span>,
+  row.norm = <span class='fl'>FALSE</span>,
+  maxit = <span class='fl'>1000</span>,
+  tol = <span class='fl'>1e-06</span>,
+  w.init = <span class='kw'>NULL</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -231,7 +230,7 @@ They are meant to be  used with <code>eeg_ica()</code>.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other ica methods: 
-<code>fICA</code></p></div>
+<code><a href='https://rdrr.io/pkg/eeguana/man/fICA.html'>fICA</a></code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -248,7 +247,7 @@ They are meant to be  used with <code>eeg_ica()</code>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Functions to get or set the channel information of an eeg_lst object. — channels_tbl • eeguana</title>
+<title>Compute the one-dimensional inverse discrete Fourier Transform. — sig_ifft • eeguana</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,11 @@
 
 
 
-<meta property="og:title" content="Functions to get or set the channel information of an eeg_lst object. — channels_tbl" />
-<meta property="og:description" content="Functions to get or set the channel information of an eeg_lst object." />
+<meta property="og:title" content="Compute the one-dimensional inverse discrete Fourier Transform. — sig_ifft" />
+<meta property="og:description" content="This function computes the inverse of the one-dimensional n-point discrete Fourier
+transform computed by fft using a wrapper of fft(z, inverse= TRUE)/length(z) with
+an extra argument making it similar to   numpy.fft.ifft.
+For a general description of the algorithm and definitions, see fft and numpy.fft." />
 
 
 
@@ -133,47 +136,62 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Functions to get or set the channel information of an eeg_lst object.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/tbl.R'><code>R/tbl.R</code></a></small>
-    <div class="hidden name"><code>channels_tbl.Rd</code></div>
+    <h1>Compute the one-dimensional inverse discrete Fourier Transform.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bnicenboim/eeguana/blob/master/R/signal_helpers.R'><code>R/signal_helpers.R</code></a></small>
+    <div class="hidden name"><code>sig_ifft.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Functions to get or set the channel information of an eeg_lst object.</p>
+    <p>This function computes the inverse of the one-dimensional n-point discrete Fourier
+transform computed by fft using a wrapper of <code>fft(z, inverse= TRUE)/length(z)</code> with
+an extra argument making it similar to   <a href='https://docs.scipy.org/doc/numpy-1.17.0/reference/generated/numpy.fft.ifft.html#numpy.fft.ifft'>numpy.fft.ifft</a>.
+For a general description of the algorithm and definitions, see <a href='stats::fft'>fft</a> and <a href='https://docs.scipy.org/doc/numpy-1.17.0/reference/generated/numpy.fft.ifft.html#numpy.fft.ifft'>numpy.fft</a>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/channels_tbl.html'>channels_tbl</a></span>(<span class='kw'>.data</span>, <span class='kw'>...</span>)
-
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/channels_tbl.html'>channels_tbl</a></span>(<span class='kw'>.data</span>) <span class='op'>&lt;-</span> <span class='kw'>value</span></pre>
+    <pre class="usage"><span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/sig_ifft.html'>sig_ifft</a></span>(<span class='kw'>x</span>, n = <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>.data</th>
-      <td><p>An eeg_lst object.</p></td>
+      <th>x</th>
+      <td><p>A vector</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>Not in use.</p></td>
-    </tr>
-    <tr>
-      <th>value</th>
-      <td><p>A channel table.</p></td>
+      <th>n</th>
+      <td><p>Length of the transformed axis of the output. If <code>n</code> is smaller
+than the length of the input, the input is cropped. If it is larger, the input
+is padded with zeros. If n is not given, the length of the input along
+the axis specified by axis is used.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A table.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+    <p>A vector</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <div class='dont-index'><p>Other functions to expose internal parts of eeg_(ica_)_lst: 
-<code><a href='https://rdrr.io/pkg/eeguana/man/events_tbl.html'>events_tbl</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/ica_matrix_lst.html'>ica_matrix_lst</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/segments_tbl.html'>segments_tbl</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/signal_tbl.html'>signal_tbl</a>()</code></p></div>
+    <p>The input should be ordered in the same way as is returned by fft, i.e.,
+(<em>if I converted the indexes from python correctly</em>)</p><ul>
+<li><p><code>a[1]</code> should contain the zero frequency term,</p></li>
+<li><p><code>a[2:ceiling(n/2)]</code> should contain the positive-frequency terms,</p></li>
+<li><p><code>a[ceiling(n/2) + 2:length(a)]</code> should contain the negative-frequency terms,
+in increasing order starting from the most negative frequency.</p></li>
+<li><p>For an even number of input points, <code>a[ceiling(n/2)]</code> represents
+the sum of the values at the positive and negative Nyquist frequencies,
+as the two are aliased together. See see <a href='https://docs.scipy.org/doc/numpy-1.17.0/reference/generated/numpy.fft.ifft.html#numpy.fft.ifft'>numpy.fft</a> for details.</p></li>
+</ul>
 
+<p><strong>Notes</strong></p>
+<p>If the input parameter <code>n</code> is larger than the size of the input,
+the input is padded by appending zeros at the end. Even though this is
+the common approach, it might lead to surprising results. If a different padding
+is desired, it must be performed before calling ifft.</p>
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'>
+<span class='kw'>a</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>4</span>, <span class='fl'>0</span>, <span class='fl'>0</span>)
+<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/sig_ifft.html'>sig_ifft</a></span>(<span class='kw'>a</span>)</div><div class='output co'>#&gt; [1]  1+0i  0+1i -1+0i  0-1i</div><div class='input'><span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/sig_ifft.html'>sig_ifft</a></span>(<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/sig_fft.html'>sig_fft</a></span>(<span class='kw'>a</span>)) <span class='op'>==</span> <span class='kw'>a</span>  </div><div class='output co'>#&gt; [1] TRUE TRUE TRUE TRUE</div><div class='input'> </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

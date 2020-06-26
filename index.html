@@ -29,7 +29,6 @@
     and other exported information, and (iii) a long table with experimental
     information, such as participant number (.recording), conditions, etc.
     eeguana can do only basic pre-processing for now.'>
-<meta property="og:image" content="/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -48,7 +47,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.3.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.9000</span>
       </span>
     </div>
 
@@ -118,37 +117,46 @@
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
 <p>There is still <strong>no</strong> released version of <em>eeguana</em>. The package is in the early stages of development, and it <strong>will</strong> be subject to a lot of changes. To install the latest version from github use:</p>
-<div class="sourceCode" id="cb1"><pre class="r"><span class="kw pkg">devtools</span><span class="kw ns">::</span><span class="fu">install_github</span>(<span class="st">"bnicenboim/eeguana"</span>)</pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit">
+<span class="kw">devtools</span>::<span class="fu">install_github</span>(<span class="st">"bnicenboim/eeguana"</span>)
+</pre></div>
 </div>
 <div id="example" class="section level2">
 <h2 class="hasAnchor">
 <a href="#example" class="anchor"></a>Example</h2>
 <p>Here, I exemplify the use of <em>eeguana</em> with (pre-processed) EEG data from BrainVision 2.0. The data belong to a simple experiment where a participant was presented 100 faces and 100 assorted images in random order. The task of the experiment was to mentally count the number of faces.</p>
 <p>First we download the data:</p>
-<div class="sourceCode" id="cb2"><pre class="r"><span class="co"># Run the following or just download the files from brain_vision folder in https://osf.io/tbwvz/</span>
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">httr</span>)
+<div class="sourceCode" id="cb2"><pre class="downlit">
+<span class="co"># Run the following or just download the files from brain_vision folder in https://osf.io/tbwvz/</span>
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="https://httr.r-lib.org">httr</a></span>)
 <span class="fu"><a href="https://httr.r-lib.org/reference/GET.html">GET</a></span>(<span class="st">"https://osf.io/q6b7x//?action=download"</span>,
-  <span class="fu"><a href="https://httr.r-lib.org/reference/write_disk.html">write_disk</a></span>(<span class="st">"./faces.vhdr"</span>, <span class="kw">overwrite</span> <span class="kw">=</span> <span class="fl">TRUE</span>),
+  <span class="fu"><a href="https://httr.r-lib.org/reference/write_disk.html">write_disk</a></span>(<span class="st">"./faces.vhdr"</span>, overwrite = <span class="fl">TRUE</span>),
   <span class="fu"><a href="https://httr.r-lib.org/reference/progress.html">progress</a></span>()
 )
 <span class="fu"><a href="https://httr.r-lib.org/reference/GET.html">GET</a></span>(<span class="st">"https://osf.io/ft5ge//?action=download"</span>,
-  <span class="fu"><a href="https://httr.r-lib.org/reference/write_disk.html">write_disk</a></span>(<span class="st">"./faces.vmrk"</span>, <span class="kw">overwrite</span> <span class="kw">=</span> <span class="fl">TRUE</span>),
+  <span class="fu"><a href="https://httr.r-lib.org/reference/write_disk.html">write_disk</a></span>(<span class="st">"./faces.vmrk"</span>, overwrite = <span class="fl">TRUE</span>),
   <span class="fu"><a href="https://httr.r-lib.org/reference/progress.html">progress</a></span>()
 )
 <span class="fu"><a href="https://httr.r-lib.org/reference/GET.html">GET</a></span>(<span class="st">"https://osf.io/85dgj//?action=download"</span>,
-  <span class="fu"><a href="https://httr.r-lib.org/reference/write_disk.html">write_disk</a></span>(<span class="st">"./faces.dat"</span>, <span class="kw">overwrite</span> <span class="kw">=</span> <span class="fl">TRUE</span>),
+  <span class="fu"><a href="https://httr.r-lib.org/reference/write_disk.html">write_disk</a></span>(<span class="st">"./faces.dat"</span>, overwrite = <span class="fl">TRUE</span>),
   <span class="fu"><a href="https://httr.r-lib.org/reference/progress.html">progress</a></span>()
-)</pre></div>
+)
+</pre></div>
 <p>BrainVision 2.0 exports three files: <code>faces.vhdr</code>, <code>faces.vmrk</code>, and <code>faces.dat</code>. The file <code>faces.vhdr</code> contains the metadata and links to the other two files, <code>faces.vmrk</code> contains the triggers and other events in the samples, and <code>faces.dat</code> contains the signals at every sample for every channel recorded.</p>
-<div class="sourceCode" id="cb3"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">eeguana</span>)</pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="https://github.com/bnicenboim/eeguana">eeguana</a></span>)
+</pre></div>
 <p>We first need to read the data:</p>
-<div class="sourceCode" id="cb4"><pre class="r"><span class="no">faces</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/eeguana/man/read_vhdr.html">read_vhdr</a></span>(<span class="st">"faces.vhdr"</span>)
+<div class="sourceCode" id="cb4"><pre class="downlit">
+<span class="kw">faces</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/read_vhdr.html">read_vhdr</a></span>(<span class="st">"faces.vhdr"</span>)
 <span class="co">#&gt; Reading file faces.vhdr...</span>
 <span class="co">#&gt; # Data from faces.dat was read.</span>
 <span class="co">#&gt; # Data from 1 segment(s) and 34 channels was loaded.</span>
-<span class="co">#&gt; # Object size in memory 140.5 Mb</span></pre></div>
-<p>The function <code><a href="https://rdrr.io/pkg/eeguana/man/read_vhdr.html">read_vhdr()</a></code> creates a list with data frames for the signal, events, segments information, and incorporates in its attributes generic EEG information.</p>
-<div class="sourceCode" id="cb5"><pre class="r"><span class="no">faces</span>
+<span class="co">#&gt; # Object size in memory 140.5 Mb</span>
+</pre></div>
+<p>The function <code><a href="reference/read_vhdr.html">read_vhdr()</a></code> creates a list with data frames for the signal, events, segments information, and incorporates in its attributes generic EEG information.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit">
+<span class="kw">faces</span>
 <span class="co">#&gt; # EEG data:</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; # Signal table:</span>
@@ -243,20 +251,24 @@
 <span class="co">#&gt; # A tibble: 1 x 3</span>
 <span class="co">#&gt;     .id .recording segment</span>
 <span class="co">#&gt;   &lt;int&gt; &lt;chr&gt;        &lt;int&gt;</span>
-<span class="co">#&gt; 1     1 faces.vhdr       1</span></pre></div>
+<span class="co">#&gt; 1     1 faces.vhdr       1</span>
+</pre></div>
 <p>Some intervals were marked as “bad” by BrainVision, and so we’ll remove them from the data. We’ll also segment and baseline the data. In this experiment, the trigger “s70” was used for faces and “s71” for no faces. We’ll segment the data using these two triggers.</p>
-<div class="sourceCode" id="cb6"><pre class="r"><span class="no">faces_segs</span> <span class="kw">&lt;-</span> <span class="no">faces</span> <span class="kw">%&gt;%</span>
-  <span class="fu"><a href="https://rdrr.io/pkg/eeguana/man/eeg_segment.html">eeg_segment</a></span>(<span class="no">.description</span> <span class="kw">%in%</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"s70"</span>, <span class="st">"s71"</span>),
-    <span class="kw">lim</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(-<span class="fl">.2</span>, <span class="fl">.25</span>)
-  ) <span class="kw">%&gt;%</span>
-  <span class="fu"><a href="https://rdrr.io/pkg/eeguana/man/eeg_events_to_NA.html">eeg_events_to_NA</a></span>(<span class="no">.type</span> <span class="kw">==</span> <span class="st">"Bad Interval"</span>) <span class="kw">%&gt;%</span>
-  <span class="fu"><a href="https://rdrr.io/pkg/eeguana/man/eeg_baseline.html">eeg_baseline</a></span>()
+<div class="sourceCode" id="cb6"><pre class="downlit">
+<span class="kw">faces_segs</span> <span class="op">&lt;-</span> <span class="kw">faces</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="reference/eeg_segment.html">eeg_segment</a></span>(<span class="kw">.description</span> <span class="op">%in%</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"s70"</span>, <span class="st">"s71"</span>),
+    lim = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="op">-</span><span class="fl">.2</span>, <span class="fl">.25</span>)
+  ) <span class="op">%&gt;%</span>
+  <span class="fu"><a href="reference/eeg_events_to_NA.html">eeg_events_to_NA</a></span>(<span class="kw">.type</span> <span class="op">==</span> <span class="st">"Bad Interval"</span>) <span class="op">%&gt;%</span>
+  <span class="fu"><a href="reference/eeg_baseline.html">eeg_baseline</a></span>()
 <span class="co">#&gt; # Total of 200 segments found.</span>
-<span class="co">#&gt; # Object size in memory 12.2 Mb after segmentation.</span></pre></div>
+<span class="co">#&gt; # Object size in memory 12.2 Mb after segmentation.</span>
+</pre></div>
 <p>We can also edit the segmentation information and add more descriptive labels. Once the <code>eeg_lst</code> is segmented, the segments table includes the relevant columns from the events table (but without the leading dots).</p>
-<p><em>eeguana</em> has wrappers for many <code>dplyr</code> commands for the EEG data. These commands always return an entire <code>eeg_lst</code> object so that they can be piped using <code>magrittr</code>’s pipe, <code><a href="https://dplyr.tidyverse.org/reference/reexports.html">%&gt;%</a></code>.</p>
-<div class="sourceCode" id="cb7"><pre class="r"><span class="co">## To only see the segments table:</span>
-<span class="fu"><a href="https://rdrr.io/pkg/eeguana/man/segments_tbl.html">segments_tbl</a></span>(<span class="no">faces_segs</span>)
+<p><em>eeguana</em> has wrappers for many <code>dplyr</code> commands for the EEG data. These commands always return an entire <code>eeg_lst</code> object so that they can be piped using <code>magrittr</code>’s pipe, <code><a href="reference/%&gt;%.html">%&gt;%</a></code>.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit">
+<span class="co">## To only see the segments table:</span>
+<span class="fu"><a href="reference/segments_tbl.html">segments_tbl</a></span>(<span class="kw">faces_segs</span>)
 <span class="co">#&gt; # A tibble: 200 x 5</span>
 <span class="co">#&gt;      .id .recording segment type     description</span>
 <span class="co">#&gt;    &lt;int&gt; &lt;chr&gt;        &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;      </span>
@@ -271,7 +283,7 @@
 <span class="co">#&gt;  9     9 faces.vhdr       9 Stimulus s70        </span>
 <span class="co">#&gt; 10    10 faces.vhdr      10 Stimulus s70        </span>
 <span class="co">#&gt; # … with 190 more rows</span>
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">dplyr</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="https://dplyr.tidyverse.org">dplyr</a></span>)
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Attaching package: 'dplyr'</span>
 <span class="co">#&gt; The following object is masked from 'package:eeguana':</span>
@@ -284,14 +296,14 @@
 <span class="co">#&gt; </span>
 <span class="co">#&gt;     intersect, setdiff, setequal, union</span>
 <span class="co">## We modify the entire object:</span>
-<span class="no">faces_segs_some</span> <span class="kw">&lt;-</span> <span class="no">faces_segs</span> <span class="kw">%&gt;%</span>
+<span class="kw">faces_segs_some</span> <span class="op">&lt;-</span> <span class="kw">faces_segs</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(
-    <span class="kw">condition</span> <span class="kw">=</span>
-      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html">if_else</a></span>(<span class="no">description</span> <span class="kw">==</span> <span class="st">"s70"</span>, <span class="st">"faces"</span>, <span class="st">"non-faces"</span>)
-  ) <span class="kw">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(-<span class="no">type</span>)
+    condition =
+      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html">if_else</a></span>(<span class="kw">description</span> <span class="op">==</span> <span class="st">"s70"</span>, <span class="st">"faces"</span>, <span class="st">"non-faces"</span>)
+  ) <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="op">-</span><span class="kw">type</span>)
 
-<span class="no">faces_segs_some</span>
+<span class="kw">faces_segs_some</span>
 <span class="co">#&gt; # EEG data:</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; # Signal table:</span>
@@ -396,32 +408,38 @@
 <span class="co">#&gt;  8     8 faces.vhdr       8 s70         faces    </span>
 <span class="co">#&gt;  9     9 faces.vhdr       9 s70         faces    </span>
 <span class="co">#&gt; 10    10 faces.vhdr      10 s70         faces    </span>
-<span class="co">#&gt; # … with 190 more rows</span></pre></div>
+<span class="co">#&gt; # … with 190 more rows</span>
+</pre></div>
 <p>With some “regular” <code>ggplot</code> skills, we can create customized plots. <code><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot()</a></code> applied to an <code>eeg_lst</code> object will downsample the signals (when needed), and convert them to a long-format data frame that is feed into <code>ggplot</code>. This object can then be customized.</p>
-<div class="sourceCode" id="cb8"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">ggplot2</span>)
-<span class="no">faces_segs_some</span> <span class="kw">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="no">O1</span>, <span class="no">O2</span>, <span class="no">P7</span>, <span class="no">P8</span>) <span class="kw">%&gt;%</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">.time</span>, <span class="kw">y</span> <span class="kw">=</span> <span class="no">.value</span>)) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>(<span class="kw">alpha</span> <span class="kw">=</span> <span class="fl">.1</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="kw">group</span> <span class="kw">=</span> <span class="no">.id</span>, <span class="kw">color</span> <span class="kw">=</span> <span class="no">condition</span>)) +
+<div class="sourceCode" id="cb8"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="http://ggplot2.tidyverse.org">ggplot2</a></span>)
+<span class="kw">faces_segs_some</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="kw">O1</span>, <span class="kw">O2</span>, <span class="kw">P7</span>, <span class="kw">P8</span>) <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(x = <span class="kw">.time</span>, y = <span class="kw">.value</span>)) <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>(alpha = <span class="fl">.1</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(group = <span class="kw">.id</span>, color = <span class="kw">condition</span>)) <span class="op">+</span>
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/stat_summary.html">stat_summary</a></span>(
-    <span class="kw">fun.y</span> <span class="kw">=</span> <span class="st">"mean"</span>, <span class="kw">geom</span> <span class="kw">=</span> <span class="st">"line"</span>, <span class="kw">alpha</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">size</span> <span class="kw">=</span> <span class="fl">1.5</span>,
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="kw">color</span> <span class="kw">=</span> <span class="no">condition</span>)
-  ) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span>(~<span class="no">.key</span>) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html">geom_vline</a></span>(<span class="kw">xintercept</span> <span class="kw">=</span> <span class="fl">0</span>, <span class="kw">linetype</span> <span class="kw">=</span> <span class="st">"dashed"</span>) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html">geom_vline</a></span>(<span class="kw">xintercept</span> <span class="kw">=</span> <span class="fl">.17</span>, <span class="kw">linetype</span> <span class="kw">=</span> <span class="st">"dotted"</span>) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(<span class="kw">legend.position</span> <span class="kw">=</span> <span class="st">"bottom"</span>)</pre></div>
+    fun.y = <span class="st">"mean"</span>, geom = <span class="st">"line"</span>, alpha = <span class="fl">1</span>, size = <span class="fl">1.5</span>,
+    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(color = <span class="kw">condition</span>)
+  ) <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span>(<span class="op">~</span><span class="kw">.key</span>) <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html">geom_vline</a></span>(xintercept = <span class="fl">0</span>, linetype = <span class="st">"dashed"</span>) <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html">geom_vline</a></span>(xintercept = <span class="fl">.17</span>, linetype = <span class="st">"dotted"</span>) <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(legend.position = <span class="st">"bottom"</span>)
+<span class="co">#&gt; Warning: `fun.y` is deprecated. Use `fun` instead.</span>
+</pre></div>
 <p><img src="reference/figures/README-plot-1.png" width="100%"></p>
 <p>Another possibility is to create a topographic plot of the two conditions, by first making segments that include only the interval .1-.2 <em>s</em> after the onset of the stimuli, creating a table with interpolated amplitudes and using the ggplot wrapper <code>plot_topo</code>.</p>
-<div class="sourceCode" id="cb9"><pre class="r"><span class="no">faces_segs_some</span> <span class="kw">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="fu"><a href="https://dplyr.tidyverse.org/reference/between.html">between</a></span>(<span class="fu"><a href="https://rdrr.io/pkg/eeguana/man/as_time.html">as_time</a></span>(<span class="no">.sample</span>, <span class="kw">unit</span> <span class="kw">=</span> <span class="st">"milliseconds"</span>), <span class="fl">100</span>, <span class="fl">200</span>)) <span class="kw">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span>(<span class="no">condition</span>) <span class="kw">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise_all.html">summarize_at</a></span>(<span class="fu"><a href="https://rdrr.io/pkg/eeguana/man/summaries.html">channel_names</a></span>(<span class="no">.</span>), <span class="no">mean</span>, <span class="kw">na.rm</span> <span class="kw">=</span> <span class="fl">TRUE</span>) <span class="kw">%&gt;%</span>
-  <span class="fu"><a href="https://rdrr.io/pkg/eeguana/man/plot_topo.html">plot_topo</a></span>() +
-  <span class="fu"><a href="https://rdrr.io/pkg/eeguana/man/annotate_head.html">annotate_head</a></span>() +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_contour.html">geom_contour</a></span>() +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html">geom_text</a></span>(<span class="kw">colour</span> <span class="kw">=</span> <span class="st">"black"</span>) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html">facet_grid</a></span>(~<span class="no">condition</span>)</pre></div>
+<div class="sourceCode" id="cb9"><pre class="downlit">
+<span class="kw">faces_segs_some</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="fu"><a href="reference/between.html">between</a></span>(<span class="fu"><a href="reference/as_time.html">as_time</a></span>(<span class="kw">.sample</span>, unit = <span class="st">"milliseconds"</span>), <span class="fl">100</span>, <span class="fl">200</span>)) <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span>(<span class="kw">condition</span>) <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise_all.html">summarize_at</a></span>(<span class="fu"><a href="reference/summaries.html">channel_names</a></span>(<span class="kw">.</span>), <span class="kw">mean</span>, na.rm = <span class="fl">TRUE</span>) <span class="op">%&gt;%</span>
+  <span class="fu"><a href="reference/plot_topo.html">plot_topo</a></span>() <span class="op">+</span>
+  <span class="fu"><a href="reference/annotate_head.html">annotate_head</a></span>() <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_contour.html">geom_contour</a></span>() <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html">geom_text</a></span>(colour = <span class="st">"black"</span>) <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html">facet_grid</a></span>(<span class="op">~</span><span class="kw">condition</span>)
+</pre></div>
 <p><img src="reference/figures/README-topo-1.png" width="100%"></p>
 </div>
 <div id="see-also" class="section level2">
@@ -491,7 +509,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

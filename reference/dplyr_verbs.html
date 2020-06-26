@@ -48,7 +48,6 @@
 
 <meta property="og:title" content="Dplyr verbs overloaded for manipulating eeg_lst objects. — dplyr_verbs" />
 <meta property="og:description" content="Manipulate the signal table and the segments table of an eeg_lst." />
-<meta property="og:image" content="/logo.png" />
 
 
 
@@ -80,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.3.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.9000</span>
       </span>
     </div>
 
@@ -144,46 +143,48 @@
     </div>
 
     <pre class="usage"><span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>mutate</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
+<span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span>(<span class='kw'>.data</span>, <span class='kw'>...</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>transmute</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
+<span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>transmute</a></span>(<span class='kw'>.data</span>, <span class='kw'>...</span>)
 
-<span class='fu'>filter.eeg_lst</span>(<span class='no'>.data</span>, <span class='no'>...</span>, <span class='kw'>.preserve</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/dplyr_verbs.html'>filter.eeg_lst</a></span>(<span class='kw'>.data</span>, <span class='kw'>...</span>, .preserve = <span class='fl'>FALSE</span>)
 
-<span class='fu'>filter.eeg_ica_lst</span>(<span class='no'>.data</span>, <span class='no'>...</span>, <span class='kw'>.preserve</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-
-<span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>summarise</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
+<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/dplyr_verbs.html'>filter.eeg_ica_lst</a></span>(<span class='kw'>.data</span>, <span class='kw'>...</span>, .preserve = <span class='fl'>FALSE</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>group_by</span>(<span class='no'>.data</span>, <span class='no'>...</span>, <span class='kw'>add</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>.drop</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span>(<span class='kw'>.data</span>, <span class='kw'>...</span>, .groups = <span class='st'>"keep"</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>ungroup</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
+<span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span>(<span class='kw'>.data</span>, <span class='kw'>...</span>, .add = <span class='fl'>FALSE</span>, .drop = <span class='fl'>FALSE</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>select</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
+<span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>ungroup</a></span>(<span class='kw'>.data</span>, <span class='kw'>...</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>rename</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
+<span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span>(<span class='kw'>.data</span>, <span class='kw'>...</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>groups</span>(<span class='no'>x</span>)
+<span class='fu'><a href='https://dplyr.tidyverse.org/reference/rename.html'>rename</a></span>(<span class='kw'>.data</span>, <span class='kw'>...</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>group_vars</span>(<span class='no'>x</span>)
+<span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_data.html'>groups</a></span>(<span class='kw'>x</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>anti_join</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>copy</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>suffix</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>".x"</span>, <span class='st'>".y"</span>), <span class='no'>...</span>)
+<span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_data.html'>group_vars</a></span>(<span class='kw'>x</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>left_join</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>copy</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>suffix</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>".x"</span>, <span class='st'>".y"</span>), <span class='no'>...</span>)
+<span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter-joins.html'>anti_join</a></span>(<span class='kw'>x</span>, <span class='kw'>y</span>, by = <span class='kw'>NULL</span>, copy = <span class='fl'>FALSE</span>, suffix = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>".x"</span>, <span class='st'>".y"</span>), <span class='kw'>...</span>)
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'>semi_join</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>suffix</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>".x"</span>, <span class='st'>".y"</span>), <span class='no'>...</span>)
+<span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span>(<span class='kw'>x</span>, <span class='kw'>y</span>, by = <span class='kw'>NULL</span>, copy = <span class='fl'>FALSE</span>, suffix = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>".x"</span>, <span class='st'>".y"</span>), <span class='kw'>...</span>)
 
-<span class='fu'>tbl_vars.eeg_lst</span>(<span class='no'>x</span>)</pre>
+<span class='co'># S3 method for eeg_lst</span>
+<span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter-joins.html'>semi_join</a></span>(<span class='kw'>x</span>, <span class='kw'>y</span>, by = <span class='kw'>NULL</span>, suffix = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>".x"</span>, <span class='st'>".y"</span>), <span class='kw'>...</span>)
+
+<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/dplyr_verbs.html'>tbl_vars.eeg_lst</a></span>(<span class='kw'>x</span>)
+
+<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/dplyr_verbs.html'>pull.eeg_lst</a></span>(<span class='kw'>.data</span>, var = <span class='op'>-</span><span class='fl'>1</span>, name = <span class='kw'>NULL</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -201,12 +202,16 @@
       <td><p>Not in use, for compatibility reasons.</p></td>
     </tr>
     <tr>
-      <th>add</th>
-      <td><p>Not in use, for compatibility reasons.</p></td>
+      <th>.groups</th>
+      <td><p>Only .groups = "keep" is avaialble.  Same grouping structure as .data.</p></td>
+    </tr>
+    <tr>
+      <th>.add</th>
+      <td><p>When FALSE, the default, group_by() will override existing groups. To add to the existing groups, use .add = TRUE.</p></td>
     </tr>
     <tr>
       <th>.drop</th>
-      <td><p>When .drop = TRUE, empty groups are dropped. (FALSE by default.)</p></td>
+      <td><p>Only .drop = FALSE is avaialble, empty groups are never dropped.</p></td>
     </tr>
     <tr>
       <th>x</th>
@@ -218,14 +223,19 @@
     </tr>
     <tr>
       <th>by</th>
-      <td><p>a character vector of variables to join by.  If <code>NULL</code>, the
-default, <code>*_join()</code> will do a natural join, using all variables with
-common names across the two tables. A message lists the variables so
-that you can check they're right (to suppress the message, simply
-explicitly list the variables that you want to join).</p>
-<p>To join by different variables on x and y use a named vector.
-For example, <code>by = c("a" = "b")</code> will match <code>x.a</code> to
-<code>y.b</code>.</p></td>
+      <td><p>A character vector of variables to join by.</p>
+<p>If <code>NULL</code>, the default, <code>*_join()</code> will perform a natural join, using all
+variables in common across <code>x</code> and <code>y</code>. A message lists the variables so that you
+can check they're correct; suppress the message by supplying <code>by</code> explicitly.</p>
+<p>To join by different variables on <code>x</code> and <code>y</code>, use a named vector.
+For example, <code>by = c("a" = "b")</code> will match <code>x$a</code> to <code>y$b</code>.</p>
+<p>To join by multiple variables, use a vector with length &gt; 1.
+For example, <code>by = c("a", "b")</code> will match <code>x$a</code> to <code>y$a</code> and <code>x$b</code> to
+<code>y$b</code>. Use a named vector to match different variables in <code>x</code> and <code>y</code>.
+For example, <code>by = c("a" = "b", "c" = "d")</code> will match <code>x$a</code> to <code>y$b</code> and
+<code>x$c</code> to <code>y$d</code>.</p>
+<p>To perform a cross-join, generating all combinations of <code>x</code> and <code>y</code>,
+use <code>by = character()</code>.</p></td>
     </tr>
     <tr>
       <th>copy</th>
@@ -240,6 +250,25 @@ it is a potentially expensive operation so you must opt into it.</p></td>
 <code>y</code>, these suffixes will be added to the output to disambiguate them.
 Should be a character vector of length 2.</p></td>
     </tr>
+    <tr>
+      <th>var</th>
+      <td><p>A variable specified as:</p><ul>
+<li><p>a literal variable name</p></li>
+<li><p>a positive integer, giving the position counting from the left</p></li>
+<li><p>a negative integer, giving the position counting from the right.</p></li>
+</ul>
+
+<p>The default returns the last column (on the assumption that's the
+column you've created most recently).</p>
+<p>This argument is taken by expression and supports
+<a href='https://rlang.r-lib.org/reference/nse-force.html'>quasiquotation</a> (you can unquote column
+names and column locations).</p></td>
+    </tr>
+    <tr>
+      <th>name</th>
+      <td><p>An optional parameter that specifies the column to be used
+as names for a named vector. Specified in a similar manner as <code>var</code>.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -253,22 +282,24 @@ The following wrappers act in a special way for <code>eeg_lst</code> objects:</p
 <li><p><code>*_join()</code>: joins an external table to the <em>segments</em> table of the eeg_lst.</p></li>
 <li><p><code><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate()</a></code> and <code><a href='https://dplyr.tidyverse.org/reference/mutate.html'>transmute()</a></code> Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.</p></li>
 <li><p><code><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize()</a></code> summarizes the channel of the signal_tbl table.</p></li>
+<li><p><code><a href='https://dplyr.tidyverse.org/reference/pull.html'>pull()</a></code> only pulls columns of the signal table</p></li>
 </ul>
 
 <p>In addition, <code>_at()</code>, and <code>_if()</code> versions of the functions should work as well. Notice that  the <code>_at()</code> versions are
 much faster than the <code>_if()</code> versions of these commands.</p>
+<p>Notice that these verbs have different defaults for <code>eeg_lst</code></p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other tidyverse-like functions: 
 <code><a href='https://dplyr.tidyverse.org/reference/bind.html'>bind</a>()</code>,
-<code>drop_incomplete_segments()</code>,
-<code>slice_signal()</code></p></div>
+<code><a href='https://rdrr.io/pkg/eeguana/man/drop_incomplete_segments.html'>drop_incomplete_segments</a>()</code>,
+<code><a href='https://rdrr.io/pkg/eeguana/man/slice_signal.html'>slice_signal</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>dplyr</span>)
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='https://dplyr.tidyverse.org'>dplyr</a></span>)
 <span class='co'># Create new channel in the signal table</span>
-<span class='no'>data_faces_ERPs</span> <span class='kw'>%&gt;%</span>
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span>(<span class='kw'>tmp</span> <span class='kw'>=</span> <span class='no'>Fz</span> - <span class='no'>Cz</span>)</div><div class='output co'>#&gt; # EEG data:
+<span class='kw'>data_faces_ERPs</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span>(tmp = <span class='kw'>Fz</span> <span class='op'>-</span> <span class='kw'>Cz</span>)</div><div class='output co'>#&gt; # EEG data:
 #&gt; # Grouped by: .sample, 
 #&gt; # Grouped by: condition, 
 #&gt; # Grouped by: .recording, 
@@ -352,14 +383,13 @@ much faster than the <code>_if()</code> versions of these commands.</p>
 #&gt; 
 #&gt; # Segments table:
 #&gt; # A tibble: 2 x 3
-#&gt; # Groups:   condition [2]
-#&gt;     .id condition .recording
-#&gt;   &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;     
-#&gt; 1     1 faces     faces.vhdr
-#&gt; 2     2 non-faces faces.vhdr</div><div class='input'>
+#&gt;     .id .recording condition
+#&gt;   &lt;int&gt; &lt;chr&gt;      &lt;chr&gt;    
+#&gt; 1     1 faces.vhdr faces    
+#&gt; 2     2 faces.vhdr non-faces</div><div class='input'>
 <span class='co'># Create a new condition in the segments table</span>
-<span class='no'>data_faces_ERPs</span> <span class='kw'>%&gt;%</span>
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span>(<span class='kw'>code</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span>(<span class='no'>condition</span> <span class='kw'>==</span> <span class='st'>"faces"</span>, <span class='fl'>1</span>, -<span class='fl'>1</span>))</div><div class='output co'>#&gt; # EEG data:
+<span class='kw'>data_faces_ERPs</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span>(code = <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span>(<span class='kw'>condition</span> <span class='op'>==</span> <span class='st'>"faces"</span>, <span class='fl'>1</span>, <span class='op'>-</span><span class='fl'>1</span>))</div><div class='output co'>#&gt; # EEG data:
 #&gt; # Grouped by: .sample, 
 #&gt; # Grouped by: condition, 
 #&gt; # Grouped by: .recording, 
@@ -443,15 +473,14 @@ much faster than the <code>_if()</code> versions of these commands.</p>
 #&gt; 
 #&gt; # Segments table:
 #&gt; # A tibble: 2 x 4
-#&gt; # Groups:   condition [2]
-#&gt;     .id condition .recording  code
-#&gt;   &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;      &lt;dbl&gt;
-#&gt; 1     1 faces     faces.vhdr     1
-#&gt; 2     2 non-faces faces.vhdr    -1</div><div class='input'>
+#&gt;     .id .recording condition  code
+#&gt;   &lt;int&gt; &lt;chr&gt;      &lt;chr&gt;     &lt;dbl&gt;
+#&gt; 1     1 faces.vhdr faces         1
+#&gt; 2     2 faces.vhdr non-faces    -1</div><div class='input'>
 <span class='co'># Create a new channel and drop all others</span>
-<span class='no'>data_faces_ERPs</span> <span class='kw'>%&gt;%</span>
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>transmute</a></span>(<span class='kw'>Occipital</span> <span class='kw'>=</span> <span class='fu'>chs_mean</span>(<span class='no'>O1</span>, <span class='no'>O2</span>, <span class='no'>Oz</span>,
-    <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+<span class='kw'>data_faces_ERPs</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>transmute</a></span>(Occipital = <span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/chs_mean.html'>chs_mean</a></span>(<span class='kw'>O1</span>, <span class='kw'>O2</span>, <span class='kw'>Oz</span>,
+    na.rm = <span class='fl'>TRUE</span>
   ))</div><div class='output co'>#&gt; # EEG data:
 #&gt; # Grouped by: .sample, 
 #&gt; # Grouped by: condition, 
@@ -476,14 +505,13 @@ much faster than the <code>_if()</code> versions of these commands.</p>
 #&gt; 
 #&gt; # Segments table:
 #&gt; # A tibble: 2 x 3
-#&gt; # Groups:   condition [2]
-#&gt;     .id condition .recording
-#&gt;   &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;     
-#&gt; 1     1 faces     faces.vhdr
-#&gt; 2     2 non-faces faces.vhdr</div><div class='input'>
+#&gt;     .id .recording condition
+#&gt;   &lt;int&gt; &lt;chr&gt;      &lt;chr&gt;    
+#&gt; 1     1 faces.vhdr faces    
+#&gt; 2     2 faces.vhdr non-faces</div><div class='input'>
 <span class='co'># Extract data associated with a condition</span>
-<span class='no'>data_faces_ERPs</span> <span class='kw'>%&gt;%</span>
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span>(<span class='no'>condition</span> <span class='kw'>==</span> <span class='st'>"faces"</span>)</div><div class='output co'>#&gt; # EEG data:
+<span class='kw'>data_faces_ERPs</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span>(<span class='kw'>condition</span> <span class='op'>==</span> <span class='st'>"faces"</span>)</div><div class='output co'>#&gt; # EEG data:
 #&gt; # Grouped by: .sample, 
 #&gt; # Grouped by: condition, 
 #&gt; # Grouped by: .recording, 
@@ -567,19 +595,19 @@ much faster than the <code>_if()</code> versions of these commands.</p>
 #&gt; 
 #&gt; # Segments table:
 #&gt; # A tibble: 1 x 3
-#&gt;     .id condition .recording
-#&gt;   &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;     
-#&gt; 1     1 faces     faces.vhdr</div><div class='input'>
+#&gt;     .id .recording condition
+#&gt;   &lt;int&gt; &lt;chr&gt;      &lt;chr&gt;    
+#&gt; 1     1 faces.vhdr faces    </div><div class='input'>
 <span class='co'># Group and summarize</span>
-<span class='no'>data_faces_ERPs</span> <span class='kw'>%&gt;%</span>
+<span class='kw'>data_faces_ERPs</span> <span class='op'>%&gt;%</span>
   <span class='co'># Convert samples to times, filter between timepoints</span>
   <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span>(<span class='fu'><a href='https://dplyr.tidyverse.org/reference/between.html'>between</a></span>(
-    <span class='fu'>as_time</span>(<span class='no'>.sample</span>, <span class='kw'>unit</span> <span class='kw'>=</span> <span class='st'>"ms"</span>),
+    <span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/as_time.html'>as_time</a></span>(<span class='kw'>.sample</span>, unit = <span class='st'>"ms"</span>),
     <span class='fl'>100</span>, <span class='fl'>200</span>
-  )) <span class='kw'>%&gt;%</span>
+  )) <span class='op'>%&gt;%</span>
   <span class='co'># Find mean amplitude of Fz for each condition</span>
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span>(<span class='no'>condition</span>) <span class='kw'>%&gt;%</span>
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span>(<span class='kw'>mean.amplitude</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span>(<span class='no'>Fz</span>))</div><div class='output co'>#&gt; # EEG data:
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span>(<span class='kw'>condition</span>) <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span>(mean.amplitude = <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span>(<span class='kw'>Fz</span>))</div><div class='output co'>#&gt; # EEG data:
 #&gt; # Grouped by: condition, 
 #&gt; 
 #&gt; # Signal table:
@@ -592,14 +620,13 @@ much faster than the <code>_if()</code> versions of these commands.</p>
 #&gt; 
 #&gt; # Segments table:
 #&gt; # A tibble: 2 x 3
-#&gt; # Groups:   condition [2]
-#&gt;     .id condition .recording
-#&gt;   &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;     
-#&gt; 1     1 faces     faces.vhdr
-#&gt; 2     2 non-faces faces.vhdr</div><div class='input'>
+#&gt;     .id .recording condition
+#&gt;   &lt;int&gt; &lt;chr&gt;      &lt;chr&gt;    
+#&gt; 1     1 faces.vhdr faces    
+#&gt; 2     2 faces.vhdr non-faces</div><div class='input'>
 <span class='co'># Select specific electrodes</span>
-<span class='no'>data_faces_ERPs</span> <span class='kw'>%&gt;%</span>
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span>(<span class='no'>O1</span>, <span class='no'>O2</span>, <span class='no'>P7</span>, <span class='no'>P8</span>)</div><div class='output co'>#&gt; <span class='message'>Adding missing grouping variables: .sample</span></div><div class='output co'>#&gt; # EEG data:
+<span class='kw'>data_faces_ERPs</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span>(<span class='kw'>O1</span>, <span class='kw'>O2</span>, <span class='kw'>P7</span>, <span class='kw'>P8</span>)</div><div class='output co'>#&gt; <span class='message'>Adding missing grouping variables: .sample</span></div><div class='output co'>#&gt; # EEG data:
 #&gt; # Grouped by: .sample, 
 #&gt; # Grouped by: condition, 
 #&gt; # Grouped by: .recording, 
@@ -623,14 +650,13 @@ much faster than the <code>_if()</code> versions of these commands.</p>
 #&gt; 
 #&gt; # Segments table:
 #&gt; # A tibble: 2 x 3
-#&gt; # Groups:   condition [2]
-#&gt;     .id condition .recording
-#&gt;   &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;     
-#&gt; 1     1 faces     faces.vhdr
-#&gt; 2     2 non-faces faces.vhdr</div><div class='input'>
+#&gt;     .id .recording condition
+#&gt;   &lt;int&gt; &lt;chr&gt;      &lt;chr&gt;    
+#&gt; 1     1 faces.vhdr faces    
+#&gt; 2     2 faces.vhdr non-faces</div><div class='input'>
 <span class='co'># Rename a variable</span>
-<span class='no'>data_faces_ERPs</span> <span class='kw'>%&gt;%</span>
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>rename</a></span>(<span class='kw'>Predictor</span> <span class='kw'>=</span> <span class='no'>condition</span>)</div><div class='output co'>#&gt; # EEG data:
+<span class='kw'>data_faces_ERPs</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/rename.html'>rename</a></span>(Predictor = <span class='kw'>condition</span>)</div><div class='output co'>#&gt; # EEG data:
 #&gt; # Grouped by: .sample, 
 #&gt; # Grouped by: Predictor, 
 #&gt; # Grouped by: .recording, 
@@ -714,7 +740,6 @@ much faster than the <code>_if()</code> versions of these commands.</p>
 #&gt; 
 #&gt; # Segments table:
 #&gt; # A tibble: 2 x 3
-#&gt; # Groups:   Predictor [2]
 #&gt;     .id .recording Predictor
 #&gt;   &lt;int&gt; &lt;chr&gt;      &lt;chr&gt;    
 #&gt; 1     1 faces.vhdr faces    
@@ -734,7 +759,7 @@ much faster than the <code>_if()</code> versions of these commands.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

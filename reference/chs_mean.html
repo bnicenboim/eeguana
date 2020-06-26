@@ -48,7 +48,6 @@
 
 <meta property="og:title" content="Get the by-sample (or by-row) mean of the specified channels. — chs_mean" />
 <meta property="og:description" content="Wrapper of rowMeans that performs a by-sample mean of the specified channels." />
-<meta property="og:image" content="/logo.png" />
 
 
 
@@ -80,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.3.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.9000</span>
       </span>
     </div>
 
@@ -143,7 +142,7 @@
     <p>Wrapper of <code>rowMeans</code> that performs a by-sample mean of the specified channels.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>chs_mean</span>(<span class='no'>x</span>, <span class='no'>...</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/chs_mean.html'>chs_mean</a></span>(<span class='kw'>x</span>, <span class='kw'>...</span>, na.rm = <span class='fl'>FALSE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -169,19 +168,19 @@
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other channel functions: 
-<code>chs_fun()</code></p></div>
+<code><a href='https://rdrr.io/pkg/eeguana/man/chs_fun.html'>chs_fun</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
 
-<span class='no'>faces_segs_some</span> <span class='kw'>%&gt;%</span>
-  <span class='fu'>transmute</span>(
-    <span class='kw'>Occipital</span> <span class='kw'>=</span> <span class='fu'>chs_mean</span>(<span class='no'>O1</span>, <span class='no'>O2</span>, <span class='no'>Oz</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>),
-    <span class='kw'>Parietal</span> <span class='kw'>=</span> <span class='fu'>chs_mean</span>(<span class='no'>P3</span>, <span class='no'>P4</span>, <span class='no'>P7</span>, <span class='no'>P8</span>, <span class='no'>Pz</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='kw'>faces_segs_some</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>transmute</a></span>(
+    Occipital = <span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/chs_mean.html'>chs_mean</a></span>(<span class='kw'>O1</span>, <span class='kw'>O2</span>, <span class='kw'>Oz</span>, na.rm = <span class='fl'>TRUE</span>),
+    Parietal = <span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/chs_mean.html'>chs_mean</a></span>(<span class='kw'>P3</span>, <span class='kw'>P4</span>, <span class='kw'>P7</span>, <span class='kw'>P8</span>, <span class='kw'>Pz</span>, na.rm = <span class='fl'>TRUE</span>)
   )
 
-<span class='no'>faces_segs_some</span> <span class='kw'>%&gt;%</span>
-  <span class='fu'>chs_mean</span>(<span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='kw'>faces_segs_some</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/chs_mean.html'>chs_mean</a></span>(na.rm = <span class='fl'>TRUE</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -198,7 +197,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>
