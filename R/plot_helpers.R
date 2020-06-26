@@ -73,7 +73,7 @@ eeg_interpolate_tbl.data.frame <- function(.data,
   ## add columns that are constant=>
   is_grouped <- .data %>%
     dplyr::group_by_at(group_vars) %>%
-    dplyr::group_by(!!label, add = TRUE) %>%
+    dplyr::group_by(!!label, .add = TRUE) %>%
     dplyr::summarize(L = dplyr::n()) %>%
     # dplyr::filter(!is.na(!!x) |!is.na(!!y)) %>%
     dplyr::pull(L) %>%

@@ -17,38 +17,27 @@
 #' @return A valid `events_tbl` table.
 #' @noRd
 new_events_tbl <- function(.id = integer(0),
+                           .type =  character(0),
+                           .description =  character(0),
                            .initial = sample_int(integer(0), integer(0)),
                            .final = sample_int(integer(0), integer(0)),
                            .channel = character(0),
-                           descriptions_dt = data.table::data.table(),
                            sampling_rate = NULL) {
-  if (length(c(.id, .initial, .final, .channel, descriptions_dt)) == 0) {
-    events <- data.table::data.table(
-      .id = .id,
-      .initial = .initial,
-      .final = .final,
-      .channel = .channel
-    )
-  } else {
+  # If there is something, but incomplete, fill with NAs the columns that might be empty
+  if (length(.id) != 0) {
     if (length(.channel) == 0) .channel <- NA_character_
+    if (length(.type) == 0) .type <- NA_character_
+    if (length(.description) == 0) .type <- NA_character_
+  } 
+    events <- data.table::data.table(
+    .id = .id,
+    .type =  .type,
+    .description =  .description,
+    .initial = .initial,
+    .final = .final,
+    .channel = .channel
+  )
 
-    if (length(descriptions_dt) == 0) {
-      events <- data.table::data.table(
-        .id = .id,
-        .initial = .initial,
-        .final = .final,
-        .channel = .channel
-      )
-    } else {
-      events <- data.table::data.table(
-        .id = .id,
-        descriptions_dt,
-        .initial = .initial,
-        .final = .final,
-        .channel = .channel
-      )
-    }
-  }
   if (!is.null(sampling_rate)) {
     events[, .initial := sample_int(as.integer(.initial),
       sampling_rate = sampling_rate)
@@ -84,7 +73,7 @@ as_events_tbl.data.table <- function(.data, sampling_rate = NULL) {
 }
 
 as_events_tbl.events_tbl <- function(.data, sampling_rate = NULL) {
-  if (!is.null(sampling_rate) && sampling_rate != sampling_rate(.data)) {
+  if (!is.null(sampling_rate)) {
     .data <- data.table::copy(.data)
     .data[, .initial := sample_int(as.integer(.initial),
       sampling_rate = sampling_rate

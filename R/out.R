@@ -21,7 +21,7 @@ channel_names.signal_tbl <- function(x, ...) {
   NextMethod()
 }
 #' @export
-channel_names.default <- function(x, ...) {
+channel_names.data.table <- function(x, ...) {
   colnames(x)[x[, purrr::map_lgl(.SD, is_channel_dbl)]]
 }
 #' @export
@@ -94,7 +94,7 @@ sampling_rate.events_tbl <- function(x) {
 duration <- function(x) {
   x$.signal %>%
     dplyr::group_by(.id) %>%
-    dplyr::summarize(duration = (max(.sample) - min(.sample)) /
+    dplyr::summarize(duration = (max(.sample) - min(.sample) + 1 ) /
       sampling_rate(x)) %>%
     .$duration
 }
@@ -105,7 +105,7 @@ nsamples <- function(x, ...) {
 }
 #' @export
 nsamples.eeg_lst <- function(x, ...) {
-  duration(x) * sampling_rate(x)
+  x$.signal[, max(.sample) - min(.sample) + 1, by =.id]$V1
 }
 #' Summary of eeg_lst information.
 #'
@@ -176,11 +176,13 @@ eeg_ica_cor_tbl <- function(.data, ...) {
 #' @export
 eeg_ica_cor_tbl.eeg_ica_lst <- function(.data, ...) {
   if (length(list(...)) == 0) {
-    eogs <- channel_names(.data)[channel_names(.data) %>%
-      stringr::str_detect(stringr::regex("eog", ignore_case = TRUE))]
+    eogs <- #sel_ch(.data, c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
+    tidyselect::vars_select(channel_names(.data), c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
+    message("EOG channels detected as: ", toString(eogs))
   } else {
     eogs <- sel_ch(.data, ...)
   }
+  
   names(eogs) <- eogs
   comps <- .data  %>% 
     eeg_ica_show(component_names(.data)) %>% 

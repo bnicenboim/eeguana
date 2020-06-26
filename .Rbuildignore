@@ -26,3 +26,4 @@ experimental
 ^vignettes.*
 ^pkgdown.*
 ^_pipeline.*
+^_.*

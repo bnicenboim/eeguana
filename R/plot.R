@@ -285,12 +285,14 @@ plot_ica.eeg_ica_lst <- function(data,
       data <- dplyr::filter(data, .recording == .recording)
     }
 
- 
-   if (length(eog) == 0) {
-    eog <- channel_names(data)[channel_names(data) %>%
-      stringr::str_detect(stringr::regex("eog", ignore_case = TRUE))]
-  } 
-    eog <- sel_ch(data, eog)
+  if (length(eog) == 0) {
+    eog <-  sel_ch(data, c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
+      #fixtidyselect::vars_select(channel_names(data), c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
+    message("EOG channels detected as: ", toString(eog))
+  } else {
+    eog <-  sel_ch(data, tidyselect::all_of(eog))
+  }
+    
   message("Calculating the correlation of ICA components with filtered EOG channels...")
   sum <- eeg_ica_summary_tbl(data %>% eeg_filt_band_pass(eog, freq = c(.1, 30)),eog) 
   data.table::setorderv(sum, order, order = -1)
@@ -302,7 +304,7 @@ plot_ica.eeg_ica_lst <- function(data,
    slice_signal(samples) %>%
     eeg_ica_show(dplyr::one_of(ICAs)) %>%
     ## we select want we want to show:
-    dplyr::select(c(ICAs,eog)) %>%
+    dplyr::select(tidyselect::all_of(c(ICAs,eog))) %>%
     dplyr::group_by(.id)%>%  
     dplyr::mutate_at(eog, ~ .- mean(.)) %>%
     dplyr::mutate_if(is_component_dbl, ~ . * scale_comp) 
@@ -614,7 +616,7 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
     events_tbl <- object$layer$data
   }
   if(nrow(events_tbl)==0) return(NULL)  #nothing to plot
-  info_events <- setdiff(colnames(events_tbl), obligatory_cols[[".events"]])
+  info_events <- c(".type", ".description") 
   events_tbl <- data.table::as.data.table(events_tbl)
   events_tbl[, xmin := as_time(.initial) ]
   events_tbl[, xmax := as_time(.final) ]

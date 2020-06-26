@@ -17,6 +17,7 @@
 \alias{left_join.eeg_lst}
 \alias{semi_join.eeg_lst}
 \alias{tbl_vars.eeg_lst}
+\alias{pull.eeg_lst}
 \title{Dplyr verbs overloaded for manipulating eeg_lst objects.}
 \usage{
 \method{mutate}{eeg_lst}(.data, ...)
@@ -27,9 +28,9 @@ filter.eeg_lst(.data, ..., .preserve = FALSE)
 
 filter.eeg_ica_lst(.data, ..., .preserve = FALSE)
 
-\method{summarise}{eeg_lst}(.data, ...)
+\method{summarise}{eeg_lst}(.data, ..., .groups = "keep")
 
-\method{group_by}{eeg_lst}(.data, ..., add = FALSE, .drop = FALSE)
+\method{group_by}{eeg_lst}(.data, ..., .add = FALSE, .drop = FALSE)
 
 \method{ungroup}{eeg_lst}(.data, ...)
 
@@ -48,6 +49,8 @@ filter.eeg_ica_lst(.data, ..., .preserve = FALSE)
 \method{semi_join}{eeg_lst}(x, y, by = NULL, suffix = c(".x", ".y"), ...)
 
 tbl_vars.eeg_lst(x)
+
+pull.eeg_lst(.data, var = -1, name = NULL, ...)
 }
 \arguments{
 \item{.data}{An eeg_lst.}
@@ -56,23 +59,33 @@ tbl_vars.eeg_lst(x)
 
 \item{.preserve}{Not in use, for compatibility reasons.}
 
-\item{add}{Not in use, for compatibility reasons.}
+\item{.groups}{Only .groups = "keep" is avaialble.  Same grouping structure as .data.}
 
-\item{.drop}{When .drop = TRUE, empty groups are dropped. (FALSE by default.)}
+\item{.add}{When FALSE, the default, group_by() will override existing groups. To add to the existing groups, use .add = TRUE.}
+
+\item{.drop}{Only .drop = FALSE is avaialble, empty groups are never dropped.}
 
 \item{x}{An eeg_lst.}
 
 \item{y}{A data frame, tibble, or data.table.}
 
-\item{by}{a character vector of variables to join by.  If \code{NULL}, the
-default, \code{*_join()} will do a natural join, using all variables with
-common names across the two tables. A message lists the variables so
-that you can check they're right (to suppress the message, simply
-explicitly list the variables that you want to join).
+\item{by}{A character vector of variables to join by.
 
-To join by different variables on x and y use a named vector.
-For example, \code{by = c("a" = "b")} will match \code{x.a} to
-\code{y.b}.}
+If \code{NULL}, the default, \verb{*_join()} will perform a natural join, using all
+variables in common across \code{x} and \code{y}. A message lists the variables so that you
+can check they're correct; suppress the message by supplying \code{by} explicitly.
+
+To join by different variables on \code{x} and \code{y}, use a named vector.
+For example, \code{by = c("a" = "b")} will match \code{x$a} to \code{y$b}.
+
+To join by multiple variables, use a vector with length > 1.
+For example, \code{by = c("a", "b")} will match \code{x$a} to \code{y$a} and \code{x$b} to
+\code{y$b}. Use a named vector to match different variables in \code{x} and \code{y}.
+For example, \code{by = c("a" = "b", "c" = "d")} will match \code{x$a} to \code{y$b} and
+\code{x$c} to \code{y$d}.
+
+To perform a cross-join, generating all combinations of \code{x} and \code{y},
+use \code{by = character()}.}
 
 \item{copy}{If \code{x} and \code{y} are not from the same data source,
 and \code{copy} is \code{TRUE}, then \code{y} will be copied into the
@@ -82,6 +95,23 @@ it is a potentially expensive operation so you must opt into it.}
 \item{suffix}{If there are non-joined duplicate variables in \code{x} and
 \code{y}, these suffixes will be added to the output to disambiguate them.
 Should be a character vector of length 2.}
+
+\item{var}{A variable specified as:
+\itemize{
+\item a literal variable name
+\item a positive integer, giving the position counting from the left
+\item a negative integer, giving the position counting from the right.
+}
+
+The default returns the last column (on the assumption that's the
+column you've created most recently).
+
+This argument is taken by expression and supports
+\link[rlang:quasiquotation]{quasiquotation} (you can unquote column
+names and column locations).}
+
+\item{name}{An optional parameter that specifies the column to be used
+as names for a named vector. Specified in a similar manner as \code{var}.}
 }
 \value{
 An eeg_lst object.
@@ -97,10 +127,13 @@ The following wrappers act in a special way for \code{eeg_lst} objects:
 \item \verb{*_join()}: joins an external table to the \emph{segments} table of the eeg_lst.
 \item \code{mutate()} and \code{transmute()} Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.
 \item \code{summarize()} summarizes the channel of the signal_tbl table.
+\item \code{pull()} only pulls columns of the signal table
 }
 
 In addition, \verb{_at()}, and \verb{_if()} versions of the functions should work as well. Notice that  the \verb{_at()} versions are
 much faster than the \verb{_if()} versions of these commands.
+
+Notice that these verbs have different defaults for \code{eeg_lst}
 }
 \examples{
 library(dplyr)

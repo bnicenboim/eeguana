@@ -1,4 +1,4 @@
-#'  Detect artifacts and add them in the events table of an eeg_lst.
+#'  Detect artifacts and add them in the events table of an eeg_lst
 #'
 #'  These functions search for artifacts on the signal table based on a threshold and a
 #'  sliding window (when relevant), and annotate an event in the events table that spans
@@ -280,7 +280,7 @@ eeg_events_to_NA.eeg_lst <-
     
     # Hack for match 2 columns with 2 columns, similar to semi_join but allowing
     # for assignment
-    baddies <- dplyr::filter(x$.events,!!!dots)
+    baddies <- filter_dt(x$.events,!!!dots)
     
     if (all_chs)
       baddies <- dplyr::mutate(baddies, .channel = NA_character_)

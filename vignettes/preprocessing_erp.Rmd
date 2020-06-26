@@ -1,11 +1,11 @@
 ---
-title: "Preprocessing of EEG data and computing ERPs (Fieldtrip tutorial)"
+title: "Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs."
 author: "Bruno Nicenboim"
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Preprocessing of EEG data and computing ERPs (Fieldtrip tutorial)}
+  %\VignetteIndexEntry{Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

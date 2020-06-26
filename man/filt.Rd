@@ -24,7 +24,10 @@ eeg_filt_band_stop(.data, ..., freq = NULL, config = list(), na.rm = FALSE)
 \item{freq}{A single cut frequency for \code{eeg_filt_low_pass} and \code{eeg_filt_high_pass}, two edges for
 \code{eeg_filt_band_pass} and \code{eeg_filt_band_stop}.}
 
-\item{config}{Other parameters passed in a list to the ICA method. (Not implemented)}
+\item{config}{Other parameters passed in a list to the method. At the moment, only the
+width of the transition band at the (high and/or low) cut-off frequencies can
+be modified: \code{l_trans_bandwidth}, \code{h_trans_bandwidth}, by default they are set to "auto".
+For now the filters can only have a phase of zero (the delay for the filter is compensated).}
 
 \item{na.rm}{=TRUE will set to NA the entire segment that contains an NA, otherwise the filter will stop with an error.}
 }
@@ -32,7 +35,15 @@ eeg_filt_band_stop(.data, ..., freq = NULL, config = list(), na.rm = FALSE)
 A channel or an eeg_lst.
 }
 \description{
-Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter of the  FIR (finite impulse response) class to every segment of an \code{eeg_lst}. These filters are adapted from the default filters in \href{https://mne-tools.github.io}{MNE package} (v 0.0.17.1)  of \href{https://www.python.org/}{python}. For background information about the FIR vs IIR filters, see \href{https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py}{here}.
+Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter of the
+FIR (finite impulse response) class to every segment of an \code{eeg_lst}.
+\strong{It's advisable to avoid filtering short segments of data.} In general, these filters are relatively fast, a
+considerable slowdown can be due to incorrectly specified filters (e.g., confusing
+low with high pass filters) or to filtering too many short segments. All these filters
+are adapted from the default filters in
+\href{https://mne.tools/0.17/generated/mne.filter.filter_data.html#mne.filter.filter_data}{MNE package} (v 0.0.17.1)
+of \href{https://www.python.org/}{python}. For background information
+about the FIR vs IIR filters, see \href{https://mne.tools/dev/auto_tutorials/discussions/plot_background_filtering.html}{here}.
 }
 \details{
 \itemize{
@@ -47,7 +58,7 @@ library(dplyr)
 library(ggplot2)
 data("data_faces_ERPs")
 data_ERPs_filtered <- data_faces_ERPs \%>\%
-  eeg_filt_low_pass(freq = 1)
+  eeg_filt_low_pass(freq = 50)
 # Compare the ERPs
 data_faces_ERPs \%>\%
   select(O1, O2, P7, P8) \%>\%

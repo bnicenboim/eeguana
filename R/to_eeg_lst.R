@@ -129,15 +129,17 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
         sample_int(integer(0), sampling_rate = .data$info$sfreq)
     )
   } else {
+    descriptions_dt =tidyr::separate(data.table::data.table(annotation = ann$description),
+                                     col = "annotation", into = c(".type", ".description"), sep = "/", fill = "left"
+    )
     new_events <- new_events_tbl(
       .id = 1L,
+      .type = descriptions_dt$.type,
+      .description = descriptions_dt$.description,
       .initial = ann$onset %>%
         as_sample_int(sampling_rate = .data$info$sfreq, unit = "s"),
       .final = as_sample_int(ann$onset + ann$duration, sampling_rate = .data$info$sfreq, unit = "s") - 1L,
-      .channel = NA_character_,
-      descriptions_dt = tidyr::separate(data.table::data.table(annotation = ann$description),
-        col = "annotation", into = c(".type", ".description"), sep = "/", fill = "left"
-      )
+      .channel = NA_character_
     )
   }
   data_name <- toString(substitute(.data))

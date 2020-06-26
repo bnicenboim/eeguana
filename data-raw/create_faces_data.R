@@ -17,7 +17,7 @@ data_faces_ERPs <- faces %>%
     lim = c(-.2, .25)
   ) %>%
   eeg_events_to_NA(.type == "Bad Interval") %>%
-  ch_baseline() %>%
+  eeg_baseline() %>%
   mutate(
     condition =
       if_else(description == "s70", "faces", "non-faces")

@@ -114,7 +114,7 @@ faces_filt <- eeg_filt_band_pass(faces, -HEOG, -VEOG, freq = c(.1, 30))
 
 ## ICA
 
-We want to apply ICA to as much data as possible, but to "representative" data, that is part of the experiments and not when the participants are moving or reading the instructions. For the same reason, we want to the ignore "crazy" artifacts: regions with extreme amplitudes in the signal.
+We want to apply ICA to as much data as possible, but to "representative" data: to data of the experiment and not when the participants were moving or reading the instructions. For the same reason, we want to the ignore artifacts that we are sure are not representing brain activity, because of the extreme amplitudes in the signal.
 
 We first cut a large segment that excludes data before and after the experiment was ran using `eeg_segment()` (that is, only data from the marker "s111" to "s121"), and then we mark differences of 200 microvolts between peaks with `eeg_artif_minmax()`.
 

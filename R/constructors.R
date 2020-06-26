@@ -69,6 +69,10 @@ eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, c
   }
   if (is.null(segments_tbl)) {
     segments_tbl <- dplyr::tibble(.id = unique(signal_tbl$.id), .recording = NA_character_)
+  } else {
+    if(!".recording" %in% colnames(segments_tbl)){
+      segments_tbl <- dplyr::mutate(segments_tbl, .recording = NA)
+    }
   }
   segments_tbl <- validate_segments(segments_tbl)
   
@@ -123,6 +127,8 @@ is_sample_int <- function(x) {
 }
 
 #' Builds a channel.
+#' 
+#' Builds a channel from a vector of numbers. 
 #'
 #' @param values Vector of doubles indicating amplitudes.
 #' @param x Position in the scalp.
@@ -133,6 +139,7 @@ is_sample_int <- function(x) {
 #'
 #' @family channel
 #'
+#' @return  A channel_dbl.
 #' @export
 #' @examples
 #' 
@@ -141,22 +148,54 @@ channel_dbl <- function(values, x = NA_real_, y = NA_real_, z = NA_real_, refere
   validate_channel_dbl(new_channel_dbl(values, channel_info = list(.x = x, .y = y, .z = z, .reference = reference, ...)))
 }
 
-#' Test if the object is a channel
-#' This function returns  TRUE for channels.
+#' Coerce a vector of real (double) numbers into a channel object
+#' @param x A vector.
+#' @return  A channel_dbl.
+#' @family channel
+#' @export 
+as_channel_dbl <- function(x){
+  class(x) <- c("channel_dbl", "numeric")
+  for( . in c(".x", ".y", ".z",".reference")){
+                if (is.null(attr(x, .))) {
+                  attr(x, .) <- NA_real_
+                }
+    }
+  validate_channel_dbl(x)
+}
+
+#' @export
+print.channel_dbl <- function(x,...) {
+  attrs <- attributes(x)[names(attributes(x))!="class"] %>%
+    purrr::imap_chr(~ paste0(.y,": ",.x)) %>%
+    paste0(collapse = "; ")
+  
+  channel_name <- names(x) 
+    
+  if(!is.null(channel_name)) {
+    cat(paste("# Channel named ", channel_name,"\n"))
+    }
+  cat(paste("#", attrs,"\n"))
+  cat(paste("# Values \n"))
+  
+  print(as.numeric(x))
+  invisible(x)
+}
+
+#' Test if the object is a channel or EOG channel
+#' 
+#' * `is_channel_dbl()` returns TRUE for all  channels including EOG channels.
+#' * `is_eog_channel_dbl()` returns TRUE only for EOG channels.
 #'
 #' @param x An object.
 #'
 #' @family channel
 #'
-#' @return `TRUE` if the object inherits from the `sampl` class.
+#' @return `TRUE` if the object inherits from the `channel_dbl` class.
 #' @export
 is_channel_dbl <- function(x) {
-  # if (class(x) == "channel") {
-  #   message("channel class is deprecated")
-  #   return(TRUE)
-  # }
-  class(x) == "channel_dbl"
+  "channel_dbl" %in% class(x) 
 }
+
 
 
 #' @export
@@ -243,7 +282,7 @@ component_dbl <- function(values) {
 #' @return `TRUE` if the object inherits from the `sample_id` class.
 #' @export
 is_component_dbl <- function(x) {
-  class(x) == "component_dbl"
+  "component_dbl" %in%  class(x)
 }
 
 #' @export

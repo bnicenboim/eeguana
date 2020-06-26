@@ -1,8 +1,17 @@
+# eeguana 0.1.4.9000
+  - Bugs: tons of compatibility issues with dplyr 1.0
+  - Changes
+    - Signal processing functions added `sig_fft()`, `sig_ifft()`.
+    - Better print method for channels.
+    - More consistent events_tbl with obligatory .type and .description
+    
+    
 # eeguana 0.1.3.9000
   - More unit testing.
   - Bugs:
     - `read_edf()` wasn't reading events from the status channel
     - fixed some inconsistencies with `.reference` argument
+
 # eeguana 0.1.2.9000
   - Changes:
     - `drop_incomplete_segments()` added.

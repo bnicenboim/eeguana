@@ -385,6 +385,7 @@ faces_segs_some %>%
   geom_vline(xintercept = 0, linetype = "dashed") +
   geom_vline(xintercept = .17, linetype = "dotted") +
   theme(legend.position = "bottom")
+#> Warning: `fun.y` is deprecated. Use `fun` instead.
 ```
 
 <img src="man/figures/README-plot-1.png" width="100%" />
