@@ -614,7 +614,6 @@ smart_pad <- function(x, n_pad, pad = "reflect_limited") {
 #' @return array, shape (n_signals, n_times)
 #' @noRd
 #'
-#' @examples
 overlap_add_filter <- function(x, h, n_fft = NULL, phase = "zero",
                                pad = "reflect_limited") {
   ## """

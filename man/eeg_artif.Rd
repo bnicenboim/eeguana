@@ -6,7 +6,7 @@
 \alias{eeg_artif_step}
 \alias{eeg_artif_amplitude}
 \alias{eeg_artif_peak}
-\title{Detect artifacts and add them in the events table of an eeg_lst.}
+\title{Detect artifacts and add them in the events table of an eeg_lst}
 \usage{
 eeg_artif_minmax(
   .data,

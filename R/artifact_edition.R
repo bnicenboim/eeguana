@@ -1,4 +1,4 @@
-#'  Detect artifacts and add them in the events table of an eeg_lst.
+#'  Detect artifacts and add them in the events table of an eeg_lst
 #'
 #'  These functions search for artifacts on the signal table based on a threshold and a
 #'  sliding window (when relevant), and annotate an event in the events table that spans
