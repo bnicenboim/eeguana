@@ -1,10 +1,10 @@
 ---
-title: "Introduction - Preprocessing and visualization of EEG data."
+title: "Introduction - Preprocessing and visualization of EEG data"
 author: "Bruno Nicenboim"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction - Preprocessing and visualization of EEG data.}
+  %\VignetteIndexEntry{Introduction - Preprocessing and visualization of EEG data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

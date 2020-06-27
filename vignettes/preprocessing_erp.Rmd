@@ -1,5 +1,5 @@
 ---
-title: "Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs."
+title: "Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs"
 author: "Bruno Nicenboim"
 date: "`r Sys.Date()`"
 output: 
