@@ -9,7 +9,7 @@ plot_components(data, ..., projection = "polar", standardize = TRUE)
 \arguments{
 \item{data}{An eeg_ica_lst}
 
-\item{...}{If data are an \code{eeg_lst} or \code{ica_lst}, these are arguments passed to \code{eeg_interpolate_tbl}, such as, radius, size, etc.}
+\item{...}{Components to plot.}
 
 \item{projection}{Projection type for converting the 3D coordinates of the electrodes into 2d coordinates. Projection types available: "polar" (default), "orthographic", or  "stereographic"}
 
