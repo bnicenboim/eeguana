@@ -4,7 +4,9 @@
 \name{layout_32_1020}
 \alias{layout_32_1020}
 \title{Layout for a 32 electrodes cap at the standard 10-20 system}
-\format{An table with channel names and locations}
+\format{
+An table with channel names and locations
+}
 \usage{
 layout_32_1020
 }

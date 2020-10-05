@@ -4,7 +4,8 @@
 \name{data_faces_10_trials}
 \alias{data_faces_10_trials}
 \title{EEGs elicited when one subject saw faces and non-faces objects.}
-\format{An eeg_lst with the following events:
+\format{
+An eeg_lst with the following events:
 \itemize{
 \item \code{.type == "New Segment"} indicates the beginning of the recording.
 \item \code{.type == "Bad Interval"} indicates an interval marked as an artifact by BrainVision 2.0.
@@ -16,7 +17,8 @@
 \item \verb{.type == "Stimulus", .description == "s121} indicates
 \item \verb{.type == "Stimulus", .description == "s70} indicates that a face was presented.
 \item \verb{.type == "Stimulus", .description == "s71} indicates that a non-face was presented.
-}}
+}
+}
 \usage{
 data_faces_10_trials
 }

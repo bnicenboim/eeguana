@@ -32,7 +32,7 @@ eeg_downsample(
 \description{
 Downsample a signal_tbl by a factor \code{q}, using an FIR or IIR filter.
 This is a wrapper for \code{\link[signal:decimate]{decimate}} from the
-\code{\link[signal:signal]{signal}} package, see its documentation for details. Notice that
+\code{\link[signal:signal.package]{signal}} package, see its documentation for details. Notice that
 the code of the signal package might be outdated. This function is used in plotting functions.
 }
 \details{

@@ -1,3 +1,7 @@
+# eeguana 0.1.5.9000
+  - Bugs: 
+    - weird dplyr filter behavior  [#136](https://github.com/bnicenboim/eeguana/issues/136)
+
 # eeguana 0.1.4.9000
   - Bugs: tons of compatibility issues with dplyr 1.0
   - Changes

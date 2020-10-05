@@ -20,7 +20,8 @@ group_by_eeg_lst <- function(.eeg_lst, dots, .add = FALSE) {
 }
 
 #' @noRd
-filter_eeg_lst <- function(.eeg_lst, dots) {
+filter_eeg_lst <- function(.eeg_lst, ...) {
+  dots <- rlang::quos(...)
   new_dots <- dots_by_tbl_quos(.eeg_lst, dots)
 
   if (length(new_dots$.signal) > 0) {

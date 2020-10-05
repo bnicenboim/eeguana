@@ -55,7 +55,7 @@ pull.eeg_lst(.data, var = -1, name = NULL, ...)
 \arguments{
 \item{.data}{An eeg_lst.}
 
-\item{...}{Name-value pairs of expressions; see \link[dplyr:dplyr]{dplyr} for more help.}
+\item{...}{Name-value pairs of expressions; see \link[dplyr:dplyr-package]{dplyr} for more help.}
 
 \item{.preserve}{Not in use, for compatibility reasons.}
 
@@ -107,7 +107,7 @@ The default returns the last column (on the assumption that's the
 column you've created most recently).
 
 This argument is taken by expression and supports
-\link[rlang:quasiquotation]{quasiquotation} (you can unquote column
+\link[rlang:nse-force]{quasiquotation} (you can unquote column
 names and column locations).}
 
 \item{name}{An optional parameter that specifies the column to be used
@@ -120,7 +120,7 @@ An eeg_lst object.
 Manipulate the signal table and the segments table of an eeg_lst.
 }
 \details{
-Wrappers for \code{\link[dplyr:dplyr]{dplyr}}'s commands that act on different parts
+Wrappers for \code{\link[dplyr:dplyr-package]{dplyr}}'s commands that act on different parts
 \code{eeg_lst} objects. Functions that drop or rename column won't remove columns starting with a dot.
 The following wrappers act in a special way for \code{eeg_lst} objects:
 \itemize{

@@ -98,8 +98,7 @@ filter.eeg_lst <- function(.data, ..., .preserve = FALSE) {
   if (.preserve == TRUE) {
     warning("Ignoring `.preserve` argument.")
   }
-  dots <- rlang::quos(...)
-  filter_eeg_lst(.data, dots = dots)
+  filter_eeg_lst(.data, ...)
 }
 #' @rdname dplyr_verbs
 filter.eeg_ica_lst <- function(.data, ..., .preserve = FALSE) {
