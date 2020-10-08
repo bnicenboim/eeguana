@@ -100,7 +100,7 @@ plot(faces) +
 In this dataset, the signal from all electrodes is monopolar and referenced to the left mastoid (M1). We want the signal (excluding the EOG channels) to be referenced to linked (left and right) mastoids (M1 and M2).
 
 ```{r}
-faces <- eeg_rereference(faces, -VEOG, -HEOG, ref = c("M1", "M2"))
+faces <- eeg_rereference(faces, -VEOG, -HEOG, .ref = c("M1", "M2"))
 ```
 
 ## Filtering
@@ -108,7 +108,7 @@ faces <- eeg_rereference(faces, -VEOG, -HEOG, ref = c("M1", "M2"))
 We apply a band pass filter of 0.1 to 30 Hz to all the channels except the EOG channels. We don't segment yet, because discontinuities in the signal create artifacts on the edges.
 
 ```{r}
-faces_filt <- eeg_filt_band_pass(faces, -HEOG, -VEOG, freq = c(.1, 30)) 
+faces_filt <- eeg_filt_band_pass(faces, -HEOG, -VEOG, .freq = c(.1, 30)) 
 ```
 
 
@@ -120,8 +120,8 @@ We first cut a large segment that excludes data before and after the experiment 
 
 
 ```{r, fig.dim = c(10,15), out.width = "100%"}
-faces_ls <- eeg_segment(faces_filt, .description == "s111", end = .description == "s121") %>%
-  eeg_artif_minmax(-HEOG, -VEOG, threshold = 200, window = 200, unit = "ms")
+faces_ls <- eeg_segment(faces_filt, .description == "s111", .end = .description == "s121") %>%
+  eeg_artif_minmax(-HEOG, -VEOG, .threshold = 200, .window = 200, .unit = "ms")
 ```
 
 `eeg_artif_minimax()` only adds the artifacts in the events table and doesn't modify the signal. We can have a look at the type of artifacts that were detected, by plotting the signal and the events with `annotate_events()`. It would be a good idea to just check a couple of seconds of the signal, for that we use the `dplyr` "verb" `filter()` which is overloaded to work with `eeg_lst`s.
@@ -141,7 +141,7 @@ Now we can run ICA, removing the EOG and reference electrodes, and ignoring the 
 ```{r ICA, cache=TRUE}
 ## By default, it will ignore artifacts
 faces_ica <- faces_ls %>%
-  eeg_ica(-HEOG, -VEOG, -M1, -M2, method = adapt_fast_ICA, ignore = .type == "artifact")
+  eeg_ica(-HEOG, -VEOG, -M1, -M2, .method = adapt_fast_ICA, .ignore = .type == "artifact")
 ```
   
 We can now check the different topographic plots of the ICAs with `plot_components()`, and their correlation with the EOG channels looking a the summary of the object.
@@ -155,8 +155,8 @@ We'll look closer at the ICA that are more likely to be related to eye movements
 
 ```{r,  fig.dim = c(10,5)}
 faces_ica <- faces_ica %>%
-  eeg_artif_step(HEOG, VEOG, threshold = 30, window = 200, unit = "ms", freq=c(1,10)) %>%
-  eeg_artif_peak(VEOG, threshold=100, freq=c(1,10))
+  eeg_artif_step(HEOG, VEOG, .threshold = 30, .window = 200, .unit = "ms", .freq = c(1, 10)) %>%
+  eeg_artif_peak(VEOG, .threshold = 100, .freq = c(1, 10))
 ```
 
 
@@ -166,7 +166,8 @@ We'll see how the components explaining the most variance and most correlated to
 
 ```{r, fig.dim = c(10,9), out.width = "90%"}
 #samples with blinks
-s_peaks <- filter(events_tbl(faces_ica),  str_starts(.description, "peak")) %>% pull(.initial)
+s_peaks <- filter(events_tbl(faces_ica),  str_starts(.description, "peak")) %>%
+  pull(.initial)
 eeguana:::plot_ica.eeg_ica_lst(faces_ica, samples = seq(s_peaks[1]-2000,s_peaks[1]+2000))
 ```
 The clearest ones is ICA5, and so we'll just remove that one.
@@ -180,16 +181,16 @@ faces_icaed <- faces_ica %>%
 Now we'll segment the data to appropriate check if there are still artifacts.
 
 ```{r, fig.dim = c(10,15), out.width = "100%"}
-
-events_tbl(faces_icaed) <- events_tbl(faces_icaed) %>% filter(!.type %in% "artifact")
+events_tbl(faces_icaed) <- events_tbl(faces_icaed) %>%
+  filter(!.type %in% "artifact")
 
 faces_seg <- faces_icaed %>%
   select(-description, -type) %>%
-  eeg_segment(.description %in% c("s70", "s71"), lim = c(-.1, .5))
+  eeg_segment(.description %in% c("s70", "s71"), .lim = c(-.1, .5))
 
 faces_seg_artif <- faces_seg %>%
-  eeg_artif_minmax(-HEOG, -VEOG, threshold = 100, window = 150, unit = "ms") %>%
-  eeg_artif_step(-HEOG, -VEOG, threshold = 50, window = 200, unit = "ms")
+  eeg_artif_minmax(-HEOG, -VEOG, .threshold = 100, .window = 150, .unit = "ms") %>%
+  eeg_artif_step(-HEOG, -VEOG, .threshold = 50, .window = 200, .unit = "ms")
 
 ## extracts the ids of the segments with artifacts
 bad <- filter(events_tbl(faces_seg_artif), .type == "artifact") %>% 
@@ -204,7 +205,7 @@ faces_seg_artif %>%
   theme(legend.position = "bottom")
 
 faces_seg <- faces_seg_artif %>%
-  eeg_events_to_NA(.type == "artifact", entire_seg = TRUE, all_chs = FALSE, drop_events = TRUE)
+  eeg_events_to_NA(.type == "artifact", .entire_seg = TRUE, .all_chs = FALSE, .drop_events = TRUE)
 
 summary(faces_seg)
 ```
@@ -234,14 +235,15 @@ With some `ggplot` skills, we can create customized plots. `ggplot` is overloade
 
 ```{r, fig.dim = c(10,10), out.width = "100%"}
 ## ggplot uses internally a table that looks like this:
-faces_seg %>% filter(.id %in% 1:3) %>% as_tibble()
+faces_seg %>% filter(.id %in% 1:3) %>%
+  as_tibble()
 
 faces_seg %>%
   select(O1, O2, P7, P8) %>%
   ggplot(aes(x = .time, y = .value)) +
   geom_line(alpha = .1, aes(group = .id, color = condition)) +
   stat_summary(
-    fun.y = "mean", geom = "line", alpha = 1, size = 1.5,
+    fun = "mean", geom = "line", alpha = 1, size = 1.5,
     aes(color = condition)
   ) +
   facet_wrap(~.key) +

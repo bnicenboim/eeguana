@@ -14,8 +14,8 @@ data_sincos2id_2 <- eeguana:::data_sincos2id_2
 
 
 test_that("can clean files with entire_seg = FALSE", {
-  clean_data <- eeg_events_to_NA(data_sincos2id, .type == "Bad", entire_seg = FALSE)
-  clean_data_sincos2id_2 <- eeg_events_to_NA(data_sincos2id_2, .type == "Bad", entire_seg = FALSE)
+  clean_data <- eeg_events_to_NA(data_sincos2id, .type == "Bad", .entire_seg = FALSE)
+  clean_data_sincos2id_2 <- eeg_events_to_NA(data_sincos2id_2, .type == "Bad", .entire_seg = FALSE)
   expect_equal(clean_data, clean_data_sincos2id_2)
   expect_equal(nrow(clean_data$.events), 4)
   expect_equal(all(is.na(clean_data$.signal[clean_data$.signal$.sample %in% seq(-2, -3 + 3 - 1) &
@@ -34,10 +34,10 @@ test_that("can clean files with entire_seg = FALSE", {
 })
 
 test_that("can clean whole channels in files", {
-  clean_data_chan <- eeg_events_to_NA(data_sincos2id, .type == "Bad", all_chs = TRUE, entire_seg = FALSE)
-  clean_data_chan2 <- eeg_events_to_NA(data_sincos2id_b, .type == "Bad", entire_seg = FALSE)
-  clean_data_chan3 <- eeg_events_to_NA(data_sincos2id_b, .type == "Bad", all_chs = TRUE, entire_seg = FALSE)
-  clean_data_sincos2id_22 <- eeg_events_to_NA(data_sincos2id_2, .type == "Bad", all_chs = TRUE, entire_seg = FALSE)
+  clean_data_chan <- eeg_events_to_NA(data_sincos2id, .type == "Bad", .all_chs = TRUE, .entire_seg = FALSE)
+  clean_data_chan2 <- eeg_events_to_NA(data_sincos2id_b, .type == "Bad", .entire_seg = FALSE)
+  clean_data_chan3 <- eeg_events_to_NA(data_sincos2id_b, .type == "Bad", .all_chs = TRUE, .entire_seg = FALSE)
+  clean_data_sincos2id_22 <- eeg_events_to_NA(data_sincos2id_2, .type == "Bad", .all_chs = TRUE, .entire_seg = FALSE)
   expect_equal(clean_data_chan, clean_data_chan2)
   expect_equal(clean_data_chan, clean_data_chan3)
   expect_equal(clean_data_chan, clean_data_sincos2id_22)
@@ -61,7 +61,7 @@ test_that("can clean whole channels in files", {
 
 
 test_that("can clean whole segments in files", {
-  clean_data_seg <- eeg_events_to_NA(data_sincos2id, .type == "Bad", entire_seg = TRUE)
+  clean_data_seg <- eeg_events_to_NA(data_sincos2id, .type == "Bad", .entire_seg = TRUE)
   expect_equal(nrow(clean_data_seg$.events), 4)
   expect_equal(all(is.na(clean_data_seg$.signal[clean_data_seg$.signal$.id == 1, c("X", "Y")])), TRUE)
   expect_equal(all(is.na(clean_data_seg$.signal[clean_data_seg$.signal$.id == 2, c("Y")])), TRUE)

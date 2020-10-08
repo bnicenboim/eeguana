@@ -93,10 +93,11 @@ test_that("bdf  match the bdf created by MNE", {
 })
 
 ## segmented
-seged_ascii <- multiplexed_ascii_bv2 %>% eeg_segment(.description %in% c("s10", "s11", "s12"), lim = c(0, .499))
+seged_ascii <- multiplexed_ascii_bv2 %>%
+  eeg_segment(.description %in% c("s10", "s11", "s12"), .lim = c(0, .499))
 seg_ascii_bv2 <- read_vhdr(file = system.file("testdata", "bv_segexport_ascii.vhdr", package = "eeguana"), .recording = "bv2")
 
-seged_bin <- multiplexed_bin_bv2 %>% eeg_segment(.description %in% c("s10", "s11", "s12"), lim = c(0, .499))
+seged_bin <- multiplexed_bin_bv2 %>% eeg_segment(.description %in% c("s10", "s11", "s12"), .lim = c(0, .499))
 seg_bin_bv2 <- read_vhdr(system.file("testdata", "bv_segexport_bin.vhdr", package = "eeguana"), .recording = "bv2")
 
 test_that("seg matches", {

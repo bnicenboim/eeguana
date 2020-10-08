@@ -7,25 +7,25 @@
 #'
 #' @param .data An `eeg_lst` object.
 #' @param ... Description of the event.
-#' @param unit "seconds" (or "s"), "milliseconds" (or "ms"), or samples.
-#' @param lim Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments
-#' @param end Description of the event that indicates the end of the segment, if this is used, `lim` is ignored.
+#' @param .unit "seconds" (or "s"), "milliseconds" (or "ms"), or samples.
+#' @param .lim Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments
+#' @param end Description of the event that indicates the end of the segment, if this is used, `.lim` is ignored.
 #' @family preprocessing functions
 #'
 #' @return An `eeg_lst`.
 #'
 #'
 #' @export
-eeg_segment <- function(.data, ..., lim = c(-.5, .5), end, unit = "s") {
+eeg_segment <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s") {
   UseMethod("eeg_segment")
 }
 #' @export
-eeg_segment.eeg_lst <- function(.data, ..., lim = c(-.5, .5), end, unit = "s") {
+eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s") {
   #to avoid no visible binding for global variable
   first_sample <- NULL
   
   dots <- rlang::enquos(...)
-  end <- rlang::enquo(end)
+  .end <- rlang::enquo(.end)
 
 
   ## .data$.events needs to stop being an events_tbl in order to remove stuff from it.
@@ -35,21 +35,21 @@ eeg_segment.eeg_lst <- function(.data, ..., lim = c(-.5, .5), end, unit = "s") {
     dplyr::rename(.first_sample = .initial) %>%
     dplyr::distinct()
 
-  if (!rlang::quo_is_missing(end)) {
-    times_end <- dplyr::filter(dplyr::as_tibble(.data$.events), !!end) %>%
+  if (!rlang::quo_is_missing(.end)) {
+    times_end <- dplyr::filter(dplyr::as_tibble(.data$.events), !!.end) %>%
       dplyr::select(-.channel, -.final) %>%
       dplyr::rename(.first_sample = .initial) %>%
     dplyr::distinct()
   }
 
-  if (rlang::quo_is_missing(end) && any(lim[[2]] < lim[[1]])) {
+  if (rlang::quo_is_missing(.end) && any(.lim[[2]] < .lim[[1]])) {
     stop("A segment needs to be of positive length and include at least 1 sample.")
   }
 
-  if (rlang::quo_is_missing(end) && (length(lim) == 2) || ## two values or a dataframe
-    (!is.null(nrow(lim)) && nrow(lim) == nrow(times0))) {
-    scaling <- scaling(sampling_rate(.data), unit = unit)
-    sample_lim <- round(lim * scaling)
+  if (rlang::quo_is_missing(.end) && (length(.lim) == 2) || ## two values or a dataframe
+    (!is.null(nrow(.lim)) && nrow(.lim) == nrow(times0))) {
+    scaling <- scaling(sampling_rate(.data), unit = .unit)
+    sample_lim <- round(.lim * scaling)
     seg_names <- colnames(times0)[!startsWith(colnames(times0), ".")]
     segmentation_info <- times0 %>%
       dplyr::mutate(
@@ -58,9 +58,9 @@ eeg_segment.eeg_lst <- function(.data, ..., lim = c(-.5, .5), end, unit = "s") {
         .new_id = seq_len(dplyr::n())
       ) %>%
       dplyr::select(-dplyr::one_of(seg_names))
-  } else if (rlang::quo_is_missing(end)) {
-    stop("Wrong dimension of lim")
-  } else if (!rlang::quo_is_missing(end)) {
+  } else if (rlang::quo_is_missing(.end)) {
+    stop("Wrong dimension of .lim")
+  } else if (!rlang::quo_is_missing(.end)) {
     # to avoid no visible binding for global variable
         .zero <- NULL
 #          warning(sprintf("Number of initial markers (%d) doesn't match the number of final markers (%d)", nrow(times0), nrow(times_end)))

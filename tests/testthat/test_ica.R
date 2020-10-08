@@ -84,14 +84,14 @@ m <- structure(c(
   1.90720205416033, -0.116728090380369
 ), .Dim = c(3L, 3L))
 data_fast_ICA <- eeg_ica(
-  .data = data_blinks, method = fast_ICA,
-  config = list(w.init = m)
+  .data = data_blinks, .method = fast_ICA,
+  .config = list(w.init = m)
 )
 data_fast_ICA2 <- eeg_ica(
   .data = data_blinks %>%
     dplyr::mutate(XEOG = channel_dbl(rnorm(nsamples(data_blinks)))),
-  -XEOG, method = fast_ICA,
-  config = list(w.init = m)
+  -XEOG, .method = fast_ICA,
+  .config = list(w.init = m)
 )
 test_that("ica summaries", {
 
@@ -127,7 +127,7 @@ test_that("different implementations aren't too different", {
     signal_tbl() %>%
     .[, .(alpha = scale(ICA1), noise = scale(ICA2), blink = scale(ICA3))] %>%
     as.matrix()
-  data_adapt_fast_ica <- eeg_ica(data_blinks, method = adapt_fast_ICA)
+  data_adapt_fast_ica <- eeg_ica(data_blinks, .method = adapt_fast_ICA)
   recover_adapt_fast_ICA <- data_adapt_fast_ica %>%
     eeg_ica_show(ICA1, ICA2, ICA3) %>%
     dplyr::select(ICA1, ICA2, ICA3) %>%
@@ -135,8 +135,8 @@ test_that("different implementations aren't too different", {
     .[, .(alpha = -scale(ICA2), noise = scale(ICA3), blink = scale(ICA1))] %>%
     as.matrix()
   data_fast_ICA2 <- eeg_ica(data_blinks,
-    method = fast_ICA2,
-    config = list(init = m)
+    .method = fast_ICA2,
+    .config = list(init = m)
   )
   recover_fast_ICA2 <- data_fast_ICA2 %>%
     eeg_ica_show(ICA1, ICA2, ICA3) %>%
@@ -153,10 +153,10 @@ test_that("different implementations aren't too different", {
 })
 
 test_that("warns if problems", {
-  expect_warning(eeg_ica(data_blinks, method = fast_ICA, config = list(maxit = 2)))
+  expect_warning(eeg_ica(data_blinks, .method = fast_ICA, .config = list(maxit = 2)))
   ## TODO TRY TO produce non convergencies
-  ## expect_warning(eeg_ica(data_blinks, method = adapt_fast_ICA, config=list(eps = 1e-12, maxiter =1)))
-  ## expect_warning(eeg_ica(data_blinks, method = fast_ICA2, config=list(eps = 1e-12, maxiter =1)))
+  ## expect_warning(eeg_ica(data_blinks, .method = adapt_fast_ICA, .config=list(eps = 1e-12, maxiter =1)))
+  ## expect_warning(eeg_ica(data_blinks, .method = fast_ICA2, .config=list(eps = 1e-12, maxiter =1)))
 })
 
 
@@ -185,11 +185,11 @@ test_that("ica is a reversible", {
   data_rec <- data_fast_ICA %>%
     eeg_ica_keep(ICA1, ICA2, ICA3)
 
-  data_ica_m <- eeg_ica(data_blinks, method = adapt_fast_ICA)
+  data_ica_m <- eeg_ica(data_blinks, .method = adapt_fast_ICA)
   data_rec_m <- data_ica_m %>%
     eeg_ica_keep(ICA1, ICA2, ICA3)
 
-  data_ica_Fz <- eeg_ica(data_blinks, -Fz, method = fast_ICA)
+  data_ica_Fz <- eeg_ica(data_blinks, -Fz, .method = fast_ICA)
   data_rec_Fz <- data_ica_Fz %>%
     eeg_ica_keep(ICA1, ICA2)
   ica1 <- eeg_ica_show(data_fast_ICA, ICA1)
@@ -220,7 +220,7 @@ if (0) {
 
 data_no_blinks <- data_fast_ICA %>% eeg_ica_keep(-ICA3)
 data_blinks_ref <- dplyr::mutate(data_blinks, R = channel_dbl(0))
-data_ica_default_ref <- eeg_ica(data_blinks_ref, -R, config = list(w.init = m))
+data_ica_default_ref <- eeg_ica(data_blinks_ref, -R, .config = list(w.init = m))
 ## eeg_ica_show(data_ica_default_ref, ICA1, ICA2, ICA3) %>% plot()
 data_no_blinks_ref <- data_ica_default_ref %>% eeg_ica_keep(-ICA3)
 test_that("ica can remove blinks", {
@@ -238,13 +238,13 @@ test_that("can use other (python) functions", {
     reticulate::use_condaenv("anaconda3")
     sk <- reticulate::import("sklearn.decomposition")
     ica <- sk$FastICA(whiten = TRUE, random_state = 23L)
-    X <- scale(x, scale = FALSE)
+    X <- scale(x, scale = FALSE) %>%
     as.matrix(x)
     S <- ica$fit_transform(X)
     W <- t(ica$components_)
     list(W = W)
   }
-  data_ica_py <- eeg_ica(data_blinks, method = py_fica)
+  data_ica_py <- eeg_ica(data_blinks, .method = py_fica)
   ## data_ica_py %>% eeg_ica_show(ICA1, ICA2, ICA3) %>%
   ##   dplyr::select(ICA1,ICA2, ICA3) %>%
   ##   plot()
@@ -254,7 +254,7 @@ test_that("can use other (python) functions", {
 
 
 data_ica_2participants <- data_blinks_more %>%
-  eeg_ica(method = fast_ICA, config = list(w.init = m))
+  eeg_ica(.method = fast_ICA, .config = list(w.init = m))
 
 ## data_ica_2participants %>%
 ##   eeg_ica_show(ICA1:ICA3) %>%
@@ -264,7 +264,7 @@ data_ica_2participants <- data_blinks_more %>%
 data_ica_2participants_keepall <- eeg_ica_keep(data_ica_2participants, ICA1, ICA2, ICA3)
 
 # keeps everything also:
-data_ica_2participants_exFz <- eeg_ica(data_blinks_more, -Fz, method = fast_ICA) %>%
+data_ica_2participants_exFz <- eeg_ica(data_blinks_more, -Fz, .method = fast_ICA) %>%
   eeg_ica_keep(ICA1, ICA2)
 
 data_blinks_more_no_blinks <- data_ica_2participants %>%
@@ -277,7 +277,7 @@ data_ica_p2 <- data_ica_2participants %>%
 
 data_ica_p2_filtered <- data_blinks_more %>%
   dplyr::filter(.recording != "recording1") %>%
-  eeg_ica(method = fast_ICA, config = list(w.init = m)) %>%
+  eeg_ica(.method = fast_ICA, .config = list(w.init = m)) %>%
   eeg_ica_keep(-ICA3)
 
 

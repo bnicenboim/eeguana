@@ -51,7 +51,7 @@ data0 <- eeg_lst(
   segments_tbl = dplyr::tibble(.id = 1L, .recording = "recording1", segment = 1)
 )
 
-test_that("can segment using lim", {
+test_that("can segment using .lim", {
   data_s <- eeg_segment(data, .type == "Time 0")
   expect_equal(data$.signal, data_s$.signal)
   expect_equal(data$.events, data_s$.events)
@@ -63,24 +63,24 @@ test_that("can segment using lim", {
   expect_equal(d$.events, d_rec$.events)
   expect_equal(dplyr::select(d$.segments, -type, -description), dplyr::select(d_rec$.segments, -type.x, -description.x, -type.y, -description.y))
   # expect_equal(d$.segments,d_rec$.segments)
-  d_0 <- eeg_segment(data, .type == "Time 0", lim = c(0, Inf))
-  d_0_0 <- eeg_segment(d_0, .type == "Time 0", lim = c(0, Inf))
+  d_0 <- eeg_segment(data, .type == "Time 0", .lim = c(0, Inf))
+  d_0_0 <- eeg_segment(d_0, .type == "Time 0", .lim = c(0, Inf))
   expect_equal(nrow(d_0$.signal), 10)
   expect_equal(d_0$.signal, d_0_0$.signal)
   expect_equal(d_0$.events, d_0_0$.events)
   expect_equal(dplyr::select(d_0$.segments, -type, -description), dplyr::select(d_0_0$.segments, -type.x, -description.x, -type.y, -description.y))
   # expect_equal(d_0$.segments,d_0_0$.segments)
-  s1 <- eeg_segment(data0, .type == "Time 0", lim = c(0, 1 / 500))
+  s1 <- eeg_segment(data0, .type == "Time 0", .lim = c(0, 1 / 500))
   expect_equal(s1$.signal$X[1], data0$.signal$X[6])
   expect_equal(nrow(s1$.signal), 4)
   expect_equal(nrow(s1$.segments), 2)
   expect_equal(s1$.segments$segment, 1:2)
-  s1_u <- eeg_segment(data0, .type == "Time 0", lim = c(0, 1), unit = "sample")
-  s1_u2 <- eeg_segment(data0, .type == "Time 0", lim = c(0, 2), unit = "ms")
+  s1_u <- eeg_segment(data0, .type == "Time 0", .lim = c(0, 1), .unit = "sample")
+  s1_u2 <- eeg_segment(data0, .type == "Time 0", .lim = c(0, 2), .unit = "ms")
   expect_equal(s1, s1_u2)
-  double <- eeg_segment(data0, .type == "Time 0", lim = c(-20, 20), unit = "sample")
+  double <- eeg_segment(data0, .type == "Time 0", .lim = c(-20, 20), .unit = "sample")
   expect_equal(nrow(double$.signal), 40)
-  d00 <- eeg_segment(data0, .type == "Time 0", lim = c(0, 1), unit = "sample")
+  d00 <- eeg_segment(data0, .type == "Time 0", .lim = c(0, 1), .unit = "sample")
   expect_equal(all(d00$.events$.final <= max(d00$.signal$.sample)), TRUE)
   expect_equal(all(s1$.events$.final <= max(s1$.signal$.sample)), TRUE)
   expect_equal(all(s1_u$.events$.final <= max(s1_u$.signal$.sample)), TRUE)
@@ -88,45 +88,45 @@ test_that("can segment using lim", {
   expect_equal(all(s1_u2$.events$.final <= max(s1_u2$.signal$.sample)), TRUE)
 })
 
-test_that("can segment using end", {
-  data_s_e <- eeg_segment(data, .type == "New Segment", end = .type == "Time 0")
-  data_s_e_c <- eeg_segment(data, .type == "New Segment",lim = c(0,5), unit="sample")
+test_that("can segment using .end", {
+  data_s_e <- eeg_segment(data, .type == "New Segment", .end = .type == "Time 0")
+  data_s_e_c <- eeg_segment(data, .type == "New Segment",.lim = c(0,5), .unit="sample")
   expect_equal(data_s_e,data_s_e_c)
   
   data_unm0 <- data
   events_tbl(data_unm0) <- events_tbl(data_unm0) %>% dplyr::slice(-1)
-  expect_warning(eeg_segment(data_unm0, .type == "New Segment", end = .type == "Time 0"))
-  data_unm0 <- suppressWarnings(eeg_segment(data_unm0, .type == "New Segment", end = .type == "Time 0"))
+  expect_warning(eeg_segment(data_unm0, .type == "New Segment", .end = .type == "Time 0"))
+  data_unm0 <- suppressWarnings(eeg_segment(data_unm0, .type == "New Segment", .end = .type == "Time 0"))
   expect_true(all(is.na(signal_tbl(data_unm0)[.id==1,.(.sample, X, Y)])))
   expect_equal(signal_tbl(data_unm0)[.id!=1,],signal_tbl(data_s_e)[.id !=1,])
   expect_equal(segments_tbl(data_unm0) %>% dplyr::filter(.id==1)%>% dplyr::pull(type),"incorrect segment")
 
   data_unm0_2 <- data
   events_tbl(data_unm0_2) <- events_tbl(data_unm0_2) %>% dplyr::slice(-5)
-  expect_warning(eeg_segment(data_unm0_2, .type == "New Segment", end = .type == "Time 0"))
-  data_unm0_2 <- suppressWarnings(eeg_segment(data_unm0_2, .type == "New Segment", end = .type == "Time 0"))
+  expect_warning(eeg_segment(data_unm0_2, .type == "New Segment", .end = .type == "Time 0"))
+  data_unm0_2 <- suppressWarnings(eeg_segment(data_unm0_2, .type == "New Segment", .end = .type == "Time 0"))
   expect_true(all(is.na(signal_tbl(data_unm0_2)[.id==2,.(.sample, X, Y)])))
   expect_equal(signal_tbl(data_unm0_2)[.id!=2,],signal_tbl(data_s_e)[.id !=2,])
   expect_equal(segments_tbl(data_unm0_2) %>% dplyr::filter(.id==2)%>% dplyr::pull(type),"incorrect segment")
 
   data_unme <- data
   events_tbl(data_unme) <- events_tbl(data_unme) %>% dplyr::slice(-3)
-  expect_warning(eeg_segment(data_unme, .type == "New Segment", end = .type == "Time 0"))
-  data_unme <- suppressWarnings(eeg_segment(data_unme, .type == "New Segment", end = .type == "Time 0"))  
+  expect_warning(eeg_segment(data_unme, .type == "New Segment", .end = .type == "Time 0"))
+  data_unme <- suppressWarnings(eeg_segment(data_unme, .type == "New Segment", .end = .type == "Time 0"))
   expect_equal(signal_tbl(data_unme), signal_tbl(data_unm0)) 
   expect_equal(segments_tbl(data_unme), segments_tbl(data_unm0)) 
   data_unme_2 <- data
   events_tbl(data_unme_2) <- events_tbl(data_unme_2) %>% dplyr::slice(-6)
-  expect_warning(eeg_segment(data_unme_2, .type == "New Segment", end = .type == "Time 0"))
-  data_unme_2 <- suppressWarnings(eeg_segment(data_unme_2, .type == "New Segment", end = .type == "Time 0"))  
+  expect_warning(eeg_segment(data_unme_2, .type == "New Segment", .end = .type == "Time 0"))
+  data_unme_2 <- suppressWarnings(eeg_segment(data_unme_2, .type == "New Segment", .end = .type == "Time 0"))
   
   expect_equal(signal_tbl(data_unme_2), signal_tbl(data_unm0_2)) 
   expect_equal(segments_tbl(data_unme_2), segments_tbl(data_unm0_2)) 
 
   data_unm <- data
   events_tbl(data_unm) <- events_tbl(data_unm) %>% dplyr::slice(-1,-6)
-  expect_warning(eeg_segment(data_unm, .type == "New Segment", end = .type == "Time 0"))
-  data_unm <- suppressWarnings(eeg_segment(data_unm, .type == "New Segment", end = .type == "Time 0"))
+  expect_warning(eeg_segment(data_unm, .type == "New Segment", .end = .type == "Time 0"))
+  data_unm <- suppressWarnings(eeg_segment(data_unm, .type == "New Segment", .end = .type == "Time 0"))
 
   expect_true(all(is.na(signal_tbl(data_unm)[,.(.sample, X, Y)])))
   expect_equal(segments_tbl(data_unm) %>%  dplyr::pull(type) %>% unique(),"incorrect segment")
@@ -135,14 +135,14 @@ test_that("can segment using end", {
 ##warning("duplicated triggers should be tested")
 
 test_that("duplicated triggers", {
-    data_s_e <- eeg_segment(data, .type == "New Segment", end = .type == "Time 0")
-    data_s_e_c <- eeg_segment(data, .type == "New Segment",lim = c(0,5), unit="sample")
+    data_s_e <- eeg_segment(data, .type == "New Segment", .end = .type == "Time 0")
+    data_s_e_c <- eeg_segment(data, .type == "New Segment",.lim = c(0,5), .unit="sample")
     
     data_dup <- data
     events_tbl(data_dup) <- suppressWarnings(dplyr::bind_rows(events_tbl(data_dup) %>% dplyr::slice(1), events_tbl(data_dup)))
 
     
-    data_dups <- eeg_segment(data_dup, .type == "New Segment", end = .type == "Time 0")
+    data_dups <- eeg_segment(data_dup, .type == "New Segment", .end = .type == "Time 0")
     expect_equal(signal_tbl(data_dups), signal_tbl(data_s_e)) 
     expect_equal(segments_tbl(data_dups), segments_tbl(data_s_e)) 
 })

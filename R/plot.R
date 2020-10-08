@@ -203,20 +203,34 @@ plot_topo.eeg_lst <- function(data, projection = "polar", ...) {
 #' @family ICA functions
 #' @family topographic plots and layouts
 #' @inheritParams plot_topo
-#' @param ... Components to plot.
+#' @param ... arguments passed to interpolate.
 #' @param standardize Whether to standardize the color scale of each topographic plot.
 #' @rdname plot_components
+#' @examples
+#' @examples
+#' # For demonstration only, since ICA won't converge
+#' library(ggplot2)
+#'   data_faces_10_trials %>%
+#'    eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10)) %>%
+#'    eeg_ica_keep(ICA1, ICA2) %>%
+#'    plot_components()+
+#'    annotate_head() +
+#'    geom_contour() +
+#'    geom_text(color = "black") +
+#'    theme(legend.position = "none")
+#'
 #' @export
-plot_components <- function(data, ...,projection = "polar",standardize= TRUE) {
+#'
+plot_components <- function(data, ..., .projection = "polar", .standardize = TRUE) {
   UseMethod("plot_components")
 }
 #' @export
-plot_components.eeg_ica_lst <- function(data,...,projection = "polar",standardize= TRUE) {
-  comp_sel <- sel_comp(data,...)
-  channels_tbl(data) <- change_coord(channels_tbl(data), projection)
+plot_components.eeg_ica_lst <- function(data,..., .projection = "polar", .standardize = TRUE) {
+
+  channels_tbl(data) <- change_coord(channels_tbl(data),  .projection)
   ## TODO: move to data.table, ignore group, just do it by .recording
   long_table <- map_dtr(data$.ica, ~ {
-    dt <- .x$mixing_matrix[comp_sel,, drop=FALSE] %>%
+    dt <- .x$mixing_matrix %>%
       data.table::as.data.table(keep.rownames = TRUE) 
     dt[, .ICA := factor(rn, levels = rn)][ , rn := NULL][]
   },
@@ -232,16 +246,12 @@ plot_components.eeg_ica_lst <- function(data,...,projection = "polar",standardiz
     dplyr::group_by(.recording, .ICA)
   
 long_table %>%
-    eeg_interpolate_tbl() %>%
+    eeg_interpolate_tbl(...) %>%
     dplyr::group_by(.recording, .ICA) %>%
-    dplyr::mutate(.value = c(scale(.value, center = standardize, scale = standardize))) %>% 
+    dplyr::mutate(.value = c(scale(.value, center = .standardize, scale = .standardize))) %>%
     dplyr::ungroup() %>%
     plot_topo() +
-    ggplot2::facet_wrap(~.recording + .ICA) +
-    annotate_head() +
-    ggplot2::geom_contour() +
-    ggplot2::geom_text(color = "black") +
-    ggplot2::theme(legend.position = "none")
+    ggplot2::facet_wrap(~.recording + .ICA)
 }
 
 
@@ -259,7 +269,7 @@ plot_ica.eeg_ica_lst <- function(data,
                                  scale_comp = 2,
                                  order = c("var","cor"),
                                  max_sample =2400,
-                                 topo_config = list(projection = "polar",standardize= TRUE),
+                                 topo_config = list( .projection = "polar",.standardize= TRUE),
                                  interp_config =list()) {
 # to avoid no visible binding for global variable
   cor <- NULL
@@ -295,7 +305,7 @@ plot_ica.eeg_ica_lst <- function(data,
   }
     
   message("Calculating the correlation of ICA components with filtered EOG channels...")
-  sum <- eeg_ica_summary_tbl(data %>% eeg_filt_band_pass(eog, freq = c(.1, 30)),eog) 
+  sum <- eeg_ica_summary_tbl(data %>% eeg_filt_band_pass(eog, .freq = c(.1, 30)),eog)
   data.table::setorderv(sum, order, order = -1)
   ICAs <- unique(sum$.ICA)[components] 
   
@@ -316,8 +326,14 @@ plot_ica.eeg_ica_lst <- function(data,
     ggplot2::theme(legend.position='none')
   
   
-  topo <- plot_components(data,ICAs)
-  
+  topo <- data %>%
+    eeg_ica_keep(ICAs) %>%
+    plot_components(ICAs) %>%
+    annotate_head() +
+    ggplot2::geom_contour() +
+    ggplot2::geom_text(color = "black") +
+    ggplot2::theme(legend.position = "none")
+
   c_text <- sum %>%
     dplyr::mutate(cor_t = as.character(round(cor,2)), pvar_t = as.character(round(var*100))) %>%
     dplyr::group_by(.recording, .ICA) %>%
@@ -350,7 +366,7 @@ plot_ica.eeg_ica_lst <- function(data,
 #' ERPs facetted by channel (`.key`).
 #' Then, the ggplot object is called in `plot_in_layout`. The function uses grobs
 #' arranged according to .x .y coordinates extracted from the `eeg_lst` object, by
-#' default in polar arrangement. The arrangement can be changed with the `projection`
+#' default in polar arrangement. The arrangement can be changed with the ` .projection`
 #' argument. White space in the plot can be reduced by changing `ratio`.
 #'
 #' Additional components such as titles and annotations should be added to the
@@ -395,15 +411,15 @@ plot_in_layout <- function(plot, ...) {
 }
 
 
-#' @param projection Projection type for converting the 3D coordinates of the electrodes into 2d coordinates. Projection types available: "polar" (default), "orthographic", or  "stereographic"
-#' @param ratio Ratio of the individual panels
+#' @param  .projection  .Projection type for converting the 3D coordinates of the electrodes into 2d coordinates.  .Projection types available: "polar" (default), "orthographic", or  "stereographic"
+#' @param .ratio Ratio of the individual panels
 #' @param ... Not in use.
 #'
 #' @rdname plot_in_layout
 #' @export
-plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1, 1), ...) {
-  size_x <- ratio[[1]]
-  size_y <- ratio[[2]]
+plot_in_layout.gg <- function(plot, .projection = "polar", .ratio = c(1, 1), ...) {
+  size_x <- .ratio[[1]]
+  size_y <- .ratio[[2]]
   ch_location <- plot$data_channels
   ## if (!"channel" %in% colnames(ch_location)) {
   ##   stop("Channels are missing from the data.")
@@ -502,7 +518,7 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1, 1), ...) 
   # How much larger than the electrode position should the plot be?
 
 
-  ch_location <- change_coord(ch_location, projection)
+  ch_location <- change_coord(ch_location, .projection)
 
   xmin <- min(ch_location$.x, na.rm = TRUE) - 0.3 #* size
   xmax <- max(ch_location$.x, na.rm = TRUE) + 0.3 #* size

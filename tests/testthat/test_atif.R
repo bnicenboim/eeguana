@@ -4,7 +4,7 @@ library(eeguana)
 data("data_faces_10_trials")
 
 data_grouped_descr <- data_faces_10_trials %>%
-  eeg_segment(.description %in% c("s70","s71"),lim=c(-1,1)) %>%
+  eeg_segment(.description %in% c("s70","s71"),.lim=c(-1,1)) %>%
   eeg_events_to_NA(.description == "Bad Min-Max") %>%
   dplyr::group_by(description)
 
