@@ -2,7 +2,9 @@
   - Bugs: 
     - weird dplyr filter behavior  [#136](https://github.com/bnicenboim/eeguana/issues/136)
     - `plot_components()` behaves more similarly to `plot_topo()`
-    - **BREAKING CHANGE** most arguments require now a `.` at the beginning: This should help to differentiate them from channels.
+    - **BREAKING CHANGE** `...` are always the second argument and most arguments require now a `.` at the beginning: This should help to differentiate them from channels. 
+    - New examples for ICA functions.
+    - **TO FINISH**
     
 # eeguana 0.1.4.9000
   - Bugs: tons of compatibility issues with dplyr 1.0

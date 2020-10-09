@@ -305,7 +305,7 @@ plot_ica.eeg_ica_lst <- function(data,
   }
     
   message("Calculating the correlation of ICA components with filtered EOG channels...")
-  sum <- eeg_ica_summary_tbl(data %>% eeg_filt_band_pass(eog, .freq = c(.1, 30)),eog)
+  sum <- eeg_ica_summary_tbl(data %>% eeg_filt_band_pass(eog, .freq = c(.1, 30)))
   data.table::setorderv(sum, order, order = -1)
   ICAs <- unique(sum$.ICA)[components] 
   
@@ -328,7 +328,7 @@ plot_ica.eeg_ica_lst <- function(data,
   
   topo <- data %>%
     eeg_ica_keep(ICAs) %>%
-    plot_components(ICAs) %>%
+    plot_components() +
     annotate_head() +
     ggplot2::geom_contour() +
     ggplot2::geom_text(color = "black") +
