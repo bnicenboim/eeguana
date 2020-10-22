@@ -4,16 +4,18 @@
 \alias{eeg_baseline}
 \title{Baseline an eeg_lst}
 \usage{
-eeg_baseline(x, lim = -Inf, unit = "s", ...)
+eeg_baseline(x, ..., .lim = -Inf, .unit = "s")
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object or a channel.}
 
-\item{lim}{A negative number indicating from when to baseline; the interval is defined as [lim,0]. The default is to use all the negative times.}
-
-\item{unit}{"seconds" (or "s"), "milliseconds" (or "ms")}
-
 \item{...}{Channels to include. All channels by default.}
+
+\item{.lim}{Vector with two values indicating the time before and after the artifact that will be included in events_tbl (by default the size the window before and afterwards).}
+
+\item{.unit}{"seconds" (or "s"), "milliseconds" (or "ms")}
+
+\item{lim}{A negative number indicating from when to baseline; the interval is defined as [lim,0]. The default is to use all the negative times.}
 }
 \value{
 An eeg_lst.

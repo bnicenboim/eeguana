@@ -21,7 +21,7 @@ plot_topo(data, ...)
 
 \item{label}{Label of the points that are used for the interpolation, generally \code{.key} (default).}
 
-\item{projection}{Projection type for converting the 3D coordinates of the electrodes into 2d coordinates. Projection types available: "polar" (default), "orthographic", or  "stereographic"}
+\item{projection}{.Projection type for converting the 3D coordinates of the electrodes into 2d coordinates.  .Projection types available: "polar" (default), "orthographic", or  "stereographic"}
 }
 \value{
 A ggplot object

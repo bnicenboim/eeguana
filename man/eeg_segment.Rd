@@ -4,18 +4,18 @@
 \alias{eeg_segment}
 \title{Segment an eeg_lst.}
 \usage{
-eeg_segment(.data, ..., lim = c(-0.5, 0.5), end, unit = "s")
+eeg_segment(.data, ..., .lim = c(-0.5, 0.5), .end, .unit = "s")
 }
 \arguments{
 \item{.data}{An \code{eeg_lst} object.}
 
 \item{...}{Description of the event.}
 
-\item{lim}{Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments}
+\item{.lim}{Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments}
 
-\item{end}{Description of the event that indicates the end of the segment, if this is used, \code{lim} is ignored.}
+\item{.unit}{"seconds" (or "s"), "milliseconds" (or "ms"), or samples.}
 
-\item{unit}{"seconds" (or "s"), "milliseconds" (or "ms"), or samples.}
+\item{end}{Description of the event that indicates the end of the segment, if this is used, \code{.lim} is ignored.}
 }
 \value{
 An \code{eeg_lst}.

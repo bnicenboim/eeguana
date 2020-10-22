@@ -7,9 +7,9 @@
 eeg_ica(
   .data,
   ...,
-  ignore = .type == "artifact",
-  method = fast_ICA,
-  config = list()
+  .ignore = .type == "artifact",
+  .method = fast_ICA,
+  .config = list()
 )
 }
 \arguments{
@@ -18,12 +18,12 @@ eeg_ica(
 \item{...}{Channels to include in ICA transformation. All the channels by default, but eye channels
 and reference channels should be removed.}
 
-\item{ignore}{Events that should be ignored in the ICA, set to NULL for not using the events table.}
+\item{.ignore}{Events that should be ignored in the ICA, set to NULL for not using the events table.}
 
-\item{method}{Methods from different packages: \link{fast_ICA}, a wrapper of \link[fastICA:fastICA]{fastICA::fastICA}, (default), and some more experimental methods:
+\item{.method}{Methods from different packages: \link{fast_ICA}, a wrapper of \link[fastICA:fastICA]{fastICA::fastICA}, (default), and some more experimental .methods:
 \link{fast_ICA2} and \link{adapt_fast_ICA} adapted from \link[fICA:fICA]{fICA} package. It can also accept a custom function, see details.}
 
-\item{config}{Other parameters passed in a list to the ICA method. See the documentation of the relevant method.}
+\item{.config}{Other parameters passed in a list to the ICA method. See the documentation of the relevant .method.}
 }
 \value{
 An eeg_ica_lst object
@@ -40,6 +40,29 @@ It is possible to also use a custom function in the \code{method} argument. The 
 a list that with \code{A} (mixing matrix), consistent with the formulation \code{X = S \%*\% A}, where X is matrix
 of N_samples by N_channels and/or \code{W} (unmixing matrix), consistent with the formulation \code{X \%*\% W = S}.
 Some packages with other ICA methods or implementations: \code{steadyICA} and \code{ica}.
+}
+\examples{
+# For demonstration only, since ICA won't converge
+data_faces_10_trials \%>\%
+ eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))
+
+## The example can only bu run, if python is properly configured (see reticulate package help)
+## Here a python ICA function is used:
+\dontrun{
+library(reticulate)
+use_condaenv("anaconda3") #use the appropriate environment
+sk <- import("sklearn.decomposition")
+py_fica <- function(x) {
+  x <- as.matrix(x)
+  ica <- sk$FastICA(whiten = TRUE, random_state = 23L)
+   X <- scale(x, scale = FALSE) \%>\%
+  as.matrix(x)
+   S <- ica$fit_transform(X)
+   W <- t(ica$components_)
+   list(W = W)
+ }
+ data_ica_py <- eeg_ica(data_faces_10_trials, -EOGH, -EOGV, -M1, -M2, .method = py_fica)
+}
 }
 \seealso{
 Other ICA functions: 

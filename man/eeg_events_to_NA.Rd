@@ -7,9 +7,9 @@
 eeg_events_to_NA(
   x,
   ...,
-  all_chs = FALSE,
-  entire_seg = TRUE,
-  drop_events = TRUE
+  .all_chs = FALSE,
+  .entire_seg = TRUE,
+  .drop_events = TRUE
 )
 }
 \arguments{
@@ -17,13 +17,13 @@ eeg_events_to_NA(
 
 \item{...}{Description of the problematic event.}
 
-\item{all_chs}{If set to \code{TRUE},
-it will consider samples from all channels (Default:  \code{all_chs = FALSE}).}
+\item{.all_chs}{If set to \code{TRUE},
+it will consider samples from all channels (Default:  \code{.all_chs = FALSE}).}
 
-\item{entire_seg}{If set to \code{FALSE}, it will consider only the marked part of the segment,
-otherwise it will consider the entire segment (Default: entire_seg = TRUE).}
+\item{.entire_seg}{If set to \code{FALSE}, it will consider only the marked part of the segment,
+otherwise it will consider the entire segment (Default: .entire_seg = TRUE).}
 
-\item{drop_events}{If set to \code{TRUE} (default), the events that were used for setting signals to NA, will be removed from the events table.}
+\item{.drop_events}{If set to \code{TRUE} (default), the events that were used for setting signals to NA, will be removed from the events table.}
 }
 \value{
 An eeg_lst.

@@ -11,44 +11,44 @@
 eeg_artif_minmax(
   .data,
   ...,
-  threshold = 100,
-  window = 0.2,
-  lim = c(-window, window),
-  unit = "s",
-  freq = NULL,
-  config = list()
+  .threshold = 100,
+  .window = 0.2,
+  .lim = c(-.window, .window),
+  .unit = "s",
+  .freq = NULL,
+  .config = list()
 )
 
 eeg_artif_step(
   .data,
   ...,
-  threshold = 50,
-  window = 0.2,
-  lim = c(-window, window),
-  unit = "s",
-  freq = NULL,
-  config = list()
+  .threshold = 50,
+  .window = 0.2,
+  .lim = c(-.window, .window),
+  .unit = "s",
+  .freq = NULL,
+  .config = list()
 )
 
 eeg_artif_amplitude(
   .data,
   ...,
-  threshold = c(-200, 200),
-  lim = c(-0.2, 0.2),
-  unit = "s",
-  freq = NULL,
-  config = list()
+  .threshold = c(-200, 200),
+  .lim = c(-0.2, 0.2),
+  .unit = "s",
+  .freq = NULL,
+  .config = list()
 )
 
 eeg_artif_peak(
   .data,
   ...,
-  threshold = 30,
-  window = 0.2,
-  lim = c(-window, window),
-  unit = "s",
-  freq = NULL,
-  config = list()
+  .threshold = 30,
+  .window = 0.2,
+  .lim = c(-.window, .window),
+  .unit = "s",
+  .freq = NULL,
+  .config = list()
 )
 }
 \arguments{
@@ -56,17 +56,17 @@ eeg_artif_peak(
 
 \item{...}{Channels to include. All the channels by default, but eye channels should be removed.}
 
-\item{threshold}{Voltage threshold that indicates an artifact}
+\item{.threshold}{Voltage threshold that indicates an artifact}
 
-\item{window}{Sliding window length for the artifact detection (same unit as \code{lim}). This is the full width of the step function: this means that we are looking for a period of one voltage for half of the window  immediately followed by a period of a different voltage (indicated by the threshold) for half of the window.}
+\item{.window}{Sliding window length for the artifact detection (same unit as \code{lim}). This is the full width of the step function: this means that we are looking for a period of one voltage for half of the window  immediately followed by a period of a different voltage (indicated by the threshold) for half of the window.}
 
-\item{lim}{Vector with two values indicating the time before and after the artifact that will be included in events_tbl (by default the size the window before and afterwards).}
+\item{.lim}{Vector with two values indicating the time before and after the artifact that will be included in events_tbl (by default the size the window before and afterwards).}
 
-\item{unit}{"seconds" (or "s"), "milliseconds" (or "ms")}
+\item{.unit}{"seconds" (or "s"), "milliseconds" (or "ms")}
 
-\item{freq}{Vector with two values indicates whether to prefilter the signal prior to the artifact detection. (The filtering is not saved in the signal). For a low pass filter the first value should be \code{NA}, for a high-pass filter the second value should be \code{NA}.}
+\item{.freq}{Vector with two values indicates whether to prefilter the signal prior to the artifact detection. (The filtering is not saved in the signal). For a low pass filter the first value should be \code{NA}, for a high-pass filter the second value should be \code{NA}.}
 
-\item{config}{List with the configuration of the filter.}
+\item{.config}{List with the configuration of the filter.}
 }
 \value{
 An \code{eeg_lst}.
@@ -85,8 +85,8 @@ more appropriate.
 \dontrun{
 # Artifacts are annotated in the events table:
 faces_seg_artif <- faces_seg \%>\%
-  eeg_artif_minmax(-HEOG, -VEOG, threshold = 100, window = 150, unit = "ms") \%>\%
-  eeg_artif_step(-HEOG, -VEOG, threshold = 50, window = 200, unit = "ms")
+  eeg_artif_minmax(-HEOG, -VEOG, .threshold = 100, .window = 150, unit = "ms") \%>\%
+  eeg_artif_step(-HEOG, -VEOG, .threshold = 50, .window = 200, unit = "ms")
 # Signals with artifacts are turned into NA values
 faces_clean <-  faces_seg_artif \%>\%
    eeg_events_to_NA(.type == "artifact", entire_seg = TRUE, all_chans = FALSE, drop_events = TRUE)
