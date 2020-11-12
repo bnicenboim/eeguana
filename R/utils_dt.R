@@ -101,4 +101,3 @@ unnest_dt <- function(.data, col) {
     colnames(.data) <- c(as.character(clnms), as.character(col))
     .data
 }
-
