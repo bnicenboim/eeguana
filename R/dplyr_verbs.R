@@ -209,3 +209,5 @@ pull.eeg_lst <- function(.data, var = -1, name = NULL, ...) {
   name <- tidyselect::vars_pull(names(.data$.signal), !!name)
   rlang::set_names(.data[[var]], nm = .data[[name]])
 }
+
+

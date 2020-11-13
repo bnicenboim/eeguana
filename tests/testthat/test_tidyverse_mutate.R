@@ -63,22 +63,35 @@ test_mutates <- function(data) {
                         mutate(signal_tbl, mean = mean(X)))
   expect_equal_but_sgl(data_mean,
                        data)
-
+ if(!grouped){
   data_NULL <- mutate(data, Y = NULL)
   expect_equal_plain_df(data_NULL$.signal,
                         mutate(signal_tbl, Y = NULL))
   expect_equal(data_NULL,
                select(data, -Y))
-
-  expect_message(data_cst <- mutate(data, Y =10))
+ }else {
+   expect_error(mutate(data, Y = NULL))
+ }
+  if(!grouped){
+  expect_message(data_cst <- mutate(data, Y =10) )
+  } else {
+ # when groupped it keeps being a channel
+    data_cst <- mutate(data, Y =10)
+  }
   expect_equal_plain_df(data_cst$.signal,
                         mutate(signal_tbl, Y = 10))
+
+  if(!grouped){
   expect_equal_but_sgl(data_cst,
                        select(data, - Y))
-
+ }else{
+  expect_equal_but_sgl(data_cst,
+                       data)
+ }
   expect_message(data_cst2 <- mutate(data, Y = 1:60))
+
   expect_equal_plain_df(data_cst2$.signal,
-                        mutate(signal_tbl, Y = 1:60))
+                        mutate(signal_tbl, Y = 1:length(Y)))
   expect_equal_but_sgl(data_cst2,
                        select(data, - Y))
 
@@ -88,9 +101,9 @@ test_mutates <- function(data) {
   expect_equal_but_sgl(data_ch,
                        select(data))
 
-  expect_message(data_ch2 <- mutate(data, Y = channel_dbl(1:60)),regexp = NA)
+  expect_message(data_ch2 <- mutate(data, Y = channel_dbl(1:length(Y))),regexp = NA)
   expect_equal_plain_df(data_ch2$.signal,
-                        mutate(signal_tbl, Y = 1:60))
+                        mutate(signal_tbl, Y = 1:length(Y)))
   expect_equal_but_sgl(data_ch2,
                        data)
 
@@ -162,7 +175,9 @@ message("mutate_at and mutate_all, etc haven't been tested")
 
 
 test_that("dplyr::transmute functions work correctly on ungrouped signal_tbl", {
-data_X10 <- transmute(data, X = X + 10)
+
+  signal_tbl <- as.data.frame(data$.signal)
+  data_X10 <- transmute(data, X = X + 10)
 expect_equal_plain_df(data_X10$.signal,
                       transmute(signal_tbl,.id=.id,.sample =.sample, X = X + 10))
 expect_equal_but_cnt_sgl(data_X10,

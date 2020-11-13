@@ -116,6 +116,3 @@ recycle <- function(x, size) {
 }
 
 
-mutate_dt_1_arg_helper <- function(dt, ...){
-
-}

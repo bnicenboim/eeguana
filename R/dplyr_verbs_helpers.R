@@ -119,8 +119,7 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_ref = FALSE) {
                                                    cbind(.SD,data.table::as.data.table(.BY))
                                                   ))),
                                by = c(by)]
-
-      }
+    }
 
     #intersect in case there are less columns now
     new_cols <- intersect(cols_signal, names(extended_signal_dt))

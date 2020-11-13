@@ -24,9 +24,9 @@
 
 \method{transmute}{eeg_lst}(.data, ...)
 
-filter.eeg_lst(.data, ..., .preserve = FALSE)
+\method{filter}{eeg_lst}(.data, ..., .preserve = FALSE)
 
-filter.eeg_ica_lst(.data, ..., .preserve = FALSE)
+\method{filter}{eeg_ica_lst}(.data, ..., .preserve = FALSE)
 
 \method{summarise}{eeg_lst}(.data, ..., .groups = "keep")
 
@@ -48,9 +48,9 @@ filter.eeg_ica_lst(.data, ..., .preserve = FALSE)
 
 \method{semi_join}{eeg_lst}(x, y, by = NULL, suffix = c(".x", ".y"), ...)
 
-tbl_vars.eeg_lst(x)
+\method{tbl_vars}{eeg_lst}(x)
 
-pull.eeg_lst(.data, var = -1, name = NULL, ...)
+\method{pull}{eeg_lst}(.data, var = -1, name = NULL, ...)
 }
 \arguments{
 \item{.data}{An eeg_lst.}
