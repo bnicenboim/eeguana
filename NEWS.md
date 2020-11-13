@@ -4,6 +4,7 @@
     - `plot_components()` behaves more similarly to `plot_topo()`
     - **BREAKING CHANGE** `...` are always the second argument and most arguments require now a `.` at the beginning: This should help to differentiate them from channels. 
     - New examples for ICA functions.
+    - Much faster mutate functions
     - **TO FINISH**
     
 # eeguana 0.1.4.9000

@@ -160,3 +160,16 @@ require_pkg <- function(pkg){
   else x
 }
 
+
+#' @noRd
+rep.channel_dbl <- function(x, ...){
+  y <- NextMethod()
+  attributes(y) <- attributes(x)
+  y
+}
+
+#' @noRd
+rep.sample_int <- function(x, ...){
+  y <- NextMethod()
+  structure(y, class = class(x), sampling_rate = sampling_rate(x))
+}

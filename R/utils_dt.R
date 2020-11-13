@@ -101,3 +101,21 @@ unnest_dt <- function(.data, col) {
     colnames(.data) <- c(as.character(clnms), as.character(col))
     .data
 }
+
+
+#' @noRd
+recycle <- function(x, size) {
+  x_length <- length(x)
+
+  if (x_length != 1 && x_length != size)
+    stop(paste0("x must have length 1 or length ", size))
+
+  if (x_length == 1) x <- rep(x, size)
+
+  x
+}
+
+
+mutate_dt_1_arg_helper <- function(dt, ...){
+
+}

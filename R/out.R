@@ -91,6 +91,10 @@ sampling_rate.signal_tbl <- function(x) {
 sampling_rate.events_tbl <- function(x) {
   attributes(x$.initial)$sampling_rate
 }
+sampling_rate.sample_int <- function(x) {
+  attributes(x)$sampling_rate
+}
+
 duration <- function(x) {
   x$.signal %>%
     dplyr::group_by(.id) %>%
