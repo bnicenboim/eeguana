@@ -31,20 +31,28 @@ reference_data <- data.table::copy(data)
 ##############################################
 test_mutates <- function(data) {
   ref_data <- data.table::copy(data)
-  signal_tbl <- as.data.frame(data$.signal)
+  signal_tbl <- as.data.frame(data$.signal)%>%
+      left_join(data$.segments) %>%
+      group_by_at(vars(groups))
   grouped <- length(group_vars(data))>0
-  if(grouped) signal_tbl <- signal_tbl %>% group_by_at(vars(!!group_vars(data)))
+    groups <- group_vars(data)
+    to_remove <- colnames(data$.segments)[-1]
+
+  mutate_c <- function(tbl,...) {
+    mutate(tbl, ...) %>%
+      ungroup() %>%
+      select(-one_of(to_remove))
+  }
 
   data_X10 <- mutate(data, X = X + 10)
   expect_equal_plain_df(data_X10$.signal,
-                        mutate(signal_tbl, X = X + 10))
+                        mutate_c(signal_tbl, X= X +10))
   expect_equal_but_cnt_sgl(data_X10,
                            data)
 
   data_Xs10 <- mutate(data, X = X * segment)
   expect_equal_plain_df(data_Xs10$.signal,
-                        mutate(left_join(signal_tbl, data$.segments, by =".id"), X = X * segment) %>%
-                          select(.id,.sample, X, Y)
+                        mutate_c(signal_tbl, X = X * segment)
                         )
   expect_equal_but_cnt_sgl(data_Xs10,
                            data)
@@ -52,18 +60,39 @@ test_mutates <- function(data) {
 
   data_ZZX10 <- mutate(data, ZZ = X + 10)
   expect_equal_plain_df(data_ZZX10$.signal,
-                        mutate(signal_tbl, ZZ = X + 10))
+                        mutate_c(signal_tbl, ZZ = X + 10))
   expect_equal_but_sgl(data_ZZX10,
                        data)
   expect_true(nrow(filter(data_ZZX10$.events, .channel == "ZZ")) == 0)
   expect_true(nrow(filter(channels_tbl(data_ZZX10), .channel == "ZZ")) > 0)
 
+if(!grouped){
+  data_ZZX10XX <- mutate(data, ZZ = X + 10, XX = 1+ ZZ )
+  expect_equal_plain_df(data_ZZX10$.signal,
+                        mutate_c(signal_tbl, ZZ = X + 10, XX = 1 +ZZ))
+  expect_equal_but_sgl(data_ZZX10XX,
+                       data)
+  expect_true(nrow(filter(data_ZZX10XX$.events, .channel == "ZZ")) == 0)
+  expect_true(nrow(filter(channels_tbl(data_ZZX10XX), .channel == "ZZ")) > 0)
+} else {
+message(" mutate(data, ZZ = X + 10, XX = 1+ ZZ ) won't work for groups")
+}
+
+message("fix this so that mutate(data, ZZ = X + 10, XX = 1+ ZZ ) won't work for groups or ungroups and speedsup")
+  message("test grouped transmute")
   data_mean <- mutate(data, mean = mean(X))
   expect_equal_plain_df(data_mean$.signal,
-                        mutate(signal_tbl, mean = mean(X)))
+                        mutate_c(signal_tbl, mean = mean(X)))
   expect_equal_but_sgl(data_mean,
                        data)
- if(!grouped){
+
+  data_mean <- mutate(data, mean = mean(X), m = X +2)
+  expect_equal_plain_df(data_mean$.signal,
+                        mutate_c(signal_tbl, mean = mean(X), m = X +2))
+  expect_equal_but_sgl(data_mean,
+                       data)
+
+  if(!grouped){
   data_NULL <- mutate(data, Y = NULL)
   expect_equal_plain_df(data_NULL$.signal,
                         mutate(signal_tbl, Y = NULL))
