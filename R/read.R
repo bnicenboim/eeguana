@@ -280,7 +280,10 @@ read_ft <- function(file, layout = NULL, .recording = file) {
 #' 
 #'
 #' @param file A edf/bdf file
-#' @param .recording Recording name (file name, by default). If set to NULL or NA, the patient name will be used.
+#' @param .recording Recording name (file name, by default). If set to NULL or
+#'   NA, the patient name will be used.
+#' @param event_ch The name of the event channel to use. If not specified, the
+#'   first non-signal channel in the file will be used.
 #' 
 #' @return An `eeg_lst` object.
 #' 
@@ -290,7 +293,7 @@ read_ft <- function(file, layout = NULL, .recording = file) {
 #' @family reading functions
 #'
 #' @export
-read_edf <- function(file, .recording = file) {
+read_edf <- function(file, .recording = file, event_ch = NA) {
 
 # samples Whether to subset the reading; by default starting from sample 1  until the end of the recording.
 #less samples doesn't speed up reading data, for now I'm hiding it:
@@ -322,10 +325,26 @@ read_edf <- function(file, .recording = file) {
                                            tolower(.x$label) %in% c("status", "trigger") |
                                            tolower(.x$name) %in% c("status", "trigger"))
 
-  if(sum(non_signal)>=2){
-    warning("eeguana cannot deal with more than one annotation or status. It will use the first one.\n If you have a file like that, please open an issue in ", url_issues, " with a link to the offending file")
+  if (!is.na(event_ch)) {
+    if (!(event_ch %in% names(signal_edf))) {
+      stop("Event channel '", event_ch, "' does not exist in the current file.")
+    }
+    event_channel <- signal_edf[[event_ch]]
+  } else if (sum(non_signal) > 0) {
+    event_ch <- signal_edf[non_signal][[1]]$name
+    if (sum(non_signal) >= 2) {
+      warning(
+        "Found multiple event channels, only using the first one ('", event_ch,
+        "'). You can choose a different event channel using the 'event_ch' ",
+        "argument.\n",
+        "If you require multiple event channels, please open an issue in ",
+        url_issues, " with a link to the offending file."
+      )
+    }
+    event_channel <- signal_edf[[event_ch]]
+  } else {
+    event_ch <- NA
   }
-  event_channel <- signal_edf[non_signal]
   channel_names <- header_edf$sHeaders$label[!non_signal]
 
   signal_edf[non_signal] <- NULL
@@ -345,11 +364,11 @@ read_edf <- function(file, .recording = file) {
   signal <- new_signal_tbl(signal_matrix = signal_dt,.id = s_id,
                       .sample = sample_id, 
                       channels_tbl = channel_info)
-  if(length(event_channel)==0){
+  if (is.na(event_ch)) {
       events <- new_events_tbl(sampling_rate = sampling_rate)
-  } else if (event_channel[[1]]$isAnnotation){
+  } else if (event_channel$isAnnotation){
 
-    edf_events <- event_channel[[1]]$annotations
+    edf_events <- event_channel$annotations
     init_events <- sample_int(round(edf_events$onset * sampling_rate) + 1L , sampling_rate = sampling_rate)
     events <- new_events_tbl(.id=1L, 
                              .initial = init_events,
@@ -367,7 +386,7 @@ read_edf <- function(file, .recording = file) {
     ## the status channel (see http://www.biosemi.com/faq/trigger_signals.htm).
     ## To retrieve correct event values (bits 1-16), one could do:
 
-    triggers <- bitwAnd(event_channel[[1]]$signal, (2^16 -1))
+    triggers <- bitwAnd(event_channel$signal, (2^16 -1))
 
     # for now it only reports growing changes
     init_events <- (which(diff(triggers) > 0) + 1) %>%
