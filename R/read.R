@@ -328,6 +328,8 @@ read_edf <- function(file, .recording = file, event_ch = NA) {
   if (!is.na(event_ch)) {
     if (!(event_ch %in% names(signal_edf))) {
       stop("Event channel '", event_ch, "' does not exist in the current file.")
+    } else if (!(event_ch %in% names(signal_edf[non_signal]))) {
+      stop("'", event_ch, "' is not a valid signal or annotation channel.")
     }
     event_channel <- signal_edf[[event_ch]]
   } else if (sum(non_signal) > 0) {
