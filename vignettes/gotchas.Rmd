@@ -1,0 +1,159 @@
+---
+title: "Pitfalls and gotchas"
+author: "Bruno Nicenboim"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Pitfalls and gotchas}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+I address some potential sources of confusion here. To run this examples, we first load eeguana and dplyr:
+
+```{r}
+library(eeguana)
+library(dplyr)
+```
+
+## Real dplyr vs eeguana dplyr-like functions
+
+The package {eeguana} allows for functions that *look* like [dplyr] functions but they trully are powered by [data.table]. This means that there are subtle differences between dplyr's behavior and eeguana dplyr-like function behavior.
+
+### Default values
+
+The default values of the arguments might be different, and some arguments might not exist for the eeguana dplyr-like functions.
+
+## Grouped eeguana
+
+Grouped mutations behave slightly different than ungrouped ones.
+
+Channel properties are removed if the data is ungrouped and one overwrites a channel.
+
+```{r}
+new_data <- data_faces_ERPs %>%
+  mutate(C3 = 0)
+# C3 is no longer here:
+channels_tbl(new_data) %>%
+  filter(.channel == "C3")
+```
+If one wants to ensure that C3 is a channel, it needs to be created as *a* channel:
+
+```{r}
+new_data <- data_faces_ERPs %>%
+  mutate(C3 = channel_dbl(0))
+# C3 is  here, but without its meta data
+channels_tbl(new_data) %>% filter(.channel == "C3")
+```
+If one wants to ensure that the new C3 channel has the same information as the original, one can do the following:
+
+```{r}
+new_data <- data_faces_ERPs %>%
+  mutate(C3 = 0 * C3)
+# C3 is  here, but without its meta data
+channels_tbl(new_data) %>% filter(.channel == "C3")
+```
+
+This is not the case if the data is grouped
+```{r}
+new_data <- data_faces_ERPs %>%
+  group_by(condition) %>%
+  mutate(C3 = 0)
+# C3 is no longer here:
+channels_tbl(new_data) %>% filter(.channel == "C3")
+```
+
+
+
+
+## Refering back to recently created channels
+
+Unlike dplyr's mutate, {eeguana}'s [mutate] doesn't allow to refer back to a recently created channel:
+
+```{r,  error = TRUE}
+new_data <- data_faces_ERPs %>%
+  mutate(X = scale(C3), Y = X * 2)
+```
+
+A workaround is to use two mutates:
+
+```{r,  error = TRUE}
+new_data <- data_faces_ERPs %>%
+  mutate(X = scale(C3)) %>%
+  mutate(Y = X * 2)
+```
+
+Similarly, eeguana's [mutate] won't use the most updated value of a column from the same call:
+
+```{r}
+new_data <- data_faces_ERPs %>%
+  mutate(VEOG = scale(VEOG), Y = VEOG * 10)
+signal_tbl(new_data) %>% head(3)
+```
+Notice that `Y` is 10 larger than the original VEOG and not the current one.
+
+## Dplyr's context dependent expressions such as `n()`, `across()`, and `where()` won't work in an `eeg_lst` object
+
+While `n()` won't work,
+
+```{r,  error = TRUE}
+new_data <- data_faces_ERPs %>%
+  mutate(C3 = channel_dbl(1:n()))
+```
+using `length(.sample)` will achieve the same:
+```{r,  error = TRUE}
+new_data <- data_faces_ERPs %>%
+  mutate(C3 = channel_dbl(1:length(.sample)))
+```
+
+For now `across()` and  `where()` can be replaced by `_at` and `_if` version of the dplur verbs
+
+
+## Pitfalls
+
+Dplyr-like functions not only edit the eeg_lst objects but they also do book-keeping: They remove unnecessary channels, or update their information and they ensure that three tables (signal, segments, and events) match. It's then not recommended to edit the signal and segments table directly. 
+
+Compare the correct way to filter out samples:
+
+```{r}
+new_data <- data_faces_10_trials %>%
+  filter(.sample < 20000)
+events_tbl(new_data)
+```
+
+with the *non-recommended* version:
+
+```{r}
+new_data_BAD <- data_faces_10_trials
+new_data_BAD$.signal <- new_data_BAD$.signal %>%
+  filter(.sample < 20000)
+events_tbl(new_data_BAD)
+```
+
+In some occasions, the events or the channels tables need to be edited. In those cases, one can use `events_tbl(data_eeg) <- ...` or `channels_tbl(data_eeg) <- ...`).
+
+```{r}
+channels_tbl(data_faces_10_trials)
+new_data <- data_faces_10_trials
+channels_tbl(new_data) <- channels_tbl(new_data) %>%
+  mutate(resolution = .1)
+channels_tbl(new_data)
+```
+
+```{r}
+events_tbl(new_data) %>%
+  head()
+events_tbl(new_data) <- events_tbl(new_data) %>%
+  filter(.description != "s130")
+events_tbl(new_data) %>%
+  head()
+```
+
+
