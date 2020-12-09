@@ -25,7 +25,6 @@
 #' @return A ggplot object
 #'
 #' @examples
-#' 
 #' # Basic plot
 #' plot(data_faces_ERPs)
 #' 
@@ -33,6 +32,7 @@
 #' library(ggplot2)
 #' plot(data_faces_ERPs) +
 #'   coord_cartesian(ylim = c(-500, 500))
+#'
 #' @export
 plot.eeg_lst <- function(x, max_sample = 6400, ...) {
   ellipsis::check_dots_unnamed()
@@ -206,7 +206,6 @@ plot_topo.eeg_lst <- function(data, projection = "polar", ...) {
 #' @param ... arguments passed to interpolate.
 #' @param standardize Whether to standardize the color scale of each topographic plot.
 #' @rdname plot_components
-#' @examples
 #' @examples
 #' # For demonstration only, since ICA won't converge
 #' library(ggplot2)

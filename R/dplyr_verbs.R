@@ -20,7 +20,7 @@
 #'
 #' - The default values of the arguments might be different, and some arguments might not exist for the eeguana dplyr-like functions.
 #' - grouped mutations behave slightly different than ungrouped ones: Channel properties are removed if the data is ungrouped and one does `mutate(data, channel = 0)`, but not if the data is grouped.
-#' - eeguana's [mutate] doesn't allow to refer back to a recently created if the eeg_lst: `data_eeg %>% mutate(X = F1 *2, Y = X)` is not valid. One needs to do `data_eeg %>% mutate(X = F1) %>% mutate(Y = X)`.
+#' - eeguana's [mutate] doesn't allow to refer back to a recently created channel: `data_eeg %>% mutate(X = F1 *2, Y = X)` is not valid. One needs to do `data_eeg %>% mutate(X = F1) %>% mutate(Y = X)`.
 #' - eeguana's [mutate] doesn't use the most updated value of a column from the same call. If X is a channel, then `data_eeg %>% mutate(X = X *2, Y = X+1)` will add `1` to the original value of `X`, and not to the latest one.
 #' - `n()` doesn't work, instead `length(.sample)` will give the same answer.
 #' - `across()` and `where()` cannot be used.

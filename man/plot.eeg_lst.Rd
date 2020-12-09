@@ -35,7 +35,6 @@ To add additional components to the plot such as titles and annotations, simply
 use the \code{+} symbol and add layers exactly as you would for \link[ggplot2:ggplot]{ggplot2::ggplot}.
 }
 \examples{
-
 # Basic plot
 plot(data_faces_ERPs)
 
@@ -43,6 +42,7 @@ plot(data_faces_ERPs)
 library(ggplot2)
 plot(data_faces_ERPs) +
   coord_cartesian(ylim = c(-500, 500))
+
 }
 \seealso{
 Other plotting functions: 

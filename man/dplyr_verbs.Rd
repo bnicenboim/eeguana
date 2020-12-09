@@ -24,9 +24,9 @@
 
 \method{transmute}{eeg_lst}(.data, ...)
 
-\method{filter}{eeg_lst}(.data, ..., .preserve = FALSE)
+filter.eeg_lst(.data, ..., .preserve = FALSE)
 
-\method{filter}{eeg_ica_lst}(.data, ..., .preserve = FALSE)
+filter.eeg_ica_lst(.data, ..., .preserve = FALSE)
 
 \method{summarise}{eeg_lst}(.data, ..., .groups = "keep")
 
@@ -48,9 +48,9 @@
 
 \method{semi_join}{eeg_lst}(x, y, by = NULL, suffix = c(".x", ".y"), ...)
 
-\method{tbl_vars}{eeg_lst}(x)
+tbl_vars.eeg_lst(x)
 
-\method{pull}{eeg_lst}(.data, var = -1, name = NULL, ...)
+pull.eeg_lst(.data, var = -1, name = NULL, ...)
 }
 \arguments{
 \item{.data}{An eeg_lst.}
@@ -137,15 +137,17 @@ much faster than the \verb{_if()} versions of these commands.
 These functions emulate \link{dplyr} functionality but they are actually powered by \link{data.table}, and some times they might be behave a bit differently than the dplyr counterpart.
 \itemize{
 \item The default values of the arguments might be different, and some arguments might not exist for the eeguana dplyr-like functions.
-\item eeguana's \link{mutate} doesn't allow to refer back to a recently created: \code{data_eeg \%>\% mutate(X = F1 *2, Y = X)} is not valid. One needs to do \code{data_eeg \%>\% mutate(X = F1) \%>\% mutate(Y = X)}.
-\item \code{n()} doesn't work, instead \code{length(.sample)} will give the same answer
+\item grouped mutations behave slightly different than ungrouped ones: Channel properties are removed if the data is ungrouped and one does \code{mutate(data, channel = 0)}, but not if the data is grouped.
+\item eeguana's \link{mutate} doesn't allow to refer back to a recently created channel: \code{data_eeg \%>\% mutate(X = F1 *2, Y = X)} is not valid. One needs to do \code{data_eeg \%>\% mutate(X = F1) \%>\% mutate(Y = X)}.
+\item eeguana's \link{mutate} doesn't use the most updated value of a column from the same call. If X is a channel, then \code{data_eeg \%>\% mutate(X = X *2, Y = X+1)} will add \code{1} to the original value of \code{X}, and not to the latest one.
+\item \code{n()} doesn't work, instead \code{length(.sample)} will give the same answer.
 \item \code{across()} and \code{where()} cannot be used.
 }
 }
 
 \subsection{Pitfalls}{
 
-These functions not only edit the eeg_lst objects but they also do book-keeping: They remove unnecesary channels, or update their information and they ensure that three tables (signal, segments, and events) match. It's then not recommended to edit the signal and segments table directly. (The events and channels table can be edited directly by doing \code{events_tbl(data_eeg) <- ...} or \code{channels_tbl(data_eeg) <- ...}).
+These functions not only edit the eeg_lst objects but they also do book-keeping: They remove unnecessary channels, or update their information and they ensure that three tables (signal, segments, and events) match. It's then not recommended to edit the signal and segments table directly. (The events and channels table can be edited directly by doing \code{events_tbl(data_eeg) <- ...} or \code{channels_tbl(data_eeg) <- ...}).
 }
 }
 \examples{

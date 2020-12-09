@@ -248,6 +248,14 @@ mean.channel_dbl <- function(x, ...) {
   mostattributes(r) <- attrs
   r
 }
+#' @export
+scale.channel_dbl <- function(x, ...) {
+  attrs <- attributes(x)
+  class(x) <- NULL
+  r <- NextMethod("scale")
+  mostattributes(r) <- attrs
+  r
+}
 
 #' @export
 subset.channel_dbl <- function(x, ...) {

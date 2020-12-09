@@ -1,20 +1,24 @@
 library(eeguana)
 
-download.file("http://www.ling.uni-potsdam.de/~nicenboim/files/faces.vhdr",
-  mode = "wb", destfile = "faces.vhdr"
+library(httr)
+GET("https://osf.io/wv5hp//?action=download",
+  write_disk("./s1_faces.vhdr", overwrite = TRUE),
+  progress()
 )
-download.file("http://www.ling.uni-potsdam.de/~nicenboim/files/faces.vmrk",
-  mode = "wb", destfile = "faces.vmrk"
+GET("https://osf.io/c8wea//?action=download",
+  write_disk("./s1_faces.vmrk", overwrite = TRUE),
+  progress()
 )
-download.file("http://www.ling.uni-potsdam.de/~nicenboim/files/faces.dat",
-  mode = "wb", destfile = "faces.dat"
+GET("https://osf.io/uhsde//?action=download",
+  write_disk("./s1_faces.eeg", overwrite = TRUE),
+  progress()
 )
 
-faces <- read_vhdr("faces.vhdr")
+faces <- read_vhdr("s1_faces.vhdr")
 
 data_faces_ERPs <- faces %>%
   eeg_segment(.description %in% c("s70", "s71"),
-    lim = c(-.2, .25)
+    .lim = c(-.2, .25)
   ) %>%
   eeg_events_to_NA(.type == "Bad Interval") %>%
   eeg_baseline() %>%
@@ -24,7 +28,8 @@ data_faces_ERPs <- faces %>%
   ) %>%
   select(-type) %>%
   group_by(.sample, condition, .recording) %>%
-  summarize_at(channel_names(data_faces_ERPs), mean, na.rm = TRUE)
+  summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
+  ungroup()
 
 pos_10 <- events_tbl(faces) %>% filter(.type == "Stimulus", .description == "s130") %>% pull(.initial) %>% .[10]
 

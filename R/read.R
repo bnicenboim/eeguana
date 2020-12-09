@@ -406,7 +406,8 @@ read_edf <- function(file, .recording = file) {
   eeg_lst
 }
 
-
+#' Read set files
+#'
 #' @param file 
 #'
 #' @param layout 
@@ -414,4 +415,4 @@ read_edf <- function(file, .recording = file) {
 #'
 read_set <- function(file, layout = NULL, .recording = file) {
   # https://sccn.ucsd.edu/wiki/A05:_Data_Structures
-}  
+}
