@@ -98,7 +98,7 @@ expect_invisible(print(data_faces_10_trials))
 
 test_that("summary is correct", {
   ## dput(capture.output(summary(data_faces_10_trials)))
-  printed <-c("# EEG data:", "# Sampling rate: 500 Hz.", "# Size in memory: 11.7 Mb.", 
+  printed <-c("# EEG data:", "# Sampling rate: 500 Hz.", "# Size in memory: 11.6 Mb.",
               "# Total duration: 00:01:26.", "# Summary of segments", "   .recording n_segments n_incomplete", 
               "1: faces.vhdr          1            0", "# Summary of events", 
               "          .type .description   n", "1: Bad Interval  Bad Min-Max 516", 

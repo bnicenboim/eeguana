@@ -12,7 +12,11 @@ test_that("raw brainvision read and converted from MNE match", {
 
   reticulate::use_condaenv("anaconda3")
   mne_io <- reticulate::import("mne.io")
-  eeg_mne_obj <- mne_io$read_raw_brainvision(bvfile, preload = TRUE,eog = c("VEOG","HEOG"),misc = c("M1","M2"))
+  eeg_mne_obj <- mne_io$read_raw_brainvision(bvfile,
+                                             preload = TRUE,
+                                             eog = c("VEOG","HEOG"),
+                                             misc = c("M1","M2"))
+
   ## eeg_pkl <- reticulate::py_load_object(bvfile_pkl, pickle = "pickle")
 
   eeg_mne <- as_eeg_lst(.data = eeg_mne_obj) %>%

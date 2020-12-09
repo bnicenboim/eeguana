@@ -1,21 +1,22 @@
+library(dplyr)
 library(eeguana)
-
 library(httr)
-GET("https://osf.io/wv5hp//?action=download",
-  write_disk("./s1_faces.vhdr", overwrite = TRUE),
+GET("https://osf.io/q6b7x//?action=download",
+  write_disk("./faces.vhdr", overwrite = TRUE),
   progress()
 )
-GET("https://osf.io/c8wea//?action=download",
-  write_disk("./s1_faces.vmrk", overwrite = TRUE),
+GET("https://osf.io/ft5ge//?action=download",
+  write_disk("./faces.vmrk", overwrite = TRUE),
   progress()
 )
-GET("https://osf.io/uhsde//?action=download",
-  write_disk("./s1_faces.eeg", overwrite = TRUE),
+GET("https://osf.io/85dgj//?action=download",
+  write_disk("./faces.dat", overwrite = TRUE),
   progress()
 )
 
-faces <- read_vhdr("s1_faces.vhdr")
-
+faces <- read_vhdr("faces.vhdr")
+channels_tbl(faces) <- select(channels_tbl(faces), .channel) %>%
+  left_join(layout_32_1020)
 data_faces_ERPs <- faces %>%
   eeg_segment(.description %in% c("s70", "s71"),
     .lim = c(-.2, .25)
