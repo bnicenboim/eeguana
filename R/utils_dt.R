@@ -105,6 +105,9 @@ unnest_dt <- function(.data, col) {
 
 #' @noRd
 recycle <- function(x, size) {
+
+  if(is.null(x)) return(NULL)
+
   x_length <- length(x)
 
   if (x_length != 1 && x_length != size)
@@ -116,3 +119,7 @@ recycle <- function(x, size) {
 }
 
 
+#' @noRd
+recycle_eval <- function(expr, data = NULL, env= rlang::caller_env(), size){
+  recycle(rlang::eval_tidy(expr, data = data, env = env),size = size)
+}
