@@ -10,7 +10,7 @@
     - Better error messages for reading Brain Vision files @jaromilfrossard
     - `scale` works properly for channels now
   - Additions
-    - [Gotchas & Pitfall vignette](https://bnicenboim.github.io/eeguana/articles/gotchas.html))
+    - [Gotchas & Pitfall vignette](https://bnicenboim.github.io/eeguana/articles/gotchas.html) was added
     
 # eeguana 0.1.4.9000
   - Bugs: tons of compatibility issues with dplyr 1.0
@@ -109,7 +109,7 @@
       - `events` function to visualize and edit events was added.
       - various filters were added.
  - Bugs
-      - `ch_rereference` updates the relevanta attributes.
+      - `ch_rereference` updates the relevant attributes.
       - bugs in various reading functions were fixed (int encoding issues).
       - `mutate` recognize better channels.
       - `*_join` functions fixed.

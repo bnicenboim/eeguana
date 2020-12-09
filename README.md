@@ -205,7 +205,7 @@ We’ll segment the data using these two triggers.
 ``` r
 faces_segs <- faces %>%
   eeg_segment(.description %in% c("s70", "s71"),
-    lim = c(-.2, .25)
+    .lim = c(-.2, .25)
   ) %>%
   eeg_events_to_NA(.type == "Bad Interval") %>%
   eeg_baseline()
@@ -411,14 +411,17 @@ faces_segs_some %>%
 
 ## See also
 
-Other R packages for EEG/ERP data: \*
-[permuco4brain](https://jaromilfrossard.github.io/permuco4brain/index.html)
-provides functions to compute permutation test in brain imagery data. It
-is specially designed for M-EEG/ERP data. This a
-[vignette](https://jaromilfrossard.github.io/permuco4brain/articles/permuco4brain-with-eeguana.html)
-explains how to use it together with `eeguana`. \*
-[eegUtils](https://github.com/craddm/eegUtils) some helper utilities for
-plotting and processing EEG data in active development by Matt Craddock.
-\* [erpR](https://cran.r-project.org/web/packages/erpR/index.html)
-analysis of event-related potentials (ERPs) by Giorgio Arcara, Anna
-Petrova. It hasn’t been updated since 2014.
+Other R packages for EEG/ERP
+    data:
+
+  - [permuco4brain](https://jaromilfrossard.github.io/permuco4brain/index.html)
+    provides functions to compute permutation test in brain imagery
+    data. It is specially designed for M-EEG/ERP data. This a
+    [vignette](https://jaromilfrossard.github.io/permuco4brain/articles/permuco4brain-with-eeguana.html)
+    explains how to use it together with `eeguana`.
+  - [eegUtils](https://github.com/craddm/eegUtils) some helper utilities
+    for plotting and processing EEG data in active development by Matt
+    Craddock.
+  - [erpR](https://cran.r-project.org/web/packages/erpR/index.html)
+    analysis of event-related potentials (ERPs) by Giorgio Arcara, Anna
+    Petrova. It hasn’t been updated since 2014.

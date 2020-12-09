@@ -59,11 +59,11 @@ pull.eeg_lst(.data, var = -1, name = NULL, ...)
 
 \item{.preserve}{Not in use, for compatibility reasons.}
 
-\item{.groups}{Only .groups = "keep" is avaialble.  Same grouping structure as .data.}
+\item{.groups}{Only .groups = "keep" is available.  Same grouping structure as .data.}
 
 \item{.add}{When FALSE, the default, group_by() will override existing groups. To add to the existing groups, use .add = TRUE.}
 
-\item{.drop}{Only .drop = FALSE is avaialble, empty groups are never dropped.}
+\item{.drop}{Only .drop = FALSE is available, empty groups are never dropped.}
 
 \item{x}{An eeg_lst.}
 
@@ -174,7 +174,7 @@ data_faces_ERPs \%>\%
 data_faces_ERPs \%>\%
   # Convert samples to times, filter between timepoints
   filter(between(
-    as_time(.sample, unit = "ms"),
+    as_time(.sample, .unit = "ms"),
     100, 200
   )) \%>\%
   # Find mean amplitude of Fz for each condition

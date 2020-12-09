@@ -7,7 +7,7 @@
 \usage{
 as_sample_int(x, ...)
 
-\method{as_sample_int}{numeric}(x, sampling_rate = NULL, unit = "s", ...)
+\method{as_sample_int}{numeric}(x, sampling_rate = NULL, .unit = "s", ...)
 }
 \arguments{
 \item{x}{A vector of numeric values.}
@@ -16,7 +16,7 @@ as_sample_int(x, ...)
 
 \item{sampling_rate}{Sampling rate in Hz}
 
-\item{unit}{"seconds" (or "s"), "milliseconds" (or "ms"), or "samples"}
+\item{.unit}{"seconds" (or "s"), "milliseconds" (or "ms"), or "samples"}
 }
 \value{
 A sample_int object.

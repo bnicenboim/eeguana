@@ -310,7 +310,7 @@ test_that("data didn't change after grouping and mutate functions", {
 
 
 ### test as_time conversion  ###
-eeg_time <- suppressWarnings(mutate(data, .time = as_time(.sample, unit = "seconds")) %>%
+eeg_time <- suppressWarnings(mutate(data, .time = as_time(.sample, .unit = "seconds")) %>%
                                summarize(mean = mean(.time)))
 
 tbl_time <- data %>%
@@ -319,7 +319,7 @@ tbl_time <- data %>%
 
 test_that("as_time works as expected", {
   expect_equal(as.double(eeg_time$.signal[["mean"]]), tbl_time$mean)
-  expect_warning(mutate(data, .time = as_time(.sample, unit = "seconds")) %>%
+  expect_warning(mutate(data, .time = as_time(.sample, .unit = "seconds")) %>%
                    summarize(mean = mean(.time)))
 })
 
@@ -331,7 +331,7 @@ test_that("as_time works as expected", {
 ###########################
 
 # Bruno's note: Maybe it's fine that the following fails:
-# mutate(data, .time = as_time(.sample, unit = "milliseconds")) %>%
+# mutate(data, .time = as_time(.sample, .unit = "milliseconds")) %>%
 #   group_by(.time) %>%
 #   summarize(mean(X))
 
@@ -344,10 +344,10 @@ tbl_mutate_1 <- data %>%
   mutate(bin = ntile(.time, 5))
 
 # use new variable in second variable doesn't work in eeg_lst (#35)
-## eeg_mutate_2 <- data %>% mutate(.time = as_time(.sample, unit = "ms"), bin = ntile(time, 5))
+## eeg_mutate_2 <- data %>% mutate(.time = as_time(.sample, .unit = "ms"), bin = ntile(time, 5))
 # work around:
 eeg_mutate_2 <- data %>%
-  mutate(.time = as_time(.sample, unit = "ms")) %>%
+  mutate(.time = as_time(.sample, .unit = "ms")) %>%
   mutate(bin = ntile(.time, 5))
 
 tbl_mutate_2 <- data %>%
@@ -372,3 +372,6 @@ test_that("mutate works the same on eeg_lst as on tibble", {
   expect_equal(eeg_mutate_2$.signal[["bin"]], tbl_mutate_2$bin[tbl_mutate_1$.key == "X"])
   expect_equal(eeg_mutate_3$.signal[["bin"]], tbl_mutate_3$bin)
 })
+
+
+message("test mutate when there are ICAs")

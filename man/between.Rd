@@ -6,7 +6,7 @@
 \description{
 \code{between} is a thin wrapper for the between function of \link[data.table:between]{data.table::between}.
 It is equivalent to x >= lower & x <= upper when incbounds=TRUE, or x > lower & y < upper when FALSE. In comparison
-with \link[dplyr:between]{dplyr::between}, it doesn't loose the class of its argument, and it's more appropiate for manipulating
+with \link[dplyr:between]{dplyr::between}, it doesn't loose the class of its argument, and it's more appropriate for manipulating
 the column \code{.sample}. For more information and the description of the arguments, see \link[data.table:between]{data.table::between}.
 }
 \examples{

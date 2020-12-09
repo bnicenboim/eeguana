@@ -13,7 +13,7 @@ plot_components(data, ..., .projection = "polar", .standardize = TRUE)
 
 \item{.projection}{.Projection type for converting the 3D coordinates of the electrodes into 2d coordinates.  .Projection types available: "polar" (default), "orthographic", or  "stereographic"}
 
-\item{standardize}{Whether to standardize the color scale of each topographic plot.}
+\item{.standardize}{Whether to standardize the color scale of each topographic plot.}
 }
 \description{
 Note that unlike \link{plot_topo}, there is no need for faceting, or adding layers.

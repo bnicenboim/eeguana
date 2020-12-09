@@ -4,7 +4,7 @@
 \alias{eeg_ica_var_tbl}
 \title{Show the variance explained for each ICA sources.}
 \usage{
-eeg_ica_var_tbl(.data, ..., max_sample = 1e+05)
+eeg_ica_var_tbl(.data, ..., .max_sample = 1e+05)
 }
 \arguments{
 \item{.data}{An \code{eeg_ica_lst} object}

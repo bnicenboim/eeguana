@@ -109,8 +109,9 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_ref = FALSE) {
 
     non_obl <- .eeg_lst$.signal[0,- obligatory_cols$.signal, with = FALSE]
     non_ch <- names(non_obl)[!purrr::map_lgl(non_obl, is_channel_dbl)]
+    non_ch <- names(non_ch)[!purrr::map_lgl(non_obl, is_component_dbl)]
     if(length(non_ch)>0 & options()$eeguana.verbose){
-      message("The following columns of signal_tbl are not channels: ", non_ch)
+      message("The following columns of signal_tbl are not channels (or ICA components): ", paste(non_ch,sep=", "))
       message("* To build a channel use `channel_dbl()` function, e.g. channel_dbl(0) to populate the table with a channel containing 0 microvolts.")
       message("* To copy the structure of an existing channel one can do `new_ch = existing_channel * 0 + ...`")
     }

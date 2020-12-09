@@ -8,8 +8,8 @@
 #' 
 #'
 #' @param file A vhdr file in a folder that contains a .vmrk and .dat files
-#' @param sep Segment separation marker. By default: .type == "New Segment"
-#' @param zero Time zero marker. By default: .type == "Time 0"
+#' @param .sep Segment separation marker. By default: .type == "New Segment"
+#' @param .zero Time zero marker. By default: .type == "Time 0"
 #' @param .recording Recording name (file name, by default).
 #' 
 #' @return An `eeg_lst` object with signal_tbl and event from file_name.dat,
@@ -30,13 +30,13 @@
 #' @family reading functions
 #'
 #' @export
-read_vhdr <- function(file, sep = .type == "New Segment", zero = .type == "Time 0",
+read_vhdr <- function(file, .sep = .type == "New Segment", .zero = .type == "Time 0",
                       .recording = file) {
   message("Reading file ", file, "..." )  
   if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
-  sep <- rlang::enquo(sep)
-  zero <- rlang::enquo(zero)
-  # sep = rlang::quo(.type == "New Segment")
+  .sep <- rlang::enquo(.sep)
+  .zero <- rlang::enquo(.zero)
+  # .sep = rlang::quo(.type == "New Segment")
   # zero = rlang::quo(.type == "Time 0")
 
   # Takes the files from the header:
@@ -86,8 +86,8 @@ read_vhdr <- function(file, sep = .type == "New Segment", zero = .type == "Time 
       header_info = header_info,
       events = events,
       .recording = .recording,
-      sep = sep,
-      zero = zero
+      sep = .sep,
+      zero = .zero
     )
   } else {
     warning(paste0(".", data_ext, " files are unsupported."))
@@ -108,7 +108,7 @@ read_vhdr <- function(file, sep = .type == "New Segment", zero = .type == "Time 
 #' 
 #' @param file A .mat file containing a fieldtrip struct.
 #' @param .recording Recording name, by default is the file name.
-#' @param layout A .mat [layout from Fieldtrip](http://www.fieldtriptoolbox.org/template/layout)
+#' @param .layout A .mat [layout from Fieldtrip](http://www.fieldtriptoolbox.org/template/layout)
 #' @return An `eeg_lst` object with signal_tbl and event from a Matlab file.
 #' 
 #' @examples 
@@ -120,7 +120,7 @@ read_vhdr <- function(file, sep = .type == "New Segment", zero = .type == "Time 
 #' 
 #'
 #' @export
-read_ft <- function(file, layout = NULL, .recording = file) {
+read_ft <- function(file, .layout = NULL, .recording = file) {
   # to avoid no visible binding for global variable
   type <- NULL
   
@@ -169,8 +169,8 @@ read_ft <- function(file, layout = NULL, .recording = file) {
     .channel = make_names(channel_names)
   )
 
-  if (!is.null(layout)) {
-    chan_layout <- R.matlab::readMat(layout) %>%
+  if (!is.null(.layout)) {
+    chan_layout <- R.matlab::readMat(.layout) %>%
       {
         dplyr::mutate(.$lay[, , 1]$pos %>% as.data.frame(),
           .channel = unlist(.$lay[, , 1]$label)
@@ -408,11 +408,11 @@ read_edf <- function(file, .recording = file) {
 
 #' Read set files
 #'
-#' @param file 
+#' @param file  file
 #'
-#' @param layout 
-#' @param .recording 
-#'
-read_set <- function(file, layout = NULL, .recording = file) {
+#' @param .layout layout
+#' @param .recording  recording
+#' @noRd
+read_set <- function(file, .layout = NULL, .recording = file) {
   # https://sccn.ucsd.edu/wiki/A05:_Data_Structures
 }

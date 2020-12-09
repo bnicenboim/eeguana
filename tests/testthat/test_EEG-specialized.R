@@ -74,7 +74,7 @@ test_that("can clean whole segments in files", {
 data_sincos2id_1000 <- eeguana:::data_sincos2id_1000
 N <- 1000 #number of samples
 
-data_d <- eeg_downsample(data_sincos2id_1000, q = 2)
+data_d <- eeg_downsample(data_sincos2id_1000, .q = 2)
 
 ##  bind_rows( dplyr::tibble(x=seq_along(data_eeg$.signal$X),y= data_eeg$.signal$X %>% as.numeric, .type= "original"),
 ##                   dplyr::tibble(x=seq(from = 1, to = N, by= 2),y= data_d$.signal$X %>% as.numeric, .type= "downsampled")) %>%
@@ -99,7 +99,7 @@ data_eegm1$.events$.initial <- data_eegm1$.events$.initial + 1
 data_eegm1$.events$.final <- data_eegm1$.events$.final + 1
 
 
-data_dm1 <- eeg_downsample(data_eegm1, q = 2)
+data_dm1 <- eeg_downsample(data_eegm1, .q = 2)
 
 test_that("the signal after downsampling remains similar; sample0 = 0 ", {
   expect_equal(as.numeric(data_dm1$.signal$X), as.numeric(data_eegm1$.signal$X)[seq(1, N, by = 2)], tolerance = .011)
@@ -120,7 +120,7 @@ data_eeg0$.events$.initial <- data_eeg0$.events$.initial + 100
 data_eeg0$.events$.final <- data_eeg0$.events$.final + 100
 
 
-data_d0 <- eeg_downsample(data_eeg0, q = 2)
+data_d0 <- eeg_downsample(data_eeg0, .q = 2)
 
 test_that("the signal after downsampling remains similar; sample0 = 0 ", {
   expect_equal(as.numeric(data_d0$.signal$X), as.numeric(data_eeg0$.signal$X)[seq(1, N, by = 2)], tolerance = .011)
@@ -140,7 +140,7 @@ data_eeg1$.events$.initial <- data_eeg1$.events$.initial + 101
 data_eeg1$.events$.final <- data_eeg1$.events$.final + 101
 
 
-data_d1 <- eeg_downsample(data_eeg1, q = 2)
+data_d1 <- eeg_downsample(data_eeg1, .q = 2)
 
 test_that("the signal after downsampling remains similar ; sample0 = 1", {
   expect_equal(as.numeric(data_d1$.signal$X), as.numeric(data_eeg1$.signal$X)[seq(1, N, by = 2)], tolerance = .011)
@@ -158,7 +158,7 @@ data_eeg2$.signal$.sample <- data_eeg2$.signal$.sample + 102
 data_eeg2$.events$.final <- data_eeg2$.events$.final + 102
 
 
-data_d2 <- eeg_downsample(data_eeg2, q = 2)
+data_d2 <- eeg_downsample(data_eeg2, .q = 2)
 
 test_that("the signal after downsampling remains similar ; sample0 = 2", {
   expect_equal(as.numeric(data_d2$.signal$X), as.numeric(data_eeg2$.signal$X)[seq(1, N, by = 2)], tolerance = .011)
@@ -179,7 +179,7 @@ data_eeg100$.events$.initial <- data_eeg100$.events$.initial + 201
 data_eeg100$.events$.final <- data_eeg100$.events$.final + 201
 
 
-data_d100 <- eeg_downsample(data_eeg100, q = 2)
+data_d100 <- eeg_downsample(data_eeg100, .q = 2)
 
 test_that("the signal after downsampling remains similar ; sample0 = 101", {
   expect_equal(as.numeric(data_d100$.signal$X), as.numeric(data_eeg100$.signal$X)[seq(1, N, by = 2)], tolerance = .011)
@@ -195,7 +195,7 @@ test_that("times remain similar; sample0 = 101", {
 
 #### OTHER Q:
 
-data_d <- eeg_downsample(data_sincos2id_1000, q = 20, multiple_times = TRUE)
+data_d <- eeg_downsample(data_sincos2id_1000, .q = 20, multiple_times = TRUE)
 
 ##  bind_rows( dplyr::tibble(x=seq_along(data_eeg$.signal$X),y= data_eeg$.signal$X %>% as.numeric, .type= "original"),
 ##                   dplyr::tibble(x=seq(from = 1, to = N, by= 20),y= data_d$.signal$X %>% as.numeric, .type= "downsampled")) %>%
@@ -215,19 +215,19 @@ test_that("times remain similar; q=20", {
 
 #### OTHER Q:
 
-data_dmax <- eeg_downsample(data_sincos2id_1000, max_sample = 100)
+data_dmax <- eeg_downsample(data_sincos2id_1000, .max_sample = 100)
 
 ##  bind_rows( dplyr::tibble(x=seq_along(data_eeg$.signal$X),y= data_eeg$.signal$X %>% as.numeric, .type= "original"),
 ##                   dplyr::tibble(x=seq(from = 1, to = N, by= 2),y= data_d$.signal$X %>% as.numeric, .type= "downsampled")) %>%
 ## ggplot2::ggplot(aes(x=x,y=y, color = .type)) + geom_point()
 
 
-test_that("the signal after downsampling remains similar; max_sample =100 ", {
+test_that("the signal after downsampling remains similar; .max_sample =100 ", {
   expect_equal(as.numeric(data_dmax$.signal$X), as.numeric(data_sincos2id_1000$.signal$X)[seq(1, N, by = 5)], tolerance = .011)
 })
 
 
-test_that("times remain similar; max_sample=100", {
+test_that("times remain similar; .max_sample=100", {
   expect_equal(as_time(data_dmax$.signal$.sample), as_time(data_sincos2id_1000$.signal$.sample)[seq(1, N, by = 5)], tolerance = 1 / 100)
   expect_equal(as.numeric(events_tbl(data_dmax)$.initial / 100), as.numeric(events_tbl(data_sincos2id_1000)$.initial / 500), tolerance = 1 / 20)
   expect_equal(as.numeric(events_tbl(data_dmax)$.final / 100), as.numeric(events_tbl(data_sincos2id_1000)$.final / 500), tolerance = 1 / 20)

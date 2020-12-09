@@ -18,24 +18,22 @@ knitr::opts_chunk$set(
 
 I address some potential sources of confusion here. To run this examples, we first load eeguana and dplyr:
 
-```{r}
+```{r, message = FALSE}
 library(eeguana)
 library(dplyr)
 ```
 
-## Real dplyr vs eeguana dplyr-like functions
+## Tidyverse dplyr-like functions
 
-The package {eeguana} allows for functions that *look* like [dplyr] functions but they trully are powered by [data.table]. This means that there are subtle differences between dplyr's behavior and eeguana dplyr-like function behavior.
+The package {eeguana} allows for functions that *look* like {dplyr} functions but they truly are powered by {data.table}. This means that there are subtle differences between dplyr's behavior and eeguana dplyr-like function behavior.
 
 ### Default values
 
 The default values of the arguments might be different, and some arguments might not exist for the eeguana dplyr-like functions.
 
-## Grouped eeguana
+### Grouped eeg_lst objects
 
-Grouped mutations behave slightly different than ungrouped ones.
-
-Channel properties are removed if the data is ungrouped and one overwrites a channel.
+Grouped mutations behave slightly different than ungrouped ones. Channel properties are removed if the data is ungrouped and one overwrites a channel.
 
 ```{r}
 new_data <- data_faces_ERPs %>%
@@ -71,9 +69,7 @@ channels_tbl(new_data) %>% filter(.channel == "C3")
 ```
 
 
-
-
-## Refering back to recently created channels
+### Referring back to recently created channels
 
 Unlike dplyr's mutate, {eeguana}'s [mutate] doesn't allow to refer back to a recently created channel:
 
@@ -94,12 +90,12 @@ Similarly, eeguana's [mutate] won't use the most updated value of a column from 
 
 ```{r}
 new_data <- data_faces_ERPs %>%
-  mutate(VEOG = scale(VEOG), Y = VEOG * 10)
+  mutate(EOGV = scale(EOGV), Y = EOGV * 10)
 signal_tbl(new_data) %>% head(3)
 ```
 Notice that `Y` is 10 larger than the original VEOG and not the current one.
 
-## Dplyr's context dependent expressions such as `n()`, `across()`, and `where()` won't work in an `eeg_lst` object
+### Dplyr's context dependent expressions such as `n()`, `across()`, and `where()` won't work in an `eeg_lst` object
 
 While `n()` won't work,
 
@@ -113,10 +109,10 @@ new_data <- data_faces_ERPs %>%
   mutate(C3 = channel_dbl(1:length(.sample)))
 ```
 
-For now `across()` and  `where()` can be replaced by `_at` and `_if` version of the dplur verbs
+For now `across()` and  `where()` can be replaced by `_at` and `_if` version of the dplyr verbs
 
 
-## Pitfalls
+## Other pitfalls
 
 Dplyr-like functions not only edit the eeg_lst objects but they also do book-keeping: They remove unnecessary channels, or update their information and they ensure that three tables (signal, segments, and events) match. It's then not recommended to edit the signal and segments table directly. 
 

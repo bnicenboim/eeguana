@@ -27,7 +27,7 @@ on the scalp.
 }
 \details{
 This function requires two steps: first, a ggplot object must be created with
-ERPs facetted by channel (\code{.key}).
+ERPs faceted by channel (\code{.key}).
 Then, the ggplot object is called in \code{plot_in_layout}. The function uses grobs
 arranged according to .x .y coordinates extracted from the \code{eeg_lst} object, by
 default in polar arrangement. The arrangement can be changed with the \code{ .projection}

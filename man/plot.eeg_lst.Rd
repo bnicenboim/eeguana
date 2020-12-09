@@ -4,12 +4,12 @@
 \alias{plot.eeg_lst}
 \title{Create a basic signal plot}
 \usage{
-\method{plot}{eeg_lst}(x, max_sample = 6400, ...)
+\method{plot}{eeg_lst}(x, .max_sample = 6400, ...)
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
 
-\item{max_sample}{Downsample to approximately 6400 samples by default.}
+\item{.max_sample}{Downsample to approximately 6400 samples by default.}
 
 \item{...}{Not in use.}
 }

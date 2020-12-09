@@ -8,5 +8,5 @@ data<- bind(data1,data2)
 test_that("can transform to tibble", {
   df <- dplyr::as_tibble(data)
   expect_equal(nrow(df), nrow(data$.signal) * length(channel_names(data)))
-  expect_equal(max(df$.time), max((data$.signal$.sample - 1)) / eeguana:::sampling_rate(data))
+  expect_equal(max(df$.time), max((data$.signal$.sample - 1)) / eeguana:::sampling_rate.eeg_lst(data))
 })

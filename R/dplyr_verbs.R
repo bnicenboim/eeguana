@@ -39,8 +39,8 @@
 #' @param ... Name-value pairs of expressions; see [dplyr][dplyr::dplyr] for more help.
 #' @param .preserve Not in use, for compatibility reasons.
 #' @param .add When FALSE, the default, group_by() will override existing groups. To add to the existing groups, use .add = TRUE.
-#' @param .drop Only .drop = FALSE is avaialble, empty groups are never dropped.
-#' @param .groups Only .groups = "keep" is avaialble.  Same grouping structure as .data.
+#' @param .drop Only .drop = FALSE is available, empty groups are never dropped.
+#' @param .groups Only .groups = "keep" is available.  Same grouping structure as .data.
 #' @importFrom dplyr  select mutate transmute summarise rename
 #' @importFrom dplyr group_by ungroup group_vars
 #' @importFrom dplyr groups
@@ -76,7 +76,7 @@
 #' data_faces_ERPs %>%
 #'   # Convert samples to times, filter between timepoints
 #'   filter(between(
-#'     as_time(.sample, unit = "ms"),
+#'     as_time(.sample, .unit = "ms"),
 #'     100, 200
 #'   )) %>%
 #'   # Find mean amplitude of Fz for each condition

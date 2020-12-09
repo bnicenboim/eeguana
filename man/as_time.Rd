@@ -4,7 +4,7 @@
 \alias{as_time}
 \title{Convert a sample point into a time point.}
 \usage{
-as_time(x, unit = "second")
+as_time(x, .unit = "second")
 }
 \arguments{
 \item{x}{A \code{sample_id} object.}

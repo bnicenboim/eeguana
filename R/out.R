@@ -228,17 +228,17 @@ eeg_ica_cor_tbl.eeg_ica_lst <- function(.data, ...) {
 #' @return A table with the variance explained by each component in each recording.
 #
 #' @export
-eeg_ica_var_tbl <- function(.data, ..., max_sample =100000){
+eeg_ica_var_tbl <- function(.data, ..., .max_sample =100000){
     UseMethod("eeg_ica_var_tbl")
 }
 
 #' @export
-eeg_ica_var_tbl.eeg_ica_lst <- function(.data, ..., max_sample =100000){
+eeg_ica_var_tbl.eeg_ica_lst <- function(.data, ..., .max_sample =100000){
   # to avoid no visible global function definition
   var <- NULL
   cor <- NULL
   
-.data <- try_to_downsample(.data, max_sample=max_sample)
+.data <- try_to_downsample(.data, max_sample=.max_sample)
    m_v <- dplyr::group_by(.data, .recording) %>%   extended_signal() %>%
         split(by=".recording",keep.by = FALSE) %>%
         lapply(function(dt) mean(stats::var(dt[,channel_ica_names(.data), with=FALSE])))
@@ -279,12 +279,12 @@ eeg_ica_summary_tbl <- function(.data, ...){
 }
 
 #' @export
-eeg_ica_summary_tbl.eeg_ica_lst <- function(.data, ..., max_sample =100000){
+eeg_ica_summary_tbl.eeg_ica_lst <- function(.data, ..., .max_sample =100000){
  # to avoid no visible global function definition
   var <- NULL
   cor <- NULL
   
-   summ <- left_join_dt(eeg_ica_var_tbl(.data, max_sample = max_sample),
+   summ <- left_join_dt(eeg_ica_var_tbl(.data, .max_sample = .max_sample),
                        eeg_ica_cor_tbl(.data,...), 
                by =c(".recording",".ICA")) %>%
     .[order(.recording,-var, -abs(cor))]

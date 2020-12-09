@@ -200,7 +200,7 @@ eeg_ica_show.eeg_ica_lst <- function(.data, ...) {
 
 #' Select independent components (or sources) to keep.
 #'
-#' This function will transform the channels according to the indepent components that are kept or removed.
+#' This function will transform the channels according to the independent components that are kept or removed.
 #'
 #' @param .data An eeg_ica_lst object
 #' @param ... Components to keep from the mixing matrix of the ICA transformation. See [dplyr::select] and [tidyselect::select_helpers] for details.

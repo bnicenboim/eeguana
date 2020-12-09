@@ -24,7 +24,7 @@ While it's possible to transform the `eeg_lst` to a `data.frame`, `data.table` o
 # Working with eeguana
 
 Dplyr verbs always return an `eeg_lst` object, which allows us to use `magrittr`'s pipe, `%>%`  (see `` ?`dplyr-eeguana` ``).
-In addition, `eeg_`/`ch_` functions will also return an `eeg_lst` unless they have a suffix  `_tbl` that indicates they return a data frame. In general, we will work with the `eeg_lst`, unless we want to modify the channels information (with `channels_tbl()`) or the events table containing markers, artifacts ans custom annotations (whith `events_tbl`).
+In addition, `eeg_`/`ch_` functions will also return an `eeg_lst` unless they have a suffix  `_tbl` that indicates they return a data frame. In general, we will work with the `eeg_lst`, unless we want to modify the channels information (with `channels_tbl()`) or the events table containing markers, artifacts ans custom annotations (with `events_tbl`).
 
 # A practical example: the N170 effect
 
@@ -130,7 +130,7 @@ faces_ls <- eeg_segment(faces_filt, .description == "s111", .end = .description 
 ```{r, fig.dim = c(10,15), out.width = "100%"}
 faces_ls %>%
   select(-HEOG, -VEOG)%>%
-  filter(as_time(.sample, unit = "s") %>% between(0, 90)) %>%
+  filter(as_time(.sample, .unit = "s") %>% between(0, 90)) %>%
   plot() +
   annotate_events() +
   theme(legend.position = "bottom")
@@ -160,7 +160,7 @@ faces_ica <- faces_ica %>%
 ```
 
 
-In order to investigate the ICA, we are using an experminal function not yet exported (that's why we use the :::). This function will problably converted into a shiny app. It's possible to get the same plots by using a combination of `plot_topo`, `eeg_ica_show`, `eeg_ica_summary_tbl`, and some `ggplot` and `cowplot` functions.
+In order to investigate the ICA, we are using an experimental function not yet exported (that's why we use the :::). This function will probably converted into a shiny app. It's possible to get the same plots by using a combination of `plot_topo`, `eeg_ica_show`, `eeg_ica_summary_tbl`, and some `ggplot` and `cowplot` functions.
 
 We'll see how the components explaining the most variance and most correlated to the EOG channels behave:
 
@@ -170,6 +170,7 @@ s_peaks <- filter(events_tbl(faces_ica),  str_starts(.description, "peak")) %>%
   pull(.initial)
 eeguana:::plot_ica.eeg_ica_lst(faces_ica, samples = seq(s_peaks[1]-2000,s_peaks[1]+2000))
 ```
+
 The clearest ones is ICA5, and so we'll just remove that one.
 
 ```{r}
@@ -292,7 +293,7 @@ Another possibility is to create a topographic plot of the two conditions, by fi
 
 ```{r topo, fig.dim = c(10,5), out.width = "100%"}
 faces_seg %>%
-  filter(between(as_time(.sample, unit = "s"), .1, .2)) %>%
+  filter(between(as_time(.sample, .unit = "s"), .1, .2)) %>%
   group_by(condition) %>%
   summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
   plot_topo() +
