@@ -4,7 +4,9 @@
 \name{data_faces_ERPs}
 \alias{data_faces_ERPs}
 \title{ERPs elicited when one subject saw faces and non-faces objects.}
-\format{An eeg_lst  with 2 conditions (faces, non-faces)}
+\format{
+An eeg_lst  with 2 conditions (faces, non-faces)
+}
 \usage{
 data_faces_ERPs
 }

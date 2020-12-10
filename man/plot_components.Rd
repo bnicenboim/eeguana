@@ -4,19 +4,33 @@
 \alias{plot_components}
 \title{Generates topographic plots of the components after running ICA on an eeg_lst}
 \usage{
-plot_components(data, ..., projection = "polar", standardize = TRUE)
+plot_components(data, ..., .projection = "polar", .standardize = TRUE)
 }
 \arguments{
 \item{data}{An eeg_ica_lst}
 
-\item{...}{If data are an \code{eeg_lst} or \code{ica_lst}, these are arguments passed to \code{eeg_interpolate_tbl}, such as, radius, size, etc.}
+\item{...}{arguments passed to interpolate.}
 
-\item{projection}{Projection type for converting the 3D coordinates of the electrodes into 2d coordinates. Projection types available: "polar" (default), "orthographic", or  "stereographic"}
+\item{.projection}{.Projection type for converting the 3D coordinates of the electrodes into 2d coordinates.  .Projection types available: "polar" (default), "orthographic", or  "stereographic"}
 
-\item{standardize}{Whether to standardize the color scale of each topographic plot.}
+\item{.standardize}{Whether to standardize the color scale of each topographic plot.}
 }
 \description{
 Note that unlike \link{plot_topo}, there is no need for faceting, or adding layers.
+}
+\examples{
+# For demonstration only, since ICA won't converge
+library(ggplot2)
+# Suppressing an important warning:
+  suppressWarnings(data_faces_10_trials \%>\%
+   eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))) \%>\%
+   eeg_ica_keep(ICA1, ICA2) \%>\%
+   plot_components()+
+   annotate_head() +
+   geom_contour() +
+   geom_text(color = "black") +
+   theme(legend.position = "none")
+
 }
 \seealso{
 Other plotting functions: 

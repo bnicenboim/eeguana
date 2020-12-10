@@ -1,6 +1,6 @@
 
-[![Travis build
-status](https://travis-ci.org/bnicenboim/eeguana.svg?branch=master)](https://travis-ci.org/bnicenboim/eeguana)
+[![R build
+status](https://github.com/bnicenboim/eeguana/workflows/R-CMD-check/badge.svg)](https://github.com/bnicenboim/eeguana/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/bnicenboim/eeguana/branch/master/graph/badge.svg)](https://codecov.io/gh/bnicenboim/eeguana?branch=master)
 [![AppVeyor build
@@ -205,7 +205,7 @@ We’ll segment the data using these two triggers.
 ``` r
 faces_segs <- faces %>%
   eeg_segment(.description %in% c("s70", "s71"),
-    lim = c(-.2, .25)
+    .lim = c(-.2, .25)
   ) %>%
   eeg_events_to_NA(.type == "Bad Interval") %>%
   eeg_baseline()
@@ -397,7 +397,7 @@ interpolated amplitudes and using the ggplot wrapper `plot_topo`.
 
 ``` r
 faces_segs_some %>%
-  filter(between(as_time(.sample, unit = "milliseconds"), 100, 200)) %>%
+  filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
   group_by(condition) %>%
   summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
   plot_topo() +
@@ -411,11 +411,17 @@ faces_segs_some %>%
 
 ## See also
 
-Other R packages for EEG/ERP data:
+Other R packages for EEG/ERP
+    data:
 
+  - [permuco4brain](https://jaromilfrossard.github.io/permuco4brain/index.html)
+    provides functions to compute permutation test in brain imagery
+    data. It is specially designed for M-EEG/ERP data. This a
+    [vignette](https://jaromilfrossard.github.io/permuco4brain/articles/permuco4brain-with-eeguana.html)
+    explains how to use it together with `eeguana`.
   - [eegUtils](https://github.com/craddm/eegUtils) some helper utilities
     for plotting and processing EEG data in active development by Matt
     Craddock.
-  - [erpR](https://cran.r-project.org/web/packages/erpR/index.html)
-    analysis of event-related potentials (ERPs) by Giorgio Arcara, Anna
-    Petrova. It hasn’t been updated since 2014.
+  - [erpR](https://cran.r-project.org/package=erpR) analysis of
+    event-related potentials (ERPs) by Giorgio Arcara, Anna Petrova. It
+    hasn’t been updated since 2014.

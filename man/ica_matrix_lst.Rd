@@ -23,5 +23,10 @@ Other functions to expose internal parts of eeg_(ica_)_lst:
 \code{\link{events_tbl}()},
 \code{\link{segments_tbl}()},
 \code{\link{signal_tbl}()}
+
+Other ica methods: 
+\code{\link{fICA}},
+\code{\link{fast_ICA}()}
 }
 \concept{functions to expose internal parts of eeg_(ica_)_lst}
+\concept{ica methods}

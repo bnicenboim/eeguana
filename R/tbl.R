@@ -165,6 +165,7 @@ segments_tbl.eeg_lst <- function(.data, ...) {
 #'
 #' @return A list.
 #' @family functions to expose internal parts of eeg_(ica_)_lst
+#' @family ica methods
 #' @export
 ica_matrix_lst <- function(.data, ...) {
   UseMethod("ica_matrix_lst")

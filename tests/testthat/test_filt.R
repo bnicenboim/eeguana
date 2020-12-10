@@ -32,16 +32,16 @@ data_sin_more <- eeg_lst(
 )
 
 
-data_sin_X1 <- eeg_filt_low_pass(data_sin, freq = 500 * 1 / (2 * pi))
+data_sin_X1 <- eeg_filt_low_pass(data_sin, .freq = 500 * 1 / (2 * pi))
 ## plot(data_sin_X1)
 
-data_sin_X3 <- eeg_filt_high_pass(data_sin, freq = 500 * 3 / (2 * pi))
+data_sin_X3 <- eeg_filt_high_pass(data_sin, .freq = 500 * 3 / (2 * pi))
 ## plot(data_sin_X3)
 
-data_sin_X2 <- eeg_filt_band_pass(data_sin, freq = c(1.5, 2.2) * 500 / (2 * pi))
+data_sin_X2 <- eeg_filt_band_pass(data_sin, .freq = c(1.5, 2.2) * 500 / (2 * pi))
 ## plot(data_sin_X2)
 
-data_sin_X1X3 <- eeg_filt_band_stop(data_sin, freq = c(2.8, 1.5) * 500 / (2 * pi))
+data_sin_X1X3 <- eeg_filt_band_stop(data_sin, .freq = c(2.8, 1.5) * 500 / (2 * pi))
 ## plot(data_sin_X1X3)
 
 ## plot(data_sin_X2_onlyX1X2)
@@ -80,21 +80,21 @@ test_that("band stop signal", {
 
 
 ## plot(data_sin_more) + facet_grid(.key~.id)
-data_sin_more_X1 <- eeg_filt_low_pass(data_sin_more, freq = 500 * 1 / (2 * pi))
+data_sin_more_X1 <- eeg_filt_low_pass(data_sin_more, .freq = 500 * 1 / (2 * pi))
 ## plot(data_sin_more_X1) + facet_grid(.key~.id)
 
-data_sin_more_X3 <- eeg_filt_high_pass(data_sin_more, freq = 500 * 3 / (2 * pi))
+data_sin_more_X3 <- eeg_filt_high_pass(data_sin_more, .freq = 500 * 3 / (2 * pi))
 ## plot(data_sin_more_X3)+ facet_grid(.key~.id)
 
 
-data_sin_more_X2 <- eeg_filt_band_pass(data_sin_more, freq = c(1.5, 2.2) * 500 / (2 * pi))
+data_sin_more_X2 <- eeg_filt_band_pass(data_sin_more, .freq = c(1.5, 2.2) * 500 / (2 * pi))
 ## plot(data_sin_more_X2)+ facet_grid(.key~.id)
 
 
-data_sin_more_X1X3 <- eeg_filt_band_stop(data_sin_more, freq = c(2.8, 1.5) * 500 / (2 * pi))
+data_sin_more_X1X3 <- eeg_filt_band_stop(data_sin_more, .freq = c(2.8, 1.5) * 500 / (2 * pi))
 ## plot(data_sin_more_X1X3)+ facet_grid(.key~.id)
 
-data_sin_more_X2_onlyX1X2 <- eeg_filt_band_pass(data_sin_more, X1, X2, freq = c(1.5, 2.2) * 500 / (2 * pi))
+data_sin_more_X2_onlyX1X2 <- eeg_filt_band_pass(data_sin_more, X1, X2, .freq = c(1.5, 2.2) * 500 / (2 * pi))
 
 test_that("low pass signal", {
   data_sin_more_X1 <- data_sin_more_X1 %>% dplyr::filter(as_time(.sample) %>% between(.15, .4))

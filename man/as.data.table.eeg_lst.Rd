@@ -4,12 +4,12 @@
 \alias{as.data.table.eeg_lst}
 \title{Convert an eeg_lst to a long table in \code{\link[data.table:data.table]{data.table}} format.}
 \usage{
-as.data.table.eeg_lst(x, unit = "s")
+as.data.table.eeg_lst(x, .unit = "s")
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
 
-\item{unit}{Unit for the \code{.time} column of the transformed object: "s" (default), "ms", "samples".}
+\item{.unit}{Unit for the \code{.time} column of the transformed object: "s" (default), "ms", "samples".}
 }
 \value{
 A \code{\link[data.table:data.table]{data.table}}.

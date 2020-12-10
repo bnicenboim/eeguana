@@ -38,9 +38,6 @@ data_1 <- eeguana:::data_sincos3id
 #   )
 # )
 
-##TODO: get rid of this:
-suppressWarnings( dplyr::funs())
-funs <- dplyr::funs
 
 
 # just some different X and Y
@@ -77,7 +74,7 @@ summarize2_tbl <- data %>%
   dplyr::summarize(mean = mean(.value)) %>%
   tidyr::spread(key = .key, value = mean)
 
-summarize_all4_eeg <- dplyr::summarize_at(data, channel_names(data), funs(mean = mean(.)))
+summarize_all4_eeg <- dplyr::summarize_at(data, channel_names(data), list(mean = ~mean(.)))
 
 summarize4_tbl <- data %>%
   dplyr::as_tibble() %>%
@@ -382,7 +379,7 @@ tbl_diff_means_1 <- data %>%
   dplyr::summarize(mean = mean(.value[condition == "a"] - .value[condition == "b"]))
 
 eeg_diff_means_2 <- dplyr::group_by(data, .sample) %>%
-  dplyr::summarize_at(channel_names(.), funs( mean(.[condition == "a"] -
+  dplyr::summarize_at(channel_names(.), list(~ mean(.[condition == "a"] -
     .[condition == "b"])))
 
 
@@ -405,7 +402,7 @@ tbl_diff_means_3 <- data %>%
   dplyr::summarize(mean = mean(.value[condition == "a" & .recording == "recording1"] - .value[condition == "b" & .recording == "recording2"]))
 
 eeg_diff_means_4 <- dplyr::group_by(data, .sample) %>%
-  dplyr::summarize_at(channel_names(.), funs(mean(.[condition == "a" & .recording == "recording1"] -
+  dplyr::summarize_at(channel_names(.), list(~mean(.[condition == "a" & .recording == "recording1"] -
     .[condition == "b" & .recording == "recording2"])))
 
 tbl_diff_means_4 <- data %>%

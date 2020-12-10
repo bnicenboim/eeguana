@@ -4,13 +4,7 @@
 \alias{ggplot.eeg_lst}
 \title{Create an ERP plot}
 \usage{
-\method{ggplot}{eeg_lst}(
-  data = NULL,
-  mapping = ggplot2::aes(),
-  ...,
-  max_sample = 64000,
-  environment = parent.frame()
-)
+\method{ggplot}{eeg_lst}(data = NULL, mapping = ggplot2::aes(), ..., .max_sample = 64000)
 }
 \arguments{
 \item{data}{An \code{eeg_lst} object.}
@@ -20,9 +14,7 @@ If not specified, must be supplied in each layer added to the plot.}
 
 \item{...}{Other arguments passed on to methods. Not currently used.}
 
-\item{max_sample}{Downsample to approximately 6400 samples by default.}
-
-\item{environment}{DEPRECATED. Used prior to tidy evaluation.}
+\item{.max_sample}{Downsample to approximately 6400 samples by default.}
 }
 \value{
 A ggplot object

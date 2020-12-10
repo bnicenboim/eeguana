@@ -20,7 +20,8 @@ group_by_eeg_lst <- function(.eeg_lst, dots, .add = FALSE) {
 }
 
 #' @noRd
-filter_eeg_lst <- function(.eeg_lst, dots) {
+filter_eeg_lst <- function(.eeg_lst, ...) {
+  dots <- rlang::quos(...)
   new_dots <- dots_by_tbl_quos(.eeg_lst, dots)
 
   if (length(new_dots$.signal) > 0) {
@@ -57,72 +58,66 @@ filter_eeg_lst <- function(.eeg_lst, dots) {
 }
 
 
-
 #' @noRd
-mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE) {
+mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_ref = FALSE) {
   # What to do by table in the object:
   dots <- rlang::quos(...)
   new_dots <- dots_by_tbl_quos(.eeg_lst, dots)
   if (length(new_dots$.signal) > 0) {
-    
     # New columns name:
     new_cols <- rlang::quos_auto_name(new_dots$.signal) %>%
       names()
-
     if (keep_cols) {
-      cols_signal <-  unique(c(colnames(.eeg_lst$.signal), new_cols))
+      cols_signal <- unique(c(colnames(.eeg_lst$.signal), new_cols))
     } else {
       cols_signal <- c(obligatory_cols$.signal, new_cols)
     }
  
     cond_cols <- names_other_col(.eeg_lst, dots, ".segments")
 
-    extended_signal <- extended_signal(.eeg_lst, cond_cols)
+    extended_signal_dt <- extended_signal(.eeg_lst, cond_cols = cond_cols, .by_ref = .by_ref)
     by <- dplyr::group_vars(.eeg_lst) 
     # eval needs cols_signal and extended signal and by
 
-
     new_dots$.signal <- rlang::quos_auto_name(new_dots$.signal)
-    for (i in seq_len(length(new_dots$.signal))) {
+    col_names <- names(new_dots$.signal)
+    if(length(by) == 0) {
+      # From: https://github.com/markfairbanks/tidytable/blob/549f330837be5adb510b4599142cc5f4a615a4be/R/mutate.R
+      # Prevent modify-by-reference if the column already exists in the data.table
+      # Fixes cases when user supplies a single value ex. 1, -1, "a"
+      extended_signal_dt[, `:=`((col_names),
+                                   lapply(new_dots$.signal, recycle_eval,
+                                                     data = rlang::as_data_mask(
+                                                       .SD),size = .N))]
+    } else {
 
-      if(length(by)>0) {
-        
-        extended_signal[, `:=`(names(new_dots$.signal[i]),
-                                 rlang::eval_tidy(new_dots$.signal[[i]],
-                                                  data= rlang::as_data_mask(
-                                                    cbind(.SD,data.table::as.data.table(.BY))
-                                                  ))), #?.SD
+      if (length(intersect(col_names, colnames(.eeg_lst$.signal)))>0 & .by_ref==FALSE) {
+        #needs a real copy
+        extended_signal_dt <- data.table::copy(extended_signal_dt)
+        }
+        extended_signal_dt[, `:=`((col_names),
+                                  lapply(new_dots$.signal, rlang::eval_tidy,
+                                                 data= rlang::as_data_mask(
+                                                   cbind(.SD,data.table::as.data.table(.BY))
+                                                  ))),
                                by = c(by)]
-        
-      # extended_signal[, `:=`(names(new_dots$.signal[i]),
-      #                        eval(parse(text = rlang::quo_text(new_dots$.signal[[i]])), 
-      #                             # so that I can use elements of the .SD or the group
-      #                             envir = cbind(.SD,data.table::as.data.table(.BY)), # envir = .SD,
-      #                             # in case I need something outside the data table,
-      #                             # it should be from the caller env, and not from inside the package
-      #                             enclos = rlang::caller_env())), by = c(by)]
-      } else {
-        extended_signal[, `:=`(names(new_dots$.signal[i]),
-                               rlang::eval_tidy(new_dots$.signal[[i]],
-                                                data= rlang::as_data_mask(
-                                                  .SD
-                                                )))]
-        
-        # extended_signal[, `:=`(names(new_dots$.signal[i]),
-        #                        eval(parse(text = rlang::quo_text(new_dots$.signal[[i]])), 
-        #                             # so that I can use elements of the .SD or the group
-        #                             envir = .SD, # envir = .SD,
-        #                             # in case I need something outside the data table,
-        #                             # it should be from the caller env, and not from inside the package
-        #                             enclos = rlang::caller_env()))]
-      }
-
-          # extended_signal[, `:=`(names(new_dots$.signal[i]),
-    #                          rlang::eval_tidy(new_dots$.signal[[i]],
-    #                                           data= rlang::as_data_mask(.SD))), #?.SD
-    #                        by = c(by)]
     }
-    .eeg_lst$.signal <- extended_signal[, ..cols_signal][]
+
+    #intersect in case there are less columns now
+    new_cols <- intersect(cols_signal, names(extended_signal_dt))
+    .eeg_lst$.signal <- extended_signal_dt[, new_cols , with = FALSE][]
+
+    non_obl <- .eeg_lst$.signal[0,- obligatory_cols$.signal, with = FALSE]
+   new_channels <- .eeg_lst$.signal[0,col_names[col_names %in% colnames(extended_signal_dt)], with = FALSE]
+    non_ch <- names(new_channels)[!purrr::map_lgl(new_channels, is_channel_dbl)]
+    non_comp <- names(non_ch)[!purrr::map_lgl(non_ch, is_component_dbl)]
+    non_ch <- unique(c(non_ch, non_comp))
+    if(length(non_ch)>0 & options()$eeguana.verbose){
+      message("The following columns of signal_tbl are not channels (or ICA components): ", paste(non_ch,sep=", "))
+      message("* To build a channel use `channel_dbl()` function, e.g. channel_dbl(0) to populate the table with a channel containing 0 microvolts.")
+      message("* To copy the structure of an existing channel one can do `new_ch = existing_channel * 0 + ...`")
+    }
+
     # updates the events and the channels
     .eeg_lst <- .eeg_lst %>% update_events_channels()
     data.table::setkey(.eeg_lst$.signal, .id, .sample)
@@ -290,35 +285,38 @@ hd_add_column <- function(.data, ..., .before = NULL, .after = NULL) {
   return(tibble::add_column(.data, ..., .before = .before, .after = .after))
 }
 
-
 #' @noRd
 signal_from_parent_frame <- function(env = parent.frame()) {
   # This is the environment where I can find the columns of signal_tbl
   signal_env <- rlang::env_get(env = env, ".top_env", inherit = TRUE)
   signal_tbl <- dplyr::as_tibble(rlang::env_get_list(signal_env, rlang::env_names(signal_env)))
 }
+
 #' @noRd
-extended_signal <- function(.eeg_lst, cond_cols = NULL, events_cols = NULL) {
+extended_signal <- function(.eeg_lst, cond_cols = NULL, events_cols = NULL, .by_ref = FALSE) {
   ## For NOTES:
   ..events_cols <- NULL
-
-  extended_signal <- NULL
-  relevant_cols <- c(obligatory_cols$.segments, dplyr::group_vars(.eeg_lst), cond_cols)
-  if (length(relevant_cols) > 1) { # more than just .id
+  if(.by_ref) {
+    extended_signal_dt <- .eeg_lst$.signal
+  } else {
+    extended_signal_dt <- data.table:::shallow(.eeg_lst$.signal)
+  }
+  relevant_cols <- c(".id",dplyr::group_vars(.eeg_lst), cond_cols)
+  if (any(relevant_cols != ".id")) { # more than just .id
     #TODO change this when segments are data tables
     segments <- dplyr::ungroup(.eeg_lst$.segments) %>%
       {.[names(.) %in% relevant_cols]} %>%
       data.table::data.table()
     data.table::setkey(segments, .id)
-    extended_signal <- .eeg_lst$.signal[segments]
+    segments <- segments[extended_signal_dt,  c(colnames(segments)) ,with = FALSE]
+    extended_signal_dt[, `:=`(names(segments), segments)]
+
   }
   if (length(events_cols) > 0) {
-    extended_signal <- events_tbl(.eeg_lst)[, ..events_cols][extended_signal]
+    events_dt <- events_tbl(.eeg_lst)[extended_signal_dt,  c(".id", events_col) ,with = FALSE]
+    extended_signal_dt[, `:=`(names(events_dt), events_dt)]
   }
-  if (is.null(extended_signal)) {
-    extended_signal <- data.table::copy(.eeg_lst$.signal)
-  }
-  extended_signal
+  extended_signal_dt[]
 }
 
 #' @noRd
@@ -355,8 +353,11 @@ dots_by_tbl_quos <- function(.eeg_lst, dots) {
     paste0("`", channel_names(.eeg_lst), "`") # In case channel name is used with ` in the function call, NOT sure if needed anymore
   )
 
-  signal_dots <- purrr::map_lgl(dots, function(dot)
-  # get the AST of each call and unlist it
+  signal_dots <- purrr::imap_lgl(dots, function(dot, name)
+    if(name %in% signal_cols){
+      TRUE
+    } else {
+    # get the AST of each call and unlist it
     getAST(dot) %>%
       unlist(.) %>%
       # make it a vector of strings
@@ -370,7 +371,9 @@ dots_by_tbl_quos <- function(.eeg_lst, dots) {
           return(FALSE)
         }
       }) %>%
-      any())
+      any()
+    }
+  )
 
   # things might fail if there is a function named as a signal column. TODO, check for that in the validate.
 

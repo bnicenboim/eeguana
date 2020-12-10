@@ -73,25 +73,21 @@ anti_join_dt <- function(x, y, by = NULL) {
 #' @noRd
 filter_dt <- function(.data, ..., group_by_ = character(0)) {
   dots <- rlang::quos(...)
-  # if(rlang::is_quosures(dots))
+  newdots <- Reduce(x =dots,  f= function(x,y) rlang::quo(!!x & !!y))
+ if(length(group_by_)==0) {
+   #TODO: optimize this to remove the by
+  .data[.data[, .I[
+    rlang::eval_tidy(newdots, data =
+                                rlang::as_data_mask(.SD))],by = c(group_by_)
+    ]$V1]
+  } else {
+  .data[.data[, .I[
+    rlang::eval_tidy(newdots, data =
+                                rlang::as_data_mask(cbind(.SD,data.table::as.data.table(.BY))))],
+              by = c(group_by_)]$V1]
+  }
+}
 
-  # TODO check parse_quo(), as_label reduces the quo if it's too long
-  cnds <- lapply(dots, rlang::quo_text) %>% paste0(collapse = " & ")
-  env <- lapply(dots, rlang::quo_get_env) %>% unique()
-  if (length(env) != 1) stop("Need to fix filter_dt; env", env)
-  ## TODO: check why this happens: for some reason if I don't do that, I modify the index of .data
-  ## .data <- data.table::copy(.data)
-  ## .data[eval(parse(text = cnds), envir =envs[[1]]),]
-  ## TODO eval_tidy
-  .data[.data[, .I[eval(parse(text = cnds), envir = env)], by = c(group_by_)]$V1]
-}
-#' binds cols of dt and adds the class of the first object
-#' @noRd
-bind_cols_dt <- function(...) {
-  new_dt <- cbind(...)
-  class(new_dt) <- class(list(...)[[1]])
-  new_dt
-}
 
 
 #' @noRd
@@ -106,3 +102,24 @@ unnest_dt <- function(.data, col) {
     .data
 }
 
+
+#' @noRd
+recycle <- function(x, size) {
+
+  if(is.null(x)) return(NULL)
+
+  x_length <- length(x)
+
+  if (x_length != 1 && x_length != size)
+    stop(paste0("x must have length 1 or length ", size))
+
+  if (x_length == 1) x <- rep(x, size)
+
+  x
+}
+
+
+#' @noRd
+recycle_eval <- function(expr, data = NULL, env= rlang::caller_env(), size){
+  recycle(rlang::eval_tidy(expr, data = data, env = env),size = size)
+}

@@ -444,23 +444,23 @@ test_that("data didn't change", {
 # a) Test signal/segments tables by comparing eeg_lst with tibble
 
 mutate_filter1_eeg <- data %>%
-  dplyr::mutate(time = as_time(.sample, unit = "milliseconds")) %>%
+  dplyr::mutate(time = as_time(.sample, .unit = "milliseconds")) %>%
   dplyr::filter(time == 2)
 
 
 mutate_filter1_tbl <- data$.signal %>%
-  dplyr::mutate(time = as_time(.sample, unit = "milliseconds")) %>%
+  dplyr::mutate(time = as_time(.sample, .unit = "milliseconds")) %>%
   dplyr::filter(time == 2) %>%
   dplyr::left_join(dplyr::as_tibble(data$.segments))
 
 
 mutate_filter2_eeg <- data %>%
-  dplyr::mutate(time = as_time(.sample, unit = "seconds")) %>%
+  dplyr::mutate(time = as_time(.sample, .unit = "seconds")) %>%
   dplyr::filter(time == 0.002)
 
 
 mutate_filter2_tbl <- data$.signal %>%
-  dplyr::mutate(time = as_time(.sample, unit = "seconds")) %>%
+  dplyr::mutate(time = as_time(.sample, .unit = "seconds")) %>%
   dplyr::filter(time == 0.002) %>%
   dplyr::left_join(dplyr::as_tibble(data$.segments))
 
@@ -657,10 +657,6 @@ test_that("dplyr::filtering after grouping and summarizing works in signal table
   expect_equal(
     as.double(summarize_filter_eeg$.signal$mean),
     as.double(summarize_filter_tbl$mean)
-  )
-  expect_equal(
-    as.matrix(summarize_at_filter_eeg$.signal[, !c(".sample")]),
-    as.matrix(dplyr::select(summarize_at_filter_tbl, .id, X, Y))
   )
   expect_equal(
     as.matrix(summarize_all_filter_eeg$.signal),

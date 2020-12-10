@@ -1,3 +1,17 @@
+# eeguana 0.1.5.9000
+  - Bugs: 
+    - weird dplyr filter behavior fixed  [#136](https://github.com/bnicenboim/eeguana/issues/136)
+  - Changes
+    - `plot_components()` behaves more similarly to `plot_topo()`
+    - **BREAKING CHANGE** `...` are always the second argument and most arguments require now a `.` at the beginning: This should help to differentiate them from channels. 
+  - Improvements
+    - New examples for ICA functions.
+    - Much faster mutate functions
+    - Better error messages for reading Brain Vision files @jaromilfrossard
+    - `scale` works properly for channels now
+  - Additions
+    - [Gotchas & Pitfall vignette](https://bnicenboim.github.io/eeguana/articles/gotchas.html) was added
+    
 # eeguana 0.1.4.9000
   - Bugs: tons of compatibility issues with dplyr 1.0
   - Changes
@@ -95,7 +109,7 @@
       - `events` function to visualize and edit events was added.
       - various filters were added.
  - Bugs
-      - `ch_rereference` updates the relevanta attributes.
+      - `ch_rereference` updates the relevant attributes.
       - bugs in various reading functions were fixed (int encoding issues).
       - `mutate` recognize better channels.
       - `*_join` functions fixed.

@@ -26,6 +26,8 @@ navbar:
         href: articles/intro.html
       - text: "Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs"
         href: articles/preprocessing_erp.html
+      - text: Pitfalls and gotchas
+        href: articles/gotchas.html
     news:
       text: Changelog
       href: news/index.html
@@ -82,6 +84,7 @@ reference:
     - starts_with("as.")
     - starts_with("is_")
     - starts_with("n")
+    - '`ica_matrix_lst`'
   - title: "Editing functions"
     desc: >
       Functions for showing (and sometimes editing) `eeg_lst` objects parts.
