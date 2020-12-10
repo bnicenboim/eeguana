@@ -659,10 +659,6 @@ test_that("dplyr::filtering after grouping and summarizing works in signal table
     as.double(summarize_filter_tbl$mean)
   )
   expect_equal(
-    as.matrix(summarize_at_filter_eeg$.signal[, !c(".sample")]),
-    as.matrix(dplyr::select(summarize_at_filter_tbl, .id, X, Y))
-  )
-  expect_equal(
     as.matrix(summarize_all_filter_eeg$.signal),
     as.matrix(dplyr::select(summarize_all_filter_tbl, .id, .sample, X, Y))
   )

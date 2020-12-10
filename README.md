@@ -1,6 +1,6 @@
 
-[![Travis build
-status](https://travis-ci.org/bnicenboim/eeguana.svg?branch=master)](https://travis-ci.org/bnicenboim/eeguana)
+[![R build
+status](https://github.com/bnicenboim/eeguana/workflows/R-CMD-check/badge.svg)](https://github.com/bnicenboim/eeguana/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/bnicenboim/eeguana/branch/master/graph/badge.svg)](https://codecov.io/gh/bnicenboim/eeguana?branch=master)
 [![AppVeyor build
@@ -397,7 +397,7 @@ interpolated amplitudes and using the ggplot wrapper `plot_topo`.
 
 ``` r
 faces_segs_some %>%
-  filter(between(as_time(.sample, unit = "milliseconds"), 100, 200)) %>%
+  filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
   group_by(condition) %>%
   summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
   plot_topo() +
@@ -422,6 +422,6 @@ Other R packages for EEG/ERP
   - [eegUtils](https://github.com/craddm/eegUtils) some helper utilities
     for plotting and processing EEG data in active development by Matt
     Craddock.
-  - [erpR](https://cran.r-project.org/web/packages/erpR/index.html)
-    analysis of event-related potentials (ERPs) by Giorgio Arcara, Anna
-    Petrova. It hasn’t been updated since 2014.
+  - [erpR](https://cran.r-project.org/package=erpR) analysis of
+    event-related potentials (ERPs) by Giorgio Arcara, Anna Petrova. It
+    hasn’t been updated since 2014.
