@@ -195,7 +195,7 @@ test_that("times remain similar; sample0 = 101", {
 
 #### OTHER Q:
 
-data_d <- eeg_downsample(data_sincos2id_1000, .q = 20, multiple_times = TRUE)
+data_d <- eeg_downsample(data_sincos2id_1000, .q = 20, .multiple_times = TRUE)
 
 ##  bind_rows( dplyr::tibble(x=seq_along(data_eeg$.signal$X),y= data_eeg$.signal$X %>% as.numeric, .type= "original"),
 ##                   dplyr::tibble(x=seq(from = 1, to = N, by= 20),y= data_d$.signal$X %>% as.numeric, .type= "downsampled")) %>%

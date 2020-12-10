@@ -37,3 +37,10 @@ expect_equal_but_sgm <-function(object, expected, ..., info = NULL, label = NULL
   expected$.segments <- NULL
     eval(bquote(expect_equal(.(object), .(expected))))
 }
+#' @noRd
+skip_on_actions <- function() {
+  if (!identical(Sys.getenv("GITHUB_ACTIONS"), "true")) {
+    return(invisible(TRUE))
+  }
+  skip("On GitHub Actions")
+}

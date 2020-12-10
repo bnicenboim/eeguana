@@ -230,7 +230,7 @@ test_that("ica can remove blinks", {
 
 test_that("can use other (python) functions", {
   skip_on_ci()
-
+ eeguana:::skip_on_actions()
   py_fica <- function(x) {
     x <- as.matrix(x)
     reticulate::use_condaenv("anaconda3")

@@ -76,7 +76,7 @@ eeg_downsample.eeg_lst <- function(.data, .q = 2, .max_sample = NULL,
     "# Downsampling from ", sampling_rate(.data), "Hz to ",
     round(new_sampling_rate, 2), "Hz."
   ))
-  if (!is.null(.max_sample) || multiple_times) {
+  if (!is.null(.max_sample) || .multiple_times) {
     message("# Using the following factor(s) .q: ", paste0(.q, collapse = ", "))
   }
 

@@ -81,7 +81,7 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_ref = FALSE) {
 
     new_dots$.signal <- rlang::quos_auto_name(new_dots$.signal)
     col_names <- names(new_dots$.signal)
-    if(length(by)==0) {
+    if(length(by) == 0) {
       # From: https://github.com/markfairbanks/tidytable/blob/549f330837be5adb510b4599142cc5f4a615a4be/R/mutate.R
       # Prevent modify-by-reference if the column already exists in the data.table
       # Fixes cases when user supplies a single value ex. 1, -1, "a"
@@ -108,8 +108,10 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_ref = FALSE) {
     .eeg_lst$.signal <- extended_signal_dt[, new_cols , with = FALSE][]
 
     non_obl <- .eeg_lst$.signal[0,- obligatory_cols$.signal, with = FALSE]
-    non_ch <- names(non_obl)[!purrr::map_lgl(non_obl, is_channel_dbl)]
-    non_ch <- names(non_ch)[!purrr::map_lgl(non_obl, is_component_dbl)]
+   new_channels <- .eeg_lst$.signal[0,col_names[col_names %in% colnames(extended_signal_dt)], with = FALSE]
+    non_ch <- names(new_channels)[!purrr::map_lgl(new_channels, is_channel_dbl)]
+    non_comp <- names(non_ch)[!purrr::map_lgl(non_ch, is_component_dbl)]
+    non_ch <- unique(c(non_ch, non_comp))
     if(length(non_ch)>0 & options()$eeguana.verbose){
       message("The following columns of signal_tbl are not channels (or ICA components): ", paste(non_ch,sep=", "))
       message("* To build a channel use `channel_dbl()` function, e.g. channel_dbl(0) to populate the table with a channel containing 0 microvolts.")

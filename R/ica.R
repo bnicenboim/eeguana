@@ -24,8 +24,9 @@
 #'
 #' @examples
 #' # For demonstration only, since ICA won't converge
-#' data_faces_10_trials %>%
-#'  eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))
+#' # Suppressing an important warning:
+#'   suppressWarnings(data_faces_10_trials %>%
+#'  eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10)))
 #'
 #' ## The example can only bu run, if python is properly configured (see reticulate package help)
 #' ## Here a python ICA function is used:
@@ -159,8 +160,9 @@ eeg_ica.eeg_lst <- function(.data,
 #' # For demonstration only, since ICA won't converge
 #' library(ggplot2)
 #' library(dplyr)
-#'   data_faces_10_trials %>%
-#'    eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10)) %>%
+#' # Suppressing an important warning:
+#'   suppressWarnings(data_faces_10_trials %>%
+#'    eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))) %>%
 #'    eeg_ica_show(ICA1) %>%
 #'    plot()
 #'
@@ -209,8 +211,9 @@ eeg_ica_show.eeg_ica_lst <- function(.data, ...) {
 #'
 #' @examples
 #' # For demonstration only, since ICA won't converge
-#' data_faces_10_trials %>%
-#'  eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10)) %>%
+#' # Suppressing an important warning:
+#'  suppressWarnings(data_faces_10_trials %>%
+#'  eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))) %>%
 #'  eeg_ica_keep(-ICA1)
 #'
 #' @export
