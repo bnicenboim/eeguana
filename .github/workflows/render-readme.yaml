@@ -17,6 +17,7 @@ jobs:
       - uses: r-lib/actions/setup-pandoc@v1
       - name: Install rmarkdown, remotes, and the local package
         run: |
+          install.packages("httr") #needed to download stuff
           install.packages("remotes")
           remotes::install_local(".")
           remotes::install_cran("rmarkdown")
