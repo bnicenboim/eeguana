@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5.9000</span>
       </span>
     </div>
 
@@ -107,6 +107,9 @@
     </li>
     <li>
       <a href="../articles/preprocessing_erp.html">Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs</a>
+    </li>
+    <li>
+      <a href="../articles/gotchas.html">Pitfalls and gotchas</a>
     </li>
   </ul>
 </li>
@@ -143,7 +146,7 @@
     <p>Subtract the average or baseline of the points in a defined interval from all points in the segment.</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/eeg_baseline.html'>eeg_baseline</a></span>(<span class='kw'>x</span>, lim = <span class='op'>-</span><span class='fl'>Inf</span>, unit = <span class='st'>"s"</span>, <span class='kw'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>eeg_baseline</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span>, .lim <span class='op'>=</span> <span class='op'>-</span><span class='cn'>Inf</span>, .unit <span class='op'>=</span> <span class='st'>"s"</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -153,16 +156,20 @@
       <td><p>An <code>eeg_lst</code> object or a channel.</p></td>
     </tr>
     <tr>
-      <th>lim</th>
-      <td><p>A negative number indicating from when to baseline; the interval is defined as [lim,0]. The default is to use all the negative times.</p></td>
+      <th>...</th>
+      <td><p>Channels to include. All channels by default.</p></td>
     </tr>
     <tr>
-      <th>unit</th>
+      <th>.lim</th>
+      <td><p>Vector with two values indicating the time before and after the artifact that will be included in events_tbl (by default the size the window before and afterwards).</p></td>
+    </tr>
+    <tr>
+      <th>.unit</th>
       <td><p>"seconds" (or "s"), "milliseconds" (or "ms")</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>Channels to include. All channels by default.</p></td>
+      <th>lim</th>
+      <td><p>A negative number indicating from when to baseline; the interval is defined as [lim,0]. The default is to use all the negative times.</p></td>
     </tr>
     </table>
 
@@ -172,12 +179,12 @@
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other preprocessing functions: 
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_downsample.html'>eeg_downsample</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_keep.html'>eeg_ica_keep</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica.html'>eeg_ica</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_rereference.html'>eeg_rereference</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_segment.html'>eeg_segment</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/filt.html'>filt</a></code></p></div>
+<code><a href='eeg_downsample.html'>eeg_downsample</a>()</code>,
+<code><a href='eeg_ica_keep.html'>eeg_ica_keep</a>()</code>,
+<code><a href='eeg_ica.html'>eeg_ica</a>()</code>,
+<code><a href='eeg_rereference.html'>eeg_rereference</a>()</code>,
+<code><a href='eeg_segment.html'>eeg_segment</a>()</code>,
+<code><a href='filt.html'>filt</a></code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -194,7 +201,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

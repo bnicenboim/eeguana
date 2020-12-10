@@ -47,12 +47,7 @@
 
 
 <meta property="og:title" content="Create an eeg_lst — eeg_lst" />
-<meta property="og:description" content="Builds an eeg_lst object composed of two data.table::data.table
-objects and one  tibble::tibble. All three are linked by a unique
-identifier .id. Amplitude values and timestamps appear in the signal
-table. Triggers, blinks, artifact rejection markings, and other
-events logged by the EEG recording software appear in the events table.
-Segment information and recording IDs appear in the segments tibble." />
+<meta property="og:description" content="Builds an eeg_lst object composed of two data.table::data.table objects and one  tibble::tibble. All three are linked by a unique identifier .id. Amplitude values and timestamps appear in the signal table. Triggers, blinks, artifact rejection markings, and other events logged by the EEG recording software appear in the events table. Segment information and recording IDs appear in the segments tibble." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -85,7 +80,7 @@ Segment information and recording IDs appear in the segments tibble." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5.9000</span>
       </span>
     </div>
 
@@ -112,6 +107,9 @@ Segment information and recording IDs appear in the segments tibble." />
     </li>
     <li>
       <a href="../articles/preprocessing_erp.html">Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs</a>
+    </li>
+    <li>
+      <a href="../articles/gotchas.html">Pitfalls and gotchas</a>
     </li>
   </ul>
 </li>
@@ -145,39 +143,34 @@ Segment information and recording IDs appear in the segments tibble." />
     </div>
 
     <div class="ref-description">
-    <p>Builds an eeg_lst object composed of two <code><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table::data.table</a></code>
-objects and one  <code><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble::tibble</a></code>. All three are linked by a unique
-identifier <code>.id</code>. Amplitude values and timestamps appear in the <code>signal</code>
-table. Triggers, blinks, artifact rejection markings, and other
-events logged by the EEG recording software appear in the <code>events</code> table.
-Segment information and recording IDs appear in the <code>segments</code> tibble.</p>
+    <p>Builds an eeg_lst object composed of two <code><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table::data.table</a></code> objects and one  <code><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble::tibble</a></code>. All three are linked by a unique identifier <code>.id</code>. Amplitude values and timestamps appear in the <code>signal</code> table. Triggers, blinks, artifact rejection markings, and other events logged by the EEG recording software appear in the <code>events</code> table. Segment information and recording IDs appear in the <code>segments</code> tibble.</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/eeg_lst.html'>eeg_lst</a></span>(
-  signal_tbl = <span class='kw'>NULL</span>,
-  events_tbl = <span class='kw'>NULL</span>,
-  segments_tbl = <span class='kw'>NULL</span>,
-  channels_tbl = <span class='kw'>NULL</span>
-)</pre>
+    <pre class="usage"><span class='fu'>eeg_lst</span><span class='op'>(</span>
+  signal_tbl <span class='op'>=</span> <span class='cn'>NULL</span>,
+  events_tbl <span class='op'>=</span> <span class='cn'>NULL</span>,
+  segments_tbl <span class='op'>=</span> <span class='cn'>NULL</span>,
+  channels_tbl <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>signal_tbl</th>
-      <td><p>See <code><a href='https://rdrr.io/pkg/eeguana/man/signal_tbl.html'>signal_tbl()</a></code>.</p></td>
+      <td><p>See <code><a href='signal_tbl.html'>signal_tbl()</a></code>.</p></td>
     </tr>
     <tr>
       <th>events_tbl</th>
-      <td><p>See <code><a href='https://rdrr.io/pkg/eeguana/man/events_tbl.html'>events_tbl()</a></code>.</p></td>
+      <td><p>See <code><a href='events_tbl.html'>events_tbl()</a></code>.</p></td>
     </tr>
     <tr>
       <th>segments_tbl</th>
-      <td><p>A tibble of segment numbers and related information. See <code><a href='https://rdrr.io/pkg/eeguana/man/segments_tbl.html'>segments_tbl()</a></code>.</p></td>
+      <td><p>A tibble of segment numbers and related information. See <code><a href='segments_tbl.html'>segments_tbl()</a></code>.</p></td>
     </tr>
     <tr>
       <th>channels_tbl</th>
-      <td><p>Optionally a table with channels information. See <code><a href='https://rdrr.io/pkg/eeguana/man/channels_tbl.html'>channels_tbl()</a></code>.</p></td>
+      <td><p>Optionally a table with channels information. See <code><a href='channels_tbl.html'>channels_tbl()</a></code>.</p></td>
     </tr>
     </table>
 
@@ -186,30 +179,13 @@ Segment information and recording IDs appear in the <code>segments</code> tibble
     <p>A valid eeg_lst.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The <code>signal</code> table is organised into columns representing timestamps
-(<code>.sample</code>) and individual electrodes. Each <code>.sample</code> corresponds to
-1 sample in the original recording, i.e. if the sampling rate of the EEG
-recording is 500 Hz, then each <code>.sample</code> corresponds to 2 milliseconds.
-These timestamps correspond to <code>.initial</code> in the <code>events</code> table, which
-displays only the timestamps where logged events began.</p>
-<p>The <code>events</code> table is organised into columns representing the <code>.type</code> of event
-associated with the trigger listed under <code>.description</code>. The timestamp marking
-the beginning and the end of the event is listed under <code>.initial</code> and <code>.final</code> (in samples).
-The <code>.channel</code> column is a  linking variable only, so will generally only contain NAs, unless the
-event is specific to a certain channel.</p>
-<p>The <code>segments</code> tibble contains the subject ID under <code>recording</code>, which is
-the file name unless otherwise specified. If the data has been segmented in
-BrainVision, the segment number will be listed under <code>segment</code>. The data can
-also be segmented according to trigger labels in <code>eeguana</code>, see <code>segment</code>.
-<code>segment</code> will be place the segment number under <code>segment</code>, the trigger name
-under <code>.type.x</code>, and the trigger label under <code>.description.x</code>. Other information
-such as condition labels or response times can be added by the user by merging
-into the <code>segments</code> tibble using non-eeguana merge functions, e.g. the <code>dplyr</code>
-join series.</p>
+    <p>The <code>signal</code> table is organized into columns representing timestamps (<code>.sample</code>) and individual electrodes. Each <code>.sample</code> corresponds to 1 sample in the original recording, i.e. if the sampling rate of the EEG recording is 500 Hz, then each <code>.sample</code> corresponds to 2 milliseconds. These timestamps correspond to <code>.initial</code> in the <code>events</code> table, which displays only the timestamps where logged events began.</p>
+<p>The <code>events</code> table is organized into columns representing the <code>.type</code> of event associated with the trigger listed under <code>.description</code>. The timestamp marking the beginning and the end of the event is listed under <code>.initial</code> and <code>.final</code> (in samples). The <code>.channel</code> column is a  linking variable only, so will generally only contain NAs, unless the event is specific to a certain channel.</p>
+<p>The <code>segments</code> tibble contains the subject ID under <code>recording</code>, which is the file name unless otherwise specified. If the data has been segmented in BrainVision, the segment number will be listed under <code>segment</code>. The data can also be segmented according to trigger labels in <code>eeguana</code>, see <code>segment</code>. <code>segment</code> will be place the segment number under <code>segment</code>, the trigger name under <code>.type.x</code>, and the trigger label under <code>.description.x</code>. Other information such as condition labels or response times can be added by the user by merging into the <code>segments</code> tibble using non-eeguana merge functions, e.g. the <code>dplyr</code> join series.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other eeg_lst: 
-<code><a href='https://rdrr.io/pkg/eeguana/man/is_eeg_lst.html'>is_eeg_lst</a>()</code></p></div>
+<code><a href='is_eeg_lst.html'>is_eeg_lst</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -226,7 +202,7 @@ join series.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

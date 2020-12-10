@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5.9000</span>
       </span>
     </div>
 
@@ -106,6 +106,9 @@
     </li>
     <li>
       <a href="../articles/preprocessing_erp.html">Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs</a>
+    </li>
+    <li>
+      <a href="../articles/gotchas.html">Pitfalls and gotchas</a>
     </li>
   </ul>
 </li>
@@ -297,7 +300,7 @@
         <td>
           <p><code><a href="eeg_artif.html">eeg_artif_minmax()</a></code> <code><a href="eeg_artif.html">eeg_artif_step()</a></code> <code><a href="eeg_artif.html">eeg_artif_amplitude()</a></code> <code><a href="eeg_artif.html">eeg_artif_peak()</a></code> </p>
         </td>
-        <td><p>Detect artifacts and add them in the events table of an eeg_lst</p></td>
+        <td><p>Detect artifacts and add them in the events table of an <code>eeg_lst</code></p></td>
       </tr><tr>
         
         <td>
@@ -545,6 +548,12 @@ This function returns  TRUE for signals.</p></td>
           <p><code><a href="summaries.html">channel_names()</a></code> <code><a href="summaries.html">channel_ica_names()</a></code> <code><a href="summaries.html">nchannels()</a></code> <code><a href="summaries.html">component_names()</a></code> <code><a href="summaries.html">ncomponents()</a></code> <code><a href="summaries.html">nsamples()</a></code> </p>
         </td>
         <td><p>Display information of the eeg_lst object.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="ica_matrix_lst.html">ica_matrix_lst()</a></code> </p>
+        </td>
+        <td><p>Function to get the list of mixing and unmixing matrices of an eeg_ica_lst object.</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -665,6 +674,12 @@ This function returns  TRUE for signals.</p></td>
       </tr><tr>
         
         <td>
+          <p><code><a href="ica_matrix_lst.html">ica_matrix_lst()</a></code> </p>
+        </td>
+        <td><p>Function to get the list of mixing and unmixing matrices of an eeg_ica_lst object.</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="between.html">between</a></code> </p>
         </td>
         <td><p>Convenience function for range subsets</p></td>
@@ -756,7 +771,7 @@ This function returns  TRUE for signals.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

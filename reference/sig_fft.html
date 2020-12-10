@@ -82,7 +82,7 @@ of fft with an extra argument similar to python's numpy.fft.fft." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5.9000</span>
       </span>
     </div>
 
@@ -109,6 +109,9 @@ of fft with an extra argument similar to python's numpy.fft.fft." />
     </li>
     <li>
       <a href="../articles/preprocessing_erp.html">Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs</a>
+    </li>
+    <li>
+      <a href="../articles/gotchas.html">Pitfalls and gotchas</a>
     </li>
   </ul>
 </li>
@@ -147,7 +150,7 @@ with a fast algorithm, the “Fast Fourier Transform” (FFT). Wrapper
 of <a href='stats::fft'>fft</a> with an extra argument similar to python's <a href='https://docs.scipy.org/doc/numpy/reference/generated/numpy.fft.fft.html#numpy.fft.fft'>numpy.fft.fft</a>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/sig_fft.html'>sig_fft</a></span>(<span class='kw'>x</span>, n = <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>sig_fft</span><span class='op'>(</span><span class='va'>x</span>, n <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -167,8 +170,10 @@ the axis specified by axis is used.</p></td>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>a</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>4</span>, <span class='fl'>0</span>, <span class='fl'>0</span>)
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/sig_fft.html'>sig_fft</a></span>(<span class='kw'>a</span>)</div><div class='output co'>#&gt; [1]  4+0i  0-4i -4+0i  0+4i</div><div class='input'></div></pre>
+    <pre class="examples"><div class='input'><span class='va'>a</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>4</span>, <span class='fl'>0</span>, <span class='fl'>0</span><span class='op'>)</span>
+<span class='fu'>sig_fft</span><span class='op'>(</span><span class='va'>a</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1]  4+0i  0-4i -4+0i  0+4i</div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -184,7 +189,7 @@ the axis specified by axis is used.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

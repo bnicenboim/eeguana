@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5.9000</span>
       </span>
     </div>
 
@@ -107,6 +107,9 @@
     </li>
     <li>
       <a href="../articles/preprocessing_erp.html">Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs</a>
+    </li>
+    <li>
+      <a href="../articles/gotchas.html">Pitfalls and gotchas</a>
     </li>
   </ul>
 </li>
@@ -140,10 +143,10 @@
     </div>
 
     <div class="ref-description">
-    <p>Note that unlike <a href='https://rdrr.io/pkg/eeguana/man/plot_topo.html'>plot_topo</a>, there is no need for faceting, or adding layers.</p>
+    <p>Note that unlike <a href='plot_topo.html'>plot_topo</a>, there is no need for faceting, or adding layers.</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/plot_components.html'>plot_components</a></span>(<span class='kw'>data</span>, <span class='kw'>...</span>, projection = <span class='st'>"polar"</span>, standardize = <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>plot_components</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>...</span>, .projection <span class='op'>=</span> <span class='st'>"polar"</span>, .standardize <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -154,14 +157,14 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>If data are an <code>eeg_lst</code> or <code>ica_lst</code>, these are arguments passed to <code>eeg_interpolate_tbl</code>, such as, radius, size, etc.</p></td>
+      <td><p>arguments passed to interpolate.</p></td>
     </tr>
     <tr>
-      <th>projection</th>
-      <td><p>Projection type for converting the 3D coordinates of the electrodes into 2d coordinates. Projection types available: "polar" (default), "orthographic", or  "stereographic"</p></td>
+      <th>.projection</th>
+      <td><p>.Projection type for converting the 3D coordinates of the electrodes into 2d coordinates.  .Projection types available: "polar" (default), "orthographic", or  "stereographic"</p></td>
     </tr>
     <tr>
-      <th>standardize</th>
+      <th>.standardize</th>
       <td><p>Whether to standardize the color scale of each topographic plot.</p></td>
     </tr>
     </table>
@@ -169,26 +172,40 @@
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other plotting functions: 
-<code><a href='https://rdrr.io/pkg/eeguana/man/annotate_events.html'>annotate_events</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/annotate_head.html'>annotate_head</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_downsample.html'>eeg_downsample</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/ggplot.eeg_lst.html'>ggplot.eeg_lst</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/plot.eeg_lst.html'>plot.eeg_lst</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/plot_in_layout.html'>plot_in_layout</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/plot_topo.html'>plot_topo</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/theme_eeguana.html'>theme_eeguana</a>()</code></p>
+<code><a href='annotate_events.html'>annotate_events</a>()</code>,
+<code><a href='annotate_head.html'>annotate_head</a>()</code>,
+<code><a href='eeg_downsample.html'>eeg_downsample</a>()</code>,
+<code><a href='ggplot.eeg_lst.html'>ggplot.eeg_lst</a>()</code>,
+<code><a href='plot.eeg_lst.html'>plot.eeg_lst</a>()</code>,
+<code><a href='plot_in_layout.html'>plot_in_layout</a>()</code>,
+<code><a href='plot_topo.html'>plot_topo</a>()</code>,
+<code><a href='theme_eeguana.html'>theme_eeguana</a>()</code></p>
 <p>Other ICA functions: 
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_cor_tbl.html'>eeg_ica_cor_tbl</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_keep.html'>eeg_ica_keep</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_show.html'>eeg_ica_show</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_summary_tbl.html'>eeg_ica_summary_tbl</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_var_tbl.html'>eeg_ica_var_tbl</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica.html'>eeg_ica</a>()</code></p>
+<code><a href='eeg_ica_cor_tbl.html'>eeg_ica_cor_tbl</a>()</code>,
+<code><a href='eeg_ica_keep.html'>eeg_ica_keep</a>()</code>,
+<code><a href='eeg_ica_show.html'>eeg_ica_show</a>()</code>,
+<code><a href='eeg_ica_summary_tbl.html'>eeg_ica_summary_tbl</a>()</code>,
+<code><a href='eeg_ica_var_tbl.html'>eeg_ica_var_tbl</a>()</code>,
+<code><a href='eeg_ica.html'>eeg_ica</a>()</code></p>
 <p>Other topographic plots and layouts: 
-<code><a href='https://rdrr.io/pkg/eeguana/man/layout_32_1020.html'>layout_32_1020</a></code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/plot_in_layout.html'>plot_in_layout</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/plot_topo.html'>plot_topo</a>()</code></p></div>
+<code><a href='layout_32_1020.html'>layout_32_1020</a></code>,
+<code><a href='plot_in_layout.html'>plot_in_layout</a>()</code>,
+<code><a href='plot_topo.html'>plot_topo</a>()</code></p></div>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># For demonstration only, since ICA won't converge</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='http://ggplot2.tidyverse.org'>ggplot2</a></span><span class='op'>)</span>
+<span class='co'># Suppressing an important warning:</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/warning.html'>suppressWarnings</a></span><span class='op'>(</span><span class='va'>data_faces_10_trials</span> <span class='op'>%&gt;%</span>
+   <span class='fu'><a href='eeg_ica.html'>eeg_ica</a></span><span class='op'>(</span><span class='op'>-</span><span class='va'>EOGH</span>, <span class='op'>-</span><span class='va'>EOGV</span>, <span class='op'>-</span><span class='va'>M1</span>, <span class='op'>-</span><span class='va'>M2</span>, .method <span class='op'>=</span> <span class='va'>fast_ICA</span>, .config <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>maxit <span class='op'>=</span> <span class='fl'>10</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+   <span class='fu'><a href='eeg_ica_keep.html'>eeg_ica_keep</a></span><span class='op'>(</span><span class='va'>ICA1</span>, <span class='va'>ICA2</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+   <span class='fu'>plot_components</span><span class='op'>(</span><span class='op'>)</span><span class='op'>+</span>
+   <span class='fu'><a href='annotate_head.html'>annotate_head</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span>
+   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_contour.html'>geom_contour</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span>
+   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_text.html'>geom_text</a></span><span class='op'>(</span>color <span class='op'>=</span> <span class='st'>"black"</span><span class='op'>)</span> <span class='op'>+</span>
+   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme</a></span><span class='op'>(</span>legend.position <span class='op'>=</span> <span class='st'>"none"</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'># ICA is being done using fast_ICA...</span></div><div class='output co'>#&gt; <span class='message'># ICA finished in 9 iterations. With a tolerance of 0.749007. (Maximum expected tolerance: 1e-06.)</span></div><div class='output co'>#&gt; <span class='message'># ICA took 1.33 secs</span></div><div class='img'><img src='plot_components-1.png' alt='' width='700' height='433' /></div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -204,7 +221,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

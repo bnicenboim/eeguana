@@ -81,7 +81,7 @@ on the scalp." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5.9000</span>
       </span>
     </div>
 
@@ -108,6 +108,9 @@ on the scalp." />
     </li>
     <li>
       <a href="../articles/preprocessing_erp.html">Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs</a>
+    </li>
+    <li>
+      <a href="../articles/gotchas.html">Pitfalls and gotchas</a>
     </li>
   </ul>
 </li>
@@ -145,10 +148,10 @@ on the scalp." />
 on the scalp.</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/plot_in_layout.html'>plot_in_layout</a></span>(<span class='kw'>plot</span>, <span class='kw'>...</span>)
+    <pre class="usage"><span class='fu'>plot_in_layout</span><span class='op'>(</span><span class='va'>plot</span>, <span class='va'>...</span><span class='op'>)</span>
 
 <span class='co'># S3 method for gg</span>
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/plot_in_layout.html'>plot_in_layout</a></span>(<span class='kw'>plot</span>, projection = <span class='st'>"polar"</span>, ratio = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>1</span>), <span class='kw'>...</span>)</pre>
+<span class='fu'>plot_in_layout</span><span class='op'>(</span><span class='va'>plot</span>, .projection <span class='op'>=</span> <span class='st'>"polar"</span>, .ratio <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>1</span><span class='op'>)</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -162,11 +165,11 @@ on the scalp.</p>
       <td><p>Not in use.</p></td>
     </tr>
     <tr>
-      <th>projection</th>
-      <td><p>Projection type for converting the 3D coordinates of the electrodes into 2d coordinates. Projection types available: "polar" (default), "orthographic", or  "stereographic"</p></td>
+      <th>.projection</th>
+      <td><p>.Projection type for converting the 3D coordinates of the electrodes into 2d coordinates.  .Projection types available: "polar" (default), "orthographic", or  "stereographic"</p></td>
     </tr>
     <tr>
-      <th>ratio</th>
+      <th>.ratio</th>
       <td><p>Ratio of the individual panels</p></td>
     </tr>
     </table>
@@ -177,10 +180,10 @@ on the scalp.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This function requires two steps: first, a ggplot object must be created with
-ERPs facetted by channel (<code>.key</code>).
+ERPs faceted by channel (<code>.key</code>).
 Then, the ggplot object is called in <code>plot_in_layout</code>. The function uses grobs
 arranged according to .x .y coordinates extracted from the <code>eeg_lst</code> object, by
-default in polar arrangement. The arrangement can be changed with the <code>projection</code>
+default in polar arrangement. The arrangement can be changed with the <code> .projection</code>
 argument. White space in the plot can be reduced by changing <code>ratio</code>.</p>
 <p>Additional components such as titles and annotations should be added to the
 plot object using <code><a href='https://rdrr.io/r/base/Arithmetic.html'>+</a></code> exactly as you would for <a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot2::ggplot</a>.
@@ -190,41 +193,43 @@ to individual facets. x-axis and y-axis labels cannot be added at this stage.</p
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other plotting functions: 
-<code><a href='https://rdrr.io/pkg/eeguana/man/annotate_events.html'>annotate_events</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/annotate_head.html'>annotate_head</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_downsample.html'>eeg_downsample</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/ggplot.eeg_lst.html'>ggplot.eeg_lst</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/plot.eeg_lst.html'>plot.eeg_lst</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/plot_components.html'>plot_components</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/plot_topo.html'>plot_topo</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/theme_eeguana.html'>theme_eeguana</a>()</code></p>
+<code><a href='annotate_events.html'>annotate_events</a>()</code>,
+<code><a href='annotate_head.html'>annotate_head</a>()</code>,
+<code><a href='eeg_downsample.html'>eeg_downsample</a>()</code>,
+<code><a href='ggplot.eeg_lst.html'>ggplot.eeg_lst</a>()</code>,
+<code><a href='plot.eeg_lst.html'>plot.eeg_lst</a>()</code>,
+<code><a href='plot_components.html'>plot_components</a>()</code>,
+<code><a href='plot_topo.html'>plot_topo</a>()</code>,
+<code><a href='theme_eeguana.html'>theme_eeguana</a>()</code></p>
 <p>Other topographic plots and layouts: 
-<code><a href='https://rdrr.io/pkg/eeguana/man/layout_32_1020.html'>layout_32_1020</a></code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/plot_components.html'>plot_components</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/plot_topo.html'>plot_topo</a>()</code></p></div>
+<code><a href='layout_32_1020.html'>layout_32_1020</a></code>,
+<code><a href='plot_components.html'>plot_components</a>()</code>,
+<code><a href='plot_topo.html'>plot_topo</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='http://ggplot2.tidyverse.org'>ggplot2</a></span>)
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='https://dplyr.tidyverse.org'>dplyr</a></span>)
+    <pre class="examples"><div class='input'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='http://ggplot2.tidyverse.org'>ggplot2</a></span><span class='op'>)</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://dplyr.tidyverse.org'>dplyr</a></span><span class='op'>)</span>
 
 <span class='co'># Create a ggplot object with some grand averaged ERPs</span>
-<span class='kw'>ERP_plot</span> <span class='op'>&lt;-</span> <span class='kw'>data_faces_ERPs</span> <span class='op'>%&gt;%</span>
+<span class='va'>ERP_plot</span> <span class='op'>&lt;-</span> <span class='va'>data_faces_ERPs</span> <span class='op'>%&gt;%</span>
   <span class='co'># select a few electrodes</span>
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span>(<span class='kw'>Fz</span>, <span class='kw'>FC1</span>, <span class='kw'>FC2</span>, <span class='kw'>C3</span>, <span class='kw'>Cz</span>, <span class='kw'>C4</span>, <span class='kw'>CP1</span>, <span class='kw'>CP2</span>, <span class='kw'>Pz</span>) <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='va'>Fz</span>, <span class='va'>FC1</span>, <span class='va'>FC2</span>, <span class='va'>C3</span>, <span class='va'>Cz</span>, <span class='va'>C4</span>, <span class='va'>CP1</span>, <span class='va'>CP2</span>, <span class='va'>Pz</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
   <span class='co'># group by time point and condition</span>
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span>(<span class='kw'>.sample</span>, <span class='kw'>condition</span>) <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>.sample</span>, <span class='va'>condition</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
   <span class='co'># compute averages</span>
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise_all.html'>summarize_at</a></span>(<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/summaries.html'>channel_names</a></span>(<span class='kw'>.</span>), <span class='kw'>mean</span>, na.rm = <span class='fl'>TRUE</span>) <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span>(<span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(x = <span class='kw'>.time</span>, y = <span class='kw'>.value</span>)) <span class='op'>+</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise_all.html'>summarize_at</a></span><span class='op'>(</span><span class='fu'><a href='summaries.html'>channel_names</a></span><span class='op'>(</span><span class='va'>.</span><span class='op'>)</span>, <span class='va'>mean</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>.time</span>, y <span class='op'>=</span> <span class='va'>.value</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='co'># plot the averaged waveforms</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line</a></span>(<span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(color = <span class='kw'>condition</span>)) <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>color <span class='op'>=</span> <span class='va'>condition</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='co'># facet by channel</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>facet_wrap</a></span>(<span class='op'>~</span><span class='kw'>.key</span>) <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>facet_wrap</a></span><span class='op'>(</span><span class='op'>~</span><span class='va'>.key</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='co'># add a legend and title</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme</a></span>(legend.position = <span class='st'>"bottom"</span>) <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>ggtitle</a></span>(<span class='st'>"ERPs for faces vs non-faces"</span>)</div><div class='output co'>#&gt; <span class='message'>Adding missing grouping variables: .sample</span></div><div class='input'>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme</a></span><span class='op'>(</span>legend.position <span class='op'>=</span> <span class='st'>"bottom"</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>ggtitle</a></span><span class='op'>(</span><span class='st'>"ERPs for faces vs non-faces"</span><span class='op'>)</span>
+
 <span class='co'># Call the ggplot object with the layout function</span>
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/plot_in_layout.html'>plot_in_layout</a></span>(<span class='kw'>ERP_plot</span>)</div><div class='img'><img src='plot_in_layout-1.png' alt='' width='700' height='433' /></div></pre>
+<span class='fu'>plot_in_layout</span><span class='op'>(</span><span class='va'>ERP_plot</span><span class='op'>)</span>
+</div><div class='img'><img src='plot_in_layout-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -240,7 +245,7 @@ to individual facets. x-axis and y-axis labels cannot be added at this stage.</p
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

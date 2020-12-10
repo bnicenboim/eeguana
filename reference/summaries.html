@@ -81,7 +81,7 @@ elements channels or components. Components are only available after running eeg
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5.9000</span>
       </span>
     </div>
 
@@ -108,6 +108,9 @@ elements channels or components. Components are only available after running eeg
     </li>
     <li>
       <a href="../articles/preprocessing_erp.html">Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs</a>
+    </li>
+    <li>
+      <a href="../articles/gotchas.html">Pitfalls and gotchas</a>
     </li>
   </ul>
 </li>
@@ -142,20 +145,20 @@ elements channels or components. Components are only available after running eeg
 
     <div class="ref-description">
     <p><code>*_names()</code> functions return a vector of names, <code>n*()</code> return the number of
-elements channels or components. Components are only available after running <code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica.html'>eeg_ica()</a></code>. <code><a href='https://rdrr.io/pkg/eeguana/man/summaries.html'>channel_ica_names()</a></code> refers to channels used in the ICA.</p>
+elements channels or components. Components are only available after running <code><a href='eeg_ica.html'>eeg_ica()</a></code>. <code>channel_ica_names()</code> refers to channels used in the ICA.</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/summaries.html'>channel_names</a></span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
+    <pre class="usage"><span class='fu'>channel_names</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/summaries.html'>channel_ica_names</a></span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
+<span class='fu'>channel_ica_names</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/summaries.html'>nchannels</a></span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
+<span class='fu'>nchannels</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/summaries.html'>component_names</a></span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
+<span class='fu'>component_names</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/summaries.html'>ncomponents</a></span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
+<span class='fu'>ncomponents</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/summaries.html'>nsamples</a></span>(<span class='kw'>x</span>, <span class='kw'>...</span>)</pre>
+<span class='fu'>nsamples</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -173,11 +176,11 @@ elements channels or components. Components are only available after running <co
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other summary functions: 
-<code><a href='https://rdrr.io/pkg/eeguana/man/count_complete_cases_tbl.html'>count_complete_cases_tbl</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_cor_tbl.html'>eeg_ica_cor_tbl</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_summary_tbl.html'>eeg_ica_summary_tbl</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_var_tbl.html'>eeg_ica_var_tbl</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/summary.eeg_lst.html'>summary.eeg_lst</a>()</code></p></div>
+<code><a href='count_complete_cases_tbl.html'>count_complete_cases_tbl</a>()</code>,
+<code><a href='eeg_ica_cor_tbl.html'>eeg_ica_cor_tbl</a>()</code>,
+<code><a href='eeg_ica_summary_tbl.html'>eeg_ica_summary_tbl</a>()</code>,
+<code><a href='eeg_ica_var_tbl.html'>eeg_ica_var_tbl</a>()</code>,
+<code><a href='summary.eeg_lst.html'>summary.eeg_lst</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -194,7 +197,7 @@ elements channels or components. Components are only available after running <co
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

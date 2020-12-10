@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5.9000</span>
       </span>
     </div>
 
@@ -107,6 +107,9 @@
     </li>
     <li>
       <a href="../articles/preprocessing_erp.html">Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs</a>
+    </li>
+    <li>
+      <a href="../articles/gotchas.html">Pitfalls and gotchas</a>
     </li>
   </ul>
 </li>
@@ -143,13 +146,13 @@
     <p>Remove (transform to NA) problematic events from the signal table of an eeg_lst.</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/eeg_events_to_NA.html'>eeg_events_to_NA</a></span>(
-  <span class='kw'>x</span>,
-  <span class='kw'>...</span>,
-  all_chs = <span class='fl'>FALSE</span>,
-  entire_seg = <span class='fl'>TRUE</span>,
-  drop_events = <span class='fl'>TRUE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>eeg_events_to_NA</span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  <span class='va'>...</span>,
+  .all_chs <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  .entire_seg <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  .drop_events <span class='op'>=</span> <span class='cn'>TRUE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -163,17 +166,16 @@
       <td><p>Description of the problematic event.</p></td>
     </tr>
     <tr>
-      <th>all_chs</th>
+      <th>.all_chs</th>
       <td><p>If set to <code>TRUE</code>,
-it will consider samples from all channels (Default:  <code>all_chs = FALSE</code>).</p></td>
+it will consider samples from all channels (Default:  <code>.all_chs = FALSE</code>).</p></td>
     </tr>
     <tr>
-      <th>entire_seg</th>
-      <td><p>If set to <code>FALSE</code>, it will consider only the marked part of the segment,
-otherwise it will consider the entire segment (Default: entire_seg = TRUE).</p></td>
+      <th>.entire_seg</th>
+      <td><p>If set to <code>FALSE</code>, it will consider only the marked part of the segment, otherwise it will consider the entire segment (Default: .entire_seg = TRUE).</p></td>
     </tr>
     <tr>
-      <th>drop_events</th>
+      <th>.drop_events</th>
       <td><p>If set to <code>TRUE</code> (default), the events that were used for setting signals to NA, will be removed from the events table.</p></td>
     </tr>
     </table>
@@ -184,7 +186,7 @@ otherwise it will consider the entire segment (Default: entire_seg = TRUE).</p><
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other events functions: 
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_artif.html'>eeg_artif</a></code></p></div>
+<code><a href='eeg_artif.html'>eeg_artif</a></code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -201,7 +203,7 @@ otherwise it will consider the entire segment (Default: entire_seg = TRUE).</p><
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

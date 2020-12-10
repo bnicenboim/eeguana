@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5.9000</span>
       </span>
     </div>
 
@@ -107,6 +107,9 @@
     </li>
     <li>
       <a href="../articles/preprocessing_erp.html">Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs</a>
+    </li>
+    <li>
+      <a href="../articles/gotchas.html">Pitfalls and gotchas</a>
     </li>
   </ul>
 </li>
@@ -143,7 +146,7 @@
     <p>Choose samples by their ordinal position in the signal table. Grouped eeg_lst object use the ordinal position in the signal table within the group.</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/slice_signal.html'>slice_signal</a></span>(<span class='kw'>.data</span>, <span class='kw'>...</span>, .preserve = <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>slice_signal</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>...</span>, .preserve <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -170,9 +173,9 @@ Indices beyond the number of rows in the input are silently ignored.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other tidyverse-like functions: 
-<code><a href='https://dplyr.tidyverse.org/reference/bind.html'>bind</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/dplyr_verbs.html'>dplyr_verbs</a></code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/drop_incomplete_segments.html'>drop_incomplete_segments</a>()</code></p></div>
+<code><a href='bind.html'>bind</a>()</code>,
+<code><a href='dplyr_verbs.html'>dplyr_verbs</a></code>,
+<code><a href='drop_incomplete_segments.html'>drop_incomplete_segments</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -189,7 +192,7 @@ Indices beyond the number of rows in the input are silently ignored.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

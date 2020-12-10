@@ -47,9 +47,7 @@
 
 
 <meta property="og:title" content="Create a topographic plot — plot_topo" />
-<meta property="og:description" content="plot_topo initializes a ggplot object which takes an eeg_lst object
-as its input data. Layers can then be added in the same way as for a
-ggplot2::ggplot object." />
+<meta property="og:description" content="plot_topo initializes a ggplot object which takes an eeg_lst object as its input data. Layers can then be added in the same way as for a ggplot2::ggplot object." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -82,7 +80,7 @@ ggplot2::ggplot object." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5.9000</span>
       </span>
     </div>
 
@@ -109,6 +107,9 @@ ggplot2::ggplot object." />
     </li>
     <li>
       <a href="../articles/preprocessing_erp.html">Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs</a>
+    </li>
+    <li>
+      <a href="../articles/gotchas.html">Pitfalls and gotchas</a>
     </li>
   </ul>
 </li>
@@ -142,18 +143,16 @@ ggplot2::ggplot object." />
     </div>
 
     <div class="ref-description">
-    <p><code>plot_topo</code> initializes a ggplot object which takes an <code>eeg_lst</code> object
-as its input data. Layers can then be added in the same way as for a
-<code><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot2::ggplot</a></code> object.</p>
+    <p><code>plot_topo</code> initializes a ggplot object which takes an <code>eeg_lst</code> object as its input data. Layers can then be added in the same way as for a <code><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot2::ggplot</a></code> object.</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/plot_topo.html'>plot_topo</a></span>(<span class='kw'>data</span>, <span class='kw'>...</span>)
+    <pre class="usage"><span class='fu'>plot_topo</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>...</span><span class='op'>)</span>
 
 <span class='co'># S3 method for tbl_df</span>
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/plot_topo.html'>plot_topo</a></span>(<span class='kw'>data</span>, value = <span class='kw'>.value</span>, label = <span class='kw'>.key</span>, <span class='kw'>...</span>)
+<span class='fu'>plot_topo</span><span class='op'>(</span><span class='va'>data</span>, .value <span class='op'>=</span> <span class='va'>.value</span>, .label <span class='op'>=</span> <span class='va'>.key</span>, <span class='va'>...</span><span class='op'>)</span>
 
 <span class='co'># S3 method for eeg_lst</span>
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/plot_topo.html'>plot_topo</a></span>(<span class='kw'>data</span>, projection = <span class='st'>"polar"</span>, <span class='kw'>...</span>)</pre>
+<span class='fu'>plot_topo</span><span class='op'>(</span><span class='va'>data</span>, .projection <span class='op'>=</span> <span class='st'>"polar"</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -167,16 +166,16 @@ as its input data. Layers can then be added in the same way as for a
       <td><p>If data are an <code>eeg_lst</code> or <code>ica_lst</code>, these are arguments passed to <code>eeg_interpolate_tbl</code>, such as, radius, size, etc.</p></td>
     </tr>
     <tr>
-      <th>value</th>
+      <th>.value</th>
       <td><p>Values used for the interpolation, generally <code>.value</code> (default).</p></td>
     </tr>
     <tr>
-      <th>label</th>
+      <th>.label</th>
       <td><p>Label of the points that are used for the interpolation, generally <code>.key</code> (default).</p></td>
     </tr>
     <tr>
-      <th>projection</th>
-      <td><p>Projection type for converting the 3D coordinates of the electrodes into 2d coordinates. Projection types available: "polar" (default), "orthographic", or  "stereographic"</p></td>
+      <th>.projection</th>
+      <td><p>.Projection type for converting the 3D coordinates of the electrodes into 2d coordinates.  .Projection types available: "polar" (default), "orthographic", or  "stereographic"</p></td>
     </tr>
     </table>
 
@@ -185,71 +184,57 @@ as its input data. Layers can then be added in the same way as for a
     <p>A ggplot object</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Before calling <code>plot_topo</code>, the <code>eeg_lst</code> object object must be appropriately
-grouped (e.g. by condition) and/or
-summarized into mean values such that each .x .y coordinate has only one
-amplitude value. By default, <code>plot_topo</code> interpolates amplitude values via
-<code>eeg_interpolate_tbl</code>, which generates a tibble with <code>.key</code> (channel),
-<code>.value</code> (amplitude), and .x .y coordinate variables. .x .y coordinates are
-extracted from the <code>eeg_lst</code> object, which in turn reads the coordinates logged
-by your EEG recording software. By default, <code>plot_topo</code> will display electrodes
-in polar arrangement, but can be changed with the <code>projection</code>
-argument. Alternatively, if <code>eeg_interpolate_tbl</code> is called after grouping/summarizing
-but before <code>plot_topo</code>, the resulting electrode layout will be stereographic.</p>
-<p><code>plot_topo</code> called alone
-without any further layers will create an unannotated topographical plot.
-To add a head and nose, add the layer <code>annotate_head</code>. Add
-contour lines with <code><a href='https://ggplot2.tidyverse.org/reference/geom_contour.html'>ggplot2::geom_contour</a></code> and electrode labels
-with <code><a href='https://ggplot2.tidyverse.org/reference/geom_text.html'>ggplot2::geom_text</a></code>. These arguments are deliberately not
-built into the function so as to allow flexibility in choosing color, font
-size, and even head size, etc.</p>
+    <p>Before calling <code>plot_topo</code>, the <code>eeg_lst</code> object object must be appropriately grouped (e.g. by condition) and/or summarized into mean values such that each .x .y coordinate has only one amplitude value. By default, <code>plot_topo</code> interpolates amplitude values via <code>eeg_interpolate_tbl</code>, which generates a tibble with <code>.key</code> (channel), <code>.value</code> (amplitude), and .x .y coordinate variables. .x .y coordinates are extracted from the <code>eeg_lst</code> object, which in turn reads the coordinates logged by your EEG recording software. By default, <code>plot_topo</code> will display electrodes in polar arrangement, but can be changed with the <code>projection</code> argument. Alternatively, if <code>eeg_interpolate_tbl</code> is called after grouping/summarizing but before <code>plot_topo</code>, the resulting electrode layout will be stereographic.</p>
+<p><code>plot_topo</code> called alone without any further layers will create a non-annotated topographical plot. To add a head and nose, add the layer <code>annotate_head</code>. Add contour lines with <code><a href='https://ggplot2.tidyverse.org/reference/geom_contour.html'>ggplot2::geom_contour</a></code> and electrode labels with <code><a href='https://ggplot2.tidyverse.org/reference/geom_text.html'>ggplot2::geom_text</a></code>. These arguments are deliberately not built into the function so as to allow flexibility in choosing color, font size, and even head size, etc.</p>
 <p>To add additional components to the plot such as titles and annotations, simply
 use the <code><a href='https://rdrr.io/r/base/Arithmetic.html'>+</a></code> symbol and add layers exactly as you would for <a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot2::ggplot</a>.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other plotting functions: 
-<code><a href='https://rdrr.io/pkg/eeguana/man/annotate_events.html'>annotate_events</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/annotate_head.html'>annotate_head</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_downsample.html'>eeg_downsample</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/ggplot.eeg_lst.html'>ggplot.eeg_lst</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/plot.eeg_lst.html'>plot.eeg_lst</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/plot_components.html'>plot_components</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/plot_in_layout.html'>plot_in_layout</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/theme_eeguana.html'>theme_eeguana</a>()</code></p>
+<code><a href='annotate_events.html'>annotate_events</a>()</code>,
+<code><a href='annotate_head.html'>annotate_head</a>()</code>,
+<code><a href='eeg_downsample.html'>eeg_downsample</a>()</code>,
+<code><a href='ggplot.eeg_lst.html'>ggplot.eeg_lst</a>()</code>,
+<code><a href='plot.eeg_lst.html'>plot.eeg_lst</a>()</code>,
+<code><a href='plot_components.html'>plot_components</a>()</code>,
+<code><a href='plot_in_layout.html'>plot_in_layout</a>()</code>,
+<code><a href='theme_eeguana.html'>theme_eeguana</a>()</code></p>
 <p>Other topographic plots and layouts: 
-<code><a href='https://rdrr.io/pkg/eeguana/man/layout_32_1020.html'>layout_32_1020</a></code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/plot_components.html'>plot_components</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/plot_in_layout.html'>plot_in_layout</a>()</code></p></div>
+<code><a href='layout_32_1020.html'>layout_32_1020</a></code>,
+<code><a href='plot_components.html'>plot_components</a>()</code>,
+<code><a href='plot_in_layout.html'>plot_in_layout</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='https://dplyr.tidyverse.org'>dplyr</a></span>)
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='http://ggplot2.tidyverse.org'>ggplot2</a></span>)
+    <pre class="examples"><div class='input'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://dplyr.tidyverse.org'>dplyr</a></span><span class='op'>)</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='http://ggplot2.tidyverse.org'>ggplot2</a></span><span class='op'>)</span>
 <span class='co'># Calculate mean amplitude between 100-200 ms and plot the topography</span>
-<span class='kw'>data_faces_ERPs</span> <span class='op'>%&gt;%</span>
+<span class='va'>data_faces_ERPs</span> <span class='op'>%&gt;%</span>
   <span class='co'># select the time window of interest</span>
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span>(<span class='fu'><a href='https://dplyr.tidyverse.org/reference/between.html'>between</a></span>(<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/as_time.html'>as_time</a></span>(<span class='kw'>.sample</span>, unit = <span class='st'>"milliseconds"</span>), <span class='fl'>100</span>, <span class='fl'>200</span>)) <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='fu'><a href='between.html'>between</a></span><span class='op'>(</span><span class='fu'><a href='as_time.html'>as_time</a></span><span class='op'>(</span><span class='va'>.sample</span>, .unit <span class='op'>=</span> <span class='st'>"milliseconds"</span><span class='op'>)</span>, <span class='fl'>100</span>, <span class='fl'>200</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
   <span class='co'># compute mean amplitude per condition</span>
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span>(<span class='kw'>condition</span>) <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise_all.html'>summarize_at</a></span>(<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/summaries.html'>channel_names</a></span>(<span class='kw'>.</span>), <span class='kw'>mean</span>, na.rm = <span class='fl'>TRUE</span>) <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/plot_topo.html'>plot_topo</a></span>() <span class='op'>+</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>condition</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise_all.html'>summarize_at</a></span><span class='op'>(</span><span class='fu'><a href='summaries.html'>channel_names</a></span><span class='op'>(</span><span class='va'>.</span><span class='op'>)</span>, <span class='va'>mean</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'>plot_topo</span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='co'># add a head and nose shape</span>
-  <span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/annotate_head.html'>annotate_head</a></span>() <span class='op'>+</span>
+  <span class='fu'><a href='annotate_head.html'>annotate_head</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='co'># add contour lines</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_contour.html'>geom_contour</a></span>() <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_contour.html'>geom_contour</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='co'># add electrode labels</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_text.html'>geom_text</a></span>(color = <span class='st'>"black"</span>) <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/facet_grid.html'>facet_grid</a></span>(<span class='op'>~</span><span class='kw'>condition</span>)</div><div class='img'><img src='plot_topo-1.png' alt='' width='700' height='433' /></div><div class='input'>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_text.html'>geom_text</a></span><span class='op'>(</span>color <span class='op'>=</span> <span class='st'>"black"</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/facet_grid.html'>facet_grid</a></span><span class='op'>(</span><span class='op'>~</span><span class='va'>condition</span><span class='op'>)</span>
+</div><div class='img'><img src='plot_topo-1.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># The same but with interpolation</span>
-<span class='kw'>data_faces_ERPs</span> <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span>(<span class='fu'><a href='https://dplyr.tidyverse.org/reference/between.html'>between</a></span>(<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/as_time.html'>as_time</a></span>(<span class='kw'>.sample</span>, unit = <span class='st'>"milliseconds"</span>), <span class='fl'>100</span>, <span class='fl'>200</span>)) <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span>(<span class='kw'>condition</span>) <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise_all.html'>summarize_at</a></span>(<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/summaries.html'>channel_names</a></span>(<span class='kw'>.</span>), <span class='kw'>mean</span>, na.rm = <span class='fl'>TRUE</span>) <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/eeg_interpolate_tbl.html'>eeg_interpolate_tbl</a></span>() <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/plot_topo.html'>plot_topo</a></span>() <span class='op'>+</span>
-  <span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/annotate_head.html'>annotate_head</a></span>() <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_contour.html'>geom_contour</a></span>() <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_text.html'>geom_text</a></span>(color = <span class='st'>"black"</span>) <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/facet_grid.html'>facet_grid</a></span>(<span class='op'>~</span><span class='kw'>condition</span>)</div><div class='img'><img src='plot_topo-2.png' alt='' width='700' height='433' /></div></pre>
+<span class='va'>data_faces_ERPs</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='fu'><a href='between.html'>between</a></span><span class='op'>(</span><span class='fu'><a href='as_time.html'>as_time</a></span><span class='op'>(</span><span class='va'>.sample</span>, .unit <span class='op'>=</span> <span class='st'>"milliseconds"</span><span class='op'>)</span>, <span class='fl'>100</span>, <span class='fl'>200</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>condition</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise_all.html'>summarize_at</a></span><span class='op'>(</span><span class='fu'><a href='summaries.html'>channel_names</a></span><span class='op'>(</span><span class='va'>.</span><span class='op'>)</span>, <span class='va'>mean</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='eeg_interpolate_tbl.html'>eeg_interpolate_tbl</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'>plot_topo</span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='annotate_head.html'>annotate_head</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_contour.html'>geom_contour</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_text.html'>geom_text</a></span><span class='op'>(</span>color <span class='op'>=</span> <span class='st'>"black"</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/facet_grid.html'>facet_grid</a></span><span class='op'>(</span><span class='op'>~</span><span class='va'>condition</span><span class='op'>)</span>
+</div><div class='img'><img src='plot_topo-2.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -265,7 +250,7 @@ use the <code><a href='https://rdrr.io/r/base/Arithmetic.html'>+</a></code> symb
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

@@ -83,7 +83,7 @@ the code of the signal package might be outdated. This function is used in plott
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5.9000</span>
       </span>
     </div>
 
@@ -110,6 +110,9 @@ the code of the signal package might be outdated. This function is used in plott
     </li>
     <li>
       <a href="../articles/preprocessing_erp.html">Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs</a>
+    </li>
+    <li>
+      <a href="../articles/gotchas.html">Pitfalls and gotchas</a>
     </li>
   </ul>
 </li>
@@ -145,19 +148,19 @@ the code of the signal package might be outdated. This function is used in plott
     <div class="ref-description">
     <p>Downsample a signal_tbl by a factor <code>q</code>, using an FIR or IIR filter.
 This is a wrapper for <code><a href='https://rdrr.io/pkg/signal/man/decimate.html'>decimate</a></code> from the
-<code><a href='https://rdrr.io/pkg/signal/man/signal.package.html'>signal</a></code> package, see its documentation for details. Notice that
+<code>signal</code> package, see its documentation for details. Notice that
 the code of the signal package might be outdated. This function is used in plotting functions.</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/eeg_downsample.html'>eeg_downsample</a></span>(
-  <span class='kw'>.data</span>,
-  q = <span class='fl'>2</span>,
-  max_sample = <span class='kw'>NULL</span>,
-  n = <span class='co'>if</span> (<span class='kw'>ftype</span> <span class='op'>==</span> <span class='st'>"iir"</span>) <span class='fl'>8</span> <span class='co'>else</span> <span class='fl'>30</span>,
-  ftype = <span class='st'>"iir"</span>,
-  multiple_times = <span class='fl'>FALSE</span>,
-  <span class='kw'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>eeg_downsample</span><span class='op'>(</span>
+  <span class='va'>.data</span>,
+  .q <span class='op'>=</span> <span class='fl'>2</span>,
+  .max_sample <span class='op'>=</span> <span class='cn'>NULL</span>,
+  .n <span class='op'>=</span> <span class='kw'>if</span> <span class='op'>(</span><span class='va'>.ftype</span> <span class='op'>==</span> <span class='st'>"iir"</span><span class='op'>)</span> <span class='fl'>8</span> <span class='kw'>else</span> <span class='fl'>30</span>,
+  .ftype <span class='op'>=</span> <span class='st'>"iir"</span>,
+  .multiple_times <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -167,23 +170,23 @@ the code of the signal package might be outdated. This function is used in plott
       <td><p>An eeg_lst object.</p></td>
     </tr>
     <tr>
-      <th>q</th>
+      <th>.q</th>
       <td><p>integer factor(s) to downsample by.</p></td>
     </tr>
     <tr>
-      <th>max_sample</th>
+      <th>.max_sample</th>
       <td><p>Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total number of samples</p></td>
     </tr>
     <tr>
-      <th>n</th>
+      <th>.n</th>
       <td><p>filter order used in the downsampling.</p></td>
     </tr>
     <tr>
-      <th>ftype</th>
+      <th>.ftype</th>
       <td><p>filter type, <code>"iir"</code> or <code>"fir"</code></p></td>
     </tr>
     <tr>
-      <th>multiple_times</th>
+      <th>.multiple_times</th>
       <td><p>Indicates whether to factorize `q`` and apply the downsampling in steps.</p></td>
     </tr>
     <tr>
@@ -200,21 +203,21 @@ the downsampling can be done in steps. For example, instead of setting
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other preprocessing functions: 
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_baseline.html'>eeg_baseline</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_keep.html'>eeg_ica_keep</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica.html'>eeg_ica</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_rereference.html'>eeg_rereference</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_segment.html'>eeg_segment</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/filt.html'>filt</a></code></p>
+<code><a href='eeg_baseline.html'>eeg_baseline</a>()</code>,
+<code><a href='eeg_ica_keep.html'>eeg_ica_keep</a>()</code>,
+<code><a href='eeg_ica.html'>eeg_ica</a>()</code>,
+<code><a href='eeg_rereference.html'>eeg_rereference</a>()</code>,
+<code><a href='eeg_segment.html'>eeg_segment</a>()</code>,
+<code><a href='filt.html'>filt</a></code></p>
 <p>Other plotting functions: 
-<code><a href='https://rdrr.io/pkg/eeguana/man/annotate_events.html'>annotate_events</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/annotate_head.html'>annotate_head</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/ggplot.eeg_lst.html'>ggplot.eeg_lst</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/plot.eeg_lst.html'>plot.eeg_lst</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/plot_components.html'>plot_components</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/plot_in_layout.html'>plot_in_layout</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/plot_topo.html'>plot_topo</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/theme_eeguana.html'>theme_eeguana</a>()</code></p></div>
+<code><a href='annotate_events.html'>annotate_events</a>()</code>,
+<code><a href='annotate_head.html'>annotate_head</a>()</code>,
+<code><a href='ggplot.eeg_lst.html'>ggplot.eeg_lst</a>()</code>,
+<code><a href='plot.eeg_lst.html'>plot.eeg_lst</a>()</code>,
+<code><a href='plot_components.html'>plot_components</a>()</code>,
+<code><a href='plot_in_layout.html'>plot_in_layout</a>()</code>,
+<code><a href='plot_topo.html'>plot_topo</a>()</code>,
+<code><a href='theme_eeguana.html'>theme_eeguana</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -231,7 +234,7 @@ the downsampling can be done in steps. For example, instead of setting
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

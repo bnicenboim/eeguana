@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5.9000</span>
       </span>
     </div>
 
@@ -107,6 +107,9 @@
     </li>
     <li>
       <a href="../articles/preprocessing_erp.html">Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs</a>
+    </li>
+    <li>
+      <a href="../articles/gotchas.html">Pitfalls and gotchas</a>
     </li>
   </ul>
 </li>
@@ -143,7 +146,7 @@
     <p>This function shows the variance explained by each ICA component following the approach of the matlab function ....</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_var_tbl.html'>eeg_ica_var_tbl</a></span>(<span class='kw'>.data</span>, <span class='kw'>...</span>, max_sample = <span class='fl'>1e+05</span>)</pre>
+    <pre class="usage"><span class='fu'>eeg_ica_var_tbl</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>...</span>, .max_sample <span class='op'>=</span> <span class='fl'>1e+05</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -157,7 +160,7 @@
       <td><p>Not in use.</p></td>
     </tr>
     <tr>
-      <th>max_sample</th>
+      <th>.max_sample</th>
       <td><p>The maximum number of samples to use for calculating the variance explained.</p></td>
     </tr>
     </table>
@@ -171,18 +174,18 @@
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other ICA functions: 
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_cor_tbl.html'>eeg_ica_cor_tbl</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_keep.html'>eeg_ica_keep</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_show.html'>eeg_ica_show</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_summary_tbl.html'>eeg_ica_summary_tbl</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica.html'>eeg_ica</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/plot_components.html'>plot_components</a>()</code></p>
+<code><a href='eeg_ica_cor_tbl.html'>eeg_ica_cor_tbl</a>()</code>,
+<code><a href='eeg_ica_keep.html'>eeg_ica_keep</a>()</code>,
+<code><a href='eeg_ica_show.html'>eeg_ica_show</a>()</code>,
+<code><a href='eeg_ica_summary_tbl.html'>eeg_ica_summary_tbl</a>()</code>,
+<code><a href='eeg_ica.html'>eeg_ica</a>()</code>,
+<code><a href='plot_components.html'>plot_components</a>()</code></p>
 <p>Other summary functions: 
-<code><a href='https://rdrr.io/pkg/eeguana/man/count_complete_cases_tbl.html'>count_complete_cases_tbl</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_cor_tbl.html'>eeg_ica_cor_tbl</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_summary_tbl.html'>eeg_ica_summary_tbl</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/summaries.html'>summaries</a></code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/summary.eeg_lst.html'>summary.eeg_lst</a>()</code></p></div>
+<code><a href='count_complete_cases_tbl.html'>count_complete_cases_tbl</a>()</code>,
+<code><a href='eeg_ica_cor_tbl.html'>eeg_ica_cor_tbl</a>()</code>,
+<code><a href='eeg_ica_summary_tbl.html'>eeg_ica_summary_tbl</a>()</code>,
+<code><a href='summaries.html'>summaries</a></code>,
+<code><a href='summary.eeg_lst.html'>summary.eeg_lst</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -199,7 +202,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

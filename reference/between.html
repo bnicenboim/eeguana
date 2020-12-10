@@ -49,7 +49,7 @@
 <meta property="og:title" content="Convenience function for range subsets — between" />
 <meta property="og:description" content="between is a thin wrapper for the between function of data.table::between.
 It is equivalent to x &amp;gt;= lower &amp;amp; x &amp;lt;= upper when incbounds=TRUE, or x &amp;gt; lower &amp;amp; y &amp;lt; upper when FALSE. In comparison
-with dplyr::between, it doesn't loose the class of its argument, and it's more appropiate for manipulating
+with dplyr::between, it doesn't loose the class of its argument, and it's more appropriate for manipulating
 the column .sample. For more information and the description of the arguments, see data.table::between." />
 <meta property="og:image" content="/logo.png" />
 
@@ -83,7 +83,7 @@ the column .sample. For more information and the description of the arguments, s
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5.9000</span>
       </span>
     </div>
 
@@ -110,6 +110,9 @@ the column .sample. For more information and the description of the arguments, s
     </li>
     <li>
       <a href="../articles/preprocessing_erp.html">Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs</a>
+    </li>
+    <li>
+      <a href="../articles/gotchas.html">Pitfalls and gotchas</a>
     </li>
   </ul>
 </li>
@@ -145,7 +148,7 @@ the column .sample. For more information and the description of the arguments, s
     <div class="ref-description">
     <p><code>between</code> is a thin wrapper for the between function of <a href='https://Rdatatable.gitlab.io/data.table/reference/between.html'>data.table::between</a>.
 It is equivalent to x &gt;= lower &amp; x &lt;= upper when incbounds=TRUE, or x &gt; lower &amp; y &lt; upper when FALSE. In comparison
-with <a href='https://dplyr.tidyverse.org/reference/between.html'>dplyr::between</a>, it doesn't loose the class of its argument, and it's more appropiate for manipulating
+with <a href='https://dplyr.tidyverse.org/reference/between.html'>dplyr::between</a>, it doesn't loose the class of its argument, and it's more appropriate for manipulating
 the column <code>.sample</code>. For more information and the description of the arguments, see <a href='https://Rdatatable.gitlab.io/data.table/reference/between.html'>data.table::between</a>.</p>
     </div>
 
@@ -154,12 +157,10 @@ the column <code>.sample</code>. For more information and the description of the
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='https://dplyr.tidyverse.org'>dplyr</a></span>)
-<span class='kw'>data_faces_ERPs</span> <span class='op'>%&gt;%</span> 
-     <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span>(<span class='kw'>.sample</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/between.html'>between</a></span>(<span class='fl'>10</span>,<span class='fl'>100</span>))</div><div class='output co'>#&gt; # EEG data:
-#&gt; # Grouped by: .sample, 
-#&gt; # Grouped by: condition, 
-#&gt; # Grouped by: .recording, 
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://dplyr.tidyverse.org'>dplyr</a></span><span class='op'>)</span>
+<span class='va'>data_faces_ERPs</span> <span class='op'>%&gt;%</span> 
+     <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>.sample</span> <span class='op'>%&gt;%</span> <span class='fu'>between</span><span class='op'>(</span><span class='fl'>10</span>,<span class='fl'>100</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='warning'>Warning: between() called on numeric vector with S3 class</span></div><div class='output co'>#&gt; # EEG data:
 #&gt; 
 #&gt; # Signal table:
 #&gt;      .id .sample        Fp1        Fpz         Fp2         F7        F3
@@ -239,16 +240,17 @@ the column <code>.sample</code>. For more information and the description of the
 #&gt; No events.
 #&gt; 
 #&gt; # Segments table:
-#&gt; # A tibble: 2 x 3
+#&gt; <span style='color: #555555;'># A tibble: 2 x 3</span><span>
 #&gt;     .id .recording condition
-#&gt;   &lt;int&gt; &lt;chr&gt;      &lt;chr&gt;    
-#&gt; 1     1 faces.vhdr faces    
-#&gt; 2     2 faces.vhdr non-faces</div><div class='input'>
+#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>      </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>    
+#&gt; </span><span style='color: #555555;'>1</span><span>     1 faces.vhdr faces    
+#&gt; </span><span style='color: #555555;'>2</span><span>     2 faces.vhdr non-faces</div><div class='input'>
 <span class='co'># Compare with:</span>
-<span class='co'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='kw'>data_faces_ERPs</span> <span class='op'>%&gt;%</span> 
-     <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span>(<span class='kw'>.sample</span> <span class='op'>%&gt;%</span> <span class='kw'>dplyr</span>::<span class='fu'><a href='https://dplyr.tidyverse.org/reference/between.html'>between</a></span>(<span class='fl'>10</span>,<span class='fl'>100</span>))
-}</div></pre>
+<span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='va'>data_faces_ERPs</span> <span class='op'>%&gt;%</span> 
+     <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>.sample</span> <span class='op'>%&gt;%</span> <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/between.html'>between</a></span><span class='op'>(</span><span class='fl'>10</span>,<span class='fl'>100</span><span class='op'>)</span><span class='op'>)</span>
+<span class='op'>}</span>
+</div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -264,7 +266,7 @@ the column <code>.sample</code>. For more information and the description of the
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

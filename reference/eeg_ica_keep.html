@@ -47,7 +47,7 @@
 
 
 <meta property="og:title" content="Select independent components (or sources) to keep. — eeg_ica_keep" />
-<meta property="og:description" content="This function will transform the channels according to the indepent components that are kept or removed." />
+<meta property="og:description" content="This function will transform the channels according to the independent components that are kept or removed." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5.9000</span>
       </span>
     </div>
 
@@ -107,6 +107,9 @@
     </li>
     <li>
       <a href="../articles/preprocessing_erp.html">Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs</a>
+    </li>
+    <li>
+      <a href="../articles/gotchas.html">Pitfalls and gotchas</a>
     </li>
   </ul>
 </li>
@@ -140,10 +143,10 @@
     </div>
 
     <div class="ref-description">
-    <p>This function will transform the channels according to the indepent components that are kept or removed.</p>
+    <p>This function will transform the channels according to the independent components that are kept or removed.</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_keep.html'>eeg_ica_keep</a></span>(<span class='kw'>.data</span>, <span class='kw'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>eeg_ica_keep</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -161,20 +164,126 @@
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other preprocessing functions: 
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_baseline.html'>eeg_baseline</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_downsample.html'>eeg_downsample</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica.html'>eeg_ica</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_rereference.html'>eeg_rereference</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_segment.html'>eeg_segment</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/filt.html'>filt</a></code></p>
+<code><a href='eeg_baseline.html'>eeg_baseline</a>()</code>,
+<code><a href='eeg_downsample.html'>eeg_downsample</a>()</code>,
+<code><a href='eeg_ica.html'>eeg_ica</a>()</code>,
+<code><a href='eeg_rereference.html'>eeg_rereference</a>()</code>,
+<code><a href='eeg_segment.html'>eeg_segment</a>()</code>,
+<code><a href='filt.html'>filt</a></code></p>
 <p>Other ICA functions: 
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_cor_tbl.html'>eeg_ica_cor_tbl</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_show.html'>eeg_ica_show</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_summary_tbl.html'>eeg_ica_summary_tbl</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_var_tbl.html'>eeg_ica_var_tbl</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica.html'>eeg_ica</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/plot_components.html'>plot_components</a>()</code></p></div>
+<code><a href='eeg_ica_cor_tbl.html'>eeg_ica_cor_tbl</a>()</code>,
+<code><a href='eeg_ica_show.html'>eeg_ica_show</a>()</code>,
+<code><a href='eeg_ica_summary_tbl.html'>eeg_ica_summary_tbl</a>()</code>,
+<code><a href='eeg_ica_var_tbl.html'>eeg_ica_var_tbl</a>()</code>,
+<code><a href='eeg_ica.html'>eeg_ica</a>()</code>,
+<code><a href='plot_components.html'>plot_components</a>()</code></p></div>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># For demonstration only, since ICA won't converge</span>
+<span class='co'># Suppressing an important warning:</span>
+ <span class='fu'><a href='https://rdrr.io/r/base/warning.html'>suppressWarnings</a></span><span class='op'>(</span><span class='va'>data_faces_10_trials</span> <span class='op'>%&gt;%</span>
+ <span class='fu'><a href='eeg_ica.html'>eeg_ica</a></span><span class='op'>(</span><span class='op'>-</span><span class='va'>EOGH</span>, <span class='op'>-</span><span class='va'>EOGV</span>, <span class='op'>-</span><span class='va'>M1</span>, <span class='op'>-</span><span class='va'>M2</span>, .method <span class='op'>=</span> <span class='va'>fast_ICA</span>, .config <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>maxit <span class='op'>=</span> <span class='fl'>10</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+ <span class='fu'>eeg_ica_keep</span><span class='op'>(</span><span class='op'>-</span><span class='va'>ICA1</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'># ICA is being done using fast_ICA...</span></div><div class='output co'>#&gt; <span class='message'># ICA finished in 9 iterations. With a tolerance of 0.756359. (Maximum expected tolerance: 1e-06.)</span></div><div class='output co'>#&gt; <span class='message'># ICA took 1.3 secs</span></div><div class='output co'>#&gt; # EEG data:
+#&gt; 
+#&gt; # Signal table:
+#&gt;        .id .sample       Fp1        Fpz         Fp2          F7         F3
+#&gt;     1:   1   15000 -32.49314  -2.431463  -6.7806134 -6.00140789 -10.514981
+#&gt;     2:   1   15001 -28.85663 -10.867692  -5.4808283  1.62227984  -9.778084
+#&gt;     3:   1   15002 -26.71255 -16.305435  -2.4039874  7.86288067  -6.827825
+#&gt;     4:   1   15003 -27.19039 -16.995315   0.3699956 10.62235361  -5.228701
+#&gt;     5:   1   15004 -29.35890 -15.530381   1.8073409  9.79693886  -4.522245
+#&gt;    ---                                                                    
+#&gt; 43325:   1   58324 -17.92327 -13.770106  -9.4732294  2.20569018  -8.648001
+#&gt; 43326:   1   58325 -18.56734 -13.182024  -9.1043310  0.87491387  -7.912696
+#&gt; 43327:   1   58326 -17.92055 -13.568004  -9.6191358  0.22027885  -7.973416
+#&gt; 43328:   1   58327 -16.38805 -14.406231 -10.7887498  0.03580093  -8.593463
+#&gt; 43329:   1   58328 -15.11692 -14.995286 -11.7034260 -0.24763463  -9.043279
+#&gt;               Fz         F4         F8       FC5        FC1       FC2
+#&gt;     1:  2.243420  4.1126357   3.805441  3.737569 -3.9664172  2.073454
+#&gt;     2: -1.829027 -0.1920735   5.734270  6.218961 -5.4492577 -2.489496
+#&gt;     3: -5.078315 -3.1847792   6.681307  1.119054 -4.6003632 -6.226849
+#&gt;     4: -6.024443 -4.0416753   6.020678 -3.341742 -4.4812262 -7.343810
+#&gt;     5: -5.273677 -2.6709489   6.488935 -1.180264 -4.1991698 -6.574865
+#&gt;    ---                                                               
+#&gt; 43325: -7.999030 -5.7075682 -10.682097 -5.860308 -2.4520634 -3.351353
+#&gt; 43326: -7.081696 -3.8893788  -9.737740 -8.139451 -1.2675000 -1.914468
+#&gt; 43327: -6.537369 -2.6484286  -8.375691 -7.004544 -0.8569735 -1.286541
+#&gt; 43328: -6.466712 -2.0477103  -6.961699 -2.275353 -1.5273567 -1.474382
+#&gt; 43329: -6.370552 -1.5891553  -5.685491  3.075924 -2.3871231 -1.836201
+#&gt;               FC6         M1          T7         C3         Cz        C4
+#&gt;     1:  18.052859 -1.8668146 -13.8186479 -3.5591336  -9.563633 12.539171
+#&gt;     2:   2.057153 -3.2960243  -6.4459093 -4.3903903 -10.136371  6.710735
+#&gt;     3:  -7.121995 -3.7450671  -2.5600108 -0.4021653  -9.953133  2.369052
+#&gt;     4:  -6.473217 -3.7946916  -6.9034326  2.4319645 -11.664206  1.322866
+#&gt;     5:  -1.091606 -3.2719884 -12.1267001  2.8126216 -13.143375  2.579834
+#&gt;    ---                                                                  
+#&gt; 43325: -10.489480  0.8050708   0.6134203 -0.6716844  -4.644307 -9.533810
+#&gt; 43326:  -8.168182  0.9832335   0.7989867  0.9843694  -2.815106 -7.253323
+#&gt; 43327:  -6.057718  1.2051768   1.0684308  1.2375399  -1.583909 -5.776916
+#&gt; 43328:  -4.832280  1.4103985   1.5528585 -0.5644271  -1.635448 -5.555656
+#&gt; 43329:  -4.496719  1.1627738   1.7321819 -3.0814853  -2.425684 -5.222879
+#&gt;                T8         M2       CP5         CP1       CP2        CP6
+#&gt;     1: -21.540627  1.8668146 3.2593965 -10.0709079 -2.929937  11.447937
+#&gt;     2:  -3.031788  3.2960243 1.3199594 -11.4908713 -4.775373  13.381356
+#&gt;     3:  12.953002  3.7450671 2.7680866 -10.5650743 -4.960444  15.889660
+#&gt;     4:  12.846444  3.7946916 6.6795727 -11.1260439 -6.110414  17.469513
+#&gt;     5:   6.274600  3.2719884 9.9385779 -11.3128234 -6.802527  16.155681
+#&gt;    ---                                                                 
+#&gt; 43325:  -6.813054 -0.8050708 3.4585676  -0.6729234 -9.746810 -15.831877
+#&gt; 43326:  -6.099674 -0.9832335 3.5722776   1.0846534 -7.459826 -12.466959
+#&gt; 43327:  -1.839693 -1.2051768 2.9749471   1.7651744 -6.048568  -9.558942
+#&gt; 43328:   3.161609 -1.4103985 1.8193729   1.1919587 -6.015373  -8.262429
+#&gt; 43329:   5.582966 -1.1627738 0.8415955   0.3445666 -6.346772  -7.270527
+#&gt;              P7          P3         Pz          P4           P8        POz
+#&gt;     1: 3.213856  0.99524897  -5.114410   0.4999344  -9.36083353  -8.489550
+#&gt;     2: 2.402911 -2.54011003  -7.542236  -0.3578659  -4.27635832  -9.020558
+#&gt;     3: 3.048457 -3.34891014  -8.467346  -0.3756806   0.30087511  -8.930755
+#&gt;     4: 4.720714 -2.86516690 -10.449874  -1.6521105   0.08908784 -10.519500
+#&gt;     5: 6.266069 -1.71418285 -11.345305  -2.9112192  -3.14414669 -12.020296
+#&gt;    ---                                                                    
+#&gt; 43325: 7.485077 -0.07879874  -5.746069 -12.0416975 -11.90186866  -6.037102
+#&gt; 43326: 6.621219  0.37755269  -4.002183  -9.6871385  -9.94827758  -4.411736
+#&gt; 43327: 4.386178 -0.22312813  -2.911030  -7.5046926  -6.86631576  -3.014393
+#&gt; 43328: 2.306235 -1.64661692  -2.928180  -6.3037868  -4.40065244  -2.411259
+#&gt; 43329: 1.423312 -2.95209089  -3.426525  -5.5144345  -3.18739427  -2.390410
+#&gt;                O1          Oz          O2       EOGV       EOGH
+#&gt;     1: -9.2792346 -12.9959421 -11.8035270 -205.85693 164.320831
+#&gt;     2: -7.2472449  -9.6326961  -8.6782898 -214.15259 158.389755
+#&gt;     3: -5.2330376  -6.9271482  -6.3437601 -220.57965 157.559784
+#&gt;     4: -4.6959060  -7.5090695  -7.8962245 -218.24934 162.165161
+#&gt;     5: -6.4069735 -11.5468251 -11.8622364 -217.16670 168.559723
+#&gt;    ---                                                         
+#&gt; 43325:  1.6349335  -4.9512698  -8.8277350   18.41424   6.434383
+#&gt; 43326:  1.4237437  -3.8740161  -6.9305518   19.22052   7.837689
+#&gt; 43327:  0.3749732  -2.4473161  -4.0212060   19.74028   8.659687
+#&gt; 43328: -0.6578020  -1.3630775  -1.5260158   19.20309   8.609533
+#&gt; 43329: -0.8620877  -0.9680789  -0.4295176   18.72752   8.829977
+#&gt; 
+#&gt; ## Events table:
+#&gt;      .id        .type .description .initial .final .channel
+#&gt;   1:   1 Bad Interval  Bad Min-Max    15000  15128      FC6
+#&gt;   2:   1 Bad Interval  Bad Min-Max    15000  15146       F8
+#&gt;   3:   1 Bad Interval  Bad Min-Max    15000  15142      Fp1
+#&gt;   4:   1 Bad Interval  Bad Min-Max    15000  15132      Fp2
+#&gt;   5:   1 Bad Interval  Bad Min-Max    15000  15140      Fpz
+#&gt;  ---                                                       
+#&gt; 540:   1 Bad Interval  Bad Min-Max    55058  55400      Fpz
+#&gt; 541:   1 Bad Interval  Bad Min-Max    55077  55314       F8
+#&gt; 542:   1     Stimulus         s130    56380  56380     &lt;NA&gt;
+#&gt; 543:   1     Stimulus          s70    56750  56750     &lt;NA&gt;
+#&gt; 544:   1     Stimulus         s130    58328  58328     &lt;NA&gt;
+#&gt; 
+#&gt; # ICA:
+#&gt; # Component_names:ICA2, ICA3, ICA4, ICA5, ICA6, ICA7, ICA8, ICA9, ICA10, ICA11, ICA12, ICA13, ICA14, ICA15, ICA16, ICA17, ICA18, ICA19, ICA20, ICA21, ICA22, ICA23, ICA24, ICA25, ICA26, ICA27, ICA28, ICA29, ICA30
+#&gt; # Channels_used: Fp1, Fpz, Fp2, F7, F3, Fz, F4, F8, FC5, FC1, FC2, FC6, T7, C3, Cz, C4, T8, CP5, CP1, CP2, CP6, P7, P3, Pz, P4, P8, POz, O1, Oz, O2
+#&gt; 
+#&gt; # Segments table:
+#&gt; <span style='color: #555555;'># A tibble: 1 x 3</span><span>
+#&gt;     .id .recording segment
+#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>        </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>
+#&gt; </span><span style='color: #555555;'>1</span><span>     1 faces.vhdr       1</div><div class='input'>
+</div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -190,7 +299,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

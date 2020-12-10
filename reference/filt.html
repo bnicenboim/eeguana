@@ -88,7 +88,7 @@ about the FIR vs IIR filters, see here." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5.9000</span>
       </span>
     </div>
 
@@ -115,6 +115,9 @@ about the FIR vs IIR filters, see here." />
     </li>
     <li>
       <a href="../articles/preprocessing_erp.html">Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs</a>
+    </li>
+    <li>
+      <a href="../articles/gotchas.html">Pitfalls and gotchas</a>
     </li>
   </ul>
 </li>
@@ -159,13 +162,13 @@ of <a href='https://www.python.org/'>python</a>. For background information
 about the FIR vs IIR filters, see <a href='https://mne.tools/dev/auto_tutorials/discussions/plot_background_filtering.html'>here</a>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/filt.html'>eeg_filt_low_pass</a></span>(<span class='kw'>.data</span>, <span class='kw'>...</span>, freq = <span class='kw'>NULL</span>, config = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(), na.rm = <span class='fl'>FALSE</span>)
+    <pre class="usage"><span class='fu'>eeg_filt_low_pass</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>...</span>, .freq <span class='op'>=</span> <span class='cn'>NULL</span>, .config <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>, na.rm <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/filt.html'>eeg_filt_high_pass</a></span>(<span class='kw'>.data</span>, <span class='kw'>...</span>, freq = <span class='kw'>NULL</span>, config = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(), na.rm = <span class='fl'>FALSE</span>)
+<span class='fu'>eeg_filt_high_pass</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>...</span>, .freq <span class='op'>=</span> <span class='cn'>NULL</span>, .config <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>, na.rm <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/filt.html'>eeg_filt_band_pass</a></span>(<span class='kw'>.data</span>, <span class='kw'>...</span>, freq = <span class='kw'>NULL</span>, config = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(), na.rm = <span class='fl'>FALSE</span>)
+<span class='fu'>eeg_filt_band_pass</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>...</span>, .freq <span class='op'>=</span> <span class='cn'>NULL</span>, .config <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>, na.rm <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/filt.html'>eeg_filt_band_stop</a></span>(<span class='kw'>.data</span>, <span class='kw'>...</span>, freq = <span class='kw'>NULL</span>, config = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(), na.rm = <span class='fl'>FALSE</span>)</pre>
+<span class='fu'>eeg_filt_band_stop</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>...</span>, .freq <span class='op'>=</span> <span class='cn'>NULL</span>, .config <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>, na.rm <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -179,12 +182,12 @@ about the FIR vs IIR filters, see <a href='https://mne.tools/dev/auto_tutorials/
       <td><p>Channels to apply the filters to. All the channels by default.</p></td>
     </tr>
     <tr>
-      <th>freq</th>
+      <th>.freq</th>
       <td><p>A single cut frequency for <code>eeg_filt_low_pass</code> and <code>eeg_filt_high_pass</code>, two edges for
 <code>eeg_filt_band_pass</code> and <code>eeg_filt_band_stop</code>.</p></td>
     </tr>
     <tr>
-      <th>config</th>
+      <th>.config</th>
       <td><p>Other parameters passed in a list to the method. At the moment, only the
 width of the transition band at the (high and/or low) cut-off frequencies can
 be modified: <code>l_trans_bandwidth</code>, <code>h_trans_bandwidth</code>, by default they are set to "auto".
@@ -203,35 +206,38 @@ For now the filters can only have a phase of zero (the delay for the filter is c
 
     
 <ul>
-<li><p><code><a href='https://rdrr.io/pkg/eeguana/man/filt.html'>eeg_filt_low_pass()</a></code> Low-pass or high-cut filter.</p></li>
-<li><p><code><a href='https://rdrr.io/pkg/eeguana/man/filt.html'>eeg_filt_high_pass()</a></code> High-pass or low-cut filter.</p></li>
-<li><p><code><a href='https://rdrr.io/pkg/eeguana/man/filt.html'>eeg_filt_band_pass()</a></code> Band-pass filter.</p></li>
-<li><p><code><a href='https://rdrr.io/pkg/eeguana/man/filt.html'>eeg_filt_band_stop()</a></code> Band-stop filter.</p></li>
+<li><p><code>eeg_filt_low_pass()</code> Low-pass or high-cut filter.</p></li>
+<li><p><code>eeg_filt_high_pass()</code> High-pass or low-cut filter.</p></li>
+<li><p><code>eeg_filt_band_pass()</code> Band-pass filter.</p></li>
+<li><p><code>eeg_filt_band_stop()</code> Band-stop filter.</p></li>
 </ul>
 
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other preprocessing functions: 
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_baseline.html'>eeg_baseline</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_downsample.html'>eeg_downsample</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica_keep.html'>eeg_ica_keep</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_ica.html'>eeg_ica</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_rereference.html'>eeg_rereference</a>()</code>,
-<code><a href='https://rdrr.io/pkg/eeguana/man/eeg_segment.html'>eeg_segment</a>()</code></p></div>
+<code><a href='eeg_baseline.html'>eeg_baseline</a>()</code>,
+<code><a href='eeg_downsample.html'>eeg_downsample</a>()</code>,
+<code><a href='eeg_ica_keep.html'>eeg_ica_keep</a>()</code>,
+<code><a href='eeg_ica.html'>eeg_ica</a>()</code>,
+<code><a href='eeg_rereference.html'>eeg_rereference</a>()</code>,
+<code><a href='eeg_segment.html'>eeg_segment</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='https://dplyr.tidyverse.org'>dplyr</a></span>)
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='http://ggplot2.tidyverse.org'>ggplot2</a></span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"data_faces_ERPs"</span>)
-<span class='kw'>data_ERPs_filtered</span> <span class='op'>&lt;-</span> <span class='kw'>data_faces_ERPs</span> <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/filt.html'>eeg_filt_low_pass</a></span>(freq = <span class='fl'>50</span>)</div><div class='output co'>#&gt; <span class='message'>Width of the transition band at the low cut-off frequency is 2 Hz</span></div><div class='output co'>#&gt; <span class='message'>Width of the transition band at the high cut-off frequency is 12.5 Hz</span></div><div class='output co'>#&gt; <span class='message'>Setting up low-pass filter at 50 Hz</span></div><div class='input'><span class='co'># Compare the ERPs</span>
-<span class='kw'>data_faces_ERPs</span> <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span>(<span class='kw'>O1</span>, <span class='kw'>O2</span>, <span class='kw'>P7</span>, <span class='kw'>P8</span>) <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>() <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>facet_wrap</a></span>(<span class='op'>~</span><span class='kw'>.key</span>)</div><div class='output co'>#&gt; <span class='message'>Adding missing grouping variables: .sample</span></div><div class='img'><img src='filt-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='kw'>data_ERPs_filtered</span> <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span>(<span class='kw'>O1</span>, <span class='kw'>O2</span>, <span class='kw'>P7</span>, <span class='kw'>P8</span>) <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>() <span class='op'>+</span>
-  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>facet_wrap</a></span>(<span class='op'>~</span><span class='kw'>.key</span>)</div><div class='output co'>#&gt; <span class='message'>Adding missing grouping variables: .sample</span></div><div class='img'><img src='filt-2.png' alt='' width='700' height='433' /></div></pre>
+    <pre class="examples"><div class='input'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://dplyr.tidyverse.org'>dplyr</a></span><span class='op'>)</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='http://ggplot2.tidyverse.org'>ggplot2</a></span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"data_faces_ERPs"</span><span class='op'>)</span>
+<span class='va'>data_ERPs_filtered</span> <span class='op'>&lt;-</span> <span class='va'>data_faces_ERPs</span> <span class='op'>%&gt;%</span>
+  <span class='fu'>eeg_filt_low_pass</span><span class='op'>(</span>.freq <span class='op'>=</span> <span class='fl'>50</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>Width of the transition band at the low cut-off frequency is 2 Hz</span></div><div class='output co'>#&gt; <span class='message'>Width of the transition band at the high cut-off frequency is 12.5 Hz</span></div><div class='output co'>#&gt; <span class='message'>Setting up low-pass filter at 50 Hz</span></div><div class='input'><span class='co'># Compare the ERPs</span>
+<span class='va'>data_faces_ERPs</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='va'>O1</span>, <span class='va'>O2</span>, <span class='va'>P7</span>, <span class='va'>P8</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>facet_wrap</a></span><span class='op'>(</span><span class='op'>~</span><span class='va'>.key</span><span class='op'>)</span>
+</div><div class='img'><img src='filt-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='va'>data_ERPs_filtered</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='va'>O1</span>, <span class='va'>O2</span>, <span class='va'>P7</span>, <span class='va'>P8</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>facet_wrap</a></span><span class='op'>(</span><span class='op'>~</span><span class='va'>.key</span><span class='op'>)</span>
+</div><div class='img'><img src='filt-2.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -247,7 +253,7 @@ For now the filters can only have a phase of zero (the delay for the filter is c
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

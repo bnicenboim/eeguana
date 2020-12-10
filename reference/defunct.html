@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5.9000</span>
       </span>
     </div>
 
@@ -107,6 +107,9 @@
     </li>
     <li>
       <a href="../articles/preprocessing_erp.html">Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs</a>
+    </li>
+    <li>
+      <a href="../articles/gotchas.html">Pitfalls and gotchas</a>
     </li>
   </ul>
 </li>
@@ -143,35 +146,35 @@
     <p>These functions are defunct.</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/defunct.html'>downsample</a></span>(<span class='kw'>x</span>, q = <span class='fl'>2</span>, max_sample = <span class='kw'>NULL</span>, <span class='kw'>...</span>)
+    <pre class="usage"><span class='fu'>downsample</span><span class='op'>(</span><span class='va'>x</span>, q <span class='op'>=</span> <span class='fl'>2</span>, max_sample <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/defunct.html'>segment</a></span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
+<span class='fu'>segment</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/defunct.html'>interpolate_tbl</a></span>(<span class='kw'>.data</span>, <span class='kw'>...</span>)
+<span class='fu'>interpolate_tbl</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/defunct.html'>event_to_ch_NA</a></span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
+<span class='fu'>event_to_ch_NA</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/defunct.html'>eeg_intervals_to_NA</a></span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
+<span class='fu'>eeg_intervals_to_NA</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/defunct.html'>ch_filt_low_pass</a></span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
+<span class='fu'>ch_filt_low_pass</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/defunct.html'>ch_filt_high_pass</a></span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
+<span class='fu'>ch_filt_high_pass</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/defunct.html'>ch_filt_band_pass</a></span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
+<span class='fu'>ch_filt_band_pass</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/defunct.html'>ch_filt_stop_pass</a></span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
+<span class='fu'>ch_filt_stop_pass</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/defunct.html'>events</a></span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
+<span class='fu'>events</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/defunct.html'>events</a></span>(<span class='kw'>x</span>) <span class='op'>&lt;-</span> <span class='kw'>value</span>
+<span class='fu'>events</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span>
 
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/defunct.html'>summarize_all_ch</a></span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
+<span class='fu'>summarize_all_ch</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/defunct.html'>summarize_at_ch</a></span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
+<span class='fu'>summarize_at_ch</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/defunct.html'>plot_gg</a></span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
+<span class='fu'>plot_gg</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/pkg/eeguana/man/defunct.html'>ch_baseline</a></span>(<span class='kw'>x</span>, <span class='kw'>...</span>)</pre>
+<span class='fu'>ch_baseline</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -237,7 +240,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
