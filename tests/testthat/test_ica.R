@@ -229,9 +229,7 @@ test_that("ica can remove blinks", {
 })
 
 test_that("can use other (python) functions", {
-  skip_on_appveyor()
-  skip_on_travis()
-  ## skip_on_cran()
+  skip_on_ci()
 
   py_fica <- function(x) {
     x <- as.matrix(x)
