@@ -13,9 +13,9 @@ eeg_segment(.data, ..., .lim = c(-0.5, 0.5), .end, .unit = "s")
 
 \item{.lim}{Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments}
 
-\item{.unit}{"seconds" (or "s"), "milliseconds" (or "ms"), or samples.}
+\item{.end}{Description of the event that indicates the end of the segment, if this is used, \code{.lim} is ignored.}
 
-\item{end}{Description of the event that indicates the end of the segment, if this is used, \code{.lim} is ignored.}
+\item{.unit}{"seconds" (or "s"), "milliseconds" (or "ms"), or samples.}
 }
 \value{
 An \code{eeg_lst}.

@@ -2,7 +2,7 @@
 #'
 #'
 #' @param x A `sample_id` object.
-#' @param unit "seconds" (or "s"), "milliseconds" (or "ms")
+#' @param .unit "seconds" (or "s"), "milliseconds" (or "ms")
 #'
 #' @return A vector of times.
 #'

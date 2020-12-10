@@ -29,7 +29,7 @@ eeg_downsample <- function(.data, .q = 2, .max_sample = NULL,
 #' @export
 eeg_downsample.eeg_lst <- function(.data, .q = 2, .max_sample = NULL,
                                    .n = if (.ftype == "iir") 8 else 30,
-                                   .ftype = "iir", multiple_times = FALSE, ...) {
+                                   .ftype = "iir", .multiple_times = FALSE, ...) {
 
   # if(stringr::str_to_lower(.q) == "min") {
   #   .q <- mindiv(sampling_rate(.data), start = 2)
@@ -65,7 +65,7 @@ eeg_downsample.eeg_lst <- function(.data, .q = 2, .max_sample = NULL,
     warning("Some parts of the signal won't be filtered before the downsampling due to NA values or discontinuities")
   }
 
-  if (multiple_times == TRUE) {
+  if (.multiple_times == TRUE) {
     .q <- factors(round(.q))
   }
 

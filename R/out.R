@@ -220,7 +220,7 @@ eeg_ica_cor_tbl.eeg_ica_lst <- function(.data, ...) {
 #' If the dataset is large, this function can take very long to run. Setting a maximum number of samples (`max_sample`) will speed up the calculations by downsampling the data.
 #' 
 #' @param .data An `eeg_ica_lst` object
-#' @param max_sample The maximum number of samples to use for calculating the variance explained.
+#' @param .max_sample The maximum number of samples to use for calculating the variance explained.
 #' @param ... Not in use.
 #' @family ICA functions
 #' @family summary functions

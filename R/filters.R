@@ -20,7 +20,7 @@
 #' @param .freq A single cut frequency for `eeg_filt_low_pass` and `eeg_filt_high_pass`, two edges for
 #'   `eeg_filt_band_pass` and `eeg_filt_band_stop`.
 #' @param ... Channels to apply the filters to. All the channels by default.
-#' @param config Other parameters passed in a list to the method. At the moment, only the 
+#' @param .config Other parameters passed in a list to the method. At the moment, only the
 #' width of the transition band at the (high and/or low) cut-off frequencies can
 #'  be modified: `l_trans_bandwidth`, `h_trans_bandwidth`, by default they are set to "auto". 
 #'  For now the filters can only have a phase of zero (the delay for the filter is compensated).

@@ -11,7 +11,7 @@ eeg_ica_var_tbl(.data, ..., .max_sample = 1e+05)
 
 \item{...}{Not in use.}
 
-\item{max_sample}{The maximum number of samples to use for calculating the variance explained.}
+\item{.max_sample}{The maximum number of samples to use for calculating the variance explained.}
 }
 \value{
 A table with the variance explained by each component in each recording.

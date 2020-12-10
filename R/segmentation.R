@@ -9,7 +9,7 @@
 #' @param ... Description of the event.
 #' @param .unit "seconds" (or "s"), "milliseconds" (or "ms"), or samples.
 #' @param .lim Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments
-#' @param end Description of the event that indicates the end of the segment, if this is used, `.lim` is ignored.
+#' @param .end Description of the event that indicates the end of the segment, if this is used, `.lim` is ignored.
 #' @family preprocessing functions
 #'
 #' @return An `eeg_lst`.
