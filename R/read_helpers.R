@@ -72,7 +72,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
   # TODO maybe convert to data.table directly
   # Adding the channel names to event table
-  events <- add_event_channel(events, header_info$chan_info$.channel) %>%
+  events <- add_event_channel(events, labels = header_info$chan_info$.channel) %>%
     data.table::as.data.table() 
 
 
@@ -158,7 +158,8 @@ build_segments_tbl <- function(.id, .recording) {
 }
 add_event_channel <- function(events, labels) {
   labels <- make_names(labels)
-  dplyr::mutate(events, .channel = if (".channel" %in% names(events)) {
+  events_dt <- events
+  dplyr::mutate(events_dt, .channel = if (".channel" %in% names(events_dt)) {
     .channel
   } else {
     0L
@@ -209,7 +210,8 @@ read_vmrk <- function(file) {
   # http://pressrelease.brainproducts.com/markers/
 
   markers <- readChar(file, file.info(file)$size) %>%
-    stringr::str_extract(stringr::regex("^Mk[0-9]*?=.*^Mk[0-9]*?=.*?$", multiline = TRUE, dotall = TRUE))
+    chr_extract("(?ms)^Mk[0-9]*?=.*^Mk[0-9]*?=.*?$") %>%
+    chr_remove("\r$")
 
   col_names <- c(
     ".type", ".description", ".initial",
@@ -300,7 +302,7 @@ read_vhdr_metadata <- function(file) {
       dplyr::mutate(bits = vhdr[["Binary Infos"]][["BinaryFormat"]])
   }
   
-  if (stringr::str_sub(common_info$domain, 1, nchar("time")) %>%
+  if (substr(common_info$domain, start = 1, stop = nchar("time")) %>%
     tolower() != "time") {
     stop("DataType needs to be 'time'")
   }

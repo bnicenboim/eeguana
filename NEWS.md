@@ -1,3 +1,7 @@
+# eeguana 0.1.6.9000
+  - internal changes:
+    - removed dependency with `stringr`
+  
 # eeguana 0.1.5.9000
   - Bugs: 
     - weird dplyr filter behavior fixed  [#136](https://github.com/bnicenboim/eeguana/issues/136)

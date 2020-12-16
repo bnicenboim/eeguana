@@ -36,7 +36,7 @@ read_vhdr <- function(file, .sep = .type == "New Segment", .zero = .type == "Tim
   if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
   .sep <- rlang::enquo(.sep)
   .zero <- rlang::enquo(.zero)
-  #file <- "/home/bruno/dev/eeguana/inst/testdata/bv_export_bv_txt_bin_multi.vhdr"
+  #file <- "/home/bruno/dev/eeguana/inst/testdata/asalab_export_bv.vhdr"
   # .sep = rlang::quo(.type == "New Segment")
   # .zero = rlang::quo(.type == "Time 0")
 
@@ -69,7 +69,7 @@ read_vhdr <- function(file, .sep = .type == "New Segment", .zero = .type == "Tim
 
   file_vmrk <- paste0(file_path, vmrk_file)
   if (!file.exists(file_vmrk)) stop(sprintf("File %s not found in %s",file_vmrk, getwd()))
-  events <- 
+  events_dt <-
    tryCatch(read_vmrk(file = file_vmrk),
         error=function(cond) {
             message(paste("Error in the events of:", paste0(file_path, vmrk_file)))
@@ -85,7 +85,7 @@ read_vhdr <- function(file, .sep = .type == "New Segment", .zero = .type == "Tim
     x <- read_dat(
       file = paste0(file_path, data_file),
       header_info = header_info,
-      events = events,
+      events = events_dt,
       .recording = .recording,
       sep = .sep,
       zero = .zero
