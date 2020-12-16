@@ -7,16 +7,16 @@ read_dat <- function(file, header_info = NULL, events = NULL,
   common_info <- header_info$common_info
 
   multiplexed <- dplyr::case_when(
-    stringr::str_detect(common_info$orientation, stringr::regex("vector",
-      ignore_case = TRUE
-    )) ~ FALSE,
-    stringr::str_detect(common_info$orientation, stringr::regex("multipl",
-      ignore_case = TRUE
-    )) ~ TRUE,
+    chr_detect(common_info$orientation, "vector",
+      ignore.case = TRUE
+    ) ~ FALSE,
+    chr_detect(common_info$orientation, "multipl",
+      ignore.case = TRUE
+    ) ~ TRUE,
     TRUE ~ NA
   ) %>% {
     if (is.na(.)) {
-      stop("Orientiation needs to be vectorized or multiplexed.")
+      stop("Orientation needs to be vectorized or multiplexed.")
     } else {
       .
     }
@@ -228,7 +228,7 @@ read_vmrk <- function(file) {
 
   ## bug of BV1, first sample is supposed to be 1
   BV1 <- "BrainVision Data Exchange Marker File, Version 1.0"
-  if (stringr::str_detect(readChar(file, nchar(BV1)), BV1) &&
+  if (chr_detect(readChar(file, nchar(BV1)), BV1) &&
     events[.type == "New Segment", .initial][1] == 0) {
     events[.type == "New Segment" & .initial == 0, c(".initial", ".final") := list(1, 1)]
   }

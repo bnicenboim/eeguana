@@ -366,7 +366,7 @@ dots_by_tbl_quos <- function(.eeg_lst, dots) {
         if (txt_element %in% signal_cols) {
           return(TRUE)
         } else if (exists(txt_element) && is.function(eval(parse(text = txt_element)))) {
-          return(stringr::str_detect(txt_element, stringr::regex("^ch_|^chs_|^channel_dbl|^channel_names|^signal_tbl")))
+          return(chr_detect(txt_element, "^ch_|^chs_|^channel_dbl|^channel_names|^signal_tbl"))
         } else {
           return(FALSE)
         }
