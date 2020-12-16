@@ -40,7 +40,7 @@ read_vhdr <- function(file, .sep = .type == "New Segment", .zero = .type == "Tim
   # zero = rlang::quo(.type == "Time 0")
 
   # Takes the files from the header:
-  file_path <- stringr::str_match(file, "(.*(/|\\\\)).")[, 2] %>% {
+  file_path <- chr_match(file, "(.*(/|\\\\)).")[, 2] %>% {
     if (is.na(.)) NULL else .
   }
   

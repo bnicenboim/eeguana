@@ -18,7 +18,7 @@ fast_ICA <-function(X, n.comp=NULL, alg.typ = "parallel",
           fun = fun, alpha = alpha, method = method,
           row.norm = row.norm, maxit = maxit, tol = tol, verbose = TRUE,
           w.init = w.init))
-  last_line <- stringr::str_match(capture[length(capture)], "Iteration (\\d*) tol=(.*)")
+  last_line <- chr_match(capture[length(capture)], "Iteration (\\d*) tol=(.*)")
   
   out_tol <- as.numeric(last_line[,3])
   out_maxit <- as.numeric(last_line[,2])
