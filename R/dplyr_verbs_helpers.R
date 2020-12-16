@@ -25,7 +25,7 @@ filter_eeg_lst <- function(.eeg_lst, ...) {
   new_dots <- dots_by_tbl_quos(.eeg_lst, dots)
 
   if (length(new_dots$.signal) > 0) {
-    cond_cols <- names_other_col(.eeg_lst, dots, ".segments")
+    cond_cols <- names_other_col(.eeg_lst, dots, tbl = ".segments")
     ## events_col <- names_other_col(.eeg_lst, dots,".events")
     extended_signal <- extended_signal(.eeg_lst, cond_cols) # , events_col = events_col)
     by <- as.character(dplyr::group_vars(.eeg_lst))
@@ -259,9 +259,9 @@ names_other_col <- function(.eeg_lst, dots, tbl = NULL) {
   # names_o <- c()
  
   #col name, checking that before or after there is no part of a word \\w or .
-  cols_regex <- paste0("(?<![\\w.])", cols, "(?![\\w.])")
+  cols_regex <- paste0(paste0("(?<![\\w.])", cols, "(?![\\w.])"), collapse = "|")
   names_o <- lapply(dots, function(dot){
-    stringr::str_extract(rlang::quo_text(dot),cols_regex )
+    chr_extract_all(rlang::quo_text(dot),cols_regex)
   }) %>% unlist() %>% unique()
    #for (n in seq_len(length(dots))) {
   #   # get the AST of each call and unlist it

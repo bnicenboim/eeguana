@@ -69,8 +69,9 @@ summarize_eval_signal <- function(.eeg_lst, dots) {
    # https://community.rstudio.com/t/clarifying-question-when-is-manual-data-mask-needed-in-rlang-eval-tidy/11186
   # https://stackoverflow.com/questions/14837902/how-to-write-a-function-that-calls-a-function-that-calls-data-table
   # https://stackoverflow.com/questions/15790743/data-table-meta-programming
+  # looks for other cols needed for doing for example X[.recording=="sth"]
   cond_cols <- names_other_col(.eeg_lst, dots, ".segments")
-  extended_signal <- extended_signal(.eeg_lst, cond_cols)
+  extended_signal_dt <- extended_signal(.eeg_lst, cond_cols)
   by <- dplyr::group_vars(.eeg_lst)
   dots <- rlang::quos_auto_name(dots)
   add_names <- rlang::quos_auto_name(dots) %>% names()
@@ -83,7 +84,7 @@ summarize_eval_signal <- function(.eeg_lst, dots) {
   #                                            data= rlang::as_data_mask(.SD)), keyby = c(by)]
   # 
   if(length(by)>0) {  
-    extended_signal <-extended_signal[, lapply(dots, rlang::eval_tidy, 
+    extended_signal_dt <-extended_signal_dt[, lapply(dots, rlang::eval_tidy,
                                                data= rlang::as_data_mask(cbind(.SD,data.table::as.data.table(.BY)))),
                                       keyby = c(by)]
     
@@ -95,7 +96,7 @@ summarize_eval_signal <- function(.eeg_lst, dots) {
     #                             # it should be from the caller env, and not from inside the package
     #                             enclos = rlang::caller_env())), by = c(by)]
   } else {
-    extended_signal <-extended_signal[, lapply(dots, rlang::eval_tidy, 
+    extended_signal_dt <-extended_signal_dt[, lapply(dots, rlang::eval_tidy,
                                                data= rlang::as_data_mask(.SD))]
     
     # extended_signal[, `:=`(names(dots),
@@ -125,11 +126,11 @@ summarize_eval_signal <- function(.eeg_lst, dots) {
 
  
      #add class to the columns that lost their class
-  extended_signal[, (add_names) := purrr::map2(.SD, old_attributes, ~
+  extended_signal_dt[, (add_names) := purrr::map2(.SD, old_attributes, ~
   if (is_channel_dbl(.x) | is_component_dbl(.x)) .x else `attributes<-`(.x, .y)), .SDcols = add_names]
 
 
-  update_summarized_signal(extended_signal, .eeg_lst)
+  update_summarized_signal(extended_signal_dt, .eeg_lst)
 }
 
 

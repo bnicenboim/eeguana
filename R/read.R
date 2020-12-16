@@ -36,8 +36,9 @@ read_vhdr <- function(file, .sep = .type == "New Segment", .zero = .type == "Tim
   if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
   .sep <- rlang::enquo(.sep)
   .zero <- rlang::enquo(.zero)
+  #file <- "/home/bruno/dev/eeguana/inst/testdata/bv_export_bv_txt_bin_multi.vhdr"
   # .sep = rlang::quo(.type == "New Segment")
-  # zero = rlang::quo(.type == "Time 0")
+  # .zero = rlang::quo(.type == "Time 0")
 
   # Takes the files from the header:
   file_path <- chr_match(file, "(.*(/|\\\\)).")[, 2] %>% {
@@ -58,7 +59,7 @@ read_vhdr <- function(file, .sep = .type == "New Segment", .zero = .type == "Tim
   #           message(paste(cond,"\n"))
   #           return(NULL)
   #       })
-   if(is.null(header_info)){
+ if(is.null(header_info)){
    stop("Header info in ", file, " could not be read.", call. = FALSE)
  }
   data_file <- header_info$common_info$data_file

@@ -24,7 +24,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
 
   if (common_info$format == "BINARY") {
-    type <- stringr::str_extract(common_info$bits, stringr::regex("float|int", ignore_case = TRUE)) %>%
+    type <- chr_extract(common_info$bits, "float|int", ignore.case = TRUE) %>%
       tolower() %>%
       {
         dplyr::case_when(
@@ -37,7 +37,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
       stop(sprintf("Type '%s' is not recognized (it should be double (float) or integer (int)", type))
     }
 
-    bytes <- stringr::str_extract(common_info$bits, stringr::regex("\\d*$")) %>%
+    bytes <- chr_extract(common_info$bits, "\\d*$") %>%
       as.numeric() %>%
       {
         . / 8

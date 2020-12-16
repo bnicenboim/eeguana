@@ -318,7 +318,7 @@ plot_ica.eeg_ica_lst <- function(data,
   c_text <- summ %>%
     dplyr::mutate(cor_t = as.character(round(cor,2)), pvar_t = as.character(round(var*100))) %>%
     dplyr::group_by(.recording, .ICA) %>%
-    dplyr::summarize(text = paste0(stringr::str_extract(EOG,"^."),": ", cor_t, collapse ="\n") %>%
+    dplyr::summarize(text = paste0(chr_extract(EOG,"^."),": ", cor_t, collapse ="\n") %>%
                 paste0("\n",unique(pvar_t),"%")) %>%
     dplyr::mutate(x=1,y=1,.value= NA, .key = NA) %>% 
     dplyr::left_join(dplyr::distinct(topo$data,.recording,.ICA) %>% 
