@@ -75,7 +75,7 @@ summarize_eval_signal <- function(.eeg_lst, dots) {
   dots <- rlang::quos_auto_name(dots)
   add_names <- rlang::quos_auto_name(dots) %>% names()
   old_attributes <- purrr::map(
-    add_names %>% stringr::str_split("_"),
+    add_names %>% strsplit("_"),
     ~ attributes(.eeg_lst$.signal[[.x[[1]]]])
   )
   old_attributes <- stats::setNames(old_attributes, add_names)

@@ -92,7 +92,7 @@ eeg_interpolate_tbl.data.frame <- function(.data,
     stop("Data cannot be grouped by a column that contains NAs.")
   }
 
-  if (stringr::str_to_lower(.method) == "mba") {
+  if (tolower(.method) == "mba") {
     if (!"MBA" %in% rownames(utils::installed.packages())) {
       stop("Package MBA needs to be installed to interpolate using multilevel B-splines ")
     }
@@ -120,7 +120,7 @@ eeg_interpolate_tbl.data.frame <- function(.data,
         !!rlang::quo_name(.value) := c(results$xyz$z)
       )
     }
-  } else if (stringr::str_to_lower(.method) == "akima") {
+  } else if (tolower(.method) == "akima") {
     if (!"akima" %in% rownames(utils::installed.packages())) {
       stop("Package akima needs to be installed to interpolate using bicubic spline Akima interpolation algorithm.")
     }
@@ -287,11 +287,11 @@ orthographic <- function(x, y, z) {
 #'
 #' @export
 change_coord <- function(data, .projection = "polar") {
-  if (stringr::str_to_lower(.projection) == "orthographic") {
+  if (tolower(.projection) == "orthographic") {
     project <- orthographic
-  } else if (stringr::str_to_lower(.projection) == "polar") {
+  } else if (tolower(.projection) == "polar") {
     project <- polar
-  } else if (stringr::str_to_lower(.projection) == "stereographic") {
+  } else if (tolower(.projection) == "stereographic") {
     project <- stereographic
   }
 

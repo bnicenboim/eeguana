@@ -230,16 +230,16 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
 
 #' @noRd
 scaling <- function(sampling_rate, unit) {
-  if (stringr::str_to_lower(unit) %in% c("s", "sec", "second", "seconds", "secs")) {
+  if (tolower(unit) %in% c("s", "sec", "second", "seconds", "secs")) {
     scaling <- sampling_rate
-  } else if (stringr::str_to_lower(unit) %in% c(
+  } else if (tolower(unit) %in% c(
     "ms", "msec", "millisecond",
     "milli second", "milli-second",
     "milliseconds", "milli seconds",
     "msecs"
   )) {
     scaling <- sampling_rate / 1000
-  } else if (stringr::str_to_lower(unit) %in% c("sam", "sample", "samples")) {
+  } else if (tolower(unit) %in% c("sam", "sample", "samples")) {
     scaling <- 1
   } else {
     stop("Incorrect unit. Please use 'ms', 's', or 'sample'")

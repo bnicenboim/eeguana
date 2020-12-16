@@ -42,7 +42,7 @@ events_artif_custom <- function(.signal, ...,
   )
 
   fun_txt <- substitute(fun) %>%
-    stringr::str_remove("detect_")
+    chr_remove("detect_")
   args_txt <- purrr::imap_chr(args, ~ paste(.y, toString(.x), sep = "=")) %>%
     paste(collapse = "_")
 

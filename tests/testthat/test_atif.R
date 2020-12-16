@@ -44,13 +44,13 @@ test_that("summarize ats (and rename) no extra args", {
                )
   expect_equal(data_mean, data_grouped_descr  %>%
                           dplyr::summarize_at(channel_names(.), list(M= ~ mean(.))) %>%
-                          dplyr::rename_at(channel_names(.),~stringr::str_remove(.,"_M")))
+                          dplyr::rename_at(channel_names(.),~chr_remove(.,"_M")))
   expect_equal(data_mean, data_mean_var %>%
                               dplyr::select(dplyr::ends_with("mean")) %>%
-                              dplyr::rename_at(channel_names(.),~stringr::str_remove(.,"_mean")))
+                              dplyr::rename_at(channel_names(.),~chr_remove(.,"_mean")))
   expect_equal(data_var, data_mean_var %>%
                           dplyr::select(dplyr::ends_with("var")) %>%
-                          dplyr::rename_at(channel_names(.),~stringr::str_remove(.,"_var")))
+                          dplyr::rename_at(channel_names(.),~chr_remove(.,"_var")))
 
   expect_equal(data.table::as.data.table(data_mean$.signal), signal_means)
   expect_equal(data_mean$.segments, segment_summ)
@@ -87,13 +87,13 @@ test_that("summarize ats with extra args", {
                )
   expect_equal(data_mean, data_grouped_descr  %>%
                           dplyr::summarize_at(channel_names(.), list(M= ~ mean(., na.rm= TRUE))) %>%
-                          dplyr::rename_at(channel_names(.),~stringr::str_remove(.,"_M")))
+                          dplyr::rename_at(channel_names(.),~chr_remove(.,"_M")))
   expect_equal(data_mean, data_mean_var %>%
                               dplyr::select(dplyr::ends_with("mean")) %>%
-                              dplyr::rename_at(channel_names(.),~stringr::str_remove(.,"_mean")))
+                              dplyr::rename_at(channel_names(.),~chr_remove(.,"_mean")))
   expect_equal(data_var, data_mean_var %>%
                           dplyr::select(dplyr::ends_with("var")) %>%
-                          dplyr::rename_at(channel_names(.),~stringr::str_remove(.,"_var")))
+                          dplyr::rename_at(channel_names(.),~chr_remove(.,"_var")))
 
   expect_equal(data.table::as.data.table(data_mean$.signal), signal_means)
   expect_equal(data_mean$.segments, segment_summ)
@@ -128,7 +128,7 @@ test_that("summarize ats vars", {
     expect_equal(vars, vars3)
     expect_equal(vars, vars4)
     expect_equal(vars, vars5 %>%
-                        dplyr::rename_at(channel_names(.),~stringr::str_remove(.,"_M")))
+                        dplyr::rename_at(channel_names(.),~chr_remove(.,"_M")))
     expect_true(all(sapply(vars$.signal[,channel_names(vars), with=FALSE], is_channel_dbl)))
     expect_equal(vars$.segments, segment_summ)
 })
@@ -159,7 +159,7 @@ test_that("summarize if", {
     expect_equal(varifs, varifs3)
     expect_equal(varifs, varifs4)
     expect_equal(varifs, varifs5 %>%
-                        dplyr::rename_at(channel_names(.),~stringr::str_remove(.,"_M")))
+                        dplyr::rename_at(channel_names(.),~chr_remove(.,"_M")))
     expect_equal(as.matrix(varifs$.signal), as.matrix(signal_vars))
     expect_true(all(sapply(varifs$.signal[,channel_names(vars), with=FALSE], is_channel_dbl)))
     expect_equal(varifs$.segments, segment_summ)

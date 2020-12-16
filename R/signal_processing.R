@@ -31,7 +31,7 @@ eeg_downsample.eeg_lst <- function(.data, .q = 2, .max_sample = NULL,
                                    .n = if (.ftype == "iir") 8 else 30,
                                    .ftype = "iir", .multiple_times = FALSE, ...) {
 
-  # if(stringr::str_to_lower(.q) == "min") {
+  # if(tolower(.q) == "min") {
   #   .q <- mindiv(sampling_rate(.data), start = 2)
   #  message(paste0("Using .q = ", .q))
   # }

@@ -25,7 +25,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
   if (common_info$format == "BINARY") {
     type <- stringr::str_extract(common_info$bits, stringr::regex("float|int", ignore_case = TRUE)) %>%
-      stringr::str_to_lower() %>%
+      tolower() %>%
       {
         dplyr::case_when(
           . == "float" ~ "double",
@@ -221,7 +221,7 @@ read_vmrk <- function(file) {
     col.names = col_names
   )
   # splits Mk<Marker number>=<Type>, removes the Mk.., and <Date>
-  events[, .type := stringr::str_split(.type, "=") %>%
+  events[, .type := strsplit(.type, "=") %>%
     purrr::map_chr(~ .x[[2]])][, date := NULL]
   events[, .final := .initial + .final - 1L]
 
@@ -239,7 +239,7 @@ read_vhdr_metadata <- function(file) {
     vhdr <- ini::read.ini(file)
 
   channel_info <- vhdr[["Channel Infos"]] %>%
-    imap_dtr(~ c(.y, stringr::str_split(.x, ",")[[1]]) %>%
+    imap_dtr(~ c(.y, strsplit(.x, ",")[[1]]) %>%
                       t() %>%
                       data.table::as.data.table()) 
    
@@ -263,7 +263,7 @@ read_vhdr_metadata <- function(file) {
     coordinates <- dplyr::tibble(number = channel_info$number, radius = NA_real_, theta = NA_real_, phi = NA_real_)
   } else {
     coordinates <- vhdr$Coordinates %>%
-      imap_dtr(~ c(.y, stringr::str_split(.x, ",")[[1]]) %>%
+      imap_dtr(~ c(.y, strsplit(.x, ",")[[1]]) %>%
         t() %>%
         data.table::as.data.table(.name_repair = "unique")) %>%
       stats::setNames(c("number", "radius", "theta", "phi")) %>%
@@ -301,7 +301,7 @@ read_vhdr_metadata <- function(file) {
   }
   
   if (stringr::str_sub(common_info$domain, 1, nchar("time")) %>%
-    stringr::str_to_lower() != "time") {
+    tolower() != "time") {
     stop("DataType needs to be 'time'")
   }
 
