@@ -89,6 +89,39 @@ filter_dt <- function(.data, ..., group_by_ = character(0)) {
 }
 
 
+#' @noRd
+mutate_dt <- function(.data, ..., group_by_ = character(0), .by_ref = FALSE, omit_shallow = FALSE){
+
+  dots <- rlang::quos(...)
+  dots <- rlang::quos_auto_name(dots)
+  col_names <- names(dots)
+  if(!omit_shallow){ #it might be done before
+    .data <- data.table::shallow(.data)
+  }
+  if(length(group_by_) == 0) {
+      # From: https://github.com/markfairbanks/tidytable/blob/549f330837be5adb510b4599142cc5f4a615a4be/R/mutate.R
+      # Prevent modify-by-reference if the column already exists in the data.table
+      # Fixes cases when user supplies a single value ex. 1, -1, "a"
+      .data[, `:=`((col_names),
+                                   lapply(dots, recycle_eval,
+                                                     data = rlang::as_data_mask(
+                                                       .SD),size = .N))]
+    } else {
+
+      if (length(intersect(col_names, colnames(.data)))>0 & .by_ref==FALSE) {
+        #needs a real copy
+        .data <- data.table::copy(.data)
+        }
+        .data[, `:=`((col_names),
+                                  lapply(dots, rlang::eval_tidy,
+                                                 data= rlang::as_data_mask(
+                                                   cbind(.SD,data.table::as.data.table(.BY))
+                                                  ))),
+                               by = c(group_by_)]
+    }
+
+}
+
 
 #' @noRd
 unnest_dt <- function(.data, col) {

@@ -79,29 +79,31 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_ref = FALSE) {
     by <- dplyr::group_vars(.eeg_lst) 
     # eval needs cols_signal and extended signal and by
 
-    new_dots$.signal <- rlang::quos_auto_name(new_dots$.signal)
-    col_names <- names(new_dots$.signal)
-    if(length(by) == 0) {
-      # From: https://github.com/markfairbanks/tidytable/blob/549f330837be5adb510b4599142cc5f4a615a4be/R/mutate.R
-      # Prevent modify-by-reference if the column already exists in the data.table
-      # Fixes cases when user supplies a single value ex. 1, -1, "a"
-      extended_signal_dt[, `:=`((col_names),
-                                   lapply(new_dots$.signal, recycle_eval,
-                                                     data = rlang::as_data_mask(
-                                                       .SD),size = .N))]
-    } else {
+ extended_signal_dt <- mutate_dt(extended_signal_dt, !!!new_dots$.signal, group_by_ = by, .by_ref = .by_ref, omit_shallow = TRUE)
 
-      if (length(intersect(col_names, colnames(.eeg_lst$.signal)))>0 & .by_ref==FALSE) {
-        #needs a real copy
-        extended_signal_dt <- data.table::copy(extended_signal_dt)
-        }
-        extended_signal_dt[, `:=`((col_names),
-                                  lapply(new_dots$.signal, rlang::eval_tidy,
-                                                 data= rlang::as_data_mask(
-                                                   cbind(.SD,data.table::as.data.table(.BY))
-                                                  ))),
-                               by = c(by)]
-    }
+    ## new_dots$.signal <- rlang::quos_auto_name(new_dots$.signal)
+    col_names <- names(new_dots$.signal)
+    ## if(length(by) == 0) {
+    ##   # From: https://github.com/markfairbanks/tidytable/blob/549f330837be5adb510b4599142cc5f4a615a4be/R/mutate.R
+    ##   # Prevent modify-by-reference if the column already exists in the data.table
+    ##   # Fixes cases when user supplies a single value ex. 1, -1, "a"
+    ##   extended_signal_dt[, `:=`((col_names),
+    ##                                lapply(new_dots$.signal, recycle_eval,
+    ##                                                  data = rlang::as_data_mask(
+    ##                                                    .SD),size = .N))]
+    ## } else {
+
+    ##   if (length(intersect(col_names, colnames(.eeg_lst$.signal)))>0 & .by_ref==FALSE) {
+    ##     #needs a real copy
+    ##     extended_signal_dt <- data.table::copy(extended_signal_dt)
+    ##     }
+    ##     extended_signal_dt[, `:=`((col_names),
+    ##                               lapply(new_dots$.signal, rlang::eval_tidy,
+    ##                                              data= rlang::as_data_mask(
+    ##                                                cbind(.SD,data.table::as.data.table(.BY))
+    ##                                               ))),
+    ##                            by = c(by)]
+    ## }
 
     #intersect in case there are less columns now
     new_cols <- intersect(cols_signal, names(extended_signal_dt))
