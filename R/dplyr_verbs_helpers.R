@@ -65,52 +65,33 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_ref = FALSE) {
   new_dots <- dots_by_tbl_quos(.eeg_lst, dots)
   if (length(new_dots$.signal) > 0) {
     # New columns name:
-    new_cols <- rlang::quos_auto_name(new_dots$.signal) %>%
+    col_names <- rlang::quos_auto_name(new_dots$.signal) %>%
       names()
+    # is it mutate or transmute?
     if (keep_cols) {
-      cols_signal <- unique(c(colnames(.eeg_lst$.signal), new_cols))
+      cols_signal <- unique(c(colnames(.eeg_lst$.signal), col_names))
     } else {
-      cols_signal <- c(obligatory_cols$.signal, new_cols)
+      cols_signal <- c(obligatory_cols$.signal, col_names)
     }
- 
+    # names of columns that are used to conditionalize channels: F1[.recording=="1"]
     cond_cols <- names_other_col(.eeg_lst, dots, ".segments")
 
+    # extended signal dt with the group_by col, and the conditional columns
+    # TODO: group_by columns could be pasted together and converted to factor
     extended_signal_dt <- extended_signal(.eeg_lst, cond_cols = cond_cols, .by_ref = .by_ref)
     by <- dplyr::group_vars(.eeg_lst) 
-    # eval needs cols_signal and extended signal and by
 
- extended_signal_dt <- mutate_dt(extended_signal_dt, !!!new_dots$.signal, group_by_ = by, .by_ref = .by_ref, omit_shallow = TRUE)
+    extended_signal_dt <- mutate_dt(extended_signal_dt, !!!new_dots$.signal, group_by_ = by,  .by_ref = .by_ref, omit_shallow = TRUE)
 
-    ## new_dots$.signal <- rlang::quos_auto_name(new_dots$.signal)
-    col_names <- names(new_dots$.signal)
-    ## if(length(by) == 0) {
-    ##   # From: https://github.com/markfairbanks/tidytable/blob/549f330837be5adb510b4599142cc5f4a615a4be/R/mutate.R
-    ##   # Prevent modify-by-reference if the column already exists in the data.table
-    ##   # Fixes cases when user supplies a single value ex. 1, -1, "a"
-    ##   extended_signal_dt[, `:=`((col_names),
-    ##                                lapply(new_dots$.signal, recycle_eval,
-    ##                                                  data = rlang::as_data_mask(
-    ##                                                    .SD),size = .N))]
-    ## } else {
-
-    ##   if (length(intersect(col_names, colnames(.eeg_lst$.signal)))>0 & .by_ref==FALSE) {
-    ##     #needs a real copy
-    ##     extended_signal_dt <- data.table::copy(extended_signal_dt)
-    ##     }
-    ##     extended_signal_dt[, `:=`((col_names),
-    ##                               lapply(new_dots$.signal, rlang::eval_tidy,
-    ##                                              data= rlang::as_data_mask(
-    ##                                                cbind(.SD,data.table::as.data.table(.BY))
-    ##                                               ))),
-    ##                            by = c(by)]
-    ## }
 
     #intersect in case there are less columns now
     new_cols <- intersect(cols_signal, names(extended_signal_dt))
-    .eeg_lst$.signal <- extended_signal_dt[, new_cols , with = FALSE][]
+    # removes the extended columns
+    .eeg_lst$.signal <- extended_signal_dt[, new_cols, with = FALSE][]
 
+    ## Check that the user did not mess up the attributes of the column:
     non_obl <- .eeg_lst$.signal[0,- obligatory_cols$.signal, with = FALSE]
-   new_channels <- .eeg_lst$.signal[0,col_names[col_names %in% colnames(extended_signal_dt)], with = FALSE]
+    new_channels <- .eeg_lst$.signal[0,col_names[col_names %in% colnames(extended_signal_dt)], with = FALSE]
     non_ch <- names(new_channels)[!purrr::map_lgl(new_channels, is_channel_dbl)]
     non_comp <- names(non_ch)[!purrr::map_lgl(non_ch, is_component_dbl)]
     non_ch <- unique(c(non_ch, non_comp))
