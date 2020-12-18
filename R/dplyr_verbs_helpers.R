@@ -114,15 +114,24 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_ref = FALSE) {
     ) %>%
       rlang::syms(.)
 
-    if (keep_cols) {
-      dplyr_fun <- dplyr::mutate
-    } else {
-      dplyr_fun <- dplyr::transmute
+    if(data.table::is.data.table(.eeg_lst$.segments)){
+      message("Object created with an old version of eeguana.")
+      message("Use as_eeg_lst(object) to convert it to the new format.")
+      message("This message will be converted into a warning in future versions.")
+      message(".by_reference=TRUE won't work for segment table")
+      .eeg_lst$.segments <- data.table::as.data.table(.eeg_lst$.segments)
     }
-    .eeg_lst$.segments <- dplyr_fun(
-      .eeg_lst$.segments, !!!missing_vars,
-      !!!new_dots$.segments
+
+    ## TODO: check what happens when it's by  something
+    .eeg_lst$.segments <- mutate_dt(
+      .eeg_lst$.segments, !!!new_dots$.segments, .by_ref= .by_ref
     )
+
+    if (!keep_cols) {
+      #transmute
+      .eeg_lst[, c(obligatory_cols[[".segments"]], names(new_dots$.segments)), with  = TRUE]
+    }
+
   }
   .eeg_lst %>% validate_eeg_lst()
 }

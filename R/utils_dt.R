@@ -95,8 +95,8 @@ mutate_dt <- function(.data, ..., group_by_ = character(0), .by_ref = FALSE, omi
   dots <- rlang::quos(...)
   dots <- rlang::quos_auto_name(dots)
   col_names <- names(dots)
-  if(!omit_shallow){ #it might be done before
-    .data <- data.table::shallow(.data)
+  if(!omit_shallow & !.by_ref){ #it might be done before, or it might be by reference
+    .data <- data.table:::shallow(.data)
   }
   if(length(group_by_) == 0) {
       # From: https://github.com/markfairbanks/tidytable/blob/549f330837be5adb510b4599142cc5f4a615a4be/R/mutate.R
