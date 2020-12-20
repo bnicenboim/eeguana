@@ -299,5 +299,8 @@ as_eeg_lst.eeg_ica_lst <- function(.data, ...) {
 }
 #' @export
 as_eeg_lst.eeg_lst <- function(.data, ...) {
+  if(!data.table::is.data.table(.data$.segments)){
+  .data$.segments <- data.table::as.data.table(.data$.segments)
+  }
   validate_eeg_lst(.data)
 }

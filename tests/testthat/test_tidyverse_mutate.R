@@ -212,6 +212,7 @@ test_that("dplyr::mutate functions work correctly on ungrouped signal_tbl", {
 
 
 test_that("dplyr::mutate functions work correctly on ungrouped segments_tbl", {
+  data <- as_eeg_lst(data)
   segments_tbl <- data$.segments
   data_seg10 <- mutate(data, segment = segment + 10)
   expect_equal_plain_df(data_seg10$.segments,

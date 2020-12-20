@@ -114,15 +114,15 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_ref = FALSE) {
     ) %>%
       rlang::syms(.)
 
-    if(data.table::is.data.table(.eeg_lst$.segments)){
+    if(!data.table::is.data.table(.eeg_lst$.segments)){
       message("Object created with an old version of eeguana.")
       message("Use as_eeg_lst(object) to convert it to the new format.")
       message("This message will be converted into a warning in future versions.")
-      message(".by_reference=TRUE won't work for segment table")
+      if(.by_ref) message(".by_reference=TRUE won't work for segment table")
       .eeg_lst$.segments <- data.table::as.data.table(.eeg_lst$.segments)
     }
 
-    ## TODO: check what happens when it's by  something
+    ## TODO: check what happens when it's grouped by  something
     .eeg_lst$.segments <- mutate_dt(
       .eeg_lst$.segments, !!!new_dots$.segments, .by_ref= .by_ref
     )
