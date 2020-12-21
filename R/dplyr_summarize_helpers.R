@@ -84,7 +84,7 @@ summarize_eval_signal <- function(.eeg_lst, dots) {
     ~ attributes(.eeg_lst$.signal[[.x[[1]]]])
   )
   old_attributes <- stats::setNames(old_attributes, add_names)
-  extended_signal_dt <- summarize_dt(extended_signal, dots, group_by_ = by)
+  extended_signal_dt <- summarize_dt(extended_signal_dt, !!!dots, group_by_ = by)
 
      #add class to the columns that lost their class
   extended_signal_dt[, (add_names) := purrr::map2(.SD, old_attributes, ~
