@@ -31,40 +31,29 @@ update_summarized_eeg_lst <- function(.eeg_lst,  .groups) {
 summarize_segments <- function(segments, segments_groups, last_id, .groups) {
 
   if (length(segments_groups) != 0) {
-    ### IMPORTANT: segments need to be grouped and summarized as data.table does, which is differently than dplyr
-
-    ## grouped_seg <- segments %>%
-    ##   dplyr::group_by_at(dplyr::vars(segments_groups))
-
-    ##   ## see if I can add recording as a group
-
-    ##     group_rec <- dplyr::group_by(grouped_seg, .recording, .add = TRUE)
-    ##    if(same_grouping(x = grouped_seg, y =group_rec)){
-    ##      grouped_seg <- group_rec
-    ##    }
-
-    ##     grouped_seg <- grouped_seg %>%
-    ##       dplyr::summarize(.groups = .groups) %>%
-    ##       dplyr::ungroup()
-
     # doesn't remove columns:
     grouped_seg <- unique(segments, by = segments_groups)
     # check if recording didn't change, if so leave it
-    if(all.equal(grouped_seg$.recording, segments$.recording)){
-      segments_groups <- unique(".recording", segments_groups)
+    grouped_seg_rec <- unique(segments, by = c(segments_groups, ".recording"))
+    if(identical(grouped_seg, grouped_seg_rec)){
+      segments_groups <- unique(c(".recording", segments_groups))
     }
     grouped_seg <- grouped_seg[, segments_groups, with = FALSE]
 
 
     if (!".id" %in% segments_groups) {
       grouped_seg[, .id := seq_len(last_id)]
+      data.table::setkey(grouped_seg, .id)
     }
     if (!".recording" %in% segments_group) {
       grouped_seg[, .recording := NA]
     }
     data.table::setcolorder(grouped_seg, obligatory_cols[[".segments"]])
+    grouped_seg
   } else {
-    data.table::data.table(.id = seq_len(last_id), .recording = NA)
+    grouped_seg <-  data.table::data.table(.id = seq_len(last_id), .recording = NA)
+    data.table::setkey(grouped_seg, .id)
+    grouped_seg
   }
 }
 

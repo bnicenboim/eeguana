@@ -97,7 +97,6 @@ NULL
 #' @rdname dplyr_verbs
 #' @export
 mutate.eeg_lst <- function(.data, ...) {
-
   .data <- update_eeg_lst(.data)
   mutate_eeg_lst(.data, ..., keep_cols = TRUE) %>%
     validate_eeg_lst()
