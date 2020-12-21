@@ -98,16 +98,7 @@ NULL
 #' @export
 mutate.eeg_lst <- function(.data, ...) {
 
-  #TODO to remove later:
-  if(!data.table::is.data.table(.data$.segments)){
-      message("Object created with an old version of eeguana.")
-      message("Use as_eeg_lst(object) to convert it to the new format.")
-      message("This message will be converted into a warning in future versions.")
-      if(.by_ref) message(".by_reference=TRUE won't work for segment table")
-      .data$.segments <- data.table::as.data.table(.data$.segments)
-      data.table::setkey(.data$.segments, .id)
-    }
-
+  .data <- update_eeg_lst(.data)
   mutate_eeg_lst(.data, ..., keep_cols = TRUE) %>%
     validate_eeg_lst()
 }
@@ -115,15 +106,9 @@ mutate.eeg_lst <- function(.data, ...) {
 #' @rdname dplyr_verbs
 #' @export
 transmute.eeg_lst <- function(.data, ...) {
-   #TODO to remove later:
-  if(!data.table::is.data.table(.data$.segments)){
-      message("Object created with an old version of eeguana.")
-      message("Use as_eeg_lst(object) to convert it to the new format.")
-      message("This message will be converted into a warning in future versions.")
-      if(.by_ref) message(".by_reference=TRUE won't work for segment table")
-      .data$.segments <- data.table::as.data.table(.data$.segments)
-      data.table::setkey(.data$.segments, .id)
-    }
+
+  .data <- update_eeg_lst(.data)
+
   mutate_eeg_lst(.data, ..., keep_cols = FALSE)
 }
 #' @rdname dplyr_verbs
@@ -144,6 +129,11 @@ filter.eeg_ica_lst <- function(.data, ..., .preserve = FALSE) {
 #' @export
 summarise.eeg_lst <- function(.data, ..., .groups = "keep") {
   dots <- rlang::quos(...)
+
+
+  .data <- update_eeg_lst(.data)
+
+
   if(.groups != "keep") {
     warning("Only  'keep' option is available")
   }
@@ -168,12 +158,14 @@ ungroup.eeg_lst <- function(.data, ...) {
 #' @rdname dplyr_verbs
 #' @export
 select.eeg_lst <- function(.data, ...) {
+  .data <- update_eeg_lst(.data)
   select_rename(.data, select = TRUE, ...)
 }
 
 #' @rdname dplyr_verbs
 #' @export
 rename.eeg_lst <- function(.data, ...) {
+  .data <- update_eeg_lst(.data)
   select_rename(.data, select = FALSE, ...)
 }
 
