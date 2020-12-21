@@ -97,15 +97,33 @@ NULL
 #' @rdname dplyr_verbs
 #' @export
 mutate.eeg_lst <- function(.data, ...) {
-  # dots <- rlang::quos(...)
-  mutate_eeg_lst(.data, ..., keep_cols = TRUE) %>% 
+
+  #TODO to remove later:
+  if(!data.table::is.data.table(.data$.segments)){
+      message("Object created with an old version of eeguana.")
+      message("Use as_eeg_lst(object) to convert it to the new format.")
+      message("This message will be converted into a warning in future versions.")
+      if(.by_ref) message(".by_reference=TRUE won't work for segment table")
+      .data$.segments <- data.table::as.data.table(.data$.segments)
+      data.table::setkey(.data$.segments, .id)
+    }
+
+  mutate_eeg_lst(.data, ..., keep_cols = TRUE) %>%
     validate_eeg_lst()
 }
 
 #' @rdname dplyr_verbs
 #' @export
 transmute.eeg_lst <- function(.data, ...) {
-  # dots <- rlang::quos(...)
+   #TODO to remove later:
+  if(!data.table::is.data.table(.data$.segments)){
+      message("Object created with an old version of eeguana.")
+      message("Use as_eeg_lst(object) to convert it to the new format.")
+      message("This message will be converted into a warning in future versions.")
+      if(.by_ref) message(".by_reference=TRUE won't work for segment table")
+      .data$.segments <- data.table::as.data.table(.data$.segments)
+      data.table::setkey(.data$.segments, .id)
+    }
   mutate_eeg_lst(.data, ..., keep_cols = FALSE)
 }
 #' @rdname dplyr_verbs

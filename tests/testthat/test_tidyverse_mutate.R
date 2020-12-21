@@ -24,8 +24,9 @@ data <- bind(data_1, data_2)
 # for checks later
 reference_data <- data.table::copy(data)
 
-
-
+#TODO: to remove later
+  data <- as_eeg_lst(data)
+  reference_data <- as_eeg_lst(reference_data)
 ##############################################
 ### test dplyr dplyr::mutate on ungrouped eeg_lst ###
 ##############################################
@@ -212,7 +213,6 @@ test_that("dplyr::mutate functions work correctly on ungrouped signal_tbl", {
 
 
 test_that("dplyr::mutate functions work correctly on ungrouped segments_tbl", {
-  data <- as_eeg_lst(data)
   segments_tbl <- data$.segments
   data_seg10 <- mutate(data, segment = segment + 10)
   expect_equal_plain_df(data_seg10$.segments,
@@ -289,7 +289,7 @@ grouped_data[[7]] <- group_by(data, .sample, condition)
 
 test_that("dplyr::mutate functions work correctly on grouped signal_tbl", {
   for(d in grouped_data){
-   # print(group_vars(d))
+    #print(group_vars(d))
     test_mutates_sgl(d)
   }
 

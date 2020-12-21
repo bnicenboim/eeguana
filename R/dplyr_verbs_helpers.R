@@ -114,13 +114,7 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_ref = FALSE) {
     ) %>%
       rlang::syms(.)
 
-    if(!data.table::is.data.table(.eeg_lst$.segments)){
-      message("Object created with an old version of eeguana.")
-      message("Use as_eeg_lst(object) to convert it to the new format.")
-      message("This message will be converted into a warning in future versions.")
-      if(.by_ref) message(".by_reference=TRUE won't work for segment table")
-      .eeg_lst$.segments <- data.table::as.data.table(.eeg_lst$.segments)
-    }
+
 
     ## TODO: check what happens when it's grouped by  something
     .eeg_lst$.segments <- mutate_dt(
@@ -213,6 +207,7 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
   }
 
   data.table::setkey(.eeg_lst$.signal, .id, .sample)
+  data.table::setkey(.eeg_lst$.segments, .id)
 
 
   .eeg_lst %>%
@@ -295,14 +290,8 @@ extended_signal <- function(.eeg_lst, cond_cols = NULL, events_cols = NULL, .by_
   }
   relevant_cols <- c(".id",dplyr::group_vars(.eeg_lst), cond_cols)
   if (any(relevant_cols != ".id")) { # more than just .id
-    #TODO change this when segments are data tables
-    segments <- dplyr::ungroup(.eeg_lst$.segments) %>%
-      {.[names(.) %in% relevant_cols]} %>%
-      data.table::data.table()
-    data.table::setkey(segments, .id)
-    segments <- segments[extended_signal_dt,  c(colnames(segments)) ,with = FALSE]
+    segments <- .eeg_lst$.segments[extended_signal_dt, unique(relevant_cols), with = FALSE]
     extended_signal_dt[, `:=`(names(segments), segments)]
-
   }
   if (length(events_cols) > 0) {
     events_dt <- events_tbl(.eeg_lst)[extended_signal_dt,  c(".id", events_col) ,with = FALSE]

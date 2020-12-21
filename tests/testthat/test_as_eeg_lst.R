@@ -17,16 +17,15 @@ skip_on_ci()
                                              eog = c("VEOG","HEOG"),
                                              misc = c("M1","M2"))
 
-  ## eeg_pkl <- reticulate::py_load_object(bvfile_pkl, pickle = "pickle")
 
   eeg_mne <- as_eeg_lst(.data = eeg_mne_obj) %>%
     dplyr::mutate(.recording = "r1")
 
-  # events_tbl(eeg_read) <- events_tbl(eeg_read) %>%
-  # dplyr::mutate(.description=paste0(.type,"/",.description)) %>% dplyr::select(-.type)
+
   channels_tbl(eeg_read) <- channels_tbl(eeg_read) %>% 
     dplyr::select(.channel, .x, .y, .z, unit, .reference)
   channels_tbl(eeg_mne) 
-
+  #TODO, to remove later:
+  eeg_read <- as_eeg_lst(eeg_read)
    expect_equal(eeg_read, eeg_mne)
 })
