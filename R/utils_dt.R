@@ -122,6 +122,22 @@ mutate_dt <- function(.data, ..., group_by_ = character(0), .by_ref = FALSE, omi
 
 }
 
+#' @noRd
+summarize_dt <- function(.data, ..., group_by_ = character(0)){
+  dots <- rlang::quos(...)
+  if(length(group_by_) > 0) {
+    .data <- .data[,
+                                             lapply(dots, rlang::eval_tidy,
+                                               data =
+                                                 rlang::as_data_mask(cbind(.SD,data.table::as.data.table(.BY)))),
+                                      keyby = c(group_by_)]
+  } else {
+    .data <- .data[, lapply(dots, rlang::eval_tidy,
+                                               data= rlang::as_data_mask(.SD))]
+  }
+  .data[]
+}
+
 
 #' @noRd
 unnest_dt <- function(.data, col) {
