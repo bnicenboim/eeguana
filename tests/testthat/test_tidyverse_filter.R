@@ -15,6 +15,10 @@ data_2 <- dplyr::mutate(data_1,
 # bind it all together
 data <- bind(data_1, data_2)
 
+#TODO: remove later:
+#
+data <- as_eeg_lst(data)
+
 # for checks later
 reference_data <- data.table::copy(data)
 
@@ -613,6 +617,7 @@ summarize_all1_filter_tbl <- dplyr::left_join(dplyr::as_tibble(data$.signal), dp
 summarize_all2_filter_eeg <- dplyr::group_by(data, condition) %>%
   dplyr::summarize_at(channel_names(.), "mean") %>%
   dplyr::filter(condition == "a")
+
 
 summarize_all2_filter_tbl <- dplyr::left_join(dplyr::as_tibble(data$.signal), dplyr::as_tibble(data$.segments)) %>%
   dplyr::group_by(condition) %>%

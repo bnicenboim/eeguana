@@ -45,7 +45,7 @@ summarize_segments <- function(segments, segments_groups, last_id, .groups) {
       grouped_seg[, .id := seq_len(last_id)]
       data.table::setkey(grouped_seg, .id)
     }
-    if (!".recording" %in% segments_group) {
+    if (!".recording" %in% segments_groups) {
       grouped_seg[, .recording := NA]
     }
     data.table::setcolorder(grouped_seg, obligatory_cols[[".segments"]])

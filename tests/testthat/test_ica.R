@@ -83,6 +83,10 @@ m <- structure(c(
   -0.122103882193917, -0.0556199678365175, 1.02305178660224, -2.4335067665471,
   1.90720205416033, -0.116728090380369
 ), .Dim = c(3L, 3L))
+
+## TODO: to remove later
+data_blinks <- as_eeg_lst(data_blinks)
+
 data_fast_ICA <- eeg_ica(
   .data = data_blinks, .method = fast_ICA,
   .config = list(w.init = m)
@@ -93,6 +97,8 @@ data_fast_ICA2 <- eeg_ica(
   -XEOG, .method = fast_ICA,
   .config = list(w.init = m)
 )
+
+
 test_that("ica summaries", {
 
   out1 <- structure(list(.recording = c("recording1", "recording1", 
