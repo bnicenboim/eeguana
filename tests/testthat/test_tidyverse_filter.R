@@ -19,6 +19,7 @@ data <- bind(data_1, data_2)
 reference_data <- data.table::copy(data)
 
 
+message("check when I filter all the samples from .signal of some .id, it needs to remove it from segments, and viceversa")
 
 ###################################################
 ### 1. Dplyr::Filtering by .id (applies to all tables) ###

@@ -11,7 +11,9 @@ data_grouped_descr <- data_faces_10_trials %>%
 segment_summ <- data.table::data.table(data_grouped_descr$.segments) %>%
   .[,.(.recording = unique(.recording)), by ="description"] %>%
   dplyr::bind_cols(dplyr::tibble(.id = c(1L,2L)),.)  %>% 
-  dplyr::select(eeguana:::obligatory_cols[[".segments"]], dplyr::everything())
+  dplyr::select(eeguana:::obligatory_cols[[".segments"]], dplyr::everything()) %>%
+  data.table::as.data.table()
+data.table::setkey(segment_summ, .id)
 
 test_that("summarize ats (and rename) no extra args", {
 

@@ -115,6 +115,7 @@ filter.eeg_lst <- function(.data, ..., .preserve = FALSE) {
   if (.preserve == TRUE) {
     warning("Ignoring `.preserve` argument.")
   }
+  .data <- update_eeg_lst(.data)
   filter_eeg_lst(.data, ...)
 }
 #' @rdname dplyr_verbs
@@ -128,11 +129,7 @@ filter.eeg_ica_lst <- function(.data, ..., .preserve = FALSE) {
 #' @export
 summarise.eeg_lst <- function(.data, ..., .groups = "keep") {
   dots <- rlang::quos(...)
-
-
   .data <- update_eeg_lst(.data)
-
-
   if(.groups != "keep") {
     warning("Only  'keep' option is available")
   }

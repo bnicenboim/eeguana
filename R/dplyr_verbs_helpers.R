@@ -37,23 +37,20 @@ filter_eeg_lst <- function(.eeg_lst, ...) {
       range_s <- .eeg_lst$.signal[, .(.lower = min(.sample), .upper = max(.sample)), by = .id]
       .eeg_lst$.events <- update_events(.eeg_lst$.events, range_s)
     }
-    .eeg_lst$.segments <- dplyr::semi_join(.eeg_lst$.segments, .eeg_lst$.signal, by = ".id")
+    .eeg_lst$.segments <- dplyr::semi_join_dt(.eeg_lst$.segments, .eeg_lst$.signal, by = ".id")
   }
   # filter the segments and update the signal_tbl
   if (length(new_dots$.segments) > 0) {
     grouping <- dplyr::group_vars(.eeg_lst)[dplyr::group_vars(.eeg_lst) %in% colnames(.eeg_lst$.segments)]
-    .eeg_lst$.segments <- .eeg_lst$.segments %>%
-      dplyr::group_by_at(dplyr::vars(grouping)) %>%
-      dplyr::filter(!!!new_dots$.segments) %>%
-      dplyr::ungroup()
-    .eeg_lst$.signal <- semi_join_dt(.eeg_lst$.signal, data.table::as.data.table(.eeg_lst$.segments), by = ".id")
+    .eeg_lst$.segments <- filter_dt(.eeg_lst$.segments, !!!new_dots$.segments, group_by_ = grouping)
+    .eeg_lst$.signal <- semi_join_dt(.eeg_lst$.signal, .eeg_lst$.segments, by = ".id")
   }
   .eeg_lst$.events <- semi_join_dt(.eeg_lst$.events, data.table::as.data.table(.eeg_lst$.segments), by = ".id")
-
 
   # Fix the indices in case some of them drop out
   .eeg_lst <- .eeg_lst %>% update_events_channels()
   data.table::setkey(.eeg_lst$.signal, .id, .sample)
+  data.table::setkey(.eeg_lst$.segments, .id)
   .eeg_lst %>% validate_eeg_lst()
 }
 
