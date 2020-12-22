@@ -73,28 +73,15 @@ anti_join_dt <- function(x, y, by = NULL) {
 #' @noRd
 filter_dt <- function(.data, ..., group_by_ = character(0)) {
   dots <- rlang::quos(...)
-  ## need to check if tidytable approach is faster
   newdots <- Reduce(x = dots,  f = function(x,y) rlang::quo(!!x & !!y))
  if(length(group_by_) == 0) {
-    data_env <- rlang::env(rlang::quo_get_env(dots[[1]]), .df = .data)
-   .data[ rlang::eval_tidy(newdots, data = rlang::new_data_mask(data_env))]
-
-    # works, but might be inefficient:
-   ## .data[.data[, .I[
-   ##  rlang::eval_tidy(newdots, data =
-   ##                              rlang::as_data_mask(.SD))],by = c(group_by_)
-   ##  ]$V1]
+   #TODO: this might be dangerous
+   .data[rlang::eval_tidy(newdots, data = rlang::as_data_mask(.data))]
   } else {
     col_order <- names(.data)
   .data <- .data[, .SD[rlang::eval_tidy(newdots, data = cbind(.SD,data.table::as.data.table(.BY)))]]
-    setcolororder(.data, col_order)
+    data.table::setcolorder(.data, col_order)
     .data
-    #works, but might be slower
-    ## .data[.data[, .I[
-  ##   rlang::eval_tidy(newdots, data =
-  ##                               rlang::as_data_mask(cbind(.SD,data.table::as.data.table(.BY))))],
-  ##             by = c(group_by_)]$V1]
-
   }
 }
 

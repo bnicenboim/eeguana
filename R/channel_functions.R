@@ -40,7 +40,7 @@ chs_mean.channel_dbl <- function(..., na.rm = FALSE) {
 #' @export
 chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
   # channels_info <- channels_tbl(x)
-  signal <- data.table::copy(x$.signal)
+  signal <- data.table:::shallow(x$.signal)
   signal[, mean := rowMeans_ch(.SD, na.rm = na.rm), .SDcols = channel_names(x)][, `:=`(channel_names(x), NULL)]
   x$.signal <- signal
   update_events_channels(x) %>% # update_channels_tbl(channels_info) %>%
