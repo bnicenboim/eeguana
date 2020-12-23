@@ -24,9 +24,6 @@ data <- bind(data_1, data_2)
 # for checks later
 reference_data <- data.table::copy(data)
 
-#TODO: to remove later
-  data <- as_eeg_lst(data)
-  reference_data <- as_eeg_lst(reference_data)
 ##############################################
 ### test dplyr dplyr::mutate on ungrouped eeg_lst ###
 ##############################################

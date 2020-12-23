@@ -93,7 +93,7 @@ printed <- c("# EEG data:", "", "# Signal table:", "       .id .sample       Fp1
 
 expect_equal(capture.output(data_faces_10_trials), printed)
 expect_equal(capture.output(data_faces_10_trials), capture.output(print(data_faces_10_trials)))
-invisible(expect_invisible(print(data_faces_10_trials)))
+#expect_invisible(print(data_faces_10_trials))
 })
 
 test_that("summary is correct", {
