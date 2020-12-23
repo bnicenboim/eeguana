@@ -57,7 +57,7 @@ data_blinks_more <- eeg_lst(
       .id = rep(1:4, each = N / 4),
       .sample = sample_int(rep(seq_len(N / 4), times = 4), sampling_rate = 500)
     ),
-  segments_tbl = dplyr::tibble(.id = seq.int(4), .recording = paste0("recording", c(1, 1, 2, 2)), segment = seq.int(4))
+  segments_tbl = data.table::data.table(.id = seq.int(4), .recording = paste0("recording", c(1, 1, 2, 2)), segment = seq.int(4))
 )
 
 data_more <- eeg_lst(
@@ -66,7 +66,7 @@ data_more <- eeg_lst(
       .id = rep(1:4, each = N / 4),
       .sample = sample_int(rep(seq_len(N / 4), times = 4), sampling_rate = 500)
     ),
-  segments_tbl = dplyr::tibble(.id = seq.int(4), .recording = paste0("recording", c(1, 1, 2, 2)), segment = seq.int(4))
+  segments_tbl = data.table::data.table(.id = seq.int(4), .recording = paste0("recording", c(1, 1, 2, 2)), segment = seq.int(4))
 )
 
 data_blinks_more_NA <- data_blinks_more

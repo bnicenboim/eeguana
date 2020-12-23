@@ -4,6 +4,10 @@ library(eeguana)
 
 # create fake dataset
 data_1 <- eeguana:::data_sincos3id 
+
+#TODO: to remove later
+data_1 <- as_eeg_lst(data_1)
+
 # just some different X and Y
 data_2 <- dplyr::mutate(data_1,
   .recording = "recording2",
@@ -13,7 +17,7 @@ data_2 <- dplyr::mutate(data_1,
 )
 
 # bind it all together
-data <- bind(data_1, data_2)
+data  <- bind(data_1, data_2)
 
 # for checks later
 reference_data <- data.table::copy(data)

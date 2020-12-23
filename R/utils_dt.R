@@ -79,7 +79,7 @@ filter_dt <- function(.data, ..., group_by_ = character(0)) {
    .data[rlang::eval_tidy(newdots, data = rlang::as_data_mask(.data))]
   } else {
     col_order <- names(.data)
-  .data <- .data[, .SD[rlang::eval_tidy(newdots, data = cbind(.SD,data.table::as.data.table(.BY)))]]
+  .data <- .data[, .SD[rlang::eval_tidy(newdots, data = cbind(.SD,data.table::as.data.table(.BY)))], by = c(group_by_)]
     data.table::setcolorder(.data, col_order)
     .data
   }
