@@ -37,6 +37,7 @@ eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, c
   } else {
     signal_tbl <- validate_signal_tbl(signal_tbl)
   }
+
   if(is.null(events_tbl) ) {
     events_tbl <- new_events_tbl(sampling_rate = sampling_rate(signal_tbl))
   } else if ( !is_events_tbl(events_tbl)){
@@ -46,12 +47,16 @@ eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, c
     events_tbl <- validate_events_tbl(events_tbl)
   }
   if (is.null(segments_tbl)) {
-    segments_tbl <- data.table::data.table(.id = unique(signal_tbl$.id), .recording = NA_character_)
+    segments_tbl <- data.table::data.table(.id = unique(signal_tbl$.id)
+                                           )[, .recording := NA_character_]
+
   } else {
     if(!".recording" %in% colnames(segments_tbl)){
       segments_tbl <- data.table:::shallow(segments_tbl[, .recording := NA])
     }
   }
+  segments_tbl <- data.table::as.data.table(segments_tbl)
+  data.table::setkey(segments_tbl, .id)
   segments_tbl <- validate_segments(segments_tbl)
   
   validate_eeg_lst(x = new_eeg_lst(

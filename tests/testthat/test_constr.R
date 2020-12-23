@@ -5,7 +5,7 @@ new_obj <- eeg_lst(signal_tbl = data.table::data.table(.id=1, .sample=sample_int
 
 test_that("can build eeg_lst", {
   expect_true(is_eeg_lst(eeg_lst()))
-  expect_true(is_eeg_lst((new_obj)))
+  expect_true(is_eeg_lst(new_obj))
 })
 
 test_that("[[ works", {
