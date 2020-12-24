@@ -1,30 +1,8 @@
 context("test segmentation")
 library(eeguana)
 
-data <- eeg_lst(
-  signal_tbl = tibble::tibble(
-    X = sin(1:20),
-    Y = cos(1:20),
-    .id = rep(c(1L, 2L), each = 10),
-    .sample = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500)
-  ),
-  channels_tbl =
-    dplyr::tibble(
-      .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
-      radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
-    ),
-  events_tbl = dplyr::tribble(
-    ~.id, ~.type, ~.description, ~.initial, ~.final, ~.channel,
-    1L, "New Segment", NA_character_, -4L, -4L, NA,
-    1L, "Bad", NA_character_, -2L, 0L, NA,
-    1L, "Time 0", NA_character_, 1L, 1L, NA,
-    1L, "Bad", NA_character_, 2L, 3L, "X",
-    2L, "New Segment", NA_character_, -4L, -4L, NA,
-    2L, "Time 0", NA_character_, 1L, 1L, NA,
-    2L, "Bad", NA_character_, 2L, 2L, "Y"
-  ),
-  segments_tbl = dplyr::tibble(.id = c(1L, 2L), .recording = "recording1", segment = c(1L, 2L))
-)
+data <- eeguana:::data_sincos2id
+
 
 data0 <- eeg_lst(
   signal_tbl =
@@ -51,11 +29,14 @@ data0 <- eeg_lst(
   segments_tbl = dplyr::tibble(.id = 1L, .recording = "recording1", segment = 1)
 )
 
+ref_data <- data.table::copy(data)
+ref_data0 <- data.table::copy(data0)
+
 test_that("can segment using .lim", {
   data_s <- eeg_segment(data, .type == "Time 0")
   expect_equal(data$.signal, data_s$.signal)
   expect_equal(data$.events, data_s$.events)
-  expect_equal(data$.segments, dplyr::select(data_s$.segments, -type, -description))
+  expect_equal(data$.segments, data_s$.segments[,-c("type", "description")])
   # expect_equal(data$.segments, data_s$.segments)
   d <- eeg_segment(data, .type == "Time 0")
   d_rec <- eeg_segment(d, .type == "Time 0")
@@ -146,3 +127,8 @@ test_that("duplicated triggers", {
     expect_equal(signal_tbl(data_dups), signal_tbl(data_s_e)) 
     expect_equal(segments_tbl(data_dups), segments_tbl(data_s_e)) 
 })
+
+test_that("I didn't modify the objects", {
+expect_equal(data, ref_data)
+expect_equal(data0, ref_data0)
+}
