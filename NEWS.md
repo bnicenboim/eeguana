@@ -1,6 +1,8 @@
 # eeguana 0.1.6.9000
   - internal changes:
     - removed dependency with `stringr`
+    - changed internal structure of `eeg_lst`, the segments table is a data.table rather than a tibble
+  - **Potential breaking change**: when segments with repeated columns are joined, they use data.table notation (`i...`) rather than dplyr notation. This might affect the `join` family and `eeg_segment`.
   
 # eeguana 0.1.5.9000
   - Bugs: 

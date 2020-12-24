@@ -68,29 +68,37 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
     stop("Wrong dimension of .lim")
   } else if (!rlang::quo_is_missing(.end)) {
     # to avoid no visible binding for global variable
-        .zero <- NULL
+    .zero <- NULL
 #          warning(sprintf("Number of initial markers (%d) doesn't match the number of final markers (%d)", nrow(times0), nrow(times_end)))
-          times0 <- dplyr::mutate(times0,.zero=TRUE)
-          times_end <- dplyr::mutate(times_end,.zero=FALSE) 
-          times <- dplyr::bind_rows(times0,times_end) %>%
-              dplyr::arrange(.id, .first_sample) 
-          unmatched_initial <- times %>%
-              dplyr::filter(dplyr::lead(.zero, default = TRUE), .zero) %>%
-              dplyr::select(-.zero)
-          unmatched_final <- times %>% 
-              dplyr::filter(!dplyr::lag(.zero,default = FALSE), !.zero)%>%
-              dplyr::select(-.zero)
+    times0[, .zero := TRUE]
+    times_end[, .zero:= FALSE]
+
+    times <- rbind(times0, times_end)
+    data.table::setorder(times, .id, .first_sample)
+
+    unmatched_initial <- times[shift(.zero, fill = TRUE, type = "lead") & .zero, -".zero"]
+    unmatched_final <- times[!shift(.zero, fill = FALSE, type = "lag") & !.zero, -".zero"]
+    ## unmatched_initial <- times %>%
+    ##           dplyr::filter(dplyr::lead(.zero, default = TRUE), .zero) %>%
+    ##           dplyr::select(-.zero)
+    ##       unmatched_final <- times %>%
+    ##           dplyr::filter(!dplyr::lag(.zero,default = FALSE), !.zero)%>%
+    ##           dplyr::select(-.zero)
     if(nrow(unmatched_initial) >0){
       warning("Unmatched initial segments:\n\n",  paste0(
           utils::capture.output(unmatched_initial%>%
         dplyr::rename(.initial = .first_sample)),
           collapse = "\n"
         ))
-      times_end <- dplyr::bind_rows(times_end, unmatched_initial) %>%
-                dplyr::arrange(.id, .first_sample)
-      times0 <- dplyr::anti_join(times0, unmatched_initial, by =c(".id",".type",".description",".first_sample")) %>%
-                dplyr::bind_rows(unmatched_initial %>% dplyr::mutate(.type = "incorrect segment")) %>%
-                dplyr::arrange(.id, .first_sample)
+      times_end <- rbind(times_end, unmatched_initial, fill = TRUE)
+      data.table::setorder(times_end,.id, .first_sample)
+
+      times0 <- times0[!unmatched_initial, on = c(".id",".type",".description",".first_sample"), allow.cartesian = TRUE] %>%
+        rbind(., unmatched_initial[,.type := "incorrect segment"], fill = TRUE)
+      data.table::setorder(times0,.id, .first_sample)
+      ## times0 <- dplyr::anti_join(times0, unmatched_initial, by =c(".id",".type",".description",".first_sample")) %>%
+      ##           dplyr::bind_rows(unmatched_initial %>% dplyr::mutate(.type = "incorrect segment")) %>%
+      ##           dplyr::arrange(.id, .first_sample)
     } 
     if(nrow(unmatched_final) >0){
       warning("Unmatched final segments:\n\n",  paste0(
@@ -98,21 +106,22 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
         dplyr::rename(.initial = .first_sample)),
           collapse = "\n"
         ))
-      times0 <- dplyr::bind_rows(times0, unmatched_final%>%
-            dplyr::mutate(.type = "incorrect segment")) %>%
-                dplyr::arrange(.id, .first_sample)
+      times0 <- rbind(times0, unmatched_final[,.type := "incorrect segment"], fill = TRUE)
+      data.table::setorder(times0, .id, .first_sample)
     }
-    times0 <- times0 %>%  dplyr::select(-.zero)
-    times_end <- times_end %>%  dplyr::select(-.zero)
+    times0[,.zero := NULL]
+    times_end[, .zero := NULL]
     
     seg_names <- colnames(times0)[!startsWith(colnames(times0), ".")]
-    segmentation_info <- times0 %>%
-      dplyr::mutate(
-        .lower = .first_sample,
-        .upper = times_end$.first_sample,
-        .new_id = seq_len(dplyr::n())
-      ) %>%
-      dplyr::select(-dplyr::one_of(seg_names))
+
+    times0[, `:=`(
+      .lower = .first_sample,
+      .upper = times_end$.first_sample,
+      .new_id = seq_len(.N)
+     )]
+
+    if(length(seg_names)>0) times0[,`:=`(c(seg_names), NULL)] #deletes cols in seg_names
+
   }       
 
   times0[, .first_sample := sample_int(.first_sample, sampling_rate = sampling_rate(.data))]
@@ -143,8 +152,6 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
   
   .data$.signal <- new_signal
 
-
-
   .data$.events <- update_events(.data$.events, times0)
   ## data.table::setattr(.data$.events,"class",c("events_tbl",class(.data$.events)))
 
@@ -156,7 +163,7 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
  # remove the . from the segments so that it's clear that it's not protected
   data.table::setnames(times0, -1, stringr::str_remove(colnames(times0)[-1], "^\\."))
   #right join:
-  .data$.segments <- .data$.segments[times0, on =".id", allow.cartesian = TRUE  ][, .id := 1:.N]
+  .data$.segments <- .data$.segments[times0, on =".id", allow.cartesian = TRUE ][, .id := 1:.N]
 
   if (!is.null(.data$.segments$.recording) && !anyNA(.data$.segments$.recording)) {
     .data$.segments <- .data$.segments[,segment := seq_len(.N) ,by = ".recording"]

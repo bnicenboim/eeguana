@@ -42,15 +42,17 @@ test_that("can segment using .lim", {
   d_rec <- eeg_segment(d, .type == "Time 0")
   expect_equal(d$.signal, d_rec$.signal)
   expect_equal(d$.events, d_rec$.events)
-  expect_equal(dplyr::select(d$.segments, -type, -description), dplyr::select(d_rec$.segments, -type.x, -description.x, -type.y, -description.y))
-  # expect_equal(d$.segments,d_rec$.segments)
+  expect_equal(dplyr::select(d$.segments, -type, -description), dplyr::select(d_rec$.segments, -i.type, -i.description, -type, -description))
+
+  #old with data.table
+  ## expect_equal(dplyr::select(d$.segments, -type, -description), dplyr::select(d_rec$.segments, -type.x, -description.x, -type.y, -description.y))
+
   d_0 <- eeg_segment(data, .type == "Time 0", .lim = c(0, Inf))
   d_0_0 <- eeg_segment(d_0, .type == "Time 0", .lim = c(0, Inf))
   expect_equal(nrow(d_0$.signal), 10)
   expect_equal(d_0$.signal, d_0_0$.signal)
   expect_equal(d_0$.events, d_0_0$.events)
-  expect_equal(dplyr::select(d_0$.segments, -type, -description), dplyr::select(d_0_0$.segments, -type.x, -description.x, -type.y, -description.y))
-  # expect_equal(d_0$.segments,d_0_0$.segments)
+  expect_equal(dplyr::select(d_0$.segments, -type, -description), dplyr::select(d_0_0$.segments, -type, -description, -i.type, -i.description))
   s1 <- eeg_segment(data0, .type == "Time 0", .lim = c(0, 1 / 500))
   expect_equal(s1$.signal$X[1], data0$.signal$X[6])
   expect_equal(nrow(s1$.signal), 4)
