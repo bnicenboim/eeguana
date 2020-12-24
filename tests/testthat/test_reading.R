@@ -1,7 +1,7 @@
 context("Read  files")
 library(eeguana)
 
-multiplexed_bin_bv1 <- read_vhdr(file = system.file("testdata", "asalab_export_bv.vhdr", package = "eeguana"), .recording = "bv2")
+multiplexed_bin_bv1 <- read_vhdr(file = system.file("testdata", "asalab_export_bv.vhdr",  package = "eeguana"), .recording = "bv2")
 multiplexed_bin_bv2 <- read_vhdr(system.file("testdata", "bv_export_bv_txt_bin_multi.vhdr", package = "eeguana"), .recording = "bv2")
 vectorized_bin_bv2 <- read_vhdr(system.file("testdata", "bv_export_bv_txt_bin_vector.vhdr", package = "eeguana"), .recording = "bv2")
 multiplexed_ascii_bv2 <- read_vhdr(system.file("testdata", "bv_export_bv_txt_txt_multi.vhdr", package = "eeguana"), .recording = "bv2")

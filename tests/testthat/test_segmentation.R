@@ -133,4 +133,4 @@ test_that("duplicated triggers", {
 test_that("I didn't modify the objects", {
 expect_equal(data, ref_data)
 expect_equal(data0, ref_data0)
-}
+})

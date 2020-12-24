@@ -47,9 +47,17 @@ read_dat <- function(file, header_info = NULL, events = NULL,
       what = type, n = file.info(file)$size/bytes,
       size = bytes)
 
-    # TODO: check to optimize the following line
-    raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = multiplexed) %>%
+
+
+    raw_signal <- matrix(amps, ncol = n_chan, byrow = multiplexed) %>%
       data.table::as.data.table()
+    ## that one is faster than:
+    ## raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = multiplexed) %>%
+    ##   data.table::as.data.table(),
+    ## raw_signal <- data.table::data.table(matrix(amps, ncol = n_chan, byrow = multiplexed)
+                                         )
+   )
+
   } else if (common_info$format == "ASCII") {
     raw_signal <- data.table::fread(file,
       skip = common_info$SkipLines,
@@ -148,13 +156,9 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 }
 
 build_segments_tbl <- function(.id, .recording) {
-  dplyr::tibble(
-    .id = .id,
-    .recording = .recording
-  ) %>%
-    dplyr::group_by(.recording) %>%
-    dplyr::mutate(segment = 1:dplyr::n()) %>%
-    dplyr::ungroup()
+  data.table::data.table(.id = .id)[,
+               .recording := .recording][
+               ,segment := seq_len(.N), by =".recording"]
 }
 add_event_channel <- function(events, labels) {
   labels <- make_names(labels)
