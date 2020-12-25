@@ -247,8 +247,6 @@ data_s4 <- data_s3 %>%
 
 
 
-
-
 ######################################
 ### test with pure dplyr functions ###
 ######################################
@@ -257,12 +255,16 @@ extended_signal <- dplyr::left_join(dplyr::as_tibble(data$.signal), data$.segmen
 e_data_s1 <- data.table::data.table(extended_signal)[, .(X = mean(X), Y = mean(Y)),
   keyby = c("condition", ".sample", ".recording")
   ]
+
+## e_data_s1 %>% group_by(condition, .sample, .recording) %>% summarize(X=mean(X)) %>% print(n=100)
+
 data.table::setkeyv(e_data_s1,cols =  c("condition",".recording"))
 s_data_s1 <- e_data_s1[, unique(.SD), .SDcols = c("condition", ".recording")]
 
 e_data_s2 <- data.table::data.table(e_data_s1)[, .(X = mean(X), Y = mean(Y)),
   keyby = c("condition", ".sample")
 ]
+
 s_data_s2 <- e_data_s2[, unique(.SD), .SDcols = c("condition")]
 
 e_data_s3 <- data.table::data.table(e_data_s2)[, .(X = mean(X), Y = mean(Y)),

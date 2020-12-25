@@ -33,11 +33,18 @@ summarize_segments <- function(segments, segments_groups, last_id, .groups) {
   if (length(segments_groups) != 0) {
     # doesn't remove columns:
     grouped_seg <- unique(segments, by = segments_groups)
+
     # check if recording didn't change, if so leave it
     grouped_seg_rec <- unique(segments, by = c(segments_groups, ".recording"))
+
+
+    #because it's keyby, the order needs to change here:
+    data.table::setorderv(grouped_seg, segments_groups)
+    data.table::setorderv(grouped_seg_rec, segments_groups)
+
     if(identical(grouped_seg, grouped_seg_rec)){
       segments_groups <- unique(c(".recording", segments_groups))
-    }
+     }
     grouped_seg <- grouped_seg[, segments_groups, with = FALSE]
 
 
