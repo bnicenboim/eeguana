@@ -6,8 +6,6 @@ data <- eeguana:::data_sincos2id
 
 table0 <- dplyr::tibble(.id = 1L, condition = "BLUE")
 
-#TODO remove later
-data <- as_eeg_lst(data)
 
 data_l <- dplyr::left_join(data, table0)
 data_s <- dplyr::semi_join(data, table0)

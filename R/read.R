@@ -41,10 +41,8 @@ read_vhdr <- function(file, .sep = .type == "New Segment", .zero = .type == "Tim
   # .zero = rlang::quo(.type == "Time 0")
 
   # Takes the files from the header:
-  file_path <- chr_match(file, "(.*(/|\\\\)).")[, 2] %>% {
-    if (is.na(.)) NULL else .
-  }
-  
+  #file <- "faces.vhdr"
+  file_path <- dirname(file)
   
   header_info <- read_vhdr_metadata(file)
   
@@ -67,7 +65,7 @@ read_vhdr <- function(file, .sep = .type == "New Segment", .zero = .type == "Tim
   # It only accepts .dat files (for now)
   vmrk_file <- header_info$common_info$vmrk_file
 
-  file_vmrk <- paste0(file_path, vmrk_file)
+  file_vmrk <- file.path(file_path, vmrk_file)
   if (!file.exists(file_vmrk)) stop(sprintf("File %s not found in %s",file_vmrk, getwd()))
   events_dt <-
    tryCatch(read_vmrk(file = file_vmrk),
@@ -83,7 +81,7 @@ read_vhdr <- function(file, .sep = .type == "New Segment", .zero = .type == "Tim
         })
   if (data_ext == "dat" || data_ext == "eeg") {
     x <- read_dat(
-      file = paste0(file_path, data_file),
+      file = file.path(file_path, data_file),
       header_info = header_info,
       events = events_dt,
       .recording = .recording,

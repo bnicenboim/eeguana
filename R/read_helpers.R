@@ -55,8 +55,8 @@ read_dat <- function(file, header_info = NULL, events = NULL,
     ## raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = multiplexed) %>%
     ##   data.table::as.data.table(),
     ## raw_signal <- data.table::data.table(matrix(amps, ncol = n_chan, byrow = multiplexed)
-                                         )
-   )
+                                         ## )
+   ## )
 
   } else if (common_info$format == "ASCII") {
     raw_signal <- data.table::fread(file,

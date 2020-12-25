@@ -76,8 +76,8 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
     times <- rbind(times0, times_end)
     data.table::setorder(times, .id, .first_sample)
 
-    unmatched_initial <- times[shift(.zero, fill = TRUE, type = "lead") & .zero, -".zero"]
-    unmatched_final <- times[!shift(.zero, fill = FALSE, type = "lag") & !.zero, -".zero"]
+    unmatched_initial <- times[data.table::shift(.zero, fill = TRUE, type = "lead") & .zero, -".zero"]
+    unmatched_final <- times[!data.table::shift(.zero, fill = FALSE, type = "lag") & !.zero, -".zero"]
     ## unmatched_initial <- times %>%
     ##           dplyr::filter(dplyr::lead(.zero, default = TRUE), .zero) %>%
     ##           dplyr::select(-.zero)
@@ -190,19 +190,21 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
 #' * .upper: upper boundary of the event, (included)
 #' * .new_id: new id for the event, current one if left empty
 #' @noRd
-update_events <- function(events_tbl, segmentation) {
+update_events <- function(events_dt, segmentation) {
   segmentation <- data.table:::shallow(segmentation)
-  segmentation <- segmentation[, c(".id", ".first_sample", ".lower",".upper",".new_id")]
+  #needs to remove the class quickly:
+  data.table::setDT(segmentation)
   segmentation[, .new_id := if (!".new_id" %in% colnames(segmentation)) .id else .new_id ]
   segmentation[, .first_sample := if (!".first_sample" %in% colnames(segmentation)) 1 else .first_sample]
-  cols_events <- colnames(events_tbl)
+  segmentation <- segmentation[, c(".id", ".first_sample", ".lower",".upper",".new_id")]
+  cols_events <- colnames(events_dt)
   cols_events_temp <- unique(c(cols_events, colnames(segmentation), "i..initial"))
   # i..initial is the.initial of events
-  new_events <- segmentation[events_tbl, on = .(.id), ..cols_events_temp, allow.cartesian = TRUE][
+  new_events <- segmentation[events_dt, on = .(.id), ..cols_events_temp, allow.cartesian = TRUE][
     i..initial <= .upper & .lower <= .final
   ]
   new_events[, .initial := pmax(i..initial, .lower) - .first_sample + 1L]
   new_events[, .final := pmin(.final, .upper) - .first_sample + 1L]
   new_events[, .id := .new_id][, ..cols_events] %>%
-    as_events_tbl(., sampling_rate = sampling_rate(events_tbl))
+    as_events_tbl(., sampling_rate = sampling_rate(events_dt))
 }

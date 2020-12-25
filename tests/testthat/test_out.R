@@ -88,8 +88,9 @@ printed <- c("# EEG data:", "", "# Signal table:", "       .id .sample       Fp1
 "542:   1     Stimulus         s130    56380  56380     <NA>", 
 "543:   1     Stimulus          s70    56750  56750     <NA>", 
 "544:   1     Stimulus         s130    58328  58328     <NA>", 
-"", "# Segments table:", "# A tibble: 1 x 3", "    .id .recording segment", 
-"  <int> <chr>        <int>", "1     1 faces.vhdr       1")
+"", "# Segments table:",  "   .id .recording segment",
+ "1:   1 faces.vhdr       1")
+
 
 expect_equal(capture.output(data_faces_10_trials), printed)
 expect_equal(capture.output(data_faces_10_trials), capture.output(print(data_faces_10_trials)))

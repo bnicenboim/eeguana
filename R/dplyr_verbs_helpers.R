@@ -27,11 +27,11 @@ filter_eeg_lst <- function(.eeg_lst, ...) {
   if (length(new_dots$.signal) > 0) {
     cond_cols <- names_other_col(.eeg_lst, dots, tbl = ".segments")
     ## events_col <- names_other_col(.eeg_lst, dots,".events")
-    extended_signal <- extended_signal(.eeg_lst, cond_cols) # , events_col = events_col)
+    extended_signal_dt <- extended_signal(.eeg_lst, cond_cols) # , events_col = events_col)
     by <- as.character(dplyr::group_vars(.eeg_lst))
 
     cols_signal <- colnames(.eeg_lst$.signal)
-    .eeg_lst$.signal <- filter_dt(extended_signal, !!!dots, group_by_ = by) %>%
+    .eeg_lst$.signal <- filter_dt(extended_signal_dt, !!!dots, group_by_ = by) %>%
       .[, ..cols_signal]
     if (nrow(.eeg_lst$.events) > 0) {
       range_s <- .eeg_lst$.signal[, .(.lower = min(.sample), .upper = max(.sample)), by = .id]

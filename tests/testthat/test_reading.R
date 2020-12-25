@@ -105,10 +105,11 @@ test_that("seg matches", {
   expect_equal(seg_ascii_bv2$.segments$segment, 1:12)
 
   expect_equal(events_tbl(seg_ascii_bv2)[.type == "Stimulus"], events_tbl(seged_ascii))
-  expect_equal(seg_ascii_bv2$.segments, dplyr::select(seged_ascii$.segments, -type, -description))
+  expect_equal(seg_ascii_bv2$.segments, seged_ascii$.segments[, -c("type", "description")]
+)
 
   expect_equal(seg_bin_bv2$.signal, seged_bin$.signal)
   expect_equal(events_tbl(seg_bin_bv2)[.type == "Stimulus"], events_tbl(seged_bin))
-  expect_equal(seg_bin_bv2$.segments, dplyr::select(seged_bin$.segments, -type, -description))
+  expect_equal(seg_bin_bv2$.segments, seged_bin$.segments[, -c("type", "description")])
 })
 

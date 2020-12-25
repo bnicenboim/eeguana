@@ -9,7 +9,6 @@ data_1 <- eeguana:::data_sincos3id
 data_2 <- dplyr::mutate(data_1, .recording = "recording2", X = sin(X + 10), Y = cos(Y - 10), condition = c("b", "a", "b"))
 data <- bind(data_1, data_2)
 
-data <- as_eeg_lst(data)
 # for checks later
 reference_data <- data.table::copy(data)
 
