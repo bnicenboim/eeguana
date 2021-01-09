@@ -435,3 +435,35 @@ firwin <- function(N = NULL, cutoff = NULL, width = NULL, window = "hamming", pa
   }
   return(h)
 }
+
+#' Emulates scipi.signal.iirfilter using signal (and gsignal package).
+#'
+#' @param n filter order or generic filter model
+#' @param Wn critical frequencies of the filter. ‘W’ must be a scalar for low-pass and high-pass filters, and ‘W’ must be a two-element vector ‘c(low, high)’ specifying the lower and upper bands. For digital filters, ‘W’ must be between 0 and 1 where 1 is the Nyquist frequency.
+#' @param rp For `cheby1`, `cheby2`, and `ellip` filters the dB of pass band ripple
+#' @param rs For `ellip` filters the dB of stop band ripple
+#' @param btype Filter type, one of ‘"low"’ for a low-pass filter, ‘"high"’ for a high-pass filter, ‘"stop"’ for a stop-band (band-reject) filter, or ‘"pass"’ for a pass-band filter.
+#' @noRd
+#'
+iirfilter <- function(n, Wn, rp, rs,  btype, ftype = c("butter", "cheby1", "cheby2", "ellip"), output = c("ba", "zpk", "sos")){
+
+  ftype <- match.arg(ftype)
+
+  out <- switch(ftype, butter = signal::butter(n, W = Wn, type = btype),
+                cheby1 = signal::cheby1(n, Rp = rp, W = Wn, type = btype),
+                cheby2 = signal::cheby2(n, Rp = rp, W = Wn, type = btype),
+                ellip = signal::ellip(n, Rp = rp, Rs = rs, W = Wn, type = btype),
+                )
+
+  output <- match.arg(output)
+  if(output == "ba"){
+    list(b = out$b, a =out$a)
+    } else if(output == "zpk"){
+      zpk = signal::as.Zpg(out)
+      list(z = zpk$zero, p = zpk$pole, k = zpk$gain )
+    } else if(output == "sos"){
+       require_pkg("gsignal")
+       sos <- gsignal::as.Sos(out)
+       list(sos = sos$sos, g = sos$g)
+    }
+}

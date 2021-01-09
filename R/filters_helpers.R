@@ -76,6 +76,291 @@ firwin_design <- function(N, freq, gain, window = "hamming", sampling_rate) {
 }
 
 
+#' Use IIR parameters to get filtering coefficients.
+#'
+#'
+#' This function works like a wrapper for iirdesign and iirfilter in
+#' scipy.signal to make filter coefficients for IIR filtering. It also
+#' estimates the number of padding samples based on the filter ringing.
+#' It creates a new iir_params dict (or updates the one passed to the
+#' function) with the filter coefficients ('b' and 'a') and an estimate
+#' of the padding necessary ('padlen') so IIR filtering can be performed.
+#' Parameters
+#' ----------
+#' iir_params : dict
+#'     Dictionary of parameters to use for IIR filtering.
+#'         * If ``iir_params['sos']`` exists, it will be used as
+#'           second-order sections to perform IIR filtering.
+#'           .. versionadded:: 0.13
+#'         * Otherwise, if ``iir_params['b']`` and ``iir_params['a']``
+#'           exist, these will be used as coefficients to perform IIR
+#'           filtering.
+#'         * Otherwise, if ``iir_params['order']`` and
+#'           ``iir_params['ftype']`` exist, these will be used with
+#'           `scipy.signal.iirfilter` to make a filter.
+#'           You should also supply ``iir_params['rs']`` and
+#'           ``iir_params['rp']`` if using elliptic or Chebychev filters.
+#'         * Otherwise, if ``iir_params['gpass']`` and
+#'           ``iir_params['gstop']`` exist, these will be used with
+#'           `scipy.signal.iirdesign` to design a filter.
+#'         * ``iir_params['padlen']`` defines the number of samples to pad
+#'           (and an estimate will be calculated if it is not given).
+#'           See Notes for more details.
+#'         * ``iir_params['output']`` defines the system output kind when
+#'           designing filters, either "sos" or "ba". For 0.13 the
+#'           default is 'ba' but will change to 'sos' in 0.14.
+#' f_pass : float or list of float
+#'     Frequency for the pass-band. Low-pass and high-pass filters should
+#'     be a float, band-pass should be a 2-element list of float.
+#' f_stop : float or list of float
+#'     Stop-band frequency (same size as f_pass). Not used if 'order' is
+#'     specified in iir_params.
+#' sfreq : float | None
+#'     The sample rate.
+#' btype : str
+#'     Type of filter. Should be 'lowpass', 'highpass', or 'bandpass'
+#'     (or analogous string representations known to
+#'     :func:`scipy.signal.iirfilter`).
+#' return_copy : bool
+#'     If False, the 'sos', 'b', 'a', and 'padlen' entries in
+#'     ``iir_params`` will be set inplace (if they weren't already).
+#'     Otherwise, a new ``iir_params`` instance will be created and
+#'     returned with these entries.
+#' %(verbose)s
+#' Returns
+#' -------
+#' iir_params : dict
+#'     Updated iir_params dict, with the entries (set only if they didn't
+#'     exist before) for 'sos' (or 'b', 'a'), and 'padlen' for
+#'     IIR filtering.
+#' See Also
+#' --------
+#' mne.filter.filter_data
+#' mne.io.Raw.filter
+#' Notes
+#' -----
+#' This function triages calls to :func:`scipy.signal.iirfilter` and
+#' :func:`scipy.signal.iirdesign` based on the input arguments (see
+#' linked functions for more details).
+#' .. versionchanged:: 0.14
+#'    Second-order sections are used in filter design by default (replacing
+#'    ``output='ba'`` by ``output='sos'``) to help ensure filter stability
+#'    and reduce numerical error.
+#' @examples
+#'
+#'  ##iir_params can have several forms. Consider constructing a low-pass
+#'   ## filter at 40 Hz with 1000 Hz sampling rate. ## In the most basic (2-parameter) form of iir_params, the order of the ## filter 'N' and the type of filtering 'ftype' are specified. To get ## coefficients for a 4th-order Butterworth filter, this would be:
+#'
+#' # In Python:
+#'
+#' library(reticulate)
+#' py_run_string("import mne")
+#' py_run_string("iir_params = dict(order=4, ftype='butter', output='ba')")
+#' py_run_string("iir_params = mne.filter.construct_iir_filter(iir_params, 40, None, 1000, 'low', return_copy=False)")
+#' py_run_string("print(iir_params)")
+#'
+#' iir_params = list(order =4, ftype ="butter", output="ba")
+#' construct_iir_filter(iir_params, f_pass = 40, f_stop = NULL, sfreq = 1000, btype = "low")
+#' >>> print((2 * len(iir_params['sos']), iir_params['padlen']))  # doctest:+SKIP
+#' (4, 82)
+#' Filters can also be constructed using filter design methods. To get a
+#' 40 Hz Chebyshev type 1 lowpass with specific gain characteristics in the
+#' pass and stop bands (assuming the desired stop band is at 45 Hz), this
+#' would be a filter with much longer ringing:
+#' >>> iir_params = dict(ftype='cheby1', gpass=3, gstop=20, output='sos')  # doctest:+SKIP
+#' >>> iir_params = construct_iir_filter(iir_params, 40, 50, 1000, 'low')  # doctest:+SKIP
+#' >>> print((2 * len(iir_params['sos']), iir_params['padlen']))  # doctest:+SKIP
+#' (6, 439)
+#' Padding and/or filter coefficients can also be manually specified. For
+#' a 10-sample moving window with no padding during filtering, for example,
+#' one can just do:
+#' >>> iir_params = dict(b=np.ones((10)), a=[1, 0], padlen=0)  # doctest:+SKIP
+#' >>> iir_params = construct_iir_filter(iir_params, return_copy=False)  # doctest:+SKIP
+#' >>> print((iir_params['b'], iir_params['a'], iir_params['padlen']))  # doctest:+SKIP
+#' (array([1., 1., 1., 1., 1., 1., 1., 1., 1., 1.]), [1, 0], 0)
+#' @noRd
+
+construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NULL,
+                         btype=NULL){
+
+  known_filters = c("butter", "cheby1", "cheby2", "ellip")
+  ## c('bessel', 'butter', 'butterworth', 'cauer', 'cheby1',
+  ##                    'cheby2', 'chebyshev1', 'chebyshev2', 'chebyshevi',
+  ##                    'chebyshevii', 'ellip', 'elliptic')
+    # if the filter has been designed, we're good to go
+    Wp = NULL
+    if ('sos' %in% names(iir_params)){
+        system = iir_params[['sos']]
+        output = 'sos'
+    } else if ('a' %in% names(iir_params) & 'b' %in% names(iir_params)){
+        system = c(iir_params[['b']], iir_params[['a']])
+        output = 'ba'
+    } else {
+        output = ifelse(is.null(iir_params[["output"]]), 'ba', iir_params[["output"]])
+        # ensure we have a valid ftype
+        if (!'ftype'  %in% names(iir_params))
+            stop("ftype must be an entry in iir_params if ''b'' ",
+                               "and ''a'' are not specified", call. = FALSE)
+        ftype = iir_params[['ftype']] %||% ""
+        if (!ftype  %in% known_filters)
+            stop("ftype must one of ", paste0(known_filters, sep = ", "))
+
+        # use order-based design
+        ## f_pass = np.atleast_1d(f_pass)
+        ## if f_pass.ndim > 1:
+            ## raise ValueError('frequencies must be 1D, got %dD' % f_pass.ndim)
+        edge_freqs <- paste0(f_pass, collapse = ", ")
+        Wp = f_pass / (sfreq / 2)
+        # IT will de designed
+        ## ftype_nice = _ftype_dict.get(ftype, ftype)
+        if(options()$eeguana.verbose){
+          message("IIR filter parameters\n",
+                  "---------------------\n",
+                  ftype," ", btype,
+                  " zero-phase (two-pass forward and reverse) \n",
+                    " non-causal filter:\n" )
+        }
+# SciPy designs for -3dB but we do forward-backward, so this is -6dB
+        if ('order' %in% names(iir_params)){
+
+           system <- iirfilter(iir_params[["order"]],
+                               rp = iir_params[["rp"]],
+                               rs = iir_params[["rs"]],
+                               Wn = Wp,
+                               btype = btype,
+                               ftype = ftype,
+                               output = output)
+          forder <-  (2 * iir_params[['order']] * length(Wp))
+            if(options()$eeguana.verbose)
+              message("- Filter order " , forder,"  (effective, after forward-backward)")
+
+        } else {
+          #TODO
+            ## # use gpass / gstop design
+            ## Ws = np.asanyarray(f_stop) / (float(sfreq) / 2)
+            ## if 'gpass' not in iir_params or 'gstop' not in iir_params:
+            ##     raise ValueError('iir_params must have at least ''gstop'' and'
+            ##                      ' ''gpass'' (or ''N'') entries')
+            ## system = iirdesign(Wp, Ws, iir_params['gpass'],
+            ##                    iir_params
+                               ## ['gstop'], ftype=ftype, output=output)
+        }
+    }
+
+    if (is.null(system))
+        stop('coefficients could not be created from iir_params')
+    # do some sanity checks
+    ## _check_coefficients(system)
+
+    # get the gains at the cutoff frequencies
+    if (!is.null(Wp)){
+        if (output == 'sos'){
+          #originally with sosfreqz, TODO check if it works
+          #cutoffs = gsignal::freqz(system, n=Wp * pi)$h
+        } else {
+          #CAN'T make this work in R
+        ## cuttoff <- s$signal$freqz(system$b, system$a, worN=Wp * pi)[[2]]
+
+        ## signal::buttord(Wp =40,Ws=40)
+        ## gsignal::freqz(system$b, a = system$a)$h
+##         s$signal$freqz(system$b, system$a, worN = .2)[[2]]
+## np <- reticulate::import("numpy")
+##         npp <- np$polynomial$polynomial
+##         zm1 = exp(-1i * Wp * pi)
+##         h = (signal::polyval(zm1, system$b) /
+##              pracma::polyval(zm1, system$a))
+
+##              pracma::polyval(zm1, 1)
+##         npp$polyval(zm1, 1)
+##         np$polyval(zm1, 1)
+##         (npp$polyval(zm1, system$b, tensor=FALSE) / npp$polyval(zm1, system$a, tensor=FALSE))
+##         (npp$polyval(zm1, system$b, tensor=TRUE) / npp$polyval(zm1, system$a, tensor=TRUE))
+
+##         n <- 2*pi*Wp  * pi/(2*pi)
+##         cutoffs <-
+##           signal::freqz(system$b, a = system$a,  n=Wp * pi)$h
+##           signal::freqz(system$b, a = system$a, n = .9)$h
+##           COUDN't DO it yet
+ cutoffs <- NA
+        }
+
+        ## # 2 * 20 here because we do forward-backward filtering
+        cutoffs <- 40 * log10(abs(cutoffs))
+  if (options()$eeguana.verbose)
+    message("Cutoff(s) at ", edge_freqs, " Hz: ", cutoffs, "dB")
+    }
+# now deal with padding
+    if (!'padlen' %in% names(iir_params)){
+        padlen = estimate_ringing_samples(system)
+    } else{
+        padlen = iir_params[['padlen']]
+    }
+    ## if return_copy:
+    ##     iir_params = deepcopy(iir_params)
+
+    iir_params[["padlen"]] <- padlen
+    if (output == 'sos'){
+        iir_params[["sos"]] <- system$sos
+    } else {
+        iir_params[["b"]] <- system$b
+        iir_params[["a"]] <- system$a
+    }
+    iir_params
+}
+
+#' Estimate filter ringing
+#'
+#' @param system  list(b, a)
+#' @param max_try  Approximate maximum number of samples to try. This will be changed to a multiple of 1000.
+#'
+#' @return integer with the approximate ringing.
+#'
+#' @noRd
+estimate_ringing_samples <- function(system, max_try=100000){
+  if(all(c("a","b") %in% names(system))){
+      kind = 'ba'
+      b = system$b
+      a = system$a
+    }   else {
+      kind = 'sos'
+      sos = system$sos
+    }
+
+    n_per_chunk = 1000
+
+    n_chunks_max = ceiling(max_try/n_per_chunk)
+    x = rep(0, n_per_chunk)
+    x[1] = 1
+    last_good = n_per_chunk
+    thresh_val = 0
+
+    for (ii in seq_len(n_chunks_max)){
+        if (kind == 'ba'){
+            h = signal::filter(b, a, x)
+             #s$signal$lfilter(b, a, x)
+        } else {
+            h = gsignal::sosfilt(sos, x)
+        }
+        x[1] = 0  # for subsequent iterations we want zero input
+        h = abs(h)
+        #h is too high
+
+        thresh_val = max(0.001 * max(h), thresh_val)
+         ## np$where(np$abs(h) > thresh_val)[[1]]
+        idx = which(abs(h) > thresh_val)
+        # it should be vetweeb 1 and 83 for the example
+        if (length(idx) > 1){
+            last_good = idx[length(idx)]
+        } else{  # this iteration had no sufficiently large values
+            idx = (ii - 2) * n_per_chunk + last_good
+            return(idx) #stops the for loop and return this
+        }
+    }
+  warning('Could not properly estimate ringing for the filter')
+  return(n_per_chunk * n_chunks_max)
+}
+
+
 construct_fir_filter <- function(sampling_rate, freq, gain, filter_length, phase = "zero",
                                  fir_window = "hamming", fir_design = "firwin") {
   ## """Filter signal using gain control points in the frequency domain.
@@ -380,7 +665,8 @@ create_filter <- function(data,
 
   ## LOW PASS:
   if (type == "low") {
-    message("Setting up low-pass filter at ", h_freq, " Hz")
+    if(options()$eeeguana.verbose)
+      message("Setting up low-pass filter at ", h_freq, " Hz")
     f_pass <- f_stop <- h_freq # iir
     freq <- c(0, h_freq, h_stop) # 0, f_p, f_s
     gain <- c(1, 1, 0)
@@ -390,7 +676,8 @@ create_filter <- function(data,
     }
     ## HIGH PASS
   } else if (type == "high") {
-    message("Setting up high-pass filter at ", l_freq, " Hz")
+    if(options()$eeeguana.verbose)
+      message("Setting up high-pass filter at ", l_freq, " Hz")
     f_pass <- f_stop <- l_freq # iir
     freq <- c(l_stop, l_freq, sampling_rate / 2) # stop, pass,.._
     gain <- c(0, 1, 1)
@@ -399,7 +686,8 @@ create_filter <- function(data,
       gain <- c(0, gain)
     }
   } else if (type == "bandpass") {
-    message("Setting up band-pass filter from ", l_freq, " - ", h_freq, " Hz")
+    if(options()$eeeguana.verbose)
+      message("Setting up band-pass filter from ", l_freq, " - ", h_freq, " Hz")
     f_pass <- f_stop <- c(l_freq, h_freq) # iir
     freq <- c(l_stop, l_freq, h_freq, h_stop) # f_s1, f_p1, f_p2, f_s2
     gain <- c(0, 1, 1, 0)
@@ -417,7 +705,9 @@ create_filter <- function(data,
     if (length(l_freq) != length(h_freq)) {
       stop("l_freq and h_freq must be the same length")
     }
-    message("Setting up band-stop filter from ", h_freq, " - ", l_freq, " Hz")
+
+    if(options()$eeeguana.verbose)
+      message("Setting up band-stop filter from ", h_freq, " - ", l_freq, " Hz")
 
     ## Note: order of outputs is intentionally switched here!
     ## data, sampling_rate, f_s1, f_s2, f_p1, f_p2, filter_length, phase, \
@@ -456,14 +746,16 @@ create_filter <- function(data,
       )
     }
   }
-  ## if method == "iir":
-  ## construct_iir_filter(iir_params, f_pass, f_stop, sampling_rate, type)
-  ## if method == "fir":
-  construct_fir_filter(
-    sampling_rate, freq, gain, filter_length, phase,
-    fir_window, fir_design
-  )
+  if(method == "iir"){
+    construct_iir_filter(iir_params, f_pass, f_stop, sampling_rate, type)
+  } else if (method == "fir"){
+    construct_fir_filter(
+      sampling_rate, freq, gain, filter_length, phase,
+      fir_window, fir_design
+    )
+  }
 }
+
 next_fast_len <- function(target) {
   ## """
   ## Find the next fast size of input data to `fft`, for zero-padding, etc.
