@@ -321,6 +321,7 @@ estimate_ringing_samples <- function(system, max_try=100000){
       kind = 'ba'
       b = system$b
       a = system$a
+      zi=  rep(0, length(a) - 1)
     }   else {
       kind = 'sos'
       sos = system$sos
@@ -337,7 +338,7 @@ estimate_ringing_samples <- function(system, max_try=100000){
     for (ii in seq_len(n_chunks_max)){
         if (kind == 'ba'){
             h = signal::filter(b, a, x)
-             #s$signal$lfilter(b, a, x)
+            # s$signal$lfilter(b, a, x, zi = zi)
         } else {
             h = gsignal::sosfilt(sos, x)
         }
@@ -350,7 +351,7 @@ estimate_ringing_samples <- function(system, max_try=100000){
         idx = which(abs(h) > thresh_val)
         # it should be vetweeb 1 and 83 for the example
         if (length(idx) > 1){
-            last_good = idx[length(idx)]
+            last_good = idx[length(idx)] - 1
         } else{  # this iteration had no sufficiently large values
             idx = (ii - 2) * n_per_chunk + last_good
             return(idx) #stops the for loop and return this
