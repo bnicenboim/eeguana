@@ -169,3 +169,15 @@ recycle <- function(x, size) {
 recycle_eval <- function(expr, data = NULL, env= rlang::caller_env(), size){
   recycle(rlang::eval_tidy(expr, data = data, env = env),size = size)
 }
+#' @noRd
+changed_objects <- function(obj){
+  name <- rlang::as_name(obj)
+  oo <- ls(envir=.GlobalEnv)
+  mem <- data.table::data.table(mem = lapply(oo, function(x)  do.call(pryr::address,list(rlang::sym(x))) ) %>% unlist(), names = oo)
+
+  loc <- mem[ names == name,]$mem
+  if(length(loc)==0) return("No objects location found")
+  changed <- mem[mem ==loc,]$names
+  if(length(changed)>1)
+    message("The following objects will be changed in place.", paste0(changed,sep =", "))
+}

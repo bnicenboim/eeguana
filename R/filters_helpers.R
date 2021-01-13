@@ -438,6 +438,92 @@ construct_fir_filter <- function(sampling_rate, freq, gain, filter_length, phase
 }
 
 
+#' Create a FIR or IIR filter.
+#'
+#' `l_freq` and `h_freq` are the frequencies below which and above
+#' which, respectively, to filter out of the data. Thus the uses are:
+#'
+#' - `l_freq < h_freq`: band-pass filter
+#' - `l_freq > h_freq`: band-stop filter
+#' - `!is.null(l_freq) & is.null(h_freq)`: high-pass filter
+#' - `is.null(l_freq) & !is.null(h_freq)`: low-pass filter
+#' @param data  `n_times` length or NULL. The data that will be filtered. This is used for sanity checking only. If None, no sanity checking related to the length of the signal relative to the filter order will be performed.
+#' @param sampling_rate  The sample frequency in Hz.
+#' @param l_freq Low cut-off frequency in Hz. If None the data are only low-passed.
+#' @param h_freq High cut-off frequency in Hz. If None the data are only high-passed.
+#' @param filter_length Length of the FIR filter to use (if applicable):
+#'     * "auto" (default): the filter length is chosen based
+#'       on the size of the transition regions (6.6 times the reciprocal
+#'       of the shortest transition band for fir_window="hamming"
+#'       and fir_design="firwin2", and half that for "firwin").
+#'     * str: a human-readable time in
+#'       units of "s" or "ms" (e.g., "10s" or "5500ms") will be
+#'       converted to that number of samples if ``phase="zero"``, or
+#'       the shortest power-of-two length at least that duration for
+#'       ``phase="zero-double"``.
+#'     * int: specified length in samples. For fir_design="firwin",
+#'       this should not be used.
+#' @param l_trans_bandwidth Width of the transition band at the low cut-off frequency in Hz (high pass or cutoff 1 in bandpass). Can be "auto" (default) to use a multiple of `l_freq`, min(max(l_freq * 0.25, 2), l_freq). Only used for `method="fir"`.
+#' @param h_trans_bandwidth Width of the transition band at the high cut-off frequency in Hz (low pass or cutoff 2 in bandpass). Can be "auto" (default in 0.14) to use a multiple of `h_freq`,  min(max(h_freq * 0.25, 2.), info["sampling_rate"] / 2. - h_freq) Only used for `method="fir"`.
+#' @param method "fir" will use overlap-add FIR filtering, "iir" will use IIR forward-backward filtering (via filtfilt).
+#' @param iir_params Dictionary of parameters to use for IIR filtering. See mne.filter.construct_iir_filter for details. If iir_params is None and method="iir", 4th order Butterworth will be used.
+#' @param phase Phase of the filter, only used if ``method="fir"``. By default, a symmetric linear-phase FIR filter is constructed. If ``phase="zero"`` (default), the delay of this filter is compensated for. If ``phase=="zero-double"``, then this filter is applied twice, once forward, and once backward. If "minimum", then a minimum-phase, causal filter will be used.
+#' @param fir_window The window to use in FIR design, can be "hamming" (default), "hann", or "blackman".
+#' @param fir_design Can be "firwin" (default) to use :func:`scipy.signal.firwin`, or "firwin2" to use :func:`scipy.signal.firwin2`. "firwin" uses a time-domain design technique that generally gives improved attenuation using fewer samples than "firwin2".
+#' @return Will be an array of FIR coefficients for method="fir", and dict
+#'     with IIR parameters for method="iir".
+#'
+#'
+#' The -6 dB point for all filters is in the middle of the transition band.
+#' **Band-pass filter**
+#' The frequency response is (approximately) given by::
+#'    1-|               ----------
+#'      |             /|         | \
+#'  |H| |            / |         |  \
+#'      |           /  |         |   \
+#'      |          /   |         |    \
+#'    0-|----------    |         |     --------------
+#'      |         |    |         |     |            |
+#'      0        Fs1  Fp1       Fp2   Fs2          Nyq
+#' Where:
+#'     * Fs1 = Fp1 - l_trans_bandwidth in Hz
+#'     * Fs2 = Fp2 + h_trans_bandwidth in Hz
+#' **Band-stop filter**
+#' The frequency response is (approximately) given by::
+#'     1-|---------                   ----------
+#'       |         \                 /
+#'   |H| |          \               /
+#'       |           \             /
+#'       |            \           /
+#'     0-|             -----------
+#'       |        |    |         |    |        |
+#'       0       Fp1  Fs1       Fs2  Fp2      Nyq
+#' Where ``Fs1 = Fp1 + l_trans_bandwidth`` and
+#' ``Fs2 = Fp2 - h_trans_bandwidth``.
+#' Multiple stop bands can be specified using arrays.
+#' **Low-pass filter**
+#' The frequency response is (approximately) given by::
+#'     1-|------------------------
+#'       |                        \
+#'   |H| |                         \
+#'       |                          \
+#'       |                           \
+#'     0-|                            ----------------
+#'       |                       |    |              |
+#'       0                      Fp  Fstop           Nyq
+#' Where ``Fstop = Fp + trans_bandwidth``.
+#' **High-pass filter**
+#' The frequency response is (approximately) given by::
+#'     1-|             -----------------------
+#'       |            /
+#'   |H| |           /
+#'       |          /
+#'       |         /
+#'     0-|---------
+#'       |        |    |                     |
+#'       0      Fstop  Fp                   Nyq
+#' Where ``Fstop = Fp - trans_bandwidth``.
+#' @noRd
 create_filter <- function(data,
                           sampling_rate = NULL,
                           l_freq = NULL,
@@ -454,141 +540,7 @@ create_filter <- function(data,
     phase <- "zero"
     fir_window <- "hamming"
     fir_design <- "firwin"
-  #} else {
-  #  stop("`config` parameter of the filters is not yet implemented", call. = FALSE)
-  #}
-  ## """Create a FIR or IIR filter.
-  ## ``l_freq`` and ``h_freq`` are the frequencies below which and above
-  ## which, respectively, to filter out of the data. Thus the uses are:
-  ##     * ``l_freq < h_freq``: band-pass filter
-  ##     * ``l_freq > h_freq``: band-stop filter
-  ##     * ``l_freq is not None and h_freq is None``: high-pass filter
-  ##     * ``l_freq is None and h_freq is not None``: low-pass filter
-  ## Parameters
-  ## ----------
-  ## data : ndarray, shape (..., n_times) | None
-  ##     The data that will be filtered. This is used for sanity checking
-  ##     only. If None, no sanity checking related to the length of the signal
-  ##     relative to the filter order will be performed.
-  ## sampling_rate : float
-  ##     The sample frequency in Hz.
-  ## l_freq : float | None
-  ##     Low cut-off frequency in Hz. If None the data are only low-passed.
-  ## h_freq : float | None
-  ##     High cut-off frequency in Hz. If None the data are only
-  ##     high-passed.
-  ## filter_length : str | int
-  ##     Length of the FIR filter to use (if applicable):
-  ##     * "auto" (default): the filter length is chosen based
-  ##       on the size of the transition regions (6.6 times the reciprocal
-  ##       of the shortest transition band for fir_window="hamming"
-  ##       and fir_design="firwin2", and half that for "firwin").
-  ##     * str: a human-readable time in
-  ##       units of "s" or "ms" (e.g., "10s" or "5500ms") will be
-  ##       converted to that number of samples if ``phase="zero"``, or
-  ##       the shortest power-of-two length at least that duration for
-  ##       ``phase="zero-double"``.
-  ##     * int: specified length in samples. For fir_design="firwin",
-  ##       this should not be used.
-  ## l_trans_bandwidth : float | str
-  ##     Width of the transition band at the low cut-off frequency in Hz
-  ##     (high pass or cutoff 1 in bandpass). Can be "auto"
-  ##     (default) to use a multiple of ``l_freq``::
-  ##         min(max(l_freq * 0.25, 2), l_freq)
-  ##     Only used for ``method="fir"``.
-  ## h_trans_bandwidth : float | str
-  ##     Width of the transition band at the high cut-off frequency in Hz
-  ##     (low pass or cutoff 2 in bandpass). Can be "auto"
-  ##     (default in 0.14) to use a multiple of ``h_freq``::
-  ##         min(max(h_freq * 0.25, 2.), info["sampling_rate"] / 2. - h_freq)
-  ##     Only used for ``method="fir"``.
-  ## method : str
-  ##     "fir" will use overlap-add FIR filtering, "iir" will use IIR
-  ##     forward-backward filtering (via filtfilt).
-  ## iir_params : dict | None
-  ##     Dictionary of parameters to use for IIR filtering.
-  ##     See mne.filter.construct_iir_filter for details. If iir_params
-  ##     is None and method="iir", 4th order Butterworth will be used.
-  ## phase : str
-  ##     Phase of the filter, only used if ``method="fir"``.
-  ##     By default, a symmetric linear-phase FIR filter is constructed.
-  ##     If ``phase="zero"`` (default), the delay of this filter
-  ##     is compensated for. If ``phase=="zero-double"``, then this filter
-  ##     is applied twice, once forward, and once backward. If "minimum",
-  ##     then a minimum-phase, causal filter will be used.
-  ##     .. versionadded:: 0.13
-  ## fir_window : str
-  ##     The window to use in FIR design, can be "hamming" (default),
-  ##     "hann", or "blackman".
-  ##     .. versionadded:: 0.13
-  ## fir_design : str
-  ##     Can be "firwin" (default) to use :func:`scipy.signal.firwin`,
-  ##     or "firwin2" to use :func:`scipy.signal.firwin2`. "firwin" uses
-  ##     a time-domain design technique that generally gives improved
-  ##     attenuation using fewer samples than "firwin2".
-  ##     ..versionadded:: 0.15
-  ## %(verbose)s
-  ## Returns
-  ## -------
-  ## filt : array or dict
-  ##     Will be an array of FIR coefficients for method="fir", and dict
-  ##     with IIR parameters for method="iir".
-  ## See Also
-  ## --------
-  ## filter_data
-  ## Notes
-  ## -----
-  ## The -6 dB point for all filters is in the middle of the transition band.
-  ## **Band-pass filter**
-  ## The frequency response is (approximately) given by::
-  ##    1-|               ----------
-  ##      |             /|         | \
-  ##  |H| |            / |         |  \
-  ##      |           /  |         |   \
-  ##      |          /   |         |    \
-  ##    0-|----------    |         |     --------------
-  ##      |         |    |         |     |            |
-  ##      0        Fs1  Fp1       Fp2   Fs2          Nyq
-  ## Where:
-  ##     * Fs1 = Fp1 - l_trans_bandwidth in Hz
-  ##     * Fs2 = Fp2 + h_trans_bandwidth in Hz
-  ## **Band-stop filter**
-  ## The frequency response is (approximately) given by::
-  ##     1-|---------                   ----------
-  ##       |         \                 /
-  ##   |H| |          \               /
-  ##       |           \             /
-  ##       |            \           /
-  ##     0-|             -----------
-  ##       |        |    |         |    |        |
-  ##       0       Fp1  Fs1       Fs2  Fp2      Nyq
-  ## Where ``Fs1 = Fp1 + l_trans_bandwidth`` and
-  ## ``Fs2 = Fp2 - h_trans_bandwidth``.
-  ## Multiple stop bands can be specified using arrays.
-  ## **Low-pass filter**
-  ## The frequency response is (approximately) given by::
-  ##     1-|------------------------
-  ##       |                        \
-  ##   |H| |                         \
-  ##       |                          \
-  ##       |                           \
-  ##     0-|                            ----------------
-  ##       |                       |    |              |
-  ##       0                      Fp  Fstop           Nyq
-  ## Where ``Fstop = Fp + trans_bandwidth``.
-  ## **High-pass filter**
-  ## The frequency response is (approximately) given by::
-  ##     1-|             -----------------------
-  ##       |            /
-  ##   |H| |           /
-  ##       |          /
-  ##       |         /
-  ##     0-|---------
-  ##       |        |    |                     |
-  ##       0      Fstop  Fp                   Nyq
-  ## Where ``Fstop = Fp - trans_bandwidth``.
-  ## .. versionadded:: 0.14
-  ## """
+
   if(!is.null(h_freq) && is.na(h_freq)) h_freq <- NULL
   if(!is.null(l_freq) && is.na(l_freq)) l_freq <- NULL
   if (is.null(sampling_rate) || sampling_rate < 0) stop("sampling_rate must be positive")
@@ -663,7 +615,7 @@ create_filter <- function(data,
 
   ## LOW PASS:
   if (type == "low") {
-    if(options()$eeeguana.verbose)
+    if(options()$eeguana.verbose)
       message("Setting up low-pass filter at ", h_freq, " Hz")
     f_pass <- f_stop <- h_freq # iir
     freq <- c(0, h_freq, h_stop) # 0, f_p, f_s
@@ -674,7 +626,7 @@ create_filter <- function(data,
     }
     ## HIGH PASS
   } else if (type == "high") {
-    if(options()$eeeguana.verbose)
+    if(options()$eeguana.verbose)
       message("Setting up high-pass filter at ", l_freq, " Hz")
     f_pass <- f_stop <- l_freq # iir
     freq <- c(l_stop, l_freq, sampling_rate / 2) # stop, pass,.._
@@ -684,7 +636,7 @@ create_filter <- function(data,
       gain <- c(0, gain)
     }
   } else if (type == "bandpass") {
-    if(options()$eeeguana.verbose)
+    if(options()$eeguana.verbose)
       message("Setting up band-pass filter from ", l_freq, " - ", h_freq, " Hz")
     f_pass <- f_stop <- c(l_freq, h_freq) # iir
     freq <- c(l_stop, l_freq, h_freq, h_stop) # f_s1, f_p1, f_p2, f_s2
@@ -704,7 +656,7 @@ create_filter <- function(data,
       stop("l_freq and h_freq must be the same length")
     }
 
-    if(options()$eeeguana.verbose)
+    if(options()$eeguana.verbose)
       message("Setting up band-stop filter from ", h_freq, " - ", l_freq, " Hz")
 
     ## Note: order of outputs is intentionally switched here!

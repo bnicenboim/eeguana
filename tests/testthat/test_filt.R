@@ -31,8 +31,10 @@ data_sin_more <- eeg_lst(
   segments_tbl = dplyr::tibble(.id = seq.int(4), .recording = paste0("recording", c(1, 1, 2, 2)), segment = seq.int(4))
 )
 
+data_sin_ref <- data.table::copy(data_sin)
+data_sin_more_ref <- data.table::copy(data_sin_more)
 
-data_sin_X1 <- eeg_filt_low_pass(data_sin, .freq = 500 * 1 / (2 * pi))
+data_sin_X1 <- eeg_filt_low_pass(data_sin, .freq = 500 * 1 / (2 * pi), .by_reference=TRUE)
 ## plot(data_sin_X1)
 
 data_sin_X3 <- eeg_filt_high_pass(data_sin, .freq = 500 * 3 / (2 * pi))
