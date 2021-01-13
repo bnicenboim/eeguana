@@ -161,14 +161,12 @@ firwin_design <- function(N, freq, gain, window = "hamming", sampling_rate) {
 #'
 #' iir_params = list(order =4, ftype ="butter", output="ba")
 #' construct_iir_filter(iir_params, f_pass = 40, f_stop = NULL, sfreq = 1000, btype = "low")
-#' >>> print((2 * len(iir_params['sos']), iir_params['padlen']))  # doctest:+SKIP
-#' (4, 82)
-#' Filters can also be constructed using filter design methods. To get a
-#' 40 Hz Chebyshev type 1 lowpass with specific gain characteristics in the
-#' pass and stop bands (assuming the desired stop band is at 45 Hz), this
-#' would be a filter with much longer ringing:
-#' >>> iir_params = dict(ftype='cheby1', gpass=3, gstop=20, output='sos')  # doctest:+SKIP
-#' >>> iir_params = construct_iir_filter(iir_params, 40, 50, 1000, 'low')  # doctest:+SKIP
+#' # Filters can also be constructed using filter design methods. To get a
+#' # 40 Hz Chebyshev type 1 lowpass with specific gain characteristics in the
+#' # pass and stop bands (assuming the desired stop band is at 45 Hz), this
+#' # would be a filter with much longer ringing:
+#' py_run_string("iir_params = dict(ftype='cheby1', gpass=3, gstop=20, output='ba')")
+#' py_run_string("iir_params = mne.filter.construct_iir_filter(iir_params, 40, 50, 1000, 'low')")
 #' >>> print((2 * len(iir_params['sos']), iir_params['padlen']))  # doctest:+SKIP
 #' (6, 439)
 #' Padding and/or filter coefficients can also be manually specified. For
@@ -193,7 +191,7 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
         system = iir_params[['sos']]
         output = 'sos'
     } else if ('a' %in% names(iir_params) & 'b' %in% names(iir_params)){
-        system = c(iir_params[['b']], iir_params[['a']])
+        system = list(b =iir_params[['b']], a = iir_params[['a']])
         output = 'ba'
     } else {
         output = ifelse(is.null(iir_params[["output"]]), 'ba', iir_params[["output"]])
@@ -235,15 +233,14 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
               message("- Filter order " , forder,"  (effective, after forward-backward)")
 
         } else {
-          #TODO
             ## # use gpass / gstop design
+            Ws = f_stop / (sfreq / 2)
             ## Ws = np.asanyarray(f_stop) / (float(sfreq) / 2)
             ## if 'gpass' not in iir_params or 'gstop' not in iir_params:
             ##     raise ValueError('iir_params must have at least ''gstop'' and'
             ##                      ' ''gpass'' (or ''N'') entries')
-            ## system = iirdesign(Wp, Ws, iir_params['gpass'],
-            ##                    iir_params
-                               ## ['gstop'], ftype=ftype, output=output)
+            system <- iirdesign(wp = Wp, ws = Ws, gpass = iir_params[['gpass']],
+                                gstop = iir_params[['gstop']], ftype=ftype, output=output)
         }
     }
 
