@@ -204,3 +204,16 @@ match_arg <- function(arg, choices, several.ok = FALSE){
         stop("there is more than one match in 'match_arg'")
     choices[i]
 }
+
+#' Copied from rstan
+#' @noRd
+is_arg_recognizable <- function (x, y, pre_msg = "", post_msg = "", ...)
+{
+    idx <- match(x, y)
+    na_idx <- which(is.na(idx))
+    if (length(na_idx) > 0) {
+        stop(pre_msg, paste(x[na_idx], collapse = ", "), ".",
+            post_msg, ...)
+    }
+    return(TRUE)
+}

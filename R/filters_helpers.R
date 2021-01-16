@@ -529,17 +529,12 @@ create_filter <- function(data,
                           l_freq = NULL,
                           h_freq = NULL,
                           config = list()) {
-  #if (length(config) == 0) {
-    filter_length <- "auto"
-    l_trans_bandwidth <- "auto"
-    if(!is.null(config$l_trans_bandwidth)) l_trans_bandwidth <- config$l_trans_bandwidth
-    h_trans_bandwidth <- "auto"
-    if(!is.null(config$h_trans_bandwidth)) h_trans_bandwidth <- config$h_trans_bandwidth
-    method <- "fir"
-    iir_params <- NULL
-    phase <- "zero"
-    fir_window <- "hamming"
-    fir_design <- "firwin"
+
+  method <- "fir"
+  if(!is.null(config$method)) method <- config$method
+
+
+  config_names <- names(config)
 
   if(!is.null(h_freq) && is.na(h_freq)) h_freq <- NULL
   if(!is.null(l_freq) && is.na(l_freq)) l_freq <- NULL
@@ -553,22 +548,6 @@ create_filter <- function(data,
   }
   if (!is.null(l_freq) & all(l_freq == 0)) l_freq <- NULL
 
-  ## iir_params, method = _check_method(method, iir_params)
-
-  ## No idea when this is needed:
-  ## if (is.null(l_freq) & is.null(h_freq)){
-  ##     ## data, sampling_rate, _, _, _, _, filter_length, phase, fir_window, \
-  ##     ##     fir_design = _triage_filter_params(
-  ##     ##         data, sampling_rate, None, None, None, None,
-  ##     ##         filter_length
-  ##           ## , method, phase, fir_window, fir_design)
-  ##     if method == "iir":
-  ##         out = dict() if iir_params is None else deepcopy(iir_params)
-  ##         out.update(b=np.array([1.]), a=np.array([1.]))
-  ##     else:
-  ##         freq = [0, sampling_rate / 2.]
-  ##     gain = [1., 1.]
-  ##  }
 
   ## Defaults
   if (!is.null(l_freq) && !is.null(h_freq) && l_freq > h_freq) {
@@ -576,133 +555,147 @@ create_filter <- function(data,
     h_temp <- l_freq
     l_freq <- h_freq
     h_freq <- h_temp
+
+    if(options()$eeguana.verbose)
+      message("Setting up band-stop filter from ", h_freq, " - ", l_freq, " Hz")
   } else if (!is.null(l_freq) && !is.null(h_freq) && l_freq < h_freq) {
     type <- "bandpass"
+    if(options()$eeguana.verbose)
+      message("Setting up band-pass filter from ", l_freq, " - ", h_freq, " Hz")
   } else if (!is.null(l_freq)) {
     type <- "high" # pass
+    if(options()$eeguana.verbose)
+      message("Setting up high-pass filter at ", l_freq, " Hz")
   } else if (!is.null(h_freq)) {
     type <- "low" # pass
+    if(options()$eeguana.verbose)
+      message("Setting up low-pass filter at ", h_freq, " Hz")
   } else {
     stop("Both freq can't be NULL")
   }
 
-  if (l_trans_bandwidth == "auto") {
-    l_trans_bandwidth <- min(max(l_freq * 0.25, 2), l_freq)
-    if(options()$eeguana.verbose) 
-      message("Width of the transition band at the low cut-off frequency is ", 
-              l_trans_bandwidth, " Hz" )
-  }
-  if (h_trans_bandwidth == "auto") {
-    h_trans_bandwidth <- min(max(0.25 * h_freq, 2.), sampling_rate / 2. - h_freq)
-    if(options()$eeguana.verbose) 
-      message("Width of the transition band at the high cut-off frequency is ",h_trans_bandwidth, " Hz" )
-  }
-  ## if(!is.null(l_trans_bandwidth)) 
-  ## if(!is.null(h_trans_bandwidth)) message("'h_trans_bandwidth' chosen to be ",h_trans_bandwidth, " Hz" )
-  h_check <- if (!is.null(h_freq)) h_trans_bandwidth else Inf
-  l_check <- if (!is.null(l_freq)) l_trans_bandwidth else Inf
+  if(method == "fir"){
 
-  mult_fact <- if (fir_design == "firwin2") 2 else 1
-  length_factor <- list(hann = 3.1, hamming = 3.3, blackman = 5)
-  filter_length <- max(as.integer(round(length_factor[[fir_window]] * sampling_rate * mult_fact /
-    min(h_check, l_check))), 1)
-  if (fir_design == "firwin") {
-    filter_length <- filter_length + (filter_length - 1) %% 2
-  }
-  l_stop <- l_freq - l_trans_bandwidth
-  h_stop <- h_freq + h_trans_bandwidth
+    phase <- "zero"
+    filter_length <- "auto"
+    if(!is.null(config$l_trans_bandwidth)) l_trans_bandwidth <- config$l_trans_bandwidth
+    if(!is.null(config$h_trans_bandwidth)) h_trans_bandwidth <- config$h_trans_bandwidth
+    fir_window <- "hamming"
+    fir_design <- "firwin"
+    is_arg_recognizable(config_names, c("l_trans_bandwith", "h_trans_bandwidth"),   pre_msg = "passing unknown arguments for fir method: ", call. = FALSE)
 
-
-  ## LOW PASS:
-  if (type == "low") {
-    if(options()$eeguana.verbose)
-      message("Setting up low-pass filter at ", h_freq, " Hz")
-    f_pass <- f_stop <- h_freq # iir
-    freq <- c(0, h_freq, h_stop) # 0, f_p, f_s
-    gain <- c(1, 1, 0)
-    if (h_stop != sampling_rate / 2) {
-      freq <- c(freq, sampling_rate / 2)
-      gain <- c(gain, 0)
+    if (l_trans_bandwidth == "auto") {
+      l_trans_bandwidth <- min(max(l_freq * 0.25, 2), l_freq)
+      if(options()$eeguana.verbose)
+        message("Width of the transition band at the low cut-off frequency is ",
+                l_trans_bandwidth, " Hz" )
     }
-    ## HIGH PASS
-  } else if (type == "high") {
-    if(options()$eeguana.verbose)
-      message("Setting up high-pass filter at ", l_freq, " Hz")
-    f_pass <- f_stop <- l_freq # iir
-    freq <- c(l_stop, l_freq, sampling_rate / 2) # stop, pass,.._
-    gain <- c(0, 1, 1)
-    if (l_stop != 0) {
-      freq <- c(0, freq)
-      gain <- c(0, gain)
-    }
-  } else if (type == "bandpass") {
-    if(options()$eeguana.verbose)
-      message("Setting up band-pass filter from ", l_freq, " - ", h_freq, " Hz")
-    f_pass <- f_stop <- c(l_freq, h_freq) # iir
-    freq <- c(l_stop, l_freq, h_freq, h_stop) # f_s1, f_p1, f_p2, f_s2
-    gain <- c(0, 1, 1, 0)
-    if (h_stop != sampling_rate / 2) {
-      freq <- c(freq, sampling_rate / 2)
-      gain <- c(gain, 0)
-    }
-    if (l_stop != 0) {
-      freq <- c(0, freq)
-      gain <- c(0, gain)
-    }
-  } else if (type == "bandstop") {
-    ## This could possibly be removed after 0.14 release, but might
-    ## as well leave it in to sanity check notch_filter
-    if (length(l_freq) != length(h_freq)) {
-      stop("l_freq and h_freq must be the same length")
+    if (h_trans_bandwidth == "auto") {
+      h_trans_bandwidth <- min(max(0.25 * h_freq, 2.), sampling_rate / 2. - h_freq)
+      if(options()$eeguana.verbose)
+        message("Width of the transition band at the high cut-off frequency is ",h_trans_bandwidth, " Hz" )
     }
 
-    if(options()$eeguana.verbose)
-      message("Setting up band-stop filter from ", h_freq, " - ", l_freq, " Hz")
+    h_check <- if (!is.null(h_freq)) h_trans_bandwidth else Inf
+    l_check <- if (!is.null(l_freq)) l_trans_bandwidth else Inf
 
-    ## Note: order of outputs is intentionally switched here!
-    ## data, sampling_rate, f_s1, f_s2, f_p1, f_p2, filter_length, phase, \
-    ## fir_window, fir_design = _triage_filter_params(
-    ##                 data, sampling_rate, h_freq, l_freq, h_trans_bandwidth,
-    ##                 l_trans_bandwidth, filter_length, method, phase,
-    ##                 fir_window, fir_design, bands="arr", reverse=True)
-    l_stop <- l_stop + l_trans_bandwidth
-    l_freq <- l_freq + l_trans_bandwidth
-    h_stop <- h_stop - h_trans_bandwidth
-    h_freq <- h_freq - h_trans_bandwidth
-    f_pass <- f_stop <- c(l_freq[0], h_freq[0]) ## iir
+    mult_fact <- if (fir_design == "firwin2") 2 else 1
+    length_factor <- list(hann = 3.1, hamming = 3.3, blackman = 5)
+    filter_length <- max(as.integer(round(length_factor[[fir_window]] * sampling_rate * mult_fact /
+                                            min(h_check, l_check))), 1)
+    if (fir_design == "firwin") {
+      filter_length <- filter_length + (filter_length - 1) %% 2
+    }
+    l_stop <- l_freq - l_trans_bandwidth
+    h_stop <- h_freq + h_trans_bandwidth
 
-    freq <- c(l_stop, l_freq, h_freq, h_stop)
-    gain <- c(
-      rep(1, length(l_stop)),
-      rep(0, length(l_freq)),
-      rep(0, length(h_freq)),
-      rep(1, length(h_stop))
-    )
-    order <- order(freq)
-    freq <- freq[order]
-    gain <- gain[order]
-    if (freq[1] != 0) {
-      freq <- c(0., freq)
-      gain <- c(1, gain)
-    }
-    if (freq[length(freq)] != sampling_rate / 2.) {
-      freq <- c(freq, sampling_rate / 2.)
-      gain <- c(gain, 1)
-    }
-    if (any(abs(diff(gain, differences = 2)) > 1)) {
-      stop(
-        "Stop bands are not sufficiently ",
-        "separated."
+
+    ## LOW PASS:
+    if (type == "low") {
+
+      f_pass <- f_stop <- h_freq # iir
+      freq <- c(0, h_freq, h_stop) # 0, f_p, f_s
+      gain <- c(1, 1, 0)
+      if (h_stop != sampling_rate / 2) {
+        freq <- c(freq, sampling_rate / 2)
+        gain <- c(gain, 0)
+      }
+      ## HIGH PASS
+    } else if (type == "high") {
+
+      f_pass <- f_stop <- l_freq # iir
+      freq <- c(l_stop, l_freq, sampling_rate / 2) # stop, pass,.._
+      gain <- c(0, 1, 1)
+      if (l_stop != 0) {
+        freq <- c(0, freq)
+        gain <- c(0, gain)
+      }
+    } else if (type == "bandpass") {
+      f_pass <- f_stop <- c(l_freq, h_freq) # iir
+      freq <- c(l_stop, l_freq, h_freq, h_stop) # f_s1, f_p1, f_p2, f_s2
+      gain <- c(0, 1, 1, 0)
+      if (h_stop != sampling_rate / 2) {
+        freq <- c(freq, sampling_rate / 2)
+        gain <- c(gain, 0)
+      }
+      if (l_stop != 0) {
+        freq <- c(0, freq)
+        gain <- c(0, gain)
+      }
+    } else if (type == "bandstop") {
+      if (length(l_freq) != length(h_freq)) {
+        stop("l_freq and h_freq must be the same length")
+      }
+
+
+      ## Note: order of outputs is intentionally switched here!
+      ## data, sampling_rate, f_s1, f_s2, f_p1, f_p2, filter_length, phase, \
+      ## fir_window, fir_design = _triage_filter_params(
+      ##                 data, sampling_rate, h_freq, l_freq, h_trans_bandwidth,
+      ##                 l_trans_bandwidth, filter_length, method, phase,
+      ##                 fir_window, fir_design, bands="arr", reverse=True)
+      l_stop <- l_stop + l_trans_bandwidth
+      l_freq <- l_freq + l_trans_bandwidth
+      h_stop <- h_stop - h_trans_bandwidth
+      h_freq <- h_freq - h_trans_bandwidth
+      f_pass <- f_stop <- c(l_freq, h_freq) ## iir
+
+      freq <- c(l_stop, l_freq, h_freq, h_stop)
+      gain <- c(
+        rep(1, length(l_stop)),
+        rep(0, length(l_freq)),
+        rep(0, length(h_freq)),
+        rep(1, length(h_stop))
       )
+      order <- order(freq)
+      freq <- freq[order]
+      gain <- gain[order]
+      if (freq[1] != 0) {
+        freq <- c(0., freq)
+        gain <- c(1, gain)
+      }
+      if (freq[length(freq)] != sampling_rate / 2.) {
+        freq <- c(freq, sampling_rate / 2.)
+        gain <- c(gain, 1)
+      }
+      if (any(abs(diff(gain, differences = 2)) > 1)) {
+        stop(
+          "Stop bands are not sufficiently ",
+          "separated."
+        )
+      }
     }
-  }
-  if(method == "iir"){
-    construct_iir_filter(iir_params, f_pass, f_stop, sampling_rate, type)
-  } else if (method == "fir"){
+
     construct_fir_filter(
       sampling_rate, freq, gain, filter_length, phase,
       fir_window, fir_design
     )
+  } else if(method == "iir"){
+    iir_params_names <- c("ftype", "b", "a", "sos", "output", "order", "gpass", "gstop", "rp", "rs", "padlen")
+    is_arg_recognizable(config_names,iir_params_names,   pre_msg = "passing unknown arguments for fir method: ", call. = FALSE)
+    construct_iir_filter(config[names(config) %in% iir_params_names], f_pass = c(l_freq, h_freq), f_stop = c(l_freq, h_freq) , sampling_rate, type)
+  } else {
+    stop("Invalid method, only iir and fir are possible.", call. = FALSE)
   }
 }
 

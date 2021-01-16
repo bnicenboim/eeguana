@@ -462,14 +462,15 @@ iirfilter <- function(n, Wn, rp, rs,  btype, ftype = c("butter", "cheby1", "cheb
       zpk = signal::as.Zpg(out)
       list(z = zpk$zero, p = zpk$pole, k = zpk$gain )
     } else if(output == "sos"){
-       require_pkg("gsignal")
-       sos <- gsignal::as.Sos(out)
-       list(sos = sos$sos, g = sos$g)
+      stop("sos not available yet")
+      ## require_pkg("gsignal")
+       ## sos <- gsignal::as.Sos(out)
+       ## list(sos = sos$sos, g = sos$g)
     }
 }
 
 
-#' Emulates scipi.signal.iirdesign using signal (and gsignal package).
+#' Emulates scipi.signal.iirdesign using signal.
 #'
 #'
 #' Complete IIR digital and analog filter design.
@@ -591,7 +592,8 @@ iirdesign <- function(wp, ws, gpass, gstop, ftype='ellip', output='ba'){
 out <- switch(ftype,
               butter = signal::butterord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
               ellip =  signal::ellipord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
-              cheby1 = signal::cheb1ord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop))
+              cheby1 = signal::cheb1ord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
+              stop("ftype can be butter, ellip or cheby1"))
 
 iirfilter(out$n, out$Wc, rp=gpass, rs=gstop, btype=btype,
                      ftype=ftype, output=output)

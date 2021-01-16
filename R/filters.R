@@ -65,27 +65,36 @@ eeg_filt_band_stop <- function(.data, ..., .freq = NULL, .config = list(), na.rm
 
 #' @export
 eeg_filt_low_pass.eeg_lst <- function(.data, ..., .freq = NULL, .config = list(), na.rm = FALSE, .by_reference = FALSE) {
-  if(.by_reference & options()$eeguana.verbose) changed_objects(rlang::as_name(rlang::enquo(.data)))
+
   h <- create_filter(
     l_freq = NULL,
     h_freq = .freq,
     sampling_rate = sampling_rate(.data),
     config = .config
   )
-  .data$.signal <- filt_eeg_lst(.data$.signal, ..., h = h, na.rm = na.rm, .by_reference = .by_reference)
-  .data
+  if(!.by_reference) .data <- data.table::copy(.data)
+
+  filt_eeg_lst_by_ref(.data$.signal, ..., h = h, na.rm = na.rm)
+
+  if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
+
+  if(.by_reference) invisible(.data) else .data
 }
 #' @export
 eeg_filt_high_pass.eeg_lst <- function(.data, ..., .freq = NULL, .config = list(), na.rm = FALSE, .by_reference = FALSE) {
-  if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
   h <- create_filter(
     l_freq = .freq,
     h_freq = NULL,
     sampling_rate = sampling_rate(.data),
     config = .config
   )
-  .data$.signal <- filt_eeg_lst(.data$.signal, ..., h = h, na.rm = na.rm, .by_reference = .by_reference)
-  .data
+  if(!.by_reference) .data <- data.table::copy(.data)
+
+  filt_eeg_lst_by_ref(.data$.signal, ..., h = h, na.rm = na.rm)
+
+  if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
+
+  if(.by_reference) invisible(.data) else .data
 }
 #' @export
 eeg_filt_band_stop.eeg_lst <- function(.data, ..., .freq = NULL, .config = list(), na.rm = FALSE, .by_reference = FALSE) {
@@ -94,15 +103,19 @@ eeg_filt_band_stop.eeg_lst <- function(.data, ..., .freq = NULL, .config = list(
     stop("The first argument of .freq should be larger than the second one.")
   }
 
-  if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
   h <- create_filter(
     l_freq = .freq[1],
     h_freq = .freq[2],
     sampling_rate = sampling_rate(.data),
     config = .config
   )
-  .data$.signal <- filt_eeg_lst(.data$.signal, ..., h = h, na.rm = na.rm, .by_reference = .by_reference)
-  .data
+  if(!.by_reference) .data <- data.table::copy(.data)
+
+  filt_eeg_lst_by_ref(.data$.signal, ..., h = h, na.rm = na.rm)
+
+  if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
+
+  if(.by_reference) invisible(.data) else .data
 }
 #' @export
 eeg_filt_band_pass.eeg_lst <- function(.data, ..., .freq = NULL, .config = list(), na.rm = FALSE, .by_reference = FALSE) {
@@ -111,23 +124,25 @@ eeg_filt_band_pass.eeg_lst <- function(.data, ..., .freq = NULL, .config = list(
     stop("The first argument of .freq should be smaller than the second one.")
   }
 
-  if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
   h <- create_filter(
     l_freq = .freq[1],
     h_freq = .freq[2],
     sampling_rate = sampling_rate(.data),
     config = .config
   )
-  .data$.signal <- filt_eeg_lst(.data$.signal, ..., h = h, na.rm = na.rm, .by_reference = .by_reference)
-  .data
+  if(!.by_reference) .data <- data.table::copy(.data)
+
+  filt_eeg_lst_by_ref(.data$.signal, ..., h = h, na.rm = na.rm)
+
+  if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
+
+  if(.by_reference) invisible(.data) else .data
 }
 
 #' @noRd
-filt_eeg_lst <- function(.signal, ..., h, na.rm = FALSE, .by_reference = FALSE) {
+filt_eeg_lst_by_ref <- function(.signal, ..., h, na.rm = FALSE) {
 
-  if(!.by_reference)
-  .signal <- data.table:::shallow(.signal)
- 
+
   ch_sel <- sel_ch(.signal, ...)
 
   if (na.rm == FALSE) {

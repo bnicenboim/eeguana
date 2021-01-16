@@ -34,19 +34,42 @@ data_sin_more <- eeg_lst(
 data_sin_ref <- data.table::copy(data_sin)
 data_sin_more_ref <- data.table::copy(data_sin_more)
 
-data_sin_X1 <- eeg_filt_low_pass(data_sin, .freq = 500 * 1 / (2 * pi), .by_reference=TRUE)
+data_sin_X1 <- eeg_filt_low_pass(data_sin, .freq = 500 * 1 / (2 * pi))
+
+data_sin_X1_iir <- eeg_filt_low_pass(data_sin, .freq = 500 * 1 / (2 * pi), .config = list(method ="iir"))
+
+data_sin_X1r <- data.table::copy(data_sin)
+eeg_filt_low_pass(data_sin_X1r, .freq = 500 * 1 / (2 * pi), .by_reference = TRUE)
 ## plot(data_sin_X1)
 
 data_sin_X3 <- eeg_filt_high_pass(data_sin, .freq = 500 * 3 / (2 * pi))
+data_sin_X3r <- data.table::copy(data_sin)
+eeg_filt_high_pass(data_sin_X3r, .freq = 500 * 3 / (2 * pi), .by_reference = TRUE)
 ## plot(data_sin_X3)
 
 data_sin_X2 <- eeg_filt_band_pass(data_sin, .freq = c(1.5, 2.2) * 500 / (2 * pi))
+data_sin_X2r <- data.table::copy(data_sin)
+eeg_filt_band_pass(data_sin_X2r, .freq = c(1.5, 2.2) * 500 / (2 * pi), .by_reference = TRUE)
+
 ## plot(data_sin_X2)
 
 data_sin_X1X3 <- eeg_filt_band_stop(data_sin, .freq = c(2.8, 1.5) * 500 / (2 * pi))
+data_sin_X1X3r <- data.table::copy(data_sin)
+eeg_filt_band_stop(data_sin_X1X3r, .freq = c(2.8, 1.5) * 500 / (2 * pi), .by_reference = TRUE)
 ## plot(data_sin_X1X3)
 
 ## plot(data_sin_X2_onlyX1X2)
+test_that("original doesn't change",{
+expect_equal(data_sin_ref, data_sin)
+})
+
+test_that("by reference works",{
+expect_equal(data_sin_X1r, data_sin_X1)
+expect_equal(data_sin_X2r, data_sin_X2)
+expect_equal(data_sin_X3r, data_sin_X3)
+expect_equal(data_sin_X1X3r, data_sin_X1X3)
+})
+
 
 test_that("low pass signal", {
   data_sin_X1 <- data_sin_X1 %>% dplyr::filter(as_time(.sample) %>% between(.25, 1.75))
