@@ -445,11 +445,11 @@ firwin <- function(N = NULL, cutoff = NULL, width = NULL, window = "hamming", pa
 #' @param btype Filter type, one of ‘"low"’ for a low-pass filter, ‘"high"’ for a high-pass filter, ‘"stop"’ for a stop-band (band-reject) filter, or ‘"pass"’ for a pass-band filter.
 #' @noRd
 #'
-iirfilter <- function(n, Wn, rp, rs,  btype, ftype = c("butter", "cheby1", "cheby2", "ellip"), output = c("ba", "zpk", "sos")){
+iirfilter <- function(n, Wn, rp, rs,  btype, type = c("butter", "cheby1", "cheby2", "ellip"), output = c("ba", "zpk", "sos")){
 
-  ftype <- match.arg(ftype)
+  type <- match.arg(type)
 
-  out <- switch(ftype, butter = signal::butter(n, W = Wn, type = btype),
+  out <- switch(type, butter = signal::butter(n, W = Wn, type = btype),
                 cheby1 = signal::cheby1(n, Rp = rp, W = Wn, type = btype),
                 cheby2 = signal::cheby2(n, Rp = rp, W = Wn, type = btype),
                 ellip = signal::ellip(n, Rp = rp, Rs = rs, W = Wn, type = btype),
@@ -501,7 +501,7 @@ iirfilter <- function(n, Wn, rp, rs,  btype, ftype = c("butter", "cheby1", "cheb
 #' analog : bool, optional
 #'     When True, return an analog filter, otherwise a digital filter is
 #'     returned.
-#' ftype : str, optional
+#' type : str, optional
 #'     The type of IIR filter to design:
 #'         - Butterworth   : 'butter'
 #'         - Chebyshev I   : 'cheby1'
@@ -553,13 +553,13 @@ iirfilter <- function(n, Wn, rp, rs,  btype, ftype = c("butter", "cheby1", "cheb
 
 #' @noRd
 #'
-iirdesign <- function(wp, ws, gpass, gstop, ftype='ellip', output='ba'){
+iirdesign <- function(wp, ws, gpass, gstop, type='ellip', output='ba'){
 
     ## except KeyError as e:
-    ##     raise ValueError("Invalid IIR filter type: %s" % ftype) from e
+    ##     raise ValueError("Invalid IIR filter type: %s" % type) from e
     ## except IndexError as e:
     ##     raise ValueError(("%s does not have order selection. Use "
-                          ## "iirfilter function.") % ftype) from e
+                          ## "iirfilter function.") % type) from e
     ## wp = atleast_1d(wp)
     ## ws = atleast_1d(ws)
 
@@ -589,12 +589,12 @@ iirdesign <- function(wp, ws, gpass, gstop, ftype='ellip', output='ba'){
                    'pass')
 
 
-out <- switch(ftype,
-              butter = signal::butterord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
+out <- switch(type,
+              butter = signal::buttord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
               ellip =  signal::ellipord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
               cheby1 = signal::cheb1ord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
-              stop("ftype can be butter, ellip or cheby1"))
+              stop("type can be butter, ellip or cheby1"))
 
 iirfilter(out$n, out$Wc, rp=gpass, rs=gstop, btype=btype,
-                     ftype=ftype, output=output)
+                     type=type, output=output)
 }

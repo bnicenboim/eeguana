@@ -528,22 +528,22 @@ create_filter <- function(data,
                           sampling_rate = NULL,
                           l_freq = NULL,
                           h_freq = NULL,
+                          method = "fir",
                           config = list()) {
 
-  method <- "fir"
-  if(!is.null(config$method)) method <- config$method
 
 
   config_names <- names(config)
-
+  srate <- sampling_rate
+  #srate <- 500
   if(!is.null(h_freq) && is.na(h_freq)) h_freq <- NULL
   if(!is.null(l_freq) && is.na(l_freq)) l_freq <- NULL
-  if (is.null(sampling_rate) || sampling_rate < 0) stop("sampling_rate must be positive")
+  if (is.null(srate) || srate < 0) stop("sampling_rate must be positive")
   # If no data specified, sanity checking will be skipped
-  if (!is.null(h_freq) & any(h_freq > sampling_rate / 2.)) {
+  if (!is.null(h_freq) & any(h_freq > srate / 2.)) {
     stop(
       "h_freq ", h_freq, " must be less than the Nyquist ",
-      "frequency ", sampling_rate / 2.
+      "frequency ", srate / 2.
     )
   }
   if (!is.null(l_freq) & all(l_freq == 0)) l_freq <- NULL
@@ -578,6 +578,8 @@ create_filter <- function(data,
 
     phase <- "zero"
     filter_length <- "auto"
+    l_trans_bandwidth <- "auto"
+    h_trans_bandwidth <- "auto"
     if(!is.null(config$l_trans_bandwidth)) l_trans_bandwidth <- config$l_trans_bandwidth
     if(!is.null(config$h_trans_bandwidth)) h_trans_bandwidth <- config$h_trans_bandwidth
     fir_window <- "hamming"
@@ -591,7 +593,7 @@ create_filter <- function(data,
                 l_trans_bandwidth, " Hz" )
     }
     if (h_trans_bandwidth == "auto") {
-      h_trans_bandwidth <- min(max(0.25 * h_freq, 2.), sampling_rate / 2. - h_freq)
+      h_trans_bandwidth <- min(max(0.25 * h_freq, 2.), srate / 2. - h_freq)
       if(options()$eeguana.verbose)
         message("Width of the transition band at the high cut-off frequency is ",h_trans_bandwidth, " Hz" )
     }
@@ -601,7 +603,7 @@ create_filter <- function(data,
 
     mult_fact <- if (fir_design == "firwin2") 2 else 1
     length_factor <- list(hann = 3.1, hamming = 3.3, blackman = 5)
-    filter_length <- max(as.integer(round(length_factor[[fir_window]] * sampling_rate * mult_fact /
+    filter_length <- max(as.integer(round(length_factor[[fir_window]] * srate * mult_fact /
                                             min(h_check, l_check))), 1)
     if (fir_design == "firwin") {
       filter_length <- filter_length + (filter_length - 1) %% 2
@@ -616,15 +618,15 @@ create_filter <- function(data,
       f_pass <- f_stop <- h_freq # iir
       freq <- c(0, h_freq, h_stop) # 0, f_p, f_s
       gain <- c(1, 1, 0)
-      if (h_stop != sampling_rate / 2) {
-        freq <- c(freq, sampling_rate / 2)
+      if (h_stop != srate / 2) {
+        freq <- c(freq, srate / 2)
         gain <- c(gain, 0)
       }
       ## HIGH PASS
     } else if (type == "high") {
 
       f_pass <- f_stop <- l_freq # iir
-      freq <- c(l_stop, l_freq, sampling_rate / 2) # stop, pass,.._
+      freq <- c(l_stop, l_freq, srate / 2) # stop, pass,.._
       gain <- c(0, 1, 1)
       if (l_stop != 0) {
         freq <- c(0, freq)
@@ -634,8 +636,8 @@ create_filter <- function(data,
       f_pass <- f_stop <- c(l_freq, h_freq) # iir
       freq <- c(l_stop, l_freq, h_freq, h_stop) # f_s1, f_p1, f_p2, f_s2
       gain <- c(0, 1, 1, 0)
-      if (h_stop != sampling_rate / 2) {
-        freq <- c(freq, sampling_rate / 2)
+      if (h_stop != srate / 2) {
+        freq <- c(freq, srate / 2)
         gain <- c(gain, 0)
       }
       if (l_stop != 0) {
@@ -649,9 +651,9 @@ create_filter <- function(data,
 
 
       ## Note: order of outputs is intentionally switched here!
-      ## data, sampling_rate, f_s1, f_s2, f_p1, f_p2, filter_length, phase, \
+      ## data, srate, f_s1, f_s2, f_p1, f_p2, filter_length, phase, \
       ## fir_window, fir_design = _triage_filter_params(
-      ##                 data, sampling_rate, h_freq, l_freq, h_trans_bandwidth,
+      ##                 data, srate, h_freq, l_freq, h_trans_bandwidth,
       ##                 l_trans_bandwidth, filter_length, method, phase,
       ##                 fir_window, fir_design, bands="arr", reverse=True)
       l_stop <- l_stop + l_trans_bandwidth
@@ -674,8 +676,8 @@ create_filter <- function(data,
         freq <- c(0., freq)
         gain <- c(1, gain)
       }
-      if (freq[length(freq)] != sampling_rate / 2.) {
-        freq <- c(freq, sampling_rate / 2.)
+      if (freq[length(freq)] != srate / 2.) {
+        freq <- c(freq, srate / 2.)
         gain <- c(gain, 1)
       }
       if (any(abs(diff(gain, differences = 2)) > 1)) {
@@ -687,13 +689,13 @@ create_filter <- function(data,
     }
 
     construct_fir_filter(
-      sampling_rate, freq, gain, filter_length, phase,
+      srate, freq, gain, filter_length, phase,
       fir_window, fir_design
     )
   } else if(method == "iir"){
-    iir_params_names <- c("ftype", "b", "a", "sos", "output", "order", "gpass", "gstop", "rp", "rs", "padlen")
+    iir_params_names <- c("type", "b", "a", "sos", "output", "order", "gpass", "gstop", "rp", "rs", "padlen")
     is_arg_recognizable(config_names,iir_params_names,   pre_msg = "passing unknown arguments for fir method: ", call. = FALSE)
-    construct_iir_filter(config[names(config) %in% iir_params_names], f_pass = c(l_freq, h_freq), f_stop = c(l_freq, h_freq) , sampling_rate, type)
+    construct_iir_filter(config[names(config) %in% iir_params_names], f_pass = c(l_freq, h_freq), f_stop = c(l_freq, h_freq) , srate, type)
   } else {
     stop("Invalid method, only iir and fir are possible.", call. = FALSE)
   }
