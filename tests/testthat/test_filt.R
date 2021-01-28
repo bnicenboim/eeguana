@@ -35,8 +35,9 @@ data_sin_ref <- data.table::copy(data_sin)
 data_sin_more_ref <- data.table::copy(data_sin_more)
 
 data_sin_X1 <- eeg_filt_low_pass(data_sin, .freq = 500 * 1 / (2 * pi))
+data_sin_X1_fir <- eeg_filt_low_pass(data_sin, .freq = 500 * 1 / (2 * pi), .method = "fir", .config = list(h_trans_bandwidth = 19.89436788))
 
-data_sin_X1_iir <- eeg_filt_low_pass(data_sin, .freq = 500 * 1 / (2 * pi), .config = list(method ="iir", ftype = "butter", order = 4))
+data_sin_X1_iir <- eeg_filt_low_pass(data_sin, .freq = 500 * 1 / (2 * pi), .method = "iir", .config = list(type = "butter", order = 6))
 
 data_sin_X1r <- data.table::copy(data_sin)
 eeg_filt_low_pass(data_sin_X1r, .freq = 500 * 1 / (2 * pi), .by_reference = TRUE)

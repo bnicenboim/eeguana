@@ -1,4 +1,8 @@
 ## These functions are adapted from python scipy
+
+
+
+#' @noRd
 sinc <- function(x) {
   ifelse(x == 0, 1, sin(pi * x) / (pi * x))
 }
@@ -78,7 +82,60 @@ sig_fft <- function(x, n = NULL) {
   stats::fft(x) #/ length(x)
 }
 
+#' Apply a digital filter forward and backward to a signal.
+#'
+#' Wrapper to signal::filtfilt with different order and padlen argument (based on scipy implementation). Right now because the initial state of the delay cannot be set, for small padlen values (e.g., default), the results are off in comparison with python.
+#'
+#' @inheritParams signal::filfilt
+#' @param b The numerator coefficient vector of the filter.
+#' @param a The denominator coefficient vector of the filter. (If ``a[0]`` is not 1, then both `a` and `b` are normalized by ``a[0]``.??).
+#' @param padlen The number of elements by which to extend `x` at both ends of `axis` before applying the filter.  This value must be less than ``x.shape[axis] - 1``.  ``padlen=0`` implies no padding. The default value is ``3 * max(len(a), len(b))``. (The type of padding is always odd, as the default of scipy.signal.filtfilt)
+#'
+#' @noRd
+sig_filtfilt <- function(x, b, a, padlen = 3 * max(length(a), length(b))){
 
+  # ext = odd_ext(x, padlen) #edge = padlen
+  # signal._arraytools.odd_ext(np.array([1,2,3,4,5,6,7,8,9,10]),3 )
+  if(padlen == 0){
+ext <- x
+  } else {
+  left_end = x[1]
+  left_ext = x[seq.int(from = padlen + 1, to = 2, by = -1)]
+  right_end = x[length(x)]
+  right_ext = x[seq.int(from = length(x)- 1, to = length(x) - padlen, by = -1)]
+  ext = c(2 * left_end - left_ext,
+                          x,
+                          2 * right_end - right_ext)
+  }
+
+  # forward filter
+  y <- signal::filter(filt = b, a = a, x = ext) # init = zi * ext[1]
+ # backward filter
+  y <- rev(signal::filter(filt = b, a = a, x = rev(y))) # init = zi * y[length(y)]
+  y[(padlen +1):(padlen +length(x))]
+}
+
+
+#' Does the same as scipy.signal.l_filter_zi
+#' @noRd
+sig_lfilter_zi <- function(b, a){
+  # Determine initial state (solve zi = A*zi + B, see g)
+  if(a[1] != 1.0){
+       # Normalize the coefficients so a[0] == 1.
+        b = b / a[1]
+        a = a / a[1]
+  } else if(a[1] == 0) {
+    a <- a[2:length(a)]
+  }
+  if(length(a)!=length(b)) stop("a and b are of different size, please open a bug.")
+  n <- max(length(a), length(b))
+  B <- b[2:length(b)] - a[2:length(a)] * b[1]
+  A <- t(pracma::compan(a))
+  solve( diag(rep(1,n-1)) - A, B)
+}
+
+#' @noRd
+#'
 rfft <- function(x, N = NULL) {
   if (is.null(N) || N == length(x)) {
     x
@@ -91,6 +148,7 @@ rfft <- function(x, N = NULL) {
   stats::fft(x)[1:(floor(length(x) / 2) + 1)]
 }
 
+#' @noRd
 irfft <- function(x, N = NULL) {
   n <- 2 * (length(x) - 1)
   if (is.null(N)) {

@@ -6,44 +6,72 @@
 \alias{eeg_filt_high_pass}
 \alias{eeg_filt_band_pass}
 \alias{eeg_filt_band_stop}
-\title{Apply a zero-phase low-pass, high-pass, band-pass, or band-stop FIR filter.}
+\title{Apply a zero-phase low-pass, high-pass, band-pass, or band-stop FIR or IIR filter.}
 \usage{
-eeg_filt_low_pass(.data, ..., .freq = NULL, .config = list(), na.rm = FALSE)
+eeg_filt_low_pass(
+  .data,
+  ...,
+  .freq = NULL,
+  .method = c("fir", "iir"),
+  .config = if (.method == "fir") list(l_trans_bandwidth = "auto") else list(type =
+    "butter", order = 6),
+  na.rm = FALSE,
+  .by_reference = FALSE
+)
 
-eeg_filt_high_pass(.data, ..., .freq = NULL, .config = list(), na.rm = FALSE)
+eeg_filt_high_pass(
+  .data,
+  ...,
+  .freq = NULL,
+  .method = c("fir", "iir"),
+  .config = if (.method == "fir") list(l_trans_bandwidth = "auto") else list(type =
+    "butter", order = 6),
+  na.rm = FALSE,
+  .by_reference = FALSE
+)
 
-eeg_filt_band_pass(.data, ..., .freq = NULL, .config = list(), na.rm = FALSE)
+eeg_filt_band_pass(
+  .data,
+  ...,
+  .freq = NULL,
+  .method = c("fir", "iir"),
+  .config = if (.method == "fir") list(l_trans_bandwidth = "auto") else list(type =
+    "butter", order = 4),
+  na.rm = FALSE,
+  .by_reference = FALSE
+)
 
-eeg_filt_band_stop(.data, ..., .freq = NULL, .config = list(), na.rm = FALSE)
+eeg_filt_band_stop(
+  .data,
+  ...,
+  .freq = NULL,
+  .method = c("fir", "iir"),
+  .config = if (.method == "fir") list(l_trans_bandwidth = "auto") else list(type =
+    "butter", order = 4),
+  na.rm = FALSE,
+  .by_reference = FALSE
+)
 }
 \arguments{
 \item{.data}{A channel or an eeg_lst.}
 
 \item{...}{Channels to apply the filters to. All the channels by default.}
 
-\item{.freq}{A single cut frequency for \code{eeg_filt_low_pass} and \code{eeg_filt_high_pass}, two edges for
-\code{eeg_filt_band_pass} and \code{eeg_filt_band_stop}.}
+\item{.freq}{A single cut frequency for \code{eeg_filt_low_pass} and \code{eeg_filt_high_pass}, two edges for \code{eeg_filt_band_pass} and \code{eeg_filt_band_stop}.}
 
-\item{.config}{Other parameters passed in a list to the method. At the moment, only the
-width of the transition band at the (high and/or low) cut-off frequencies can
-be modified: \code{l_trans_bandwidth}, \code{h_trans_bandwidth}, by default they are set to "auto".
-For now the filters can only have a phase of zero (the delay for the filter is compensated).}
+\item{.method}{\code{"iir"} or \code{"fir"}.}
+
+\item{.config}{Other parameters passed in a list to configure the filters. See details for options.}
 
 \item{na.rm}{=TRUE will set to NA the entire segment that contains an NA, otherwise the filter will stop with an error.}
+
+\item{.by_reference}{filters in place, rewritting the eeg_lst object.}
 }
 \value{
 A channel or an eeg_lst.
 }
 \description{
-Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter of the
-FIR (finite impulse response) class to every segment of an \code{eeg_lst}.
-\strong{It's advisable to avoid filtering short segments of data.} In general, these filters are relatively fast, a
-considerable slowdown can be due to incorrectly specified filters (e.g., confusing
-low with high pass filters) or to filtering too many short segments. All these filters
-are adapted from the default filters in
-\href{https://mne.tools/0.17/generated/mne.filter.filter_data.html#mne.filter.filter_data}{MNE package} (v 0.0.17.1)
-of \href{https://www.python.org/}{python}. For background information
-about the FIR vs IIR filters, see \href{https://mne.tools/dev/auto_tutorials/discussions/plot_background_filtering.html}{here}.
+Apply a low-pass, high-pass, band-pass, or band-stop filter to every segment of an \code{eeg_lst}. These filters are adapted from the FIR and IIR filters in \href{https://mne-tools.github.io}{MNE package} (v 0.0.17.1)  of \href{https://www.python.org/}{python}. For background information about the FIR vs IIR filters, see \href{https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py}{here}.
 }
 \details{
 \itemize{
@@ -52,13 +80,29 @@ about the FIR vs IIR filters, see \href{https://mne.tools/dev/auto_tutorials/dis
 \item \code{eeg_filt_band_pass()} Band-pass filter.
 \item \code{eeg_filt_band_stop()} Band-stop filter.
 }
+
+After setting a filter method. The filters can be configured passing a list to the argument \code{.config}.
+
+Using \code{.method ="fir"}, we define a zero-phase  filter of the FIR (finite impulse response) class (MNE v 0.0.17.1 default); these are the options:
+\itemize{
+\item \code{l_trans_bandwidth = "auto"} by default. This is  \code{min(max(l_freq * 0.25, 2), l_freq)}, where \code{l_freq} is the \code{freq} of the high pass filter, or \code{freq[1]} of a band pass/stop filter.
+\item \code{h_trans_bandwidth = "auto"} by default. This is \code{min(max(0.25 * h_freq, 2.), sampling_rate / 2. - h_freq)} where \code{h_freq} is the \code{freq} of the low pass filter, or \code{freq[2]} of a band pass/stop filter.
+}
+
+Using \code{.method = "iir"}, we define a zero-phase (two-pass forward and reverse) non-causal IIR filter. Unlike newer versions of MNE, IIR filters here only use numerator/denominator form ('ba') rather than the computationally costlier but more exact  second-order sections form ('sos').  Filter type is Butterworth by default, and either order (default) or maximum loss and attenuation (gpass and gstop) should be specified:
+\itemize{
+\item \code{type = "butter"} for Butterworth by default, other options are \code{"cheby1"}, or \code{"cheby2"} for Chebyshev type I or type II, or \code{"ellip"} for Elliptic.
+\item \code{order} = 6 by default for low and high pass, and 4 by default for band pass and stop filters (this follows the defaults of Fieldtrip matlab package). Notice that the effective order after forward-backward pass is multiplied by two.
+\item gpass : The maximum loss in the passband (dB).
+\item gstop : The minimum attenuation in the stopband (dB).
+}
 }
 \examples{
 library(dplyr)
 library(ggplot2)
 data("data_faces_ERPs")
 data_ERPs_filtered <- data_faces_ERPs \%>\%
-  eeg_filt_low_pass(.freq = 50)
+  eeg_filt_low_pass(.freq = 1)
 # Compare the ERPs
 data_faces_ERPs \%>\%
   select(O1, O2, P7, P8) \%>\%

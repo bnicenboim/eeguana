@@ -159,7 +159,7 @@ firwin_design <- function(N, freq, gain, window = "hamming", sampling_rate) {
 #' py_run_string("iir_params = mne.filter.construct_iir_filter(iir_params, 40, None, 1000, 'low', return_copy=False)")
 #' py_run_string("print(iir_params)")
 #'
-#' iir_params = list(order =4, ftype ="butter", output="ba")
+#' iir_params = list(order =4, type ="butter", output="ba")
 #' construct_iir_filter(iir_params, f_pass = 40, f_stop = NULL, sfreq = 1000, btype = "low")
 #' # Filters can also be constructed using filter design methods. To get a
 #' # 40 Hz Chebyshev type 1 lowpass with specific gain characteristics in the
@@ -195,13 +195,13 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
         output = 'ba'
     } else {
         output = ifelse(is.null(iir_params[["output"]]), 'ba', iir_params[["output"]])
-        # ensure we have a valid ftype
-        if (!'ftype'  %in% names(iir_params))
-            stop("ftype must be an entry in iir_params if ''b'' ",
+        # ensure we have a valid type
+        if (!'type'  %in% names(iir_params))
+            stop("type must be an entry in iir_params if ''b'' ",
                                "and ''a'' are not specified", call. = FALSE)
-        ftype = iir_params[['ftype']] %||% ""
-        if (!ftype  %in% known_filters)
-            stop("ftype must one of ", paste0(known_filters, sep = ", "))
+        type = iir_params[['type']] %||% ""
+        if (!type  %in% known_filters)
+            stop("type must one of ", paste0(known_filters, sep = ", "))
 
         # use order-based design
         ## f_pass = np.atleast_1d(f_pass)
@@ -210,11 +210,11 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
         edge_freqs <- paste0(f_pass, collapse = ", ")
         Wp = f_pass / (sfreq / 2)
         # IT will de designed
-        ## ftype_nice = _ftype_dict.get(ftype, ftype)
+        ## ftype_nice = _ftype_dict.get(type, type)
         if(options()$eeguana.verbose){
           message("IIR filter parameters\n",
                   "---------------------\n",
-                  ftype," ", btype,
+                  type," ", btype,
                   " zero-phase (two-pass forward and reverse) \n",
                     " non-causal filter:\n" )
         }
@@ -226,7 +226,7 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
                                rs = iir_params[["rs"]],
                                Wn = Wp,
                                btype = btype,
-                               ftype = ftype,
+                               type = type,
                                output = output)
           forder <-  (2 * iir_params[['order']] * length(Wp))
             if(options()$eeguana.verbose)
@@ -240,7 +240,7 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
             ##     raise ValueError('iir_params must have at least ''gstop'' and'
             ##                      ' ''gpass'' (or ''N'') entries')
             system <- iirdesign(wp = Wp, ws = Ws, gpass = iir_params[['gpass']],
-                                gstop = iir_params[['gstop']], ftype=ftype, output=output)
+                                gstop = iir_params[['gstop']], type=type, output=output)
         }
     }
 
@@ -283,8 +283,8 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
 
         ## # 2 * 20 here because we do forward-backward filtering
         cutoffs <- 40 * log10(abs(cutoffs))
-  if (options()$eeguana.verbose)
-    message("Cutoff(s) at ", edge_freqs, " Hz: ", cutoffs, "dB")
+  ## if (options()$eeguana.verbose)
+    ## message("Cutoff(s) at ", edge_freqs, " Hz: ", cutoffs, "dB")
     }
 # now deal with padding
     if (!'padlen' %in% names(iir_params)){
@@ -292,8 +292,6 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
     } else{
         padlen = iir_params[['padlen']]
     }
-    ## if return_copy:
-    ##     iir_params = deepcopy(iir_params)
 
     iir_params[["padlen"]] <- padlen
     if (output == 'sos'){
@@ -337,7 +335,8 @@ estimate_ringing_samples <- function(system, max_try=100000){
             h = signal::filter(b, a, x)
             # s$signal$lfilter(b, a, x, zi = zi)
         } else {
-            h = gsignal::sosfilt(sos, x)
+          stop("sos output for filters not implemented")
+            ## h = gsignal::sosfilt(sos, x)
         }
         x[1] = 0  # for subsequent iterations we want zero input
         h = abs(h)
@@ -578,33 +577,37 @@ create_filter <- function(data,
 
     phase <- "zero"
     filter_length <- "auto"
-    l_trans_bandwidth <- "auto"
-    h_trans_bandwidth <- "auto"
-    if(!is.null(config$l_trans_bandwidth)) l_trans_bandwidth <- config$l_trans_bandwidth
-    if(!is.null(config$h_trans_bandwidth)) h_trans_bandwidth <- config$h_trans_bandwidth
     fir_window <- "hamming"
     fir_design <- "firwin"
-    is_arg_recognizable(config_names, c("l_trans_bandwith", "h_trans_bandwidth"),   pre_msg = "passing unknown arguments for fir method: ", call. = FALSE)
+    is_arg_recognizable(config_names, c("l_trans_bandwidth", "h_trans_bandwidth"),   pre_msg = "passing unknown arguments for fir method: ", call. = FALSE)
 
-    if (l_trans_bandwidth == "auto") {
+    if(is.null(config$l_trans_bandwidth)){
+      if(!is.null(l_freq)) stop("Missing `l_trans_bandwidth`", call. = FALSE)
+      l_trans_bandwidth <- Inf
+  } else if (config$l_trans_bandwidth == "auto") {
       l_trans_bandwidth <- min(max(l_freq * 0.25, 2), l_freq)
       if(options()$eeguana.verbose)
         message("Width of the transition band at the low cut-off frequency is ",
                 l_trans_bandwidth, " Hz" )
+    } else {
+    l_trans_bandwidth <- config$l_trans_bandwidth
     }
-    if (h_trans_bandwidth == "auto") {
+
+    if(is.null(config$h_trans_bandwidth)){
+      if(!is.null(h_freq)) stop("Missing `h_trans_bandwidth`", call. = FALSE)
+      h_trans_bandwidth <- Inf
+    } else if (config$h_trans_bandwidth == "auto") {
       h_trans_bandwidth <- min(max(0.25 * h_freq, 2.), srate / 2. - h_freq)
       if(options()$eeguana.verbose)
         message("Width of the transition band at the high cut-off frequency is ",h_trans_bandwidth, " Hz" )
+    } else {
+      h_trans_bandwidth <- config$h_trans_bandwidth
     }
-
-    h_check <- if (!is.null(h_freq)) h_trans_bandwidth else Inf
-    l_check <- if (!is.null(l_freq)) l_trans_bandwidth else Inf
 
     mult_fact <- if (fir_design == "firwin2") 2 else 1
     length_factor <- list(hann = 3.1, hamming = 3.3, blackman = 5)
     filter_length <- max(as.integer(round(length_factor[[fir_window]] * srate * mult_fact /
-                                            min(h_check, l_check))), 1)
+                                            min(h_trans_bandwidth, l_trans_bandwidth))), 1)
     if (fir_design == "firwin") {
       filter_length <- filter_length + (filter_length - 1) %% 2
     }

@@ -53,7 +53,7 @@ NULL
 
 #' @rdname filt
 #' @export
-eeg_filt_low_pass <- function(.data, ..., .freq = NULL, .method = c("fir","iir"), .config = if(.method == "fir" ) list(l_trans_bandwidth = "auto") else list(type = "butter", order = 6), na.rm = FALSE, .by_reference = FALSE) {
+eeg_filt_low_pass <- function(.data, ..., .freq = NULL, .method = c("fir","iir"), .config = if(.method == "fir" ) list(h_trans_bandwidth = "auto") else list(type = "butter", order = 6), na.rm = FALSE, .by_reference = FALSE) {
   UseMethod("eeg_filt_low_pass")
 }
 
@@ -64,17 +64,19 @@ eeg_filt_high_pass <- function(.data, ..., .freq = NULL, .method = c("fir","iir"
 }
 #' @rdname filt
 #' @export
-eeg_filt_band_pass <- function(.data, ..., .freq = NULL, .method = c("fir","iir"), .config = if(.method == "fir" ) list(l_trans_bandwidth = "auto") else list(type = "butter", order = 4), na.rm = FALSE, .by_reference = FALSE) {
+eeg_filt_band_pass <- function(.data, ..., .freq = NULL, .method = c("fir","iir"), .config = if(.method == "fir" ) list(l_trans_bandwidth = "auto", h_trans_bandwidth = "auto") else list(type = "butter", order = 4), na.rm = FALSE, .by_reference = FALSE) {
   UseMethod("eeg_filt_band_pass")
 }
 #' @rdname filt
 #' @export
-eeg_filt_band_stop <- function(.data, ..., .freq = NULL, .method = c("fir","iir"), .config = if(.method == "fir" ) list(l_trans_bandwidth = "auto") else list(type = "butter", order = 4), na.rm = FALSE, .by_reference = FALSE) {
+eeg_filt_band_stop <- function(.data, ..., .freq = NULL, .method = c("fir","iir"), .config = if(.method == "fir" ) list(l_trans_bandwidth = "auto", h_trans_bandwidth = "auto") else list(type = "butter", order = 4), na.rm = FALSE, .by_reference = FALSE) {
   UseMethod("eeg_filt_band_stop")
 }
 
 #' @export
-eeg_filt_low_pass.eeg_lst <- function(.data, ..., .freq = NULL, .method, .config, na.rm, .by_reference) {
+eeg_filt_low_pass.eeg_lst <- function(.data, ..., .freq = NULL, .method = c("fir","iir"), .config = if(.method == "fir" ) list(h_trans_bandwidth = "auto") else list(type = "butter", order = 6), na.rm = FALSE, .by_reference = FALSE) {
+
+  .method <- match_arg(.method)
 
   h <- create_filter(
     l_freq = NULL,
@@ -154,7 +156,7 @@ eeg_filt_band_pass.eeg_lst <- function(.data, ..., .freq = NULL, .config = list(
 }
 
 #' @noRd
-filt_eeg_lst_by_ref <- function(.signal, ..., h, na.rm = FALSE) {
+filt_eeg_lst_by_ref <- function(.signal, ..., h, method = "fir", na.rm = FALSE) {
 
 
   ch_sel <- sel_ch(.signal, ...)
@@ -166,9 +168,17 @@ filt_eeg_lst_by_ref <- function(.signal, ..., h, na.rm = FALSE) {
     }
   }
 
+  if(method == "fir") {
   .signal[, (ch_sel) := lapply(.SD, overlap_add_filter, h),
     .SDcols = (ch_sel), by = ".id"
   ]
+  } else {
+    padlen = min(h[['padlen']], nrow(.signal)) #-1?
+    print(padlen)
+  .signal[, (ch_sel) := lapply(sig_filtfilt, b=h[['b']], a=h[['a']],
+                      padlen=padlen)]
+  }
+
   .signal
 }
 
