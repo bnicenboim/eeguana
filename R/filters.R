@@ -94,7 +94,9 @@ eeg_filt_low_pass.eeg_lst <- function(.data, ..., .freq = NULL, .method = c("fir
   if(.by_reference) invisible(.data) else .data
 }
 #' @export
-eeg_filt_high_pass.eeg_lst <- function(.data, ..., .freq = NULL, .config = list(), na.rm = FALSE, .by_reference = FALSE) {
+eeg_filt_high_pass.eeg_lst <- function(.data, ..., .freq = NULL, .method = c("fir","iir"), .config = if(.method == "fir" ) list(l_trans_bandwidth = "auto") else list(type = "butter", order = 6), na.rm = FALSE, .by_reference = FALSE) {
+
+  .method <- match_arg(.method)
   h <- create_filter(
     l_freq = .freq,
     h_freq = NULL,
@@ -111,7 +113,9 @@ eeg_filt_high_pass.eeg_lst <- function(.data, ..., .freq = NULL, .config = list(
   if(.by_reference) invisible(.data) else .data
 }
 #' @export
-eeg_filt_band_stop.eeg_lst <- function(.data, ..., .freq = NULL, .config = list(), na.rm = FALSE, .by_reference = FALSE) {
+eeg_filt_band_stop.eeg_lst <- function(.data, ..., .freq = NULL, .method = c("fir","iir"), .config = if(.method == "fir" ) list(l_trans_bandwidth = "auto", h_trans_bandwidth = "auto") else list(type = "butter", order = 4), na.rm = FALSE, .by_reference = FALSE) {
+
+  .method <- match_arg(.method)
   if (length(.freq) != 2) stop(".freq should contain two frequencies.")
   if (.freq[1] <= .freq[2]) {
     stop("The first argument of .freq should be larger than the second one.")
@@ -133,7 +137,9 @@ eeg_filt_band_stop.eeg_lst <- function(.data, ..., .freq = NULL, .config = list(
   if(.by_reference) invisible(.data) else .data
 }
 #' @export
-eeg_filt_band_pass.eeg_lst <- function(.data, ..., .freq = NULL, .config = list(), na.rm = FALSE, .by_reference = FALSE) {
+eeg_filt_band_pass.eeg_lst <- function(.data, ..., .freq = NULL, .method = c("fir","iir"), .config = if(.method == "fir" ) list(l_trans_bandwidth = "auto", h_trans_bandwidth = "auto") else list(type = "butter", order = 4), na.rm = FALSE, .by_reference = FALSE) {
+
+  .method <- match_arg(.method)
   if (length(.freq) != 2) stop(".freq should contain two frequencies.")
   if (.freq[1] >= .freq[2]) {
     stop("The first argument of .freq should be smaller than the second one.")
@@ -156,7 +162,7 @@ eeg_filt_band_pass.eeg_lst <- function(.data, ..., .freq = NULL, .config = list(
 }
 
 #' @noRd
-filt_eeg_lst_by_ref <- function(.signal, ..., h, method = "fir", na.rm = FALSE) {
+filt_eeg_lst_by_ref <- function(.signal, ..., h,  na.rm = FALSE) {
 
 
   ch_sel <- sel_ch(.signal, ...)
@@ -168,15 +174,17 @@ filt_eeg_lst_by_ref <- function(.signal, ..., h, method = "fir", na.rm = FALSE) 
     }
   }
 
-  if(method == "fir") {
-  .signal[, (ch_sel) := lapply(.SD, overlap_add_filter, h),
+  if(all(c("b","a") %in% names(h))) {
+    #iir filter
+    padlen = min(h[['padlen']], nrow(.signal)) #-1?
+    .signal[, (ch_sel) := lapply(.SD, sig_filtfilt, b=h[['b']], a=h[['a']],
+                      padlen=padlen), .SDcols = (ch_sel), by =".id"]
+  } else {
+    #fir filter
+    .signal[, (ch_sel) := lapply(.SD, overlap_add_filter, h),
     .SDcols = (ch_sel), by = ".id"
   ]
-  } else {
-    padlen = min(h[['padlen']], nrow(.signal)) #-1?
-    print(padlen)
-  .signal[, (ch_sel) := lapply(sig_filtfilt, b=h[['b']], a=h[['a']],
-                      padlen=padlen)]
+
   }
 
   .signal

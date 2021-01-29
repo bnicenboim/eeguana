@@ -550,7 +550,7 @@ create_filter <- function(data,
 
   ## Defaults
   if (!is.null(l_freq) && !is.null(h_freq) && l_freq > h_freq) {
-    type <- "bandstop"
+    type <- "stop"
     h_temp <- l_freq
     l_freq <- h_freq
     h_freq <- h_temp
@@ -558,7 +558,7 @@ create_filter <- function(data,
     if(options()$eeguana.verbose)
       message("Setting up band-stop filter from ", h_freq, " - ", l_freq, " Hz")
   } else if (!is.null(l_freq) && !is.null(h_freq) && l_freq < h_freq) {
-    type <- "bandpass"
+    type <- "pass"
     if(options()$eeguana.verbose)
       message("Setting up band-pass filter from ", l_freq, " - ", h_freq, " Hz")
   } else if (!is.null(l_freq)) {
@@ -635,7 +635,7 @@ create_filter <- function(data,
         freq <- c(0, freq)
         gain <- c(0, gain)
       }
-    } else if (type == "bandpass") {
+    } else if (type == "pass") {
       f_pass <- f_stop <- c(l_freq, h_freq) # iir
       freq <- c(l_stop, l_freq, h_freq, h_stop) # f_s1, f_p1, f_p2, f_s2
       gain <- c(0, 1, 1, 0)
@@ -647,7 +647,7 @@ create_filter <- function(data,
         freq <- c(0, freq)
         gain <- c(0, gain)
       }
-    } else if (type == "bandstop") {
+    } else if (type == "stop") {
       if (length(l_freq) != length(h_freq)) {
         stop("l_freq and h_freq must be the same length")
       }
