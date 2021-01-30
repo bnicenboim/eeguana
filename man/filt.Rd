@@ -12,8 +12,7 @@ eeg_filt_low_pass(
   .data,
   ...,
   .freq = NULL,
-  .config = c(list(method = "fir", h_trans_bandwidth = "auto"), list(method = "iir",
-    type = "butter", order = 6)),
+  .config = list(),
   na.rm = FALSE,
   .by_reference = FALSE
 )
@@ -22,8 +21,7 @@ eeg_filt_high_pass(
   .data,
   ...,
   .freq = NULL,
-  .config = c(list(method = "fir", l_trans_bandwidth = "auto"), list(method = "iir",
-    type = "butter", order = 6)),
+  .config = list(),
   na.rm = FALSE,
   .by_reference = FALSE
 )
@@ -32,8 +30,7 @@ eeg_filt_band_pass(
   .data,
   ...,
   .freq = NULL,
-  .config = c(list(method = "fir", l_trans_bandwidth = "auto", h_trans_bandwidth =
-    "auto"), list(method = "iir", type = "butter", order = 4)),
+  .config = list(),
   na.rm = FALSE,
   .by_reference = FALSE
 )
@@ -42,8 +39,7 @@ eeg_filt_band_stop(
   .data,
   ...,
   .freq = NULL,
-  .config = c(list(method = "fir", l_trans_bandwidth = "auto", h_trans_bandwidth =
-    "auto"), list(method = "iir", type = "butter", order = 4)),
+  .config = list(),
   na.rm = FALSE,
   .by_reference = FALSE
 )
@@ -79,7 +75,7 @@ Apply a low-pass, high-pass, band-pass, or band-stop filter to every segment of 
 
 After setting a filter method. The filters can be configured passing a list to the argument \code{.config}.
 
-Using \code{.method ="fir"}, we define a zero-phase  filter of the FIR (finite impulse response) class (MNE v 0.0.17.1 default); these are the options:
+Using \code{method ="fir"}, we define a zero-phase  filter of the FIR (finite impulse response) class (MNE v 0.0.17.1 default); these are the options:
 \itemize{
 \item \code{l_trans_bandwidth = "auto"} by default. This is  \code{min(max(l_freq * 0.25, 2), l_freq)}, where \code{l_freq} is the \code{freq} of the high pass filter, or \code{freq[1]} of a band pass/stop filter.
 \item \code{h_trans_bandwidth = "auto"} by default. This is \code{min(max(0.25 * h_freq, 2.), sampling_rate / 2. - h_freq)} where \code{h_freq} is the \code{freq} of the low pass filter, or \code{freq[2]} of a band pass/stop filter.

@@ -130,6 +130,13 @@ test_that("duplicated triggers", {
     expect_equal(segments_tbl(data_dups), segments_tbl(data_s_e)) 
 })
 
+
+test_that("can add stuff from the events table",{
+events_tbl(data) <- events_tbl(data) %>% mutate(cond = .type)
+  data_s <- eeg_segment(data, .type == "Time 0")
+  expect_equal(data_s$.segments$cond, data_s$.segments$type )
+})
+
 test_that("I didn't modify the objects", {
 expect_equal(data, ref_data)
 expect_equal(data0, ref_data0)

@@ -9,7 +9,7 @@
 #'
 #' After setting a filter method. The filters can be configured passing a list to the argument `.config`.
 #'
-#' Using `.method ="fir"`, we define a zero-phase  filter of the FIR (finite impulse response) class (MNE v 0.0.17.1 default); these are the options:
+#' Using `method ="fir"`, we define a zero-phase  filter of the FIR (finite impulse response) class (MNE v 0.0.17.1 default); these are the options:
 #'
 #' * `l_trans_bandwidth = "auto"` by default. This is  `min(max(l_freq * 0.25, 2), l_freq)`, where `l_freq` is the `freq` of the high pass filter, or `freq[1]` of a band pass/stop filter.
 #' * `h_trans_bandwidth = "auto"` by default. This is `min(max(0.25 * h_freq, 2.), sampling_rate / 2. - h_freq)` where `h_freq` is the `freq` of the low pass filter, or `freq[2]` of a band pass/stop filter.
