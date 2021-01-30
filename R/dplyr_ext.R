@@ -92,7 +92,7 @@ slice_signal.eeg_lst <- function(.data, ..., .preserve = FALSE){
 }
 
 slice_signal_eeg_lst <- function(.eeg_lst,...) {
-  extended_signal <- extended_signal(.eeg_lst, "") 
+  extended_signal <- extended_signal(.eeg_lst)
   by <- as.character(dplyr::group_vars(.eeg_lst))
   if(length(by)!=0){
     cols_signal <- colnames(.eeg_lst$.signal)

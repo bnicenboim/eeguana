@@ -38,7 +38,8 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
   ##   dplyr::distinct()
 
   if (!rlang::quo_is_missing(.end)) {
-    times_end <- filter_dt(.data$.events, !!.end)[,-c(".channel",".final")] %>%
+    times_end <-
+      filter_dt(.data$.events, !!.end)[,-c(".channel",".final")] %>%
     unique()
     data.table::setnames(times_end,".initial", ".first_sample" )
     #tidyverse version:
@@ -62,7 +63,9 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
       .upper = .first_sample + sample_lim[[2]] %>% as_integer(),
       .new_id = seq_len(.N)
      )]
-    if(length(seg_names)>0) times0[,`:=`(c(seg_names), NULL)] #deletes cols in seg_names
+
+    ## I don't want to remove extra columns:
+    ##if(length(seg_names)>0) times0[,`:=`(c(seg_names), NULL)] #deletes cols in seg_names
 
   } else if (rlang::quo_is_missing(.end)) {
     stop("Wrong dimension of .lim")
@@ -120,7 +123,8 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
       .new_id = seq_len(.N)
      )]
 
-    if(length(seg_names)>0) times0[,`:=`(c(seg_names), NULL)] #deletes cols in seg_names
+    # don't remove extra cols
+ #    if(length(seg_names)>0) times0[,`:=`(c(seg_names), NULL)] #deletes cols in seg_names
 
   }       
 

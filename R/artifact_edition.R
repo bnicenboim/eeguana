@@ -60,6 +60,7 @@ eeg_artif_minmax.eeg_lst <- function(.data,
                                      .config = list()) {
   
 
+    .signal <- .data$.signal
   if (!is.null(.freq)) {
     h <- create_filter(
       l_freq = .freq[[1]],
@@ -67,10 +68,10 @@ eeg_artif_minmax.eeg_lst <- function(.data,
       sampling_rate = sampling_rate(.data),
       config = .config
     )
-    .signal <- filt_eeg_lst(.data$.signal, ..., h = h, na.rm = TRUE)
-  } else {
-    .signal <- .data$.signal
+    .signal <- data.table::copy(.signal)
+    filt_eeg_lst_by_ref(.signal, ..., h = h, na.rm = TRUE)
   }
+
   
   events_found <-  events_artif_custom(
     .signal,
@@ -108,6 +109,7 @@ eeg_artif_step.eeg_lst <- function(.data,
                                    .unit = "s",
                                    .freq = NULL,
                                    .config = list()) {
+    .signal <- .data$.signal
   if (!is.null(.freq)) {
     h <- create_filter(
       l_freq = .freq[[1]],
@@ -115,11 +117,10 @@ eeg_artif_step.eeg_lst <- function(.data,
       sampling_rate = sampling_rate(.data),
       config = .config
     )
-    .signal <-
-      filt_eeg_lst(.data$.signal, ..., h = h, na.rm = TRUE)
-  } else {
-    .signal <- .data$.signal
+  .signal <- data.table::copy(.signal)
+    filt_eeg_lst_by_ref(.signal, ..., h = h, na.rm = TRUE)
   }
+
   
   events_found <-  events_artif_custom(
     .signal,
@@ -159,7 +160,8 @@ eeg_artif_amplitude.eeg_lst <- function(.data,
   if (length(.threshold) < 2) {
     stop("Two thresholds are needed", call. = FALSE)
   }
-  
+
+    .signal <- .data$.signal
   if (!is.null(.freq)) {
     h <- create_filter(
       l_freq = .freq[[1]],
@@ -167,11 +169,10 @@ eeg_artif_amplitude.eeg_lst <- function(.data,
       sampling_rate = sampling_rate(.data),
       config = .config
     )
-    .signal <-
-      filt_eeg_lst(.data$.signal, ..., h = h, na.rm = TRUE)
-  } else {
-    .signal <- .data$.signal
+     .signal <- data.table::copy(.signal)
+    filt_eeg_lst_by_ref(.signal, ..., h = h, na.rm = TRUE)
   }
+
   
   events_found <-  events_artif_custom(
     .signal,
@@ -211,6 +212,7 @@ eeg_artif_peak.eeg_lst <- function(.data,
   if (!is.numeric(.window) || .window < 0) {
     stop("`.window` should be a positive number.", call. = FALSE)
   }
+    .signal <- .data$.signal
   if (!is.null(.freq)) {
     h <- create_filter(
       l_freq = .freq[[1]],
@@ -218,11 +220,10 @@ eeg_artif_peak.eeg_lst <- function(.data,
       sampling_rate = sampling_rate(.data),
       config = .config
     )
-    .signal <-
-      filt_eeg_lst(.data$.signal, ..., h = h, na.rm = TRUE)
-  } else {
-    .signal <- .data$.signal
+     .signal <- data.table::copy(.signal)
+    filt_eeg_lst_by_ref(.signal, ..., h = h, na.rm = TRUE)
   }
+
   
   events_found <-  events_artif_custom(
     .signal,
