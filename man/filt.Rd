@@ -12,9 +12,8 @@ eeg_filt_low_pass(
   .data,
   ...,
   .freq = NULL,
-  .method = c("fir", "iir"),
-  .config = if (.method == "fir") list(l_trans_bandwidth = "auto") else list(type =
-    "butter", order = 6),
+  .config = c(list(method = "fir", h_trans_bandwidth = "auto"), list(method = "iir",
+    type = "butter", order = 6)),
   na.rm = FALSE,
   .by_reference = FALSE
 )
@@ -23,9 +22,8 @@ eeg_filt_high_pass(
   .data,
   ...,
   .freq = NULL,
-  .method = c("fir", "iir"),
-  .config = if (.method == "fir") list(l_trans_bandwidth = "auto") else list(type =
-    "butter", order = 6),
+  .config = c(list(method = "fir", l_trans_bandwidth = "auto"), list(method = "iir",
+    type = "butter", order = 6)),
   na.rm = FALSE,
   .by_reference = FALSE
 )
@@ -34,9 +32,8 @@ eeg_filt_band_pass(
   .data,
   ...,
   .freq = NULL,
-  .method = c("fir", "iir"),
-  .config = if (.method == "fir") list(l_trans_bandwidth = "auto") else list(type =
-    "butter", order = 4),
+  .config = c(list(method = "fir", l_trans_bandwidth = "auto", h_trans_bandwidth =
+    "auto"), list(method = "iir", type = "butter", order = 4)),
   na.rm = FALSE,
   .by_reference = FALSE
 )
@@ -45,9 +42,8 @@ eeg_filt_band_stop(
   .data,
   ...,
   .freq = NULL,
-  .method = c("fir", "iir"),
-  .config = if (.method == "fir") list(l_trans_bandwidth = "auto") else list(type =
-    "butter", order = 4),
+  .config = c(list(method = "fir", l_trans_bandwidth = "auto", h_trans_bandwidth =
+    "auto"), list(method = "iir", type = "butter", order = 4)),
   na.rm = FALSE,
   .by_reference = FALSE
 )
@@ -59,13 +55,13 @@ eeg_filt_band_stop(
 
 \item{.freq}{A single cut frequency for \code{eeg_filt_low_pass} and \code{eeg_filt_high_pass}, two edges for \code{eeg_filt_band_pass} and \code{eeg_filt_band_stop}.}
 
-\item{.method}{\code{"iir"} or \code{"fir"}.}
-
 \item{.config}{Other parameters passed in a list to configure the filters. See details for options.}
 
 \item{na.rm}{=TRUE will set to NA the entire segment that contains an NA, otherwise the filter will stop with an error.}
 
 \item{.by_reference}{filters in place, rewritting the eeg_lst object.}
+
+\item{.method}{\code{"iir"} or \code{"fir"}.}
 }
 \value{
 A channel or an eeg_lst.

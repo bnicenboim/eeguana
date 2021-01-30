@@ -15,9 +15,6 @@ data_2 <- dplyr::mutate(data_1,
 # bind it all together
 data <- bind(data_1, data_2)
 
-#TODO: remove later:
-#
-data <- as_eeg_lst(data)
 
 # for checks later
 reference_data <- data.table::copy(data)
@@ -729,8 +726,10 @@ test_that("dplyr::filter_at and grouped dplyr::filtered at", {
     dplyr::ungroup(), data_NAm1id)
 })
 
-
-
+test_that("slice_signal works",{
+  expect_equal(slice_signal(data, 11:60),filter(data, .id != 1))
+  expect_equal(slice_signal(data, 1:5),filter(data, .id == 1, .sample <= 0   ))
+})
 
 ####
 

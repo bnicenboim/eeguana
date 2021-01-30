@@ -20,33 +20,33 @@
 \alias{pull.eeg_lst}
 \title{Dplyr verbs overloaded for manipulating eeg_lst objects.}
 \usage{
-\method{mutate}{eeg_lst}(.data, ...)
+mutate.eeg_lst(.data, ...)
 
-\method{transmute}{eeg_lst}(.data, ...)
+transmute.eeg_lst(.data, ...)
 
 filter.eeg_lst(.data, ..., .preserve = FALSE)
 
 filter.eeg_ica_lst(.data, ..., .preserve = FALSE)
 
-\method{summarise}{eeg_lst}(.data, ..., .groups = "keep")
+summarise.eeg_lst(.data, ..., .groups = "keep")
 
-\method{group_by}{eeg_lst}(.data, ..., .add = FALSE, .drop = FALSE)
+group_by.eeg_lst(.data, ..., .add = FALSE, .drop = FALSE)
 
-\method{ungroup}{eeg_lst}(.data, ...)
+ungroup.eeg_lst(.data, ...)
 
-\method{select}{eeg_lst}(.data, ...)
+select.eeg_lst(.data, ...)
 
-\method{rename}{eeg_lst}(.data, ...)
+rename.eeg_lst(.data, ...)
 
-\method{groups}{eeg_lst}(x)
+groups.eeg_lst(x)
 
-\method{group_vars}{eeg_lst}(x)
+group_vars.eeg_lst(x)
 
-\method{anti_join}{eeg_lst}(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
+anti_join.eeg_lst(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
 
-\method{left_join}{eeg_lst}(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
+left_join.eeg_lst(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
 
-\method{semi_join}{eeg_lst}(x, y, by = NULL, suffix = c(".x", ".y"), ...)
+semi_join.eeg_lst(x, y, by = NULL, suffix = c(".x", ".y"), ...)
 
 tbl_vars.eeg_lst(x)
 

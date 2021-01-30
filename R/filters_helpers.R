@@ -527,10 +527,10 @@ create_filter <- function(data,
                           sampling_rate = NULL,
                           l_freq = NULL,
                           h_freq = NULL,
-                          method = "fir",
                           config = list()) {
 
 
+ if(is.null(config$method)) method <- "fir" else method <- config$method
 
   config_names <- names(config)
   srate <- sampling_rate
@@ -579,12 +579,11 @@ create_filter <- function(data,
     filter_length <- "auto"
     fir_window <- "hamming"
     fir_design <- "firwin"
-    is_arg_recognizable(config_names, c("l_trans_bandwidth", "h_trans_bandwidth"),   pre_msg = "passing unknown arguments for fir method: ", call. = FALSE)
+    is_arg_recognizable(config_names, c("method","l_trans_bandwidth", "h_trans_bandwidth"),   pre_msg = "passing unknown arguments for fir method: ", call. = FALSE)
 
-    if(is.null(config$l_trans_bandwidth)){
-      if(!is.null(l_freq)) stop("Missing `l_trans_bandwidth`", call. = FALSE)
+    if(is.null(l_freq)){
       l_trans_bandwidth <- Inf
-  } else if (config$l_trans_bandwidth == "auto") {
+    } else if (is.null(config$l_trans_bandwidth) || config$l_trans_bandwidth == "auto") {
       l_trans_bandwidth <- min(max(l_freq * 0.25, 2), l_freq)
       if(options()$eeguana.verbose)
         message("Width of the transition band at the low cut-off frequency is ",
@@ -593,10 +592,9 @@ create_filter <- function(data,
     l_trans_bandwidth <- config$l_trans_bandwidth
     }
 
-    if(is.null(config$h_trans_bandwidth)){
-      if(!is.null(h_freq)) stop("Missing `h_trans_bandwidth`", call. = FALSE)
+    if(is.null(h_freq)){
       h_trans_bandwidth <- Inf
-    } else if (config$h_trans_bandwidth == "auto") {
+    } else if (is.null(config$h_trans_bandwidth) || config$h_trans_bandwidth == "auto") {
       h_trans_bandwidth <- min(max(0.25 * h_freq, 2.), srate / 2. - h_freq)
       if(options()$eeguana.verbose)
         message("Width of the transition band at the high cut-off frequency is ",h_trans_bandwidth, " Hz" )
@@ -697,7 +695,12 @@ create_filter <- function(data,
     )
   } else if(method == "iir"){
     iir_params_names <- c("type", "b", "a", "sos", "output", "order", "gpass", "gstop", "rp", "rs", "padlen")
-    is_arg_recognizable(config_names,iir_params_names,   pre_msg = "passing unknown arguments for fir method: ", call. = FALSE)
+    is_arg_recognizable(config_names,c(iir_params_names, "method"),   pre_msg = "passing unknown arguments for fir method: ", call. = FALSE)
+    if(is.null(config$type)) config$type <- "butter"
+    if(is.null(config$order)){
+      if(type %in% c("low", "high")) config$order <- 6 else config$order <-4
+    }
+
     construct_iir_filter(config[names(config) %in% iir_params_names], f_pass = c(l_freq, h_freq), f_stop = c(l_freq, h_freq) , srate, type)
   } else {
     stop("Invalid method, only iir and fir are possible.", call. = FALSE)
