@@ -165,7 +165,7 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
   #remove the irrelevant columns:
   times0[,`:=`(c(".first_sample", ".lower",".upper",".new_id"), NULL)]
  # remove the . from the segments so that it's clear that it's not protected
-  data.table::setnames(times0, -1, stringr::str_remove(colnames(times0)[-1], "^\\."))
+  data.table::setnames(times0, -1, chr_remove(colnames(times0)[-1], "^\\."))
   #right join:
   .data$.segments <- .data$.segments[times0, on =".id", allow.cartesian = TRUE ][, .id := 1:.N]
 

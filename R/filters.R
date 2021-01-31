@@ -1,4 +1,5 @@
-#' Apply a zero-phase low-pass, high-pass, band-pass, or band-stop FIR or IIR filter.
+#
+' Apply a zero-phase low-pass, high-pass, band-pass, or band-stop FIR or IIR filter.
 #'
 #' Apply a low-pass, high-pass, band-pass, or band-stop filter to every segment of an `eeg_lst`. These filters are adapted from the FIR and IIR filters in [MNE package](https://mne-tools.github.io) (v 0.0.17.1)  of [python](https://www.python.org/). For background information about the FIR vs IIR filters, see [here](https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py).
 #'
@@ -14,7 +15,7 @@
 #' * `l_trans_bandwidth = "auto"` by default. This is  `min(max(l_freq * 0.25, 2), l_freq)`, where `l_freq` is the `freq` of the high pass filter, or `freq[1]` of a band pass/stop filter.
 #' * `h_trans_bandwidth = "auto"` by default. This is `min(max(0.25 * h_freq, 2.), sampling_rate / 2. - h_freq)` where `h_freq` is the `freq` of the low pass filter, or `freq[2]` of a band pass/stop filter.
 #'
-#' Using `.method = "iir"`, we define a zero-phase (two-pass forward and reverse) non-causal IIR filter. Unlike newer versions of MNE, IIR filters here only use numerator/denominator form ('ba') rather than the computationally costlier but more exact  second-order sections form ('sos').  Filter type is Butterworth by default, and either order (default) or maximum loss and attenuation (gpass and gstop) should be specified:
+#' Using `method = "iir"`, we define a zero-phase (two-pass forward and reverse) non-causal IIR filter. Unlike newer versions of MNE, IIR filters here only use numerator/denominator form ('ba') rather than the computationally costlier but more exact  second-order sections form ('sos').  Filter type is Butterworth by default, and either order (default) or maximum loss and attenuation (gpass and gstop) should be specified:
 #'
 #' * `type = "butter"` for Butterworth by default, other options are `"cheby1"`, or `"cheby2"` for Chebyshev type I or type II, or `"ellip"` for Elliptic.
 #' * `order` = 6 by default for low and high pass, and 4 by default for band pass and stop filters (this follows the defaults of Fieldtrip matlab package). Notice that the effective order after forward-backward pass is multiplied by two.
@@ -25,7 +26,6 @@
 #' @param .data A channel or an eeg_lst.
 #' @param ... Channels to apply the filters to. All the channels by default.
 #' @param .freq A single cut frequency for `eeg_filt_low_pass` and `eeg_filt_high_pass`, two edges for `eeg_filt_band_pass` and `eeg_filt_band_stop`.
-#' @param .method `"iir"` or `"fir"`.
 #' @param .config Other parameters passed in a list to configure the filters. See details for options.
 #' @param na.rm =TRUE will set to NA the entire segment that contains an NA, otherwise the filter will stop with an error.
 #' @param .by_reference filters in place, rewritting the eeg_lst object.

@@ -727,8 +727,8 @@ test_that("dplyr::filter_at and grouped dplyr::filtered at", {
 })
 
 test_that("slice_signal works",{
-  expect_equal(slice_signal(data, 11:60),filter(data, .id != 1))
-  expect_equal(slice_signal(data, 1:5),filter(data, .id == 1, .sample <= 0   ))
+  expect_equal(slice_signal(data, 11:60),dplyr::filter(data, .id != 1))
+  expect_equal(slice_signal(data, 1:5),dplyr::filter(data, .id == 1, .sample <= 0   ))
 })
 
 ####
