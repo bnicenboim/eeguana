@@ -4,12 +4,16 @@
 \alias{read_edf}
 \title{Read an edf/edf+/bdf file into R}
 \usage{
-read_edf(file, .recording = file)
+read_edf(file, .recording = file, event_ch = NA)
 }
 \arguments{
 \item{file}{A edf/bdf file}
 
-\item{.recording}{Recording name (file name, by default). If set to NULL or NA, the patient name will be used.}
+\item{.recording}{Recording name (file name, by default). If set to NULL or
+NA, the patient name will be used.}
+
+\item{event_ch}{The name of the event channel to use. If not specified, the
+first non-signal channel in the file will be used.}
 }
 \value{
 An \code{eeg_lst} object.
@@ -28,8 +32,7 @@ If you have a case where this assumption is incorrect, please open an issue in \
 
 }
 \seealso{
-Other reading functions: 
-\code{\link{read_ft}()},
-\code{\link{read_vhdr}()}
+Other reading functions: \code{\link{read_ft}},
+  \code{\link{read_vhdr}}
 }
 \concept{reading functions}
