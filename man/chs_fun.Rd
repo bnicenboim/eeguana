@@ -4,7 +4,7 @@
 \alias{chs_fun}
 \title{Get the by-sample (or by-row) function of the specified channels.}
 \usage{
-chs_fun(x, .funs, ..., pars = list())
+chs_fun(x, .funs, ..., .pars = list())
 }
 \arguments{
 \item{x}{An eeg_lst.}
@@ -13,7 +13,7 @@ chs_fun(x, .funs, ..., pars = list())
 
 \item{...}{A channel or a group of unquoted or quoted channels (if an \code{eeg_lst} is not specified).}
 
-\item{pars}{List that contains the additional arguments for the function calls in .funs.}
+\item{.pars}{List that contains the additional arguments for the function calls in .funs.}
 }
 \value{
 A new channel or an \code{eeg_lst} object with a channel where a function was instead of the previous channels.

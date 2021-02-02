@@ -9,10 +9,18 @@ eeg_ica_keep(.data, ...)
 \arguments{
 \item{.data}{An eeg_ica_lst object}
 
-\item{...}{Components to keep from the mixing matrix of the ICA transformation. See \link[dplyr:select]{dplyr::select} and \link[tidyselect:select_helpers]{tidyselect::select_helpers} for details.}
+\item{...}{Components to keep from the mixing matrix of the ICA transformation. See \link[dplyr:select]{dplyr::select} and \link[tidyselect:language]{tidyselect::select_helpers} for details.}
 }
 \description{
-This function will transform the channels according to the indepent components that are kept or removed.
+This function will transform the channels according to the independent components that are kept or removed.
+}
+\examples{
+# For demonstration only, since ICA won't converge
+# Suppressing an important warning:
+ suppressWarnings(data_faces_10_trials \%>\%
+ eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))) \%>\%
+ eeg_ica_keep(-ICA1)
+
 }
 \seealso{
 Other preprocessing functions: 

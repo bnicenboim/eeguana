@@ -1,9 +1,9 @@
-summarize_eeg_lst <- function(.eeg_lst, dots) {
+summarize_eeg_lst <- function(.eeg_lst, dots, .groups) {
   .eeg_lst$.signal <- summarize_eval_signal(.eeg_lst, dots)
-  update_summarized_eeg_lst(.eeg_lst)
+  update_summarized_eeg_lst(.eeg_lst, .groups)
 }
 
-update_summarized_eeg_lst <- function(.eeg_lst) {
+update_summarized_eeg_lst <- function(.eeg_lst,  .groups) {
 
   ## Restructure segments table to fit the new signal table
   if (nrow(.eeg_lst$.signal) != 0) {
@@ -15,7 +15,8 @@ update_summarized_eeg_lst <- function(.eeg_lst) {
   .eeg_lst$.segments <- summarize_segments(
     segments = .eeg_lst$.segments,
     segments_groups = group_vars_segments(.eeg_lst),
-    last_id = last_id
+    last_id = last_id,
+    .groups =  .groups
   )
   ## Restructure events table
   # TODO maybe I can do some type of summary of the events table, instead
@@ -27,35 +28,39 @@ update_summarized_eeg_lst <- function(.eeg_lst) {
 
 
 #' @noRd
-summarize_segments <- function(segments, segments_groups, last_id) {
-  # data.table::data.table(segments)[,unique(.SD),.SDcols=c(segments_groups)][] %>% dplyr::as_tibble() %>%
+summarize_segments <- function(segments, segments_groups, last_id, .groups) {
+
   if (length(segments_groups) != 0) {
-    ### IMPORTANT: segments need to be grouped and summarized as data.table does, which is differently than dplyr
-    # unique(data.table::data.table(segments), by = c(segments_groups))[, segments_groups, with = FALSE] %>%
-      # dplyr::as_tibble() %>%
-    grouped_seg <- segments %>% dplyr::group_by_at(dplyr::vars(segments_groups))
-    
-      ## see if I can add recording as a group
-        group_rec <- dplyr::group_by(grouped_seg, .recording, add=TRUE)
-       if(same_grouping(x = grouped_seg, y =group_rec)){
-         grouped_seg <- group_rec
-       }
-        
-        grouped_seg <- grouped_seg %>% dplyr::summarize()
-        
-      
-        if (!".id" %in% dplyr::tbl_vars(grouped_seg)) {
-          grouped_seg <- hd_add_column(grouped_seg, .id = seq_len(last_id))
-        } 
-        if (!".recording" %in% dplyr::tbl_vars(grouped_seg)) {
-           
-          grouped_seg <-  hd_add_column(grouped_seg, .recording = NA)
-              
-        } 
-        
-        grouped_seg <- grouped_seg %>% dplyr::select(.id, dplyr::everything())
+    # doesn't remove columns:
+    grouped_seg <- unique(segments, by = segments_groups)
+
+    # check if recording didn't change, if so leave it
+    grouped_seg_rec <- unique(segments, by = c(segments_groups, ".recording"))
+
+
+    #because it's keyby, the order needs to change here:
+    data.table::setorderv(grouped_seg, segments_groups)
+    data.table::setorderv(grouped_seg_rec, segments_groups)
+
+    if(identical(grouped_seg, grouped_seg_rec)){
+      segments_groups <- unique(c(".recording", segments_groups))
+     }
+    grouped_seg <- grouped_seg[, segments_groups, with = FALSE]
+
+
+    if (!".id" %in% segments_groups) {
+      grouped_seg[, .id := seq_len(last_id)]
+      data.table::setkey(grouped_seg, .id)
+    }
+    if (!".recording" %in% segments_groups) {
+      grouped_seg[, .recording := NA]
+    }
+    data.table::setcolorder(grouped_seg, obligatory_cols[[".segments"]])
+    grouped_seg
   } else {
-    dplyr::tibble(.id = seq_len(last_id), .recording = NA)
+    grouped_seg <-  data.table::data.table(.id = seq_len(last_id), .recording = NA)
+    data.table::setkey(grouped_seg, .id)
+    grouped_seg
   }
 }
 
@@ -64,44 +69,25 @@ same_grouping <-  function(x,y) {
 }
 
 summarize_eval_signal <- function(.eeg_lst, dots) {
-   # https://community.rstudio.com/t/clarifying-question-when-is-manual-data-mask-needed-in-rlang-eval-tidy/11186
-  # https://stackoverflow.com/questions/14837902/how-to-write-a-function-that-calls-a-function-that-calls-data-table
-  # https://stackoverflow.com/questions/15790743/data-table-meta-programming
+
   cond_cols <- names_other_col(.eeg_lst, dots, ".segments")
-  extended_signal <- extended_signal(.eeg_lst, cond_cols)
+  extended_signal_dt <- extended_signal(.eeg_lst, cond_cols)
   by <- dplyr::group_vars(.eeg_lst)
   dots <- rlang::quos_auto_name(dots)
   add_names <- rlang::quos_auto_name(dots) %>% names()
   old_attributes <- purrr::map(
-    add_names %>% stringr::str_split("_"),
+    add_names %>% strsplit("_"),
     ~ attributes(.eeg_lst$.signal[[.x[[1]]]])
   )
   old_attributes <- stats::setNames(old_attributes, add_names)
-  extended_signal <-extended_signal[, lapply(dots, rlang::eval_tidy, 
-                                             data= rlang::as_data_mask(.SD)), keyby = c(by)]
- 
- 
-     
-     
-# microbenchmark::microbenchmark(
-#  {dots_txt <- purrr::map(dots2, rlang::quo_text) %>%
-#     paste(collapse = ", ") %>%
-#     {
-#       paste(".(", ., ")")
-#     }
-#   env <- lapply(dots2, rlang::quo_get_env) %>% unique()
-#  extended_signal[, eval(parse(text = dots_txt), envir = env), keyby = c(by)]},
-#  # extended_signal[, .(eval(rlang::get_expr(dots)), envir = env), keyby = c(by)],
-#   rlang::eval_tidy(rlang::quo(extended_signal[, .(!!!dots), keyby = c(by)]), data= extended_signal)
-# )
+  extended_signal_dt <- summarize_dt(extended_signal_dt, !!!dots, group_by_ = by)
 
- 
      #add class to the columns that lost their class
-  extended_signal[, (add_names) := purrr::map2(.SD, old_attributes, ~
+  extended_signal_dt[, (add_names) := purrr::map2(.SD, old_attributes, ~
   if (is_channel_dbl(.x) | is_component_dbl(.x)) .x else `attributes<-`(.x, .y)), .SDcols = add_names]
 
 
-  update_summarized_signal(extended_signal, .eeg_lst)
+  update_summarized_signal(extended_signal_dt, .eeg_lst)
 }
 
 

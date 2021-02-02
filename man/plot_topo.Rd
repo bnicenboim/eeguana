@@ -8,49 +8,31 @@
 \usage{
 plot_topo(data, ...)
 
-\method{plot_topo}{tbl_df}(data, value = .value, label = .key, ...)
+\method{plot_topo}{tbl_df}(data, .value = .value, .label = .key, ...)
 
-\method{plot_topo}{eeg_lst}(data, projection = "polar", ...)
+\method{plot_topo}{eeg_lst}(data, .projection = "polar", ...)
 }
 \arguments{
 \item{data}{A table of interpolated electrodes as produced by \code{eeg_interpolate_tbl}, or an \code{eeg_lst}, or \code{ica_lst} appropiately grouped.}
 
 \item{...}{If data are an \code{eeg_lst} or \code{ica_lst}, these are arguments passed to \code{eeg_interpolate_tbl}, such as, radius, size, etc.}
 
-\item{value}{Values used for the interpolation, generally \code{.value} (default).}
+\item{.value}{Values used for the interpolation, generally \code{.value} (default).}
 
-\item{label}{Label of the points that are used for the interpolation, generally \code{.key} (default).}
+\item{.label}{Label of the points that are used for the interpolation, generally \code{.key} (default).}
 
-\item{projection}{Projection type for converting the 3D coordinates of the electrodes into 2d coordinates. Projection types available: "polar" (default), "orthographic", or  "stereographic"}
+\item{.projection}{.Projection type for converting the 3D coordinates of the electrodes into 2d coordinates.  .Projection types available: "polar" (default), "orthographic", or  "stereographic"}
 }
 \value{
 A ggplot object
 }
 \description{
-\code{plot_topo} initializes a ggplot object which takes an \code{eeg_lst} object
-as its input data. Layers can then be added in the same way as for a
-\code{ggplot2::ggplot} object.
+\code{plot_topo} initializes a ggplot object which takes an \code{eeg_lst} object as its input data. Layers can then be added in the same way as for a \code{ggplot2::ggplot} object.
 }
 \details{
-Before calling \code{plot_topo}, the \code{eeg_lst} object object must be appropriately
-grouped (e.g. by condition) and/or
-summarized into mean values such that each .x .y coordinate has only one
-amplitude value. By default, \code{plot_topo} interpolates amplitude values via
-\code{eeg_interpolate_tbl}, which generates a tibble with \code{.key} (channel),
-\code{.value} (amplitude), and .x .y coordinate variables. .x .y coordinates are
-extracted from the \code{eeg_lst} object, which in turn reads the coordinates logged
-by your EEG recording software. By default, \code{plot_topo} will display electrodes
-in polar arrangement, but can be changed with the \code{projection}
-argument. Alternatively, if \code{eeg_interpolate_tbl} is called after grouping/summarizing
-but before \code{plot_topo}, the resulting electrode layout will be stereographic.
+Before calling \code{plot_topo}, the \code{eeg_lst} object object must be appropriately grouped (e.g. by condition) and/or summarized into mean values such that each .x .y coordinate has only one amplitude value. By default, \code{plot_topo} interpolates amplitude values via \code{eeg_interpolate_tbl}, which generates a tibble with \code{.key} (channel), \code{.value} (amplitude), and .x .y coordinate variables. .x .y coordinates are extracted from the \code{eeg_lst} object, which in turn reads the coordinates logged by your EEG recording software. By default, \code{plot_topo} will display electrodes in polar arrangement, but can be changed with the \code{projection} argument. Alternatively, if \code{eeg_interpolate_tbl} is called after grouping/summarizing but before \code{plot_topo}, the resulting electrode layout will be stereographic.
 
-\code{plot_topo} called alone
-without any further layers will create an unannotated topographical plot.
-To add a head and nose, add the layer \code{annotate_head}. Add
-contour lines with \code{ggplot2::geom_contour} and electrode labels
-with \code{ggplot2::geom_text}. These arguments are deliberately not
-built into the function so as to allow flexibility in choosing color, font
-size, and even head size, etc.
+\code{plot_topo} called alone without any further layers will create a non-annotated topographical plot. To add a head and nose, add the layer \code{annotate_head}. Add contour lines with \code{ggplot2::geom_contour} and electrode labels with \code{ggplot2::geom_text}. These arguments are deliberately not built into the function so as to allow flexibility in choosing color, font size, and even head size, etc.
 
 To add additional components to the plot such as titles and annotations, simply
 use the \code{+} symbol and add layers exactly as you would for \link[ggplot2:ggplot]{ggplot2::ggplot}.
@@ -61,7 +43,7 @@ library(ggplot2)
 # Calculate mean amplitude between 100-200 ms and plot the topography
 data_faces_ERPs \%>\%
   # select the time window of interest
-  filter(between(as_time(.sample, unit = "milliseconds"), 100, 200)) \%>\%
+  filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) \%>\%
   # compute mean amplitude per condition
   group_by(condition) \%>\%
   summarize_at(channel_names(.), mean, na.rm = TRUE) \%>\%
@@ -76,7 +58,7 @@ data_faces_ERPs \%>\%
 
 # The same but with interpolation
 data_faces_ERPs \%>\%
-  filter(between(as_time(.sample, unit = "milliseconds"), 100, 200)) \%>\%
+  filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) \%>\%
   group_by(condition) \%>\%
   summarize_at(channel_names(.), mean, na.rm = TRUE) \%>\%
   eeg_interpolate_tbl() \%>\%

@@ -6,17 +6,17 @@
 \usage{
 read_vhdr(
   file,
-  sep = .type == "New Segment",
-  zero = .type == "Time 0",
+  .sep = .type == "New Segment",
+  .zero = .type == "Time 0",
   .recording = file
 )
 }
 \arguments{
 \item{file}{A vhdr file in a folder that contains a .vmrk and .dat files}
 
-\item{sep}{Segment separation marker. By default: .type == "New Segment"}
+\item{.sep}{Segment separation marker. By default: .type == "New Segment"}
 
-\item{zero}{Time zero marker. By default: .type == "Time 0"}
+\item{.zero}{Time zero marker. By default: .type == "Time 0"}
 
 \item{.recording}{Recording name (file name, by default).}
 }

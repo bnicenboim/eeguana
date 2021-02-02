@@ -3,12 +3,12 @@
 #' Convert the signal_tbl table from wide to long format.
 #'
 #' @param x An `eeg_lst` object.
-#' @param unit Unit for the `.time` column of the transformed object: "s" (default), "ms", "samples".
+#' @param .unit Unit for the `.time` column of the transformed object: "s" (default), "ms", "samples".
 #' @return  A [`data.table`][data.table::data.table].
 #'
 #'
 #'
-as.data.table.eeg_lst <- function(x, unit = "s") {
+as.data.table.eeg_lst <- function(x, .unit = "s") {
   keys <- x$.signal %>%
     dplyr::select_if(function(x) is_channel_dbl(x) | is_component_dbl(x)) %>%
     colnames()
@@ -24,9 +24,7 @@ as.data.table.eeg_lst <- function(x, unit = "s") {
   long_table <- long_signal %>%
     left_join_dt(., data.table::as.data.table(x$.segments), by = ".id")
 
-  ## unit inside the data.table was creating problems, I rename it to .unit
-  .unit <- unit
-  long_table[, .time := as_time(.sample, unit = .unit)]
+  long_table[, .time := as_time(.sample, .unit = .unit)]
   long_table[, .sample := NULL]
   long_table %>% dplyr::select(.time, dplyr::everything())
 }
@@ -42,8 +40,8 @@ as.data.table.eeg_lst <- function(x, unit = "s") {
 #'
 #' @family tibble
 #'
-as_tibble.eeg_lst <- function(x, unit = "second") {
-  data.table::as.data.table(x, unit) %>%
+as_tibble.eeg_lst <- function(x, .unit = "second") {
+  data.table::as.data.table(x, .unit) %>%
     dplyr::as_tibble(.name_repair = "unique")
 }
 

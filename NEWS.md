@@ -1,8 +1,38 @@
+# eeguana 0.1.6.9000
+  - internal changes:
+    - removed dependency with `stringr`
+    - changed internal structure of `eeg_lst`, the segments table is a data.table rather than a tibble
+  - **Potential breaking change**: when segments with repeated columns are joined, they use data.table notation (`i...`) rather than dplyr notation. This might affect the `join` family and `eeg_segment`.
+ -  filters have more options (including IIR and by reference!).
+ 
+# eeguana 0.1.5.9000
+  - Bugs: 
+    - weird dplyr filter behavior fixed  [#136](https://github.com/bnicenboim/eeguana/issues/136)
+  - Changes
+    - `plot_components()` behaves more similarly to `plot_topo()`
+    - **BREAKING CHANGE** `...` are always the second argument and most arguments require now a `.` at the beginning: This should help to differentiate them from channels. 
+  - Improvements
+    - New examples for ICA functions.
+    - Much faster mutate functions
+    - Better error messages for reading Brain Vision files @jaromilfrossard
+    - `scale` works properly for channels now
+  - Additions
+    - [Gotchas & Pitfall vignette](https://bnicenboim.github.io/eeguana/articles/gotchas.html) was added
+    
+# eeguana 0.1.4.9000
+  - Bugs: tons of compatibility issues with dplyr 1.0
+  - Changes
+    - Signal processing functions added `sig_fft()`, `sig_ifft()`.
+    - Better print method for channels.
+    - More consistent events_tbl with obligatory .type and .description
+    
+    
 # eeguana 0.1.3.9000
   - More unit testing.
   - Bugs:
     - `read_edf()` wasn't reading events from the status channel
     - fixed some inconsistencies with `.reference` argument
+
 # eeguana 0.1.2.9000
   - Changes:
     - `drop_incomplete_segments()` added.
@@ -86,7 +116,7 @@
       - `events` function to visualize and edit events was added.
       - various filters were added.
  - Bugs
-      - `ch_rereference` updates the relevanta attributes.
+      - `ch_rereference` updates the relevant attributes.
       - bugs in various reading functions were fixed (int encoding issues).
       - `mutate` recognize better channels.
       - `*_join` functions fixed.

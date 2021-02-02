@@ -56,15 +56,11 @@ fast_ICA(
 A list with the unmixing matrix W and the mixing matrix A.
 }
 \description{
-\code{fast_ICA()} is a wrapper for \link[fastICA:fastICA]{fastICA::fastICA}, with different defaults (runs in C,
-maximum teration = 1000, tolerance = 1e-04, verbose), and that throws a warning in case of non-convergence.
-It returns an estimated unmixing matrix W (equivalent to the original \code{K \%*\% W}), and the mixing matrix A,
-consistent with the formulation \code{X= S \%*\% A}, and \code{X \%*\% W = S} where X is the matrix of data with
-N_samples by N_channels, and S is a matrix of sources with N_samples by N_sources.
-They are meant to be  used with \code{\link[=eeg_ica]{eeg_ica()}}.
+\code{fast_ICA()} is a wrapper for \link[fastICA:fastICA]{fastICA::fastICA}, with different defaults (runs in C, maximum iteration = 1000, tolerance = 1e-04, verbose), and that throws a warning in case of non-convergence. It returns an estimated unmixing matrix W (equivalent to the original \code{K \%*\% W}), and the mixing matrix A, consistent with the formulation \code{X= S \%*\% A}, and \code{X \%*\% W = S} where X is the matrix of data with N_samples by N_channels, and S is a matrix of sources with N_samples by N_sources. They are meant to be  used with \code{\link[=eeg_ica]{eeg_ica()}}.
 }
 \seealso{
 Other ica methods: 
-\code{\link{fICA}}
+\code{\link{fICA}},
+\code{\link{ica_matrix_lst}()}
 }
 \concept{ica methods}

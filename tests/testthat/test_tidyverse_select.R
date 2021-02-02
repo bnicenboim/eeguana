@@ -68,7 +68,7 @@ test_that("selecting in segments table doesn't change data", {
   selectd_eeg5 <- dplyr::select(data, cond =condition) 
   expect_equal(signal_tbl(selectd_eeg5), data$.signal)
   expect_equal(events_tbl(selectd_eeg5), data$.events)
-  expect_equal(segments_tbl(selectd_eeg5),data$.segments %>% dplyr::select(.id,.recording, cond=condition))
+  expect_equal(segments_tbl(selectd_eeg5),data$.segments[, c(".id",".recording", "condition")] %>% data.table::copy() %>% data.table::setnames("condition","cond" ))
   expect_equal(reference_data, data)
 })
 
@@ -114,6 +114,6 @@ test_that("selecting in grouped segments table doesn't change data", {
   selectd_eeg5 <- dplyr::select(datag, cond =condition) 
   expect_equal(signal_tbl(selectd_eeg5), data$.signal)
   expect_equal(events_tbl(selectd_eeg5), data$.events)
-  expect_equal(segments_tbl(selectd_eeg5),data$.segments %>% dplyr::select(.id,.recording, cond=condition))
+  expect_equal(segments_tbl(selectd_eeg5),data$.segments[, c(".id",".recording", "condition")] %>% data.table::copy() %>% data.table::setnames("condition","cond" ))
   expect_equal(reference_data, data)
 })

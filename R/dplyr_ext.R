@@ -59,8 +59,7 @@ bind <- function(...) {
 
   segments <- purrr::map(eeg_lsts, ~ data.table::data.table(.x$.segments)) %>% data.table::rbindlist(idcol = ".sid", fill = TRUE)
   segments[, .id := .GRP, by = .(.sid, .id)][, .sid := NULL]
-  segments <- segments %>% dplyr::as_tibble(.name_repair = "unique")
-
+  data.table::setkey(segments, .id)
   new_eeg_lst <- new_eeg_lst(
     .signal = signal, .events = events, .segments = segments
   ) %>%
@@ -93,7 +92,7 @@ slice_signal.eeg_lst <- function(.data, ..., .preserve = FALSE){
 }
 
 slice_signal_eeg_lst <- function(.eeg_lst,...) {
-  extended_signal <- extended_signal(.eeg_lst, "") 
+  extended_signal <- extended_signal(.eeg_lst)
   by <- as.character(dplyr::group_vars(.eeg_lst))
   if(length(by)!=0){
     cols_signal <- colnames(.eeg_lst$.signal)

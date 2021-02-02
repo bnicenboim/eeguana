@@ -8,8 +8,8 @@
 #' 
 #'
 #' @param file A vhdr file in a folder that contains a .vmrk and .dat files
-#' @param sep Segment separation marker. By default: .type == "New Segment"
-#' @param zero Time zero marker. By default: .type == "Time 0"
+#' @param .sep Segment separation marker. By default: .type == "New Segment"
+#' @param .zero Time zero marker. By default: .type == "Time 0"
 #' @param .recording Recording name (file name, by default).
 #' 
 #' @return An `eeg_lst` object with signal_tbl and event from file_name.dat,
@@ -30,20 +30,19 @@
 #' @family reading functions
 #'
 #' @export
-read_vhdr <- function(file, sep = .type == "New Segment", zero = .type == "Time 0",
+read_vhdr <- function(file, .sep = .type == "New Segment", .zero = .type == "Time 0",
                       .recording = file) {
   message("Reading file ", file, "..." )  
   if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
-  sep <- rlang::enquo(sep)
-  zero <- rlang::enquo(zero)
-  # sep = rlang::quo(.type == "New Segment")
-  # zero = rlang::quo(.type == "Time 0")
+  .sep <- rlang::enquo(.sep)
+  .zero <- rlang::enquo(.zero)
+  #file <- "/home/bruno/dev/eeguana/inst/testdata/asalab_export_bv.vhdr"
+  # .sep = rlang::quo(.type == "New Segment")
+  # .zero = rlang::quo(.type == "Time 0")
 
   # Takes the files from the header:
-  file_path <- stringr::str_match(file, "(.*(/|\\\\)).")[, 2] %>% {
-    if (is.na(.)) NULL else .
-  }
-  
+  #file <- "faces.vhdr"
+  file_path <- dirname(file)
   
   header_info <- read_vhdr_metadata(file)
   
@@ -58,7 +57,7 @@ read_vhdr <- function(file, sep = .type == "New Segment", zero = .type == "Time 
   #           message(paste(cond,"\n"))
   #           return(NULL)
   #       })
-   if(is.null(header_info)){
+ if(is.null(header_info)){
    stop("Header info in ", file, " could not be read.", call. = FALSE)
  }
   data_file <- header_info$common_info$data_file
@@ -66,9 +65,9 @@ read_vhdr <- function(file, sep = .type == "New Segment", zero = .type == "Time 
   # It only accepts .dat files (for now)
   vmrk_file <- header_info$common_info$vmrk_file
 
-  file_vmrk <- paste0(file_path, vmrk_file)
-  if (!file.exists(file_vmrk)) stop(sprintf("File %s not found in %s",file, getwd()))
-  events <- 
+  file_vmrk <- file.path(file_path, vmrk_file)
+  if (!file.exists(file_vmrk)) stop(sprintf("File %s not found in %s",file_vmrk, getwd()))
+  events_dt <-
    tryCatch(read_vmrk(file = file_vmrk),
         error=function(cond) {
             message(paste("Error in the events of:", paste0(file_path, vmrk_file)))
@@ -82,12 +81,12 @@ read_vhdr <- function(file, sep = .type == "New Segment", zero = .type == "Time 
         })
   if (data_ext == "dat" || data_ext == "eeg") {
     x <- read_dat(
-      file = paste0(file_path, data_file),
+      file = file.path(file_path, data_file),
       header_info = header_info,
-      events = events,
+      events = events_dt,
       .recording = .recording,
-      sep = sep,
-      zero = zero
+      sep = .sep,
+      zero = .zero
     )
   } else {
     warning(paste0(".", data_ext, " files are unsupported."))
@@ -108,7 +107,7 @@ read_vhdr <- function(file, sep = .type == "New Segment", zero = .type == "Time 
 #' 
 #' @param file A .mat file containing a fieldtrip struct.
 #' @param .recording Recording name, by default is the file name.
-#' @param layout A .mat [layout from Fieldtrip](http://www.fieldtriptoolbox.org/template/layout)
+#' @param .layout A .mat [layout from Fieldtrip](http://www.fieldtriptoolbox.org/template/layout)
 #' @return An `eeg_lst` object with signal_tbl and event from a Matlab file.
 #' 
 #' @examples 
@@ -120,7 +119,7 @@ read_vhdr <- function(file, sep = .type == "New Segment", zero = .type == "Time 
 #' 
 #'
 #' @export
-read_ft <- function(file, layout = NULL, .recording = file) {
+read_ft <- function(file, .layout = NULL, .recording = file) {
   # to avoid no visible binding for global variable
   type <- NULL
   
@@ -169,8 +168,8 @@ read_ft <- function(file, layout = NULL, .recording = file) {
     .channel = make_names(channel_names)
   )
 
-  if (!is.null(layout)) {
-    chan_layout <- R.matlab::readMat(layout) %>%
+  if (!is.null(.layout)) {
+    chan_layout <- R.matlab::readMat(.layout) %>%
       {
         dplyr::mutate(.$lay[, , 1]$pos %>% as.data.frame(),
           .channel = unlist(.$lay[, , 1]$label)
@@ -350,11 +349,11 @@ read_edf <- function(file, .recording = file) {
   } else if (event_channel[[1]]$isAnnotation){
 
     edf_events <- event_channel[[1]]$annotations
-    desc <- data.table::data.table(.type = NA, .description = edf_events[["annotation"]] )
     init_events <- sample_int(round(edf_events$onset * sampling_rate) + 1L , sampling_rate = sampling_rate)
     events <- new_events_tbl(.id=1L, 
                              .initial = init_events,
-                             descriptions_dt = desc, 
+                             .type = NA_character_, 
+                             .description = edf_events[["annotation"]],
                              .final = ( dplyr::case_when(!is.na(edf_events$duration) ~
                                                            round(edf_events$duration* sampling_rate),
                                                          !is.na(edf_events$end) ~
@@ -373,10 +372,11 @@ read_edf <- function(file, .recording = file) {
     init_events <- (which(diff(triggers) > 0) + 1) %>%
       sample_int(sampling_rate = sampling_rate)
     
-    desc <- data.table::data.table(.type = NA, .description = triggers[init_events] )
+    
     events <- new_events_tbl(.id=1L,
                              .initial = init_events,
-                             descriptions_dt = desc,
+                             .description = triggers[init_events],
+                             .type = NA_character_,
                              .final = init_events,
                              .channel= NA_character_)
 
@@ -403,4 +403,15 @@ read_edf <- function(file, .recording = file) {
   ))
   message(say_size(eeg_lst))
   eeg_lst
+}
+
+#' Read set files
+#'
+#' @param file  file
+#'
+#' @param .layout layout
+#' @param .recording  recording
+#' @noRd
+read_set <- function(file, .layout = NULL, .recording = file) {
+  # https://sccn.ucsd.edu/wiki/A05:_Data_Structures
 }

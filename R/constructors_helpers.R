@@ -58,14 +58,13 @@ validate_sample_int <- function(.sample) {
 #' @noRd
 new_channel_dbl <- function(values, channel_info = list()) {
   values <- unclass(values) %>% as.double()
-  attributes(values) <- c(
-    class = "channel_dbl",
+  # class(values) <- c("channel_dbl", class(values))
+  class(values) <- "channel_dbl"
+    attributes(values) <- c(attributes(values),
     channel_info
   )
   values
 }
-
-
 
 #' @param channel
 #'
@@ -82,7 +81,6 @@ validate_channel_dbl <- function(channel) {
       call. = FALSE
     )
   })
-
   # if (is.null(attributes(channel)$.reference)) {
   #   warning("Attribute .reference is missing.",
   #     call. = FALSE
@@ -171,15 +169,24 @@ validate_eeg_lst <- function(x, recursive = TRUE) {
 #' @noRd
 validate_segments <- function(segments) {
   if (is.null(segments)) {
-    segments <- dplyr::tibble(.id = integer(0))
+    segments <- dplyr::tibble(.id = integer(0), .recording = character(0))
   }
-  if (!is.integer(segments$.id)) {
+  if(nrow(segments)>0){
+    if (!is.integer(segments$.id) & all(is_wholenumber(segments$.id))) {
+
+      segments <- data.table:::shallow(segments[, .id := as.integer(.id)])
+    } else if (!is.integer(segments$.id)) {
     warning("Column .id of segments table is not an integer.")
+    }
+  
+    if (!".recording" %in% colnames(segments)) {
+    warning("Column .recording of segments table is missing.")
   }
   if (length(segments$.id) != length(unique(segments$.id))) {
     warning("Some .id are repeated in the segments table, there is something wrong going on. Please open an issue with a reproducible example in https://github.com/bnicenboim/eeguana/issues",
       call. = FALSE
     )
+  }
   }
   segments
 }
@@ -189,12 +196,9 @@ validate_segments <- function(segments) {
 #' @noRd
 new_component_dbl <- function(values) {
   values <- unclass(values) %>% as.double()
-  attributes(values) <- list(
-    class = "component_dbl"
-  )
+  class(values) <- c("component_dbl", class(values))
   values
 }
-
 
 
 #' @param component

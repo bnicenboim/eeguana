@@ -18,14 +18,13 @@
 #'
 #'
 #' @param x An `eeg_lst` object.
-#' @param max_sample Downsample to approximately 6400 samples by default.
+#' @param .max_sample Downsample to approximately 6400 samples by default.
 #' @param ... Not in use.
 #' @family plotting functions
 #'
 #' @return A ggplot object
 #'
 #' @examples
-#' 
 #' # Basic plot
 #' plot(data_faces_ERPs)
 #' 
@@ -33,8 +32,9 @@
 #' library(ggplot2)
 #' plot(data_faces_ERPs) +
 #'   coord_cartesian(ylim = c(-500, 500))
+#'
 #' @export
-plot.eeg_lst <- function(x, max_sample = 6400, ...) {
+plot.eeg_lst <- function(x, .max_sample = 6400, ...) {
   ellipsis::check_dots_unnamed()
   #pick the last channel as reference
   breaks <- x$.signal[[ncol(x$.signal)]]  %>% 
@@ -44,7 +44,7 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
   lims <-  (breaks * 1.5) %>% 
     range()
   
-  plot <- ggplot.eeg_lst(x, ggplot2::aes(x = .time, y = .value, group = .id), max_sample = max_sample) +
+  plot <- ggplot.eeg_lst(x, ggplot2::aes(x = .time, y = .value, group = .id), .max_sample = .max_sample) +
     ggplot2::geom_hline(yintercept = 0, color = "gray",alpha =.8) +
     ggplot2::geom_line() +
     ggplot2::facet_grid(.key ~ .id,
@@ -66,29 +66,11 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
 
 #' Create a topographic plot
 #'
-#' `plot_topo` initializes a ggplot object which takes an `eeg_lst` object
-#' as its input data. Layers can then be added in the same way as for a
-#' `ggplot2::ggplot` object.
+#' `plot_topo` initializes a ggplot object which takes an `eeg_lst` object as its input data. Layers can then be added in the same way as for a `ggplot2::ggplot` object.
 #'
-#' Before calling `plot_topo`, the `eeg_lst` object object must be appropriately
-#' grouped (e.g. by condition) and/or
-#' summarized into mean values such that each .x .y coordinate has only one
-#' amplitude value. By default, `plot_topo` interpolates amplitude values via
-#' `eeg_interpolate_tbl`, which generates a tibble with `.key` (channel),
-#'  `.value` (amplitude), and .x .y coordinate variables. .x .y coordinates are
-#' extracted from the `eeg_lst` object, which in turn reads the coordinates logged
-#' by your EEG recording software. By default, `plot_topo` will display electrodes
-#' in polar arrangement, but can be changed with the `projection`
-#' argument. Alternatively, if `eeg_interpolate_tbl` is called after grouping/summarizing
-#' but before `plot_topo`, the resulting electrode layout will be stereographic.
+#' Before calling `plot_topo`, the `eeg_lst` object object must be appropriately grouped (e.g. by condition) and/or summarized into mean values such that each .x .y coordinate has only one amplitude value. By default, `plot_topo` interpolates amplitude values via `eeg_interpolate_tbl`, which generates a tibble with `.key` (channel), `.value` (amplitude), and .x .y coordinate variables. .x .y coordinates are extracted from the `eeg_lst` object, which in turn reads the coordinates logged by your EEG recording software. By default, `plot_topo` will display electrodes in polar arrangement, but can be changed with the `projection` argument. Alternatively, if `eeg_interpolate_tbl` is called after grouping/summarizing but before `plot_topo`, the resulting electrode layout will be stereographic.
 #'
-#' `plot_topo` called alone
-#' without any further layers will create an unannotated topographical plot.
-#' To add a head and nose, add the layer `annotate_head`. Add
-#' contour lines with `ggplot2::geom_contour` and electrode labels
-#' with `ggplot2::geom_text`. These arguments are deliberately not
-#' built into the function so as to allow flexibility in choosing color, font
-#' size, and even head size, etc.
+#' `plot_topo` called alone without any further layers will create a non-annotated topographical plot. To add a head and nose, add the layer `annotate_head`. Add contour lines with `ggplot2::geom_contour` and electrode labels with `ggplot2::geom_text`. These arguments are deliberately not built into the function so as to allow flexibility in choosing color, font size, and even head size, etc.
 #'
 #' To add additional components to the plot such as titles and annotations, simply
 #' use the `+` symbol and add layers exactly as you would for [ggplot2::ggplot].
@@ -107,7 +89,7 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
 #' # Calculate mean amplitude between 100-200 ms and plot the topography
 #' data_faces_ERPs %>%
 #'   # select the time window of interest
-#'   filter(between(as_time(.sample, unit = "milliseconds"), 100, 200)) %>%
+#'   filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
 #'   # compute mean amplitude per condition
 #'   group_by(condition) %>%
 #'   summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
@@ -122,7 +104,7 @@ plot.eeg_lst <- function(x, max_sample = 6400, ...) {
 #' 
 #' # The same but with interpolation
 #' data_faces_ERPs %>%
-#'   filter(between(as_time(.sample, unit = "milliseconds"), 100, 200)) %>%
+#'   filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
 #'   group_by(condition) %>%
 #'   summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
 #'   eeg_interpolate_tbl() %>%
@@ -137,30 +119,30 @@ plot_topo <- function(data, ...) {
 }
 #' @rdname plot_topo
 #' @export
-plot_topo.tbl_df <- function(data, value = .value, label = .key, ...) {
+plot_topo.tbl_df <- function(data, .value = .value, .label = .key, ...) {
   if(all(is.na(data$.x)) && all(is.na(data$.y)) ) {
     stop("X and Y coordinates missing. You probably need to add a layout to the data.", call. = FALSE)}
   if(all(is.na(data$.x))) {stop("X coordinate missing.", call. = FALSE)}
   if(all(is.na(data$.y))) {stop("Y coordinate missing.", call. = FALSE)}
-  value <- rlang::enquo(value)
-  label <- rlang::enquo(label)
+  .value <- rlang::enquo(.value)
+  .label <- rlang::enquo(.label)
   data <- data %>%  dplyr::ungroup()
   # Labels positions mess up with geom_raster, they need to be excluded
   # and then add the labels to the data that was interpolated
-  d <- dplyr::filter(data, !is.na(.x), !is.na(.y), is.na(!!label)) %>%
-    dplyr::select(-!!label)
-  label_pos <- dplyr::filter(data, !is.na(.x), !is.na(.y), !is.na(!!label)) %>%
-    dplyr::distinct(.x, .y, !!label)
+  d <- dplyr::filter(data, !is.na(.x), !is.na(.y), is.na(!!.label)) %>%
+    dplyr::select(-!!.label)
+  label_pos <- dplyr::filter(data, !is.na(.x), !is.na(.y), !is.na(!!.label)) %>%
+    dplyr::distinct(.x, .y, !!.label)
   label_corrected_pos <- purrr::map_df(label_pos %>% 
-                                         dplyr::select(.x, .y, !!label) %>%
+                                         dplyr::select(.x, .y, !!.label) %>%
                                          purrr::transpose(), function(l) {
     d %>%
-      dplyr::select(-!!value) %>%
+      dplyr::select(-!!.value) %>%
       dplyr::filter((.x - l$.x)^2 + (.y - l$.y)^2 == min((.x - l$.x)^2 + (.y - l$.y)^2)) %>%
-      # does the original grouping so that I add a label to each group
+      # does the original grouping so that I add a .label to each group
       dplyr::group_by_at(dplyr::vars(colnames(.)[!colnames(.) %in% c(".x", ".y")])) %>%
       dplyr::slice(1) %>%
-      dplyr::mutate(!!label := l[[".key"]])
+      dplyr::mutate(!!.label := l[[".key"]])
   })
   d <- suppressMessages(dplyr::left_join(d, label_corrected_pos))
 
@@ -170,7 +152,7 @@ plot_topo.tbl_df <- function(data, value = .value, label = .key, ...) {
   plot <-
     ggplot2::ggplot(d, ggplot2::aes(
       x = .x, y = .y,
-      fill = !!value, z = !!value, label = dplyr::if_else(!is.na(!!label), !!label, "")
+      fill = !!.value, z = !!.value, label = dplyr::if_else(!is.na(!!.label), !!.label, "")
     )) +
     ggplot2::geom_raster(interpolate = TRUE, hjust = 0.5, vjust = 0.5) +
     # Non recommended "rainbow" Matlab palette from https://www.mattcraddock.com/blog/2017/02/25/erp-visualization-creating-topographical-scalp-maps-part-1/
@@ -186,8 +168,8 @@ plot_topo.tbl_df <- function(data, value = .value, label = .key, ...) {
 #' @inheritParams eeg_interpolate_tbl
 #' @rdname plot_topo
 #' @export
-plot_topo.eeg_lst <- function(data, projection = "polar", ...) {
-  channels_tbl(data) <- change_coord(channels_tbl(data), projection)
+plot_topo.eeg_lst <- function(data, .projection = "polar", ...) {
+  channels_tbl(data) <- change_coord(channels_tbl(data), .projection)
   eeg_interpolate_tbl(data, ...) %>%
     plot_topo()
 }
@@ -203,19 +185,34 @@ plot_topo.eeg_lst <- function(data, projection = "polar", ...) {
 #' @family ICA functions
 #' @family topographic plots and layouts
 #' @inheritParams plot_topo
-#' @param standardize Whether to standardize the color scale of each topographic plot.
+#' @param ... arguments passed to interpolate.
+#' @param .standardize Whether to standardize the color scale of each topographic plot.
 #' @rdname plot_components
+#' @examples
+#' # For demonstration only, since ICA won't converge
+#' library(ggplot2)
+#' # Suppressing an important warning:
+#'   suppressWarnings(data_faces_10_trials %>%
+#'    eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))) %>%
+#'    eeg_ica_keep(ICA1, ICA2) %>%
+#'    plot_components()+
+#'    annotate_head() +
+#'    geom_contour() +
+#'    geom_text(color = "black") +
+#'    theme(legend.position = "none")
+#'
 #' @export
-plot_components <- function(data, ...,projection = "polar",standardize= TRUE) {
+#'
+plot_components <- function(data, ..., .projection = "polar", .standardize = TRUE) {
   UseMethod("plot_components")
 }
 #' @export
-plot_components.eeg_ica_lst <- function(data,...,projection = "polar",standardize= TRUE) {
-  comp_sel <- sel_comp(data,...)
-  channels_tbl(data) <- change_coord(channels_tbl(data), projection)
+plot_components.eeg_ica_lst <- function(data,..., .projection = "polar", .standardize = TRUE) {
+
+  channels_tbl(data) <- change_coord(channels_tbl(data),  .projection)
   ## TODO: move to data.table, ignore group, just do it by .recording
   long_table <- map_dtr(data$.ica, ~ {
-    dt <- .x$mixing_matrix[comp_sel,, drop=FALSE] %>%
+    dt <- .x$mixing_matrix %>%
       data.table::as.data.table(keep.rownames = TRUE) 
     dt[, .ICA := factor(rn, levels = rn)][ , rn := NULL][]
   },
@@ -231,16 +228,12 @@ plot_components.eeg_ica_lst <- function(data,...,projection = "polar",standardiz
     dplyr::group_by(.recording, .ICA)
   
 long_table %>%
-    eeg_interpolate_tbl() %>%
+    eeg_interpolate_tbl(...) %>%
     dplyr::group_by(.recording, .ICA) %>%
-    dplyr::mutate(.value = c(scale(.value, center = standardize, scale = standardize))) %>% 
+    dplyr::mutate(.value = c(scale(.value, center = .standardize, scale = .standardize))) %>%
     dplyr::ungroup() %>%
     plot_topo() +
-    ggplot2::facet_wrap(~.recording + .ICA) +
-    annotate_head() +
-    ggplot2::geom_contour() +
-    ggplot2::geom_text(color = "black") +
-    ggplot2::theme(legend.position = "none")
+    ggplot2::facet_wrap(~.recording + .ICA)
 }
 
 
@@ -256,9 +249,9 @@ plot_ica.eeg_ica_lst <- function(data,
                                  eog=c(),
                                  .recording=NULL,
                                  scale_comp = 2,
-                                 order = c("var","cor"),
-                                 max_sample =2400,
-                                 topo_config = list(projection = "polar",standardize= TRUE),
+                                 .order = c("var","cor"),
+                                 .max_sample =2400,
+                                 topo_config = list( .projection = "polar",.standardize= TRUE),
                                  interp_config =list()) {
 # to avoid no visible binding for global variable
   cor <- NULL
@@ -275,7 +268,7 @@ plot_ica.eeg_ica_lst <- function(data,
   x..upper <- NULL
   incomplete <- NULL
   
-  warning("This is an experimental function, and it might change or dissapear in the future. (Or it might be transformed into a shinyapp)")
+  warning("This is an experimental function, and it might change or disappear in the future. (Or it might be transformed into a shinyapp)")
   #first filter then this is applied:
   if(!is.null(.recording)){
     data <- dplyr::filter(data, .recording == .recording)
@@ -285,25 +278,27 @@ plot_ica.eeg_ica_lst <- function(data,
       data <- dplyr::filter(data, .recording == .recording)
     }
 
- 
-   if (length(eog) == 0) {
-    eog <- channel_names(data)[channel_names(data) %>%
-      stringr::str_detect(stringr::regex("eog", ignore_case = TRUE))]
-  } 
-    eog <- sel_ch(data, eog)
+  if (length(eog) == 0) {
+    eog <-  sel_ch(data, c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
+      #fixtidyselect::vars_select(channel_names(data), c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
+    message("EOG channels detected as: ", toString(eog))
+  } else {
+    eog <-  sel_ch(data, tidyselect::all_of(eog))
+  }
+    
   message("Calculating the correlation of ICA components with filtered EOG channels...")
-  sum <- eeg_ica_summary_tbl(data %>% eeg_filt_band_pass(eog, freq = c(.1, 30)),eog) 
-  data.table::setorderv(sum, order, order = -1)
-  ICAs <- unique(sum$.ICA)[components] 
+  summ <- eeg_ica_summary_tbl(data %>% eeg_filt_band_pass(eog, .freq = c(.1, 30)))
+  data.table::setorderv(summ, .order, order = -1)
+  ICAs <- unique(summ$.ICA)[components]
   
-  sum <- sum[.ICA %in% ICAs]
+  summ <- summ[.ICA %in% ICAs]
   
   new_data <- data %>% 
    slice_signal(samples) %>%
     eeg_ica_show(dplyr::one_of(ICAs)) %>%
     ## we select want we want to show:
-    dplyr::select(c(ICAs,eog)) %>%
-    dplyr::group_by(.id)%>%  
+    dplyr::select(tidyselect::all_of(c(ICAs, eog))) %>%
+    dplyr::group_by(.id) %>%
     dplyr::mutate_at(eog, ~ .- mean(.)) %>%
     dplyr::mutate_if(is_component_dbl, ~ . * scale_comp) 
   
@@ -312,13 +307,18 @@ plot_ica.eeg_ica_lst <- function(data,
     annotate_events()+ 
     ggplot2::theme(legend.position='none')
   
-  
-  topo <- plot_components(data,ICAs)
-  
-  c_text <- sum %>%
+  topo <- data %>%
+    eeg_ica_keep(ICAs) %>%
+    plot_components() +
+    annotate_head() +
+    ggplot2::geom_contour() +
+    ggplot2::geom_text(color = "black") +
+    ggplot2::theme(legend.position = "none")
+
+  c_text <- summ %>%
     dplyr::mutate(cor_t = as.character(round(cor,2)), pvar_t = as.character(round(var*100))) %>%
     dplyr::group_by(.recording, .ICA) %>%
-    dplyr::summarize(text = paste0(stringr::str_extract(EOG,"^."),": ", cor_t, collapse ="\n") %>%
+    dplyr::summarize(text = paste0(chr_extract(EOG,"^."),": ", cor_t, collapse ="\n") %>%
                 paste0("\n",unique(pvar_t),"%")) %>%
     dplyr::mutate(x=1,y=1,.value= NA, .key = NA) %>% 
     dplyr::left_join(dplyr::distinct(topo$data,.recording,.ICA) %>% 
@@ -326,7 +326,7 @@ plot_ica.eeg_ica_lst <- function(data,
     dplyr::mutate(.ICA = factor(.ICA, levels = .$.ICA))
   
   topo <-    topo + 
-    ggplot2::geom_text(data=c_text, ggplot2::aes(label=text,x=x,y=y), inherit.aes=FALSE) + 
+    ggplot2::geom_text(data=c_text, ggplot2::aes(label=text,x=x,y=y), inherit.aes=FALSE) +
     ggplot2::coord_cartesian(clip=FALSE) + 
     ggplot2::facet_wrap(~.ICA, ncol=4) +
     ggplot2::theme(strip.text=ggplot2::element_text(size=12))
@@ -344,10 +344,10 @@ plot_ica.eeg_ica_lst <- function(data,
 #' on the scalp.
 #'
 #' This function requires two steps: first, a ggplot object must be created with
-#' ERPs facetted by channel (`.key`).
+#' ERPs faceted by channel (`.key`).
 #' Then, the ggplot object is called in `plot_in_layout`. The function uses grobs
 #' arranged according to .x .y coordinates extracted from the `eeg_lst` object, by
-#' default in polar arrangement. The arrangement can be changed with the `projection`
+#' default in polar arrangement. The arrangement can be changed with the ` .projection`
 #' argument. White space in the plot can be reduced by changing `ratio`.
 #'
 #' Additional components such as titles and annotations should be added to the
@@ -392,15 +392,15 @@ plot_in_layout <- function(plot, ...) {
 }
 
 
-#' @param projection Projection type for converting the 3D coordinates of the electrodes into 2d coordinates. Projection types available: "polar" (default), "orthographic", or  "stereographic"
-#' @param ratio Ratio of the individual panels
+#' @param  .projection  .Projection type for converting the 3D coordinates of the electrodes into 2d coordinates.  .Projection types available: "polar" (default), "orthographic", or  "stereographic"
+#' @param .ratio Ratio of the individual panels
 #' @param ... Not in use.
 #'
 #' @rdname plot_in_layout
 #' @export
-plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1, 1), ...) {
-  size_x <- ratio[[1]]
-  size_y <- ratio[[2]]
+plot_in_layout.gg <- function(plot, .projection = "polar", .ratio = c(1, 1), ...) {
+  size_x <- .ratio[[1]]
+  size_y <- .ratio[[2]]
   ch_location <- plot$data_channels
   ## if (!"channel" %in% colnames(ch_location)) {
   ##   stop("Channels are missing from the data.")
@@ -499,7 +499,7 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1, 1), ...) 
   # How much larger than the electrode position should the plot be?
 
 
-  ch_location <- change_coord(ch_location, projection)
+  ch_location <- change_coord(ch_location, .projection)
 
   xmin <- min(ch_location$.x, na.rm = TRUE) - 0.3 #* size
   xmax <- max(ch_location$.x, na.rm = TRUE) + 0.3 #* size
@@ -556,7 +556,7 @@ plot_in_layout.gg <- function(plot, projection = "polar", ratio = c(1, 1), ...) 
 #' library(ggplot2)
 #' 
 #' data_faces_ERPs %>%
-#'   filter(between(as_time(.sample, unit = "milliseconds"), 100, 200)) %>%
+#'   filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
 #'   group_by(condition) %>%
 #'   summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
 #'   plot_topo() +
@@ -614,7 +614,7 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
     events_tbl <- object$layer$data
   }
   if(nrow(events_tbl)==0) return(NULL)  #nothing to plot
-  info_events <- setdiff(colnames(events_tbl), obligatory_cols[[".events"]])
+  info_events <- c(".type", ".description") 
   events_tbl <- data.table::as.data.table(events_tbl)
   events_tbl[, xmin := as_time(.initial) ]
   events_tbl[, xmax := as_time(.final) ]
@@ -656,7 +656,7 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
 #'
 #' @param data An `eeg_lst` object.
 #' @inheritParams  ggplot2::ggplot
-#' @param max_sample Downsample to approximately 6400 samples by default.
+#' @param .max_sample Downsample to approximately 6400 samples by default.
 #'
 #' @family plotting functions
 #' @return A ggplot object
@@ -681,10 +681,15 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
 ggplot.eeg_lst <- function(data = NULL,
                            mapping = ggplot2::aes(),
                            ...,
-                           max_sample = 64000,
-                           environment = parent.frame()) {
-  df <- try_to_downsample(data, max_sample) %>%
+                           .max_sample  = 64000                           ) {
+  df <- try_to_downsample(data, .max_sample) %>%
     data.table::as.data.table()
+
+  #sometimes might be useful to pass the environment
+  dots <-  list(...)
+  if(!"environment" %in% names(args)){
+    environment = parent.frame()
+  }
 
   df[, .key := factor(.key, levels = unique(.key))]
   p <- ggplot2::ggplot(data = df, mapping = mapping, ..., environment = environment)

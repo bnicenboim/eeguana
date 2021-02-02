@@ -3,7 +3,8 @@ library(eeguana)
 
 data_sincos2id <- eeguana:::data_sincos2id
 
-
+#TODO: remove later:
+data_sincos2id <- as_eeg_lst(data_sincos2id)
 
 #### eeg_baseline
 test_that("baseline works", {
@@ -36,7 +37,6 @@ test_that("both .eeg_lst and .channel_dbl give the same output for chs_mean", {
     data_M2 <- chs_mean(data_sincos2id)
     expect_equal(data_M, data_M2)
 })
-
 
 test_that("both chs_fun and chs_mean give the same output", {
     data_M_f <- dplyr::transmute(data_sincos2id, mean = chs_fun(X, Y, .funs = mean))
@@ -72,7 +72,7 @@ attributes(Z_reref)$.reference <- "X, Y"
 ##   expect_equal(data_reref$.signal$X, X_reref)
 ## })
 
-data_reref_all_chs <- eeg_rereference(data_sincos2id_Z, ref = c("X", "Y"))
+data_reref_all_chs <- eeg_rereference(data_sincos2id_Z, .ref = c("X", "Y"))
 
 test_that(".reference changes", {
   expect_equal(unique(channels_tbl(data_reref_all_chs)$.reference), "X, Y")

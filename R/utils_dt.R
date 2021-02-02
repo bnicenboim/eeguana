@@ -73,24 +73,66 @@ anti_join_dt <- function(x, y, by = NULL) {
 #' @noRd
 filter_dt <- function(.data, ..., group_by_ = character(0)) {
   dots <- rlang::quos(...)
-  # if(rlang::is_quosures(dots))
-
-  # TODO check parse_quo(), as_label reduces the quo if it's too long
-  cnds <- lapply(dots, rlang::quo_text) %>% paste0(collapse = " & ")
-  env <- lapply(dots, rlang::quo_get_env) %>% unique()
-  if (length(env) != 1) stop("Need to fix filter_dt; env", env)
-  ## TODO: check why this happens: for some reason if I don't do that, I modify the index of .data
-  ## .data <- data.table::copy(.data)
-  ## .data[eval(parse(text = cnds), envir =envs[[1]]),]
-  ## TODO eval_tidy
-  .data[.data[, .I[eval(parse(text = cnds), envir = env)], by = c(group_by_)]$V1]
+  newdots <- Reduce(x = dots,  f = function(x,y) rlang::quo(!!x & !!y))
+ if(length(group_by_) == 0) {
+   #TODO: this might be dangerous
+   .data[rlang::eval_tidy(newdots, data = rlang::as_data_mask(.data))]
+  } else {
+    col_order <- names(.data)
+  .data <- .data[, .SD[rlang::eval_tidy(newdots, data = cbind(.SD,data.table::as.data.table(.BY)))], by = c(group_by_)]
+    data.table::setcolorder(.data, col_order)
+    .data
+  }
 }
-#' binds cols of dt and adds the class of the first object
+
+
 #' @noRd
-bind_cols_dt <- function(...) {
-  new_dt <- cbind(...)
-  class(new_dt) <- class(list(...)[[1]])
-  new_dt
+mutate_dt <- function(.data, ..., group_by_ = character(0), .by_ref = FALSE, omit_shallow = FALSE){
+
+  dots <- rlang::quos(...)
+  dots <- rlang::quos_auto_name(dots)
+  col_names <- names(dots)
+  if(!omit_shallow & !.by_ref){ #it might be done before, or it might be by reference
+    .data <- data.table:::shallow(.data)
+  }
+  if(length(group_by_) == 0) {
+      # From: https://github.com/markfairbanks/tidytable/blob/549f330837be5adb510b4599142cc5f4a615a4be/R/mutate.R
+      # Prevent modify-by-reference if the column already exists in the data.table
+      # Fixes cases when user supplies a single value ex. 1, -1, "a"
+      .data[, `:=`((col_names),
+                                   lapply(dots, recycle_eval,
+                                                     data = rlang::as_data_mask(
+                                                       .SD),size = .N))]
+    } else {
+
+      if (length(intersect(col_names, colnames(.data)))>0 & .by_ref==FALSE) {
+        #needs a real copy
+        .data <- data.table::copy(.data)
+        }
+        .data[, `:=`((col_names),
+                                  lapply(dots, rlang::eval_tidy,
+                                                 data= rlang::as_data_mask(
+                                                   cbind(.SD,data.table::as.data.table(.BY))
+                                                  ))),
+                               by = c(group_by_)]
+    }
+
+}
+
+#' @noRd
+summarize_dt <- function(.data, ..., group_by_ = character(0)){
+  dots <- rlang::quos(...)
+  if(length(group_by_) > 0) {
+    .data <- .data[,
+                                             lapply(dots, rlang::eval_tidy,
+                                               data =
+                                                 rlang::as_data_mask(cbind(.SD,data.table::as.data.table(.BY)))),
+                                      keyby = c(group_by_)]
+  } else {
+    .data <- .data[, lapply(dots, rlang::eval_tidy,
+                                               data= rlang::as_data_mask(.SD))]
+  }
+  .data[]
 }
 
 
@@ -106,3 +148,38 @@ unnest_dt <- function(.data, col) {
     .data
 }
 
+
+#' @noRd
+recycle <- function(x, size) {
+
+  if(is.null(x)) return(NULL)
+
+  x_length <- length(x)
+
+  if (x_length != 1 && x_length != size)
+    stop(paste0("x must have length 1 or length ", size))
+
+  if (x_length == 1) x <- rep(x, size)
+
+  x
+}
+
+
+#' @noRd
+recycle_eval <- function(expr, data = NULL, env= rlang::caller_env(), size){
+  recycle(rlang::eval_tidy(expr, data = data, env = env),size = size)
+}
+#' @noRd
+changed_objects <- function(obj){
+  ## name <- rlang::eval_tidy(rlang::as_name(rlang::enquo(obj)))
+  oo <- ls(envir=.GlobalEnv)
+  mem <- data.table::data.table(mem = lapply(oo, function(x)  do.call(data.table::address,list(rlang::sym(x))) ) %>% unlist(), names = oo)
+
+  loc <- data.table::address(force(obj))
+  changed <- mem[mem ==loc,]$names
+  if(length(changed)>1){
+    message("The following objects have been changed in place: ", paste0(changed,sep =", "))
+  } else {
+    message(changed, " has been changed in place.")
+  }
+}

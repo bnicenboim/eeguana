@@ -7,16 +7,16 @@
 \usage{
 plot_in_layout(plot, ...)
 
-\method{plot_in_layout}{gg}(plot, projection = "polar", ratio = c(1, 1), ...)
+\method{plot_in_layout}{gg}(plot, .projection = "polar", .ratio = c(1, 1), ...)
 }
 \arguments{
 \item{plot}{A ggplot object with channels}
 
 \item{...}{Not in use.}
 
-\item{projection}{Projection type for converting the 3D coordinates of the electrodes into 2d coordinates. Projection types available: "polar" (default), "orthographic", or  "stereographic"}
+\item{.projection}{.Projection type for converting the 3D coordinates of the electrodes into 2d coordinates.  .Projection types available: "polar" (default), "orthographic", or  "stereographic"}
 
-\item{ratio}{Ratio of the individual panels}
+\item{.ratio}{Ratio of the individual panels}
 }
 \value{
 A ggplot object
@@ -27,10 +27,10 @@ on the scalp.
 }
 \details{
 This function requires two steps: first, a ggplot object must be created with
-ERPs facetted by channel (\code{.key}).
+ERPs faceted by channel (\code{.key}).
 Then, the ggplot object is called in \code{plot_in_layout}. The function uses grobs
 arranged according to .x .y coordinates extracted from the \code{eeg_lst} object, by
-default in polar arrangement. The arrangement can be changed with the \code{projection}
+default in polar arrangement. The arrangement can be changed with the \code{ .projection}
 argument. White space in the plot can be reduced by changing \code{ratio}.
 
 Additional components such as titles and annotations should be added to the

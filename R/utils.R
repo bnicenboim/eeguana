@@ -160,3 +160,60 @@ require_pkg <- function(pkg){
   else x
 }
 
+
+#' @noRd
+rep.channel_dbl <- function(x, ...){
+  y <- NextMethod()
+  attributes(y) <- attributes(x)
+  y
+}
+
+#' @noRd
+rep.sample_int <- function(x, ...){
+  y <- NextMethod()
+  structure(y, class = class(x), sampling_rate = sampling_rate(x))
+}
+
+#' @noRd
+match_arg <- function(arg, choices, several.ok = FALSE){
+    if (missing(choices)) {
+        formal.args <- formals(sys.function(sysP <- sys.parent()))
+        choices <- eval(formal.args[[as.character(substitute(arg))]],
+            envir = sys.frame(sysP))
+    }
+    if (is.null(arg))
+        return(choices[1L])
+    else if (!is.character(arg))
+        stop("'arg' must be NULL or a character vector")
+    if (!several.ok) {
+        if (identical(arg, choices))
+            return(arg[1L])
+        if (length(arg) > 1L)
+            stop("'arg' must be of length 1")
+    }
+    else if (length(arg) == 0L)
+        stop("'arg' must be of length >= 1")
+
+    arg <- trimws(tolower(arg))
+    i <- pmatch(arg, choices, nomatch = 0L, duplicates.ok = TRUE)
+    if (all(i == 0L))
+        stop(gettextf("'arg' should be one of %s", paste(dQuote(choices),
+            collapse = ", ")), domain = NA)
+    i <- i[i > 0L]
+    if (!several.ok && length(i) > 1)
+        stop("there is more than one match in 'match_arg'")
+    choices[i]
+}
+
+#' Copied from rstan
+#' @noRd
+is_arg_recognizable <- function (x, y, pre_msg = "", post_msg = "", ...)
+{
+    idx <- match(x, y)
+    na_idx <- which(is.na(idx))
+    if (length(na_idx) > 0) {
+        stop(pre_msg, paste(x[na_idx], collapse = ", "), ".",
+            post_msg, ...)
+    }
+    return(TRUE)
+}

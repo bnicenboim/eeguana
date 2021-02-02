@@ -9,18 +9,38 @@
 #' * `*_join()`: joins an external table to the *segments* table of the eeg_lst.
 #' * `mutate()` and `transmute()` Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.
 #' * `summarize()` summarizes the channel of the signal_tbl table.
+#' * `pull()` only pulls columns of the signal table
 #'
 #' In addition, `_at()`, and `_if()` versions of the functions should work as well. Notice that  the `_at()` versions are 
 #' much faster than the `_if()` versions of these commands.
+#'
+#' ## Gotchas
+#'
+#' These functions emulate [dplyr] functionality but they are actually powered by [data.table], and some times they might be behave a bit differently than the dplyr counterpart.
+#'
+#' - The default values of the arguments might be different, and some arguments might not exist for the eeguana dplyr-like functions.
+#' - grouped mutations behave slightly different than ungrouped ones: Channel properties are removed if the data is ungrouped and one does `mutate(data, channel = 0)`, but not if the data is grouped.
+#' - eeguana's [mutate] doesn't allow to refer back to a recently created channel: `data_eeg %>% mutate(X = F1 *2, Y = X)` is not valid. One needs to do `data_eeg %>% mutate(X = F1) %>% mutate(Y = X)`.
+#' - eeguana's [mutate] doesn't use the most updated value of a column from the same call. If X is a channel, then `data_eeg %>% mutate(X = X *2, Y = X+1)` will add `1` to the original value of `X`, and not to the latest one.
+#' - `n()` doesn't work, instead `length(.sample)` will give the same answer.
+#' - `across()` and `where()` cannot be used.
+#'
+#'
+#' ## Pitfalls
+#'
+#' These functions not only edit the eeg_lst objects but they also do book-keeping: They remove unnecessary channels, or update their information and they ensure that three tables (signal, segments, and events) match. It's then not recommended to edit the signal and segments table directly. (The events and channels table can be edited directly by doing `events_tbl(data_eeg) <- ...` or `channels_tbl(data_eeg) <- ...`).
+#'
 #'
 #' @param .data An eeg_lst.
 #' @param x An eeg_lst.
 #' @param y A data frame, tibble, or data.table.
 #' @inheritParams dplyr::join
+#' @inheritParams dplyr::pull
 #' @param ... Name-value pairs of expressions; see [dplyr][dplyr::dplyr] for more help.
 #' @param .preserve Not in use, for compatibility reasons.
-#' @param add Not in use, for compatibility reasons.
-#' @param .drop When .drop = TRUE, empty groups are dropped. (FALSE by default.)
+#' @param .add When FALSE, the default, group_by() will override existing groups. To add to the existing groups, use .add = TRUE.
+#' @param .drop Only .drop = FALSE is available, empty groups are never dropped.
+#' @param .groups Only .groups = "keep" is available.  Same grouping structure as .data.
 #' @importFrom dplyr  select mutate transmute summarise rename
 #' @importFrom dplyr group_by ungroup group_vars
 #' @importFrom dplyr groups
@@ -56,7 +76,7 @@
 #' data_faces_ERPs %>%
 #'   # Convert samples to times, filter between timepoints
 #'   filter(between(
-#'     as_time(.sample, unit = "ms"),
+#'     as_time(.sample, .unit = "ms"),
 #'     100, 200
 #'   )) %>%
 #'   # Find mean amplitude of Fz for each condition
@@ -77,23 +97,26 @@ NULL
 #' @rdname dplyr_verbs
 #' @export
 mutate.eeg_lst <- function(.data, ...) {
-  dots <- rlang::quos(...)
-  mutate_eeg_lst(.data, dots, keep_cols = TRUE)
+  .data <- update_eeg_lst(.data)
+  mutate_eeg_lst(.data, ..., keep_cols = TRUE) %>%
+    validate_eeg_lst()
 }
 
 #' @rdname dplyr_verbs
 #' @export
 transmute.eeg_lst <- function(.data, ...) {
-  dots <- rlang::quos(...)
-  mutate_eeg_lst(.data, dots, keep_cols = FALSE)
+
+  .data <- update_eeg_lst(.data)
+
+  mutate_eeg_lst(.data, ..., keep_cols = FALSE)
 }
 #' @rdname dplyr_verbs
 filter.eeg_lst <- function(.data, ..., .preserve = FALSE) {
   if (.preserve == TRUE) {
     warning("Ignoring `.preserve` argument.")
   }
-  dots <- rlang::quos(...)
-  filter_eeg_lst(.data, dots = dots)
+  .data <- update_eeg_lst(.data)
+  filter_eeg_lst(.data, ...)
 }
 #' @rdname dplyr_verbs
 filter.eeg_ica_lst <- function(.data, ..., .preserve = FALSE) {
@@ -104,18 +127,22 @@ filter.eeg_ica_lst <- function(.data, ..., .preserve = FALSE) {
 }
 #' @rdname dplyr_verbs
 #' @export
-summarise.eeg_lst <- function(.data, ...) {
+summarise.eeg_lst <- function(.data, ..., .groups = "keep") {
   dots <- rlang::quos(...)
-  summarize_eeg_lst(.data, dots)
+  .data <- update_eeg_lst(.data)
+  if(.groups != "keep") {
+    warning("Only  'keep' option is available")
+  }
+  summarize_eeg_lst(.data, dots, .groups = "keep")
 }
 #' @rdname dplyr_verbs
 #' @export
-group_by.eeg_lst <- function(.data, ..., add = FALSE, .drop = FALSE) {
+group_by.eeg_lst <- function(.data, ..., .add = FALSE, .drop = FALSE) {
   dots <- rlang::quos(...)
   if (.drop == TRUE) {
-    warning("Ignoring .drop argument. It hasn't been implemented yet.")
+    warning("Ignoring .drop argument. It can only be set to FALSE.")
   }
-  group_by_eeg_lst(.eeg_lst = .data, dots, .add = add)
+  group_by_eeg_lst(.eeg_lst = .data, dots, .add = .add)
 }
 #' @rdname dplyr_verbs
 #' @export
@@ -127,12 +154,14 @@ ungroup.eeg_lst <- function(.data, ...) {
 #' @rdname dplyr_verbs
 #' @export
 select.eeg_lst <- function(.data, ...) {
+  .data <- update_eeg_lst(.data)
   select_rename(.data, select = TRUE, ...)
 }
 
 #' @rdname dplyr_verbs
 #' @export
 rename.eeg_lst <- function(.data, ...) {
+  .data <- update_eeg_lst(.data)
   select_rename(.data, select = FALSE, ...)
 }
 
@@ -183,8 +212,23 @@ semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   x$.events <- semi_join_dt(x$.events, segments, by = ".id")
   x %>% validate_eeg_lst()
 }
+
 #' @rdname dplyr_verbs
 #' @export
 tbl_vars.eeg_lst <- function(x) {
   setdiff(dplyr::tbl_vars(x$.signal), c(dplyr::tbl_vars(x$.segments), c(".id", ".sample")))
 }
+
+#' @rdname dplyr_verbs
+#' @export
+pull.eeg_lst <- function(.data, var = -1, name = NULL, ...) {
+  var <- tidyselect::vars_pull(names(.data$.signal), !!rlang::enquo(var))
+  name <- rlang::enquo(name)
+  if (rlang::quo_is_null(name)) {
+    return(.data$.signal[[var]])
+  }
+  name <- tidyselect::vars_pull(names(.data$.signal), !!name)
+  rlang::set_names(.data[[var]], nm = .data[[name]])
+}
+
+

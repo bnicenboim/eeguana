@@ -13,7 +13,7 @@ theme_eeguana2()
 A ggplot theme.
 }
 \description{
-These are complete light themes based on \code{\link[ggplot2:theme_bw]{ggplot2::theme_bw()}} which control all non-data display.
+These are complete light themes based on \code{\link[ggplot2:ggtheme]{ggplot2::theme_bw()}} which control all non-data display.
 }
 \seealso{
 Other plotting functions: 

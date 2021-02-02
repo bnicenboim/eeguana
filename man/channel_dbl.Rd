@@ -26,8 +26,11 @@ channel_dbl(
 
 \item{...}{further arguments passed to or from other methods.}
 }
+\value{
+A channel_dbl.
+}
 \description{
-Builds a channel.
+Builds a channel from a vector of numbers.
 }
 \examples{
 
@@ -35,6 +38,7 @@ Cz <- channel_dbl(runif(100, -5, 5))
 }
 \seealso{
 Other channel: 
+\code{\link{as_channel_dbl}()},
 \code{\link{is_channel_dbl}()}
 }
 \concept{channel}

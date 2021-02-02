@@ -7,16 +7,16 @@ read_dat <- function(file, header_info = NULL, events = NULL,
   common_info <- header_info$common_info
 
   multiplexed <- dplyr::case_when(
-    stringr::str_detect(common_info$orientation, stringr::regex("vector",
-      ignore_case = TRUE
-    )) ~ FALSE,
-    stringr::str_detect(common_info$orientation, stringr::regex("multipl",
-      ignore_case = TRUE
-    )) ~ TRUE,
+    chr_detect(common_info$orientation, "vector",
+      ignore.case = TRUE
+    ) ~ FALSE,
+    chr_detect(common_info$orientation, "multipl",
+      ignore.case = TRUE
+    ) ~ TRUE,
     TRUE ~ NA
   ) %>% {
     if (is.na(.)) {
-      stop("Orientiation needs to be vectorized or multiplexed.")
+      stop("Orientation needs to be vectorized or multiplexed.")
     } else {
       .
     }
@@ -24,8 +24,8 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
 
   if (common_info$format == "BINARY") {
-    type <- stringr::str_extract(common_info$bits, stringr::regex("float|int", ignore_case = TRUE)) %>%
-      stringr::str_to_lower() %>%
+    type <- chr_extract(common_info$bits, "float|int", ignore.case = TRUE) %>%
+      tolower() %>%
       {
         dplyr::case_when(
           . == "float" ~ "double",
@@ -37,7 +37,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
       stop(sprintf("Type '%s' is not recognized (it should be double (float) or integer (int)", type))
     }
 
-    bytes <- stringr::str_extract(common_info$bits, stringr::regex("\\d*$")) %>%
+    bytes <- chr_extract(common_info$bits, "\\d*$") %>%
       as.numeric() %>%
       {
         . / 8
@@ -47,9 +47,17 @@ read_dat <- function(file, header_info = NULL, events = NULL,
       what = type, n = file.info(file)$size/bytes,
       size = bytes)
 
-    # TODO: check to optimize the following line
-    raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = multiplexed) %>%
+
+
+    raw_signal <- matrix(amps, ncol = n_chan, byrow = multiplexed) %>%
       data.table::as.data.table()
+    ## that one is faster than:
+    ## raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = multiplexed) %>%
+    ##   data.table::as.data.table(),
+    ## raw_signal <- data.table::data.table(matrix(amps, ncol = n_chan, byrow = multiplexed)
+                                         ## )
+   ## )
+
   } else if (common_info$format == "ASCII") {
     raw_signal <- data.table::fread(file,
       skip = common_info$SkipLines,
@@ -72,7 +80,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
   # TODO maybe convert to data.table directly
   # Adding the channel names to event table
-  events <- add_event_channel(events, header_info$chan_info$.channel) %>%
+  events <- add_event_channel(events, labels = header_info$chan_info$.channel) %>%
     data.table::as.data.table() 
 
 
@@ -148,17 +156,14 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 }
 
 build_segments_tbl <- function(.id, .recording) {
-  dplyr::tibble(
-    .id = .id,
-    .recording = .recording
-  ) %>%
-    dplyr::group_by(.recording) %>%
-    dplyr::mutate(segment = 1:dplyr::n()) %>%
-    dplyr::ungroup()
+  data.table::data.table(.id = .id)[,
+               .recording := .recording][
+               ,segment := seq_len(.N), by =".recording"]
 }
 add_event_channel <- function(events, labels) {
   labels <- make_names(labels)
-  dplyr::mutate(events, .channel = if (".channel" %in% names(events)) {
+  events_dt <- events
+  dplyr::mutate(events_dt, .channel = if (".channel" %in% names(events_dt)) {
     .channel
   } else {
     0L
@@ -209,7 +214,8 @@ read_vmrk <- function(file) {
   # http://pressrelease.brainproducts.com/markers/
 
   markers <- readChar(file, file.info(file)$size) %>%
-    stringr::str_extract(stringr::regex("^Mk[0-9]*?=.*^Mk[0-9]*?=.*?$", multiline = TRUE, dotall = TRUE))
+    chr_extract("(?ms)^Mk[0-9]*?=.*^Mk[0-9]*?=.*?$") %>%
+    chr_remove("\r$")
 
   col_names <- c(
     ".type", ".description", ".initial",
@@ -221,14 +227,14 @@ read_vmrk <- function(file) {
     col.names = col_names
   )
   # splits Mk<Marker number>=<Type>, removes the Mk.., and <Date>
-  events[, .type := stringr::str_split(.type, "=") %>%
+  events[, .type := strsplit(.type, "=") %>%
     purrr::map_chr(~ .x[[2]])][, date := NULL]
   events[, .final := .initial + .final - 1L]
 
 
   ## bug of BV1, first sample is supposed to be 1
   BV1 <- "BrainVision Data Exchange Marker File, Version 1.0"
-  if (stringr::str_detect(readChar(file, nchar(BV1)), BV1) &&
+  if (chr_detect(readChar(file, nchar(BV1)), BV1) &&
     events[.type == "New Segment", .initial][1] == 0) {
     events[.type == "New Segment" & .initial == 0, c(".initial", ".final") := list(1, 1)]
   }
@@ -239,7 +245,7 @@ read_vhdr_metadata <- function(file) {
     vhdr <- ini::read.ini(file)
 
   channel_info <- vhdr[["Channel Infos"]] %>%
-    imap_dtr(~ c(.y, stringr::str_split(.x, ",")[[1]]) %>%
+    imap_dtr(~ c(.y, strsplit(.x, ",")[[1]]) %>%
                       t() %>%
                       data.table::as.data.table()) 
    
@@ -263,7 +269,7 @@ read_vhdr_metadata <- function(file) {
     coordinates <- dplyr::tibble(number = channel_info$number, radius = NA_real_, theta = NA_real_, phi = NA_real_)
   } else {
     coordinates <- vhdr$Coordinates %>%
-      imap_dtr(~ c(.y, stringr::str_split(.x, ",")[[1]]) %>%
+      imap_dtr(~ c(.y, strsplit(.x, ",")[[1]]) %>%
         t() %>%
         data.table::as.data.table(.name_repair = "unique")) %>%
       stats::setNames(c("number", "radius", "theta", "phi")) %>%
@@ -300,8 +306,8 @@ read_vhdr_metadata <- function(file) {
       dplyr::mutate(bits = vhdr[["Binary Infos"]][["BinaryFormat"]])
   }
   
-  if (stringr::str_sub(common_info$domain, 1, nchar("time")) %>%
-    stringr::str_to_lower() != "time") {
+  if (substr(common_info$domain, start = 1, stop = nchar("time")) %>%
+    tolower() != "time") {
     stop("DataType needs to be 'time'")
   }
 

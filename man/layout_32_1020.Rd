@@ -4,12 +4,14 @@
 \name{layout_32_1020}
 \alias{layout_32_1020}
 \title{Layout for a 32 electrodes cap at the standard 10-20 system}
-\format{An table with channel names and locations}
+\format{
+An table with channel names and locations
+}
 \usage{
 layout_32_1020
 }
 \description{
-A dataset containing coordinates ofa 32 electrodes mounted in an elastic cap at the standard 10-20 system (Jasper, 1958)
+A dataset containing coordinates of a 32 electrodes mounted in an elastic cap at the standard 10-20 system (Jasper, 1958)
 }
 \seealso{
 Other topographic plots and layouts: 

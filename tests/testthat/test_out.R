@@ -88,17 +88,18 @@ printed <- c("# EEG data:", "", "# Signal table:", "       .id .sample       Fp1
 "542:   1     Stimulus         s130    56380  56380     <NA>", 
 "543:   1     Stimulus          s70    56750  56750     <NA>", 
 "544:   1     Stimulus         s130    58328  58328     <NA>", 
-"", "# Segments table:", "# A tibble: 1 x 3", "    .id .recording segment", 
-"  <int> <chr>        <int>", "1     1 faces.vhdr       1")
+"", "# Segments table:",  "   .id .recording segment",
+ "1:   1 faces.vhdr       1")
+
 
 expect_equal(capture.output(data_faces_10_trials), printed)
 expect_equal(capture.output(data_faces_10_trials), capture.output(print(data_faces_10_trials)))
-expect_invisible(print(data_faces_10_trials))
+#expect_invisible(print(data_faces_10_trials))
 })
 
 test_that("summary is correct", {
   ## dput(capture.output(summary(data_faces_10_trials)))
-  printed <-c("# EEG data:", "# Sampling rate: 500 Hz.", "# Size in memory: 11.7 Mb.", 
+  printed <-c("# EEG data:", "# Sampling rate: 500 Hz.", "# Size in memory: 11.6 Mb.",
               "# Total duration: 00:01:26.", "# Summary of segments", "   .recording n_segments n_incomplete", 
               "1: faces.vhdr          1            0", "# Summary of events", 
               "          .type .description   n", "1: Bad Interval  Bad Min-Max 516", 
@@ -106,7 +107,7 @@ test_that("summary is correct", {
               "4:     Stimulus         s130  10", "5:     Stimulus           s5   1", 
               "6:     Stimulus          s70   4", "7:     Stimulus          s71   5", 
               "8:  UserDefined        Blink   6")
-  expect_equal(capture.output(summary(data_faces_10_trials)), printed)
+ expect_equal(capture.output(summary(data_faces_10_trials)), printed)
 })
 
 

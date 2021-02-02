@@ -22,11 +22,12 @@ navbar:
     articles:
       text: Articles
       menu:
-      - text: Introduction - Preprocessing and visualization of EEG data.
-          2.0
+      - text: Introduction - Preprocessing and visualization of EEG data
         href: articles/intro.html
-      - text: Preprocessing of EEG data and computing ERPs (Fieldtrip tutorial)
+      - text: "Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs"
         href: articles/preprocessing_erp.html
+      - text: Pitfalls and gotchas
+        href: articles/gotchas.html
     news:
       text: Changelog
       href: news/index.html
@@ -83,6 +84,7 @@ reference:
     - starts_with("as.")
     - starts_with("is_")
     - starts_with("n")
+    - '`ica_matrix_lst`'
   - title: "Editing functions"
     desc: >
       Functions for showing (and sometimes editing) `eeg_lst` objects parts.
@@ -118,3 +120,8 @@ reference:
       Layout of caps 
     contents: 
     - starts_with("layout_")
+  - title: "Signal processing"
+    desc: >
+      Miscellanous signal processing functions (mostly adapted from python and matlab) 
+    contents: 
+    - starts_with("sig_")

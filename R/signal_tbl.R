@@ -111,7 +111,7 @@ validate_signal_tbl <- function(signal_tbl) {
   ## Validates channels
   signal_tbl[, lapply(.SD, validate_channel_dbl), .SDcols = sapply(signal_tbl, is_channel_dbl)]
   ## reorders
-  dplyr::select(signal_tbl, obligatory_cols[[".signal"]], dplyr::everything())
+  data.table::setcolorder(signal_tbl, obligatory_cols[[".signal"]])
 }
 
 

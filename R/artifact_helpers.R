@@ -4,7 +4,7 @@ window_samples <- function(window, sampling_rate, unit) {
     stop("`window` should be a positive number.", call. = FALSE)
   }
   
-  window_s <- round(as_sample_int(window, sampling_rate = sampling_rate, unit = unit) - 1L)
+  window_s <- round(as_sample_int(window, sampling_rate = sampling_rate, .unit = unit) - 1L)
   
   if (window_s <= 0)
     stop("The `window` needs to contain at least one sample.")
@@ -16,7 +16,7 @@ lim_samples <- function(lim, sampling_rate, unit){
   if (length(lim) < 2) {
     stop("Two values for `lim` are needed", call. = FALSE)
   }
-  as_sample_int(lim, sampling_rate = sampling_rate, unit = unit)
+  as_sample_int(lim, sampling_rate = sampling_rate, .unit = unit)
 }
 
 
@@ -42,7 +42,7 @@ events_artif_custom <- function(.signal, ...,
   )
 
   fun_txt <- substitute(fun) %>%
-    stringr::str_remove("detect_")
+    chr_remove("detect_")
   args_txt <- purrr::imap_chr(args, ~ paste(.y, toString(.x), sep = "=")) %>%
     paste(collapse = "_")
 

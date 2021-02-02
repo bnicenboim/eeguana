@@ -17,6 +17,7 @@
 \alias{left_join.eeg_lst}
 \alias{semi_join.eeg_lst}
 \alias{tbl_vars.eeg_lst}
+\alias{pull.eeg_lst}
 \title{Dplyr verbs overloaded for manipulating eeg_lst objects.}
 \usage{
 \method{mutate}{eeg_lst}(.data, ...)
@@ -27,9 +28,9 @@ filter.eeg_lst(.data, ..., .preserve = FALSE)
 
 filter.eeg_ica_lst(.data, ..., .preserve = FALSE)
 
-\method{summarise}{eeg_lst}(.data, ...)
+\method{summarise}{eeg_lst}(.data, ..., .groups = "keep")
 
-\method{group_by}{eeg_lst}(.data, ..., add = FALSE, .drop = FALSE)
+\method{group_by}{eeg_lst}(.data, ..., .add = FALSE, .drop = FALSE)
 
 \method{ungroup}{eeg_lst}(.data, ...)
 
@@ -48,17 +49,21 @@ filter.eeg_ica_lst(.data, ..., .preserve = FALSE)
 \method{semi_join}{eeg_lst}(x, y, by = NULL, suffix = c(".x", ".y"), ...)
 
 tbl_vars.eeg_lst(x)
+
+pull.eeg_lst(.data, var = -1, name = NULL, ...)
 }
 \arguments{
 \item{.data}{An eeg_lst.}
 
-\item{...}{Name-value pairs of expressions; see \link[dplyr:dplyr]{dplyr} for more help.}
+\item{...}{Name-value pairs of expressions; see \link[dplyr:dplyr-package]{dplyr} for more help.}
 
 \item{.preserve}{Not in use, for compatibility reasons.}
 
-\item{add}{Not in use, for compatibility reasons.}
+\item{.groups}{Only .groups = "keep" is available.  Same grouping structure as .data.}
 
-\item{.drop}{When .drop = TRUE, empty groups are dropped. (FALSE by default.)}
+\item{.add}{When FALSE, the default, group_by() will override existing groups. To add to the existing groups, use .add = TRUE.}
+
+\item{.drop}{Only .drop = FALSE is available, empty groups are never dropped.}
 
 \item{x}{An eeg_lst.}
 
@@ -90,6 +95,23 @@ it is a potentially expensive operation so you must opt into it.}
 \item{suffix}{If there are non-joined duplicate variables in \code{x} and
 \code{y}, these suffixes will be added to the output to disambiguate them.
 Should be a character vector of length 2.}
+
+\item{var}{A variable specified as:
+\itemize{
+\item a literal variable name
+\item a positive integer, giving the position counting from the left
+\item a negative integer, giving the position counting from the right.
+}
+
+The default returns the last column (on the assumption that's the
+column you've created most recently).
+
+This argument is taken by expression and supports
+\link[rlang:nse-force]{quasiquotation} (you can unquote column
+names and column locations).}
+
+\item{name}{An optional parameter that specifies the column to be used
+as names for a named vector. Specified in a similar manner as \code{var}.}
 }
 \value{
 An eeg_lst object.
@@ -98,17 +120,35 @@ An eeg_lst object.
 Manipulate the signal table and the segments table of an eeg_lst.
 }
 \details{
-Wrappers for \code{\link[dplyr:dplyr]{dplyr}}'s commands that act on different parts
+Wrappers for \code{\link[dplyr:dplyr-package]{dplyr}}'s commands that act on different parts
 \code{eeg_lst} objects. Functions that drop or rename column won't remove columns starting with a dot.
 The following wrappers act in a special way for \code{eeg_lst} objects:
 \itemize{
 \item \verb{*_join()}: joins an external table to the \emph{segments} table of the eeg_lst.
 \item \code{mutate()} and \code{transmute()} Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.
 \item \code{summarize()} summarizes the channel of the signal_tbl table.
+\item \code{pull()} only pulls columns of the signal table
 }
 
 In addition, \verb{_at()}, and \verb{_if()} versions of the functions should work as well. Notice that  the \verb{_at()} versions are
 much faster than the \verb{_if()} versions of these commands.
+\subsection{Gotchas}{
+
+These functions emulate \link{dplyr} functionality but they are actually powered by \link{data.table}, and some times they might be behave a bit differently than the dplyr counterpart.
+\itemize{
+\item The default values of the arguments might be different, and some arguments might not exist for the eeguana dplyr-like functions.
+\item grouped mutations behave slightly different than ungrouped ones: Channel properties are removed if the data is ungrouped and one does \code{mutate(data, channel = 0)}, but not if the data is grouped.
+\item eeguana's \link{mutate} doesn't allow to refer back to a recently created channel: \code{data_eeg \%>\% mutate(X = F1 *2, Y = X)} is not valid. One needs to do \code{data_eeg \%>\% mutate(X = F1) \%>\% mutate(Y = X)}.
+\item eeguana's \link{mutate} doesn't use the most updated value of a column from the same call. If X is a channel, then \code{data_eeg \%>\% mutate(X = X *2, Y = X+1)} will add \code{1} to the original value of \code{X}, and not to the latest one.
+\item \code{n()} doesn't work, instead \code{length(.sample)} will give the same answer.
+\item \code{across()} and \code{where()} cannot be used.
+}
+}
+
+\subsection{Pitfalls}{
+
+These functions not only edit the eeg_lst objects but they also do book-keeping: They remove unnecessary channels, or update their information and they ensure that three tables (signal, segments, and events) match. It's then not recommended to edit the signal and segments table directly. (The events and channels table can be edited directly by doing \code{events_tbl(data_eeg) <- ...} or \code{channels_tbl(data_eeg) <- ...}).
+}
 }
 \examples{
 library(dplyr)
@@ -134,7 +174,7 @@ data_faces_ERPs \%>\%
 data_faces_ERPs \%>\%
   # Convert samples to times, filter between timepoints
   filter(between(
-    as_time(.sample, unit = "ms"),
+    as_time(.sample, .unit = "ms"),
     100, 200
   )) \%>\%
   # Find mean amplitude of Fz for each condition

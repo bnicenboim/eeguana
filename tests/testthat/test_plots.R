@@ -53,7 +53,9 @@ expect_gg <- function(x) {
 plot <- plot(data_faces_ERPs)
 
 # create line plot
-lineplot_eeg <- data_faces_ERPs %>%
+smaller_data <- data_faces_ERPs %>%
+  dplyr::select(Fp1, Fpz, Fp2)
+lineplot_eeg <- smaller_data %>%
   ggplot2::ggplot(ggplot2::aes(x = .time, y = .value)) +
   ggplot2::geom_line(ggplot2::aes(group = .id, colour = condition), alpha = .5) +
   ggplot2::stat_summary(
@@ -81,7 +83,7 @@ ica_plot <- data_faces_ERPs %>%
 
 test_that("plotting doesn't change data", {
   # channel is factor in the plot and character in tibble, is that ok?
-  expect_equal(as.matrix(lineplot_eeg$data), as.matrix(dplyr::as_tibble(data_faces_ERPs)))
+  expect_equal(as.matrix(lineplot_eeg$data), as.matrix(dplyr::as_tibble(smaller_data)))
   # lengths are very different
   expect_equal(
     nrow(topoplot_eeg$data),

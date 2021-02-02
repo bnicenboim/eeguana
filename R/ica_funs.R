@@ -1,11 +1,6 @@
 #' Wrapper for FastICA method for Independent Component Analysis from fastICA package
 #'
-#' `fast_ICA()` is a wrapper for [fastICA::fastICA], with different defaults (runs in C, 
-#' maximum teration = 1000, tolerance = 1e-04, verbose), and that throws a warning in case of non-convergence.
-#' It returns an estimated unmixing matrix W (equivalent to the original `K %*% W`), and the mixing matrix A,
-#' consistent with the formulation `X= S %*% A`, and `X %*% W = S` where X is the matrix of data with
-#'  N_samples by N_channels, and S is a matrix of sources with N_samples by N_sources.
-#'  They are meant to be  used with [eeg_ica()].
+#' `fast_ICA()` is a wrapper for [fastICA::fastICA], with different defaults (runs in C, maximum iteration = 1000, tolerance = 1e-04, verbose), and that throws a warning in case of non-convergence. It returns an estimated unmixing matrix W (equivalent to the original `K %*% W`), and the mixing matrix A, consistent with the formulation `X= S %*% A`, and `X %*% W = S` where X is the matrix of data with N_samples by N_channels, and S is a matrix of sources with N_samples by N_sources. They are meant to be  used with [eeg_ica()].
 #'
 #' @param X A matrix or data frame.
 #' @family ica methods
@@ -23,7 +18,7 @@ fast_ICA <-function(X, n.comp=NULL, alg.typ = "parallel",
           fun = fun, alpha = alpha, method = method,
           row.norm = row.norm, maxit = maxit, tol = tol, verbose = TRUE,
           w.init = w.init))
-  last_line <- stringr::str_match(capture[length(capture)], "Iteration (\\d*) tol=(.*)")
+  last_line <- chr_match(capture[length(capture)], "Iteration (\\d*) tol=(.*)")
   
   out_tol <- as.numeric(last_line[,3])
   out_maxit <- as.numeric(last_line[,2])

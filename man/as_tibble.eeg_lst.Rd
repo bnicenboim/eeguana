@@ -6,16 +6,16 @@
 \alias{as_long_tbl.eeg_lst}
 \title{Convert an eeg_lst to a long table in \code{\link[tibble:tibble]{tibble}} format.}
 \usage{
-as_tibble.eeg_lst(x, unit = "second")
+as_tibble.eeg_lst(x, .unit = "second")
 
-as_data_frame.eeg_lst(x, unit = "second")
+as_data_frame.eeg_lst(x, .unit = "second")
 
-\method{as_long_tbl}{eeg_lst}(x, unit = "second")
+\method{as_long_tbl}{eeg_lst}(x, .unit = "second")
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
 
-\item{unit}{Unit for the \code{.time} column of the transformed object: "s" (default), "ms", "samples".}
+\item{.unit}{Unit for the \code{.time} column of the transformed object: "s" (default), "ms", "samples".}
 }
 \value{
 A \code{\link[tibble:tibble]{tibble}}

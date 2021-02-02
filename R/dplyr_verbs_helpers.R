@@ -20,86 +20,83 @@ group_by_eeg_lst <- function(.eeg_lst, dots, .add = FALSE) {
 }
 
 #' @noRd
-filter_eeg_lst <- function(.eeg_lst, dots) {
+filter_eeg_lst <- function(.eeg_lst, ...) {
+  dots <- rlang::quos(...)
   new_dots <- dots_by_tbl_quos(.eeg_lst, dots)
 
   if (length(new_dots$.signal) > 0) {
-    cond_cols <- names_other_col(.eeg_lst, dots, ".segments")
+    cond_cols <- names_other_col(.eeg_lst, dots, tbl = ".segments")
     ## events_col <- names_other_col(.eeg_lst, dots,".events")
-    extended_signal <- extended_signal(.eeg_lst, cond_cols) # , events_col = events_col)
+    extended_signal_dt <- extended_signal(.eeg_lst, cond_cols) # , events_col = events_col)
     by <- as.character(dplyr::group_vars(.eeg_lst))
 
     cols_signal <- colnames(.eeg_lst$.signal)
-    .eeg_lst$.signal <- filter_dt(extended_signal, !!!dots, group_by_ = by) %>%
+    .eeg_lst$.signal <- filter_dt(extended_signal_dt, !!!dots, group_by_ = by) %>%
       .[, ..cols_signal]
     if (nrow(.eeg_lst$.events) > 0) {
       range_s <- .eeg_lst$.signal[, .(.lower = min(.sample), .upper = max(.sample)), by = .id]
       .eeg_lst$.events <- update_events(.eeg_lst$.events, range_s)
     }
-    .eeg_lst$.segments <- dplyr::semi_join(.eeg_lst$.segments, .eeg_lst$.signal, by = ".id")
+    .eeg_lst$.segments <- semi_join_dt(.eeg_lst$.segments, .eeg_lst$.signal, by = ".id")
   }
   # filter the segments and update the signal_tbl
   if (length(new_dots$.segments) > 0) {
     grouping <- dplyr::group_vars(.eeg_lst)[dplyr::group_vars(.eeg_lst) %in% colnames(.eeg_lst$.segments)]
-    .eeg_lst$.segments <- .eeg_lst$.segments %>%
-      dplyr::group_by_at(dplyr::vars(grouping)) %>%
-      dplyr::filter(!!!new_dots$.segments) %>%
-      dplyr::ungroup()
-    .eeg_lst$.signal <- semi_join_dt(.eeg_lst$.signal, data.table::as.data.table(.eeg_lst$.segments), by = ".id")
+    .eeg_lst$.segments <- filter_dt(.eeg_lst$.segments, !!!new_dots$.segments, group_by_ = grouping)
+    .eeg_lst$.signal <- semi_join_dt(.eeg_lst$.signal, .eeg_lst$.segments, by = ".id")
   }
   .eeg_lst$.events <- semi_join_dt(.eeg_lst$.events, data.table::as.data.table(.eeg_lst$.segments), by = ".id")
-
 
   # Fix the indices in case some of them drop out
   .eeg_lst <- .eeg_lst %>% update_events_channels()
   data.table::setkey(.eeg_lst$.signal, .id, .sample)
+  data.table::setkey(.eeg_lst$.segments, .id)
   .eeg_lst %>% validate_eeg_lst()
 }
 
 
-
 #' @noRd
-mutate_eeg_lst <- function(.eeg_lst, dots, keep_cols = TRUE) {
-
-  # .dots <- rlang::quos(.recording == "0")
+mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_ref = FALSE) {
+  # What to do by table in the object:
+  dots <- rlang::quos(...)
   new_dots <- dots_by_tbl_quos(.eeg_lst, dots)
-
   if (length(new_dots$.signal) > 0) {
-    # channels_info <- channels_tbl(.eeg_lst)
-
-    new_cols <- rlang::quos_auto_name(new_dots$.signal) %>%
+    # New columns name:
+    col_names <- rlang::quos_auto_name(new_dots$.signal) %>%
       names()
-
-    cols_signal <- {
-      if (keep_cols) {
-        colnames(.eeg_lst$.signal)
-      } else {
-        obligatory_cols$.signal
-      }
-    } %>%
-      c(., new_cols) %>%
-      unique()
+    # is it mutate or transmute?
+    if (keep_cols) {
+      cols_signal <- unique(c(colnames(.eeg_lst$.signal), col_names))
+    } else {
+      cols_signal <- c(obligatory_cols$.signal, col_names)
+    }
+    # names of columns that are used to conditionalize channels: F1[.recording=="1"]
     cond_cols <- names_other_col(.eeg_lst, dots, ".segments")
 
-
-    extended_signal <- extended_signal(.eeg_lst, cond_cols)
+    # extended signal dt with the group_by col, and the conditional columns
+    # TODO: group_by columns could be pasted together and converted to factor
+    extended_signal_dt <- extended_signal(.eeg_lst, cond_cols = cond_cols, .by_ref = .by_ref)
     by <- dplyr::group_vars(.eeg_lst) 
-    # eval needs cols_signal and extended signal and by
+
+    extended_signal_dt <- mutate_dt(extended_signal_dt, !!!new_dots$.signal, group_by_ = by,  .by_ref = .by_ref, omit_shallow = TRUE)
 
 
-    new_dots$.signal <- rlang::quos_auto_name(new_dots$.signal)
-    for (i in seq_len(length(new_dots$.signal))) {
-      # extended_signal[, `:=`(names(new_dots$.signal[i]),
-                             # eval(parse(text = rlang::quo_text(new_dots$.signal[[i]])))), by = c(by)]
-    extended_signal[, `:=`(names(new_dots$.signal[i]),
-                             rlang::eval_tidy(new_dots$.signal[[i]],
-                                              data= rlang::as_data_mask(.SD))),
-                           by = c(by)]
+    #intersect in case there are less columns now
+    new_cols <- intersect(cols_signal, names(extended_signal_dt))
+    # removes the extended columns
+    .eeg_lst$.signal <- extended_signal_dt[, new_cols, with = FALSE][]
+
+    ## Check that the user did not mess up the attributes of the column:
+    non_obl <- .eeg_lst$.signal[0,- obligatory_cols$.signal, with = FALSE]
+    new_channels <- .eeg_lst$.signal[0,col_names[col_names %in% colnames(extended_signal_dt)], with = FALSE]
+    non_ch <- names(new_channels)[!purrr::map_lgl(new_channels, is_channel_dbl)]
+    non_comp <- names(non_ch)[!purrr::map_lgl(non_ch, is_component_dbl)]
+    non_ch <- unique(c(non_ch, non_comp))
+    if(length(non_ch)>0 & options()$eeguana.verbose){
+      message("The following columns of signal_tbl are not channels (or ICA components): ", paste(non_ch,sep=", "))
+      message("* To build a channel use `channel_dbl()` function, e.g. channel_dbl(0) to populate the table with a channel containing 0 microvolts.")
+      message("* To copy the structure of an existing channel one can do `new_ch = existing_channel * 0 + ...`")
     }
-
-    
-    .eeg_lst$.signal <- extended_signal[, ..cols_signal][]
-
 
     # updates the events and the channels
     .eeg_lst <- .eeg_lst %>% update_events_channels()
@@ -114,17 +111,19 @@ mutate_eeg_lst <- function(.eeg_lst, dots, keep_cols = TRUE) {
     ) %>%
       rlang::syms(.)
 
-    if (keep_cols) {
-      dplyr_fun <- dplyr::mutate
-    } else {
-      dplyr_fun <- dplyr::transmute
-    }
-    .eeg_lst$.segments <- dplyr_fun(
-      .eeg_lst$.segments, !!!missing_vars,
-      !!!new_dots$.segments
-    )
-  }
 
+
+    ## TODO: check what happens when it's grouped by  something
+    .eeg_lst$.segments <- mutate_dt(
+      .eeg_lst$.segments, !!!new_dots$.segments, .by_ref= .by_ref
+    )
+
+    if (!keep_cols) {
+      #transmute
+      .eeg_lst[, c(obligatory_cols[[".segments"]], names(new_dots$.segments)), with  = TRUE]
+    }
+
+  }
   .eeg_lst %>% validate_eeg_lst()
 }
 
@@ -205,6 +204,7 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
   }
 
   data.table::setkey(.eeg_lst$.signal, .id, .sample)
+  data.table::setkey(.eeg_lst$.segments, .id)
 
 
   .eeg_lst %>%
@@ -214,16 +214,16 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
 
 #' @noRd
 scaling <- function(sampling_rate, unit) {
-  if (stringr::str_to_lower(unit) %in% c("s", "sec", "second", "seconds", "secs")) {
+  if (tolower(unit) %in% c("s", "sec", "second", "seconds", "secs")) {
     scaling <- sampling_rate
-  } else if (stringr::str_to_lower(unit) %in% c(
+  } else if (tolower(unit) %in% c(
     "ms", "msec", "millisecond",
     "milli second", "milli-second",
     "milliseconds", "milli seconds",
     "msecs"
   )) {
     scaling <- sampling_rate / 1000
-  } else if (stringr::str_to_lower(unit) %in% c("sam", "sample", "samples")) {
+  } else if (tolower(unit) %in% c("sam", "sample", "samples")) {
     scaling <- 1
   } else {
     stop("Incorrect unit. Please use 'ms', 's', or 'sample'")
@@ -243,9 +243,9 @@ names_other_col <- function(.eeg_lst, dots, tbl = NULL) {
   # names_o <- c()
  
   #col name, checking that before or after there is no part of a word \\w or .
-  cols_regex <- paste0("(?<![\\w.])", cols, "(?![\\w.])")
+  cols_regex <- paste0(paste0("(?<![\\w.])", cols, "(?![\\w.])"), collapse = "|")
   names_o <- lapply(dots, function(dot){
-    stringr::str_extract(rlang::quo_text(dot),cols_regex )
+    chr_extract_all(rlang::quo_text(dot),cols_regex)
   }) %>% unlist() %>% unique()
    #for (n in seq_len(length(dots))) {
   #   # get the AST of each call and unlist it
@@ -269,36 +269,32 @@ hd_add_column <- function(.data, ..., .before = NULL, .after = NULL) {
   return(tibble::add_column(.data, ..., .before = .before, .after = .after))
 }
 
-
 #' @noRd
 signal_from_parent_frame <- function(env = parent.frame()) {
   # This is the environment where I can find the columns of signal_tbl
   signal_env <- rlang::env_get(env = env, ".top_env", inherit = TRUE)
   signal_tbl <- dplyr::as_tibble(rlang::env_get_list(signal_env, rlang::env_names(signal_env)))
 }
+
 #' @noRd
-extended_signal <- function(.eeg_lst, cond_cols = NULL, events_cols = NULL) {
+extended_signal <- function(.eeg_lst, cond_cols = NULL, events_cols = NULL, .by_ref = FALSE) {
   ## For NOTES:
   ..events_cols <- NULL
-
-  extended_signal <- NULL
-  relevant_cols <- c(obligatory_cols$.segments, dplyr::group_vars(.eeg_lst), cond_cols)
-  if (length(relevant_cols) > 1) { # more than just .id
-    segments <- dplyr::ungroup(.eeg_lst$.segments) %>%
-      {
-        .[names(.) %in% relevant_cols]
-      } %>%
-      data.table::data.table()
-    data.table::setkey(segments, .id)
-    extended_signal <- .eeg_lst$.signal[segments]
+  if(.by_ref) {
+    extended_signal_dt <- .eeg_lst$.signal
+  } else {
+    extended_signal_dt <- data.table:::shallow(.eeg_lst$.signal)
+  }
+  relevant_cols <- c(".id",dplyr::group_vars(.eeg_lst), cond_cols)
+  if (any(relevant_cols != ".id")) { # more than just .id
+    segments <- .eeg_lst$.segments[extended_signal_dt, unique(relevant_cols), with = FALSE]
+    extended_signal_dt[, `:=`(names(segments), segments)]
   }
   if (length(events_cols) > 0) {
-    extended_signal <- events_tbl(.eeg_lst)[, ..events_cols][extended_signal]
+    events_dt <- events_tbl(.eeg_lst)[extended_signal_dt,  c(".id", events_col) ,with = FALSE]
+    extended_signal_dt[, `:=`(names(events_dt), events_dt)]
   }
-  if (is.null(extended_signal)) {
-    extended_signal <- data.table::copy(.eeg_lst$.signal)
-  }
-  extended_signal
+  extended_signal_dt[]
 }
 
 #' @noRd
@@ -335,8 +331,11 @@ dots_by_tbl_quos <- function(.eeg_lst, dots) {
     paste0("`", channel_names(.eeg_lst), "`") # In case channel name is used with ` in the function call, NOT sure if needed anymore
   )
 
-  signal_dots <- purrr::map_lgl(dots, function(dot)
-  # get the AST of each call and unlist it
+  signal_dots <- purrr::imap_lgl(dots, function(dot, name)
+    if(name %in% signal_cols){
+      TRUE
+    } else {
+    # get the AST of each call and unlist it
     getAST(dot) %>%
       unlist(.) %>%
       # make it a vector of strings
@@ -345,12 +344,14 @@ dots_by_tbl_quos <- function(.eeg_lst, dots) {
         if (txt_element %in% signal_cols) {
           return(TRUE)
         } else if (exists(txt_element) && is.function(eval(parse(text = txt_element)))) {
-          return(stringr::str_detect(txt_element, stringr::regex("^ch_|^chs_|^channel_dbl|^channel_names|^signal_tbl")))
+          return(chr_detect(txt_element, "^ch_|^chs_|^channel_dbl|^channel_names|^signal_tbl"))
         } else {
           return(FALSE)
         }
       }) %>%
-      any())
+      any()
+    }
+  )
 
   # things might fail if there is a function named as a signal column. TODO, check for that in the validate.
 

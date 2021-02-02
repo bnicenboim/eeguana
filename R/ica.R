@@ -14,19 +14,43 @@
 #' @param .data An eeg_lst object
 #' @param ... Channels to include in ICA transformation. All the channels by default, but eye channels
 #' and reference channels should be removed.
-#' @param method Methods from different packages: [fast_ICA], a wrapper of [fastICA::fastICA], (default), and some more experimental methods:
+#' @param .method Methods from different packages: [fast_ICA], a wrapper of [fastICA::fastICA], (default), and some more experimental .methods:
 #' [fast_ICA2] and [adapt_fast_ICA] adapted from [fICA][fICA::fICA] package. It can also accept a custom function, see details.
-#' @param config Other parameters passed in a list to the ICA method. See the documentation of the relevant method.
-#' @param ignore Events that should be ignored in the ICA, set to NULL for not using the events table.
+#' @param .config Other parameters passed in a list to the ICA method. See the documentation of the relevant .method.
+#' @param .ignore Events that should be ignored in the ICA, set to NULL for not using the events table.
 #' @family ICA functions
 #' @family preprocessing functions
 #' @return An eeg_ica_lst object
+#'
+#' @examples
+#' # For demonstration only, since ICA won't converge
+#' # Suppressing an important warning:
+#'   suppressWarnings(data_faces_10_trials %>%
+#'  eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10)))
+#'
+#' ## The example can only bu run, if python is properly configured (see reticulate package help)
+#' ## Here a python ICA function is used:
+#' \dontrun{
+#' library(reticulate)
+#' use_condaenv("anaconda3") #use the appropriate environment
+#' sk <- import("sklearn.decomposition")
+#' py_fica <- function(x) {
+#'   x <- as.matrix(x)
+#'   ica <- sk$FastICA(whiten = TRUE, random_state = 23L)
+#'    X <- scale(x, scale = FALSE) %>%
+#'   as.matrix(x)
+#'    S <- ica$fit_transform(X)
+#'    W <- t(ica$components_)
+#'    list(W = W)
+#'  }
+#'  data_ica_py <- eeg_ica(data_faces_10_trials, -EOGH, -EOGV, -M1, -M2, .method = py_fica)
+#' }
 #' @export
 eeg_ica <- function(.data,
                     ...,
-                    ignore = .type == "artifact",
-                    method = fast_ICA,
-                    config = list()) {
+                    .ignore = .type == "artifact",
+                    .method = fast_ICA,
+                    .config = list()) {
   UseMethod("eeg_ica")
 }
 
@@ -34,9 +58,9 @@ eeg_ica <- function(.data,
 #' @export
 eeg_ica.eeg_lst <- function(.data,
                             ...,
-                            ignore = .type == "artifact",
-                            method = fast_ICA,
-                            config = list()) {
+                            .ignore = .type == "artifact",
+                            .method = fast_ICA,
+                            .config = list()) {
   start_time <- Sys.time()
 
   ## if(unique(.data$segment$.recording) %>% length() != 1 && !".recording" %in% group_vars(.data)) {
@@ -46,14 +70,14 @@ eeg_ica.eeg_lst <- function(.data,
   ## https://www.martinos.org/mne/stable/auto_tutorials/plot_artifacts_correction_ica.html
   ## https://martinos.org/mne/dev/auto_tutorials/plot_ica_from_raw.html
   ## http://www.fieldtriptoolbox.org/example/use_independent_component_analysis_ica_to_remove_eog_artifacts/
-  ## method = rlang::quo(fICA::adapt_fICA) # for testing
-  ## ignore = rlang::quo(.type == "artifact") # for testing
-  method <- rlang::enquo(method)
+  ## .method = rlang::quo(fICA::adapt_fICA) # for testing
+  ## .ignore = rlang::quo(.type == "artifact") # for testing
+  .method <- rlang::enquo(.method)
   dots <- rlang::enquos(...)
-  ignore <- rlang::enquo(ignore)
+  .ignore <- rlang::enquo(.ignore)
 
-  if (!rlang::quo_is_null(ignore)) {
-    signal_raw <-  eeg_events_to_NA(.data, !!ignore,
+  if (!rlang::quo_is_null(.ignore)) {
+    signal_raw <-  eeg_events_to_NA(.data, !!.ignore,
       all_chs = FALSE,
       entire_seg = FALSE,
       drop_events = FALSE
@@ -63,10 +87,10 @@ eeg_ica.eeg_lst <- function(.data,
   }
   signal_raw <- signal_raw %>%
     dplyr::select(.id, channel_names(.data))
-  ## remove more if dots are used
+  ## remove more if dots are used BUT keep id!!
   if (!rlang::is_empty(dots)) {
     chs <- sel_ch(signal_raw, !!!dots)
-    signal_raw <- dplyr::select(signal_raw, c(".id", chs))
+    signal_raw <- dplyr::select(signal_raw, tidyselect::all_of(c(".id", chs)))
   }
 
   ## creates a DT with length length(signal_tbl) where the grouping var is repeated,
@@ -83,7 +107,7 @@ eeg_ica.eeg_lst <- function(.data,
   #TODO maybe it can be done inside data.table?
   signal_raw <- split(signal_raw, by = ".recording", keep.by = FALSE)
 
-  method_label <- rlang::as_label(method)
+  method_label <- rlang::as_label(.method)
   message(paste0("# ICA is being done using ", method_label, "..."))
  if(total > used){
     message("# ",round(used/total,2)*100, "% of the samples will be used.")
@@ -106,7 +130,7 @@ eeg_ica.eeg_lst <- function(.data,
   ICA_fun <- function(x) {
     ## the method needs to be evaluated in the package env,
     ## and the parameters are passed in alist with do.call
-    do.call(rlang::eval_tidy(method), c(list(x), config)) %>% data_out()
+    do.call(rlang::eval_tidy(.method), c(list(x), .config)) %>% data_out()
   }
 
   l_ica <- lapply(signal_raw, function(x) {
@@ -131,6 +155,17 @@ eeg_ica.eeg_lst <- function(.data,
 #' @param .data An eeg_ica_lst object
 #' @param ... Components to extract from the mixing matrix of the ICA transformation.
 #' @family ICA functions
+#' @examples
+#'
+#' # For demonstration only, since ICA won't converge
+#' library(ggplot2)
+#' library(dplyr)
+#' # Suppressing an important warning:
+#'   suppressWarnings(data_faces_10_trials %>%
+#'    eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))) %>%
+#'    eeg_ica_show(ICA1) %>%
+#'    plot()
+#'
 #' @export
 eeg_ica_show <- function(.data, ...) {
   UseMethod("eeg_ica_show")
@@ -167,12 +202,20 @@ eeg_ica_show.eeg_ica_lst <- function(.data, ...) {
 
 #' Select independent components (or sources) to keep.
 #'
-#' This function will transform the channels according to the indepent components that are kept or removed.
+#' This function will transform the channels according to the independent components that are kept or removed.
 #'
 #' @param .data An eeg_ica_lst object
 #' @param ... Components to keep from the mixing matrix of the ICA transformation. See [dplyr::select] and [tidyselect::select_helpers] for details.
 #' @family preprocessing functions
 #' @family ICA functions
+#'
+#' @examples
+#' # For demonstration only, since ICA won't converge
+#' # Suppressing an important warning:
+#'  suppressWarnings(data_faces_10_trials %>%
+#'  eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))) %>%
+#'  eeg_ica_keep(-ICA1)
+#'
 #' @export
 eeg_ica_keep <- function(.data, ...) {
   UseMethod("eeg_ica_keep")
@@ -256,5 +299,9 @@ as_eeg_lst.eeg_ica_lst <- function(.data, ...) {
 }
 #' @export
 as_eeg_lst.eeg_lst <- function(.data, ...) {
+  if(!data.table::is.data.table(.data$.segments)){
+  .data$.segments <- data.table::as.data.table(.data$.segments)
+   data.table::setkey(.data$.segments, .id)
+  }
   validate_eeg_lst(.data)
 }

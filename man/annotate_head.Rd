@@ -24,7 +24,7 @@ library(dplyr)
 library(ggplot2)
 
 data_faces_ERPs \%>\%
-  filter(between(as_time(.sample, unit = "milliseconds"), 100, 200)) \%>\%
+  filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) \%>\%
   group_by(condition) \%>\%
   summarize_at(channel_names(.), mean, na.rm = TRUE) \%>\%
   plot_topo() +
