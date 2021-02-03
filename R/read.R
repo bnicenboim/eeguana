@@ -414,4 +414,39 @@ read_edf <- function(file, .recording = file) {
 #' @noRd
 read_set <- function(file, .layout = NULL, .recording = file) {
   # https://sccn.ucsd.edu/wiki/A05:_Data_Structures
+# dataset in https://sccn.ucsd.edu/wiki/I.1:_Loading_Data_in_EEGLAB
+
+
+  require_pkg("R.matlab")
+
+  if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
+  file <- "/home/bruno/dev/eeguana/inst/testdata/eeglab_data.set"
+  file <- "/home/bruno/dev/eeguana/inst/testdata/EEG01.mat" #frank
+
+  set <- R.matlab::readMat(file)$EEG[,,1]
+
+  # channels
+  chan_set <- struct_to_dt(set$chanlocs)
+
+  n_samples <- unlist(set$times) %>% length
+
+ signal_ <- new_signal_tbl(.id=1,
+                           .sample=new_sample_int(seq_len(n_samples), sampling_rate = c(set$srate)),                                                                         signal_matrix = t(set$data))
+
+
+  #events
+##   In general, fields type, latency, and urevent are always present in the event structure:
+
+##     type contains the event type
+##     latency contains the event latency in data sample unit
+##     urevent contains the index of the event in the original (= ‘ur’) urevent table (see below).
+
+## Other fields like position are user defined and are specific to the experiment.
+
+## The user may also define a field called duration (recognized by EEGLAB) for defining the duration of the event (if portions of the data have been deleted, the field duration is added automatically to store the duration of the break (i.e. boundary) event).
+
+## If epochs have been extracted from the dataset, another field, epoch, is added to store the index of the data epoch(s) the event belongs to
+events_set <- struct_to_dt(set$event)
+
+
 }

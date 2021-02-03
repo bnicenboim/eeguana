@@ -148,6 +148,19 @@ unnest_dt <- function(.data, col) {
     .data
 }
 
+#' Converts a struct from matlab into a data table
+#' @noRd
+struct_to_dt <- function(x) {
+  apply(x,3,
+          function(x) lapply(x[,1],                                            function(x){
+            x <- x %||% NA
+            #unmatrix
+            if(all((dim(x) %||% 1) ==c(1,1)))
+              c(x)
+          }  )) %>%
+  lapply(data.table::setDT) %>%
+  {do.call("rbind",.)}
+  }
 
 #' @noRd
 recycle <- function(x, size) {
