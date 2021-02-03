@@ -54,8 +54,7 @@ participant was presented 100 faces and 100 assorted images in random
 order. The task of the experiment was to mentally count the number of
 faces.
 
-First we download the
-data:
+First we download the data:
 
 ``` r
 # Run the following or just download the files from brain_vision folder in https://osf.io/tbwvz/
@@ -89,7 +88,7 @@ We first need to read the data:
 ``` r
 faces <- read_vhdr("faces.vhdr")
 #> Reading file faces.vhdr...
-#> # Data from faces.dat was read.
+#> # Data from ./faces.dat was read.
 #> # Data from 1 segment(s) and 34 channels was loaded.
 #> # Object size in memory 140.5 Mb
 ```
@@ -191,10 +190,8 @@ faces
 #> 4276:   1 Bad Interval  Bad Min-Max   525073 525207       O2
 #> 
 #> # Segments table:
-#> # A tibble: 1 x 3
-#>     .id .recording segment
-#>   <int> <chr>        <int>
-#> 1     1 faces.vhdr       1
+#>    .id .recording segment
+#> 1:   1 faces.vhdr       1
 ```
 
 Some intervals were marked as “bad” by BrainVision, and so we’ll remove
@@ -224,20 +221,18 @@ piped using `magrittr`’s pipe, `%>%`.
 ``` r
 ## To only see the segments table:
 segments_tbl(faces_segs)
-#> # A tibble: 200 x 5
-#>      .id .recording segment type     description
-#>    <int> <chr>        <int> <chr>    <chr>      
-#>  1     1 faces.vhdr       1 Stimulus s70        
-#>  2     2 faces.vhdr       2 Stimulus s71        
-#>  3     3 faces.vhdr       3 Stimulus s71        
-#>  4     4 faces.vhdr       4 Stimulus s71        
-#>  5     5 faces.vhdr       5 Stimulus s70        
-#>  6     6 faces.vhdr       6 Stimulus s71        
-#>  7     7 faces.vhdr       7 Stimulus s71        
-#>  8     8 faces.vhdr       8 Stimulus s70        
-#>  9     9 faces.vhdr       9 Stimulus s70        
-#> 10    10 faces.vhdr      10 Stimulus s70        
-#> # … with 190 more rows
+#>      .id .recording segment     type description
+#>   1:   1 faces.vhdr       1 Stimulus         s70
+#>   2:   2 faces.vhdr       2 Stimulus         s71
+#>   3:   3 faces.vhdr       3 Stimulus         s71
+#>   4:   4 faces.vhdr       4 Stimulus         s71
+#>   5:   5 faces.vhdr       5 Stimulus         s70
+#>  ---                                            
+#> 196: 196 faces.vhdr     196 Stimulus         s71
+#> 197: 197 faces.vhdr     197 Stimulus         s70
+#> 198: 198 faces.vhdr     198 Stimulus         s70
+#> 199: 199 faces.vhdr     199 Stimulus         s70
+#> 200: 200 faces.vhdr     200 Stimulus         s70
 library(dplyr)
 #> 
 #> Attaching package: 'dplyr'
@@ -350,20 +345,18 @@ faces_segs_some
 #> 200: 200 Stimulus          s70        1      1     <NA>
 #> 
 #> # Segments table:
-#> # A tibble: 200 x 5
 #>      .id .recording segment description condition
-#>    <int> <chr>        <int> <chr>       <chr>    
-#>  1     1 faces.vhdr       1 s70         faces    
-#>  2     2 faces.vhdr       2 s71         non-faces
-#>  3     3 faces.vhdr       3 s71         non-faces
-#>  4     4 faces.vhdr       4 s71         non-faces
-#>  5     5 faces.vhdr       5 s70         faces    
-#>  6     6 faces.vhdr       6 s71         non-faces
-#>  7     7 faces.vhdr       7 s71         non-faces
-#>  8     8 faces.vhdr       8 s70         faces    
-#>  9     9 faces.vhdr       9 s70         faces    
-#> 10    10 faces.vhdr      10 s70         faces    
-#> # … with 190 more rows
+#>   1:   1 faces.vhdr       1         s70     faces
+#>   2:   2 faces.vhdr       2         s71 non-faces
+#>   3:   3 faces.vhdr       3         s71 non-faces
+#>   4:   4 faces.vhdr       4         s71 non-faces
+#>   5:   5 faces.vhdr       5         s70     faces
+#>  ---                                             
+#> 196: 196 faces.vhdr     196         s71 non-faces
+#> 197: 197 faces.vhdr     197         s70     faces
+#> 198: 198 faces.vhdr     198         s70     faces
+#> 199: 199 faces.vhdr     199         s70     faces
+#> 200: 200 faces.vhdr     200         s70     faces
 ```
 
 With some “regular” `ggplot` skills, we can create customized plots.
@@ -411,8 +404,7 @@ faces_segs_some %>%
 
 ## See also
 
-Other R packages for EEG/ERP
-    data:
+Other R packages for EEG/ERP data:
 
   - [permuco4brain](https://jaromilfrossard.github.io/permuco4brain/index.html)
     provides functions to compute permutation test in brain imagery
