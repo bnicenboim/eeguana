@@ -151,6 +151,9 @@ unnest_dt <- function(.data, col) {
 #' Converts a struct from matlab into a data table
 #' @noRd
 struct_to_dt <- function(x) {
+if(length(x)==0) {
+  data.table::data.table()
+} else {
   apply(x,3,
           function(x) lapply(x[,1],                                            function(x){
             x <- x %||% NA
@@ -160,6 +163,7 @@ struct_to_dt <- function(x) {
           }  )) %>%
   lapply(data.table::setDT) %>%
   {do.call("rbind",.)}
+  }
   }
 
 #' @noRd

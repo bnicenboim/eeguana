@@ -229,7 +229,10 @@ read_ft <- function(file, .layout = NULL, .recording = file) {
     dplyr::rename(duration = dplyr::matches("duration"), .initial = sample, .type = type, .description = value) %>%
     dplyr::mutate(.final = .initial + duration -1, .id = 1L) %>% 
     dplyr::select(-duration) %>%
-    add_event_channel(channel_names)
+#TODO check below, transform to dt
+  add_event_channel(channel_names)
+
+
     segmentation <- data.table::data.table(.lower = slengths$V1,
                                            .first_sample = slengths$V1 - slengths$V3,
                                            .upper= slengths$V2)
@@ -250,20 +253,11 @@ read_ft <- function(file, .layout = NULL, .recording = file) {
   }
 
   eeg_lst <- eeg_lst(
-    signal = signal_tbl, events = events, segments = segments
+    signal_tbl = signal_tbl, events_tbl = events, segments_tbl = segments
   )
 
+  built_eeg_lst(eeg_lst, file)
 
-  message(paste0(
-    "# Data from ", file,
-    " was read."
-  ))
-  message(paste0(
-    "# Data from ", nrow(eeg_lst$.segments),
-    " segment(s) and ", nchannels(eeg_lst), " channels was loaded."
-  ))
-  message(say_size(eeg_lst))
-  validate_eeg_lst(eeg_lst)
 }
 
 
@@ -393,45 +387,62 @@ read_edf <- function(file, .recording = file) {
     signal = signal, events = events, segments = segments
   )
 
-  message(paste0(
-    "# Data from ", file,
-    " was read."
-  ))
-  message(paste0(
-    "# Data from ", nrow(eeg_lst$.segments),
-    " segment(s) and ", nchannels(eeg_lst), " channels was loaded."
-  ))
-  message(say_size(eeg_lst))
-  eeg_lst
+
+  built_eeg_lst(eeg_lst, file)
+
 }
 
-#' Read set files
+#' Read EEGlab set files (Matlab files) into R
 #'
-#' @param file  file
+#' Creates an eeg_lst object from Matlab exported files. The function reads a .mat or .set file using `R.matlab`. If you do not already have `R.matlab` installed in R, you will need to install it yourself. The  file should have the structure described in this [Data structure article](https://sccn.ucsd.edu/wiki/A05:_Data_Structures). This function is experimental, if your file cannot be opened please open an issue with a link to the file in [github](https://github.com/bnicenboim/eeguana/issues).
 #'
-#' @param .layout layout
-#' @param .recording  recording
-#' @noRd
-read_set <- function(file, .layout = NULL, .recording = file) {
+#' @param file A .mat or .set file containing a fieldtrip struct.
+#' @param .recording Recording name, by default is the file name.
+#' @return An `eeg_lst` object with signal_tbl and event from a Matlab file.
+#'
+#' @examples
+#' \dontrun{
+#' s1 <- read_ft("./subject1.set", .recording = 1)
+#' }
+#'
+#' @family reading functions
+#'
+#'
+#' @export
+read_set <- function(file, .recording = file) {
   # https://sccn.ucsd.edu/wiki/A05:_Data_Structures
 # dataset in https://sccn.ucsd.edu/wiki/I.1:_Loading_Data_in_EEGLAB
 
+  ## file = system.file("testdata", "eeglab_data.set", package = "eeguana")
+  #.recording = "eeglab"
 
   require_pkg("R.matlab")
 
   if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
-  file <- "/home/bruno/dev/eeguana/inst/testdata/eeglab_data.set"
-  file <- "/home/bruno/dev/eeguana/inst/testdata/EEG01.mat" #frank
+  ## file <- "/home/bruno/dev/eeguana/inst/testdata/eeglab_data.set"
 
   set <- R.matlab::readMat(file)$EEG[,,1]
+  srate <- c(set$srate)
 
   # channels
   chan_set <- struct_to_dt(set$chanlocs)
+  if(nrow(chan_set) > 0) {
+    if(all(is.na(chan_set[,.(X,Y,Z)]))){
+      chan_set[, `:=`(c(".x",".y",".z"),spherical_to_xyz_dt(sph.radius, sph.theta, sph.phi))]
+    } else {
+      chan_set[, `:=`(c(".x",".y",".z"),list(X, Y, Z))]
+    }
+    chan_set[, .channel := labels]
+
+  } else {
+    chan_set <- NULL
+  }
 
   n_samples <- unlist(set$times) %>% length
-
- signal_ <- new_signal_tbl(.id=1,
-                           .sample=new_sample_int(seq_len(n_samples), sampling_rate = c(set$srate)),                                                                         signal_matrix = t(set$data))
+  signal_ <- new_signal_tbl(.id=1L,
+                           .sample = new_sample_int(seq_len(n_samples), sampling_rate = c(set$srate)),                                                                         signal_matrix = t(set$data),
+                           channels_tbl = chan_set
+                           )
 
 
   #events
@@ -446,7 +457,27 @@ read_set <- function(file, .layout = NULL, .recording = file) {
 ## The user may also define a field called duration (recognized by EEGLAB) for defining the duration of the event (if portions of the data have been deleted, the field duration is added automatically to store the duration of the break (i.e. boundary) event).
 
 ## If epochs have been extracted from the dataset, another field, epoch, is added to store the index of the data epoch(s) the event belongs to
-events_set <- struct_to_dt(set$event)
+  events_set <- struct_to_dt(set$event)
 
+  events_set[,`:=`(.id = 1L,
+                   .initial = as_sample_int(x = latency, sampling_rate = srate),
+                   latency = NULL,
+                   .description = type,
+                   type = NULL,
+                   .type = NA_character_,
+                   .channel = NA_character_)]
 
+  if("duration" %in% names(events_set)){
+    events_set[, .final := .initial + duration][, duration := NULL]
+  } else{
+    events_set[, .final := .initial]
+  }
+
+  events_ <- as_events_tbl(events_set)
+
+  segments_ <- build_segments_tbl(1L, .recording)
+
+  eeg_lst_ <- eeg_lst(signal_tbl = signal_, events_tbl = events_, segments_tbl = segments_)
+
+  built_eeg_lst(eeg_lst_, file)
 }

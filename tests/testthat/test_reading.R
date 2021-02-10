@@ -48,6 +48,10 @@ test_that("can read fieldtrip files", {
 #  expect_equal(ft,multiplexed_bin_bv2)
 })
 
+set1 <- read_set(file = system.file("testdata", "EEG01.mat", package = "eeguana"), .recording = "eeglab")
+
+set2 <- read_set(file = system.file("testdata", "eeglab_data.set", package = "eeguana"), .recording = "eeglab")
+
 ## EDF tests
 
 edf <- read_edf(file = system.file("testdata", "asalab_export_edf_Segment_1.edf", package = "eeguana"), .recording = "edf")

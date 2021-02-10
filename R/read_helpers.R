@@ -160,21 +160,15 @@ build_segments_tbl <- function(.id, .recording) {
                .recording := .recording][
                ,segment := seq_len(.N), by =".recording"]
 }
+
+#TODO check this function, it might be unnecesary
 add_event_channel <- function(events, labels) {
   labels <- make_names(labels)
-  events_dt <- events
-  dplyr::mutate(events_dt, .channel = if (".channel" %in% names(events_dt)) {
-    .channel
-  } else {
-    0L
-  }) %>%
-    dplyr::mutate(
-      .channel = dplyr::if_else(
-        .channel == 0, NA_integer_,
-        .channel
-      ) %>%
-        labels[.]
-    )
+
+if (! ".channel" %in% names(events)) {
+  events[, .channel := NA_character_]
+  }
+  events[, .channel := labels[.channel ]]
 }
 
 segment_events <- function(events, .lower, .initial, .upper) {
@@ -203,6 +197,19 @@ segment_events <- function(events, .lower, .initial, .upper) {
   out_events
 }
 
+
+built_eeg_lst <- function(eeg_lst, file) {
+  message(paste0(
+    "# Data from ", file,
+    " was read."
+  ))
+  message(paste0(
+    "# Data from ", nrow(eeg_lst$.segments),
+    " segment(s) and ", nchannels(eeg_lst), " channels was loaded."
+  ))
+  message(say_size(eeg_lst))
+  validate_eeg_lst(eeg_lst)
+}
 
 
 read_vmrk <- function(file) {
@@ -311,10 +318,11 @@ read_vhdr_metadata <- function(file) {
     stop("DataType needs to be 'time'")
   }
 
+    #TODO use the _dt version as in read_set
   chan_info <- dplyr::full_join(channel_info, coordinates, by = "number") %>%
     dplyr::bind_cols(purrr::pmap_dfr(
       list(.$radius, .$theta, .$phi),
-      brainvision_loc_2_xyz
+      spherical_to_xyz
     ))
 
   out <- list()
@@ -323,14 +331,34 @@ read_vhdr_metadata <- function(file) {
   return(out)
 }
 
-
+#' Spherical horiz. angle ("sph_theta")
+#' Spherical azimuth angle ("sph_phi")', ...
+#' Spherical radius ("sph_radius")'
+#' @noRd
 besa_loc_2_xyz <- function(azimuth, horiz_angle) {
-  brainvision_loc_2_xyz(radius = 1, theta = azimuth, phi = horiz_angle)
+  spherical_to_xyz(radius = 1, theta = azimuth, phi = horiz_angle)
 }
 
-brainvision_loc_2_xyz <- function(radius = 1, theta = NULL, phi = NULL) {
-  x <- dplyr::if_else(radius != 0, round(sin(theta * pi / 180) * cos(phi * pi / 180), 2), NA_real_)
-  y <- dplyr::if_else(radius != 0, round(sin(theta * pi / 180) * sin(phi * pi / 180), 2), NA_real_)
-  z <- dplyr::if_else(radius != 0, round(cos(theta * pi / 180), 2), NA_real_)
+#' Transform spherical coordinates to xyz
+#'
+#' Transform spherical coordinates, such as the ones provided by BrainVision or sph.....
+#'
+#' @noRd
+spherical_to_xyz <- function(radius = 1, theta = NULL, phi = NULL) {
+
+  radius <- ifelse((is.na(radius) | is.null(radius))  & is.numeric(theta) & is.numeric(phi), 1, radius)
+
+  x <- ifelse(radius != 0, round(sin(theta * pi / 180) * cos(phi * pi / 180), 2), NA_real_)
+  y <- ifelse(radius != 0, round(sin(theta * pi / 180) * sin(phi * pi / 180), 2), NA_real_)
+  z <- ifelse(radius != 0, round(cos(theta * pi / 180), 2), NA_real_)
   dplyr::tibble(.x = x, .y = y, .z = z)
+}
+
+spherical_to_xyz_dt <- function(radius = 1, theta = NULL, phi = NULL) {
+
+  radius <- ifelse((is.na(radius) | is.null(radius))  & is.numeric(theta) & is.numeric(phi), 1, radius)
+
+  data.table::data.table(.x = ifelse(radius != 0, round(sin(theta * pi / 180) * cos(phi * pi / 180), 2), NA_real_),
+                         .y =ifelse(radius != 0, round(sin(theta * pi / 180) * sin(phi * pi / 180), 2), NA_real_),
+                         .z = ifelse(radius != 0, round(cos(theta * pi / 180), 2), NA_real_))
 }
