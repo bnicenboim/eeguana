@@ -28,9 +28,9 @@
 #' @param .freq A single cut frequency for `eeg_filt_low_pass` and `eeg_filt_high_pass`, two edges for `eeg_filt_band_pass` and `eeg_filt_band_stop`.
 #' @param .config Other parameters passed in a list to configure the filters. See details for options.
 #' @param na.rm =TRUE will set to NA the entire segment that contains an NA, otherwise the filter will stop with an error.
-#' @param .by_reference filters in place, rewritting the eeg_lst object.
+#' @param .by_reference Filters in place, rewriting the eeg_lst object.
 #' @return A channel or an eeg_lst.
-#' @family preprocessing functions
+#' @family Preprocessing functions.
 #'
 #' @examples
 #' library(dplyr)
