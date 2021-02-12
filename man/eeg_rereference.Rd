@@ -41,7 +41,6 @@ Other preprocessing functions:
 \code{\link{eeg_downsample}()},
 \code{\link{eeg_ica_keep}()},
 \code{\link{eeg_ica}()},
-\code{\link{eeg_segment}()},
-\code{\link{filt}}
+\code{\link{eeg_segment}()}
 }
 \concept{preprocessing functions}

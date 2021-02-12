@@ -6,7 +6,7 @@
 \alias{eeg_filt_high_pass}
 \alias{eeg_filt_band_pass}
 \alias{eeg_filt_band_stop}
-\title{Apply a zero-phase low-pass, high-pass, band-pass, or band-stop FIR or IIR filter.}
+\title{Apply a low-pass, high-pass, band-pass, or band-stop filter to every segment of an \code{eeg_lst}. These filters are adapted from the FIR and IIR filters in \href{https://mne-tools.github.io}{MNE package} (v 0.0.17.1)  of \href{https://www.python.org/}{python}. For background information about the FIR vs IIR filters, see \href{https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py}{here}.}
 \usage{
 eeg_filt_low_pass(
   .data,
@@ -55,24 +55,20 @@ eeg_filt_band_stop(
 
 \item{na.rm}{=TRUE will set to NA the entire segment that contains an NA, otherwise the filter will stop with an error.}
 
-\item{.by_reference}{filters in place, rewritting the eeg_lst object.}
-
-\item{.method}{\code{"iir"} or \code{"fir"}.}
+\item{.by_reference}{Filters in place, rewriting the eeg_lst object.}
 }
 \value{
 A channel or an eeg_lst.
 }
 \description{
-Apply a low-pass, high-pass, band-pass, or band-stop filter to every segment of an \code{eeg_lst}. These filters are adapted from the FIR and IIR filters in \href{https://mne-tools.github.io}{MNE package} (v 0.0.17.1)  of \href{https://www.python.org/}{python}. For background information about the FIR vs IIR filters, see \href{https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py}{here}.
-}
-\details{
 \itemize{
 \item \code{eeg_filt_low_pass()} Low-pass or high-cut filter.
 \item \code{eeg_filt_high_pass()} High-pass or low-cut filter.
 \item \code{eeg_filt_band_pass()} Band-pass filter.
 \item \code{eeg_filt_band_stop()} Band-stop filter.
 }
-
+}
+\details{
 After setting a filter method. The filters can be configured passing a list to the argument \code{.config}.
 
 Using \code{method ="fir"}, we define a zero-phase  filter of the FIR (finite impulse response) class (MNE v 0.0.17.1 default); these are the options:
@@ -81,7 +77,7 @@ Using \code{method ="fir"}, we define a zero-phase  filter of the FIR (finite im
 \item \code{h_trans_bandwidth = "auto"} by default. This is \code{min(max(0.25 * h_freq, 2.), sampling_rate / 2. - h_freq)} where \code{h_freq} is the \code{freq} of the low pass filter, or \code{freq[2]} of a band pass/stop filter.
 }
 
-Using \code{.method = "iir"}, we define a zero-phase (two-pass forward and reverse) non-causal IIR filter. Unlike newer versions of MNE, IIR filters here only use numerator/denominator form ('ba') rather than the computationally costlier but more exact  second-order sections form ('sos').  Filter type is Butterworth by default, and either order (default) or maximum loss and attenuation (gpass and gstop) should be specified:
+Using \code{method = "iir"}, we define a zero-phase (two-pass forward and reverse) non-causal IIR filter. Unlike newer versions of MNE, IIR filters here only use numerator/denominator form ('ba') rather than the computationally costlier but more exact  second-order sections form ('sos').  Filter type is Butterworth by default, and either order (default) or maximum loss and attenuation (gpass and gstop) should be specified:
 \itemize{
 \item \code{type = "butter"} for Butterworth by default, other options are \code{"cheby1"}, or \code{"cheby2"} for Chebyshev type I or type II, or \code{"ellip"} for Elliptic.
 \item \code{order} = 6 by default for low and high pass, and 4 by default for band pass and stop filters (this follows the defaults of Fieldtrip matlab package). Notice that the effective order after forward-backward pass is multiplied by two.
@@ -105,13 +101,4 @@ data_ERPs_filtered \%>\%
   plot() +
   facet_wrap(~.key)
 }
-\seealso{
-Other preprocessing functions: 
-\code{\link{eeg_baseline}()},
-\code{\link{eeg_downsample}()},
-\code{\link{eeg_ica_keep}()},
-\code{\link{eeg_ica}()},
-\code{\link{eeg_rereference}()},
-\code{\link{eeg_segment}()}
-}
-\concept{preprocessing functions}
+\concept{Preprocessing functions.}

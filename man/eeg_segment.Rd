@@ -32,7 +32,6 @@ Other preprocessing functions:
 \code{\link{eeg_downsample}()},
 \code{\link{eeg_ica_keep}()},
 \code{\link{eeg_ica}()},
-\code{\link{eeg_rereference}()},
-\code{\link{filt}}
+\code{\link{eeg_rereference}()}
 }
 \concept{preprocessing functions}
