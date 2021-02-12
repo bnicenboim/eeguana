@@ -2,65 +2,116 @@
 % Please edit documentation in R/filters.R
 \name{filt}
 \alias{filt}
-\alias{ch_filt_low_pass}
-\alias{ch_filt_high_pass}
-\alias{ch_filt_band_pass}
-\alias{ch_filt_band_stop}
-\alias{ch_filt_high_pass.channel_dbl}
-\alias{ch_filt_band_pass.channel_dbl}
-\alias{ch_filt_band_stop.channel_dbl}
-\alias{ch_filt_low_pass.eeg_lst}
-\alias{ch_filt_high_pass.eeg_lst}
-\alias{ch_filt_band_stop.eeg_lst}
-\alias{ch_filt_band_pass.eeg_lst}
-\title{Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter.}
+\alias{eeg_filt_low_pass}
+\alias{eeg_filt_high_pass}
+\alias{eeg_filt_band_pass}
+\alias{eeg_filt_band_stop}
+\title{Apply a zero-phase low-pass, high-pass, band-pass, or band-stop FIR or IIR filter.}
 \usage{
-ch_filt_low_pass(x, freq = NULL, ...)
+eeg_filt_low_pass(
+  .data,
+  ...,
+  .freq = NULL,
+  .config = list(),
+  na.rm = FALSE,
+  .by_reference = FALSE
+)
 
-ch_filt_high_pass(x, freq = NULL, ...)
+eeg_filt_high_pass(
+  .data,
+  ...,
+  .freq = NULL,
+  .config = list(),
+  na.rm = FALSE,
+  .by_reference = FALSE
+)
 
-ch_filt_band_pass(x, freq = NULL, ...)
+eeg_filt_band_pass(
+  .data,
+  ...,
+  .freq = NULL,
+  .config = list(),
+  na.rm = FALSE,
+  .by_reference = FALSE
+)
 
-ch_filt_band_stop(x, freq = NULL, ...)
-
-\method{ch_filt_high_pass}{channel_dbl}(x, freq = NULL, ...)
-
-\method{ch_filt_band_pass}{channel_dbl}(x, freq = NULL, ...)
-
-\method{ch_filt_band_stop}{channel_dbl}(x, freq = NULL, ...)
-
-\method{ch_filt_low_pass}{eeg_lst}(x, freq = NULL, ...)
-
-\method{ch_filt_high_pass}{eeg_lst}(x, freq = NULL, ...)
-
-\method{ch_filt_band_stop}{eeg_lst}(x, freq = NULL, ...)
-
-\method{ch_filt_band_pass}{eeg_lst}(x, freq, ...)
+eeg_filt_band_stop(
+  .data,
+  ...,
+  .freq = NULL,
+  .config = list(),
+  na.rm = FALSE,
+  .by_reference = FALSE
+)
 }
 \arguments{
-\item{x}{A channel or an eeg_lst.}
+\item{.data}{A channel or an eeg_lst.}
 
-\item{freq}{A single cut frequency for \code{ch_filt_low_pass} and \code{filt_high_pass_ch}, two edges for  \code{filt_band_pass_ch} and \code{filt_stop_pass_ch}.}
+\item{...}{Channels to apply the filters to. All the channels by default.}
 
-\item{...}{The sample rate can be included as \code{sampling_rate}, when the function is called outside mutate/summarize.}
+\item{.freq}{A single cut frequency for \code{eeg_filt_low_pass} and \code{eeg_filt_high_pass}, two edges for \code{eeg_filt_band_pass} and \code{eeg_filt_band_stop}.}
+
+\item{.config}{Other parameters passed in a list to configure the filters. See details for options.}
+
+\item{na.rm}{=TRUE will set to NA the entire segment that contains an NA, otherwise the filter will stop with an error.}
+
+\item{.by_reference}{filters in place, rewritting the eeg_lst object.}
+
+\item{.method}{\code{"iir"} or \code{"fir"}.}
 }
 \value{
 A channel or an eeg_lst.
 }
 \description{
-Apply a zero-phase low-pass, high-pass, band-pass, or band-stop filter of the  FIR (finite impulse response) class. These filters are adapted from the default filters in \href{https://mne-tools.github.io}{MNE package} (v 0.0.17.1)  of \href{https://www.python.org/}{python}. For background information about the FIR vs IIR filters, see (here)\link{https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py},.
+Apply a low-pass, high-pass, band-pass, or band-stop filter to every segment of an \code{eeg_lst}. These filters are adapted from the FIR and IIR filters in \href{https://mne-tools.github.io}{MNE package} (v 0.0.17.1)  of \href{https://www.python.org/}{python}. For background information about the FIR vs IIR filters, see \href{https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py}{here}.
 }
 \details{
 \itemize{
-\item \code{ch_filt_low_pass()} Low-pass or high-cut filter.
-\item \code{ch_filt_high_pass()} High-pass or low-cut filter.
-\item \code{ch_filt_band_pass()} Band-pass filter.
-\item \code{ch_filt_stop_pass()} Stop-pass filter.
+\item \code{eeg_filt_low_pass()} Low-pass or high-cut filter.
+\item \code{eeg_filt_high_pass()} High-pass or low-cut filter.
+\item \code{eeg_filt_band_pass()} Band-pass filter.
+\item \code{eeg_filt_band_stop()} Band-stop filter.
+}
+
+After setting a filter method. The filters can be configured passing a list to the argument \code{.config}.
+
+Using \code{method ="fir"}, we define a zero-phase  filter of the FIR (finite impulse response) class (MNE v 0.0.17.1 default); these are the options:
+\itemize{
+\item \code{l_trans_bandwidth = "auto"} by default. This is  \code{min(max(l_freq * 0.25, 2), l_freq)}, where \code{l_freq} is the \code{freq} of the high pass filter, or \code{freq[1]} of a band pass/stop filter.
+\item \code{h_trans_bandwidth = "auto"} by default. This is \code{min(max(0.25 * h_freq, 2.), sampling_rate / 2. - h_freq)} where \code{h_freq} is the \code{freq} of the low pass filter, or \code{freq[2]} of a band pass/stop filter.
+}
+
+Using \code{.method = "iir"}, we define a zero-phase (two-pass forward and reverse) non-causal IIR filter. Unlike newer versions of MNE, IIR filters here only use numerator/denominator form ('ba') rather than the computationally costlier but more exact  second-order sections form ('sos').  Filter type is Butterworth by default, and either order (default) or maximum loss and attenuation (gpass and gstop) should be specified:
+\itemize{
+\item \code{type = "butter"} for Butterworth by default, other options are \code{"cheby1"}, or \code{"cheby2"} for Chebyshev type I or type II, or \code{"ellip"} for Elliptic.
+\item \code{order} = 6 by default for low and high pass, and 4 by default for band pass and stop filters (this follows the defaults of Fieldtrip matlab package). Notice that the effective order after forward-backward pass is multiplied by two.
+\item gpass : The maximum loss in the passband (dB).
+\item gstop : The minimum attenuation in the stopband (dB).
 }
 }
 \examples{
-\dontrun{
-
-faces_segs \%>\% filt_low_pass_ch(freq = 100, order = 4)
+library(dplyr)
+library(ggplot2)
+data("data_faces_ERPs")
+data_ERPs_filtered <- data_faces_ERPs \%>\%
+  eeg_filt_low_pass(.freq = 1)
+# Compare the ERPs
+data_faces_ERPs \%>\%
+  select(O1, O2, P7, P8) \%>\%
+  plot() +
+  facet_wrap(~.key)
+data_ERPs_filtered \%>\%
+  select(O1, O2, P7, P8) \%>\%
+  plot() +
+  facet_wrap(~.key)
 }
+\seealso{
+Other preprocessing functions: 
+\code{\link{eeg_baseline}()},
+\code{\link{eeg_downsample}()},
+\code{\link{eeg_ica_keep}()},
+\code{\link{eeg_ica}()},
+\code{\link{eeg_rereference}()},
+\code{\link{eeg_segment}()}
 }
+\concept{preprocessing functions}

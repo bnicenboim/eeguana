@@ -1,3 +1,4 @@
+^\.github$
 ^data-raw$
 ^appveyor\.yml$
 ^Meta$
@@ -24,3 +25,5 @@ experimental
 ^vignettes\.*\.Rmd
 ^vignettes.*
 ^pkgdown.*
+^_pipeline.*
+^_.*

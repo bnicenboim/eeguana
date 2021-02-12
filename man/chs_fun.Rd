@@ -2,27 +2,18 @@
 % Please edit documentation in R/channel_functions.R
 \name{chs_fun}
 \alias{chs_fun}
-\alias{chs_fun.channel_dbl}
-\alias{chs_fun.character}
-\alias{chs_fun.eeg_lst}
 \title{Get the by-sample (or by-row) function of the specified channels.}
 \usage{
-chs_fun(x, .funs, ...)
-
-\method{chs_fun}{channel_dbl}(..., .funs, pars = list())
-
-\method{chs_fun}{character}(..., .funs, pars = list())
-
-\method{chs_fun}{eeg_lst}(x, .funs, pars = list(), ...)
+chs_fun(x, .funs, ..., .pars = list())
 }
 \arguments{
-\item{x}{An \code{eeg_lst} object.}
+\item{x}{An eeg_lst.}
 
 \item{.funs}{A function \code{fun}, a quosure style lambda \code{~ fun(.)} or a list of either form.}
 
 \item{...}{A channel or a group of unquoted or quoted channels (if an \code{eeg_lst} is not specified).}
 
-\item{pars}{List that contains the additional arguments for the function calls in .funs.}
+\item{.pars}{List that contains the additional arguments for the function calls in .funs.}
 }
 \value{
 A new channel or an \code{eeg_lst} object with a channel where a function was instead of the previous channels.
@@ -30,3 +21,8 @@ A new channel or an \code{eeg_lst} object with a channel where a function was in
 \description{
 Get the by-sample (or by-row) function of the specified channels.
 }
+\seealso{
+Other channel functions: 
+\code{\link{chs_mean}()}
+}
+\concept{channel functions}

@@ -4,21 +4,20 @@
 \name{data_faces_10_trials}
 \alias{data_faces_10_trials}
 \title{EEGs elicited when one subject saw faces and non-faces objects.}
-\format{An eeg_lst with the following events:
+\format{
+An eeg_lst with the following events:
 \itemize{
-\item \code{type == "New Segment"} indicates the beginning of the recording.
-\item \code{type == "Bad Interval"} indicates an interval marked as an artifact by BrainVision 2.0.
-\item \code{type == "UserDefined", description == "Blink} indicates an interval marked as a blink by BrainVision 2.0.
-\item \code{type == "Stimulus", description == "s5} indicates the beggining of the experiment.
-\item \code{type == "Stimulus", description == "s111} indicates
-\item \code{type == "Stimulus", description == "s130} indicates
-\item \code{type == "Stimulus", description == "s122} indicates
-\item \code{type == "Stimulus", description == "s121} indicates
-\item \code{type == "Stimulus", description == "s70} indicates that a face was presented.
-\item \code{type == "Stimulus", description == "s71} indicates that a non-face was presented.
-}}
-\source{
-See https://bnicenboim.github.io/eeguana/articles/brainvision_files.html
+\item \code{.type == "New Segment"} indicates the beginning of the recording.
+\item \code{.type == "Bad Interval"} indicates an interval marked as an artifact by BrainVision 2.0.
+\item \verb{.type == "UserDefined", .description == "Blink} indicates an interval marked as a blink by BrainVision 2.0.
+\item \verb{.type == "Stimulus", .description == "s5} indicates the beginning of the experiment.
+\item \verb{.type == "Stimulus", .description == "s111} indicates
+\item \verb{.type == "Stimulus", .description == "s130} indicates the beginning of the trial.
+\item \verb{.type == "Stimulus", .description == "s122} indicates
+\item \verb{.type == "Stimulus", .description == "s121} indicates
+\item \verb{.type == "Stimulus", .description == "s70} indicates that a face was presented.
+\item \verb{.type == "Stimulus", .description == "s71} indicates that a non-face was presented.
+}
 }
 \usage{
 data_faces_10_trials
@@ -26,4 +25,9 @@ data_faces_10_trials
 \description{
 A dataset containing 10 trials where  one subject either saw faces or a non-faces objects with preprocessing done in BrainVision 2.0. See also the vignette \href{https://bnicenboim.github.io/eeguana/articles/brainvision_files.html}{Introduction - Manipulating a clean EEG file exported from BrainVision 2.0}.
 }
+\seealso{
+Other EEG datasets: 
+\code{\link{data_faces_ERPs}}
+}
+\concept{EEG datasets}
 \keyword{datasets}

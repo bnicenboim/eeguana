@@ -18,6 +18,7 @@ Test if the object is a sample
 This function returns  TRUE for samples.
 }
 \seealso{
-Other sample_int: \code{\link{sample_int}}
+Other sample_int: 
+\code{\link{sample_int}()}
 }
 \concept{sample_int}

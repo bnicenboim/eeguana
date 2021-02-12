@@ -1,0 +1,56 @@
+BrainVision Data Exchange Header File Version 1.0
+; Data created by EEMAGINE EEG Data Exporter
+
+[Common Infos]
+DataFile=asalab_export_bv.eeg
+MarkerFile=asalab_export_bv.vmrk
+DataFormat=BINARY
+; Data orientation: MULTIPLEXED=ch1,pt1, ch2,pt1 ...
+DataOrientation=MULTIPLEXED
+NumberOfChannels=34
+; Sampling interval in microseconds
+SamplingInterval=1953.125000
+
+
+[Binary Infos]
+BinaryFormat=IEEE_FLOAT_32
+
+[Channel Infos]
+; Each entry: Ch<Channel number>=<Name>,<Reference channel name>,
+; <Resolution in microvolts>,<Future extensions..
+; Fields are delimited by commas, some fields might be omitted (empty).
+; Commas in channel names are coded as "\1".
+Ch1=Fp1,,1
+Ch2=Fpz,,1
+Ch3=Fp2,,1
+Ch4=F7,,1
+Ch5=F3,,1
+Ch6=Fz,,1
+Ch7=F4,,1
+Ch8=F8,,1
+Ch9=FC5,,1
+Ch10=FC1,,1
+Ch11=FC2,,1
+Ch12=FC6,,1
+Ch13=M1,,1
+Ch14=T7,,1
+Ch15=C3,,1
+Ch16=Cz,,1
+Ch17=C4,,1
+Ch18=T8,,1
+Ch19=M2,,1
+Ch20=CP5,,1
+Ch21=CP1,,1
+Ch22=CP2,,1
+Ch23=CP6,,1
+Ch24=P7,,1
+Ch25=P3,,1
+Ch26=Pz,,1
+Ch27=P4,,1
+Ch28=P8,,1
+Ch29=POz,,1
+Ch30=O1,,1
+Ch31=Oz,,1
+Ch32=O2,,1
+Ch33=HEOG,,1
+Ch34=HEOG,,1

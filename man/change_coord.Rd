@@ -4,15 +4,15 @@
 \alias{change_coord}
 \title{Change coordinate system from 3D to 2D}
 \usage{
-change_coord(data, projection = "polar")
+change_coord(data, .projection = "polar")
 }
 \arguments{
-\item{data}{A tbl created with .sources_tbl}
+\item{data}{A tbl created with .keys_tbl}
 
-\item{projection}{projection type}
+\item{.projection}{projection type}
 }
 \value{
-A modified .sources_tbl
+A modified .keys_tbl
 }
 \description{
 Change coordinate system from 3D to 2D

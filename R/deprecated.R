@@ -1,41 +1,13 @@
-#' Deprecated functions in eeguana
-#' 
-#' These functions still work but will be removed (defunct) in the next version.
-#' 
-#'  * 'downsample()' should be changed to 'eeg_downsample()' 
-#'  * 'segment()' should be changed to 'eeg_segment()' 
-#'  * 'interpolate_tbl()' should be changed to 'eeg_interpolate_tbl()' 
-#'  * 'event_to_ch_NA()' should be changed to 'eeg_intervals_to_NA()' 
-#' @name eeguana-deprecated
-NULL
+#' update eeg_lst from prev version
+#' @noRd
+update_eeg_lst <- function(.data){
 
-#' @rdname eeguana-deprecated
-#' @inheritParams eeg_downsample
-#' @export
-downsample <- function(x, q = 2, max_sample = NULL, ...) {
-  .Deprecated("eeg_downsample")
-  UseMethod("eeg_downsample")
+if(!data.table::is.data.table(.data$.segments)){
+      message("Object created with an old version of eeguana.")
+      message("Use as_eeg_lst(object) to convert it to the new format.")
+      message("This message will be converted into a warning in future versions.")
+      message("(.by_reference = TRUE won't work for segment table)")
+      return(as_eeg_lst(.data))
+    }
+  .data
 }
-
-#' @rdname eeguana-deprecated
-#' @inheritParams eeg_segment
-#' @export
-segment <- function(x, ...) {
-  .Deprecated("eeg_segment")
-  UseMethod("eeg_segment")
-}
-#' @rdname eeguana-deprecated
-#' @inheritParams eeg_interpolate_tbl
-#' @export
-interpolate_tbl <- function(.data, ...) {
-  .Deprecated("eeg_interpolate_tbl")
-    UseMethod("eeg_interpolate_tbl")
-}
-#' @rdname eeguana-deprecated
-#' @inheritParams eeg_intervals_to_NA
-#' @export
-event_to_ch_NA <- function(x, ...) {
-  .Deprecated("eeg_intervals_to_NA")
-    UseMethod("eeg_intervals_to_NA")
-}
- 

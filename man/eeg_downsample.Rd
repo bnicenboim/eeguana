@@ -4,26 +4,60 @@
 \alias{eeg_downsample}
 \title{Downsample EEG data}
 \usage{
-eeg_downsample(x, q = 2, max_sample = NULL, ...)
+eeg_downsample(
+  .data,
+  .q = 2,
+  .max_sample = NULL,
+  .n = if (.ftype == "iir") 8 else 30,
+  .ftype = "iir",
+  .multiple_times = FALSE,
+  ...
+)
 }
 \arguments{
-\item{x}{An eeg_lst object.}
+\item{.data}{An eeg_lst object.}
 
-\item{q}{integer factor(s) to downsample by.}
+\item{.q}{integer factor(s) to downsample by.}
 
-\item{max_sample}{Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total number of samples.}
+\item{.max_sample}{Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total number of samples}
+
+\item{.n}{ filter order used in the downsampling. }
+
+\item{.ftype}{ filter type, \code{"iir"} or \code{"fir"} }
+
+\item{.multiple_times}{Indicates whether to factorize `q`` and apply the downsampling in steps.}
 
 \item{...}{Not in use.}
 }
 \description{
 Downsample a signal_tbl by a factor \code{q}, using an FIR or IIR filter.
-This is a wrapper for \link{decimate} from the
-\link{signal_tbl} package, see its documentation for details. Notice that
-the code of the \link{signal_tbl} package might be outdated.
+This is a wrapper for \code{\link[signal:decimate]{decimate}} from the
+\code{\link[signal:signal.package]{signal}} package, see its documentation for details. Notice that
+the code of the signal package might be outdated. This function is used in plotting functions.
 }
 \details{
 A factor q larger than 13 can result in NAs. To avoid this,
 the downsampling can be done in steps. For example, instead of setting
 \code{q = 20}, it is possible to set \code{q = c(2,10)}.
 }
-\concept{eeg}
+\seealso{
+Other preprocessing functions: 
+\code{\link{eeg_baseline}()},
+\code{\link{eeg_ica_keep}()},
+\code{\link{eeg_ica}()},
+\code{\link{eeg_rereference}()},
+\code{\link{eeg_segment}()},
+\code{\link{filt}}
+
+Other plotting functions: 
+\code{\link{annotate_events}()},
+\code{\link{annotate_head}()},
+\code{\link{ggplot.eeg_lst}()},
+\code{\link{plot.eeg_lst}()},
+\code{\link{plot_components}()},
+\code{\link{plot_in_layout}()},
+\code{\link{plot_topo}()},
+\code{\link{theme_eeguana}()}
+}
+\concept{plotting functions}
+\concept{preprocessing functions}
