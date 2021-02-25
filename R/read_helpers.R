@@ -1,7 +1,7 @@
 #' Helper function to read the dat files directly,
 #' samples doesn't do anything for now
 #' @noRd
-read_dat <- function(file, header_info = NULL, events = NULL,
+read_dat <- function(file, header_info = NULL, events_dt = NULL,
                      .recording, sep, zero, samples) {
   n_chan <- nrow(header_info$chan_info)
   common_info <- header_info$common_info
@@ -80,7 +80,7 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
   # TODO maybe convert to data.table directly
   # Adding the channel names to event table
-  events <- add_event_channel(events, labels = header_info$chan_info$.channel) %>%
+  events_dt <- add_event_channel(events_dt, labels = header_info$chan_info$.channel) %>%
     data.table::as.data.table() 
 
 
@@ -88,13 +88,13 @@ read_dat <- function(file, header_info = NULL, events = NULL,
   max_sample <- nrow(raw_signal)
   sample_id <- seq_len(max_sample)
 
-  if (nrow(events %>% dplyr::filter(!!sep)) == 0) {
+  if (nrow(events_dt %>% dplyr::filter(!!sep)) == 0) {
     stop("Segment separation marker ", rlang::quo_text(sep), " not found in the events table.")
   }
 
   # the first event can't be the end of the segment
   # and the last segment ends at the end of the file
-  .upper <- events %>%
+  .upper <- events_dt %>%
     dplyr::filter(!!sep) %>%
     dplyr::slice(-1) %>%
     {
@@ -102,9 +102,9 @@ read_dat <- function(file, header_info = NULL, events = NULL,
     } %>%
     c(., max_sample)
 
-  .lower <- events %>% dplyr::filter(!!sep) %>% .$.initial
+  .lower <- events_dt %>% dplyr::filter(!!sep) %>% .$.initial
 
-  .first_sample <- events %>%
+  .first_sample <- events_dt %>%
     dplyr::filter(!!zero) %>%
     .$.initial
 
@@ -128,9 +128,9 @@ read_dat <- function(file, header_info = NULL, events = NULL,
     .sample = new_sample_int(seg_sample_id$.sample, sampling_rate = common_info$sampling_rate),
     channels_tbl = header_info$chan_info
   )
-  events[, .id := 1]
+  events_dt[, .id := 1]
   segmentation[, .new_id := .id][, .id := 1]
-  seg_events <- update_events(as_events_tbl(events, common_info$sampling_rate), segmentation)
+  seg_events <- update_events(as_events_tbl(events_dt, common_info$sampling_rate), segmentation)
 
   segments <- build_segments_tbl(
     .id = seq(length(.lower)),
@@ -168,6 +168,8 @@ add_event_channel <- function(events, labels) {
 if (! ".channel" %in% names(events)) {
   events[, .channel := NA_character_]
   }
+  # having a zero is problematic for labels[.channel]
+  events[.channel==0, .channel := NA]
   events[, .channel := labels[.channel ]]
 }
 

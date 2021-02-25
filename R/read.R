@@ -83,7 +83,7 @@ read_vhdr <- function(file, .sep = .type == "New Segment", .zero = .type == "Tim
     x <- read_dat(
       file = file.path(file_path, data_file),
       header_info = header_info,
-      events = events_dt,
+      events_dt = events_dt,
       .recording = .recording,
       sep = .sep,
       zero = .zero
@@ -127,34 +127,23 @@ read_ft <- function(file, .layout = NULL, .recording = file) {
 
   # It should be based on this:
   # http://www.fieldtriptoolbox.org/reference/ft_datatype_raw
-
+  #file = system.file("testdata", "fieldtrip_matrix.mat", package = "eeguana")
   if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
 
-  mat <- R.matlab::readMat(file)
-
-  channel_names <- mat[[1]][, , 1]$label %>% unlist()
+  mat <- R.matlab::readMat(file)[[1]][, , 1]
+  channel_names_ <- mat$label %>% unlist()
   # fsample seems to be deprecated, but I can't find the sampling rate anywere
-  if(!is.null(mat[[1]][, , 1]$fsample)){
-    sampling_rate <- mat[[1]][, , 1]$fsample[[1]]  
+  if(!is.null(mat$fsample)){
+    srate <- mat$fsample[[1]]
   } else {
     #if fsample is not here, I reconstruct the sampling rate from the difference between time steps
-    sampling_rate <- mean(1/diff(mat[[1]][, , 1]$time[[1]][[1]][1,]))
+    srate <- mean(1/diff(mat$time[[1]][[1]][1,]))
   }
   
-  ## signal_raw df:
-  
+ sample <- {unlist(lapply(mat$time, function(x) unlist(x))) * srate} %>%
+            new_sample_int(sampling_rate = srate)
 
-  # sample <- purrr::pmap(slengths, ~
-  # seq(..3 + 1, length.out = ..2 - ..1 + 1)) %>%
-  #   unlist() %>%
-  #   new_sample_int(sampling_rate = sampling_rate)
-
-  sample <- mat[[1]][, , 1]$time %>% purrr::map(~ unlist(.x) * sampling_rate) %>% 
-            unlist()  %>%
-            new_sample_int(sampling_rate = sampling_rate)
-  
-  
-  signal_raw <- map_dtr(mat[[1]][, , 1]$trial,
+  signal_raw <- map_dtr(mat$trial,
     function(lsegment) {
       lsegment[[1]] %>% t() %>% data.table::as.data.table()
     },
@@ -165,7 +154,7 @@ read_ft <- function(file, .layout = NULL, .recording = file) {
 
   # channel info:
   channels <- dplyr::tibble(
-    .channel = make_names(channel_names)
+    .channel = make_names(channel_names_)
   )
 
   if (!is.null(.layout)) {
@@ -194,7 +183,7 @@ read_ft <- function(file, .layout = NULL, .recording = file) {
   }
 
 
-  # colnames(signal_tbl) <- c(".id", channel_names)
+  # colnames(signal_tbl) <- c(".id", channel_names_)
   # signal_tbl <- dplyr::mutate(signal_tbl, .sample = sample, .id = as.integer(.id)) %>%
   #   dplyr::select(.id, .sample, dplyr::everything())
   signal_tbl <- new_signal_tbl(signal_matrix = dplyr::select(signal_raw, -.id),
@@ -215,22 +204,30 @@ read_ft <- function(file, .layout = NULL, .recording = file) {
   }
 
   # In case the configuration includes events  
-  if(!is.null(mat[[1]][, , 1]$cfg[, , 1]$event) && !is.null(mat[[1]][, , 1]$cfg[, , 1]$trl)){
+  if(!is.null(mat$cfg[, , 1]$event) && !is.null(mat$cfg[, , 1]$trl)){
     # # segment lengths, initial, final, offset
-    slengths <- mat[[1]][, , 1]$cfg[, , 1]$trl %>%
+    slengths <- mat$cfg[, , 1]$trl %>%
       apply(., c(1, 2), as.integer) %>%
       data.table::as.data.table()
   ## events df:
-  events <- mat[[1]][, , 1]$cfg[, , 1]$event[, 1, ] %>%
-    t() %>%
-    dplyr::as_tibble(.name_repair = "unique") %>%
-    dplyr::select(-offset) %>%
-    dplyr::mutate_all(as_first_non0) %>%
-    dplyr::rename(duration = dplyr::matches("duration"), .initial = sample, .type = type, .description = value) %>%
-    dplyr::mutate(.final = .initial + duration -1, .id = 1L) %>% 
-    dplyr::select(-duration) %>%
-#TODO check below, transform to dt
-  add_event_channel(channel_names)
+
+    events_dt <- struct_to_dt(mat$cfg[, , 1]$event)[, offset:=NULL]
+    data.table::setnames(events_dt, c("sample","type","value"),
+                         c(".initial",".type",".description"))
+    events_dt[, `:=`(.final = .initial + duration -1, .id = 1L, duration = NULL) ]
+
+  add_event_channel(events_dt, channel_names_)
+
+ ##  events <- mat$cfg[, , 1]$event[, 1, ] %>%
+##     t() %>%
+##     dplyr::as_tibble(.name_repair = "unique") %>%
+##     dplyr::select(-offset) %>%
+##     dplyr::mutate_all(as_first_non0) %>%
+##     dplyr::rename(duration = dplyr::matches("duration"), .initial = sample, .type = type, .description = value) %>%
+##     dplyr::mutate(.final = .initial + duration -1, .id = 1L) %>%
+##     dplyr::select(-duration) %>%
+## #TODO check below, transform to dt
+##   add_event_channel(channel_names_)
 
 
     segmentation <- data.table::data.table(.lower = slengths$V1,
@@ -238,9 +235,9 @@ read_ft <- function(file, .layout = NULL, .recording = file) {
                                            .upper= slengths$V2)
 
       segmentation[,.new_id := seq_len(.N)][, .id := 1]
-     events <- update_events(as_events_tbl(events,sampling_rate), segmentation)
+     events_dt <- update_events(as_events_tbl(events_dt,srate), segmentation)
   } else {
-    events <- NULL 
+    events_dt <- NULL
   }
   
   segments <- build_segments_tbl(.id= seq_len(max(signal_tbl$.id)),.recording)
@@ -248,12 +245,12 @@ read_ft <- function(file, .layout = NULL, .recording = file) {
 
   
   
-  if(!is.null(mat[[1]][, , 1]$trialinfo)){
-    segments <- segments %>% dplyr::bind_cols(dplyr::as_tibble(mat[[1]][, , 1]$trialinfo))
+  if(!is.null(mat$trialinfo)){
+    segments <- segments %>% dplyr::bind_cols(dplyr::as_tibble(mat$trialinfo))
   }
 
   eeg_lst <- eeg_lst(
-    signal_tbl = signal_tbl, events_tbl = events, segments_tbl = segments
+    signal_tbl = signal_tbl, events_tbl = events_dt, segments_tbl = segments
   )
 
   built_eeg_lst(eeg_lst, file)
