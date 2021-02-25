@@ -3,7 +3,8 @@
 #' Manipulate the signal table and the segments table of an eeg_lst.
 #'
 #' Wrappers for [`dplyr`][dplyr::dplyr]'s commands that act on different parts
-#' `eeg_lst` objects. Functions that drop or rename column won't remove columns starting with a dot.
+#' `eeg_lst` objects. Functions that drop or rename column won't remove columns starting with a dot. These functions are powered by [`data.table`][data.table::data.table], and inspired by the way `tidytable` works.
+#'
 #' The following wrappers act in a special way for `eeg_lst` objects:
 #'
 #' * `*_join()`: joins an external table to the *segments* table of the eeg_lst.
