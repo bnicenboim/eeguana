@@ -46,6 +46,7 @@ faces <- bind(faces_list)
 \seealso{
 Other reading functions: 
 \code{\link{read_edf}()},
-\code{\link{read_ft}()}
+\code{\link{read_ft}()},
+\code{\link{read_set}()}
 }
 \concept{reading functions}

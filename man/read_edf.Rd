@@ -30,6 +30,7 @@ If you have a case where this assumption is incorrect, please open an issue in \
 \seealso{
 Other reading functions: 
 \code{\link{read_ft}()},
+\code{\link{read_set}()},
 \code{\link{read_vhdr}()}
 }
 \concept{reading functions}
