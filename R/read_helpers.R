@@ -333,13 +333,13 @@ read_vhdr_metadata <- function(file) {
   return(out)
 }
 
-#' Spherical horiz. angle ("sph_theta")
-#' Spherical azimuth angle ("sph_phi")', ...
-#' Spherical radius ("sph_radius")'
-#' @noRd
-besa_loc_2_xyz <- function(azimuth, horiz_angle) {
-  spherical_to_xyz(radius = 1, theta = azimuth, phi = horiz_angle)
-}
+## #' Spherical horiz. angle ("sph_theta")
+## #' Spherical azimuth angle ("sph_phi")', ...
+## #' Spherical radius ("sph_radius")'
+## #' @noRd
+## besa_loc_2_xyz <- function(azimuth, horiz_angle) {
+##   spherical_to_xyz(radius = 1, theta = azimuth, phi = horiz_angle)
+## }
 
 #' Transform spherical coordinates to xyz
 #'
@@ -363,4 +363,6 @@ spherical_to_xyz_dt <- function(radius = 1, theta = NULL, phi = NULL) {
   data.table::data.table(.x = ifelse(radius != 0, round(sin(theta * pi / 180) * cos(phi * pi / 180), 2), NA_real_),
                          .y =ifelse(radius != 0, round(sin(theta * pi / 180) * sin(phi * pi / 180), 2), NA_real_),
                          .z = ifelse(radius != 0, round(cos(theta * pi / 180), 2), NA_real_))
+
+  # x,y,z
 }

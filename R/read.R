@@ -410,8 +410,8 @@ read_set <- function(file, .recording = file) {
   # https://sccn.ucsd.edu/wiki/A05:_Data_Structures
 # dataset in https://sccn.ucsd.edu/wiki/I.1:_Loading_Data_in_EEGLAB
 
-  ## file = system.file("testdata", "eeglab_data.set", package = "eeguana")
-  #.recording = "eeglab"
+  ## file = "/home/bruno/dev/eeguana/inst/testdata/bv_export_bv_txt_bin_multi.set"
+## file = system.file("testdata", "EEG01.mat", package = "eeguana")
 
   require_pkg("R.matlab")
 
@@ -424,12 +424,31 @@ read_set <- function(file, .recording = file) {
   # channels
   chan_set <- struct_to_dt(set$chanlocs)
   if(nrow(chan_set) > 0) {
-    if(all(is.na(chan_set[,.(X,Y,Z)]))){
+   if(!all(is.na(chan_set[,.(sph.theta.besa,sph.phi.besa)]))){
+     #probably brain vision files
+     #eeglab gives the incorrect X, Y, Z for eeglab files
+      chan_set[, `:=`(c(".x",".y",".z"),spherical_to_xyz_dt(sph.radius, sph.theta.besa, sph.phi.besa))]
+
+   } else if(!all(is.na(chan_set[,.(sph.theta,sph.phi)]))){
       chan_set[, `:=`(c(".x",".y",".z"),spherical_to_xyz_dt(sph.radius, sph.theta, sph.phi))]
-    } else {
+   } else if(!all(is.na(chan_set[,.(X,Y)]))){
       chan_set[, `:=`(c(".x",".y",".z"),list(X, Y, Z))]
-    }
-    chan_set[, .channel := labels]
+   }
+
+    data.table::setnames(chan_set, "labels", ".channel")
+if(!identical(
+  round(matrix(chan_set[,c(.x,.y,.z)], ncol = 3),2),
+  round(matrix(chan_set[,c(X,Y,Z)], ncol = 3),2))){
+  warning('There is a mismatch between eeglab channel positions and the ones found by eeguana. It might be a bug in eeglab, to verify that the position of the channels is the correct one, one can plot them as follows:\n
+   eeg_obj %>%
+  filter(.sample == 1) %>%
+  plot_topo() +
+  annotate_head() +
+  geom_contour() +
+  geom_text(colour = "black")
+', call. = TRUE)
+}
+
 
   } else {
     chan_set <- NULL
@@ -455,17 +474,19 @@ read_set <- function(file, .recording = file) {
 
 ## If epochs have been extracted from the dataset, another field, epoch, is added to store the index of the data epoch(s) the event belongs to
   events_set <- struct_to_dt(set$event)
-
+  data.table::setnames(events_set, c("type","code","channel"), c(".description",".type",".channel"), skip_absent = TRUE)
   events_set[,`:=`(.id = 1L,
-                   .initial = as_sample_int(x = latency, sampling_rate = srate),
-                   latency = NULL,
-                   .description = type,
-                   type = NULL,
-                   .type = NA_character_,
-                   .channel = NA_character_)]
+                   .initial = sample_int(latency, sampling_rate = srate),
+                   latency = NULL)]
+
+  add_event_channel(events_set, chan_set$labels)
+
+
+  if(!".type" %in% names(events_set)) events_set[, .type := NA_character_]
 
   if("duration" %in% names(events_set)){
-    events_set[, .final := .initial + duration][, duration := NULL]
+    events_set[is.nan(duration), duration := 1]
+    events_set[, .final := .initial + duration -1][, duration := NULL]
   } else{
     events_set[, .final := .initial]
   }
