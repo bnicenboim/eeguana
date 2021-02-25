@@ -55,7 +55,7 @@ eeg_filt_band_stop(
 
 \item{na.rm}{=TRUE will set to NA the entire segment that contains an NA, otherwise the filter will stop with an error.}
 
-\item{.by_reference}{filters in place, rewritting the eeg_lst object.}
+\item{.by_reference}{Filters in place, rewriting the eeg_lst object.}
 }
 \value{
 A channel or an eeg_lst.
@@ -101,13 +101,4 @@ data_ERPs_filtered \%>\%
   plot() +
   facet_wrap(~.key)
 }
-\seealso{
-Other preprocessing functions: 
-\code{\link{eeg_baseline}()},
-\code{\link{eeg_downsample}()},
-\code{\link{eeg_ica_keep}()},
-\code{\link{eeg_ica}()},
-\code{\link{eeg_rereference}()},
-\code{\link{eeg_segment}()}
-}
-\concept{preprocessing functions}
+\concept{Preprocessing functions.}
