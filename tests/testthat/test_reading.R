@@ -60,6 +60,10 @@ test_that("can read eeglab from brainvision",{
 
   expect_warning(set1 <- read_set(file = system.file("testdata", "bv_export_bv_txt_bin_multi.set", package = "eeguana"), .recording = "bv2"))
 
+  expect_warning(set2 <- read_set(file = system.file("testdata", "bv_export_bv_txt_bin_multi2.set", package = "eeguana"), .recording = "bv2"))
+
+  expect_equal(set1, set2)
+
   channels_tbl(set1) <- channels_tbl(set1) %>% dplyr::select(.channel, .x,.y,.z)
   channels_tbl(multiplexed_bin_bv2) <- channels_tbl(multiplexed_bin_bv2) %>% dplyr::select(.channel, .x,.y,.z)
 expect_equal(channels_tbl(set1), channels_tbl(multiplexed_bin_bv2))

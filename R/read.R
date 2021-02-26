@@ -410,7 +410,7 @@ read_set <- function(file, .recording = file) {
   # https://sccn.ucsd.edu/wiki/A05:_Data_Structures
 # dataset in https://sccn.ucsd.edu/wiki/I.1:_Loading_Data_in_EEGLAB
 
-  ## file = "/home/bruno/dev/eeguana/inst/testdata/bv_export_bv_txt_bin_multi.set"
+  ## file = "/home/bruno/dev/eeguana/inst/testdata/bv_export_bv_txt_bin_multi2.set"
 ## file = system.file("testdata", "EEG01.mat", package = "eeguana")
 ##file = system.file("testdata", "eeglab_data.set", package = "eeguana")
   require_pkg("R.matlab")
@@ -418,7 +418,11 @@ read_set <- function(file, .recording = file) {
   if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
   ## file <- "/home/bruno/dev/eeguana/inst/testdata/eeglab_data.set"
 
-  set <- R.matlab::readMat(file)$EEG[,,1]
+  set <- R.matlab::readMat(file)
+  if(length(set) ==1) {
+    #nested file:
+    set <- set$EEG[,,1]
+  }
   srate <- c(set$srate)
 
   # channels
