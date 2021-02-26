@@ -412,7 +412,7 @@ read_set <- function(file, .recording = file) {
 
   ## file = "/home/bruno/dev/eeguana/inst/testdata/bv_export_bv_txt_bin_multi.set"
 ## file = system.file("testdata", "EEG01.mat", package = "eeguana")
-
+##file = system.file("testdata", "eeglab_data.set", package = "eeguana")
   require_pkg("R.matlab")
 
   if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
@@ -424,19 +424,27 @@ read_set <- function(file, .recording = file) {
   # channels
   chan_set <- struct_to_dt(set$chanlocs)
   if(nrow(chan_set) > 0) {
-   if(!all(is.na(chan_set[,.(sph.theta.besa,sph.phi.besa)]))){
+   if(all(c("sph.radius", "sph.theta.besa","sph.phi.besa") %in% colnames(chan_set)) &&
+     !all(is.na(chan_set[,.(sph.theta.besa,sph.phi.besa)]))){
      #probably brain vision files
      #eeglab gives the incorrect X, Y, Z for eeglab files
       chan_set[, `:=`(c(".x",".y",".z"),spherical_to_xyz_dt(sph.radius, sph.theta.besa, sph.phi.besa))]
 
-   } else if(!all(is.na(chan_set[,.(sph.theta,sph.phi)]))){
+   } else if(all(c("sph.radius", "sph.theta","sph.phi") %in% colnames(chan_set)) &&
+               !all(is.na(chan_set[,.(sph.theta,sph.phi)]))){
       chan_set[, `:=`(c(".x",".y",".z"),spherical_to_xyz_dt(sph.radius, sph.theta, sph.phi))]
-   } else if(!all(is.na(chan_set[,.(X,Y)]))){
+   } else if(all(c("X", "Y","Z") %in% colnames(chan_set)) &&
+               !all(is.na(chan_set[,.(X,Y)]))){
       chan_set[, `:=`(c(".x",".y",".z"),list(X, Y, Z))]
+   } else {
+     chan_set[,`:=`(".x" = NA_real_, ".y" = NA_real_, ".z" = NA_real_)]
    }
 
     data.table::setnames(chan_set, "labels", ".channel")
-if(!identical(
+   #if X,Y,Z are set and are differently from what eeguana found:
+   #
+   if( !all(is.na(chan_set[,.(X,Y,Z)])) &&
+  !identical(
   round(matrix(chan_set[,c(.x,.y,.z)], ncol = 3),2),
   round(matrix(chan_set[,c(X,Y,Z)], ncol = 3),2))){
   warning('There is a mismatch between eeglab channel positions and the ones found by eeguana. It might be a bug in eeglab, to verify that the position of the channels is the correct one, one can plot them as follows:\n
@@ -454,7 +462,7 @@ if(!identical(
     chan_set <- NULL
   }
 
-  n_samples <- unlist(set$times) %>% length
+  n_samples <- ncol(set$data) #unlist(set$times) %>% length
   signal_ <- new_signal_tbl(.id=1L,
                            .sample = new_sample_int(seq_len(n_samples), sampling_rate = c(set$srate)),                                                                         signal_matrix = t(set$data),
                            channels_tbl = chan_set
@@ -476,7 +484,7 @@ if(!identical(
   events_set <- struct_to_dt(set$event)
   data.table::setnames(events_set, c("type","code","channel"), c(".description",".type",".channel"), skip_absent = TRUE)
   events_set[,`:=`(.id = 1L,
-                   .initial = sample_int(latency, sampling_rate = srate),
+                   .initial = sample_int(round(latency), sampling_rate = srate),
                    latency = NULL)]
 
   add_event_channel(events_set, chan_set$labels)
