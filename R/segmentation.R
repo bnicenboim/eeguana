@@ -12,6 +12,14 @@
 #' @param .end Description of the event that indicates the end of the segment, if this is used, `.lim` is ignored.
 #' @family preprocessing functions
 #'
+#' @examples
+#'
+#' # Segments 500ms before and 1000ms after the triggers s70 and s71
+#' data_faces_10_trials %>% eeg_segment(.description %in% c("s70","s71"), .lim(-5,1))
+#'
+#' # Segments 500ms before and  after the triggers all the triggers (which start with s)
+#' data_faces_10_trials %>% eeg_segment(startsWith(.description,"s"))
+#'
 #' @return An `eeg_lst`.
 #'
 #'
