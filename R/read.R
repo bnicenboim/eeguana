@@ -410,7 +410,7 @@ read_set <- function(file, .recording = file) {
   # https://sccn.ucsd.edu/wiki/A05:_Data_Structures
 # dataset in https://sccn.ucsd.edu/wiki/I.1:_Loading_Data_in_EEGLAB
 
-  ## file = "/home/bruno/dev/eeguana/inst/testdata/bv_export_bv_txt_bin_multi2.set"
+  ## file = "/home/bruno/dev/eeguana/inst/testdata/bv_export_bv_txt_bin_multi3.set"
 ## file = system.file("testdata", "EEG01.mat", package = "eeguana")
 ##file = system.file("testdata", "eeglab_data.set", package = "eeguana")
   require_pkg("R.matlab")
@@ -423,7 +423,12 @@ read_set <- function(file, .recording = file) {
     #nested file:
     set <- set$EEG[,,1]
   }
+
+  # Tries to set some meta data, but sometimes, some stuff is missing
   srate <- c(set$srate)
+  n_trials <- set$trials[1,1]
+  n_chan <- set$nbchan[1,1]
+  n_samples <- length(set$times)
 
   # channels
   chan_set <- struct_to_dt(set$chanlocs)
@@ -461,18 +466,37 @@ read_set <- function(file, .recording = file) {
 ', call. = TRUE)
 }
 
-
   } else {
     chan_set <- NULL
   }
 
-  n_samples <- ncol(set$data) #unlist(set$times) %>% length
+
+if(n_trials>1) {
+  stop("trials >1 are not working yet")
+}
+
+if(all(dim(set$data) == c(1,1))){
+  binary = file.path(dirname(file), set$data[1,1])
+  if(tools::file_ext(binary) =="fdt"){
+# One file that contains metadata (with extension .set, and is a type of MATLAB file), and one file containing raw data (float32 with .fdt extension). The raw data file is organized in samples x channels (so first all the data for one channel, then all the data for a second channel, etc.). In case, there are several trials, the raw data file is organized in samples x trials x channels.
+    signal_raw <- read_bin_signal(binary, n_chan = n_chan, sample_x_channels = TRUE)
+  } else if(tools::file_ext(binary) =="dat"){
+#transpose format
+    signal_raw <- read_bin_signal(binary, n_chan = n_chan, sample_x_channels = FALSE)
+  } else {
+ stop(binary," is an unrecognized file for eeglab format", call. = FALSE)
+  }
+} else {
+  #to be sure about the n_samples since set$time is sometimes empty
+  n_samples <- ncol(set$data)
+  signal_raw <- t(set$data)
+
+}
+
   signal_ <- new_signal_tbl(.id=1L,
-                           .sample = new_sample_int(seq_len(n_samples), sampling_rate = c(set$srate)),                                                                         signal_matrix = t(set$data),
-                           channels_tbl = chan_set
-                           )
-
-
+                            .sample = new_sample_int(seq_len(n_samples), sampling_rate = srate),                                                                         signal_matrix = signal_raw,
+                            channels_tbl = chan_set
+                            )
   #events
 ##   In general, fields type, latency, and urevent are always present in the event structure:
 

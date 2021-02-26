@@ -43,17 +43,21 @@ test_that("repeated channels are not a problem", {
 
 
 ft <- read_ft(file = system.file("testdata", "fieldtrip_matrix.mat", package = "eeguana"), .recording = "bv2")
-channels_tbl(ft) <- channels_tbl()
+channels_tbl(ft) <- channels_tbl(multiplexed_bin_bv2)
 
 test_that("can read fieldtrip files", {
 #  expect_equal(ft,)
 })
 
-warning("skip those:")
-others_1 <- read_set(file = system.file("testdata", "EEG01.mat", package = "eeguana"), .recording = "eeglab")
 
-other_2 <- read_set(file = system.file("testdata", "eeglab_data.set", package = "eeguana"), .recording = "eeglab")
-
+test_that("can read unique eeglab files ",{
+  eeguana:::skip_on_actions()
+  skip_on_ci()
+  #stefan frank data
+  expect_s3_class(other1 <- read_set(file = system.file("testdata", "EEG01.mat", package = "eeguana"), .recording = "eeglab"), "eeg_lst")
+  gc()
+  expect_s3_class(other2 <- read_set(file = system.file("testdata", "eeglab_data.set", package = "eeguana"), .recording = "eeglab"), "eeg_lst")
+})
 
 
 test_that("can read eeglab from brainvision",{
@@ -61,8 +65,10 @@ test_that("can read eeglab from brainvision",{
   expect_warning(set1 <- read_set(file = system.file("testdata", "bv_export_bv_txt_bin_multi.set", package = "eeguana"), .recording = "bv2"))
 
   expect_warning(set2 <- read_set(file = system.file("testdata", "bv_export_bv_txt_bin_multi2.set", package = "eeguana"), .recording = "bv2"))
-
+  expect_warning(set3 <- read_set(file = system.file("testdata", "bv_export_bv_txt_bin_multi3.set", package = "eeguana"), .recording = "bv2")
+)
   expect_equal(set1, set2)
+  expect_equal(set1, set3)
 
   channels_tbl(set1) <- channels_tbl(set1) %>% dplyr::select(.channel, .x,.y,.z)
   channels_tbl(multiplexed_bin_bv2) <- channels_tbl(multiplexed_bin_bv2) %>% dplyr::select(.channel, .x,.y,.z)
@@ -76,15 +82,14 @@ eeguana:::expect_equal_plain_df(multiplexed_bin_bv2$.events,set1$.events )
 
 })
 
-message("try set files epoched and with an ex")
 ## EDF tests
 
 edf <- read_edf(file = system.file("testdata", "asalab_export_edf_Segment_1.edf", package = "eeguana"), .recording = "edf")
 edf_bv <- read_edf(file = system.file("testdata", "bv_export_edf.edf", package = "eeguana"), .recording = "edf")
 edf_plus_bv <- read_edf(file = system.file("testdata", "bv_export_edf+.edf", package = "eeguana"), .recording = "edf")
 
-ch_tbl <- channels_tbl()
-max_sample <- max($.signal$.sample)
+ch_tbl <- channels_tbl(multiplexed_bin_bv2)
+max_sample <- max(multiplexed_bin_bv2$.signal$.sample)
 edf_f <- dplyr::filter(edf, .sample <= 4722)
 channels_tbl(edf_f) <- ch_tbl
 

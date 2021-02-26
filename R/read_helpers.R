@@ -6,21 +6,32 @@ read_dat <- function(file, header_info = NULL, events_dt = NULL,
   n_chan <- nrow(header_info$chan_info)
   common_info <- header_info$common_info
 
-  multiplexed <- dplyr::case_when(
-    chr_detect(common_info$orientation, "vector",
-      ignore.case = TRUE
-    ) ~ FALSE,
-    chr_detect(common_info$orientation, "multipl",
-      ignore.case = TRUE
-    ) ~ TRUE,
-    TRUE ~ NA
-  ) %>% {
-    if (is.na(.)) {
-      stop("Orientation needs to be vectorized or multiplexed.")
-    } else {
-      .
-    }
+  if(chr_detect(common_info$orientation, "vector",
+                ignore.case = TRUE)) {
+    multiplexed <- FALSE
+  } else if(chr_detect(common_info$orientation, "multipl",
+                       ignore.case = TRUE)){
+
+    multiplexed <- TRUE
+  } else {
+    stop("Orientation needs to be vectorized or multiplexed.", call. = FALSE)
   }
+
+  ## multiplexed <- dplyr::case_when(
+  ##   chr_detect(common_info$orientation, "vector",
+  ##     ignore.case = TRUE
+  ##   ) ~ FALSE,
+  ##   chr_detect(common_info$orientation, "multipl",
+  ##     ignore.case = TRUE
+  ##   ) ~ TRUE,
+  ##   TRUE ~ NA
+  ## ) %>% {
+  ##   if (is.na(.)) {
+  ##     stop("Orientation needs to be vectorized or multiplexed.")
+  ##   } else {
+  ##     .
+  ##   }
+  ## }
 
 
   if (common_info$format == "BINARY") {
@@ -37,26 +48,10 @@ read_dat <- function(file, header_info = NULL, events_dt = NULL,
       stop(sprintf("Type '%s' is not recognized (it should be double (float) or integer (int)", type))
     }
 
-    bytes <- chr_extract(common_info$bits, "\\d*$") %>%
-      as.numeric() %>%
-      {
-        . / 8
-      }
+    bytes <- as.numeric(chr_extract(common_info$bits, "\\d*$")) /8
 
-    amps <- readBin(file,
-      what = type, n = file.info(file)$size/bytes,
-      size = bytes)
+    raw_signal <- read_bin_signal(file, type, bytes, n_chan, sample_x_channels = multiplexed)
 
-
-
-    raw_signal <- matrix(amps, ncol = n_chan, byrow = multiplexed) %>%
-      data.table::as.data.table()
-    ## that one is faster than:
-    ## raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = multiplexed) %>%
-    ##   data.table::as.data.table(),
-    ## raw_signal <- data.table::data.table(matrix(amps, ncol = n_chan, byrow = multiplexed)
-                                         ## )
-   ## )
 
   } else if (common_info$format == "ASCII") {
     raw_signal <- data.table::fread(file,
@@ -365,4 +360,21 @@ spherical_to_xyz_dt <- function(radius = 1, theta = NULL, phi = NULL) {
                          .z = ifelse(radius != 0, round(cos(theta * pi / 180), 2), NA_real_))
 
   # x,y,z
+}
+
+read_bin_signal <- function(file, type = "double", bytes = 4, n_chan, sample_x_channels = TRUE){
+
+  if(!file.exists(file)) stop("Binary file ", file, " cannot be found.", call. = FALSE)
+  amps <- readBin(file,
+                  what = type, n = file.info(file)$size/bytes,
+                  size = bytes)
+  matrix(amps, ncol = n_chan, byrow = sample_x_channels) %>%
+    data.table::as.data.table()
+
+  ## that one is faster than:
+  ## raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = multiplexed) %>%
+  ##   data.table::as.data.table(),
+  ## raw_signal <- data.table::data.table(matrix(amps, ncol = n_chan, byrow = multiplexed)
+  ## )
+  ## )
 }
