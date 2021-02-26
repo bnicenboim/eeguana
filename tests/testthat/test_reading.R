@@ -62,7 +62,7 @@ test_that("can read unique eeglab files ",{
 
 test_that("can read eeglab from brainvision",{
 
-  expect_warning(set1 <- read_set(file = system.file("testdata", "bv_export_bv_txt_bin_multi.set", package = "eeguana"), .recording = "bv2"))
+expect_warning(set1 <- read_set(file = system.file("testdata", "bv_export_bv_txt_bin_multi.set", package = "eeguana"), .recording = "bv2"))
 
   expect_warning(set2 <- read_set(file = system.file("testdata", "bv_export_bv_txt_bin_multi2.set", package = "eeguana"), .recording = "bv2"))
   expect_warning(set3 <- read_set(file = system.file("testdata", "bv_export_bv_txt_bin_multi3.set", package = "eeguana"), .recording = "bv2")
@@ -79,6 +79,17 @@ eeguana:::expect_equal_plain_df(multiplexed_bin_bv2$.segments, set1$.segments)
 set1$.events[,`:=`(bvtime = NULL, bvmknum = NULL, visible = NULL, urevent = NULL)]
 set1$.events[.description=="boundary", .description:=""]
 eeguana:::expect_equal_plain_df(multiplexed_bin_bv2$.events,set1$.events )
+
+})
+
+
+test_that("can read segmented data from eeglab",{
+bv_seged <- read_vhdr(system.file("testdata", "bv_export_bv_txt_bin_multi.vhdr", package = "eeguana"), .recording = "bv2") %>% eeg_segment(startsWith(.description,"s"), .lim = c(-.1,.098))
+
+
+set_epoched <- read_set(file = system.file("testdata", "bv_export_bv_txt_bin_multi_epoched.set", package = "eeguana"), .recording = "bv2")
+set_epoched <- read_set(file = system.file("testdata", "bv_export_bv_txt_bin_multi_epoched_1.set", package = "eeguana"), .recording = "bv2")
+
 
 })
 

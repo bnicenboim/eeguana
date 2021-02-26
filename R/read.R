@@ -410,9 +410,10 @@ read_set <- function(file, .recording = file) {
   # https://sccn.ucsd.edu/wiki/A05:_Data_Structures
 # dataset in https://sccn.ucsd.edu/wiki/I.1:_Loading_Data_in_EEGLAB
 
-  ## file = "/home/bruno/dev/eeguana/inst/testdata/bv_export_bv_txt_bin_multi3.set"
+## file = "/home/bruno/dev/eeguana/inst/testdata/bv_export_bv_txt_bin_multi_epoched_1.set"
 ## file = system.file("testdata", "EEG01.mat", package = "eeguana")
 ##file = system.file("testdata", "eeglab_data.set", package = "eeguana")
+##file =  system.file("testdata", "bv_export_bv_txt_bin_multi_epoched_1.set", package = "eeguana")
   require_pkg("R.matlab")
 
   if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
@@ -428,8 +429,9 @@ read_set <- function(file, .recording = file) {
   srate <- c(set$srate)
   n_trials <- set$trials[1,1]
   n_chan <- set$nbchan[1,1]
-  n_samples <- length(set$times)
-
+  ## n_samples <- length(set$times)
+  n_samples <- set$pnts[1,1]
+  times <- c(set$times)
   # channels
   chan_set <- struct_to_dt(set$chanlocs)
   if(nrow(chan_set) > 0) {
@@ -471,14 +473,11 @@ read_set <- function(file, .recording = file) {
   }
 
 
-if(n_trials>1) {
-  stop("trials >1 are not working yet")
-}
-
-if(all(dim(set$data) == c(1,1))){
+if(all(unique(dim(set$data)) ==1)){
   binary = file.path(dirname(file), set$data[1,1])
   if(tools::file_ext(binary) =="fdt"){
 # One file that contains metadata (with extension .set, and is a type of MATLAB file), and one file containing raw data (float32 with .fdt extension). The raw data file is organized in samples x channels (so first all the data for one channel, then all the data for a second channel, etc.). In case, there are several trials, the raw data file is organized in samples x trials x channels.
+ if(n_trials >1) stop("external data with ntrials > 1 not working")
     signal_raw <- read_bin_signal(binary, n_chan = n_chan, sample_x_channels = TRUE)
   } else if(tools::file_ext(binary) =="dat"){
 #transpose format
@@ -489,12 +488,24 @@ if(all(dim(set$data) == c(1,1))){
 } else {
   #to be sure about the n_samples since set$time is sometimes empty
   n_samples <- ncol(set$data)
-  signal_raw <- t(set$data)
+  if(n_trials ==1){
+    signal_raw <- t(set$data)
+  } else {
+    #flattening the array into a matrix
+    signal_raw <- apply(set$data, 1, c)
+  }
 
 }
-
-  signal_ <- new_signal_tbl(.id=1L,
-                            .sample = new_sample_int(seq_len(n_samples), sampling_rate = srate),                                                                         signal_matrix = signal_raw,
+  if(!is.null(times)){
+  samples <- rep(as_sample_int(times, sampling_rate = srate, .unit = "ms"), times = n_trials)
+  } else {
+    #no times, then start from 0
+ samples <- rep(sample_int(seq.int(set$pnts[1,1]), sampling_rate = srate), times = n_trials)
+  }
+  signal_ <- new_signal_tbl(.id=rep(seq.int(n_trials), each = n_samples),
+                            .sample = samples
+                              #new_sample_int(seq_len(n_samples), sampling_rate = srate)
+,                                                                         signal_matrix = signal_raw,
                             channels_tbl = chan_set
                             )
   #events
@@ -509,11 +520,21 @@ if(all(dim(set$data) == c(1,1))){
 ## The user may also define a field called duration (recognized by EEGLAB) for defining the duration of the event (if portions of the data have been deleted, the field duration is added automatically to store the duration of the break (i.e. boundary) event).
 
 ## If epochs have been extracted from the dataset, another field, epoch, is added to store the index of the data epoch(s) the event belongs to
+  if(n_trials ==1){
   events_set <- struct_to_dt(set$event)
   data.table::setnames(events_set, c("type","code","channel"), c(".description",".type",".channel"), skip_absent = TRUE)
   events_set[,`:=`(.id = 1L,
                    .initial = sample_int(round(latency), sampling_rate = srate),
                    latency = NULL)]
+  } else {
+
+   events_set <- struct_to_dt(set$epoch)
+
+  data.table::setnames(events_set, c("eventtype","eventcode","channel","event"), c(".description",".type",".channel",".id"), skip_absent = TRUE)
+  events_set[,`:=`(
+                   .initial = sample_int(round(eventlatency), sampling_rate = srate),
+                   eventlatency = NULL)]
+  }
 
   add_event_channel(events_set, chan_set$labels)
 
@@ -529,8 +550,12 @@ if(all(dim(set$data) == c(1,1))){
 
   events_ <- as_events_tbl(events_set)
 
-  segments_ <- build_segments_tbl(1L, .recording)
+  segments_ <- build_segments_tbl(seq.int(n_trials), .recording)
+  if(n_trials >1){
+describe <-  c(".description",".type")[c(".description",".type") %in%   colnames(events_) ]
+  segments_ <- segments_[events_[,c(".id",describe), with = FALSE], on = ".id", allow.cartesian = TRUE]
 
+}
   eeg_lst_ <- eeg_lst(signal_tbl = signal_, events_tbl = events_, segments_tbl = segments_)
 
   built_eeg_lst(eeg_lst_, file)
