@@ -150,21 +150,25 @@ unnest_dt <- function(.data, col) {
 
 #' Converts a struct from matlab into a data table
 #' @noRd
-struct_to_dt <- function(x) {
-if(length(x)==0) {
-  data.table::data.table()
-} else {
-  apply(x,3,
-          function(x) lapply(x[,1],                                            function(x){
-            x <- x %||% NA
-            #unmatrix
-            if(all((dim(x) %||% 1) ==c(1,1)))
-              c(x)
-          }  )) %>%
-  lapply(data.table::setDT) %>%
-  {do.call("rbind",.)}
+struct_to_dt <- function(struct, .id = NULL) {
+  if(length(struct)==0) {
+    data.table::data.table()
+  } else {
+    list_str <-  apply(struct,3,
+                       function(x) lapply(x[,1],
+                                          function(x){
+                         x <- x %||% NA
+                         #unmatrix
+#                         if(all((dim(x) %||% 1) ==c(1,1)))
+                           c(unlist(x)) %||% rep(NA, length(x))
+
+                       }  ))
+    map_dtr(list_str, data.table::setDT, .id =.id)
+
   }
-  }
+}
+
+
 
 #' @noRd
 recycle <- function(x, size) {

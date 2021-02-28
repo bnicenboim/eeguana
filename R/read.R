@@ -391,7 +391,7 @@ read_edf <- function(file, .recording = file) {
 
 #' Read EEGlab set files (Matlab files) into R
 #'
-#' Creates an eeg_lst object from Matlab exported files. The function reads a .mat or .set file using `R.matlab`. If you do not already have `R.matlab` installed in R, you will need to install it yourself. The  file should have the structure described in this [Data structure article](https://sccn.ucsd.edu/wiki/A05:_Data_Structures). This function is experimental, if your file cannot be opened please open an issue with a link to the file in [github](https://github.com/bnicenboim/eeguana/issues).
+#' Creates an eeg_lst object from Matlab exported files. The function reads a .mat or .set file using `R.matlab`. If you do not already have `R.matlab` installed in R, you will need to install it yourself. The  file should have the structure described in this [Data structure article](https://sccn.ucsd.edu/wiki/A05:_Data_Structures). This function is experimental (there are many different formats of eeglab files). If your file cannot be opened please open an issue with a link to the file in [github](https://github.com/bnicenboim/eeguana/issues).
 #'
 #' @param file A .mat or .set file containing a fieldtrip struct.
 #' @param .recording Recording name, by default is the file name.
@@ -410,7 +410,7 @@ read_set <- function(file, .recording = file) {
   # https://sccn.ucsd.edu/wiki/A05:_Data_Structures
 # dataset in https://sccn.ucsd.edu/wiki/I.1:_Loading_Data_in_EEGLAB
 
-## file = "/home/bruno/dev/eeguana/inst/testdata/bv_export_bv_txt_bin_multi_epoched_1.set"
+## file = "/home/bruno/dev/eeguana/inst/testdata/bv_export_bv_txt_bin_multi_epoched_one.set"
 ## file = system.file("testdata", "EEG01.mat", package = "eeguana")
 ##file = system.file("testdata", "eeglab_data.set", package = "eeguana")
 ##file =  system.file("testdata", "bv_export_bv_txt_bin_multi_epoched.set", package = "eeguana")
@@ -529,9 +529,10 @@ if(all(unique(dim(set$data)) ==1)){
                    latency = NULL)]
   } else {
 
-   events_set <- struct_to_dt(set$epoch)
+   events_set <- struct_to_dt(set$epoch,.id =".id")
 
-  data.table::setnames(events_set, c("eventtype","eventcode","channel","event"), c(".description",".type",".channel",".id"), skip_absent = TRUE)
+
+  data.table::setnames(events_set, c("eventtype","eventcode","channel"), c(".description",".type",".channel"), skip_absent = TRUE)
   events_set[,`:=`(
                    .initial = sample_int(round(eventlatency), sampling_rate = srate),
                    eventlatency = NULL)]
