@@ -50,7 +50,7 @@ read_dat <- function(file, header_info = NULL, events_dt = NULL,
 
     bytes <- as.numeric(chr_extract(common_info$bits, "\\d*$")) /8
 
-    raw_signal <- read_bin_signal(file, type, bytes, n_chan, sample_x_channels = multiplexed)
+    raw_signal <- read_bin_signal(file, type = type, bytes = bytes, n_chan = n_chan, sample_x_channels = multiplexed)
 
 
   } else if (common_info$format == "ASCII") {
@@ -362,14 +362,27 @@ spherical_to_xyz_dt <- function(radius = 1, theta = NULL, phi = NULL) {
   # x,y,z
 }
 
-read_bin_signal <- function(file, type = "double", bytes = 4, n_chan, sample_x_channels = TRUE){
+read_bin_signal <- function(file, type = "double", bytes = 4, n_chan, n_trials=1, sample_x_channels = TRUE){
 
   if(!file.exists(file)) stop("Binary file ", file, " cannot be found.", call. = FALSE)
   amps <- readBin(file,
                   what = type, n = file.info(file)$size/bytes,
                   size = bytes)
+  if(n_trials==1) {
   matrix(amps, ncol = n_chan, byrow = sample_x_channels) %>%
     data.table::as.data.table()
+} else {
+  samples <- length(amps)/(n_trials*n_chan)
+ arraydata <- array(amps, dim= c(n_chan,n_trials,samples)) %>%
+                apply(1, c)
+
+  if(!sample_x_channels){
+  arraydata <- t(arraydata)
+  }
+  data.table::as.data.table(arraydata)
+
+}
+
 
   ## that one is faster than:
   ## raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = multiplexed) %>%

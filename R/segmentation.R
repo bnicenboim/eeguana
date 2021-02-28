@@ -172,19 +172,10 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
 
   #remove the irrelevant columns:
   times0[,`:=`(c(".first_sample", ".lower",".upper",".new_id"), NULL)]
- # remove the . from the segments so that it's clear that it's not protected
-  data.table::setnames(times0, -1, chr_remove(colnames(times0)[-1], "^\\."))
-  #right join:
-  .data$.segments <- .data$.segments[times0, on =".id", allow.cartesian = TRUE ][, .id := 1:.N]
 
-  if (!is.null(.data$.segments$.recording) && !anyNA(.data$.segments$.recording)) {
-    .data$.segments <- .data$.segments[,segment := seq_len(.N) ,by = ".recording"]
 
-    ## .data$.segments <- .data$.segments %>%
-    ##   dplyr::group_by(.recording) %>%
-    ##   dplyr::mutate(segment = 1:dplyr::n()) %>%
-    ##   dplyr::ungroup()
-  }
+
+  .data$.segments <- update_segments_tbl(.data$.segments, times0)
 
   if(options()$eeguana.verbose)  message(paste0(say_size(.data), " after segmentation."))
   data.table::setkey(.data$.segments, .id)
@@ -192,6 +183,17 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
 }
 
 
+update_segments_tbl <- function(old_segments,new_events){
+ # remove the . from the segments so that it's clear that it's not protected
+  data.table::setnames(new_events, -1, chr_remove(colnames(new_events)[-1], "^\\."))
+  #right join:
+  new_segments <-  old_segments[new_events, on =".id", allow.cartesian = TRUE ][, .id := 1:.N]
+
+  if (!is.null(new_segments$.recording) && !anyNA(new_segments$.recording)) {
+    new_segments <- new_segments[,segment := seq_len(.N) ,by = ".recording"]
+  }
+new_segments
+}
 
 
 #' update events table based on a segmentation table

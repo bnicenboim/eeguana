@@ -413,7 +413,7 @@ read_set <- function(file, .recording = file) {
 ## file = "/home/bruno/dev/eeguana/inst/testdata/bv_export_bv_txt_bin_multi_epoched_1.set"
 ## file = system.file("testdata", "EEG01.mat", package = "eeguana")
 ##file = system.file("testdata", "eeglab_data.set", package = "eeguana")
-##file =  system.file("testdata", "bv_export_bv_txt_bin_multi_epoched_1.set", package = "eeguana")
+##file =  system.file("testdata", "bv_export_bv_txt_bin_multi_epoched.set", package = "eeguana")
   require_pkg("R.matlab")
 
   if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
@@ -477,11 +477,12 @@ if(all(unique(dim(set$data)) ==1)){
   binary = file.path(dirname(file), set$data[1,1])
   if(tools::file_ext(binary) =="fdt"){
 # One file that contains metadata (with extension .set, and is a type of MATLAB file), and one file containing raw data (float32 with .fdt extension). The raw data file is organized in samples x channels (so first all the data for one channel, then all the data for a second channel, etc.). In case, there are several trials, the raw data file is organized in samples x trials x channels.
- if(n_trials >1) stop("external data with ntrials > 1 not working")
-    signal_raw <- read_bin_signal(binary, n_chan = n_chan, sample_x_channels = TRUE)
+
+    signal_raw <- read_bin_signal(file = binary, n_chan = n_chan, n_trials =n_trials, sample_x_channels = TRUE)
+
   } else if(tools::file_ext(binary) =="dat"){
 #transpose format
-    signal_raw <- read_bin_signal(binary, n_chan = n_chan, sample_x_channels = FALSE)
+    signal_raw <-  read_bin_signal(binary, n_chan = n_chan,  n_trials =n_trials,sample_x_channels = FALSE)
   } else {
  stop(binary," is an unrecognized file for eeglab format", call. = FALSE)
   }
@@ -552,10 +553,8 @@ if(all(unique(dim(set$data)) ==1)){
 
   segments_ <- build_segments_tbl(seq.int(n_trials), .recording)
   if(n_trials >1){
-describe <-  c(".description",".type")[c(".description",".type") %in%   colnames(events_) ]
-  segments_ <- segments_[events_[,c(".id",describe), with = FALSE], on = ".id", allow.cartesian = TRUE]
-
-}
+    segments_ <- update_segments_tbl(segments_, events_set)
+  }
   eeg_lst_ <- eeg_lst(signal_tbl = signal_, events_tbl = events_, segments_tbl = segments_)
 
   built_eeg_lst(eeg_lst_, file)

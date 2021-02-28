@@ -84,11 +84,19 @@ eeguana:::expect_equal_plain_df(multiplexed_bin_bv2$.events,set1$.events )
 
 
 test_that("can read segmented data from eeglab",{
+
+expect_warning(set_epoched <- read_set(file = system.file("testdata", "bv_export_bv_txt_bin_multi_epoched_1.set", package = "eeguana"), .recording = "bv2"))
+expect_warning(set_epoched2 <- read_set(file = system.file("testdata", "bv_export_bv_txt_bin_multi_epoched.set", package = "eeguana"), .recording = "bv2"))
+expect_equal(set_epoched, set_epoched2)
+
+set_epoched3 <- read_set(file = system.file("testdata", "bv_export_bv_txt_bin_multi_epoched_one.set", package = "eeguana"), .recording = "bv2")
+
 bv_seged <- read_vhdr(system.file("testdata", "bv_export_bv_txt_bin_multi.vhdr", package = "eeguana"), .recording = "bv2") %>% eeg_segment(startsWith(.description,"s"), .lim = c(-.1,.098))
 
+channels_tbl(set_epoched) <- channels_tbl(set_epoched) %>% dplyr::select(.channel, .x,.y,.z)
+channels_tbl(bv_seged) <- channels_tbl(bv_seged) %>% dplyr::select(.channel, .x,.y,.z)
+expect_equal(set_epoched,bv_seged)
 
-set_epoched <- read_set(file = system.file("testdata", "bv_export_bv_txt_bin_multi_epoched.set", package = "eeguana"), .recording = "bv2")
-set_epoched <- read_set(file = system.file("testdata", "bv_export_bv_txt_bin_multi_epoched_1.set", package = "eeguana"), .recording = "bv2")
 
 
 })
