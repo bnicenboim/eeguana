@@ -184,7 +184,8 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
 
 
 update_segments_tbl <- function(old_segments,new_events){
- # remove the . from the segments so that it's clear that it's not protected
+  new_events <- data.table::copy(new_events)
+  # remove the . from the segments so that it's clear that it's not protected
   data.table::setnames(new_events, -1, chr_remove(colnames(new_events)[-1], "^\\."))
   #right join:
   new_segments <-  old_segments[new_events, on =".id", allow.cartesian = TRUE ][, .id := 1:.N]

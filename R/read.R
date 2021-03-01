@@ -503,6 +503,7 @@ if(all(unique(dim(set$data)) ==1)){
     #no times, then start from 0
  samples <- rep(sample_int(seq.int(set$pnts[1,1]), sampling_rate = srate), times = n_trials)
   }
+
   signal_ <- new_signal_tbl(.id=rep(seq.int(n_trials), each = n_samples),
                             .sample = samples
                               #new_sample_int(seq_len(n_samples), sampling_rate = srate)
@@ -520,23 +521,25 @@ if(all(unique(dim(set$data)) ==1)){
 
 ## The user may also define a field called duration (recognized by EEGLAB) for defining the duration of the event (if portions of the data have been deleted, the field duration is added automatically to store the duration of the break (i.e. boundary) event).
 
-## If epochs have been extracted from the dataset, another field, epoch, is added to store the index of the data epoch(s) the event belongs to
+  ## If epochs have been extracted from the dataset, another field, epoch, is added to store the index of the data epoch(s) the event belongs to
+    events_set <- struct_to_dt(set$event)[, event := 1:.N]
+    data.table::setnames(events_set, c("type","code","channel"), c(".description",".type",".channel"), skip_absent = TRUE)
+
   if(n_trials ==1){
-  events_set <- struct_to_dt(set$event)
-  data.table::setnames(events_set, c("type","code","channel"), c(".description",".type",".channel"), skip_absent = TRUE)
-  events_set[,`:=`(.id = 1L,
-                   .initial = sample_int(round(latency), sampling_rate = srate),
-                   latency = NULL)]
+    events_set[,`:=`(.id = 1L)]
   } else {
-
-   events_set <- struct_to_dt(set$epoch,.id =".id")
-
-
-  data.table::setnames(events_set, c("eventtype","eventcode","channel"), c(".description",".type",".channel"), skip_absent = TRUE)
-  events_set[,`:=`(
-                   .initial = sample_int(round(eventlatency), sampling_rate = srate),
-                   eventlatency = NULL)]
+    epochs_set <- struct_to_dt(set$epoch,.id ="epoch")[,.(eventlatency,event, epoch)]
+    events_set <- events_set[epochs_set, on = c("epoch", "event")][,latency := NULL]
+    data.table::setnames(events_set, c("eventlatency","epoch"),c("latency",".id"))
+    ## my epochs start in 1, eeglab in 0
+    events_set[,latency := latency +1L]
   }
+       events_set[,`:=`(
+                     .initial = sample_int(round(latency), sampling_rate = srate),
+                     latency = NULL)]
+  #remove cols with only NAs
+  NAcols <- events_set[, names(.SD) , .SDcols = sapply(events_set, function(x) all(is.na(x)))]
+  if(length(NAcols)>0)  events_set[, (NAcols) := NULL]
 
   add_event_channel(events_set, chan_set$labels)
 
@@ -554,7 +557,8 @@ if(all(unique(dim(set$data)) ==1)){
 
   segments_ <- build_segments_tbl(seq.int(n_trials), .recording)
   if(n_trials >1){
-    segments_ <- update_segments_tbl(segments_, events_set)
+    #only the event that defines the "epoch", and without channel, intiial, final
+    segments_ <- update_segments_tbl(segments_, events_[.initial ==1][, c(".channel",".initial", ".final") := NULL])
   }
   eeg_lst_ <- eeg_lst(signal_tbl = signal_, events_tbl = events_, segments_tbl = segments_)
 
