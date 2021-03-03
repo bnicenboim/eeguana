@@ -94,12 +94,19 @@ bv_seged <- read_vhdr(system.file("testdata", "bv_export_bv_txt_bin_multi.vhdr",
 
 channels_tbl(set_epoched) <- channels_tbl(set_epoched) %>% dplyr::select(.channel, .x,.y,.z)
 channels_tbl(bv_seged) <- channels_tbl(bv_seged) %>% dplyr::select(.channel, .x,.y,.z)
-message("check carefully the epoched datasets")
-#expect_equal(set_epoched,bv_seged)
+set_epoched <- set_epoched %>% dplyr::select(-bvmknum, -urevent, -event)
+events_tbl(set_epoched) <- events_tbl(set_epoched) %>% dplyr::select(-bvmknum, -event,-urevent)
+expect_equal(set_epoched, bv_seged)
 
 expect_warning(set_epoched3 <- read_set(file = system.file("testdata", "bv_export_bv_txt_bin_multi_epoched_one.set", package = "eeguana"), .recording = "bv2"))
 
-bv_seged3 <- read_vhdr(system.file("testdata", "bv_export_bv_txt_bin_multi.vhdr", package = "eeguana"), .recording = "bv2") %>% eeg_segment(.description =="s11", .lim = c(-.1,.098))
+bv_seged3 <- read_vhdr(system.file("testdata", "bv_export_bv_txt_bin_multi.vhdr", package = "eeguana"), .recording = "bv2") %>% eeg_segment(.description =="s11", .lim = c(-.6,.598))
+
+channels_tbl(set_epoched3) <- channels_tbl(set_epoched3) %>% dplyr::select(.channel, .x,.y,.z)
+channels_tbl(bv_seged3) <- channels_tbl(bv_seged3) %>% dplyr::select(.channel, .x,.y,.z)
+set_epoched3 <- set_epoched3 %>% dplyr::select(-bvmknum, -urevent, -event)
+events_tbl(set_epoched3) <- events_tbl(set_epoched3) %>% dplyr::select(-bvmknum, -event,-urevent)
+expect_equal(set_epoched3, bv_seged3)
 
 
 })

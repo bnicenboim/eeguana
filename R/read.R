@@ -413,7 +413,7 @@ read_set <- function(file, .recording = file) {
 ## file = "/home/bruno/dev/eeguana/inst/testdata/bv_export_bv_txt_bin_multi_epoched_one.set"
 ## file = system.file("testdata", "EEG01.mat", package = "eeguana")
 ##file = system.file("testdata", "eeglab_data.set", package = "eeguana")
-##file =  system.file("testdata", "bv_export_bv_txt_bin_multi_epoched.set", package = "eeguana")
+##file =  system.file("testdata", "bv_export_bv_txt_bin_multi_epoched_one.set", package = "eeguana")
   require_pkg("R.matlab")
 
   if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
@@ -458,7 +458,7 @@ read_set <- function(file, .recording = file) {
   !identical(
   round(matrix(chan_set[,c(.x,.y,.z)], ncol = 3),2),
   round(matrix(chan_set[,c(X,Y,Z)], ncol = 3),2))){
-  warning('There is a mismatch between eeglab channel positions and the ones found by eeguana. It might be a bug in eeglab, to verify that the position of the channels is the correct one, one can plot them as follows:\n
+  warning('There is a mismatch between eeglab channel positions and the ones found by eeguana. To verify that the position of the channels is the correct one, one can plot them as follows:\n
    eeg_obj %>%
   filter(.sample == 1) %>%
   plot_topo() +
@@ -531,8 +531,8 @@ if(all(unique(dim(set$data)) ==1)){
     epochs_set <- struct_to_dt(set$epoch,.id ="epoch")[,.(eventlatency,event, epoch)]
     events_set <- events_set[epochs_set, on = c("epoch", "event")][,latency := NULL]
     data.table::setnames(events_set, c("eventlatency","epoch"),c("latency",".id"))
-    ## my epochs start in 1, eeglab in 0
-    events_set[,latency := latency +1L]
+    ## confusingly enough, here latencies are eventlatency which are in "ms" unlike the latency from the set$event which are in samples
+    events_set[,latency := as_sample_int(round(latency), sampling_rate = srate, .unit = "ms")]
   }
        events_set[,`:=`(
                      .initial = sample_int(round(latency), sampling_rate = srate),
