@@ -131,10 +131,15 @@ fs <- 100
 blink <- rbinom(N, 1, .003) %>%
   signal::filter(signal::butter(2, c(1 * 2 / fs, 10 * 2 / fs), "pass"), .) * 200
 noise <- rpink(N, 100)
-alpha <- (abs(sin(10 * seq_len(N) / fs)) - 0.5) * 3
+alpha <- sin(2*pi * 10 * as_time(sample_int(1:N, 500))) * 3
+  #(abs(sin(10 * seq_len(N) / fs)) - 0.5) * 10
 
 s_tbl <- dplyr::tibble(sample = rep(seq_len(N), times = 3), A = c(blink, noise, alpha), component = rep(c("blink", "noise", "alpha"), each = N))
+
+true_comps <- cbind(alpha, noise, blink)
 # ggplot(s_tbl,aes(x=sample,y=A)) + geom_line() + facet_grid(component~.)
+
+
 
 # And they mix depending on the distance of S_pos:
 
@@ -198,4 +203,5 @@ usethis::use_data(data_sincos2id, data_sincos2id_2,
                   data_sincos3id, data_mne_bdf,
                   data_blinks, data_blinks_2,
                   data_no_blinks, data_no_blinks_2,
+                  true_comps,
                   internal = TRUE, overwrite = TRUE)

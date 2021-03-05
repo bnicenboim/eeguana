@@ -69,7 +69,7 @@ test_that("can clean whole segments in files", {
 
 
 data_sincos2id_1000 <- eeguana:::data_sincos2id_1000
-N <- 1000 #number of samples
+N <- 1000 # number of samples
 
 data_d <- eeg_downsample(data_sincos2id_1000, .q = 2)
 

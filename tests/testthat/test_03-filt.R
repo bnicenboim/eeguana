@@ -1,4 +1,3 @@
-context("test dplyr::filters")
 library(eeguana)
 set.seed(123)
 
