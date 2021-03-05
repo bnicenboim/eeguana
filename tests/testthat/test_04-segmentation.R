@@ -1,4 +1,3 @@
-context("test segmentation")
 library(eeguana)
 
 data <- eeguana:::data_sincos2id
@@ -108,7 +107,10 @@ test_that("can segment using .end", {
 
   data_unm <- data
   events_tbl(data_unm) <- events_tbl(data_unm) %>% dplyr::slice(-1,-6)
-  expect_warning(eeg_segment(data_unm, .type == "New Segment", .end = .type == "Time 0"))
+
+  expect_warning(expect_warning(eeg_segment(data_unm, .type == "New Segment", .end = .type == "Time 0"), regexp = "Unmatched"),
+                 regexp = "Unmatched")
+
   data_unm <- suppressWarnings(eeg_segment(data_unm, .type == "New Segment", .end = .type == "Time 0"))
 
   expect_true(all(is.na(signal_tbl(data_unm)[,.(.sample, X, Y)])))
