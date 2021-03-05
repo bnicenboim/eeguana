@@ -58,25 +58,6 @@ data_sin_X1_iir <- eeg_filt_low_pass(data_sin, .freq = 500 * 1.5 / (2 * pi), .co
 ### plot(data_sin)
 ## plot(data_sin_X1)
 ## plot(data_sin_X1_iir)
-if(0){
-  mne <- reticulate::import("mne")
-
-  X1_firmne <-  mne$filter$filter_data(signal$X1, sfreq =500, h_freq = 500 * 1.5 / (2 * pi), l_freq = NULL)
-  X1_iirmne <-  mne$filter$filter_data(signal$X1, sfreq =500, h_freq = 500 * 1.5 / (2 * pi), l_freq = NULL, method='iir', iir_params = list(ftype = "butter", order = 6, output ="ba"))
-
-  data_s <- bind(data_sin_X1 %>% mutate(cond = "fir"),
-                 data_sin_X1_iir %>% mutate(cond = "iir"),
-                 data_sin %>% mutate(cond ="raw")
-                 )
-
-  ggplot(data_s, aes(x = .time, y = .value, color = cond)) + facet_grid(.~.key) + geom_line( alpha = .5)
-
-  X1s <- tibble(X1_firmne, X1_iirmne, X1_iir = c(data_sin_X1_iir$.signal$X1), X1_fir = c(data_sin_X1$.signal$X1), t = 1:1000) %>% tidyr::pivot_longer(cols = -t)
-  ggplot(X1s %>% filter(name %in% c("X1_iirmne", "X1_firmne")), aes(x=t, y = value, color = name)) +geom_line(alpha = .5)
-  ggplot(X1s %>% filter(name %in% c("X1_iirmne", "X1_iir")), aes(x=t, y = value, color = name)) +geom_line(alpha = .5)
-  ggplot(X1s %>% filter(name %in% c("X1_firmne", "X1_fir")), aes(x=t, y = value, color = name)) +geom_line(alpha = .5)
-}
-
 
 
 test_that("low pass default pars",{

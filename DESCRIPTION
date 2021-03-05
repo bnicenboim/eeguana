@@ -65,3 +65,4 @@ LazyData: true
 VignetteBuilder: knitr
 Language: en-US
 Roxygen: list(markdown = TRUE)
+Config/testthat/edition: 3

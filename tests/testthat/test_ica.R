@@ -2,72 +2,11 @@ context("test eeg ica")
 library(eeguana)
 set.seed(123)
 
-## simulate eye movements
-## https://stackoverflow.com/questions/53071709/remove-eye-blinks-from-eeg-signal-with-ica
 
-N <- 4000
-fs <- 100
-blink <- rbinom(N, 1, .003) %>%
-  signal::filter(signal::butter(2, c(1 * 2 / fs, 10 * 2 / fs), "pass"), .) * 200
-noise <- rpink(N, 100)
-alpha <- (abs(sin(10 * seq_len(N) / fs)) - 0.5) * 3
-
-s_tbl <- dplyr::tibble(sample = rep(seq_len(N), times = 3), A = c(blink, noise, alpha), component = rep(c("blink", "noise", "alpha"), each = N))
-# ggplot(s_tbl,aes(x=sample,y=A)) + geom_line() + facet_grid(component~.)
-
-# And they mix depending on the distance of S_pos:
-
-signal_blinks <- dplyr::tibble(
-  Fz = blink * 2 + alpha * 1 + noise,
-  Cz = blink * 1 + alpha * .9 + noise,
-  Pz = blink * .1 + alpha * 1 + noise
-) %>%
-  dplyr::mutate_all(channel_dbl)
-
-
-signal <- dplyr::tibble(
-  Fz = alpha * .1 + noise,
-  Cz = alpha * .15 + noise,
-  Pz = alpha * .1 + noise
-) %>%
-  dplyr::mutate_all(channel_dbl)
-
-data <- eeg_lst(
-  signal_tbl = signal %>%
-    dplyr::mutate(
-      .id = 1L,
-      .sample = sample_int(seq_len(N), sampling_rate = 500)
-    ),
-  segments_tbl = dplyr::tibble(.id = 1L, .recording = "recording1", segment = 1L)
-)
-
-data_blinks <- eeg_lst(
-  signal_tbl = signal_blinks %>%
-    dplyr::mutate(
-      .id = 1L,
-      .sample = sample_int(seq_len(N), sampling_rate = 500)
-    ),
-  segments_tbl = dplyr::tibble(.id = 1L, .recording = "recording1", segment = 1L)
-)
-
-
-data_blinks_more <- eeg_lst(
-  signal_tbl = signal_blinks %>%
-    dplyr::mutate(
-      .id = rep(1:4, each = N / 4),
-      .sample = sample_int(rep(seq_len(N / 4), times = 4), sampling_rate = 500)
-    ),
-  segments_tbl = data.table::data.table(.id = seq.int(4), .recording = paste0("recording", c(1, 1, 2, 2)), segment = seq.int(4))
-)
-
-data_more <- eeg_lst(
-  signal_tbl = signal %>%
-    dplyr::mutate(
-      .id = rep(1:4, each = N / 4),
-      .sample = sample_int(rep(seq_len(N / 4), times = 4), sampling_rate = 500)
-    ),
-  segments_tbl = data.table::data.table(.id = seq.int(4), .recording = paste0("recording", c(1, 1, 2, 2)), segment = seq.int(4))
-)
+data <- eeguana:::data_no_blinks
+data_blinks <- eeguana:::data_no_blinks
+data_blinks_more <- eeguana:::data_blinks_2
+data_more <- eeguana:::data_no_blinks_2
 
 data_blinks_more_NA <- data_blinks_more
 data_blinks_more_NA$.signal[1, ]$Fz <- NA_real_
@@ -85,7 +24,7 @@ m <- structure(c(
 ), .Dim = c(3L, 3L))
 
 ## TODO: to remove later
-data_blinks <- as_eeg_lst(data_blinks)
+## data_blinks <- as_eeg_lst(data_blinks)
 
 data_fast_ICA <- eeg_ica(
   .data = data_blinks, .method = fast_ICA,
@@ -101,26 +40,8 @@ data_fast_ICA2 <- eeg_ica(
 
 test_that("ica summaries", {
 
-  out1 <- structure(list(.recording = c("recording1", "recording1", 
-                                        "recording1"), 
-                         EOG = c("Fz", "Fz", "Fz"), 
-                         .ICA = c("ICA2", "ICA3", "ICA1"),
-                         cor = c(-0.643107011726606, -0.765208111591799, 0.0294943625487529),
-                         var = c(0.71789949085039, 0.280971141808226, 0.00112936734134494)), 
-                    class = c("data.table", "data.frame"), row.names = c(
-    NA,
-    -3L
-  ))
-
-  out2 <- structure(list(.recording = c("recording1", "recording1", "recording1"
-  ), EOG = c("XEOG", "XEOG", "XEOG"), .ICA = c("ICA2", "ICA3", 
-                                               "ICA1"), cor = c(-0.0113051429911744, 0.0136562903764449, 0.00953493200108279
-                                               ), var = c(0.71789949085039, 0.280971141808226, 0.00112936734134494
-                                               )), class = c("data.table", "data.frame"), row.names = c(NA, 
-                                                                                                        -3L))
-
-  expect_equal(eeg_ica_summary_tbl(data_fast_ICA, "Fz"), out1, check.attributes = FALSE)
-  expect_equal(eeg_ica_summary_tbl(data_fast_ICA2), out2, check.attributes = FALSE)
+   expect_snapshot(eeg_ica_summary_tbl(data_fast_ICA, "Fz"))
+  expect_snapshot(eeg_ica_summary_tbl(data_fast_ICA2))
 })
 
 
@@ -234,27 +155,6 @@ test_that("ica can remove blinks", {
   expect_equal(data$.signal, data_no_blinks_ref$.signal[, -6], tolerance = .14)
 })
 
-test_that("can use other (python) functions", {
-  skip_on_ci()
- eeguana:::skip_on_actions()
-  py_fica <- function(x) {
-    x <- as.matrix(x)
-    reticulate::use_condaenv("anaconda3")
-    sk <- reticulate::import("sklearn.decomposition")
-    ica <- sk$FastICA(whiten = TRUE, random_state = 23L)
-    X <- scale(x, scale = FALSE) %>%
-    as.matrix(x)
-    S <- ica$fit_transform(X)
-    W <- t(ica$components_)
-    list(W = W)
-  }
-  data_ica_py <- eeg_ica(data_blinks, .method = py_fica)
-  ## data_ica_py %>% eeg_ica_show(ICA1, ICA2, ICA3) %>%
-  ##   dplyr::select(ICA1,ICA2, ICA3) %>%
-  ##   plot()
-  data_no_blinks_py <- data_ica_py %>% eeg_ica_keep(-ICA1)
-  expect_equal(data$.signal, data_no_blinks_py$.signal, tolerance = .14)
-})
 
 
 data_ica_2participants <- data_blinks_more %>%

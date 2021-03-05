@@ -1,4 +1,3 @@
-context("test EEG-specialized functions")
 library(eeguana)
 
 
@@ -6,10 +5,8 @@ library(eeguana)
 data_sincos2id <- eeguana:::data_sincos2id
 data_sincos2id_b <- data_sincos2id
 events_tbl(data_sincos2id_b)$.channel <- NA
-
 data_sincos2id_c <- data_sincos2id
 events_tbl(data_sincos2id_c)$.channel <- NA
-
 data_sincos2id_2 <- eeguana:::data_sincos2id_2
 
 
