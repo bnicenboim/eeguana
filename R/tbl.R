@@ -54,7 +54,7 @@ channels_tbl.data.frame <- function(.data, ...) {
   channels <- dplyr::select_if(.data, is_channel_dbl) %>% colnames()
   ## first row is enough and it makes it faster
   tbl <- .data[1, ] %>%
-    dplyr::select(channels) %>%
+    dplyr::select(dplyr::all_of(channels)) %>%
     purrr::map_dfr(~ {
       attrs <- attributes(.x)
       attrs[names(attrs) != "class"]

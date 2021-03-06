@@ -182,7 +182,7 @@ eeg_ica_cor_tbl.eeg_ica_lst <- function(.data, ...) {
   if (length(list(...)) == 0) {
     eogs <- #sel_ch(.data, c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
     tidyselect::vars_select(channel_names(.data), c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
-    message("EOG channels detected as: ", toString(eogs))
+    message_verbose("EOG channels detected as: ", toString(eogs))
   } else {
     eogs <- sel_ch(.data, ...)
   }

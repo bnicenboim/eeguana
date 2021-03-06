@@ -1,6 +1,6 @@
 library(eeguana)
 set.seed(123)
-
+options(eeguana.verbose=FALSE)
 
 data <- eeguana:::data_no_blinks
 data_blinks <- eeguana:::data_blinks

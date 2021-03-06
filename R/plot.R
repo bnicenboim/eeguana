@@ -274,19 +274,19 @@ plot_ica.eeg_ica_lst <- function(data,
     data <- dplyr::filter(data, .recording == .recording)
   } else {
     .recording <- segments_tbl(data)$.recording[1]
-    message("Using recording: ",.recording)
+    message_verbose("Using recording: ",.recording)
       data <- dplyr::filter(data, .recording == .recording)
     }
 
   if (length(eog) == 0) {
     eog <-  sel_ch(data, c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
       #fixtidyselect::vars_select(channel_names(data), c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
-    message("EOG channels detected as: ", toString(eog))
+    message_verbose("EOG channels detected as: ", toString(eog))
   } else {
     eog <-  sel_ch(data, tidyselect::all_of(eog))
   }
     
-  message("Calculating the correlation of ICA components with filtered EOG channels...")
+  message_verbose("Calculating the correlation of ICA components with filtered EOG channels...")
   summ <- eeg_ica_summary_tbl(data %>% eeg_filt_band_pass(eog, .freq = c(.1, 30)))
   data.table::setorderv(summ, .order, order = -1)
   ICAs <- unique(summ$.ICA)[components]

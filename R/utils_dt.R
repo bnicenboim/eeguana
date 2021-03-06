@@ -55,7 +55,7 @@ left_join_dt <- function(x, y, by = NULL) {
     by_content <- unname(by)
     by <- by_names
     names(by) <- by_content
-    ## message('Joining, by = "',by,'"')
+    ## message_verbose('Joining, by = "',by,'"')
   } else {
     names(by) <- by
   }
@@ -202,8 +202,8 @@ changed_objects <- function(obj){
   loc <- data.table::address(force(obj))
   changed <- mem[mem ==loc,]$names
   if(length(changed)>1){
-    message("The following objects have been changed in place: ", paste0(changed,sep =", "))
+    message_verbose("The following objects have been changed in place: ", paste0(changed,sep =", "))
   } else {
-    message(changed, " has been changed in place.")
+    message_verbose(changed, " has been changed in place.")
   }
 }

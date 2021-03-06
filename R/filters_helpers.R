@@ -212,7 +212,7 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
         # IT will de designed
         ## ftype_nice = _ftype_dict.get(type, type)
         if(options()$eeguana.verbose){
-          message("IIR filter parameters\n",
+          message_verbose("IIR filter parameters\n",
                   "---------------------\n",
                   type," ", btype,
                   " zero-phase (two-pass forward and reverse) \n",
@@ -230,7 +230,7 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
                                output = output)
           forder <-  (2 * iir_params[['order']] * length(Wp))
             if(options()$eeguana.verbose)
-              message("- Filter order " , forder,"  (effective, after forward-backward)")
+              message_verbose("- Filter order " , forder,"  (effective, after forward-backward)")
 
         } else {
             ## # use gpass / gstop design
@@ -284,7 +284,7 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
         ## # 2 * 20 here because we do forward-backward filtering
         cutoffs <- 40 * log10(abs(cutoffs))
   ## if (options()$eeguana.verbose)
-    ## message("Cutoff(s) at ", edge_freqs, " Hz: ", cutoffs, "dB")
+    ## message_verbose("Cutoff(s) at ", edge_freqs, " Hz: ", cutoffs, "dB")
     }
 # now deal with padding
     if (!'padlen' %in% names(iir_params)){
@@ -556,15 +556,15 @@ create_filter <- function(data,
     h_freq <- h_temp
 
     if(options()$eeguana.verbose)
-      message("Setting up band-stop filter from ", h_freq, " - ", l_freq, " Hz")
+      message_verbose("Setting up band-stop filter from ", h_freq, " - ", l_freq, " Hz")
   } else if (!is.null(l_freq) && !is.null(h_freq) && l_freq < h_freq) {
     type <- "pass"
     if(options()$eeguana.verbose)
-      message("Setting up band-pass filter from ", l_freq, " - ", h_freq, " Hz")
+      message_verbose("Setting up band-pass filter from ", l_freq, " - ", h_freq, " Hz")
   } else if (!is.null(l_freq)) {
     type <- "high" # pass
     if(options()$eeguana.verbose)
-      message("Setting up high-pass filter at ", l_freq, " Hz")
+      message_verbose("Setting up high-pass filter at ", l_freq, " Hz")
   } else if (!is.null(h_freq)) {
     type <- "low" # pass
     if(options()$eeguana.verbose)

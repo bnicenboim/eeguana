@@ -110,7 +110,7 @@ eeg_ica.eeg_lst <- function(.data,
   method_label <- rlang::as_label(.method)
   message_verbose(paste0("# ICA is being done using ", method_label, "..."))
  if(total > used){
-    message("# ",round(used/total,2)*100, "% of the samples will be used.")
+    message_verbose("# ",round(used/total,2)*100, "% of the samples will be used.")
   }
   data_out <- function(x) {
     out <- list()

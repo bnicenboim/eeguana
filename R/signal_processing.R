@@ -33,7 +33,7 @@ eeg_downsample.eeg_lst <- function(.data, .q = 2, .max_sample = NULL,
 
   # if(tolower(.q) == "min") {
   #   .q <- mindiv(sampling_rate(.data), start = 2)
-  #  message(paste0("Using .q = ", .q))
+  #  message_verbose(paste0("Using .q = ", .q))
   # }
 
   if (any(.q < 2)) {
@@ -60,7 +60,7 @@ eeg_downsample.eeg_lst <- function(.data, .q = 2, .max_sample = NULL,
 
   ## add missing samples in case of a discontinuity
   .data$.signal <- add_missing_samples(.data$.signal)
-  discontinuity <- .data$.signal %>% dplyr::select(channels_to_decimate) %>% anyNA()
+  discontinuity <- .data$.signal %>% dplyr::select(dplyr::all_of( channels_to_decimate)) %>% anyNA()
   if (discontinuity) {
     warning("Some parts of the signal won't be filtered before the downsampling due to NA values or discontinuities")
   }

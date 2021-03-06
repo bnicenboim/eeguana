@@ -48,13 +48,13 @@ read_vhdr <- function(file, .sep = .type == "New Segment", .zero = .type == "Tim
   
   # header_info <- tryCatch(read_vhdr_metadata(file),
   #       error=function(cond) {
-  #           message(paste("Error in the metadata of:", file))
-  #           message(paste(cond,"\n"))
+  #           message_verbose(paste("Error in the metadata of:", file))
+  #           message_verbose(paste(cond,"\n"))
   #           return(NA)
   #       },
   #       warning=function(cond) {
-  #           message(paste("Warning in the metadata of:", file))
-  #           message(paste(cond,"\n"))
+  #           message_verbose(paste("Warning in the metadata of:", file))
+  #           message_verbose(paste(cond,"\n"))
   #           return(NULL)
   #       })
  if(is.null(header_info)){
@@ -70,13 +70,13 @@ read_vhdr <- function(file, .sep = .type == "New Segment", .zero = .type == "Tim
   events_dt <-
    tryCatch(read_vmrk(file = file_vmrk),
         error=function(cond) {
-            message(paste("Error in the events of:", paste0(file_path, vmrk_file)))
-            message(paste(cond,"\n"))
+            message_verbose(paste("Error in the events of:", paste0(file_path, vmrk_file)))
+            message_verbose(paste(cond,"\n"))
             return(NA)
         },
         warning=function(cond) {
-            message(paste("Warning in the events of:", paste0(file_path, vmrk_file)))
-            message(paste(cond,"\n"))
+            message_verbose(paste("Warning in the events of:", paste0(file_path, vmrk_file)))
+            message_verbose(paste(cond,"\n"))
             return(NULL)
         })
   if (data_ext == "dat" || data_ext == "eeg") {

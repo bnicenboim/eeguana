@@ -93,7 +93,7 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_ref = FALSE) {
     non_comp <- names(non_ch)[!purrr::map_lgl(non_ch, is_component_dbl)]
     non_ch <- unique(c(non_ch, non_comp))
     if(length(non_ch)>0 & options()$eeguana.verbose){
-      message("The following columns of signal_tbl are not channels (or ICA components): ", paste(non_ch,sep=", "),"\n",
+      message_verbose("The following columns of signal_tbl are not channels (or ICA components): ", paste(non_ch,sep=", "),"\n",
               "* To build a channel use `channel_dbl()` function, e.g. channel_dbl(0) to populate the table with a channel containing 0 microvolts.\n",
       "* To copy the structure of an existing channel one can do `new_ch = existing_channel * 0 + ...`")
     }
@@ -164,7 +164,7 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
     missing_grouped_vars <- setdiff(groups, vars_dfs) %>%
         stats::setNames(., .)
     if(length(missing_grouped_vars)>0) {
-        message("Adding missing grouping variables: ", paste0(missing_grouped_vars, collapse = ", "))
+        message_verbose("Adding missing grouping variables: ", paste0(missing_grouped_vars, collapse = ", "))
     }
     vars_dfs <- c(missing_grouped_vars, vars_dfs)
 
@@ -179,7 +179,7 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
 
     if (length(vars_dfs) > 0) {
       .eeg_lst[[dfs]] <- .eeg_lst[[dfs]] %>%
-        dplyr::select(vars_dfs)
+        dplyr::select(dplyr::all_of(vars_dfs))
     }
 
     if (dfs == ".signal") { # if the signal tbl was modified, the events need to be updated:
