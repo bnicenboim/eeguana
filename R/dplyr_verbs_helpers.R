@@ -93,9 +93,9 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_ref = FALSE) {
     non_comp <- names(non_ch)[!purrr::map_lgl(non_ch, is_component_dbl)]
     non_ch <- unique(c(non_ch, non_comp))
     if(length(non_ch)>0 & options()$eeguana.verbose){
-      message("The following columns of signal_tbl are not channels (or ICA components): ", paste(non_ch,sep=", "))
-      message("* To build a channel use `channel_dbl()` function, e.g. channel_dbl(0) to populate the table with a channel containing 0 microvolts.")
-      message("* To copy the structure of an existing channel one can do `new_ch = existing_channel * 0 + ...`")
+      message("The following columns of signal_tbl are not channels (or ICA components): ", paste(non_ch,sep=", "),"\n",
+              "* To build a channel use `channel_dbl()` function, e.g. channel_dbl(0) to populate the table with a channel containing 0 microvolts.\n",
+      "* To copy the structure of an existing channel one can do `new_ch = existing_channel * 0 + ...`")
     }
 
     # updates the events and the channels
