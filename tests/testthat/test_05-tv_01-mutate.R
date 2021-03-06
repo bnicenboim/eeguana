@@ -1,4 +1,5 @@
 library(eeguana)
+options(eeguana.verbose=FALSE)
 library(dplyr)
 expect_equal_plain_df <- eeguana:::expect_equal_plain_df
 expect_equal_but_sgl <- eeguana:::expect_equal_but_sgl

@@ -1,4 +1,3 @@
-context("misc")
 library(eeguana)
 
 test_that("can check package", {

@@ -32,8 +32,8 @@
 #' @export
 read_vhdr <- function(file, .sep = .type == "New Segment", .zero = .type == "Time 0",
                       .recording = file) {
-  message("Reading file ", file, "..." )  
   if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
+  message_verbose("# Reading file ", file, "..." )
   .sep <- rlang::enquo(.sep)
   .zero <- rlang::enquo(.zero)
   #file <- "/home/bruno/dev/eeguana/inst/testdata/asalab_export_bv.vhdr"
@@ -129,6 +129,7 @@ read_ft <- function(file, .layout = NULL, .recording = file) {
   # http://www.fieldtriptoolbox.org/reference/ft_datatype_raw
   #file = system.file("testdata", "fieldtrip_matrix.mat", package = "eeguana")
   if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
+  message_verbose("# Reading file ", file, "..." )
 
   mat <- R.matlab::readMat(file)[[1]][, , 1]
   channel_names_ <- mat$label %>% unlist()
@@ -286,8 +287,9 @@ read_edf <- function(file, .recording = file) {
 #less samples doesn't speed up reading data, for now I'm hiding it:
   samples = c(1, Inf)
 
-  if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
-  
+ if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
+  message_verbose("# Reading file ", file, "..." )
+
   header_edf <- edfReader::readEdfHeader(file)  
   if(is.null(.recording) || is.na(.recording)) {
     .recording <- header_edf$patient 
@@ -416,7 +418,9 @@ read_set <- function(file, .recording = file) {
 ##file =  system.file("testdata", "bv_export_bv_txt_bin_multi_epoched_one.set", package = "eeguana")
   require_pkg("R.matlab")
 
-  if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
+ if (!file.exists(file)) stop(sprintf("File %s not found in %s",file, getwd()))
+  message_verbose("# Reading file ", file, "..." )
+
   ## file <- "/home/bruno/dev/eeguana/inst/testdata/eeglab_data.set"
 
   set <- R.matlab::readMat(file)

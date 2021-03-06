@@ -108,7 +108,7 @@ eeg_ica.eeg_lst <- function(.data,
   signal_raw <- split(signal_raw, by = ".recording", keep.by = FALSE)
 
   method_label <- rlang::as_label(.method)
-  message(paste0("# ICA is being done using ", method_label, "..."))
+  message_verbose(paste0("# ICA is being done using ", method_label, "..."))
  if(total > used){
     message("# ",round(used/total,2)*100, "% of the samples will be used.")
   }
@@ -147,7 +147,7 @@ eeg_ica.eeg_lst <- function(.data,
 
   end_time <- Sys.time()
   timing <- end_time - start_time
-  message(paste0("# ICA took ", round(timing[[1]], 2), " ", attributes(timing)$units))
+  message_verbose(paste0("# ICA took ", round(timing[[1]], 2), " ", attributes(timing)$units))
   as_eeg_ica_lst(.data)
 }
 #' Add independent components (or sources) to the signal table for visualization.

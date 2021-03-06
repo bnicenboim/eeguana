@@ -1,5 +1,5 @@
 library(eeguana)
-
+options(eeguana.verbose=FALSE)
 
 
 # create fake dataset

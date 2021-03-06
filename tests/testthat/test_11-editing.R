@@ -1,5 +1,5 @@
-context("test editing functions")
 library(eeguana)
+options(eeguana.verbose = FALSE)
 
 
 eeg_file <- read_vhdr(file = system.file("testdata", "bv_export_bv_txt_bin_multi.vhdr", package = "eeguana"))

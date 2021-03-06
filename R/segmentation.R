@@ -168,7 +168,7 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
   ## data.table::setattr(.data$.events,"class",c("events_tbl",class(.data$.events)))
 
 
-   if(options()$eeguana.verbose) message(paste0("# Total of ", max(.data$.signal$.id), " segments found."))
+   message_verbose(paste0("# Total of ", max(.data$.signal$.id), " segments found."))
 
   #remove the irrelevant columns:
   times0[,`:=`(c(".first_sample", ".lower",".upper",".new_id"), NULL)]
@@ -177,7 +177,7 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
 
   .data$.segments <- update_segments_tbl(.data$.segments, times0)
 
-  if(options()$eeguana.verbose)  message(paste0(say_size(.data), " after segmentation."))
+  message_verbose(paste0(say_size(.data), " after segmentation."))
   data.table::setkey(.data$.segments, .id)
   validate_eeg_lst(.data)
 }

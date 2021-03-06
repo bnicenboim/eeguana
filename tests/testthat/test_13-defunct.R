@@ -1,4 +1,3 @@
-context("deprecated and defunct functions")
 library(eeguana)
 
 test_that("defunct functions", {

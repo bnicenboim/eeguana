@@ -27,7 +27,7 @@ fast_ICA <-function(X, n.comp=NULL, alg.typ = "parallel",
            ". Tolerance: ",res$tol,". Increase the number of iterations to more than ",
            maxit," with `maxit`", call. = FALSE)
  }
- message("# ICA finished in ", out_maxit," iterations. With a tolerance of ",out_tol,
+  message_verbose("# ICA finished in ", out_maxit," iterations. With a tolerance of ",out_tol,
          ". (Maximum expected tolerance: ",tol,".)")
  list(A= res$A, W =res$K %*% res$W)
 }

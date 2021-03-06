@@ -1,6 +1,6 @@
 library(eeguana)
 set.seed(123)
-
+options(eeguana.verbose=FALSE)
 
 N <- 1000
 signal <- dplyr::tibble(

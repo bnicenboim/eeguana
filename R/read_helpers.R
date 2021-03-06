@@ -138,15 +138,15 @@ read_dat <- function(file, header_info = NULL, events_dt = NULL,
     segments_tbl = segments
   )
 
-  message(paste0(
+ message_verbose(paste0(
     "# Data from ", file,
     " was read."
   ))
-  message(paste0(
+ message_verbose(paste0(
     "# Data from ", nrow(eeg_lst$.segments),
     " segment(s) and ", nchannels(eeg_lst), " channels was loaded."
   ))
-  message(say_size(eeg_lst))
+   message_verbose(say_size(eeg_lst))
   eeg_lst
 }
 
@@ -196,15 +196,15 @@ segment_events <- function(events, .lower, .initial, .upper) {
 
 
 built_eeg_lst <- function(eeg_lst, file) {
-  message(paste0(
+ message_verbose(paste0(
     "# Data from ", file,
     " was read."
   ))
-  message(paste0(
+ message_verbose(paste0(
     "# Data from ", nrow(eeg_lst$.segments),
     " segment(s) and ", nchannels(eeg_lst), " channels was loaded."
   ))
-  message(say_size(eeg_lst))
+   message_verbose(say_size(eeg_lst))
   validate_eeg_lst(eeg_lst)
 }
 

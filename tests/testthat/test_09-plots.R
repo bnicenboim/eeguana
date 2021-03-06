@@ -1,6 +1,5 @@
-context("test eeguana plotting functions")
 library(eeguana)
-
+options(eeguana.verbose = FALSE)
 
 # create fake dataset
 data_1 <- eeg_lst(

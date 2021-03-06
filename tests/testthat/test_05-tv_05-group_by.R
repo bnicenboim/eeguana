@@ -1,5 +1,5 @@
 library(eeguana)
-
+options(eeguana.verbose=FALSE)
 # tests when factors are used should be done.
 
 # create fake dataset

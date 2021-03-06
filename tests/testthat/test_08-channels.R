@@ -1,10 +1,8 @@
-context("test Channel functions")
 library(eeguana)
+options(eeguana.verbose = FALSE)
 
 data_sincos2id <- eeguana:::data_sincos2id
 
-#TODO: remove later:
-data_sincos2id <- as_eeg_lst(data_sincos2id)
 
 #### eeg_baseline
 test_that("baseline works", {
@@ -13,7 +11,7 @@ test_that("baseline works", {
                                        dplyr::filter(dplyr::as_tibble(data_sincos2id$.signal), .sample <= 0),
                                        .id
                                    ), bX = mean(X), bY = mean(Y))
-    signal_with_baselines <- dplyr::left_join(dplyr::as_tibble(data_sincos2id$.signal), baselines)
+    signal_with_baselines <- dplyr::left_join(dplyr::as_tibble(data_sincos2id$.signal), baselines, by =".id")
     signal_with_baselines$X <- signal_with_baselines$X - signal_with_baselines$bX
     signal_with_baselines$Y <- signal_with_baselines$Y - signal_with_baselines$bY
     signal_with_baselines <- signal_with_baselines[,c(".id",".sample","X","Y")]

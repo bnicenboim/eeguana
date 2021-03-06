@@ -1,5 +1,6 @@
 library(eeguana)
 options(dplyr.summarise.inform = FALSE)
+options(eeguana.verbose=FALSE)
 # create fake dataset
 data_1 <- eeguana:::data_sincos3id
 
