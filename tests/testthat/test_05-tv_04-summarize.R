@@ -1,4 +1,3 @@
-context("test tidyverse dplyr::summarize")
 library(eeguana)
 
 # tests when factors are used should be done.
@@ -24,7 +23,7 @@ summarize_at_eeg <- dplyr::summarize_at(data, channel_names(data), mean)
 summarize_all_eeg <- dplyr::summarize_at(data, channel_names(data), mean)
 summarize_all2_eeg <- dplyr::summarize_at(data, channel_names(data), "mean")
 summarize_all3_eeg <- dplyr::summarize_at(data, channel_names(data), rlang::as_function(~ mean(.)))
-summarize_all4_eeg <- dplyr::summarize_at(data, channel_names(data), list(mean = ~mean(.)))
+summarize_all4_eeg <- dplyr::summarize_at(data, channel_names(data), list(mean = ~ mean(.)))
 
 
 summarize_tbl <- data %>%
@@ -50,11 +49,15 @@ summarize4_tbl <- data %>%
 nsamples <- 100
 nsamples_ <- 100
 
-test_that("summarize has the right scope",{
-expect_equal(data %>% dplyr::summarize(X = mean(X) + nsamples),
-             data %>% dplyr::summarize(X = mean(X) + 100))
-  expect_equal(data %>% dplyr::summarize(X = mean(X) + nsamples),
-               data %>% dplyr::summarize(X = mean(X) + nsamples_))
+test_that("summarize has the right scope", {
+  expect_equal(
+    data %>% dplyr::summarize(X = mean(X) + nsamples),
+    data %>% dplyr::summarize(X = mean(X) + 100)
+  )
+  expect_equal(
+    data %>% dplyr::summarize(X = mean(X) + nsamples),
+    data %>% dplyr::summarize(X = mean(X) + nsamples_)
+  )
 })
 
 test_that("dplyr::summarize works correctly on ungrouped data", {
@@ -186,11 +189,12 @@ summarize_g7_tbl <- data %>%
 
 
 
-test_that(" summarize can use grouping variable",{
-  expect_equal(group8_by_eeg_lst %>% dplyr::summarize(X = mean(X)+ mean(segment)*100),
-               group8_by_eeg_lst %>% dplyr::mutate(seg = segment) %>%
-                 dplyr::summarize(X = mean(X)+ mean(seg)*100 ))
-  
+test_that(" summarize can use grouping variable", {
+  expect_equal(
+    group8_by_eeg_lst %>% dplyr::summarize(X = mean(X) + mean(segment) * 100),
+    group8_by_eeg_lst %>% dplyr::mutate(seg = segment) %>%
+      dplyr::summarize(X = mean(X) + mean(seg) * 100)
+  )
 })
 
 
@@ -254,11 +258,11 @@ extended_signal <- dplyr::left_join(dplyr::as_tibble(data$.signal), data$.segmen
 
 e_data_s1 <- data.table::data.table(extended_signal)[, .(X = mean(X), Y = mean(Y)),
   keyby = c("condition", ".sample", ".recording")
-  ]
+]
 
 ## e_data_s1 %>% group_by(condition, .sample, .recording) %>% summarize(X=mean(X)) %>% print(n=100)
 
-data.table::setkeyv(e_data_s1,cols =  c("condition",".recording"))
+data.table::setkeyv(e_data_s1, cols = c("condition", ".recording"))
 s_data_s1 <- e_data_s1[, unique(.SD), .SDcols = c("condition", ".recording")]
 
 e_data_s2 <- data.table::data.table(e_data_s1)[, .(X = mean(X), Y = mean(Y)),
@@ -289,14 +293,14 @@ test_that("summarizing by groups works as expected for the segments", {
   ds <- dplyr::as_tibble(s_data_s1) %>%
     dplyr::mutate(.id = 1:dplyr::n()) %>%
     dplyr::select(.id, .recording, condition)
-  expect_equal(data_s1$.segments, ds,check.attributes = FALSE)
+  expect_equal(data_s1$.segments, ds, ignore_attr = TRUE)
   expect_equal(data_s2$.segments, dplyr::as_tibble(s_data_s2) %>%
-                                  dplyr::mutate(.id = 1:dplyr::n(), .recording =NA)%>%
-                 dplyr::select(.id, .recording, condition),check.attributes = FALSE)
+    dplyr::mutate(.id = 1:dplyr::n(), .recording = NA) %>%
+    dplyr::select(.id, .recording, condition), ignore_attr = TRUE)
   expect_equal(data_s3$.segments, dplyr::as_tibble(s_data_s3) %>%
-                                  dplyr::mutate(.id = 1:dplyr::n(), .recording =NA)%>%
-                 dplyr::select(.id, .recording, condition),check.attributes = FALSE)
-  expect_equal(data_s4$.segments, dplyr::tibble(.id = 1L, .recording =NA),check.attributes = FALSE)
+    dplyr::mutate(.id = 1:dplyr::n(), .recording = NA) %>%
+    dplyr::select(.id, .recording, condition), ignore_attr = TRUE)
+  expect_equal(data_s4$.segments, dplyr::tibble(.id = 1L, .recording = NA), ignore_attr = TRUE)
 })
 
 
@@ -368,7 +372,7 @@ tbl_diff_means_3 <- data %>%
   dplyr::summarize(mean = mean(.value[condition == "a" & .recording == "recording1"] - .value[condition == "b" & .recording == "recording2"]))
 
 eeg_diff_means_4 <- dplyr::group_by(data, .sample) %>%
-  dplyr::summarize_at(channel_names(.), list(~mean(.[condition == "a" & .recording == "recording1"] -
+  dplyr::summarize_at(channel_names(.), list(~ mean(.[condition == "a" & .recording == "recording1"] -
     .[condition == "b" & .recording == "recording2"])))
 
 tbl_diff_means_4 <- data %>%
@@ -410,4 +414,3 @@ test_that("summarising functions work the same on eeg_lst as on tibble", {
     as.matrix(dplyr::select(tbl_means_5, X, Y))
   )
 })
-

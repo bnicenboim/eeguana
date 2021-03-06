@@ -1,4 +1,3 @@
-context("test tidyverse group_by")
 library(eeguana)
 
 # tests when factors are used should be done.

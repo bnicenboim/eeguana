@@ -1,4 +1,3 @@
-context("test tidyverse functions select")
 library(eeguana)
 
 
@@ -19,10 +18,17 @@ data <- bind(data_1, data_2)
 reference_data <- data.table::copy(data)
 
 test_that("internal (?) variables should show warnings", {
-  expect_warning(dplyr::select(data, ID = .id))
-  expect_warning(dplyr::select(data, time = .sample))
+  #TODO multiple warnings, check this:
+  expect_warning(dplyr::select(data, ID = .id)) %>%
+    expect_warning() %>%
+    expect_warning()
+
+  expect_warning(dplyr::select(data, time = .sample)) %>%
+    expect_warning()
+
   expect_warning(dplyr::select(data, participant = .recording))
-  expect_warning(events_tbl(data) <- events_tbl(data) %>% dplyr::select(elec = .channel))
+  expect_warning(events_tbl(data) <- events_tbl(data) %>% dplyr::select(elec = .channel)) %>%
+    expect_warning()
 })
 
 

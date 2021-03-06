@@ -1,4 +1,3 @@
-context("test extended tidyverse: bind")
 library(eeguana)
 
 

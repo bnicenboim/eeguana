@@ -55,10 +55,13 @@ left_join_dt <- function(x, y, by = NULL) {
     by_content <- unname(by)
     by <- by_names
     names(by) <- by_content
+    ## message('Joining, by = "',by,'"')
   } else {
     names(by) <- by
   }
   out <- y[x, on = by]
+
+  #should I set allow.cartesian = TRUE?
   data.table::setnames(out, names(by), by)[]
 }
 
