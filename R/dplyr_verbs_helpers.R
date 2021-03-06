@@ -179,7 +179,7 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
 
     if (length(vars_dfs) > 0) {
       .eeg_lst[[dfs]] <- .eeg_lst[[dfs]] %>%
-        dplyr::select(dplyr::all_of(vars_dfs))
+        dplyr::select(tidyselect::all_of(vars_dfs))
     }
 
     if (dfs == ".signal") { # if the signal tbl was modified, the events need to be updated:

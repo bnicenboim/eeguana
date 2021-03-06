@@ -190,7 +190,7 @@ eeg_ica_cor_tbl.eeg_ica_lst <- function(.data, ...) {
   names(eogs) <- eogs
   comps <- .data  %>% 
     eeg_ica_show(component_names(.data)) %>% 
-    dplyr::select(eogs, component_names(.data))
+    dplyr::select(tidyselect::all_of(eogs), component_names(.data))
   signal <- extended_signal(comps, ".recording")
   
   # new cols:
@@ -246,7 +246,7 @@ eeg_ica_var_tbl.eeg_ica_lst <- function(.data, ..., .max_sample =100000){
 comp_names <- c(component_names(.data))
 names(comp_names) <- comp_names
     vars <- map_dtr(comp_names, function(ica)
-        .data %>% eeg_ica_keep(c(ica)) %>%
+        .data %>% eeg_ica_keep(tidyselect::all_of(ica)) %>%
         extended_signal( ".recording") %>%
         .[,c(list(.recording=.recording),
                   purrr::imap(.SD, ~.x - signal_tbl(.data)[[.y]])),

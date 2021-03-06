@@ -54,7 +54,7 @@ channels_tbl.data.frame <- function(.data, ...) {
   channels <- dplyr::select_if(.data, is_channel_dbl) %>% colnames()
   ## first row is enough and it makes it faster
   tbl <- .data[1, ] %>%
-    dplyr::select(dplyr::all_of(channels)) %>%
+    dplyr::select(tidyselect::all_of(channels)) %>%
     purrr::map_dfr(~ {
       attrs <- attributes(.x)
       attrs[names(attrs) != "class"]
@@ -103,7 +103,7 @@ channels_tbl.data.frame <- function(.data, ...) {
 `channels_tbl<-.data.frame` <- function(.data, value) {
   orig_names <- channel_names(.data)
   channels <- dplyr::select(.data, orig_names)
-  nochannels <- dplyr::select(.data, -dplyr::all_of(orig_names))
+  nochannels <- dplyr::select(.data, -tidyselect::all_of(orig_names))
   dplyr::bind_cols(nochannels, update_channel_meta_data(channels, value))
 }
 
