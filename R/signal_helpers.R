@@ -165,6 +165,7 @@ irfft <- function(x, N = NULL) {
 }
 
 
+#' @noRd
 hamming <- function(M, sym = TRUE) {
   ## """Return a Hamming window.
   ## The Hamming window is a taper formed by using a raised cosine with
@@ -521,7 +522,7 @@ iirfilter <- function(n, Wn, rp, rs,  btype, type = c("butter", "cheby1", "cheby
       list(z = zpk$zero, p = zpk$pole, k = zpk$gain )
     } else if(output == "sos"){
       stop("sos not available yet")
-      ## require_pkg("gsignal")
+      require_gsignal()
        ## sos <- gsignal::as.Sos(out)
        ## list(sos = sos$sos, g = sos$g)
     }

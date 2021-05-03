@@ -47,7 +47,8 @@ Imports:
     RcppRoll (>= 0.3.0),
     ellipsis (>= 0.1.0),
     fastICA,
-    pracma
+    pracma,
+    gsignal (>= 0.2.0)
 Suggests:
     akima (>= 0.6.2),
     plotly (>= 4.8.0),
@@ -66,3 +67,5 @@ VignetteBuilder: knitr
 Language: en-US
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3
+Remotes:  
+    gjmvanboxtel/gsignal
