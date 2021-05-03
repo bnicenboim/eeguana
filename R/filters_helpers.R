@@ -194,11 +194,10 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
         system = list(b =iir_params[['b']], a = iir_params[['a']])
         output = 'ba'
     } else {
-        output = ifelse(is.null(iir_params[["output"]]), 'ba', iir_params[["output"]])
+        output = ifelse(is.null(iir_params[["output"]]), 'sos', iir_params[["output"]])
         # ensure we have a valid type
         if (!'type'  %in% names(iir_params))
-            stop("type must be an entry in iir_params if ''b'' ",
-                               "and ''a'' are not specified", call. = FALSE)
+            stop("type must be an entry in iir_params if `b` and `a`, or `sos` are not specified", call. = FALSE)
         type = iir_params[['type']] %||% ""
         if (!type  %in% known_filters)
             stop("type must one of ", paste0(known_filters, sep = ", "))
@@ -221,7 +220,7 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
 # SciPy designs for -3dB but we do forward-backward, so this is -6dB
         if ('order' %in% names(iir_params)){
 
-           system <- iirfilter(iir_params[["order"]],
+           system <- iirfilter(n = iir_params[["order"]],
                                rp = iir_params[["rp"]],
                                rs = iir_params[["rs"]],
                                Wn = Wp,
@@ -251,10 +250,10 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
 
     # get the gains at the cutoff frequencies
     if (!is.null(Wp)){
-        if (output == 'sos'){
+        ## if (output == 'sos'){
           #originally with sosfreqz, TODO check if it works
           #cutoffs = gsignal::freqz(system, n=Wp * pi)$h
-        } else {
+        ## } else {
           #CAN'T make this work in R
         ## cuttoff <- s$signal$freqz(system$b, system$a, worN=Wp * pi)[[2]]
 
@@ -279,7 +278,7 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
 ##           signal::freqz(system$b, a = system$a, n = .9)$h
 ##           COUDN't DO it yet
  cutoffs <- NA
-        }
+        ## }
 
         ## # 2 * 20 here because we do forward-backward filtering
         cutoffs <- 40 * log10(abs(cutoffs))
@@ -288,9 +287,9 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
     }
 # now deal with padding
     if (!'padlen' %in% names(iir_params)){
-        padlen = estimate_ringing_samples(system)
+        padlen <- estimate_ringing_samples(system)
     } else{
-        padlen = iir_params[['padlen']]
+        padlen <- iir_params[['padlen']]
     }
 
     iir_params[["padlen"]] <- padlen
@@ -311,45 +310,48 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
 #' @return integer with the approximate ringing.
 #'
 #' @noRd
-estimate_ringing_samples <- function(system, max_try=100000){
+estimate_ringing_samples <- function(system, max_try = 100000){
   if(all(c("a","b") %in% names(system))){
-      kind = 'ba'
-      b = system$b
-      a = system$a
-      zi=  rep(0, length(a) - 1)
+      kind <- 'ba'
+      b <- system$b
+      a <- system$a
+      zi <-  rep(0, length(a) - 1)
     }   else {
-      kind = 'sos'
-      sos = system$sos
+      kind <- 'sos'
+      sos <- system$sos
+      zi <- matrix(0, ncol = 2, nrow =row(sos))
+      #[[0.] * 2] * len(sos)
     }
 
-    n_per_chunk = 1000
+    n_per_chunk <- 1000
 
-    n_chunks_max = ceiling(max_try/n_per_chunk)
-    x = rep(0, n_per_chunk)
-    x[1] = 1
-    last_good = n_per_chunk
-    thresh_val = 0
+    n_chunks_max <- ceiling(max_try/n_per_chunk)
+    x <- rep(0, n_per_chunk)
+    x[1] <- 1
+    last_good <- n_per_chunk
+    thresh_val <- 0
 
     for (ii in seq_len(n_chunks_max)){
         if (kind == 'ba'){
-            h = signal::filter(b, a, x)
-            # s$signal$lfilter(b, a, x, zi = zi)
+          out <- gsignal::filter(b, a, x, zi = zi)
         } else {
-          stop("sos output for filters not implemented")
-            ## h = gsignal::sosfilt(sos, x)
+          out <- gsignal::sosfilt(sos, x, zi = zi)
         }
-        x[1] = 0  # for subsequent iterations we want zero input
-        h = abs(h)
+        zi <- out$zf
+        h <- out$y
+
+        x[1] <- 0  # for subsequent iterations we want zero input
+        h <- abs(h)
         #h is too high
 
-        thresh_val = max(0.001 * max(h), thresh_val)
+        thresh_val <- max(0.001 * max(h), thresh_val)
          ## np$where(np$abs(h) > thresh_val)[[1]]
-        idx = which(abs(h) > thresh_val)
+        idx <- which(abs(h) > thresh_val)
         # it should be vetweeb 1 and 83 for the example
         if (length(idx) > 1){
-            last_good = idx[length(idx)] - 1
+            last_good <- idx[length(idx)] - 1
         } else{  # this iteration had no sufficiently large values
-            idx = (ii - 2) * n_per_chunk + last_good
+            idx <- (ii - 2) * n_per_chunk + last_good
             return(idx) #stops the for loop and return this
         }
     }

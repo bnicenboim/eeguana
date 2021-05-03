@@ -26,14 +26,18 @@ test_that("compare construct iir filter with python", {
   names(py_iir_params)[[2]] <- "type"
   expect_equal(py_iir_params, iir_params)
 
-  ## sos not working
-  ## reticulate::py_run_string("import mne")
-  ## reticulate::py_run_string("iir_params = dict(order=4, ftype='butter', output='sos')")
-  ## reticulate::py_run_string("iir_params = mne.filter.construct_iir_filter(iir_params, 40, None, 1000, 'low', return_copy=False)")
-  ## iir_params = list(order =4, ftype ="butter", output="sos")
-  ## iir_params <- eeguana:::construct_iir_filter(iir_params, f_pass = 40, f_stop = NULL, sfreq = 1000, btype = "low")
-  ## py_iir_params <- reticulate::py$iir_params %>% lapply(c)
-  ## expect_equal(py_iir_params, iir_params)
+  reticulate::py_run_string("iir_params = dict(order=4, ftype='butter', output='sos')")
+  suppress_python_output(reticulate::py_run_string("iir_params = mne.filter.construct_iir_filter(iir_params, 40, None, 1000, 'low', return_copy=False)"))
+  ##   IIR filter parameters
+  ## ---------------------
+  ## Butterworth low zero-phase (two-pass forward and reverse) non-causal filter:
+  ## - Filter order 8 (effective, after forward-backward)
+  ## - Cutoff at 40.00 Hz: -6.02 dB
+
+  iir_params <- list(order = 4, type = "butter", output = "sos")
+  iir_params <- eeguana:::construct_iir_filter(iir_params, f_pass = 40, f_stop = NULL, sfreq = 1000, btype = "low")
+  py_iir_params <- reticulate::py$iir_params %>% lapply(c)
+  expect_equal(py_iir_params, iir_params)
 
   suppress_python_output(reticulate::py_run_string("iir_params = dict(ftype='cheby1', gpass=3, gstop=20, output='ba')"))
   ##   IIR filter parameters
@@ -41,12 +45,14 @@ test_that("compare construct iir filter with python", {
   ## Chebyshev I low zero-phase (two-pass forward and reverse) non-causal filter:
   ## - Cutoff at 40.00 Hz: -6.00 dB
 
-  reticulate::py_run_string("iir_params = mne.filter.construct_iir_filter(iir_params, 40, 50, 1000, 'low')")
+  suppress_python_output(reticulate::py_run_string("iir_params = mne.filter.construct_iir_filter(iir_params, 40, 50, 1000, 'low')"))
   iir_params <- list(type = "cheby1", gpass = 3, gstop = 20, output = "ba")
   iir_params <- eeguana:::construct_iir_filter(iir_params, f_pass = 40, f_stop = 50, sfreq = 1000, btype = "low")
   py_iir_params <- reticulate::py$iir_params %>% lapply(c)
   names(py_iir_params)[[1]] <- "type"
   expect_equal(py_iir_params, iir_params)
+
+
 
   reticulate::py_run_string("iir_params = dict(b=numpy.ones((10)), a=[1, 0], padlen=0)")
   reticulate::py_run_string("iir_params = mne.filter.construct_iir_filter(iir_params, return_copy=False)")

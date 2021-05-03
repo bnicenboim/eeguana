@@ -157,6 +157,7 @@ require_pkg <- function(pkg){
   }
 }
 
+
 #' @noRd
 `%||%` <- function (x, y) {
   if (is.null(x) || length(x)==0)

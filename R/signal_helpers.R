@@ -164,49 +164,43 @@ irfft <- function(x, N = NULL) {
   Re(sig_ifft(xn))
 }
 
-
+#' Return a Hamming window emulating scipy/numpy.signal.hamming
+#'
+#' The Hamming window is a taper formed by using a raised cosine with non-zero endpoints, optimized to minimize the nearest side lobe.
+#'
+#'
+#' The Hamming window is defined as
+#'
+#' $w(n) = 0.54 - 0.46 \cos\left(\frac{2\pi{n}}{M-1}\right) \qquad 0 \leq n \leq M-1$
+#'
+#' The Hamming was named for R. W. Hamming, an associate of J. W. Tukey and
+#' is described in Blackman and Tukey. It was recommended for smoothing the
+#' truncated autocovariance function in the time domain.
+#' Most references to the Hamming window come from the signal processing
+#' literature, where it is used as one of many windowing functions for
+#' smoothing values.  It is also known as an apodization (which means
+#' "removing the foot", i.e. smoothing discontinuities at the beginning
+#' and end of the sampled signal) or tapering function.
+#'
+#' References
+#' ----------
+#' .. [1] Blackman, R.B. and Tukey, J.W., (1958) The measurement of power
+#'        spectra, Dover Publications, New York.
+#' .. [2] E.R. Kanasewich, "Time Sequence Analysis in Geophysics", The
+#'        University of Alberta Press, 1975, pp. 109-110.
+#' .. [3] Wikipedia, "Window function",
+#'        http://en.wikipedia.org/wiki/Window_function
+#' .. [4] W.H. Press,  B.P. Flannery, S.A. Teukolsky, and W.T. Vetterling,
+#'        "Numerical Recipes", Cambridge University Press, 1986, page 425.
+#'
+#'
+#' Adapted from NumPy's hamming function.
+#' @param M int,     Number of points in the output window. If zero or less, an empty array is returned.
+#' @param sym  bool, optional When True (default), generates a symmetric window, for use in filter ##     design. When False, generates a periodic window, for use in spectral analysis.
+#' @return     The window, with the maximum value normalized to 1 (though the value 1     does not appear if `M` is even and `sym` is TRUE).
 #' @noRd
 hamming <- function(M, sym = TRUE) {
-  ## """Return a Hamming window.
-  ## The Hamming window is a taper formed by using a raised cosine with
-  ## non-zero endpoints, optimized to minimize the nearest side lobe.
-  ## Parameters
-  ## ----------
-  ## M : int
-  ##     Number of points in the output window. If zero or less, an empty
-  ##     array is returned.
-  ## sym : bool, optional
-  ##     When True (default), generates a symmetric window, for use in filter
-  ##     design.
-  ##     When False, generates a periodic window, for use in spectral analysis.
-  ## Returns
-  ## -------
-  ## w : ndarray
-  ##     The window, with the maximum value normalized to 1 (though the value 1
-  ##     does not appear if `M` is even and `sym` is True).
-  ## Notes
-  ## -----
-  ## The Hamming window is defined as
-  ## .. math::  w(n) = 0.54 - 0.46 \cos\left(\frac{2\pi{n}}{M-1}\right)
-  ##            \qquad 0 \leq n \leq M-1
-  ## The Hamming was named for R. W. Hamming, an associate of J. W. Tukey and
-  ## is described in Blackman and Tukey. It was recommended for smoothing the
-  ## truncated autocovariance function in the time domain.
-  ## Most references to the Hamming window come from the signal processing
-  ## literature, where it is used as one of many windowing functions for
-  ## smoothing values.  It is also known as an apodization (which means
-  ## "removing the foot", i.e. smoothing discontinuities at the beginning
-  ## and end of the sampled signal) or tapering function.
-  ## References
-  ## ----------
-  ## .. [1] Blackman, R.B. and Tukey, J.W., (1958) The measurement of power
-  ##        spectra, Dover Publications, New York.
-  ## .. [2] E.R. Kanasewich, "Time Sequence Analysis in Geophysics", The
-  ##        University of Alberta Press, 1975, pp. 109-110.
-  ## .. [3] Wikipedia, "Window function",
-  ##        http://en.wikipedia.org/wiki/Window_function
-  ## .. [4] W.H. Press,  B.P. Flannery, S.A. Teukolsky, and W.T. Vetterling,
-  ##        "Numerical Recipes", Cambridge University Press, 1986, page 425.
+
   ## Examples
   ## --------
   ## Plot the window and its frequency response:
@@ -228,7 +222,6 @@ hamming <- function(M, sym = TRUE) {
   ## >>> plt.ylabel("Normalized magnitude [dB]")
   ## >>> plt.xlabel("Normalized frequency [cycles per sample]")
   ## """
-  ## # Docstring adapted from NumPy's hamming function
 
   if (M < 1) return(numeric(0))
   if (M == 1) return(1)
@@ -241,17 +234,13 @@ hamming <- function(M, sym = TRUE) {
   return(w)
 }
 
+#' Return a window; adapted from scipy
+#' @param window : The type of window to create. Only "hamming" accepted for now.
+#' @param N The number of samples in the window.
+#' @param fftbins   If TRUE, create a "periodic" window ready to use with ifftshift   and be multiplied by the result of an fft (SEE ALSO fftfreq).
+#' @noRd
 get_window <- function(N, window = "hamming", fftbins = TRUE) {
-  ## Return a window.
-  ## Parameters
-  ## ----------
-  ## window : string, float, or tuple
-  ##     The type of window to create. See below for more details.
-  ## Nx : int
-  ##     The number of samples in the window.
-  ## fftbins : bool, optional
-  ##     If True, create a "periodic" window ready to use with ifftshift
-  ##     and be multiplied by the result of an fft (SEE ALSO fftfreq).
+
   sym <- !fftbins
   if (window %in% c("hamming", "hamm", "ham")) {
     winfunc <- hamming
@@ -495,7 +484,7 @@ firwin <- function(N = NULL, cutoff = NULL, width = NULL, window = "hamming", pa
   return(h)
 }
 
-#' Emulates scipi.signal.iirfilter using signal (and gsignal package).
+#' Emulates scipi.signal.iirfilter using gsignal.
 #'
 #' @param n filter order or generic filter model
 #' @param Wn critical frequencies of the filter. ‘W’ must be a scalar for low-pass and high-pass filters, and ‘W’ must be a two-element vector ‘c(low, high)’ specifying the lower and upper bands. For digital filters, ‘W’ must be between 0 and 1 where 1 is the Nyquist frequency.
@@ -507,24 +496,22 @@ firwin <- function(N = NULL, cutoff = NULL, width = NULL, window = "hamming", pa
 iirfilter <- function(n, Wn, rp, rs,  btype, type = c("butter", "cheby1", "cheby2", "ellip"), output = c("ba", "zpk", "sos")){
 
   type <- match.arg(type)
-
-  out <- switch(type, butter = signal::butter(n, W = Wn, type = btype),
-                cheby1 = signal::cheby1(n, Rp = rp, W = Wn, type = btype),
-                cheby2 = signal::cheby2(n, Rp = rp, W = Wn, type = btype),
-                ellip = signal::ellip(n, Rp = rp, Rs = rs, W = Wn, type = btype),
+  output <- match.arg(output)
+  format <- switch(output, ba = "Arma",
+                   zpk = "Zpg",
+                   sos = "Sos")
+  out <- switch(type, butter = gsignal::butter(n, w = Wn, type = btype, output = format),
+                cheby1 = gsignal::cheby1(n, Rp = rp, w = Wn, type = btype, output = format),
+                cheby2 = gsignal::cheby2(n, Rs = rp, w = Wn, type = btype, output = format),
+                ellip = gsignal::ellip(n, Rp = rp, Rs = rs, w = Wn, type = btype, output = format),
                 )
 
-  output <- match.arg(output)
-  if(output == "ba"){
-    list(b = out$b, a =out$a)
-    } else if(output == "zpk"){
-      zpk = signal::as.Zpg(out)
-      list(z = zpk$zero, p = zpk$pole, k = zpk$gain )
-    } else if(output == "sos"){
-      stop("sos not available yet")
-      require_gsignal()
-       ## sos <- gsignal::as.Sos(out)
-       ## list(sos = sos$sos, g = sos$g)
+  if(output == "ba") {
+    list(b = out$b, a = out$a)
+    } else if(output == "zpk") {
+      list(z = out$z, p = out$p, k = out$g)
+    } else if(output == "sos") {
+       list(sos = out$sos, g = out$g)
     }
 }
 
