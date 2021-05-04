@@ -9,6 +9,7 @@
  - internal changes:
     - removed dependency with `stringr`
     - changed internal structure of `eeg_lst`, the segments table is a data.table rather than a tibble
+    
 # eeguana 0.1.5.9000
   - Bugs: 
     - weird dplyr filter behavior fixed  [#136](https://github.com/bnicenboim/eeguana/issues/136)
