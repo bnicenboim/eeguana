@@ -1,14 +1,14 @@
-#' Dplyr verbs overloaded for manipulating eeg_lst objects.
+#' Dplyr-like functions for manipulating eeg_lst objects.
 #'
 #' Manipulate the signal table and the segments table of an eeg_lst.
 #'
 #' Wrappers for [`dplyr`][dplyr::dplyr]'s commands that act on different parts
-#' `eeg_lst` objects. Functions that drop or rename column won't remove columns starting with a dot. These functions are powered by [`data.table`][data.table::data.table], and inspired by the way `tidytable` works.
+#' `eeg_lst` objects. Functions that drop or rename columns won't remove columns starting with a dot. These functions are powered by [`data.table`][data.table::data.table], and inspired by the way [`tidytable`][tidytable::tidytable] works.
 #'
 #' The following wrappers act in a special way for `eeg_lst` objects:
 #'
 #' * `*_join()`: joins an external table to the *segments* table of the eeg_lst.
-#' * `mutate()` and `transmute()` Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.
+#' * `eeg_mutate()` and `eeg_transmute()`: mutates the signal_tbl table when is applied to a channel (or a column of the signal table), and mutates the segments table otherwise. It can also mutates by reference.
 #' * `summarize()` summarizes the channel of the signal_tbl table.
 #' * `pull()` only pulls columns of the signal table
 #'
@@ -35,6 +35,7 @@
 #' @param .data An eeg_lst.
 #' @param x An eeg_lst.
 #' @param y A data frame, tibble, or data.table.
+#' @param .by_reference Acts in place rewriting the eeg_lst object.
 #' @inheritParams dplyr::join
 #' @inheritParams dplyr::pull
 #' @param ... Name-value pairs of expressions; see [dplyr][dplyr::dplyr] for more help.
@@ -97,20 +98,39 @@ NULL
 
 #' @rdname dplyr_verbs
 #' @export
-mutate.eeg_lst <- function(.data, ...) {
+eeg_mutate <- function(.data, ..., .by_reference = FALSE) {
+  UseMethod("eeg_mutate")
+}
+
+#' @export
+eeg_mutate.eeg_lst <- function(.data, ..., .by_reference = FALSE) {
   .data <- update_eeg_lst(.data)
-  mutate_eeg_lst(.data, ..., keep_cols = TRUE) %>%
+  mutate_eeg_lst(.data, ..., keep_cols = TRUE, .by_reference = .by_reference) %>%
     validate_eeg_lst()
 }
 
+#' @export
+mutate.eeg_lst <- eeg_mutate.eeg_lst
+
+
 #' @rdname dplyr_verbs
 #' @export
-transmute.eeg_lst <- function(.data, ...) {
-
-  .data <- update_eeg_lst(.data)
-
-  mutate_eeg_lst(.data, ..., keep_cols = FALSE)
+eeg_transmute <- function(.data, ..., .by_reference = FALSE) {
+  UseMethod("eeg_transmute")
 }
+
+
+#' @export
+eeg_transmute.eeg_lst <- function(.data, ..., .by_reference = FALSE) {
+  .data <- update_eeg_lst(.data)
+  mutate_eeg_lst(.data, ..., keep_cols = FALSE, .by_reference = .by_reference)
+}
+
+#' @noRd
+#' @export
+transmute.eeg_lst <- eeg_transmute.eeg_lst
+
+
 #' @rdname dplyr_verbs
 filter.eeg_lst <- function(.data, ..., .preserve = FALSE) {
   if (.preserve == TRUE) {

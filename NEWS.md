@@ -4,6 +4,7 @@
  - NEW FEATURES:
     - filters have more options (including IIR and by reference!).
     - read eeglab set files (still experimental)
+    - `mutate` (also called `eeg_mutate`) gets a `.by_reference` argument
  - documentation:
     - more examples
  - internal changes:

@@ -2,8 +2,8 @@
 % Please edit documentation in R/dplyr_verbs.R
 \name{dplyr_verbs}
 \alias{dplyr_verbs}
-\alias{mutate.eeg_lst}
-\alias{transmute.eeg_lst}
+\alias{eeg_mutate}
+\alias{eeg_transmute}
 \alias{filter.eeg_lst}
 \alias{filter.eeg_ica_lst}
 \alias{summarise.eeg_lst}
@@ -18,35 +18,35 @@
 \alias{semi_join.eeg_lst}
 \alias{tbl_vars.eeg_lst}
 \alias{pull.eeg_lst}
-\title{Dplyr verbs overloaded for manipulating eeg_lst objects.}
+\title{Dplyr-like functions for manipulating eeg_lst objects.}
 \usage{
-mutate.eeg_lst(.data, ...)
+eeg_mutate(.data, ..., .by_reference = FALSE)
 
-transmute.eeg_lst(.data, ...)
+eeg_transmute(.data, ..., .by_reference = FALSE)
 
 filter.eeg_lst(.data, ..., .preserve = FALSE)
 
 filter.eeg_ica_lst(.data, ..., .preserve = FALSE)
 
-summarise.eeg_lst(.data, ..., .groups = "keep")
+\method{summarise}{eeg_lst}(.data, ..., .groups = "keep")
 
-group_by.eeg_lst(.data, ..., .add = FALSE, .drop = FALSE)
+\method{group_by}{eeg_lst}(.data, ..., .add = FALSE, .drop = FALSE)
 
-ungroup.eeg_lst(.data, ...)
+\method{ungroup}{eeg_lst}(.data, ...)
 
-select.eeg_lst(.data, ...)
+\method{select}{eeg_lst}(.data, ...)
 
-rename.eeg_lst(.data, ...)
+\method{rename}{eeg_lst}(.data, ...)
 
-groups.eeg_lst(x)
+\method{groups}{eeg_lst}(x)
 
-group_vars.eeg_lst(x)
+\method{group_vars}{eeg_lst}(x)
 
-anti_join.eeg_lst(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
+\method{anti_join}{eeg_lst}(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
 
-left_join.eeg_lst(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
+\method{left_join}{eeg_lst}(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
 
-semi_join.eeg_lst(x, y, by = NULL, suffix = c(".x", ".y"), ...)
+\method{semi_join}{eeg_lst}(x, y, by = NULL, suffix = c(".x", ".y"), ...)
 
 tbl_vars.eeg_lst(x)
 
@@ -56,6 +56,8 @@ pull.eeg_lst(.data, var = -1, name = NULL, ...)
 \item{.data}{An eeg_lst.}
 
 \item{...}{Name-value pairs of expressions; see \link[dplyr:dplyr-package]{dplyr} for more help.}
+
+\item{.by_reference}{Acts in place rewriting the eeg_lst object.}
 
 \item{.preserve}{Not in use, for compatibility reasons.}
 
@@ -121,12 +123,12 @@ Manipulate the signal table and the segments table of an eeg_lst.
 }
 \details{
 Wrappers for \code{\link[dplyr:dplyr-package]{dplyr}}'s commands that act on different parts
-\code{eeg_lst} objects. Functions that drop or rename column won't remove columns starting with a dot. These functions are powered by \code{\link[data.table:data.table]{data.table}}, and inspired by the way \code{tidytable} works.
+\code{eeg_lst} objects. Functions that drop or rename columns won't remove columns starting with a dot. These functions are powered by \code{\link[data.table:data.table]{data.table}}, and inspired by the way \code{\link[tidytable:tidytable]{tidytable}} works.
 
 The following wrappers act in a special way for \code{eeg_lst} objects:
 \itemize{
 \item \verb{*_join()}: joins an external table to the \emph{segments} table of the eeg_lst.
-\item \code{mutate()} and \code{transmute()} Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.
+\item \code{eeg_mutate()} and \code{eeg_transmute()}: mutates the signal_tbl table when is applied to a channel (or a column of the signal table), and mutates the segments table otherwise. It can also mutates by reference.
 \item \code{summarize()} summarizes the channel of the signal_tbl table.
 \item \code{pull()} only pulls columns of the signal table
 }

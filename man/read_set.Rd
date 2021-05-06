@@ -15,7 +15,7 @@ read_set(file, .recording = file)
 An \code{eeg_lst} object with signal_tbl and event from a Matlab file.
 }
 \description{
-Creates an eeg_lst object from Matlab exported files. The function reads a .mat or .set file using \code{R.matlab}. If you do not already have \code{R.matlab} installed in R, you will need to install it yourself. The  file should have the structure described in this \href{https://sccn.ucsd.edu/wiki/A05:_Data_Structures}{Data structure article}. This function is experimental, if your file cannot be opened please open an issue with a link to the file in \href{https://github.com/bnicenboim/eeguana/issues}{github}.
+Creates an eeg_lst object from Matlab exported files. The function reads a .mat or .set file using \code{R.matlab}. If you do not already have \code{R.matlab} installed in R, you will need to install it yourself. The  file should have the structure described in this \href{https://sccn.ucsd.edu/wiki/A05:_Data_Structures}{Data structure article}. This function is experimental (there are many different formats of eeglab files). If your file cannot be opened please open an issue with a link to the file in \href{https://github.com/bnicenboim/eeguana/issues}{github}.
 }
 \examples{
 \dontrun{

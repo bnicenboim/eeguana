@@ -90,12 +90,12 @@ filter_dt <- function(.data, ..., group_by_ = character(0)) {
 
 
 #' @noRd
-mutate_dt <- function(.data, ..., group_by_ = character(0), .by_ref = FALSE, omit_shallow = FALSE){
+mutate_dt <- function(.data, ..., group_by_ = character(0), .by_reference = FALSE, omit_shallow = FALSE){
 
   dots <- rlang::quos(...)
   dots <- rlang::quos_auto_name(dots)
   col_names <- names(dots)
-  if(!omit_shallow & !.by_ref){ #it might be done before, or it might be by reference
+  if(!omit_shallow & !.by_reference){ #it might be done before, or it might be by reference
     .data <- data.table:::shallow(.data)
   }
   if(length(group_by_) == 0) {
@@ -108,7 +108,7 @@ mutate_dt <- function(.data, ..., group_by_ = character(0), .by_ref = FALSE, omi
                                                        .SD),size = .N))]
     } else {
 
-      if (length(intersect(col_names, colnames(.data)))>0 & .by_ref==FALSE) {
+      if (length(intersect(col_names, colnames(.data)))>0 & .by_reference==FALSE) {
         #needs a real copy
         .data <- data.table::copy(.data)
         }
@@ -207,3 +207,4 @@ changed_objects <- function(obj){
     message_verbose(changed, " has been changed in place.")
   }
 }
+
