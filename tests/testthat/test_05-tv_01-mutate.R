@@ -6,6 +6,7 @@ expect_equal_but_sgl <- eeguana:::expect_equal_but_sgl
 expect_equal_but_cnt_sgl <- eeguana:::expect_equal_but_cnt_sgl
 expect_equal_but_sgm <- eeguana:::expect_equal_but_sgm
 expect_equal_but_cnt_sgm <- eeguana:::expect_equal_but_cnt_sgm
+expect_equal_eeg_lst <- eeguana:::expect_equal_eeg_lst
 
 # tests when factors are used should be done.
 data_1 <- eeguana:::data_sincos3id
@@ -29,6 +30,7 @@ reference_data <- data.table::copy(data)
 ##############################################
 test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
   ref_data <- data.table::copy(data)
+  ref_events <- data.table::copy(data$.events)
   groups <- group_vars(data)
   signal_df <- as.data.frame(data$.signal) %>%
     left_join(data$.segments, by = ".id") %>%
@@ -161,7 +163,7 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
   if (!grouped & keep) {
     data_NULL <- fun(data, Y = NULL)
     if(.by_ref == FALSE){
-     expect_equal(
+     expect_equal_eeg_lst(
        data_NULL,
         select(ref_data, -Y)
      )
@@ -169,7 +171,8 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
       expect_equal_plain_df(mutate_c(signal_df, Y= NULL),
                    data_NULL$.signal)
       expect_equal(data$.events, 
-                   data.table::copy(ref_data$.events)[.channel == "Y",names(ref_data$.events) := NA][])
+                   ref_events[.channel == "Y",names(ref_data$.events) := NA][])
+      ref_events <- data.table::copy(ref_data$.events)
     }
   }
 
@@ -226,7 +229,8 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
       expect_equal_plain_df(mutate_c(signal_df, Y= 10),
                             data_cst$.signal)
       expect_equal(data_cst$.events, 
-                   data.table::copy(ref_data$.events)[.channel == "Y",names(ref_data$.events) := NA][])
+                   ref_events[.channel == "Y",names(ref_data$.events) := NA][])
+      ref_events <- data.table::copy(ref_data$.events)
     }
   }
 
@@ -341,7 +345,7 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
       data %>% select(-X)
     )
   }
-  expect_equal(data, ref_data)
+  expect_equal_eeg_lst(data, reference_data)
 }
 
 ### TESTS
@@ -407,7 +411,7 @@ test_that("dplyr::mutate functions work correctly on ungrouped segments_tbl", {
     data_cst,
     data
   )
-  expect_equal(data, reference_data)
+  expect_equal_eeg_lst(data, reference_data)
 })
 
 
