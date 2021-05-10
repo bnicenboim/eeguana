@@ -30,6 +30,7 @@ reference_data <- data.table::copy(data)
 ##############################################
 test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
   ref_data <- data.table::copy(data)
+  data <- data.table::copy(data)
   ref_events <- data.table::copy(data$.events)
   groups <- group_vars(data)
   signal_df <- as.data.frame(data$.signal) %>%
@@ -60,13 +61,12 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
   if (!keep) expect_equal_but_cnt_sgl(data_X10, data %>% select(-Y))
   if (.by_ref) {
     expect_equal(data_X10, data)
-    data <- data.table::copy(reference_data)
+    data <- data.table::copy(ref_data)
   }
-
   data_Xs10 <- fun(data, X = X *10 * segment)
     if (.by_ref) {
     expect_equal(data_Xs10, data)
-    data <- data.table::copy(reference_data)
+    data <- data.table::copy(ref_data)
   }
 
   expect_equal_plain_df(
@@ -90,7 +90,7 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
   data_ZZX10 <- fun(data, ZZ = X + 10)
     if (.by_ref) {
     expect_equal(data_ZZX10, data)
-    data <- data.table::copy(reference_data)
+    data <- data.table::copy(ref_data)
   }
   expect_equal_plain_df(
     data_ZZX10$.signal,
@@ -116,7 +116,7 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
   data_mean <- fun(data, mean = mean(X))
     if (.by_ref) {
     expect_equal(data_mean, data)
-    data <- data.table::copy(reference_data)
+    data <- data.table::copy(ref_data)
   }
   expect_equal_plain_df(
     data_mean$.signal,
@@ -139,7 +139,7 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
   data_mean <- fun(data, mean = mean(X), m = X + 2)
   if (.by_ref) {
     expect_equal(data_mean, data)
-    data <- data.table::copy(reference_data)
+    data <- data.table::copy(ref_data)
    }
   expect_equal_plain_df(
     data_mean$.signal,
@@ -196,7 +196,7 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
 
   if (.by_ref) {
     expect_equal(data_NULL, data)
-    data <- data.table::copy(reference_data)
+    data <- data.table::copy(ref_data)
   }
   
   if (!grouped & keep) {
@@ -258,7 +258,7 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
   }
    if (.by_ref) {
       expect_equal(data_cst, data)
-      data <- data.table::copy(reference_data)
+      data <- data.table::copy(ref_data)
     }
 
   if (keep & !grouped) {
@@ -300,14 +300,14 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
   )
   if (.by_ref) {
       expect_equal(data_cst2, data)
-      data <- data.table::copy(reference_data)
+      data <- data.table::copy(ref_data)
   }
 
   expect_message(data_ch <- fun(data, Y = channel_dbl(10)), regexp = NA)
 
  if (.by_ref) {
       expect_equal(data_ch, data)
-      data <- data.table::copy(reference_data)
+      data <- data.table::copy(ref_data)
     }
   expect_equal_plain_df(
     data_ch$.signal,
@@ -328,7 +328,7 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
 
  if (.by_ref) {
       expect_equal(data_ch2, data)
-      data <- data.table::copy(reference_data)
+      data <- data.table::copy(ref_data)
     }
   expect_equal_plain_df(
     data_ch2$.signal,
@@ -345,7 +345,8 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
       data %>% select(-X)
     )
   }
-  expect_equal_eeg_lst(data, reference_data)
+  expect_equal_eeg_lst(data, ref_data)
+  NULL
 }
 
 ### TESTS
@@ -361,15 +362,18 @@ test_that("dplyr::mutate functions work correctly on ungrouped signal_tbl by ref
 
 test_that("dplyr::mutate functions work correctly on ungrouped segments_tbl", {
   segments_tbl <- data$.segments
-  data_seg10 <- mutate(data, segment = segment + 10)
+  data_seg10 <- eeg_mutate(data, segment = segment + 10)
   expect_equal_plain_df(
     data_seg10$.segments,
-    mutate(segments_tbl, segment = segment + 10)
+    eeg_mutate(segments_tbl, segment = segment + 10)
   )
   expect_equal_but_cnt_sgm(
     data_seg10,
     data
   )
+
+  eeg_mutate(datar <- data.table::copy(data), segment = segment + 10, .by_reference = TRUE)
+  expect_equal(datar, data_seg10)
 
   data_ZZseg10 <- mutate(data, ZZ = segment + 10)
   expect_equal_plain_df(
@@ -381,16 +385,21 @@ test_that("dplyr::mutate functions work correctly on ungrouped segments_tbl", {
     data
   )
 
+  eeg_mutate(datar <- data.table::copy(data), ZZ = segment + 10, .by_reference = TRUE)
+  expect_equal(datar, data_ZZseg10)
 
   data_NULL <- mutate(data, segment = NULL)
   expect_equal_plain_df(
     data_NULL$.segments,
     mutate(segments_tbl, segment = NULL)
   )
-  expect_equal(
+  expect_equal_eeg_lst(
     data_NULL,
     select(data, -segment)
   )
+
+    eeg_mutate(datar <- data.table::copy(data),  segment = NULL, .by_reference = TRUE)
+  expect_equal(datar, data_NULL)
 
   data_cst <- mutate(data, segment = 10)
   expect_equal_plain_df(
@@ -401,6 +410,8 @@ test_that("dplyr::mutate functions work correctly on ungrouped segments_tbl", {
     data_cst,
     data
   )
+  eeg_mutate(datar <- data.table::copy(data),  segment = 10, .by_reference = TRUE)
+  expect_equal(datar, data_cst)
 
   data_cst <- mutate(data, segment = 1:6)
   expect_equal_plain_df(
@@ -411,6 +422,9 @@ test_that("dplyr::mutate functions work correctly on ungrouped segments_tbl", {
     data_cst,
     data
   )
+  eeg_mutate(datar <- data.table::copy(data),  segment = 1:6, .by_reference = TRUE)
+  expect_equal(datar, data_cst)
+
   expect_equal_eeg_lst(data, reference_data)
 })
 
@@ -432,6 +446,9 @@ test_that("dplyr::transmute functions work correctly on ungrouped signal_tbl", {
   test_mutates_sgl(data, keep = FALSE)
 })
 
+test_that("dplyr::transmute functions work correctly on ungrouped signal_tbl and by ref", {
+  test_mutates_sgl(data, keep = FALSE, .by_ref = TRUE)
+})
 
 ############################################
 ### test dplyr mutate on grouped eeg_lst ###

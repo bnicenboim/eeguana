@@ -61,7 +61,7 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_reference = FALS
   #What to do by table in the object:
   dots <- rlang::quos(...)
   new_dots <- dots_by_tbl_quos(.eeg_lst, dots)
-  non_ch <- 0 # for msg at the end
+  non_ch <- NULL # for msg at the end
   if (length(new_dots$.signal) > 0) {
     # New columns name:
     col_names <- rlang::quos_auto_name(new_dots$.signal) %>%
@@ -131,8 +131,12 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_reference = FALS
       "* To copy the structure of an existing channel one can do `new_ch = existing_channel * 0 + ...`")
   }
   
-  .eeg_lst %>% validate_eeg_lst()
-  
+  out <- .eeg_lst %>% validate_eeg_lst()
+  if(.by_reference){
+    invisible(out)
+  } else {
+    out
+  }
 }
 
 
