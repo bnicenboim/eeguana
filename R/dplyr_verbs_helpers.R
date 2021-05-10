@@ -326,7 +326,7 @@ update_events_channels <- function(x, .by_reference = FALSE) {
 if (nrow(x$.events) > 0) {
   redundant_channels <- setdiff(unique(x$.events$.channel), c(channel_names(x), NA))
 } else {
-  reduntant_channels <- NULL
+  redundant_channels <- NULL
 }
 
 if (length(redundant_channels) > 0) {

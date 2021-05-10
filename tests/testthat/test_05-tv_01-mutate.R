@@ -57,12 +57,24 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
     data_X10$.signal,
     mutate_c(signal_df, X = X + 10)
   )
-  if (keep) expect_equal_but_cnt_sgl(data_X10, data)
-  if (!keep) expect_equal_but_cnt_sgl(data_X10, data %>% select(-Y))
+
   if (.by_ref) {
     expect_equal(data_X10, data)
     data <- data.table::copy(ref_data)
   }
+
+  if (keep) expect_equal_but_cnt_sgl(data_X10, data)
+  if (!keep) {
+
+ if(.by_ref == FALSE){
+       expect_equal_but_cnt_sgl(data_X10, data %>% select(-Y))
+    } else {
+      expect_equal(data_X10$.events,
+                   ref_events[.channel == "Y",names(ref_data$.events) := NA][])
+      ref_events <- data.table::copy(ref_data$.events)
+    }
+  }
+
   data_Xs10 <- fun(data, X = X *10 * segment)
     if (.by_ref) {
     expect_equal(data_Xs10, data)
@@ -80,12 +92,20 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
       data
     )
   }
-  if (!keep) {
-    expect_equal_but_cnt_sgl(
-      data_Xs10,
-      data %>% select(-Y)
-    )
+
+
+ if (!keep) {
+
+ if(.by_ref == FALSE){
+       expect_equal_but_cnt_sgl(data_Xs10, data %>% select(-Y))
+    } else {
+      expect_equal(data_Xs10$.events,
+                   ref_events[.channel == "Y",names(ref_data$.events) := NA][])
+      ref_events <- data.table::copy(ref_data$.events)
+    }
   }
+
+  
 
   data_ZZX10 <- fun(data, ZZ = X + 10)
     if (.by_ref) {
@@ -103,13 +123,18 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
     )
   }
   if (!keep) {
+ if(.by_ref == FALSE){
     expect_equal_but_cnt_sgl(
       data_ZZX10,
       data %>% mutate(ZZ = X + 10) %>%
         select(-X, -Y)
     )
+  } else {
+     expect_equal(data_ZZX10$.events,
+                   ref_events[.channel %in% c("X", "Y"), names(ref_data$.events) := NA][])
+      ref_events <- data.table::copy(ref_data$.events)
   }
-
+}
   expect_true(nrow(filter(data_ZZX10$.events, .channel == "ZZ")) == 0)
   expect_true(nrow(filter(channels_tbl(data_ZZX10), .channel == "ZZ")) > 0)
 
@@ -129,12 +154,19 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
     )
   }
   if (!keep) {
+
+ if(.by_ref == FALSE){
     expect_equal_but_sgl(
       data_mean,
       data %>% mutate(mean = mean(X)) %>%
         select(-X, -Y)
     )
+   } else {
+     expect_equal(data_mean$.events,
+                   ref_events[.channel %in% c("X", "Y"), names(ref_data$.events) := NA][])
+      ref_events <- data.table::copy(ref_data$.events)
   }
+}
 
   data_mean <- fun(data, mean = mean(X), m = X + 2)
   if (.by_ref) {
@@ -152,13 +184,25 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
       data
     )
   }
-  if (!keep) {
-    expect_equal_but_sgl(
+
+
+if(!keep){
+if(.by_ref == FALSE){
+   expect_equal_but_sgl(
       data_mean,
       data %>% mutate(mean = mean(X) + 10, m = X + 2) %>%
         select(-X, -Y)
     )
+   } else {
+     expect_equal(data_mean$.events,
+                   ref_events[.channel %in% c("X", "Y"), names(ref_data$.events) := NA][])
+      ref_events <- data.table::copy(ref_data$.events)
   }
+}
+
+
+
+
 
   if (!grouped & keep) {
     data_NULL <- fun(data, Y = NULL)
@@ -178,10 +222,13 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
 
   if (!grouped & !keep) {
     data_NULL <- expect_warning(fun(data, Y = NULL))
-    expect_warning(expect_equal(
-      data_NULL,
-      select(ref_data, -Y, -X)
-    ))
+    if(!.by_ref){
+      expect_warning(expect_equal(
+        data_NULL,
+        select(ref_data, -Y, -X)
+      ))
+    }
+
   }
   if (!grouped) {
     expect_equal_plain_df(
@@ -236,12 +283,13 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
 
 
   if (!grouped & !keep) {
+if(!.by_ref){
     expect_warning(expect_equal_but_sgl(
       data_cst,
       select(ref_data, -Y, -X)
     ))
   }
-
+}
 
   if (grouped & keep) {
     expect_equal_but_sgl(
@@ -281,11 +329,14 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
 
   if (!keep & !grouped) {
     expect_warning(expect_message(data_cst2 <- fun(data, Y = 1:length(.sample))))
+    if(.by_ref){
     expect_warning(expect_equal_but_sgl(
       data_cst2,
       select(data, -Y, -X)
     ))
   }
+    }
+
   if (!keep & grouped) {
     data_cst2 <- fun(data, Y = 1:length(.sample))
     expect_equal_but_sgl(
@@ -302,8 +353,11 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
       expect_equal(data_cst2, data)
       data <- data.table::copy(ref_data)
   }
-
-  expect_message(data_ch <- fun(data, Y = channel_dbl(10)), regexp = NA)
+  if(!keep){
+    expect_message(data_ch <- fun(data, Y = channel_dbl(10)))
+  } else {
+    expect_message(data_ch <- fun(data, Y = channel_dbl(10)), regexp = NA)
+  }
 
  if (.by_ref) {
       expect_equal(data_ch, data)
@@ -324,7 +378,11 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
       select(data, -X)
     )
   }
+  if(!keep){
+  expect_message(data_ch2 <- fun(data, Y = channel_dbl(1:length(Y))))
+  } else {
   expect_message(data_ch2 <- fun(data, Y = channel_dbl(1:length(Y))), regexp = NA)
+  }
 
  if (.by_ref) {
       expect_equal(data_ch2, data)
@@ -365,7 +423,7 @@ test_that("dplyr::mutate functions work correctly on ungrouped segments_tbl", {
   data_seg10 <- eeg_mutate(data, segment = segment + 10)
   expect_equal_plain_df(
     data_seg10$.segments,
-    eeg_mutate(segments_tbl, segment = segment + 10)
+    mutate(segments_tbl, segment = segment + 10)
   )
   expect_equal_but_cnt_sgm(
     data_seg10,
@@ -517,5 +575,6 @@ test_that("mutation of samples works when it should",{
 
 message("\n***")
 message("test mutate when there are ICAs")
-message("mutate_at and mutate_all, etc haven't been tested")
+message("test by groups by reference")
+message("do mutate_across  etc haven't been tested")
 message("***\n")
