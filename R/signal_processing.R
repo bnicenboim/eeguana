@@ -33,7 +33,7 @@ eeg_downsample.eeg_lst <- function(.data, .q = 2, .max_sample = NULL,
 
   # if(tolower(.q) == "min") {
   #   .q <- mindiv(sampling_rate(.data), start = 2)
-  #  message(paste0("Using .q = ", .q))
+  #  message_verbose(paste0("Using .q = ", .q))
   # }
 
   if (any(.q < 2)) {
@@ -60,7 +60,7 @@ eeg_downsample.eeg_lst <- function(.data, .q = 2, .max_sample = NULL,
 
   ## add missing samples in case of a discontinuity
   .data$.signal <- add_missing_samples(.data$.signal)
-  discontinuity <- .data$.signal %>% dplyr::select(channels_to_decimate) %>% anyNA()
+  discontinuity <- .data$.signal %>% dplyr::select(tidyselect::all_of( channels_to_decimate)) %>% anyNA()
   if (discontinuity) {
     warning("Some parts of the signal won't be filtered before the downsampling due to NA values or discontinuities")
   }
@@ -72,12 +72,12 @@ eeg_downsample.eeg_lst <- function(.data, .q = 2, .max_sample = NULL,
   .q <- as.integer(.q)
   factor <- prod(.q)
   new_sampling_rate <- sampling_rate(.data) / factor
-  message(paste0(
+ message_verbose(paste0(
     "# Downsampling from ", sampling_rate(.data), "Hz to ",
     round(new_sampling_rate, 2), "Hz."
   ))
   if (!is.null(.max_sample) || .multiple_times) {
-    message("# Using the following factor(s) .q: ", paste0(.q, collapse = ", "))
+  message_verbose("# Using the following factor(s) .q: ", paste0(.q, collapse = ", "))
   }
 
 
@@ -109,7 +109,7 @@ eeg_downsample.eeg_lst <- function(.data, .q = 2, .max_sample = NULL,
   ## just in case I update the .id from segments table
   ## .data$.segments <- dplyr::mutate(.data$.segments, .id = seq_len(dplyr::.n()))
 
-  message(say_size(.data))
+   message_verbose(say_size(.data))
 
   .data %>% # update_channels_tbl(channels_info) %>%
     validate_eeg_lst()

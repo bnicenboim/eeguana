@@ -12,6 +12,14 @@
 #' @param .end Description of the event that indicates the end of the segment, if this is used, `.lim` is ignored.
 #' @family preprocessing functions
 #'
+#' @examples
+#'
+#' # Segments 500ms before and 1000ms after the triggers s70 and s71
+#' data_faces_10_trials %>% eeg_segment(.description %in% c("s70","s71"), .lim(-5,1))
+#'
+#' # Segments 500ms before and  after the triggers all the triggers (which start with s)
+#' data_faces_10_trials %>% eeg_segment(startsWith(.description,"s"))
+#'
 #' @return An `eeg_lst`.
 #'
 #'
@@ -160,30 +168,33 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
   ## data.table::setattr(.data$.events,"class",c("events_tbl",class(.data$.events)))
 
 
-   if(options()$eeguana.verbose) message(paste0("# Total of ", max(.data$.signal$.id), " segments found."))
+   message_verbose(paste0("# Total of ", max(.data$.signal$.id), " segments found."))
 
   #remove the irrelevant columns:
   times0[,`:=`(c(".first_sample", ".lower",".upper",".new_id"), NULL)]
- # remove the . from the segments so that it's clear that it's not protected
-  data.table::setnames(times0, -1, chr_remove(colnames(times0)[-1], "^\\."))
-  #right join:
-  .data$.segments <- .data$.segments[times0, on =".id", allow.cartesian = TRUE ][, .id := 1:.N]
 
-  if (!is.null(.data$.segments$.recording) && !anyNA(.data$.segments$.recording)) {
-    .data$.segments <- .data$.segments[,segment := seq_len(.N) ,by = ".recording"]
 
-    ## .data$.segments <- .data$.segments %>%
-    ##   dplyr::group_by(.recording) %>%
-    ##   dplyr::mutate(segment = 1:dplyr::n()) %>%
-    ##   dplyr::ungroup()
-  }
 
-  if(options()$eeguana.verbose)  message(paste0(say_size(.data), " after segmentation."))
+  .data$.segments <- update_segments_tbl(.data$.segments, times0)
+
+  message_verbose(paste0(say_size(.data), " after segmentation."))
   data.table::setkey(.data$.segments, .id)
   validate_eeg_lst(.data)
 }
 
 
+update_segments_tbl <- function(old_segments,new_events){
+  new_events <- data.table::copy(new_events)
+  # remove the . from the segments so that it's clear that it's not protected
+  data.table::setnames(new_events, -1, chr_remove(colnames(new_events)[-1], "^\\."))
+  #right join:
+  new_segments <-  old_segments[new_events, on =".id", allow.cartesian = TRUE ][, .id := 1:.N]
+
+  if (!is.null(new_segments$.recording) && !anyNA(new_segments$.recording)) {
+    new_segments <- new_segments[,segment := seq_len(.N) ,by = ".recording"]
+  }
+new_segments
+}
 
 
 #' update events table based on a segmentation table

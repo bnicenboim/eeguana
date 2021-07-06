@@ -110,6 +110,10 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
 
   signal_m <- .data$to_data_frame()
   data.table::setDT(signal_m)
+  if("time" %in% colnames(signal_m)) {
+    signal_m[,time:=NULL]
+  }
+
   if (length(sti_ch_names) > 0) {
     signal_m[, (sti_ch_names) := NULL]
   }

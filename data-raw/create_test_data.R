@@ -121,5 +121,87 @@ events_tbl(data_mne_bdf) <- eeguana:::new_events_tbl(.id=1, .initial=events_foun
 channels_tbl(data_mne_bdf) <- channels_tbl(data_mne_bdf)[,-5] # remove unit
 
 
-usethis::use_data(data_sincos2id, data_sincos2id_2,data_sincos2id_1000,
-                  data_sincos3id, data_mne_bdf, internal = TRUE, overwrite = TRUE)
+
+#### Data for ICA
+## simulate eye movements with
+## https://stackoverflow.com/questions/53071709/remove-eye-blinks-from-eeg-signal-with-ica
+
+N <- 4000
+fs <- 100
+blink <- rbinom(N, 1, .003) %>%
+  signal::filter(signal::butter(2, c(1 * 2 / fs, 10 * 2 / fs), "pass"), .) * 200
+noise <- rpink(N, 100)
+alpha <- sin(2*pi * 10 * as_time(sample_int(1:N, 500))) * 3
+  #(abs(sin(10 * seq_len(N) / fs)) - 0.5) * 10
+
+s_tbl <- dplyr::tibble(sample = rep(seq_len(N), times = 3), A = c(blink, noise, alpha), component = rep(c("blink", "noise", "alpha"), each = N))
+
+true_comps <- cbind(alpha, noise, blink)
+# ggplot(s_tbl,aes(x=sample,y=A)) + geom_line() + facet_grid(component~.)
+
+
+
+# And they mix depending on the distance of S_pos:
+
+signal_blinks <- dplyr::tibble(
+  Fz = blink * 2 + alpha * 1 + noise,
+  Cz = blink * 1 + alpha * .9 + noise,
+  Pz = blink * .1 + alpha * 1 + noise
+) %>%
+  dplyr::mutate_all(channel_dbl)
+
+
+signal <- dplyr::tibble(
+  Fz = alpha * .1 + noise,
+  Cz = alpha * .15 + noise,
+  Pz = alpha * .1 + noise
+) %>%
+  dplyr::mutate_all(channel_dbl)
+
+data_no_blinks <- eeg_lst(
+  signal_tbl = signal %>%
+    dplyr::mutate(
+      .id = 1L,
+      .sample = sample_int(seq_len(N), sampling_rate = 500)
+    ),
+  segments_tbl = dplyr::tibble(.id = 1L, .recording = "recording1", segment = 1L)
+)
+
+data_blinks <- eeg_lst(
+  signal_tbl = signal_blinks %>%
+    dplyr::mutate(
+      .id = 1L,
+      .sample = sample_int(seq_len(N), sampling_rate = 500)
+    ),
+  segments_tbl = dplyr::tibble(.id = 1L, .recording = "recording1", segment = 1L)
+)
+
+
+data_blinks_2 <- eeg_lst(
+  signal_tbl = signal_blinks %>%
+    dplyr::mutate(
+      .id = rep(1:4, each = N / 4),
+      .sample = sample_int(rep(seq_len(N / 4), times = 4), sampling_rate = 500)
+    ),
+  segments_tbl = data.table::data.table(.id = seq.int(4), .recording = paste0("recording", c(1, 1, 2, 2)), segment = seq.int(4))
+)
+
+data_no_blinks_2 <- eeg_lst(
+  signal_tbl = signal %>%
+    dplyr::mutate(
+      .id = rep(1:4, each = N / 4),
+      .sample = sample_int(rep(seq_len(N / 4), times = 4), sampling_rate = 500)
+    ),
+  segments_tbl = data.table::data.table(.id = seq.int(4), .recording = paste0("recording", c(1, 1, 2, 2)), segment = seq.int(4))
+)
+
+
+
+
+usethis::use_data(data_sincos2id, data_sincos2id_2,
+                  data_sincos2id_1000,
+                  data_sincos3id, data_mne_bdf,
+                  data_blinks, data_blinks_2,
+                  data_no_blinks, data_no_blinks_2,
+                  true_comps,
+                  internal = TRUE, overwrite = TRUE)

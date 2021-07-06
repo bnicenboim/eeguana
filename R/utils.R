@@ -19,6 +19,10 @@ col_names_main <- function(.eeg_lst) {
   unique(c(colnames(.eeg_lst$.signal), colnames(.eeg_lst$.segments)))
 }
 
+#' @noRd
+message_verbose <- function(...){
+  if(options()$eeguana.verbose) message(...)
+}
 
 #' @noRd
 say_size <- function(eeg_lst) paste(

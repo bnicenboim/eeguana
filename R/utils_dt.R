@@ -55,10 +55,13 @@ left_join_dt <- function(x, y, by = NULL) {
     by_content <- unname(by)
     by <- by_names
     names(by) <- by_content
+    ## message_verbose('Joining, by = "',by,'"')
   } else {
     names(by) <- by
   }
   out <- y[x, on = by]
+
+  #should I set allow.cartesian = TRUE?
   data.table::setnames(out, names(by), by)[]
 }
 
@@ -148,6 +151,27 @@ unnest_dt <- function(.data, col) {
     .data
 }
 
+#' Converts a struct from matlab into a data table
+#' @noRd
+struct_to_dt <- function(struct, .id = NULL) {
+  if(length(struct)==0) {
+    data.table::data.table()
+  } else {
+    list_str <-  apply(struct,3,
+                       function(x) lapply(x[,1],
+                                          function(x){
+                         x <- x %||% NA
+                         #unmatrix
+#                         if(all((dim(x) %||% 1) ==c(1,1)))
+                           c(unlist(x)) %||% rep(NA, length(x))
+
+                       }  ))
+    map_dtr(list_str, data.table::setDT, .id =.id)
+
+  }
+}
+
+
 
 #' @noRd
 recycle <- function(x, size) {
@@ -178,8 +202,8 @@ changed_objects <- function(obj){
   loc <- data.table::address(force(obj))
   changed <- mem[mem ==loc,]$names
   if(length(changed)>1){
-    message("The following objects have been changed in place: ", paste0(changed,sep =", "))
+    message_verbose("The following objects have been changed in place: ", paste0(changed,sep =", "))
   } else {
-    message(changed, " has been changed in place.")
+    message_verbose(changed, " has been changed in place.")
   }
 }

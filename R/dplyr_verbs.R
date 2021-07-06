@@ -3,7 +3,8 @@
 #' Manipulate the signal table and the segments table of an eeg_lst.
 #'
 #' Wrappers for [`dplyr`][dplyr::dplyr]'s commands that act on different parts
-#' `eeg_lst` objects. Functions that drop or rename column won't remove columns starting with a dot.
+#' `eeg_lst` objects. Functions that drop or rename column won't remove columns starting with a dot. These functions are powered by [`data.table`][data.table::data.table], and inspired by the way `tidytable` works.
+#'
 #' The following wrappers act in a special way for `eeg_lst` objects:
 #'
 #' * `*_join()`: joins an external table to the *segments* table of the eeg_lst.
@@ -182,7 +183,7 @@ group_vars.eeg_lst <- function(x) {
 #' @rdname dplyr_verbs
 #' @export
 anti_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
-  if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
+  if (!is.data.frame(y)) stop("y must be a data frame, a data table or tibble.")
 
   x$.segments <- dplyr::anti_join(x$.segments, y, by = NULL, suffix = c(".x", ".y"), ...)
 
@@ -193,8 +194,9 @@ anti_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".
 }
 #' @rdname dplyr_verbs
 #' @export
+
 left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
-  if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
+  if (!is.data.frame(y)) stop("y must be a data frame, a data table or tibble.")
 
   x$.segments <- dplyr::left_join(x$.segments, y = y, by = by, copy = copy, suffix = c(".x", ".y"), ...)
 
@@ -203,7 +205,7 @@ left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".
 #' @rdname dplyr_verbs
 #' @export
 semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
-  if (!is.data.frame(y)) stop("y must be a data frame or tibble.")
+  if (!is.data.frame(y)) stop("y must be a data frame, a data table or tibble.")
 
   x$.segments <- dplyr::semi_join(x$.segments, y, by = NULL, suffix = c(".x", ".y"), ...)
 

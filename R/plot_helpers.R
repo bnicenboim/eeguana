@@ -18,7 +18,7 @@ eeg_interpolate_tbl.eeg_lst <- function(.data, .radius = 1.2, .diam_points = 100
   grouping <- dplyr::group_vars(.data)
   .data <- dplyr::as_tibble(.data) %>%
     dplyr::left_join(channels_tbl(.data), by = c(".key" = ".channel")) %>%
-    dplyr::group_by_at(dplyr::vars(grouping))
+    dplyr::group_by_at(dplyr::vars(tidyselect::all_of(grouping)))
   dots <- rlang::enquos(...)
   # NextMethod()
   eeg_interpolate_tbl(.data,

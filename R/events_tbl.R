@@ -118,7 +118,7 @@ validate_events_tbl <- function(events) {
     warning("Class is not events_tbl", call. = FALSE)
   }
   if(!all(obligatory_cols[[".events"]] %in% colnames(events))) {
-    warning("Missing tables in the events table, some functions may not work correctly", call. = FALSE)
+    warning("Missing obligatory columns in the events table, some functions may not work correctly", call. = FALSE)
   }
   if (!data.table::is.data.table(events)) {
     warning("'events' should be a data.table.",

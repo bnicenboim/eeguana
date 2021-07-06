@@ -159,7 +159,7 @@ add_intervals_from_artifacts <- function(sampling_rate, artifacts_tbl, sample_ra
           }
         }), .id = TRUE)
   events_found[, .id := as.integer(.id)]
-  message(paste0("# Number of intervals with artifacts: ", nrow(events_found)))
+ message_verbose(paste0("# Number of intervals with artifacts: ", nrow(events_found)))
   events_found
 
 }
