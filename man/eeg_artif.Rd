@@ -81,11 +81,13 @@ For the EOG channels, a relatively low threshold (e.g., 30 µV) is recommended. 
 }
 \examples{
 \dontrun{
+
 # Artifacts are annotated in the events table:
 faces_seg_artif <- faces_seg \%>\%
   eeg_artif_minmax(-HEOG, -VEOG, .threshold = 100, .window = 150, unit = "ms") \%>\%
   eeg_artif_step(-HEOG, -VEOG, .threshold = 50, .window = 200, unit = "ms")
-# Signals with artifacts are turned into NA values
+  
+# Signals with artifacts are turned into NA values:
 faces_clean <-  faces_seg_artif \%>\%
    eeg_events_to_NA(.type == "artifact", entire_seg = TRUE, all_chans = FALSE, drop_events = TRUE)
 }
