@@ -25,6 +25,9 @@ data <- bind(data_1, data_2)
 # for checks later
 reference_data <- data.table::copy(data)
 
+##############################################
+### test dplyr dplyr::mutate on ungrouped eeg_lst ###
+##############################################
 test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
   ref_data <- data.table::copy(data)
   data <- data.table::copy(data)
