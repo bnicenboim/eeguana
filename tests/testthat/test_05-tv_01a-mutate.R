@@ -436,9 +436,9 @@ test_that("dplyr::transmute functions work correctly on ungrouped signal_tbl and
 
 nsamples <- 100
 nsamples_ <- 100
-data_nsamples_ <- data %>% mutate(Z = X + nsamples_)
-data_100 <- data %>% mutate(Z = X + 100)
-data_nsamples <- data %>% mutate(Z = X + nsamples)
+data_nsamples_ <- data %>% eeg_mutate(Z = X + nsamples_)
+data_100 <- data %>% eeg_mutate(Z = X + 100)
+data_nsamples <- data %>% eeg_mutate(Z = X + nsamples)
 
 test_that("dplyr:mutate functions understand the right scope", {
   expect_equal(data_100, data_nsamples)
