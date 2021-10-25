@@ -25,6 +25,7 @@
 #' - eeguana's [mutate] doesn't use the most updated value of a column from the same call. If X is a channel, then `data_eeg %>% mutate(X = X *2, Y = X+1)` will add `1` to the original value of `X`, and not to the latest one.
 #' - `n()` doesn't work, instead `length(.sample)` will give the same answer.
 #' - `across()` and `where()` cannot be used.
+#' - [eeg_filter] behaves similarly to dplyr's [`filter`][dplyr::filter]. If you want to filter the signal using IIR or FIR filters use [eeg_filt*][eeguana::filt] functions.
 #'
 #'
 #' ## Pitfalls
@@ -132,20 +133,36 @@ transmute.eeg_lst <- eeg_transmute.eeg_lst
 
 
 #' @rdname dplyr_verbs
-filter.eeg_lst <- function(.data, ..., .preserve = FALSE) {
+#' @export
+eeg_filter <- function(.data, ..., .preserve = FALSE) {
+  UseMethod("eeg_filter")
+}
+
+#' @export
+eeg_filter.eeg_lst <- function(.data, ..., .preserve = FALSE) {
   if (.preserve == TRUE) {
     warning("Ignoring `.preserve` argument.")
   }
   .data <- update_eeg_lst(.data)
   filter_eeg_lst(.data, ...)
 }
-#' @rdname dplyr_verbs
-filter.eeg_ica_lst <- function(.data, ..., .preserve = FALSE) {
+
+#' @export
+eeg_filter.eeg_ica_lst <- function(.data, ..., .preserve = FALSE) {
   out <- NextMethod()
   recordings <- unique(out$.segments$.recording)
   out$.ica <- out$.ica[recordings]
   out
 }
+
+#' @noRd
+#' @export
+filter.eeg_lst <- eeg_filter.eeg_lst
+#' @noRd
+#' @export
+filter.eeg_ica_lst <- eeg_filter.eeg_ica_lst
+
+
 #' @rdname dplyr_verbs
 #' @export
 summarise.eeg_lst <- function(.data, ..., .groups = "keep") {
@@ -156,53 +173,112 @@ summarise.eeg_lst <- function(.data, ..., .groups = "keep") {
   }
   summarize_eeg_lst(.data, dots, .groups = "keep")
 }
+
 #' @rdname dplyr_verbs
 #' @export
-group_by.eeg_lst <- function(.data, ..., .add = FALSE, .drop = FALSE) {
+eeg_group_by <- function(.data, ..., .add = FALSE, .drop = FALSE) {
+  UseMethod("eeg_group_by")
+}
+
+#' @rdname dplyr_verbs
+#' @export
+eeg_ungroup <- function(.data, ...) {
+  UseMethod("eeg_ungroup")
+}
+
+#' @export
+eeg_group_by.eeg_lst <- function(.data, ..., .add = FALSE, .drop = FALSE) {
   dots <- rlang::quos(...)
   if (.drop == TRUE) {
     warning("Ignoring .drop argument. It can only be set to FALSE.")
   }
   group_by_eeg_lst(.eeg_lst = .data, dots, .add = .add)
 }
-#' @rdname dplyr_verbs
+
 #' @export
-ungroup.eeg_lst <- function(.data, ...) {
+eeg_ungroup.eeg_lst <- function(.data, ...) {
   attributes(.data)$vars <- character(0)
   validate_eeg_lst(.data)
 }
 
+#' @noRd
+#' @export
+group_by.eeg_lst <- eeg_group_by.eeg_lst
+#' @noRd
+#' @export
+ungroup.eeg_lst <- eeg_ungroup.eeg_lst
+
 #' @rdname dplyr_verbs
 #' @export
-select.eeg_lst <- function(.data, ...) {
+eeg_select <- function(.data, ...) {
+  UseMethod("eeg_select")
+}
+
+#' @export
+eeg_select.eeg_lst <- function(.data, ...) {
   .data <- update_eeg_lst(.data)
   select_rename(.data, select = TRUE, ...)
 }
 
+#' @noRd
+#' @export
+select.eeg_lst <- eeg_select.eeg_lst
+
+
 #' @rdname dplyr_verbs
 #' @export
-rename.eeg_lst <- function(.data, ...) {
+eeg_rename <- function(.data, ...) {
+  UseMethod("eeg_rename")
+}
+
+#' @export
+eeg_rename.eeg_lst <- function(.data, ...) {
   .data <- update_eeg_lst(.data)
   select_rename(.data, select = FALSE, ...)
 }
 
+#' @noRd
+#' @export
+rename.eeg_lst <- eeg_rename.eeg_lst
 
 #' @rdname dplyr_verbs
 #' @export
-groups.eeg_lst <- function(x) {
+eeg_groups <- function(x) {
+  UseMethod("eeg_groups")
+}
+#' @rdname dplyr_verbs
+#' @export
+eeg_groups.eeg_lst <- function(x) {
   attributes(x)$vars %>% purrr::map(as.name)
 }
 
+#' @noRd
+#' @export
+groups.eeg_lst <- eeg_groups.eeg_lst
+
 
 #' @rdname dplyr_verbs
 #' @export
-group_vars.eeg_lst <- function(x) {
+eeg_group_vars <- function(x) {
+  UseMethod("eeg_group_vars")
+}
+#' @export
+eeg_group_vars.eeg_lst <- function(x) {
   attributes(x)$vars
 }
 
+#' @noRd
+#' @export
+group_vars.eeg_lst <- eeg_group_vars.eeg_lst
+
 #' @rdname dplyr_verbs
 #' @export
-anti_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
+eeg_anti_join <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
+  UseMethod("eeg_anti_join")
+}
+
+#' @export
+eeg_anti_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
   if (!is.data.frame(y)) stop("y must be a data frame, a data table or tibble.")
 
   x$.segments <- dplyr::anti_join(x$.segments, y, by = NULL, suffix = c(".x", ".y"), ...)
@@ -212,19 +288,37 @@ anti_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".
   x$.events <- semi_join_dt(x$.events, segments, by = ".id")
   x %>% validate_eeg_lst()
 }
+
+#' @noRd
+#' @export
+anti_join.eeg_lst <- eeg_anti_join.eeg_lst
+
 #' @rdname dplyr_verbs
 #' @export
+eeg_left_join <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
+  UseMethod("eeg_left_join")
+}
 
-left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
+#' @export
+eeg_left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
   if (!is.data.frame(y)) stop("y must be a data frame, a data table or tibble.")
 
   x$.segments <- dplyr::left_join(x$.segments, y = y, by = by, copy = copy, suffix = c(".x", ".y"), ...)
 
   validate_eeg_lst(x)
 }
+#' @noRd
+#' @export
+left_join.eeg_lst <- eeg_left_join.eeg_lst
+
 #' @rdname dplyr_verbs
 #' @export
-semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
+eeg_semi_join <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
+  UseMethod("eeg_semi_join")
+}
+
+#' @export
+eeg_semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   if (!is.data.frame(y)) stop("y must be a data frame, a data table or tibble.")
 
   x$.segments <- dplyr::semi_join(x$.segments, y, by = NULL, suffix = c(".x", ".y"), ...)
@@ -235,15 +329,33 @@ semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   x %>% validate_eeg_lst()
 }
 
-#' @rdname dplyr_verbs
+#' @noRd
 #' @export
-tbl_vars.eeg_lst <- function(x) {
-  setdiff(dplyr::tbl_vars(x$.signal), c(dplyr::tbl_vars(x$.segments), c(".id", ".sample")))
-}
+semi_join.eeg_lst <- eeg_semi_join.eeg_lst
 
 #' @rdname dplyr_verbs
 #' @export
-pull.eeg_lst <- function(.data, var = -1, name = NULL, ...) {
+eeg_vars <- function(x) {
+  UseMethod("eeg_vars")
+}
+#' @export
+eeg_vars.eeg_lst <- function(x) {
+  setdiff(dplyr::tbl_vars(x$.signal), c(dplyr::tbl_vars(x$.segments), c(".id", ".sample")))
+}
+
+#' @noRd
+#' @export
+tbl_vars.eeg_lst <- eeg_vars.eeg_lst
+
+
+#' @rdname dplyr_verbs
+#' @export
+eeg_pull <- function(.data, var = -1, name = NULL, ...) {
+  UseMethod("eeg_pull")
+}
+
+#' @export
+eeg_pull.eeg_lst <- function(.data, var = -1, name = NULL, ...) {
   var <- tidyselect::vars_pull(names(.data$.signal), !!rlang::enquo(var))
   name <- rlang::enquo(name)
   if (rlang::quo_is_null(name)) {
@@ -253,4 +365,7 @@ pull.eeg_lst <- function(.data, var = -1, name = NULL, ...) {
   rlang::set_names(.data[[var]], nm = .data[[name]])
 }
 
+#' @noRd
+#' @export
+pull.eeg_lst <- eeg_pull.eeg_lst
 

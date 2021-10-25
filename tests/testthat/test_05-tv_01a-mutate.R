@@ -1,6 +1,5 @@
 library(eeguana)
 options(eeguana.verbose = TRUE)
-library(dplyr)
 expect_equal_plain_df <- eeguana:::expect_equal_plain_df
 expect_equal_but_sgl <- eeguana:::expect_equal_but_sgl
 expect_equal_but_cnt_sgl <- eeguana:::expect_equal_but_cnt_sgl
@@ -25,6 +24,7 @@ data <- bind(data_1, data_2)
 # for checks later
 reference_data <- data.table::copy(data)
 
+
 ##############################################
 ### test dplyr dplyr::mutate on ungrouped eeg_lst ###
 ##############################################
@@ -34,33 +34,42 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
   ref_events <- data.table::copy(data$.events)
   groups <- group_vars(data)
   signal_df <- as.data.frame(data$.signal) %>%
-    left_join(data$.segments, by = ".id") %>%
-    group_by_at(all_of(groups))
-  grouped <- length(group_vars(data)) > 0
+    dplyr::left_join(data$.segments, by = ".id") %>%
+    dplyr::group_by_at(dplyr::all_of(groups))
+  grouped <- length(dplyr::group_vars(data)) > 0
   to_remove <- colnames(data$.segments)[-1]
   if (keep) {
     fun <- purrr::partial(eeg_mutate, .by_reference = .by_ref)
-    dfun <- mutate
+    dfun <- dplyr::mutate
   }  else {
      fun <- purrr::partial(eeg_transmute, .by_reference = .by_ref)
-     dfun <- transmute
+     dfun <- dplyr::transmute
   }
 
   mutate_c <- function(tbl, ...) {
     dfun(tbl, .id = .id, .sample = .sample, ...) %>%
-      ungroup() %>%
-      select(-any_of(to_remove))
+      dplyr::ungroup() %>%
+      dplyr::select(-dplyr::any_of(to_remove))
   }
 
-  data_X10 <- fun(data, X = X + 10)
+  
+  expect_message(data_X10 <- fun(data, X = X + 10), 
+                 regexp = ifelse(keep, 
+                                 # no message if it's regular mutate
+                                 NA,
+                                 # message otherwise
+                                 ""))
+  
   expect_equal_plain_df(
     data_X10$.signal,
     mutate_c(signal_df, X = X + 10)
   )
 
   if (.by_ref) {
-    expect_equal(data_X10, data)
+    expect_equal_eeg_lst(data_X10, data)
     data <- data.table::copy(ref_data)
+  } else {
+    expect_equal_eeg_lst(ref_data, data)
   }
 
   if (keep) expect_equal_but_cnt_sgl(data_X10, data)
@@ -75,9 +84,16 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
     }
   }
 
-  data_Xs10 <- fun(data, X = X *10 * segment)
+  
+  expect_message(data_Xs10 <- fun(data, X = X *10 * segment), 
+                 regexp = ifelse(keep, 
+                                 # no message if it's regular mutate
+                                 NA,
+                                 # message otherwise
+                                 ""))
+  
     if (.by_ref) {
-    expect_equal(data_Xs10, data)
+      expect_equal_eeg_lst(data_Xs10, data)
     data <- data.table::copy(ref_data)
   }
 
@@ -106,10 +122,14 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
   }
 
   
-
-  data_ZZX10 <- fun(data, ZZ = X + 10)
+  expect_message(data_ZZX10 <- fun(data, ZZ = X + 10), 
+                 regexp = ifelse(keep, 
+                                 # no message if it's regular mutate
+                                 NA,
+                                 # message otherwise
+                                 ""))
     if (.by_ref) {
-    expect_equal(data_ZZX10, data)
+      expect_equal_eeg_lst(data_ZZX10, data)
     data <- data.table::copy(ref_data)
   }
   expect_equal_plain_df(
@@ -138,9 +158,15 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
   expect_true(nrow(filter(data_ZZX10$.events, .channel == "ZZ")) == 0)
   expect_true(nrow(filter(channels_tbl(data_ZZX10), .channel == "ZZ")) > 0)
 
-  data_mean <- fun(data, mean = mean(X))
+  expect_message(data_mean <- fun(data, mean = mean(X)), 
+                 regexp = ifelse(keep, 
+                                 # no message if it's regular mutate
+                                 NA,
+                                 # message otherwise
+                                 ""))
+  
     if (.by_ref) {
-    expect_equal(data_mean, data)
+      expect_equal_eeg_lst(data_mean, data)
     data <- data.table::copy(ref_data)
   }
   expect_equal_plain_df(
@@ -167,10 +193,15 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
       ref_events <- data.table::copy(ref_data$.events)
   }
 }
-
-  data_mean <- fun(data, mean = mean(X), m = X + 2)
+  expect_message(data_mean <- fun(data, mean = mean(X), m = X + 2), 
+                 regexp = ifelse(keep, 
+                                 # no message if it's regular mutate
+                                 NA,
+                                 # message otherwise
+                                 ""))
+  
   if (.by_ref) {
-    expect_equal(data_mean, data)
+    expect_equal_eeg_lst(data_mean, data)
     data <- data.table::copy(ref_data)
    }
   expect_equal_plain_df(
@@ -205,7 +236,7 @@ if(.by_ref == FALSE){
 
 
   if (!grouped & keep) {
-    data_NULL <- fun(data, Y = NULL)
+    expect_message(data_NULL <- fun(data, Y = NULL))
     if(.by_ref == FALSE){
      expect_equal_eeg_lst(
        data_NULL,
@@ -221,7 +252,7 @@ if(.by_ref == FALSE){
   }
 
   if (!grouped & !keep) {
-    data_NULL <- expect_warning(fun(data, Y = NULL))
+    data_NULL <- expect_message(expect_warning(fun(data, Y = NULL)))
     if(!.by_ref){
       expect_warning(expect_equal(
         data_NULL,
@@ -242,16 +273,16 @@ if(.by_ref == FALSE){
   }
 
   if (.by_ref) {
-    expect_equal(data_NULL, data)
+    expect_equal_eeg_lst(data_NULL, data)
     data <- data.table::copy(ref_data)
   }
   
   if (!grouped & keep) {
-    expect_message(data_cst <- fun(data, Y = 10), regexp ="The following", all = TRUE)
+    expect_message(expect_message(data_cst <- fun(data, Y = 10), regexp ="The following", all = TRUE))
   }
 
   if (!grouped & !keep) {
-    expect_warning(expect_message(data_cst <- fun(data, Y = 10)))
+    expect_warning(expect_message(expect_message(data_cst <- fun(data, Y = 10))))
   }
 
   if (grouped) {
@@ -305,12 +336,12 @@ if(!.by_ref){
     )
   }
    if (.by_ref) {
-      expect_equal(data_cst, data)
+     expect_equal_eeg_lst(data_cst, data)
       data <- data.table::copy(ref_data)
     }
 
   if (keep & !grouped) {
-    expect_message(data_cst2 <- fun(data, Y = 1:length(.sample)))
+    expect_message(expect_message(data_cst2 <- fun(data, Y = 1:length(.sample))))
 
     expect_equal_but_sgl(
       data_cst2,
@@ -328,7 +359,7 @@ if(!.by_ref){
 
 
   if (!keep & !grouped) {
-    expect_warning(expect_message(data_cst2 <- fun(data, Y = 1:length(.sample))))
+    expect_warning(expect_message(expect_message(data_cst2 <- fun(data, Y = 1:length(.sample)))))
     if(!.by_ref){
     expect_warning(expect_equal_but_sgl(
       data_cst2,
@@ -414,7 +445,6 @@ if(!.by_ref){
 }
 
 
-### TESTS
 
 test_that("dplyr::mutate functions work correctly on ungrouped signal_tbl", {
   test_mutates_sgl(data)
@@ -509,6 +539,15 @@ test_that("mutation of samples works when it should",{
   #TODO double warning is unnecessary
   expect_warning(expect_message(expect_warning(data %>% mutate(.sample = 3), regexp = "Values of .sample should be samples"), regexp = "The following"))
 
+})
+
+### TESTS
+
+test_that("equivalent functions", {
+  expect_equal(eeg_mutate(data, X = X *10), 
+               dplyr::mutate(data, X = X *10))
+  expect_equal(eeg_transmute(data, X = X *10), 
+               dplyr::transmute(data, X = X *10))
 })
 
 

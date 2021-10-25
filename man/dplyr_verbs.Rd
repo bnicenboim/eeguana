@@ -4,53 +4,53 @@
 \alias{dplyr_verbs}
 \alias{eeg_mutate}
 \alias{eeg_transmute}
-\alias{filter.eeg_lst}
-\alias{filter.eeg_ica_lst}
+\alias{eeg_filter}
 \alias{summarise.eeg_lst}
-\alias{group_by.eeg_lst}
-\alias{ungroup.eeg_lst}
-\alias{select.eeg_lst}
-\alias{rename.eeg_lst}
-\alias{groups.eeg_lst}
-\alias{group_vars.eeg_lst}
-\alias{anti_join.eeg_lst}
-\alias{left_join.eeg_lst}
-\alias{semi_join.eeg_lst}
-\alias{tbl_vars.eeg_lst}
-\alias{pull.eeg_lst}
+\alias{eeg_group_by}
+\alias{eeg_ungroup}
+\alias{eeg_select}
+\alias{eeg_rename}
+\alias{eeg_groups}
+\alias{eeg_groups.eeg_lst}
+\alias{eeg_group_vars}
+\alias{eeg_anti_join}
+\alias{eeg_left_join}
+\alias{eeg_semi_join}
+\alias{eeg_vars}
+\alias{eeg_pull}
 \title{Dplyr-like functions for manipulating eeg_lst objects.}
 \usage{
 eeg_mutate(.data, ..., .by_reference = FALSE)
 
 eeg_transmute(.data, ..., .by_reference = FALSE)
 
-filter.eeg_lst(.data, ..., .preserve = FALSE)
-
-filter.eeg_ica_lst(.data, ..., .preserve = FALSE)
+eeg_filter(.data, ..., .preserve = FALSE)
 
 \method{summarise}{eeg_lst}(.data, ..., .groups = "keep")
 
-\method{group_by}{eeg_lst}(.data, ..., .add = FALSE, .drop = FALSE)
+eeg_group_by(.data, ..., .add = FALSE, .drop = FALSE)
 
-\method{ungroup}{eeg_lst}(.data, ...)
+eeg_ungroup(.data, ...)
 
-\method{select}{eeg_lst}(.data, ...)
+eeg_select(.data, ...)
 
-\method{rename}{eeg_lst}(.data, ...)
+eeg_rename(.data, ...)
 
-\method{groups}{eeg_lst}(x)
+eeg_groups(x)
 
-\method{group_vars}{eeg_lst}(x)
+\method{eeg_groups}{eeg_lst}(x)
 
-\method{anti_join}{eeg_lst}(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
+eeg_group_vars(x)
 
-\method{left_join}{eeg_lst}(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
+eeg_anti_join(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
 
-\method{semi_join}{eeg_lst}(x, y, by = NULL, suffix = c(".x", ".y"), ...)
+eeg_left_join(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
 
-tbl_vars.eeg_lst(x)
+eeg_semi_join(x, y, by = NULL, suffix = c(".x", ".y"), ...)
 
-pull.eeg_lst(.data, var = -1, name = NULL, ...)
+eeg_vars(x)
+
+eeg_pull(.data, var = -1, name = NULL, ...)
 }
 \arguments{
 \item{.data}{An eeg_lst.}
@@ -145,6 +145,7 @@ These functions emulate \link{dplyr} functionality but they are actually powered
 \item eeguana's \link{mutate} doesn't use the most updated value of a column from the same call. If X is a channel, then \code{data_eeg \%>\% mutate(X = X *2, Y = X+1)} will add \code{1} to the original value of \code{X}, and not to the latest one.
 \item \code{n()} doesn't work, instead \code{length(.sample)} will give the same answer.
 \item \code{across()} and \code{where()} cannot be used.
+\item \link{eeg_filter} behaves similarly to dplyr's \code{\link[dplyr:filter]{filter}}. If you want to filter the signal using IIR or FIR filters use \link[=filt]{eeg_filt*} functions.
 }
 }
 

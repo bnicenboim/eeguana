@@ -51,7 +51,7 @@ test_mutates_sgm <- function(data, keep = TRUE, .by_ref = FALSE) {
   
   data_s10 <- fun(data, segment = segment + 10)
   if (.by_ref) {
-    expect_equal(data_s10, data)
+    expect_equal_eeg_lst(data_s10, data)
     data <- data.table::copy(ref_data)
   }
   
@@ -70,7 +70,7 @@ test_mutates_sgm <- function(data, keep = TRUE, .by_ref = FALSE) {
 
   data_news10 <- fun(data, news = segment + 10)
   if (.by_ref) {
-    expect_equal(data_news10, data)
+    expect_equal_eeg_lst(data_news10, data)
     data <- data.table::copy(ref_data)
   }
   expect_equal_plain_df(
@@ -94,7 +94,7 @@ test_mutates_sgm <- function(data, keep = TRUE, .by_ref = FALSE) {
  
   data_max <- fun(data, max = max(val))
   if (.by_ref) {
-    expect_equal(data_max, data)
+    expect_equal_eeg_lst(data_max, data)
     data <- data.table::copy(ref_data)
   }
   expect_equal_plain_df(
@@ -109,7 +109,7 @@ test_mutates_sgm <- function(data, keep = TRUE, .by_ref = FALSE) {
   
   data_mean <- fun(data, mean = mean(segment), m =segment + 2)
   if (.by_ref) {
-    expect_equal(data_mean, data)
+    expect_equal_eeg_lst(data_mean, data)
     data <- data.table::copy(ref_data)
   }
   expect_equal_plain_df(
@@ -126,7 +126,7 @@ test_mutates_sgm <- function(data, keep = TRUE, .by_ref = FALSE) {
   if (!grouped & keep) {
     data_NULL <- fun(data, segment = NULL)
     if (.by_ref) {
-      expect_equal(data_NULL, data)
+      expect_equal_eeg_lst(data_NULL, data)
       data <- data.table::copy(ref_data)
     }
   
@@ -139,7 +139,7 @@ test_mutates_sgm <- function(data, keep = TRUE, .by_ref = FALSE) {
   if (!grouped & !keep) {
     data_NULL <- fun(data, segment = NULL)
     if (.by_ref) {
-      expect_equal(data_NULL, data)
+      expect_equal_eeg_lst(data_NULL, data)
       data <- data.table::copy(ref_data)
     }
     
@@ -166,7 +166,7 @@ test_mutates_sgm <- function(data, keep = TRUE, .by_ref = FALSE) {
   data_cst <- fun(data, segment = 10)
   
   if (.by_ref) {
-    expect_equal(data_cst, data)
+    expect_equal_eeg_lst(data_cst, data)
     data <- data.table::copy(ref_data)
   }
   
@@ -183,7 +183,7 @@ test_mutates_sgm <- function(data, keep = TRUE, .by_ref = FALSE) {
    
   data_cst2 <- fun(data, segment = 0:(length(segment)-1))
   if (.by_ref) {
-    expect_equal(data_cst2, data)
+    expect_equal_eeg_lst(data_cst2, data)
     data <- data.table::copy(ref_data)
   }
   expect_equal_but_sgm(
