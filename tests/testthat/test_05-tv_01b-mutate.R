@@ -20,7 +20,7 @@ data_2 <- dplyr::mutate(data_1,
 )
 
 # bind it all together
-data <- bind(data_1, data_2) %>% eeg_mutate(val = 1:6)
+suppressMessages(data <- bind(data_1, data_2) %>% eeg_mutate(val = 1:6))
 # for checks later
 reference_data <- data.table::copy(data)
 

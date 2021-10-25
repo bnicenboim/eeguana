@@ -279,7 +279,7 @@ test_that("the classes of channels of signal_tbl remain after within eeg_lst tab
 
 # check against original data
 test_that("data didn't change", {
-  expect_equal(reference_data, data)
+  expect_equal_eeg_lst(reference_data, data)
 })
 
 
@@ -537,7 +537,7 @@ test_that("the classes of channels of signal_tbl remain after dplyr::filtering b
 
 # check against original data
 test_that("data didn't change", {
-  expect_equal(reference_data, data)
+  expect_equal_eeg_lst(reference_data, data)
 })
 
 
@@ -570,9 +570,9 @@ test_that("data didn't change", {
 
 
 
-summarize_filter_eeg <- dplyr::group_by(data, .sample) %>%
-  dplyr::summarize(mean = mean(Y)) %>%
-  dplyr::filter(mean > -0.35)
+summarize_filter_eeg <- eeg_group_by(data, .sample) %>%
+  eeg_summarize(mean = mean(Y)) %>%
+  eeg_filter(mean > -0.35)
 
 summarize_filter_tbl <- dplyr::left_join(dplyr::as_tibble(data$.signal), dplyr::as_tibble(data$.segments), by = ".id") %>%
   dplyr::group_by(.sample) %>%
@@ -604,9 +604,9 @@ summarize_all_filter_tbl <- dplyr::left_join(dplyr::as_tibble(data$.signal), dpl
 
 
 # warnings about .id
-summarize_all1_filter_eeg <- dplyr::group_by(data, .id, condition) %>%
+summarize_all1_filter_eeg <- eeg_group_by(data, .id, condition) %>%
   dplyr::summarize_at(channel_names(.), "mean") %>%
-  dplyr::filter(condition == "a")
+  eeg_filter(condition == "a")
 
 summarize_all1_filter_tbl <- dplyr::left_join(dplyr::as_tibble(data$.signal), dplyr::as_tibble(data$.segments), by = ".id") %>%
   dplyr::group_by(.id, condition) %>%
@@ -614,9 +614,9 @@ summarize_all1_filter_tbl <- dplyr::left_join(dplyr::as_tibble(data$.signal), dp
   dplyr::filter(condition == "a")
 
 
-summarize_all2_filter_eeg <- dplyr::group_by(data, condition) %>%
+summarize_all2_filter_eeg <- eeg_group_by(data, condition) %>%
   dplyr::summarize_at(channel_names(.), "mean") %>%
-  dplyr::filter(condition == "a")
+  eeg_filter(condition == "a")
 
 
 summarize_all2_filter_tbl <- dplyr::left_join(dplyr::as_tibble(data$.signal), dplyr::as_tibble(data$.segments), by = ".id") %>%
@@ -699,9 +699,9 @@ test_that("the classes of channels of signal_tbl remain after dplyr::filtering b
 ##################
 
 ## DO NOT USE ifelse, it looses the attributes; TODO: write about it
-data_NA <- data %>% dplyr::mutate(X = dplyr::if_else(.id == 1 & .sample == 1, channel_dbl(NA), X))
-data_NAm1 <- data_NA %>% dplyr::filter(.id != 1 | .sample != 1)
-data_NAm1id <- data_NA %>% dplyr::filter(.id != 1)
+data_NA <- data %>% eeg_mutate(X = dplyr::if_else(.id == 1 & .sample == 1, channel_dbl(NA), X))
+data_NAm1 <- data_NA %>% eeg_filter(.id != 1 | .sample != 1)
+data_NAm1id <- data_NA %>% eeg_filter(.id != 1)
 
 test_that("grouped filter works", {
   expect_equal(data_NA %>%
@@ -737,7 +737,7 @@ test_that("slice_signal works", {
 
 ## check against original data
 test_that("data didn't change", {
-  expect_equal(reference_data, data)
+  expect_equal_eeg_lst(reference_data, data)
 })
 
 message("\n*****")

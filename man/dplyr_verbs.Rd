@@ -5,7 +5,7 @@
 \alias{eeg_mutate}
 \alias{eeg_transmute}
 \alias{eeg_filter}
-\alias{summarise.eeg_lst}
+\alias{eeg_summarize}
 \alias{eeg_group_by}
 \alias{eeg_ungroup}
 \alias{eeg_select}
@@ -26,7 +26,7 @@ eeg_transmute(.data, ..., .by_reference = FALSE)
 
 eeg_filter(.data, ..., .preserve = FALSE)
 
-\method{summarise}{eeg_lst}(.data, ..., .groups = "keep")
+eeg_summarize(.data, ..., .groups = "keep")
 
 eeg_group_by(.data, ..., .add = FALSE, .drop = FALSE)
 

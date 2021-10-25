@@ -162,10 +162,14 @@ filter.eeg_lst <- eeg_filter.eeg_lst
 #' @export
 filter.eeg_ica_lst <- eeg_filter.eeg_ica_lst
 
-
 #' @rdname dplyr_verbs
 #' @export
-summarise.eeg_lst <- function(.data, ..., .groups = "keep") {
+eeg_summarize <- function(.data, ..., .groups = "keep") {
+  UseMethod("eeg_summarize")
+}
+
+#' @export
+eeg_summarize.eeg_lst <- function(.data, ..., .groups = "keep") {
   dots <- rlang::quos(...)
   .data <- update_eeg_lst(.data)
   if(.groups != "keep") {
@@ -173,6 +177,17 @@ summarise.eeg_lst <- function(.data, ..., .groups = "keep") {
   }
   summarize_eeg_lst(.data, dots, .groups = "keep")
 }
+
+#' @noRd
+#' @export
+summarize.eeg_lst <- eeg_summarize.eeg_lst
+#' @noRd
+#' @export
+summarise.eeg_lst <- eeg_summarize.eeg_lst
+#' @noRd
+#' @export
+eeg_summarise.eeg_lst <- eeg_summarize.eeg_lst
+
 
 #' @rdname dplyr_verbs
 #' @export

@@ -19,7 +19,7 @@ data_2 <- dplyr::mutate(data_1,
 )
 
 # bind it all together
-data <- bind(data_1, data_2)
+suppressMessages(data <- bind(data_1, data_2))
 
 # for checks later
 reference_data <- data.table::copy(data)
@@ -155,8 +155,8 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
       ref_events <- data.table::copy(ref_data$.events)
   }
 }
-  expect_true(nrow(filter(data_ZZX10$.events, .channel == "ZZ")) == 0)
-  expect_true(nrow(filter(channels_tbl(data_ZZX10), .channel == "ZZ")) > 0)
+  expect_true(nrow(dplyr::filter(data_ZZX10$.events, .channel == "ZZ")) == 0)
+  expect_true(nrow(dplyr::filter(channels_tbl(data_ZZX10), .channel == "ZZ")) > 0)
 
   expect_message(data_mean <- fun(data, mean = mean(X)), 
                  regexp = ifelse(keep, 
@@ -287,7 +287,7 @@ if(.by_ref == FALSE){
 
   if (grouped) {
     # when groupped it keeps being a channel
-    data_cst <- fun(data, Y = 10)
+    expect_message(data_cst <- fun(data, Y = 10), regexp = ifelse(keep, NA, ""))
 
   }
  
@@ -369,7 +369,7 @@ if(!.by_ref){
     }
 
   if (!keep & grouped) {
-    data_cst2 <- fun(data, Y = 1:length(.sample))
+    expect_message(data_cst2 <- fun(data, Y = 1:length(.sample)))
     expect_equal_but_sgl(
       data_cst2,
       select(data, -X)
@@ -481,13 +481,13 @@ test_that("dplyr:mutate functions understand the right scope", {
 ### test dplyr mutate on grouped eeg_lst ###
 ############################################
 grouped_data <- list()
-grouped_data[[1]] <- group_by(data, .sample)
-grouped_data[[2]] <- group_by(data, .id)
-grouped_data[[3]] <- group_by(data, .recording)
-grouped_data[[4]] <- group_by(data, .sample, .recording)
-grouped_data[[5]] <- group_by(data, .id, .recording)
-grouped_data[[6]] <- group_by(data, .id, .sample, .recording)
-grouped_data[[7]] <- group_by(data, .sample, condition)
+grouped_data[[1]] <- eeg_group_by(data, .sample)
+grouped_data[[2]] <- eeg_group_by(data, .id)
+grouped_data[[3]] <- eeg_group_by(data, .recording)
+grouped_data[[4]] <- eeg_group_by(data, .sample, .recording)
+grouped_data[[5]] <- eeg_group_by(data, .id, .recording)
+grouped_data[[6]] <- eeg_group_by(data, .id, .sample, .recording)
+grouped_data[[7]] <- eeg_group_by(data, .sample, condition)
 
 test_that("dplyr::mutate functions work correctly on grouped signal_tbl", {
   for (d in grouped_data) {
@@ -514,30 +514,34 @@ test_that("data didn't change after grouping and mutate functions", {
 ### test as_time conversion  ###
 
 test_that("as_time works as expected", {
-  expect_warning(expect_message(eeg_time <- mutate(data, .time = as_time(.sample, .unit = "seconds")) %>%
-  summarize(mean = mean(.time)), regexp = "The following"))
+  expect_warning(
+    expect_message(eeg_time <-
+                eeg_mutate(data, 
+                  .time = as_time(.sample, .unit = "seconds")) %>%
+  eeg_summarize(mean = mean(.time)), regexp = "The following"))
 
-  tbl_time <- data %>%
-  as_tibble() %>%
-  summarize(mean = mean(.time))
+  tbl_time <- data  %>%
+  dplyr::as_tibble() %>%
+  dplyr::summarize(mean = mean(.time))
 
   expect_equal(as.double(eeg_time$.signal[["mean"]]), tbl_time$mean)
-  expect_warning(expect_message(mutate(data, .time = as_time(.sample, .unit = "seconds")) %>%
-    summarize(mean = mean(.time))))
+  expect_warning(expect_message(eeg_mutate(data, .time = as_time(.sample, .unit = "seconds")) %>%
+    eeg_summarize(mean = mean(.time))))
 })
 
 
 
 test_that("mutation of samples works when it should",{
   expect_message(msample_1 <- data %>%
-                   mutate(bin = ntile(.sample, 5)), regexp= "The following")
+                   eeg_mutate(bin = dplyr::ntile(.sample, 5)), regexp= "The following")
   msample_1_dt <- data.table::copy(data)
-  msample_1_dt$.signal[, bin := ntile(.sample,5)]
+  msample_1_dt$.signal[, bin := dplyr::ntile(.sample,5)]
   expect_equal(msample_1, msample_1_dt)
   #TODO better error
-  expect_warning(expect_error(data %>% mutate(.sample = NULL)))
+  expect_warning(expect_error(data %>% eeg_mutate(.sample = NULL)))
   #TODO double warning is unnecessary
-  expect_warning(expect_message(expect_warning(data %>% mutate(.sample = 3), regexp = "Values of .sample should be samples"), regexp = "The following"))
+  expect_warning(expect_message(expect_warning(data %>% eeg_mutate(.sample = 3),
+                                               regexp = "Values of .sample should be samples"), regexp = "The following"))
 
 })
 
