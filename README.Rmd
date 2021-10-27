@@ -105,14 +105,13 @@ We can also edit the segmentation information and add more descriptive labels. O
 ```{r}
 ## To only see the segments table:
 segments_tbl(faces_segs)
-library(dplyr)
 ## We modify the entire object:
 faces_segs_some <- faces_segs %>%
-  mutate(
+  eeg_mutate(
     condition =
-      if_else(description == "s70", "faces", "non-faces")
+      ifelse(description == "s70", "faces", "non-faces")
   ) %>%
-  select(-type)
+  eeg_select(-type)
 
 faces_segs_some
 ```
@@ -122,7 +121,7 @@ With some "regular" `ggplot` skills, we can create customized plots. `ggplot()` 
 ```{r plot, fig.dim = c(10,15), out.width = "100%", results = "hide"}
 library(ggplot2)
 faces_segs_some %>%
-  select(O1, O2, P7, P8) %>%
+  eeg_select(O1, O2, P7, P8) %>%
   ggplot(aes(x = .time, y = .value)) +
   geom_line(alpha = .1, aes(group = .id, color = condition)) +
   stat_summary(
@@ -143,9 +142,9 @@ of the stimuli, creating a table with interpolated amplitudes and using the ggpl
 
 ```{r topo, fig.dim = c(10,5), out.width = "100%", results = "hide"}
 faces_segs_some %>%
-  filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
-  group_by(condition) %>%
-  summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
+  eeg_filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
+  eeg_group_by(condition) %>%
+  dplyr::summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
   plot_topo() +
   annotate_head() +
   geom_contour() +

@@ -167,6 +167,8 @@ if (0) {
     geom_line(alpha = .5)
 }
 
+message("to test using python fast ica")
+if(0){
 test_that("can use other (python) functions", {
   skip_on_ci()
   eeguana:::skip_on_actions()
@@ -190,7 +192,7 @@ test_that("can use other (python) functions", {
   data_no_blinks_py <- data_ica_py %>% eeg_ica_keep(-ICA1)
   expect_equal(data_no_blinks$.signal, data_no_blinks_py$.signal, tolerance = .4)
 })
-
+}
 
 test_that("raw brainvision read and converted from MNE match", {
   # it needs MNE installed
