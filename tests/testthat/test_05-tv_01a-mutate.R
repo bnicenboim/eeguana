@@ -571,7 +571,5 @@ test_that("equivalent functions", {
 
 message("\n***")
 message("test mutate when there are ICAs")
-message("test by groups by reference")
-message("do mutate_across  etc haven't been tested")
 message("***\n")
 

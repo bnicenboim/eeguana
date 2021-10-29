@@ -180,7 +180,7 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
   for (dfs in select_in_df) {
     vars_dfs <- all_vars[all_vars %in% colnames(.eeg_lst[[dfs]])]
     # add grouped vars if missing
-    groups <- dplyr::group_vars(.eeg_lst)[dplyr::group_vars(.eeg_lst) %in% colnames(.eeg_lst[[dfs]])]
+    groups <- eeg_group_vars(.eeg_lst)[eeg_group_vars(.eeg_lst) %in% colnames(.eeg_lst[[dfs]])]
     missing_grouped_vars <- setdiff(groups, vars_dfs) %>%
         stats::setNames(., .)
     if(length(missing_grouped_vars)>0) {
