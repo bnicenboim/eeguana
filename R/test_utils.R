@@ -26,28 +26,28 @@ expect_equal_eeg_lst <-function(object, expected, ..., info = NULL, label = NULL
 expect_equal_but_cnt_sgl <-function(object, expected, ..., info = NULL, label = NULL, expected.label = NULL) {
   object$.signal <- object$.signal[0,]
   expected$.signal <- expected$.signal[0,]
-    eval(bquote(expect_equal(.(object), .(expected))))
+    eval(bquote(expect_equal_eeg_lst(.(object), .(expected))))
 }
 
 #' @noRd
 expect_equal_but_sgl <-function(object, expected, ..., info = NULL, label = NULL, expected.label = NULL) {
   object$.signal <- NULL
   expected$.signal <- NULL
-    eval(bquote(expect_equal(.(object), .(expected))))
+    eval(bquote(expect_equal_eeg_lst(.(object), .(expected))))
 }
 
 #' @noRd
 expect_equal_but_cnt_sgm <-function(object, expected, ..., info = NULL, label = NULL, expected.label = NULL) {
   object$.segments <- object$.segments[0,]
   expected$.segments <- expected$.segments[0,]
-    eval(bquote(expect_equal(.(object), .(expected))))
+    eval(bquote(expect_equal_eeg_lst(.(object), .(expected))))
 }
 
 #' @noRd
 expect_equal_but_sgm <-function(object, expected, ..., info = NULL, label = NULL, expected.label = NULL) {
   object$.segments <- NULL
   expected$.segments <- NULL
-    eval(bquote(expect_equal(.(object), .(expected))))
+    eval(bquote(expect_equal_eeg_lst(.(object), .(expected))))
 }
 #' @noRd
 skip_on_actions <- function() {

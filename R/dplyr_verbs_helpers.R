@@ -77,22 +77,19 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_reference = FALS
 
     # extended signal dt with the group_by col, and the conditional columns
     # TODO: group_by columns could be pasted together and converted to factor
-    extended_signal_dt <- extended_signal(.eeg_lst, cond_cols = cond_cols, .by_reference = .by_reference)
+    extended_signal_dt <- extended_signal(.eeg_lst, cond_cols = cond_cols, .by_reference = FALSE)
 
-    by <- dplyr::group_vars(.eeg_lst) 
-
-    extended_signal_dt <- mutate_dt(extended_signal_dt, 
-                                    !!!new_dots$.signal, 
-                                    group_by_ = by,  
-                                    .by_reference = .by_reference, 
-                                    omit_shallow = TRUE)
+    by <- eeg_group_vars(.eeg_lst) 
+    dots_signal <- prep_exprs(new_dots$.signal, extended_signal_dt, !!by, j = TRUE)
+    extended_signal_dt <- mutate.(extended_signal_dt, 
+                                    !!!dots_signal, 
+                                    .by = by)
 
 
     #intersect in case there are less columns now
     new_cols <- intersect(cols_signal, names(extended_signal_dt))
     aux_cols <- setdiff(names(extended_signal_dt), new_cols)
     # removes the extended columns
-    ## .eeg_lst$.signal <- extended_signal_dt[, new_cols, with = FALSE][]
     if(length(aux_cols)==0){
       .eeg_lst$.signal <- extended_signal_dt
     } else {
@@ -107,7 +104,7 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_reference = FALS
     # updates the events and the channels
     .eeg_lst <- .eeg_lst %>%
       update_events_channels(.by_reference = .by_reference)
-    data.table::setkey(.eeg_lst$.signal, .id, .sample)
+      data.table::setkey(.eeg_lst$.signal, .id, .sample)
   }
 
   # If relevant mutates segments as well
@@ -119,11 +116,10 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_reference = FALS
       rlang::syms(.)
     ## TODO: check what happens when it's grouped by  something
     by <- dplyr::group_vars(.eeg_lst) 
-    .eeg_lst$.segments <- mutate_dt(
-      .eeg_lst$.segments, !!!new_dots$.segments, .by_reference = .by_reference,
-      group_by_ = by
-    )
-
+    .eeg_lst$.segments <- mutate.(
+      .eeg_lst$.segments, !!!new_dots$.segments,
+      .by = by)
+    
     if (!keep_cols) {
       #transmute
       #use intersect in case some columns are gone
@@ -309,9 +305,9 @@ extended_signal <- function(.eeg_lst, cond_cols = NULL, events_cols = NULL, .by_
   if(.by_reference) {
     extended_signal_dt <- .eeg_lst$.signal
   } else {
-    extended_signal_dt <- data.table:::shallow(.eeg_lst$.signal)
+    extended_signal_dt <- shallow(.eeg_lst$.signal)
   }
-  relevant_cols <- c(".id",dplyr::group_vars(.eeg_lst), cond_cols)
+  relevant_cols <- c(".id", eeg_group_vars(.eeg_lst), cond_cols)
   if (any(relevant_cols != ".id")) { # more than just .id
     segments <- .eeg_lst$.segments[extended_signal_dt, unique(relevant_cols), with = FALSE]
     extended_signal_dt[, `:=`(names(segments), segments)]
@@ -384,7 +380,7 @@ dots_by_tbl_quos <- function(.eeg_lst, dots) {
         if (txt_element %in% signal_cols) {
           return(TRUE)
         } else if (exists(txt_element) && is.function(eval(parse(text = txt_element)))) {
-          return(chr_detect(txt_element, "^ch_|^chs_|^channel_dbl|^channel_names|^signal_tbl"))
+          return(chr_detect(txt_element, "channel_dbl$|^ch_|^chs_|^channel_dbl|^channel_names|^signal_tbl"))
         } else {
           return(FALSE)
         }

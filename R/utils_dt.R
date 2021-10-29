@@ -1,4 +1,9 @@
 #' @noRd
+shallow <- function(x){
+  x[TRUE]
+}
+
+#' @noRd
 lapply_dtc <- function(X, FUN, ...){
   lapply(X, FUN, ...) %>%
     data.table::setDT()
@@ -208,3 +213,9 @@ changed_objects <- function(obj){
   }
 }
 
+mutate. <- function(.df, ..., .by) {
+  oldclass <- class(.df)
+  .df <- tidytable::mutate.(.df = .df, ...,.by = .by )
+  class(.df) <- oldclass
+  .df
+}

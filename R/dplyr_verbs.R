@@ -104,9 +104,9 @@ eeg_mutate <- function(.data, ..., .by_reference = FALSE) {
 }
 
 #' @export
-eeg_mutate.eeg_lst <- function(.data, ..., .by_reference = FALSE) {
+eeg_mutate.eeg_lst <- function(.data, ...) {
   .data <- update_eeg_lst(.data)
-  mutate_eeg_lst(.data, ..., keep_cols = TRUE, .by_reference = .by_reference) %>%
+  mutate_eeg_lst(.data, ..., keep_cols = TRUE) %>%
     validate_eeg_lst()
 }
 

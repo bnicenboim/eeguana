@@ -32,11 +32,11 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
   ref_data <- data.table::copy(data)
   data <- data.table::copy(data)
   ref_events <- data.table::copy(data$.events)
-  groups <- group_vars(data)
+  groups <- eeg_group_vars(data)
   signal_df <- as.data.frame(data$.signal) %>%
     dplyr::left_join(data$.segments, by = ".id") %>%
     dplyr::group_by_at(dplyr::all_of(groups))
-  grouped <- length(dplyr::group_vars(data)) > 0
+  grouped <- length(eeg_group_vars(data)) > 0
   to_remove <- colnames(data$.segments)[-1]
   if (keep) {
     fun <- purrr::partial(eeg_mutate, .by_reference = .by_ref)
@@ -76,7 +76,7 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
   if (!keep) {
 
  if(.by_ref == FALSE){
-       expect_equal_but_cnt_sgl(data_X10, data %>% select(-Y))
+       expect_equal_but_cnt_sgl(data_X10, data %>% eeg_select(-Y))
     } else {
       expect_equal(data_X10$.events,
                    ref_events[.channel == "Y",names(ref_data$.events) := NA][])
@@ -113,7 +113,7 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
  if (!keep) {
 
  if(.by_ref == FALSE){
-       expect_equal_but_cnt_sgl(data_Xs10, data %>% select(-Y))
+       expect_equal_but_cnt_sgl(data_Xs10, data %>% eeg_select(-Y))
     } else {
       expect_equal(data_Xs10$.events,
                    ref_events[.channel == "Y",names(ref_data$.events) := NA][])
@@ -146,8 +146,8 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
  if(.by_ref == FALSE){
     expect_equal_but_cnt_sgl(
       data_ZZX10,
-      data %>% mutate(ZZ = X + 10) %>%
-        select(-X, -Y)
+      data %>% eeg_mutate(ZZ = X + 10) %>%
+        eeg_select(-X, -Y)
     )
   } else {
      expect_equal(data_ZZX10$.events,
@@ -184,8 +184,8 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
  if(.by_ref == FALSE){
     expect_equal_but_sgl(
       data_mean,
-      data %>% mutate(mean = mean(X)) %>%
-        select(-X, -Y)
+      data %>% eeg_mutate(mean = mean(X)) %>%
+        eeg_select(-X, -Y)
     )
    } else {
      expect_equal(data_mean$.events,
@@ -221,8 +221,8 @@ if(!keep){
 if(.by_ref == FALSE){
    expect_equal_but_sgl(
       data_mean,
-      data %>% mutate(mean = mean(X) + 10, m = X + 2) %>%
-        select(-X, -Y)
+      data %>% eeg_mutate(mean = mean(X) + 10, m = X + 2) %>%
+        eeg_select(-X, -Y)
     )
    } else {
      expect_equal(data_mean$.events,
@@ -240,7 +240,7 @@ if(.by_ref == FALSE){
     if(.by_ref == FALSE){
      expect_equal_eeg_lst(
        data_NULL,
-        select(ref_data, -Y)
+        eeg_select(ref_data, -Y)
      )
     } else {
       expect_equal_plain_df(mutate_c(signal_df, Y= NULL),
@@ -252,15 +252,16 @@ if(.by_ref == FALSE){
   }
 
   if (!grouped & !keep) {
-    data_NULL <- expect_message(expect_warning(fun(data, Y = NULL)))
+     expect_message(expect_warning(data_NULL <- fun(data, Y = NULL)))
     if(!.by_ref){
       expect_warning(expect_equal(
         data_NULL,
-        select(ref_data, -Y, -X)
+        eeg_select(ref_data, -Y, -X)
       ))
     }
 
   }
+  
   if (!grouped) {
     expect_equal_plain_df(
       data_NULL$.signal,
@@ -268,21 +269,25 @@ if(.by_ref == FALSE){
     )
   }
 
-  if (grouped) {
-    expect_error(fun(data, Y = NULL))
+  if (grouped & keep) {
+    expect_message(fun(data, Y = NULL))
   }
-
+  if (grouped & !keep) {
+    expect_warning(expect_message(fun(data, Y = NULL)))
+  }
+  
   if (.by_ref) {
     expect_equal_eeg_lst(data_NULL, data)
     data <- data.table::copy(ref_data)
   }
   
   if (!grouped & keep) {
-    expect_message(expect_message(data_cst <- fun(data, Y = 10), regexp ="The following", all = TRUE))
+    # it doesn't throw an message anymore
+      data_cst <- fun(data, Y = 10)
   }
 
   if (!grouped & !keep) {
-    expect_warning(expect_message(expect_message(data_cst <- fun(data, Y = 10))))
+    expect_message(data_cst <- fun(data, Y = 10))
   }
 
   if (grouped) {
@@ -299,9 +304,10 @@ if(.by_ref == FALSE){
   if (!grouped & keep) {
 
     if(.by_ref == FALSE){
+      #keeps the events table as it is
       expect_equal_but_sgl(
         data_cst,
-        select(ref_data, -Y)
+        ref_data
       )
     } else {
       expect_equal_plain_df(mutate_c(signal_df, Y= 10),
@@ -315,10 +321,10 @@ if(.by_ref == FALSE){
 
   if (!grouped & !keep) {
 if(!.by_ref){
-    expect_warning(expect_equal_but_sgl(
+    expect_equal_but_sgl(
       data_cst,
-      select(ref_data, -Y, -X)
-    ))
+      eeg_select(ref_data,  -X)
+    )
   }
 }
 
@@ -332,7 +338,7 @@ if(!.by_ref){
   if (grouped & !keep) {
     expect_equal_but_sgl(
       data_cst,
-      data %>% select(-X)
+      data %>% eeg_select(-X)
     )
   }
    if (.by_ref) {
@@ -341,38 +347,38 @@ if(!.by_ref){
     }
 
   if (keep & !grouped) {
-    expect_message(expect_message(data_cst2 <- fun(data, Y = 1:length(.sample))))
+    expect_message(expect_message(data_cst2 <- fun(data, Y = 1:n())))
 
     expect_equal_but_sgl(
       data_cst2,
-      select(data, -Y)
+      eeg_select(data, -Y)
     )
   }
 
   if (keep & grouped) {
-    data_cst2 <- fun(data, Y = 1:length(.sample))
+    data_cst2 <- fun(data, Y = 1:n())
     expect_equal_but_sgl(
       data_cst2,
-      select(data)
+      eeg_select(data)
     )
   }
 
 
   if (!keep & !grouped) {
-    expect_warning(expect_message(expect_message(data_cst2 <- fun(data, Y = 1:length(.sample)))))
+    expect_warning(expect_message(expect_message(data_cst2 <- fun(data, Y = 1:n()))))
     if(!.by_ref){
     expect_warning(expect_equal_but_sgl(
       data_cst2,
-      select(data, -Y, -X)
+      eeg_select(data, -Y, -X)
     ))
   }
     }
 
   if (!keep & grouped) {
-    expect_message(data_cst2 <- fun(data, Y = 1:length(.sample)))
+    expect_message(data_cst2 <- fun(data, Y = 1:n()))
     expect_equal_but_sgl(
       data_cst2,
-      select(data, -X)
+      eeg_select(data, -X)
     )
   }
 
@@ -401,13 +407,13 @@ if(!.by_ref){
   if (keep) {
     expect_equal_but_sgl(
       data_ch,
-      select(data)
+      eeg_select(data)
     )
   } else {
     if(!.by_ref){
     expect_equal_but_sgl(
       data_ch,
-      select(data, -X)
+      eeg_select(data, -X)
     )
     }
   }
@@ -436,7 +442,7 @@ if(!.by_ref){
     if(.by_ref != TRUE){
     expect_equal_but_sgl(
       data_ch2,
-       data %>% select(-X)
+       data %>% eeg_select(-X)
     )
     }
   }
@@ -450,18 +456,21 @@ test_that("dplyr::mutate functions work correctly on ungrouped signal_tbl", {
   test_mutates_sgl(data)
 })
 
+if(0){ #not in use for now
 test_that("dplyr::mutate functions work correctly on ungrouped signal_tbl by reference", {
   test_mutates_sgl(data, .by_ref = TRUE)
 })
+}
 
 test_that("dplyr::transmute functions work correctly on ungrouped signal_tbl", {
   test_mutates_sgl(data, keep = FALSE)
 })
 
-
+if(0){
 test_that("dplyr::transmute functions work correctly on ungrouped signal_tbl and by ref", {
   test_mutates_sgl(data, keep = FALSE, .by_ref = TRUE)
 })
+}
 
 
 nsamples <- 100
@@ -539,9 +548,10 @@ test_that("mutation of samples works when it should",{
   expect_equal(msample_1, msample_1_dt)
   #TODO better error
   expect_warning(expect_error(data %>% eeg_mutate(.sample = NULL)))
-  #TODO double warning is unnecessary
-  expect_warning(expect_message(expect_warning(data %>% eeg_mutate(.sample = 3),
-                                               regexp = "Values of .sample should be samples"), regexp = "The following"))
+  
+  ## No more warning #TODO double warning is unnecessary
+  # expect_warning(expect_message(expect_warning(data %>% eeg_mutate(.sample = 3),
+  #                                              regexp = "Values of .sample should be samples"), regexp = "The following"))
 
 })
 
@@ -550,8 +560,8 @@ test_that("mutation of samples works when it should",{
 test_that("equivalent functions", {
   expect_equal(eeg_mutate(data, X = X *10), 
                dplyr::mutate(data, X = X *10))
-  expect_equal(eeg_transmute(data, X = X *10), 
-               dplyr::transmute(data, X = X *10))
+  expect_equal(suppressMessages(eeg_transmute(data, X = X *10)), 
+               suppressMessages(dplyr::transmute(data, X = X *10)))
 })
 
 
