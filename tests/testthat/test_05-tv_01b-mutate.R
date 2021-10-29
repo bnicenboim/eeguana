@@ -231,22 +231,29 @@ test_that("dplyr::transmute functions work correctly on ungrouped segments_tbl a
 
 
 d_grouped <- data %>% dplyr::group_by(.recording)
-
+d_grouped2 <- data %>% dplyr::group_by(.sample)
 
 test_that("dplyr::mutate functions work correctly on grouped segments_tbl", {
   test_mutates_sgm(d_grouped)
+  test_mutates_sgm(d_grouped2)
+  
 })
-
+if(0){
 test_that("dplyr::mutate functions work correctly on grouped segments_tbl by reference", {
   test_mutates_sgm(d_grouped, .by_ref = TRUE)
+  test_mutates_sgm(d_grouped2, .by_ref = TRUE)
 })
-
+}
 test_that("dplyr::transmute functions work correctly on grouped segments_tbl", {
   test_mutates_sgm(d_grouped, keep = FALSE)
+  test_mutates_sgm(d_grouped2, keep = FALSE)
+  
 })
 
-
+if(0){
 test_that("dplyr::transmute functions work correctly on ungrouped segments_tbl and by ref", {
   test_mutates_sgm(d_grouped, keep = FALSE, .by_ref = TRUE)
+  test_mutates_sgm(d_grouped2, keep = FALSE, .by_ref = TRUE)
+  
 })
-
+}

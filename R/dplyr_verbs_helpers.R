@@ -80,9 +80,10 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_reference = FALS
     extended_signal_dt <- extended_signal(.eeg_lst, cond_cols = cond_cols, .by_reference = FALSE)
 
     by <- eeg_group_vars(.eeg_lst) 
-    dots_signal <- prep_exprs(new_dots$.signal, extended_signal_dt, !!by, j = TRUE)
+    
+    dots_signal <- prep_dots(dots = new_dots$.signal,data =  extended_signal_dt,.by =  !!by, j = TRUE)
     extended_signal_dt <- mutate.(extended_signal_dt, 
-                                    !!!dots_signal, 
+                                  !!!dots_signal, 
                                     .by = by)
 
 
@@ -109,21 +110,18 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_reference = FALS
 
   # If relevant mutates segments as well
   if (length(new_dots$.segments) > 0) {
-    missing_vars <- dplyr::setdiff(
-      obligatory_cols$.segments,
-      dplyr::group_vars(.eeg_lst$.segments)
-    ) %>%
-      rlang::syms(.)
-    ## TODO: check what happens when it's grouped by  something
-    by <- dplyr::group_vars(.eeg_lst) 
+    by <- intersect(eeg_group_vars(.eeg_lst), colnames(.eeg_lst$.segments))
+ 
+    dots_segments <- prep_dots(new_dots$.segments, .eeg_lst$.segments, !!by, j = TRUE)
     .eeg_lst$.segments <- mutate.(
-      .eeg_lst$.segments, !!!new_dots$.segments,
+      .eeg_lst$.segments, !!!dots_segments,
       .by = by)
     
     if (!keep_cols) {
       #transmute
       #use intersect in case some columns are gone
-      cols_to_keep <-intersect(c(obligatory_cols[[".segments"]], names(new_dots$.segments)),
+      cols_to_keep <- intersect(c(obligatory_cols[[".segments"]], 
+                                 names(new_dots$.segments)),
                                colnames(.eeg_lst$.segments))
       if(!.by_reference){
           .eeg_lst$.segments <- .eeg_lst$.segments[, ..cols_to_keep]

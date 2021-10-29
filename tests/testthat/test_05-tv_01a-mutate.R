@@ -484,7 +484,11 @@ test_that("dplyr:mutate functions understand the right scope", {
   expect_equal(data_nsamples_, data_nsamples)
 })
 
-
+test_that("dplyr:mutate across", {
+  expect_equal(data %>% eeg_mutate(across(where(is_channel_dbl),~.x*10)),
+               data %>% eeg_mutate(X = X*10, Y = Y *10))
+  expect_equal(data_nsamples_, data_nsamples)
+})
 
 ############################################
 ### test dplyr mutate on grouped eeg_lst ###

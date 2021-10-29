@@ -1,4 +1,4 @@
-# FRom https://github.com/markfairbanks/tidytable/blob/main/R/utils-prep_exprs.R
+# Adapted from: https://github.com/markfairbanks/tidytable/blob/main/R/utils-prep_exprs.R
 
 # "Prepare" quosures/expressions for use in a "[.data.table" call
 # Allows the use of functions like n() and across.()
@@ -42,7 +42,46 @@ prep_expr_call <- function(x, data, .by = NULL, j = FALSE) {
   } 
 }
 
+#' @export
 across <- function (.cols = everything(), .fns = NULL, ..., .names = NULL) 
 {
- # stop("Error: `across()` must only be used inside dplyr-like verbs.")
+  if("dplyr" %in% (.packages())){
+  dplyr::across(.cols = .cols, .fns = .fns, ..., .names = .names) 
+  } else {
+   stop("`across()` must only be used inside dplyr-like verbs.")
+  }
+}
+
+#' @export
+c_across <- function (.cols = everything()) 
+{
+  if("dplyr" %in% (.packages())){
+    dplyr::c_across(.cols = .cols) 
+  } else {
+    stop("`c_across()` must only be used inside dplyr-like verbs.")
+  }
+}
+
+get_dt_env <- function (x, ...) 
+{
+  if (length(x) == 0) {
+    dt_env <- rlang::caller_env(2)
+  }
+  else if (rlang::is_quosures(x)) {
+    x <- x[[1]]
+    dt_env <-rlang::get_env(x)
+  }
+  else {
+    dt_env <- rlang::get_env(x)
+  }
+  if (identical(dt_env, rlang::empty_env())) {
+    dt_env <- rlang::caller_env(2)
+  }
+  rlang::env(dt_env, ...)
+}
+
+prep_dots <- function(dots, data, .by = NULL, j = FALSE){
+  dt_env <- get_dt_env(dots)
+  dots <- prep_exprs(dots, data, !!by, j = TRUE)
+  rlang::as_quosures(dots, env = dt_env)
 }
