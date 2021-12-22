@@ -4,6 +4,54 @@ options(eeguana.verbose = FALSE)
 chr_remove <- eeguana:::chr_remove
 data("data_faces_10_trials")
 
+# create fake dataset
+
+data_1 <- eeguana:::data_sincos3id
+data_2 <- eeg_mutate(data_1, .recording = "recording2", 
+                     X = sin(X + 10),
+                     Y = cos(Y - 10),
+                     condition = c("b", "a", "b"))
+data <- bind(data_1, data_2)
+
+# for checks later
+reference_data <- data.table::copy(data)
+
+
+test_that("eeg_summarize across works correctly on ungrouped data", {
+summarize_def_eeg <- eeg_summarize(data,  X = mean(X), Y = mean(Y))
+summarize_ac_eeg <- eeg_summarize(data, across(channel_names(data), mean))
+summarize_ac2_eeg <- eeg_summarize(data, across(where(is_channel_dbl), mean))
+summarize_ac3_eeg <- eeg_summarize(data, across(channel_names(data), "mean"))
+summarize_ac4_eeg <- dplyr::summarize(data, dplyr::across(where(is_channel_dbl), mean))
+summarize_ac5_eeg <- eeg_summarize(data, across(channel_names(data), ~ mean(.x)))
+summarize_ac6_eeg <- eeg_summarize(data, across(channel_names(data), list(mean = ~ mean(.))))
+expect_equal(summarize_ac_eeg, summarize_def_eeg)
+expect_equal(summarize_ac_eeg, summarize_ac2_eeg)
+expect_equal(summarize_ac_eeg, summarize_ac3_eeg)
+expect_equal(summarize_ac_eeg, summarize_ac4_eeg)
+expect_equal(summarize_ac_eeg, summarize_ac5_eeg)
+expect_equal(summarize_ac_eeg %>% eeg_rename(X_mean = X, Y_mean = Y),
+             summarize_ac6_eeg)
+})
+
+test_that("eeg_mutate across works correctly on ungrouped data", {
+  mutate_def_eeg <- eeg_mutate(data,  X = scale(X), Y = scale(Y))
+  mutate_ac_eeg <- eeg_mutate(data, across(channel_names(data), scale))
+  mutate_ac2_eeg <- eeg_mutate(data, across(where(is_channel_dbl), scale))
+  mutate_ac3_eeg <- eeg_mutate(data, across(channel_names(data), "scale"))
+  mutate_ac4_eeg <- dplyr::mutate(data, dplyr::across(where(is_channel_dbl), scale))
+  mutate_ac5_eeg <- eeg_mutate(data, across(channel_names(data), ~ scale(.x)))
+  mutate_ac6_eeg <- eeg_mutate(data, across(channel_names(data), list(scale = ~ scale(.))))
+  expect_equal(mutate_ac_eeg, mutate_def_eeg)
+  expect_equal(mutate_ac_eeg, mutate_ac2_eeg)
+  expect_equal(mutate_ac_eeg, mutate_ac3_eeg)
+  expect_equal(mutate_ac_eeg, mutate_ac4_eeg)
+  expect_equal(mutate_ac_eeg, mutate_ac5_eeg)
+  expect_equal(mutate_ac_eeg %>% eeg_rename(X_scale = X, Y_scale = Y),
+               mutate_ac6_eeg)
+})
+
+
 data_grouped_descr <- data_faces_10_trials %>%
   eeg_segment(.description %in% c("s70", "s71"), .lim = c(-1, 1)) %>%
   eeg_events_to_NA(.description == "Bad Min-Max") %>%

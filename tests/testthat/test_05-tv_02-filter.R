@@ -5,7 +5,7 @@ options(eeguana.verbose = FALSE)
 data_1 <- eeguana:::data_sincos3id
 
 # just some different X and Y
-data_2 <- dplyr::mutate(data_1,
+data_2 <- eeg_mutate(data_1,
   .recording = "recording2",
   X = sin(X + 10),
   Y = cos(Y - 10),
@@ -445,9 +445,8 @@ mutate_filter3_tbl <- dplyr::left_join(dplyr::as_tibble(data$.signal), dplyr::as
   dplyr::mutate(group = ifelse(.sample > 0, "late", "early")) %>%
   dplyr::filter(group == "late")
 
-
 mutate_filter4_eeg <- data %>%
-  eeg_mutate(group = ifelse(Y > 0, "pos", "neg")) %>%
+  eeg_mutate(group = ifelse.(Y > 0, "pos", "neg")) %>%
   eeg_filter(group == "neg")
 
 mutate_filter4_tbl <- dplyr::left_join(dplyr::as_tibble(data$.signal), dplyr::as_tibble(data$.segments), by = ".id") %>%

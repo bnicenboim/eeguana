@@ -219,3 +219,10 @@ mutate. <- function(.df, ..., .by) {
   class(.df) <- oldclass
   .df
 }
+
+summarize. <- function(.df, ..., .by) {
+  oldclass <- class(.df)
+  .df <- tidytable::summarize.(.df = .df, ...,.by = .by )
+  class(.df) <- oldclass
+  .df
+}

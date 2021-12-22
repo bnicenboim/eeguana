@@ -3,14 +3,13 @@
 - **Potential breaking change**: when segments with repeated columns are joined, they use data.table notation (`i...`) rather than dplyr notation. This might affect the `join` family and `eeg_segment`.
 - dplyr-like functions get an `eeg_` prefix (e.g., `eeg_mutate`, `eeg_filter`), they still work without the prefix (for now).
 - NEW FEATURES:
-    - filters have more options (including IIR and by reference!).
+    - filters have more options (including IIR, experimental).
     - read eeglab set files (still experimental)
-    - `mutate` (also called `eeg_mutate`) gets a `.by_reference` argument
 - documentation:
     - more examples
 - internal changes:
     - removed dependency with `stringr`
-    - changed internal structure of `eeg_lst`, the segments table is a data.table rather than a tibble
+    - changed internal structure of `eeg_lst`, the segments table is a data.table rather than a tibble and they depend on `tidytable`
     
 # eeguana 0.1.5.9000
   - Bugs: 

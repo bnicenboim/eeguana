@@ -72,19 +72,21 @@ summarize_eval_signal <- function(.eeg_lst, dots) {
 
   cond_cols <- names_other_col(.eeg_lst, dots, ".segments")
   extended_signal_dt <- extended_signal(.eeg_lst, cond_cols)
-  by <- dplyr::group_vars(.eeg_lst)
-  dots <- rlang::quos_auto_name(dots)
-  add_names <- rlang::quos_auto_name(dots) %>% names()
-  old_attributes <- purrr::map(
-    add_names %>% strsplit("_"),
-    ~ attributes(.eeg_lst$.signal[[.x[[1]]]])
-  )
-  old_attributes <- stats::setNames(old_attributes, add_names)
-  extended_signal_dt <- summarize_dt(extended_signal_dt, !!!dots, group_by_ = by)
-
+  by <- eeg_group_vars(.eeg_lst)
+  #TODO: check if need anything below with summarize.
+  # dots <- rlang::quos_auto_name(dots)
+  # add_names <- rlang::quos_auto_name(dots) %>% names()
+  # old_attributes <- purrr::map(
+  #   add_names %>% strsplit("_"),
+  #   ~ attributes(.eeg_lst$.signal[[.x[[1]]]])
+  # )
+  # old_attributes <- stats::setNames(old_attributes, add_names)
+  # extended_signal_dt <- summarize_dt(extended_signal_dt, !!!dots, group_by_ = by)
+  dots_signal <- prep_dots(dots = dots,data =  extended_signal_dt,.by =  !!by, j = TRUE)
+extended_signal_dt <- summarize.(extended_signal_dt, !!!dots_signal, .by = by)
      #add class to the columns that lost their class
-  extended_signal_dt[, (add_names) := purrr::map2(.SD, old_attributes, ~
-  if (is_channel_dbl(.x) | is_component_dbl(.x)) .x else `attributes<-`(.x, .y)), .SDcols = add_names]
+  # extended_signal_dt[, (add_names) := purrr::map2(.SD, old_attributes, ~
+  # if (is_channel_dbl(.x) | is_component_dbl(.x)) .x else `attributes<-`(.x, .y)), .SDcols = add_names]
 
 
   update_summarized_signal(extended_signal_dt, .eeg_lst)

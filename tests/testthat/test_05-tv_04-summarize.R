@@ -5,7 +5,10 @@ options(eeguana.verbose=FALSE)
 # create fake dataset
 
 data_1 <- eeguana:::data_sincos3id
-data_2 <- dplyr::mutate(data_1, .recording = "recording2", X = sin(X + 10), Y = cos(Y - 10), condition = c("b", "a", "b"))
+data_2 <- eeg_mutate(data_1, .recording = "recording2", 
+                     X = sin(X + 10),
+                     Y = cos(Y - 10),
+                     condition = c("b", "a", "b"))
 data <- bind(data_1, data_2)
 
 # for checks later
@@ -18,45 +21,47 @@ reference_data <- data.table::copy(data)
 ### test dplyr dplyr::summarize on ungrouped eeg_lst ###
 #################################################
 
-summarize_eeg <- dplyr::summarize(data, mean = mean(X))
-summarize_at_eeg <- dplyr::summarize_at(data, channel_names(data), mean)
-summarize_all_eeg <- dplyr::summarize_at(data, channel_names(data), mean)
-summarize_all2_eeg <- dplyr::summarize_at(data, channel_names(data), "mean")
-summarize_all3_eeg <- dplyr::summarize_at(data, channel_names(data), rlang::as_function(~ mean(.)))
-summarize_all4_eeg <- dplyr::summarize_at(data, channel_names(data), list(mean = ~ mean(.)))
+summarize_eeg <- eeg_summarize(data, mean = mean(X))
 
 
-summarize_tbl <- data %>%
-  dplyr::as_tibble() %>%
-  dplyr::filter(.key == "X") %>%
-  dplyr::summarize(mean = mean(.value))
 
-
-summarize2_tbl <- data %>%
-  dplyr::as_tibble() %>%
-  dplyr::group_by(.key) %>%
-  dplyr::summarize(mean = mean(.value)) %>%
-  tidyr::spread(key = .key, value = mean)
-
-
-summarize4_tbl <- data %>%
-  dplyr::as_tibble() %>%
-  dplyr::group_by(.key) %>%
-  dplyr::summarize(mean = mean(.value)) %>%
-  tidyr::spread(key = .key, value = mean) %>%
-  dplyr::rename(X_mean = X, Y_mean = Y)
+test_that("dplyr version of summarize works", {
+  expect_equal(
+    eeg_summarize(data, mean = mean(X)),
+    dplyr::summarize(data, mean = mean(X))
+  )})
+# 
+# summarize_tbl <- data %>%
+#   dplyr::as_tibble() %>%
+#   dplyr::filter(.key == "X") %>%
+#   dplyr::summarize(mean = mean(.value))
+# 
+# 
+# summarize2_tbl <- data %>%
+#   dplyr::as_tibble() %>%
+#   dplyr::group_by(.key) %>%
+#   dplyr::summarize(mean = mean(.value)) %>%
+#   tidyr::spread(key = .key, value = mean)
+# 
+# 
+# summarize4_tbl <- data %>%
+#   dplyr::as_tibble() %>%
+#   dplyr::group_by(.key) %>%
+#   dplyr::summarize(mean = mean(.value)) %>%
+#   tidyr::spread(key = .key, value = mean) %>%
+#   dplyr::rename(X_mean = X, Y_mean = Y)
 
 nsamples <- 100
 nsamples_ <- 100
 
 test_that("summarize has the right scope", {
   expect_equal(
-    data %>% dplyr::summarize(X = mean(X) + nsamples),
-    data %>% dplyr::summarize(X = mean(X) + 100)
+    data %>% eeg_summarize(X = mean(X) + nsamples),
+    data %>% eeg_summarize(X = mean(X) + 100)
   )
   expect_equal(
-    data %>% dplyr::summarize(X = mean(X) + nsamples),
-    data %>% dplyr::summarize(X = mean(X) + nsamples_)
+    data %>% eeg_summarize(X = mean(X) + nsamples),
+    data %>% eeg_summarize(X = mean(X) + nsamples_)
   )
 })
 
@@ -122,7 +127,7 @@ group6_by_eeg_lst <- dplyr::group_by(data, .id, .sample, .recording)
 group7_by_eeg_lst <- dplyr::group_by(data, .sample, condition)
 group8_by_eeg_lst <- dplyr::group_by(data, segment)
 
-summarize_g_signal_eeg <- dplyr::summarize(group_by_eeg_lst, mean = mean(X))
+summarize_g_signal_eeg <- eeg_summarize(group_by_eeg_lst, mean = mean(X))
 
 summarize_g_tbl <- data %>%
   dplyr::as_tibble() %>%
@@ -163,7 +168,7 @@ summarize_g4_tbl <- data %>%
   dplyr::group_by(.recording, .time) %>%
   dplyr::summarise(mean = mean(.value))
 
-summarize_g5_signal_eeg <- dplyr::summarize(group5_by_eeg_lst, mean = mean(X))
+summarize_g5_signal_eeg <- eeg_summarize(group5_by_eeg_lst, mean = mean(X))
 
 summarize_g5_tbl <- data %>%
   dplyr::as_tibble() %>%
@@ -171,7 +176,7 @@ summarize_g5_tbl <- data %>%
   dplyr::group_by(.id, .recording) %>%
   dplyr::summarise(mean = mean(.value))
 
-summarize_g6_signal_eeg <- dplyr::summarize(group6_by_eeg_lst, mean = mean(X))
+summarize_g6_signal_eeg <- eeg_summarize(group6_by_eeg_lst, mean = mean(X))
 
 summarize_g6_tbl <- data %>%
   dplyr::as_tibble() %>%
