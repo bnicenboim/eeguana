@@ -451,7 +451,6 @@ if(!.by_ref){
 }
 
 
-
 test_that("dplyr::mutate functions work correctly on ungrouped signal_tbl", {
   test_mutates_sgl(data)
 })
@@ -518,7 +517,7 @@ test_that("dplyr::transmute functions work correctly on grouped signal_tbl", {
 
 # check against original data
 test_that("data didn't change after grouping and mutate functions", {
-  expect_equal(reference_data, data)
+  expect_equal_eeg_lst(reference_data, data)
 })
 
 

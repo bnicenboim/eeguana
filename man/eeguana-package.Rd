@@ -19,11 +19,12 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Bruno Nicenboim \email{bruno.nicenboim@uni-potsdam.de}
+\strong{Maintainer}: Bruno Nicenboim \email{bruno.nicenboim@tilburguniversity.edu}
 
 Other contributors:
 \itemize{
   \item Kate Stone \email{kate.stone@uni-potsdam.de} [contributor]
+  \item Mark Fairbanks \email{mark.t.fairbanks@gmail.com} [contributor]
 }
 
 }

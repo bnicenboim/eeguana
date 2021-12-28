@@ -213,16 +213,28 @@ changed_objects <- function(obj){
   }
 }
 
-mutate. <- function(.df, ..., .by) {
+mutate. <- function(.df, ..., 
+                    .by = NULL, 
+                    .keep = c("all", "used", "unused","none") ) {
   oldclass <- class(.df)
-  .df <- tidytable::mutate.(.df = .df, ...,.by = .by )
+  # if(length(.by)==0) {
+  #   # TODO: remove work around:
+  #   #https://github.com/markfairbanks/tidytable/issues/332  
+  #   .df <- tidytable::mutate.(.df = .df, ...,
+  #                             .keep = .keep)
+  #   
+  #     } else {
+  .df <- tidytable::mutate.(.df = .df, ...,
+                            .by = .by, 
+                            .keep = .keep)
+  # }
   class(.df) <- oldclass
   .df
 }
 
-summarize. <- function(.df, ..., .by) {
+summarize. <- function(.df, ..., .by= NULL, .sort = FALSE) {
   oldclass <- class(.df)
-  .df <- tidytable::summarize.(.df = .df, ...,.by = .by )
+  .df <- tidytable::summarize.(.df = .df, ...,.by = .by, .sort = .sort)
   class(.df) <- oldclass
   .df
 }

@@ -64,13 +64,13 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_reference = FALS
   non_ch <- NULL # for msg at the end
   if (length(new_dots$.signal) > 0) {
     # New columns name:
-    col_names <- rlang::quos_auto_name(new_dots$.signal) %>%
-      names()
+    # col_names <- rlang::quos_auto_name(new_dots$.signal) %>%
+    #   names()
     # is it mutate or transmute?
     if (keep_cols) {
-      cols_signal <- unique(c(colnames(.eeg_lst$.signal), col_names))
-    } else {
-      cols_signal <- c(obligatory_cols$.signal, col_names)
+      cols_signal <- rlang::parse_exprs(colnames(.eeg_lst$.signal))
+      } else {
+      cols_signal <- rlang::parse_exprs(obligatory_cols$.signal)
     }
     # names of columns that are used to conditionalize channels: F1[.recording=="1"]
     cond_cols <- names_other_col(.eeg_lst, dots, ".segments")
@@ -78,19 +78,29 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_reference = FALS
     # extended signal dt with the group_by col, and the conditional columns
     # TODO: group_by columns could be pasted together and converted to factor
     extended_signal_dt <- extended_signal(.eeg_lst, cond_cols = cond_cols, .by_reference = FALSE)
-
+    
+    tmp_col <- setdiff(colnames(extended_signal_dt), colnames(.eeg_lst$.signal))
+    
     by <- eeg_group_vars(.eeg_lst) 
     
+    
     dots_signal <- prep_dots(dots = new_dots$.signal,data =  extended_signal_dt,.by =  !!by, j = TRUE)
+    
+   
     extended_signal_dt <- mutate.(extended_signal_dt, 
-                                  !!!dots_signal, 
-                                    .by = by)
-
-
+                                  !!!dots_signal,
+                                  !!!cols_signal,
+                                    .by = by,
+                                  .keep = "none")
+    
+  
+    #to remove->?
     #intersect in case there are less columns now
-    new_cols <- intersect(cols_signal, names(extended_signal_dt))
-    aux_cols <- setdiff(names(extended_signal_dt), new_cols)
-    # removes the extended columns
+    # new_cols <- intersect(cols_signal, names(extended_signal_dt))
+    #aux_cols <- setdiff(tmp_col, names(extended_signal_dt))
+    
+    # removes the extended by columns
+    aux_cols <- setdiff(by, colnames(.eeg_lst$.signal))
     if(length(aux_cols)==0){
       .eeg_lst$.signal <- extended_signal_dt
     } else {
@@ -98,8 +108,9 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_reference = FALS
     }
     ## Check that the user did not mess up the attributes of the column:
     non_obl <- .eeg_lst$.signal[0,- obligatory_cols$.signal, with = FALSE]
-    new_channels <- .eeg_lst$.signal[0,col_names[col_names %in% colnames(extended_signal_dt)], with = FALSE]
-    non_ch <- names(new_channels)[!purrr::map_lgl(new_channels, is_channel_dbl)]
+    # Remove below:
+    # new_channels <- .eeg_lst$.signal[0,col_names[col_names %in% colnames(extended_signal_dt)], with = FALSE]
+    non_ch <- names(non_obl)[!purrr::map_lgl(non_obl, is_channel_dbl)]
     non_comp <- names(non_ch)[!purrr::map_lgl(non_ch, is_component_dbl)]
     non_ch <- unique(c(non_ch, non_comp))
     # updates the events and the channels

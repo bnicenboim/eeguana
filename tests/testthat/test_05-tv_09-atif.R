@@ -47,7 +47,7 @@ test_that("eeg_mutate across works correctly on ungrouped data", {
   expect_equal(mutate_ac_eeg, mutate_ac3_eeg)
   expect_equal(mutate_ac_eeg, mutate_ac4_eeg)
   expect_equal(mutate_ac_eeg, mutate_ac5_eeg)
-  expect_equal(mutate_ac_eeg %>% eeg_rename(X_scale = X, Y_scale = Y),
+  expect_equal(eeg_mutate(data,  X_scale = scale(X), Y_scale = scale(Y)),
                mutate_ac6_eeg)
 })
 
