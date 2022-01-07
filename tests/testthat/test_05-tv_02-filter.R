@@ -446,7 +446,7 @@ mutate_filter3_tbl <- dplyr::left_join(dplyr::as_tibble(data$.signal), dplyr::as
   dplyr::filter(group == "late")
 
 mutate_filter4_eeg <- data %>%
-  eeg_mutate(group = ifelse.(Y > 0, "pos", "neg")) %>%
+  eeg_mutate(group = ifelse(Y > 0, "pos", "neg")) %>%
   eeg_filter(group == "neg")
 
 mutate_filter4_tbl <- dplyr::left_join(dplyr::as_tibble(data$.signal), dplyr::as_tibble(data$.segments), by = ".id") %>%
@@ -581,7 +581,7 @@ summarize_filter_tbl <- dplyr::left_join(dplyr::as_tibble(data$.signal), dplyr::
 
 summarize_at_filter_eeg <- data %>%
   dplyr::group_by(.id, .recording, condition) %>%
-  dplyr::summarize_at(channel_names(data), mean) %>%
+  eeg_summarize(across(channel_names(data), mean)) %>%
   dplyr::filter(X > 0 & Y > 0)
 
 
@@ -592,9 +592,9 @@ summarize_at_filter_tbl <- dplyr::left_join(dplyr::as_tibble(data$.signal), dply
   dplyr::filter(X > 0 & Y > 0)
 
 
-summarize_all_filter_eeg <- dplyr::group_by(data, .id, .sample) %>%
-  dplyr::summarize_at(channel_names(.), "mean") %>%
-  dplyr::filter(.sample < 0)
+summarize_all_filter_eeg <- eeg_group_by(data, .id, .sample) %>%
+  eeg_summarize(across(where(is_channel_dbl), "mean")) %>%
+  eeg_filter(.sample < 0)
 
 summarize_all_filter_tbl <- dplyr::left_join(dplyr::as_tibble(data$.signal), dplyr::as_tibble(data$.segments), by = ".id") %>%
   dplyr::group_by(.id, .sample) %>%
@@ -604,7 +604,7 @@ summarize_all_filter_tbl <- dplyr::left_join(dplyr::as_tibble(data$.signal), dpl
 
 # warnings about .id
 summarize_all1_filter_eeg <- eeg_group_by(data, .id, condition) %>%
-  dplyr::summarize_at(channel_names(.), "mean") %>%
+  eeg_summarize(across(channel_names(data), "mean")) %>%
   eeg_filter(condition == "a")
 
 summarize_all1_filter_tbl <- dplyr::left_join(dplyr::as_tibble(data$.signal), dplyr::as_tibble(data$.segments), by = ".id") %>%
@@ -614,7 +614,7 @@ summarize_all1_filter_tbl <- dplyr::left_join(dplyr::as_tibble(data$.signal), dp
 
 
 summarize_all2_filter_eeg <- eeg_group_by(data, condition) %>%
-  dplyr::summarize_at(channel_names(.), "mean") %>%
+  eeg_summarize(across(channel_names(data), "mean")) %>%
   eeg_filter(condition == "a")
 
 
@@ -697,8 +697,7 @@ test_that("the classes of channels of signal_tbl remain after dplyr::filtering b
 ## Group by dplyr::filter
 ##################
 
-## DO NOT USE ifelse, it looses the attributes; TODO: write about it
-data_NA <- data %>% eeg_mutate(X = dplyr::if_else(.id == 1 & .sample == 1, channel_dbl(NA), X))
+data_NA <- data %>% eeg_mutate(X = ifelse(.id == 1 & .sample == 1, NA, X))
 data_NAm1 <- data_NA %>% eeg_filter(.id != 1 | .sample != 1)
 data_NAm1id <- data_NA %>% eeg_filter(.id != 1)
 
