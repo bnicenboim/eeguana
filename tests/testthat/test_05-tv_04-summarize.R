@@ -1,7 +1,12 @@
 library(eeguana)
 options(eeguana.verbose=FALSE)
 # tests when factors are used should be done.
-
+expect_equal_plain_df <- eeguana:::expect_equal_plain_df
+expect_equal_but_sgl <- eeguana:::expect_equal_but_sgl
+expect_equal_but_cnt_sgl <- eeguana:::expect_equal_but_cnt_sgl
+expect_equal_but_sgm <- eeguana:::expect_equal_but_sgm
+expect_equal_but_cnt_sgm <- eeguana:::expect_equal_but_cnt_sgm
+expect_equal_eeg_lst <- eeguana:::expect_equal_eeg_lst
 # create fake dataset
 
 data_1 <- eeguana:::data_sincos3id
@@ -30,6 +35,22 @@ test_that("dplyr version of summarize works", {
     eeg_summarize(data, mean = mean(X)),
     dplyr::summarize(data, mean = mean(X))
   )})
+
+nsamples <- 100
+nsamples_ <- 100
+
+test_that("summarize has the right scope", {
+  expect_equal(
+    data %>% eeg_summarize(X = mean(X) + nsamples),
+    data %>% eeg_summarize(X = mean(X) + 100)
+  )
+  expect_equal(
+    data %>% eeg_summarize(X = mean(X) + nsamples),
+    data %>% eeg_summarize(X = mean(X) + nsamples_)
+  )
+})
+
+
 # 
 # summarize_tbl <- data %>%
 #   dplyr::as_tibble() %>%
@@ -51,59 +72,39 @@ test_that("dplyr version of summarize works", {
 #   tidyr::spread(key = .key, value = mean) %>%
 #   dplyr::rename(X_mean = X, Y_mean = Y)
 
-nsamples <- 100
-nsamples_ <- 100
-
-test_that("summarize has the right scope", {
-  expect_equal(
-    data %>% eeg_summarize(X = mean(X) + nsamples),
-    data %>% eeg_summarize(X = mean(X) + 100)
-  )
-  expect_equal(
-    data %>% eeg_summarize(X = mean(X) + nsamples),
-    data %>% eeg_summarize(X = mean(X) + nsamples_)
-  )
-})
-
 test_that("dplyr::summarize works correctly on ungrouped data", {
   expect_equal(
-    as.double(summarize_eeg$.signal[["mean"]]),
-    summarize_tbl$mean
+    summarize_eeg$.signal$mean,
+    mean(data$.signal$X)
+    )
+  expect_equal(
+    nrow(summarize_eeg$.events),
+    0
   )
   expect_equal(
-    as.matrix(summarize_at_eeg$.signal[, c("X", "Y")]),
-    as.matrix(summarize2_tbl)
+    nrow(summarize_eeg$.segments),
+    1
+  )
+  summarize_all_eeg <- eeg_summarize(data, across(c("X","Y"), mean))
+  expect_equal_plain_df(
+    summarize_all_eeg$.signal[,c("X","Y")],
+    colMeans(data$.signal[,c("X","Y")])
   )
   expect_equal(
-    as.matrix(summarize_all_eeg$.signal[, c("X", "Y")]),
-    as.matrix(summarize2_tbl)
+    summarize_eeg$.events,
+    summarize_all_eeg$.events
   )
   expect_equal(
-    as.matrix(summarize_all2_eeg$.signal[, c("X", "Y")]),
-    as.matrix(summarize2_tbl)
+    summarize_eeg$.segments,
+    summarize_all_eeg$.segments
   )
+  summarize_all2_eeg <- eeg_summarize(data, across(c("X","Y"), list(mean = mean)))
   expect_equal(
-    as.matrix(summarize_all3_eeg$.signal[, c("X", "Y")]),
-    as.matrix(summarize2_tbl)
-  )
-  expect_equal(
-    as.matrix(summarize_all4_eeg$.signal[, c("X_mean", "Y_mean")]),
-    as.matrix(summarize4_tbl)
+    summarize_all2_eeg,
+    summarize_all_eeg %>% eeg_rename(X_mean = X, Y_mean = Y)
   )
 })
 
-
-test_that("dplyr::summarizes don't have any individual events", {
-  expect_true(nrow(summarize_eeg$.events) == 0)
-  expect_true(nrow(summarize_at_eeg$.events) == 0)
-  expect_true(nrow(summarize_all_eeg$.events) == 0)
-})
-
-
-test_that("the classes of channels of signal_tbl remain in non-grouped eeg_lst", {
-  expect_equal(is_channel_dbl(summarize_eeg$.signal[["mean"]]), TRUE)
-  expect_equal(is_channel_dbl(summarize_at_eeg$.signal$"X"), TRUE)
-})
 
 
 # check against original data
@@ -135,7 +136,7 @@ summarize_g_tbl <- data %>%
   dplyr::group_by(.time) %>%
   dplyr::summarise(mean = mean(.value))
 
-summarize_at_g_signal_eeg <- dplyr::summarize_at(group_by_eeg_lst, channel_names(data), mean)
+summarize_at_g_signal_eeg <- eeg_summarize(group_by_eeg_lst, across(channel_names(data), mean))
 
 summarize_at_g_tbl <- data %>%
   dplyr::as_tibble() %>%
@@ -144,7 +145,7 @@ summarize_at_g_tbl <- data %>%
   tidyr::spread(key = .key, value = mean) %>%
   dplyr::ungroup()
 
-summarize_g2_signal_eeg <- dplyr::summarize(group2_by_eeg_lst, mean = mean(X))
+summarize_g2_signal_eeg <- eeg_summarize(group2_by_eeg_lst, mean = mean(X))
 
 summarize_g2_tbl <- data %>%
   dplyr::as_tibble() %>%
@@ -152,7 +153,7 @@ summarize_g2_tbl <- data %>%
   dplyr::group_by(.id) %>%
   dplyr::summarise(mean = mean(.value))
 
-summarize_g3_signal_eeg <- dplyr::summarize(group3_by_eeg_lst, mean = mean(X))
+summarize_g3_signal_eeg <- eeg_summarize(group3_by_eeg_lst, mean = mean(X))
 
 summarize_g3_tbl <- data %>%
   dplyr::as_tibble() %>%
@@ -160,7 +161,7 @@ summarize_g3_tbl <- data %>%
   dplyr::group_by(.recording) %>%
   dplyr::summarise(mean = mean(.value))
 
-summarize_g4_signal_eeg <- dplyr::summarize(group4_by_eeg_lst, mean = mean(X))
+summarize_g4_signal_eeg <- eeg_summarize(group4_by_eeg_lst, mean = mean(X))
 
 summarize_g4_tbl <- data %>%
   dplyr::as_tibble() %>%
@@ -184,7 +185,7 @@ summarize_g6_tbl <- data %>%
   dplyr::group_by(.id, .time, .recording) %>%
   dplyr::summarise(mean = mean(.value))
 
-summarize_g7_signal_eeg <- dplyr::summarize(group7_by_eeg_lst, mean = mean(X))
+summarize_g7_signal_eeg <- eeg_summarize(group7_by_eeg_lst, mean = mean(X))
 
 summarize_g7_tbl <- data %>%
   dplyr::as_tibble() %>%
@@ -238,184 +239,134 @@ test_that("data didn't change after grouping and dplyr::summarize functions", {
 ### test eeguana dplyr::summarize directly on eeg_lst, grouping by segments table variables ###
 ########################################################################################
 
-data_s1 <- data %>%
-  dplyr::group_by(condition, .sample, .recording) %>%
-  dplyr::summarize(X = mean(X), Y = mean(Y))
 
-data_s2 <- data_s1 %>%
-  dplyr::group_by(condition, .sample) %>%
-  dplyr::summarize(X = mean(X), Y = mean(Y))
-
-data_s3 <- data_s2 %>%
-  dplyr::group_by(condition) %>%
-  dplyr::summarize(X = mean(X), Y = mean(Y))
-
-data_s4 <- data_s3 %>%
-  dplyr::group_by() %>%
-  dplyr::summarize(X = mean(X), Y = mean(Y))
-
-
-
-######################################
-### test with pure dplyr functions ###
-######################################
-extended_signal <- dplyr::left_join(dplyr::as_tibble(data$.signal), data$.segments, by = ".id")
-
-e_data_s1 <- data.table::data.table(extended_signal)[, .(X = mean(X), Y = mean(Y)),
-  keyby = c("condition", ".sample", ".recording")
-]
-
-## e_data_s1 %>% group_by(condition, .sample, .recording) %>% summarize(X=mean(X)) %>% print(n=100)
-
-data.table::setkeyv(e_data_s1, cols = c("condition", ".recording"))
-s_data_s1 <- e_data_s1[, unique(.SD), .SDcols = c("condition", ".recording")]
-
-e_data_s2 <- data.table::data.table(e_data_s1)[, .(X = mean(X), Y = mean(Y)),
-  keyby = c("condition", ".sample")
-]
-
-s_data_s2 <- e_data_s2[, unique(.SD), .SDcols = c("condition")]
-
-e_data_s3 <- data.table::data.table(e_data_s2)[, .(X = mean(X), Y = mean(Y)),
-  keyby = c("condition")
-]
-s_data_s3 <- e_data_s1[, unique(.SD), .SDcols = c("condition")]
-
-e_data_s4 <- data.table::data.table(e_data_s3)[, .(X = mean(X), Y = mean(Y)),
-  by = character(0)
-]
-
-
-test_that("summarizing by groups works as expected for the .key values", {
-  expect_equal(data_s1$.signal$X, e_data_s1$X)
-  expect_equal(data_s2$.signal$X, e_data_s2$X)
-  expect_equal(data_s3$.signal$X, e_data_s3$X)
-  expect_equal(data_s4$.signal$X, e_data_s4$X)
+test_that("summarizing by groups works as expected for the condition, .sample, .recording", {
+  extended_signal <- dplyr::left_join(dplyr::as_tibble(data$.signal), data$.segments, by = ".id")
+  
+  data_s1 <- data %>%
+    eeg_group_by(condition, .sample, .recording) %>%
+    eeg_summarize(X = mean(X), Y = mean(Y))
+  
+  extended_signal_s1 <- dplyr::left_join(dplyr::as_tibble(data_s1$.signal), data_s1$.segments, by = ".id") %>%
+    dplyr::arrange(condition, .sample, .recording)
+  e_s1 <- extended_signal %>%
+    dplyr::group_by(.recording, condition, .sample) %>%
+    dplyr::summarize(X = mean(X), Y = mean(Y), .groups = "drop")%>%
+    dplyr::arrange(condition, .sample, .recording)
+  
+  expect_equal_plain_df(dplyr::select(extended_signal_s1, condition, .recording, .sample , X, Y),
+  dplyr::select(e_s1, condition, .recording, .sample , X, Y))
+  expect_equal(colnames(data_s1$.signal), c(".id",".sample","X","Y"))
+  expect_equal(colnames(data_s1$.segments), c(".id",".recording","condition"))
 })
 
 
-test_that("summarizing by groups works as expected for the segments", {
-  ds <- dplyr::as_tibble(s_data_s1) %>%
-    dplyr::mutate(.id = 1:dplyr::n()) %>%
-    dplyr::select(.id, .recording, condition)
-  expect_equal(data_s1$.segments, ds, ignore_attr = TRUE)
-  expect_equal(data_s2$.segments, dplyr::as_tibble(s_data_s2) %>%
-    dplyr::mutate(.id = 1:dplyr::n(), .recording = NA) %>%
-    dplyr::select(.id, .recording, condition), ignore_attr = TRUE)
-  expect_equal(data_s3$.segments, dplyr::as_tibble(s_data_s3) %>%
-    dplyr::mutate(.id = 1:dplyr::n(), .recording = NA) %>%
-    dplyr::select(.id, .recording, condition), ignore_attr = TRUE)
-  expect_equal(data_s4$.segments, dplyr::tibble(.id = 1L, .recording = NA), ignore_attr = TRUE)
+test_that("summarizing by groups works as expected for the condition,", {
+  
+  extended_signal <- dplyr::left_join(dplyr::as_tibble(data$.signal), data$.segments, by = ".id")
+  
+  data_s1 <- data %>%
+    eeg_group_by(condition) %>%
+    eeg_summarize(X = mean(X), Y = mean(Y))
+  
+  extended_signal_s1 <- dplyr::left_join(dplyr::as_tibble(data_s1$.signal), data_s1$.segments, by = ".id") %>%
+    dplyr::arrange(condition)
+  e_s1 <- extended_signal %>%
+    dplyr::group_by(condition) %>%
+    dplyr::summarize(X = mean(X), Y = mean(Y), .groups = "drop")%>%
+    dplyr::mutate(.recording = NA_character_, .sample = NA_integer_) %>%
+    dplyr::arrange(condition, .sample, .recording)
+  
+  expect_equal_plain_df(dplyr::select(extended_signal_s1, condition, .recording, .sample , X, Y),
+                        dplyr::select(e_s1, condition, .recording, .sample , X, Y))
+  expect_equal(colnames(data_s1$.signal), c(".id",".sample","X","Y"))
+  expect_equal(colnames(data_s1$.segments), c(".id",".recording","condition"))
+})
+
+test_that("summarizing by groups works as expected for the condition, .sample,", {
+  
+  extended_signal <- dplyr::left_join(dplyr::as_tibble(data$.signal), data$.segments, by = ".id")
+  
+  data_s1 <- data %>%
+    eeg_group_by(condition, .sample) %>%
+    eeg_summarize(X = mean(X), Y = mean(Y))
+  
+  extended_signal_s1 <- dplyr::left_join(dplyr::as_tibble(data_s1$.signal), data_s1$.segments, by = ".id") %>%
+    dplyr::arrange(condition)
+  e_s1 <- extended_signal %>%
+    dplyr::group_by(condition, .sample) %>%
+    dplyr::summarize(X = mean(X), Y = mean(Y), .groups = "drop")%>%
+    dplyr::mutate(.recording = NA_character_) %>%
+    dplyr::arrange(condition, .sample, .recording)
+  
+  expect_equal_plain_df(dplyr::select(extended_signal_s1, condition, .recording, .sample , X, Y),
+                        dplyr::select(e_s1, condition, .recording, .sample , X, Y))
+  expect_equal(colnames(data_s1$.signal), c(".id",".sample","X","Y"))
+  expect_equal(colnames(data_s1$.segments), c(".id",".recording","condition"))
 })
 
 
 
-###########################################
-### test summarize_all_ch vs. dplyr::summarize ###
-###########################################
-
-data_all_s1 <- data %>%
-  dplyr::group_by(.sample, condition, .recording) %>%
-  dplyr::summarize_at(channel_names(.), mean)
-
-data_all_s2 <- data_all_s1 %>%
-  dplyr::group_by(.sample, condition) %>%
-  dplyr::summarize_at(channel_names(.), mean)
-
-data_all_s3 <- data_all_s2 %>%
-  dplyr::group_by(.sample) %>%
-  dplyr::summarize_at(channel_names(.), mean)
-
-data_all_s4 <- data_all_s3 %>%
-  dplyr::group_by() %>%
-  dplyr::summarize_at(channel_names(.), mean)
-
-
-test_that("dplyr::summarize all channels works as the regular dplyr::summarize", {
-  expect_equal(data_all_s1, data_all_s1)
-  expect_equal(data_all_s2, data_all_s2)
-  expect_equal(data_all_s3, data_all_s3)
-  expect_equal(data_all_s4, data_all_s4)
+test_that("summarizing by groups works as expected for the .sample,", {
+  
+  extended_signal <- dplyr::left_join(dplyr::as_tibble(data$.signal), data$.segments, by = ".id")
+  
+  data_s1 <- eeg_group_by(data, .sample) %>%
+    eeg_summarize(X_1 = mean(X[condition == "a"] -
+                               X[condition == "b"]),
+                  Y_1 = mean(Y[condition == "a"] -
+                               Y[condition == "b"]))
+  
+  extended_signal_s1 <- dplyr::left_join(dplyr::as_tibble(data_s1$.signal), data_s1$.segments, by = ".id") %>%
+    dplyr::arrange(.sample)
+  
+  e_s1 <- extended_signal %>%
+    dplyr::group_by(.sample) %>%
+    dplyr::summarize(X_1 = mean(X[condition == "a"] -
+                                   X[condition == "b"]),
+                     Y_1 = mean(Y[condition == "a"] -
+                                  Y[condition == "b"])
+                     , .groups = "drop")%>%
+    dplyr::mutate(.recording = NA_character_) %>%
+    dplyr::arrange( .sample)
+  
+  expect_equal_plain_df(dplyr::select(extended_signal_s1,  .recording, .sample , X_1, Y_1),
+                        dplyr::select(e_s1, .recording, .sample , X_1, Y_1))
+  expect_equal(colnames(data_s1$.signal), c(".id",".sample","X_1", "Y_1"))
+  expect_equal(colnames(data_s1$.segments), c(".id",".recording"))
+  
+  eeg_diff_means_2 <-eeg_group_by(data, .sample) %>%
+    eeg_summarize(across(channel_names(data), list(~ mean(.[condition == "a"] -
+                                                            .[condition == "b"]))))
+  expect_equal(data_s1, eeg_diff_means_2)
 })
 
 
-#######################################################################
-### test dplyr::summarize on operations involving different eeg_lst tables ###
-#######################################################################
-
-eeg_diff_means_1 <- dplyr::group_by(data, .sample) %>%
-  dplyr::summarize(mean = mean(X[condition == "a"] -
-    X[condition == "b"]))
-
-tbl_diff_means_1 <- data %>%
-  dplyr::as_tibble() %>%
-  dplyr::group_by(.time) %>%
-  dplyr::filter(.key == "X") %>%
-  dplyr::summarize(mean = mean(.value[condition == "a"] - .value[condition == "b"]))
-
-eeg_diff_means_2 <- dplyr::group_by(data, .sample) %>%
-  dplyr::summarize_at(channel_names(.), list(~ mean(.[condition == "a"] -
-    .[condition == "b"])))
-
-
-
-tbl_diff_means_2 <- data %>%
-  dplyr::as_tibble() %>%
-  dplyr::group_by(.time, .key) %>%
-  dplyr::summarize(mean = mean(.value[condition == "a"] - .value[condition == "b"])) %>%
-  tidyr::spread(key = .key, value = mean) %>%
-  dplyr::ungroup()
-
-eeg_diff_means_3 <- dplyr::group_by(data, .sample) %>%
-  dplyr::summarize(mean = mean(X[condition == "a" & .recording == "recording1"] -
-    X[condition == "b" & .recording == "recording2"]))
-
-tbl_diff_means_3 <- data %>%
-  dplyr::as_tibble() %>%
-  dplyr::group_by(.time) %>%
-  dplyr::filter(.key == "X") %>%
-  dplyr::summarize(mean = mean(.value[condition == "a" & .recording == "recording1"] - .value[condition == "b" & .recording == "recording2"]))
-
-eeg_diff_means_4 <- dplyr::group_by(data, .sample) %>%
-  dplyr::summarize_at(channel_names(.), list(~ mean(.[condition == "a" & .recording == "recording1"] -
-    .[condition == "b" & .recording == "recording2"])))
-
-tbl_diff_means_4 <- data %>%
-  dplyr::as_tibble() %>%
-  dplyr::group_by(.time, .key) %>%
-  dplyr::summarize(mean = mean(.value[condition == "a" & .recording == "recording1"] - .value[condition == "b" & .recording == "recording2"])) %>%
-  tidyr::spread(key = .key, value = mean) %>%
-  dplyr::ungroup()
-
-eeg_means_5 <- dplyr::group_by(data, .sample) %>% dplyr::summarize_at(channel_names(.), "mean")
-
-tbl_means_5 <- data %>%
-  dplyr::as_tibble() %>%
-  dplyr::group_by(.time, .key) %>%
-  dplyr::summarize(mean = mean(.value)) %>%
-  tidyr::spread(key = .key, value = mean) %>%
-  dplyr::ungroup()
-
-
-test_that("summarising functions work the same on eeg_lst as on tibble", {
-  expect_equal(
-    as.double(eeg_diff_means_1$.signal[["mean"]]),
-    tbl_diff_means_1$mean
-  )
-  expect_equal(
-    as.matrix(eeg_diff_means_2$.signal[, c("X", "Y")]),
-    as.matrix(dplyr::select(tbl_diff_means_2, X, Y))
-  )
-  expect_equal(
-    as.double(eeg_diff_means_3$.signal[["mean"]]),
-    tbl_diff_means_3$mean
-  )
-  expect_equal(
-    as.matrix(eeg_diff_means_4$.signal[, c("X", "Y")]),
-    as.matrix(dplyr::select(tbl_diff_means_4, X, Y))
-  )
-  expect_equal(
-    as.matrix(eeg_means_5$.signal[, c("X", "Y")]),
-    as.matrix(dplyr::select(tbl_means_5, X, Y))
-  )
+test_that("summarizing by groups works as expected for the .sample,", {
+  
+  extended_signal <- dplyr::left_join(dplyr::as_tibble(data$.signal), data$.segments, by = ".id")
+  
+  data_s1 <- eeg_group_by(data, .sample) %>%
+    eeg_summarize(mean = mean(X[condition == "a" & .recording == "recording1"] -
+                                X[condition == "b" & .recording == "recording2"]))
+  
+  extended_signal_s1 <- dplyr::left_join(dplyr::as_tibble(data_s1$.signal), data_s1$.segments, by = ".id") %>%
+    dplyr::arrange(.sample)
+  
+  e_s1 <- extended_signal %>%
+    dplyr::group_by(.sample) %>%
+    dplyr::summarize(mean = mean(X[condition == "a" & .recording == "recording1"] -
+                                   X[condition == "b" & .recording == "recording2"])
+                     , .groups = "drop")%>%
+    dplyr::mutate(.recording = NA_character_) %>%
+    dplyr::arrange( .sample)
+  
+  expect_equal_plain_df(dplyr::select(extended_signal_s1,  .recording, .sample , mean),
+                        dplyr::select(e_s1, .recording, .sample , mean))
+  expect_equal(colnames(data_s1$.signal), c(".id",".sample","mean"))
+  expect_equal(colnames(data_s1$.segments), c(".id",".recording"))
+  
+  
 })
+
+

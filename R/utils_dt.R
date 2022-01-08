@@ -212,7 +212,12 @@ changed_objects <- function(obj){
     message_verbose(changed, " has been changed in place.")
   }
 }
-
+distinct. <- function(.df, ..., .keep_all = FALSE) {
+  oldclass <- class(.df)
+  .df <- tidytable::distinct.(.df = .df, ..., .keep_all = .keep_all) 
+  class(.df) <- oldclass
+  .df
+}
 mutate. <- function(.df, ..., 
                     .by = NULL, 
                     .keep = c("all", "used", "unused","none") ) {

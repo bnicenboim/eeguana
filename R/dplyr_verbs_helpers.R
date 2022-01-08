@@ -1,4 +1,69 @@
 #' @noRd
+summarize_eeg_lst <- function(.eeg_lst, dots, .groups) {
+  
+  cond_cols <- names_other_col(.eeg_lst, dots, ".segments")
+  extended_signal_dt <- extended_signal(.eeg_lst, cond_cols)
+  by <- eeg_group_vars(.eeg_lst)
+  dots_signal <- prep_dots(dots = dots,
+                           data =  extended_signal_dt,
+                           .by =  !!by, 
+                           j = TRUE)
+  extended_signal_dt <- summarize.(extended_signal_dt, !!!dots_signal, .by = by)
+  
+  attr_sample_id <- attributes(.eeg_lst$.signal$.sample)
+  
+  if (!".sample" %in% colnames(extended_signal_dt)) {
+    extended_signal_dt[, .sample := sample_int(NA_integer_, attr_sample_id$sampling_rate)]
+  } else {
+    attributes(extended_signal_dt$.sample) <- attr_sample_id
+  }
+  
+  # Add .id in case it was removed by a summary
+  if (!".id" %in% colnames(extended_signal_dt)) {
+    extended_signal_dt[, .id := seq_len(.N), by = .sample]
+  }
+  
+  data.table::setkey(extended_signal_dt, .id, .sample)
+  data.table::setcolorder(extended_signal_dt, c(".id", ".sample"))
+  
+  # rebuild the segment table
+  if(length(group_vars_only_segments(.eeg_lst))>0){
+    segment_dt <- distinct.(extended_signal_dt, ".id", group_vars_only_segments(.eeg_lst))
+    if (!".recording" %in% by) {
+      segment_dt <- mutate.(segment_dt, .recording = NA_character_)
+    }
+    data.table::setcolorder(segment_dt, obligatory_cols[[".segments"]])
+  } else {
+    ## Restructure segments table to fit the new signal table
+    if (nrow(extended_signal_dt) != 0) {
+      last_id <- max(extended_signal_dt$.id)
+    } else {
+      last_id <- integer(0)
+    }
+    segment_dt <-  data.table::data.table(.id = seq_len(last_id), .recording = NA_character_)
+    data.table::setkey(segment_dt, .id)
+  }
+  .eeg_lst$.segments <- segment_dt
+  
+  # remove unnecessary cols
+  if (length(group_vars_only_segments(.eeg_lst)) > 0) {
+    extended_signal_dt[, (group_vars_only_segments(.eeg_lst)) := NULL]
+  }
+  .eeg_lst$.signal <- extended_signal_dt
+  
+  
+  ## Restructure events table
+  # TODO maybe I can do some type of summary of the events table, instead
+  
+  ### CHECK !!!!!!!!!!!!! this
+  .eeg_lst$.events <- new_events_tbl(sampling_rate = sampling_rate.eeg_lst(.eeg_lst))
+  # update channels in the events and the meta data (summarize deletes the metadata of the channels)
+  .eeg_lst <- update_events_channels(.eeg_lst) #
+  validate_eeg_lst(.eeg_lst)
+  
+}
+
+#' @noRd
 group_by_eeg_lst <- function(.eeg_lst, dots, .add = FALSE) {
   if (length(dots) != 0) {
     new_groups <- purrr::map_chr(dots, rlang::quo_text)

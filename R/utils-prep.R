@@ -48,7 +48,7 @@ across <- function (.cols = everything(), .fns = NULL, ..., .names = NULL)
   if("dplyr" %in% (.packages())){
   dplyr::across(.cols = .cols, .fns = .fns, ..., .names = .names) 
   } else {
-   stop("`across()` must only be used inside dplyr-like verbs.")
+   stop("`across()` must only be used inside dplyr-like verbs. Tip: Maybe you forgot to specify the data before across()?")
   }
 }
 
