@@ -126,6 +126,7 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_reference = FALS
   #What to do by table in the object:
   dots <- rlang::quos(...)
   new_dots <- dots_by_tbl_quos(.eeg_lst, dots)
+  
   non_ch <- NULL # for msg at the end
   if (length(new_dots$.signal) > 0) {
     # New columns name:
@@ -445,12 +446,12 @@ dots_by_tbl_quos <- function(.eeg_lst, dots) {
     if(name %in% signal_cols){
       TRUE
     } else {
-    # get the AST of each call and unlist it
-    getAST(dot) %>%
+    # get the AST of each call and unlist it, removing the first item which is ~
+    getAST(dot)[-1] %>%
       unlist(.) %>%
       # make it a vector of strings
       purrr::map_lgl(function(element) { # check for every element if it's a channel or if it's a channel function
-        txt_element <- rlang::quo_text(element)
+        txt_element <- rlang::as_name(element)
         if (txt_element %in% signal_cols) {
           return(TRUE)
         } else if (exists(txt_element) && is.function(eval(parse(text = txt_element)))) {

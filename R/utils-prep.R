@@ -40,6 +40,13 @@ prep_expr_call <- function(x, data, .by = NULL, j = FALSE) {
     x[-1] <- lapply(x[-1], prep_expr, data, {{ .by }})
     x
   } 
+  else if (rlang::is_call(x, c("across_ch"))) {
+    x[[1]] <- quote(across.)
+    # not working:
+    wh <- rlang::expr(!!rlang::quo(channel_names(data)))
+    x[-1] <- c(wh, lapply(x[-1], prep_expr, data, {{ .by }}))
+    x
+  } 
 }
 
 #' @export
