@@ -10,6 +10,7 @@
 \alias{eeg_ungroup}
 \alias{eeg_select}
 \alias{eeg_rename}
+\alias{eeg_rename_with}
 \alias{eeg_groups}
 \alias{eeg_groups.eeg_lst}
 \alias{eeg_group_vars}
@@ -35,6 +36,8 @@ eeg_ungroup(.data, ...)
 eeg_select(.data, ...)
 
 eeg_rename(.data, ...)
+
+eeg_rename_with(.data, .fn, .cols = where(is_channel_dbl), ...)
 
 eeg_groups(x)
 

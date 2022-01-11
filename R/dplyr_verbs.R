@@ -252,9 +252,99 @@ eeg_rename.eeg_lst <- function(.data, ...) {
   select_rename(.data, select = FALSE, ...)
 }
 
+#' @rdname dplyr_verbs
+#' @export
+eeg_rename_with <- function(.data, .fn, .cols = where(is_channel_dbl), ...) {
+  UseMethod("eeg_rename_with")
+}
+
+#' @export
+eeg_rename_with.eeg_lst <- function(.data, .fn, .cols = where(is_channel_dbl), ...) {
+  .data <- update_eeg_lst(.data)
+  .cols <- rlang::enquo(.cols)
+  .fn <- rlang::as_function(.fn)
+  
+    # rel_vars <- tidyselect::vars_select(unique(c(
+    #   names(.data$.signal),
+    #   names(.data$.segments)
+    #  )), !!.cols)
+    # 
+    
+    vars_signal <- tidyselect::eval_select(expr = rlang::expr(!!.cols),
+                            data = .data$.signal[0],
+                            strict = FALSE
+      ) %>%  names()
+    vars_segments <- tidyselect::eval_select(expr = rlang::expr(!!.cols),
+                            data = .data$.segments[0],
+                            strict = FALSE
+      ) %>%  names()
+    
+    if(length(c(vars_signal, vars_segments)) == 0){
+      stop("Can't subset columns that don't exist.\n ",
+           "Can't find columns that match ",rlang::as_label(.cols),
+           call. = FALSE)
+    }
+    
+    renamed_obligatory <- intersect(c(rel_signal, rel_segments),
+                                    c(obligatory_cols$.signal, 
+                                      obligatory_cols$.segments))
+    if(length(renamed_obligatory)>0){
+      stop("Trying to rename obligatory column(s): ", renamed_obligatory,
+           call. = FALSE)
+    }
+    
+    new_segments <- NULL
+    new_signal <- NULL
+     if(length(vars_signal) > 0){ 
+
+      .data$.signal <- shallow(.data$.signal)
+      
+      new_signal <- .fn(vars_signal,...) 
+      names(new_signal) <- vars_signal
+      data.table::setnames(.data$.signal, vars_signal, new_signal)
+      
+      # update channels in events
+      .data$.events <- .data$.events %>% 
+        mutate.(.channel = ifelse(.channel %in% vars_signal,
+                                                  new_signal[.channel],
+                                                  .channel))
+          }
+    if(length(vars_segments) > 0){ 
+      .data$.segments <- shallow(.data$.segments)
+      new_segments <- .fn(vars_segments,...)
+      names(new_segments) <- vars_segments
+      
+      data.table::setnames(.data$.segments, vars_segments, new_segments)
+      }
+    
+    # Update groups
+    g_vars <- eeg_group_vars(.data)
+    if(length(g_vars) >0 ) {
+      rel_vars <- c(vars_signal, vars_segments)
+      new_names <- c(new_signal, new_segments)
+      g_vars[eeg_group_vars(.data) %in% rel_vars] <- new_names[names(new_names) %in% eeg_group_vars(.data)]
+      #TODO: fix so this works:
+        #.data <- eeg_group_by(.data, across(g_vars))
+        #alternative
+        attributes(.data)$vars <- g_vars
+    }  
+
+  data.table::setkey(.data$.signal, .id, .sample)
+  data.table::setkey(.data$.segments, .id)
+  
+  .data %>%
+    validate_eeg_lst()
+}
+
+#' @noRd
+#' @export
+rename_with.eeg_lst <- eeg_rename_with.eeg_lst
+
+
 #' @noRd
 #' @export
 rename.eeg_lst <- eeg_rename.eeg_lst
+
 
 #' @rdname dplyr_verbs
 #' @export

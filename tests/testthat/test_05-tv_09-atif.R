@@ -57,31 +57,45 @@ data_grouped_descr <- data_faces_10_trials %>%
   eeg_events_to_NA(.description == "Bad Min-Max") %>%
   dplyr::group_by(description)
 
-segment_summ <- data.table::data.table(data_grouped_descr$.segments) %>%
-  .[, .(.recording = unique(.recording)), by = "description"] %>%
-  dplyr::bind_cols(dplyr::tibble(.id = c(1L, 2L)), .) %>%
-  dplyr::select(eeguana:::obligatory_cols[[".segments"]], dplyr::everything()) %>%
-  data.table::as.data.table()
-data.table::setkey(segment_summ, .id)
+# segment_summ <- data.table::data.table(data_grouped_descr$.segments) %>%
+#   .[, .(.recording = unique(.recording)), by = "description"] %>%
+#   dplyr::bind_cols(dplyr::tibble(.id = c(1L, 2L)), .) %>%
+#   dplyr::select(eeguana:::obligatory_cols[[".segments"]], dplyr::everything()) %>%
+#   data.table::as.data.table()
+# data.table::setkey(segment_summ, .id)
 
 test_that("summarize ats (and rename) no extra args", {
-  data_mean <- data_grouped_descr %>%
-    dplyr::summarize_at(channel_names(.), mean)
+  data_mean_1 <- data_grouped_descr %>%
+    eeg_summarize(across(channel_names(data), mean))
 
-  signal_means <- eeguana:::left_join_dt(
-    data_grouped_descr$.signal,
-    data.table::data.table(data_grouped_descr$.segments)
-  ) %>%
-    .[, lapply(.SD, mean), .SDcols = channel_names(data_grouped_descr), by = "description"] %>%
-    dplyr::select(-description) %>%
-    cbind(data.table::data.table(.id = c(1L, 2L), .sample = sample_int(c(NA, NA), 500)), .)
+  data_mean_2 <- data_grouped_descr %>%
+    eeg_summarize(across(channel_names(data), "mean"))
 
-  data.table::setkey(signal_means, ".id", ".sample")
-  data_mean_var <- data_grouped_descr %>%
-    dplyr::summarize_at(channel_names(.), list(~ mean(.), ~ var(.)))
-
-  data_var <- data_grouped_descr %>%
-    dplyr::summarize_at(channel_names(.), var)
+  data_mean_3 <- data_grouped_descr %>%
+    eeg_summarize(across(channel_names(data), ~ mean(.)))
+  
+  data_mean_4 <- data_grouped_descr %>%
+    eeg_summarize(across(channel_names(data), "mean"))
+  data_mean_5 <- data_grouped_descr %>%
+    eeg_summarize(across(channel_names(data), list(~ mean(.))))
+ expect_equal(data_mean_1, data_mean_2)
+ expect_equal(data_mean_1, data_mean_3)
+ expect_equal(data_mean_1, data_mean_4)
+ ?rename_at
+  # signal_means <- eeguana:::left_join_dt(
+  #   data_grouped_descr$.signal,
+  #   data.table::data.table(data_grouped_descr$.segments)
+  # ) %>%
+  #   .[, lapply(.SD, mean), .SDcols = channel_names(data_grouped_descr), by = "description"] %>%
+  #   dplyr::select(-description) %>%
+  #   cbind(data.table::data.table(.id = c(1L, 2L), .sample = sample_int(c(NA, NA), 500)), .)
+  # 
+  # data.table::setkey(signal_means, ".id", ".sample")
+  # data_mean_var <- data_grouped_descr %>%
+  #   dplyr::summarize_at(channel_names(.), list(~ mean(.), ~ var(.)))
+  # 
+  # data_var <- data_grouped_descr %>%
+  #   dplyr::summarize_at(channel_names(.), var)
 
   expect_equal(data_mean, data_grouped_descr %>%
     dplyr::summarize_at(channel_names(.), "mean"))

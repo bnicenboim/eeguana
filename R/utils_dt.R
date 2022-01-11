@@ -218,21 +218,20 @@ distinct. <- function(.df, ..., .keep_all = FALSE) {
   class(.df) <- oldclass
   .df
 }
+
+rename. <- function(.df, ...) {
+  oldclass <- class(.df)
+  .df <- tidytable::rename.(.df = .df, ...) 
+  class(.df) <- oldclass
+  .df
+}
 mutate. <- function(.df, ..., 
                     .by = NULL, 
                     .keep = c("all", "used", "unused","none") ) {
   oldclass <- class(.df)
-  # if(length(.by)==0) {
-  #   # TODO: remove work around:
-  #   #https://github.com/markfairbanks/tidytable/issues/332  
-  #   .df <- tidytable::mutate.(.df = .df, ...,
-  #                             .keep = .keep)
-  #   
-  #     } else {
   .df <- tidytable::mutate.(.df = .df, ...,
                             .by = .by, 
                             .keep = .keep)
-  # }
   class(.df) <- oldclass
   .df
 }
