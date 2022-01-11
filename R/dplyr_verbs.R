@@ -249,6 +249,7 @@ eeg_rename <- function(.data, ...) {
 #' @export
 eeg_rename.eeg_lst <- function(.data, ...) {
   .data <- update_eeg_lst(.data)
+  #TODO: simplify and use parts of eeg_rename_with
   select_rename(.data, select = FALSE, ...)
 }
 
@@ -263,13 +264,7 @@ eeg_rename_with.eeg_lst <- function(.data, .fn, .cols = where(is_channel_dbl), .
   .data <- update_eeg_lst(.data)
   .cols <- rlang::enquo(.cols)
   .fn <- rlang::as_function(.fn)
-  
-    # rel_vars <- tidyselect::vars_select(unique(c(
-    #   names(.data$.signal),
-    #   names(.data$.segments)
-    #  )), !!.cols)
-    # 
-    
+
     vars_signal <- tidyselect::eval_select(expr = rlang::expr(!!.cols),
                             data = .data$.signal[0],
                             strict = FALSE
