@@ -62,6 +62,19 @@ across <- function (.cols = everything(), .fns = NULL, ..., .names = NULL)
 }
 
 #' @export
+across_ch <- function (.fns = NULL, ..., .names = NULL) 
+{
+  stop("`across_ch()` must only be used inside dplyr-like verbs. Tip: Maybe you forgot to specify the data before across()?")
+}
+
+#' @export
+c_across_ch <- function () 
+{
+  stop("`c_across_ch()` must only be used inside dplyr-like verbs.")
+}
+
+
+#' @export
 c_across <- function (.cols = everything()) 
 {
   if("dplyr" %in% (.packages())){

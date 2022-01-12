@@ -485,7 +485,8 @@ test_that("dplyr:mutate functions understand the right scope", {
 
 test_that("eeg_mutate across", {
   if(0){
-  data %>% eeg_mutate(across("X",function(x) mean(x)))
+    
+    data %>% eeg_mutate(across("X",function(x) mean(x)))
   expect_equal(data %>% eeg_mutate(across(where(is_channel_dbl),~.x*10)),
                data %>%eeg_mutate(across(where(is_channel_dbl),function(x) x*10)))
   } else {
@@ -502,8 +503,12 @@ test_that("eeg_mutate across", {
   
   expect_equal(data %>% eeg_mutate(across(channel_names(data),mean)),
                data %>% eeg_mutate(X = mean(X), Y = mean(Y)))
-  # dots <- rlang::quos(across(channel_names(data),mean))
-  # .data <- data
+  
+  expect_equal(data %>% eeg_mutate(across_ch(mean)),
+               data %>% eeg_mutate(X = mean(X), Y = mean(Y)))
+
+   # dots <- rlang::quos(across_ch(mean))
+   # .data <- data
   # 
   # data_faces_10_trials %>% eeg_mutate(across(channel_names(data_faces_10_trials), ~ mean(.x)))
   # 

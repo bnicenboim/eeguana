@@ -466,7 +466,7 @@ dots_by_tbl_quos <- function(.eeg_lst, dots) {
                                           paste0("`",
                                                  txt_element, "`"))))
                    ) {
-          return(chr_detect(txt_element, "channel_dbl$|^ch_|^chs_|^channel_dbl|^channel_names|^signal_tbl"))
+          return(chr_detect(txt_element, "channel_dbl$|^ch_|^chs_|^channel_dbl|^channel_names|^signal_tbl|_ch$"))
         } else {
           return(FALSE)
         }
