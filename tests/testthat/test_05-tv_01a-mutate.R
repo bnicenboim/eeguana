@@ -483,11 +483,41 @@ test_that("dplyr:mutate functions understand the right scope", {
   expect_equal(data_nsamples_, data_nsamples)
 })
 
-test_that("dplyr:mutate across", {
+test_that("eeg_mutate across", {
+  if(0){
+  data %>% eeg_mutate(across("X",function(x) mean(x)))
+  expect_equal(data %>% eeg_mutate(across(where(is_channel_dbl),~.x*10)),
+               data %>%eeg_mutate(across(where(is_channel_dbl),function(x) x*10)))
+  } else {
+    message("across with function not working yet")
+  }
+    #data$.signal %>% tidytable::mutate.(across.("X",function(x) mean(x)))
+  
   expect_equal(data %>% eeg_mutate(across(where(is_channel_dbl),~.x*10)),
                data %>% eeg_mutate(X = X*10, Y = Y *10))
+  expect_equal(data %>% eeg_group_by(.recording) %>% eeg_mutate(across(where(is_channel_dbl),mean)),
+               data %>% eeg_group_by(.recording) %>% eeg_mutate(X = mean(X), Y = mean(Y)))
+  expect_equal(data %>% eeg_mutate(across(channel_names(data),~.x*10)),
+               data %>% eeg_mutate(X = X*10, Y = Y *10))
+  
+  expect_equal(data %>% eeg_mutate(across(channel_names(data),mean)),
+               data %>% eeg_mutate(X = mean(X), Y = mean(Y)))
+  # dots <- rlang::quos(across(channel_names(data),mean))
+  # .data <- data
+  # 
+  # data_faces_10_trials %>% eeg_mutate(across(channel_names(data_faces_10_trials), ~ mean(.x)))
+  # 
+
   expect_equal(data_nsamples_, data_nsamples)
 })
+
+# data$.signal %>% 
+#   dplyr::rowwise() %>%
+#   dplyr::mutate(sum(dplyr::c_across(c("X","Y"))))
+# 
+# 
+# expect_equal(data %>% eeg_mutate(sum = sum(c_across(channel_names(data)))),
+#              data %>% eeg_mutate(sum = X + Y))
 
 ############################################
 ### test dplyr mutate on grouped eeg_lst ###
@@ -567,7 +597,7 @@ test_that("equivalent functions", {
                suppressMessages(dplyr::transmute(data, X = X *10)))
 })
 
-
+message("test c_across")
 message("\n***")
 message("test mutate when there are ICAs")
 message("***\n")

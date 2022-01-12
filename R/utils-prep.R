@@ -32,20 +32,22 @@ call_fns <- c(
 
 prep_expr_call <- function(x, data, .by = NULL, j = FALSE) {
   if (rlang::is_call(x, c("across"))) {
-    x[[1]] <- quote(across.)
-    x[-1] <- lapply(x[-1], prep_expr, data, {{ .by }})
-    x
+    call_dots <- as.list(x[-1])
+    x <- rlang::call2("across.", !!!call_dots)
+    prep_expr(x, data, {{ .by }}, j = j)
+
+    # x[[1]] <- quote(across.)
+    # x[-1] <- lapply(x[-1], prep_expr, data, {{ .by }})
+    # x
   } else if (rlang::is_call(x, c("c_across"))) {
     x[[1]] <- quote(c_across.)
     x[-1] <- lapply(x[-1], prep_expr, data, {{ .by }})
     x
   } 
   else if (rlang::is_call(x, c("across_ch"))) {
-    x[[1]] <- quote(across.)
-    # not working:
-    wh <- rlang::expr(!!rlang::quo(channel_names(data)))
-    x[-1] <- c(wh, lapply(x[-1], prep_expr, data, {{ .by }}))
-    x
+    call_dots <- as.list(x[-1])
+    x <- rlang::call2("across.", rlang::expr(where(is_channel_dbl)), !!!call_dots)
+    prep_expr(x, data, {{ .by }}, j = j)
   } 
 }
 
@@ -89,6 +91,6 @@ get_dt_env <- function (x, ...)
 
 prep_dots <- function(dots, data, .by = NULL, j = FALSE){
   dt_env <- get_dt_env(dots)
-  dots <- prep_exprs(dots, data, !!by, j = TRUE)
+  dots <- prep_exprs(x = dots, data,.by =  !!by, j = TRUE)
   rlang::as_quosures(dots, env = dt_env)
 }
