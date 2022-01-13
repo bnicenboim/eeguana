@@ -27,10 +27,9 @@ chs_mean <- function(x, ..., na.rm = FALSE) {
   UseMethod("chs_mean")
 }
 #' @export
-chs_mean.default <- function(..., na.rm = FALSE) {
-  # dt_chs <- data.table::data.table(...)
-  #rowMeans_ch(dt_chs, na.rm = na.rm)
-  rowMeans_ch(..., na.rm = na.rm)
+chs_mean.channel_dbl <- function(..., na.rm = FALSE) {
+  dt_chs <- data.table::data.table(...)
+  rowMeans_ch(dt_chs, na.rm = na.rm)
 }
 
 

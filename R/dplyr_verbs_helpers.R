@@ -451,11 +451,11 @@ dots_by_tbl_quos <- function(.eeg_lst, dots) {
       unlist(.) %>%
       # make it a vector of strings
       purrr::map_lgl(function(element) { # check for every element if it's a channel or if it's a channel function
-        if(is.numeric(element)) return(TRUE)
+        if(is.numeric(element)) return(FALSE)
           
         txt_element <-  rlang::as_name(element)
         
-        if(txt_element == "") return(TRUE)
+        if(txt_element == "") return(FALSE)
         
         if (txt_element %in% signal_cols) {
           return(TRUE)

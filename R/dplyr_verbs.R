@@ -280,7 +280,7 @@ eeg_rename_with.eeg_lst <- function(.data, .fn, .cols = where(is_channel_dbl), .
            call. = FALSE)
     }
     
-    renamed_obligatory <- intersect(c(rel_signal, rel_segments),
+    renamed_obligatory <- intersect(c(vars_signal, vars_segments),
                                     c(obligatory_cols$.signal, 
                                       obligatory_cols$.segments))
     if(length(renamed_obligatory)>0){

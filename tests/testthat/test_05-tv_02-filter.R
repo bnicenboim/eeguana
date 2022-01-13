@@ -703,14 +703,14 @@ data_NAm1id <- data_NA %>% eeg_filter(.id != 1)
 
 test_that("grouped filter works", {
   expect_equal(data_NA %>%
-    dplyr::group_by(.id) %>%
-    dplyr::filter(!anyNA(X)) %>%
-    dplyr::ungroup(), data_NAm1id)
+    eeg_group_by(.id) %>%
+    eeg_filter(!anyNA(X)) %>%
+    eeg_ungroup(), data_NAm1id)
 })
 
 test_that("dplyr::filter_at and grouped dplyr::filtered at", {
   ## everything except the NA:
-  expect_equal(data_NA %>% dplyr::filter_at(channel_names(.), ~ !is.na(.)), data_NAm1)
+  expect_equal(data_NA %>% eeg_filter(across_ch( ~ !is.na(.))), data_NAm1)
   expect_equal(data_NA %>%
     dplyr::group_by(.id) %>%
     dplyr::filter_at(channel_names(.), ~ !is.na(.)) %>%
