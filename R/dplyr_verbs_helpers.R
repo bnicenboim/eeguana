@@ -94,10 +94,11 @@ filter_eeg_lst <- function(.eeg_lst, ...) {
     ## events_col <- names_other_col(.eeg_lst, dots,".events")
     extended_signal_dt <- extended_signal(.eeg_lst, cond_cols) # , events_col = events_col)
     by <- as.character(dplyr::group_vars(.eeg_lst))
-
     cols_signal <- colnames(.eeg_lst$.signal)
-    .eeg_lst$.signal <- filter_dt(extended_signal_dt, !!!dots, group_by_ = by) %>%
+    dots_signal <- prep_dots(dots = new_dots$.signal,data =  extended_signal_dt,.by =  !!by, j = TRUE)
+    .eeg_lst$.signal <- filter.(extended_signal_dt, !!!dots_signal, .by  = by) %>%
       .[, ..cols_signal]
+    
     if (nrow(.eeg_lst$.events) > 0) {
       range_s <- .eeg_lst$.signal[, .(.lower = min(.sample), .upper = max(.sample)), by = .id]
       .eeg_lst$.events <- update_events(.eeg_lst$.events, range_s)
@@ -107,7 +108,8 @@ filter_eeg_lst <- function(.eeg_lst, ...) {
   # filter the segments and update the signal_tbl
   if (length(new_dots$.segments) > 0) {
     grouping <- dplyr::group_vars(.eeg_lst)[dplyr::group_vars(.eeg_lst) %in% colnames(.eeg_lst$.segments)]
-    .eeg_lst$.segments <- filter_dt(.eeg_lst$.segments, !!!new_dots$.segments, group_by_ = grouping)
+    dots_segments <- prep_dots(dots = new_dots$.segments,data =  extended_signal_dt,.by =  !!by, j = TRUE)
+    .eeg_lst$.segments <- filter.(.eeg_lst$.segments, !!!dots_segments, .by_ = grouping)
     .eeg_lst$.signal <- semi_join_dt(.eeg_lst$.signal, .eeg_lst$.segments, by = ".id")
   }
   .eeg_lst$.events <- semi_join_dt(.eeg_lst$.events, data.table::as.data.table(.eeg_lst$.segments), by = ".id")
@@ -144,12 +146,8 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_reference = FALS
     # extended signal dt with the group_by col, and the conditional columns
     # TODO: group_by columns could be pasted together and converted to factor
     extended_signal_dt <- extended_signal(.eeg_lst, cond_cols = cond_cols, .by_reference = FALSE)
-    
     tmp_col <- setdiff(colnames(extended_signal_dt), colnames(.eeg_lst$.signal))
-    
     by <- eeg_group_vars(.eeg_lst) 
-    
-    
     dots_signal <- prep_dots(dots = new_dots$.signal,data =  extended_signal_dt,.by =  !!by, j = TRUE)
     
    

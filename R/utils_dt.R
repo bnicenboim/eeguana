@@ -212,6 +212,8 @@ changed_objects <- function(obj){
     message_verbose(changed, " has been changed in place.")
   }
 }
+
+#' @noRd
 distinct. <- function(.df, ..., .keep_all = FALSE) {
   oldclass <- class(.df)
   .df <- tidytable::distinct.(.df = .df, ..., .keep_all = .keep_all) 
@@ -219,12 +221,15 @@ distinct. <- function(.df, ..., .keep_all = FALSE) {
   .df
 }
 
+#' @noRd
 rename. <- function(.df, ...) {
   oldclass <- class(.df)
   .df <- tidytable::rename.(.df = .df, ...) 
   class(.df) <- oldclass
   .df
 }
+
+#' @noRd
 mutate. <- function(.df, ..., 
                     .by = NULL, 
                     .keep = c("all", "used", "unused","none") ) {
@@ -236,6 +241,17 @@ mutate. <- function(.df, ...,
   .df
 }
 
+#' @noRd
+filter. <- function(.df, ..., 
+                    .by = NULL) {
+  oldclass <- class(.df)
+  .df <- tidytable::filter.(.df = .df, ...,
+                            .by = .by)
+  class(.df) <- oldclass
+  .df
+}
+
+#' @noRd
 summarize. <- function(.df, ..., .by= NULL, .sort = FALSE) {
   oldclass <- class(.df)
   .df <- tidytable::summarize.(.df = .df, ...,.by = .by, .sort = .sort)

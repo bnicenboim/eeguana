@@ -708,6 +708,13 @@ test_that("grouped filter works", {
     eeg_ungroup(), data_NAm1id)
 })
 
+data_NA$.signal %>% dplyr::filter(dplyr::across(channel_names(data_NA), ~ !is.na(.)))
+data_NA$.signal %>% tidytable::filter.(across.(channel_names(data_NA), ~ !is.na(.)))
+data_NA %>% eeg_filter(across_ch( ~ !is.na(.)))
+
+.eeg_lst <- data_NA
+dots <- rlang::quos(across_ch( ~ !is.na(.)))
+
 test_that("dplyr::filter_at and grouped dplyr::filtered at", {
   ## everything except the NA:
   expect_equal(data_NA %>% eeg_filter(across_ch( ~ !is.na(.))), data_NAm1)
