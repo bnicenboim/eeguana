@@ -258,13 +258,13 @@ We can see here the N170 component in the faces condition for the average trial 
 ```{r, fig.dim = c(10,5), out.width = "100%"}
 faces_seg %>%
   eeg_transmute(
-    Occipital = chs_mean(O1, O2, Oz, na.rm = TRUE),
-    Parietal = chs_mean(P3, P4, P7, P8, Pz, na.rm = TRUE)
+    Occipital = chs_mean(across(starts_with("O")), na.rm = TRUE), #O1, O2, Oz
+    Parietal = chs_mean(across(starts_with("O")), na.rm = TRUE) # P3, P4, P7, P8, Pz
   ) %>%
   ggplot(aes(x = .time, y = .value)) +
   geom_line(alpha = .1, aes(group = .id, color = condition)) +
   stat_summary(
-    fun.y = "mean", geom = "line", alpha = 1, size = 1,
+    fun = "mean", geom = "line", alpha = 1, size = 1,
     aes(color = condition)
   ) +
   facet_wrap(~.key) +
@@ -275,9 +275,9 @@ We can also calculate the ERPs and then plot them in their layout (and we'll add
 
 ```{r layout, fig.dim = c(10,10), out.width = "100%"}
 ERP_faces <- faces_seg %>%
-  group_by(.sample, condition) %>%
-  summarize_at(channel_names(.), mean, na.rm = TRUE)
-
+  eeg_group_by(.sample, condition) %>%
+  eeg_summarize(across_ch(mean, na.rm = TRUE))
+  
 ERP_plot <- ERP_faces %>%
   ggplot(aes(x = .time, y = .value)) +
   geom_line(aes(color = condition)) +
@@ -293,9 +293,9 @@ Another possibility is to create a topographic plot of the two conditions, by fi
 
 ```{r topo, fig.dim = c(10,5), out.width = "100%"}
 faces_seg %>%
-  filter(between(as_time(.sample, .unit = "s"), .1, .2)) %>%
-  group_by(condition) %>%
-  summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
+  eeg_filter(between(as_time(.sample, .unit = "s"), .1, .2)) %>%
+  eeg_group_by(condition) %>%
+  eeg_summarize(across_ch(mean, na.rm = TRUE)) %>%
   plot_topo() +
   annotate_head() +
   geom_contour() +
@@ -309,7 +309,7 @@ For more specialized plots or analyses, it might be necessary to extract the dat
 
 ```{r}
 df <- faces_seg %>%
-  select(O1, O2, P7, P8) %>%
+  eeg_select(O1, O2, P7, P8) %>%
   as_tibble() %>%
   # We can use regular dplyr functions now
   group_by(.key, .time) %>%
@@ -335,17 +335,17 @@ However, this can be also done in the without transforming the `eeg_lst` object:
 ```{r, fig.dim = c(10,10), out.width = "100%"}
 faces_seg_t <-
   faces_seg %>%
-  select(O1, O2, P7, P8) %>%
-  group_by(.sample) %>%
-  summarize_at(channel_names(.), list(t =  ~t.test(
+  eeg_select(O1, O2, P7, P8) %>%
+  eeg_group_by(.sample) %>%
+  eeg_summarize(across_ch(list(t =  ~t.test(
     .[condition == "faces"],
     .[condition == "non-faces"]
-  )$statistic))
+  )$statistic)))
 
 faces_seg_t %>%
   ggplot(aes(x = .time, y = .value)) +
   geom_line(alpha = .1, aes(group = .id)) +
-  stat_summary(fun.y = "mean", geom = "line", alpha = 1, size = 1) +
+  stat_summary(fun = "mean", geom = "line", alpha = 1, size = 1) +
   facet_wrap(~.key) +
   theme(legend.position = "bottom")
 ```

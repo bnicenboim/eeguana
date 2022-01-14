@@ -3,7 +3,7 @@
 #' Wrapper of `rowMeans` that performs a by-sample mean of the specified channels.
 #'
 #' @param x An `eeg_lst` object.
-#' @param ... A channel or a group of unquoted or quoted channels (if an `eeg_lst` is not specified).
+#' @param ... A group of channels, it can be used in combination with `across`.
 #' @inheritParams base::mean
 #' @return A new channel or an `eeg_lst` object with a `mean` channel instead of the previous channels.
 #' @family channel functions
