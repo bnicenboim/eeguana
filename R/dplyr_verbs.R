@@ -99,7 +99,7 @@ NULL
 
 #' @rdname dplyr_verbs
 #' @export
-eeg_mutate <- function(.data, ..., .by_reference = FALSE) {
+eeg_mutate <- function(.data, ...) {
   UseMethod("eeg_mutate")
 }
 
@@ -116,15 +116,15 @@ mutate.eeg_lst <- eeg_mutate.eeg_lst
 
 #' @rdname dplyr_verbs
 #' @export
-eeg_transmute <- function(.data, ..., .by_reference = FALSE) {
+eeg_transmute <- function(.data, ...) {
   UseMethod("eeg_transmute")
 }
 
 
 #' @export
-eeg_transmute.eeg_lst <- function(.data, ..., .by_reference = FALSE) {
+eeg_transmute.eeg_lst <- function(.data, ...) {
   .data <- update_eeg_lst(.data)
-  mutate_eeg_lst(.data, ..., keep_cols = FALSE, .by_reference = .by_reference)
+  mutate_eeg_lst(.data, ..., keep_cols = FALSE)
 }
 
 #' @noRd

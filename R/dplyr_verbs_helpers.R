@@ -137,9 +137,9 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_reference = FALS
     #   names()
     # is it mutate or transmute?
     if (keep_cols) {
-      cols_signal <- rlang::parse_exprs(colnames(.eeg_lst$.signal))
+      cols_signal <- colnames(.eeg_lst$.signal)
       } else {
-      cols_signal <- rlang::parse_exprs(obligatory_cols$.signal)
+      cols_signal <- obligatory_cols$.signal
     }
     # names of columns that are used to conditionalize channels: F1[.recording=="1"]
     cond_cols <- names_other_col(.eeg_lst, dots, ".segments")
@@ -154,8 +154,10 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_reference = FALS
    
     extended_signal_dt <- mutate.(extended_signal_dt, 
                                   !!!dots_signal,
-                                  !!!cols_signal,
-                                    .by = by,
+                                  # keep the relevant cols
+                                  # also when one col was removed with ch = NULL
+                                  across.(tidyselect::any_of(cols_signal)),
+                                  .by = by,
                                   .keep = "none")
     
     #to remove->?

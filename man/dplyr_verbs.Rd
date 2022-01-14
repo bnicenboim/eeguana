@@ -21,9 +21,9 @@
 \alias{eeg_pull}
 \title{Dplyr-like functions for manipulating eeg_lst objects.}
 \usage{
-eeg_mutate(.data, ..., .by_reference = FALSE)
+eeg_mutate(.data, ...)
 
-eeg_transmute(.data, ..., .by_reference = FALSE)
+eeg_transmute(.data, ...)
 
 eeg_filter(.data, ..., .preserve = FALSE)
 
@@ -59,8 +59,6 @@ eeg_pull(.data, var = -1, name = NULL, ...)
 \item{.data}{An eeg_lst.}
 
 \item{...}{Name-value pairs of expressions; see \link[dplyr:dplyr-package]{dplyr} for more help.}
-
-\item{.by_reference}{Acts in place rewriting the eeg_lst object.}
 
 \item{.preserve}{Not in use, for compatibility reasons.}
 
@@ -117,6 +115,8 @@ names and column locations).}
 
 \item{name}{An optional parameter that specifies the column to be used
 as names for a named vector. Specified in a similar manner as \code{var}.}
+
+\item{.by_reference}{Acts in place rewriting the eeg_lst object.}
 }
 \value{
 An eeg_lst object.
