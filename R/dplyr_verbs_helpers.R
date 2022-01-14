@@ -109,7 +109,7 @@ filter_eeg_lst <- function(.eeg_lst, ...) {
   if (length(new_dots$.segments) > 0) {
     grouping <- dplyr::group_vars(.eeg_lst)[dplyr::group_vars(.eeg_lst) %in% colnames(.eeg_lst$.segments)]
     dots_segments <- prep_dots(dots = new_dots$.segments,data =  extended_signal_dt,.by =  !!by, j = TRUE)
-    .eeg_lst$.segments <- filter.(.eeg_lst$.segments, !!!dots_segments, .by_ = grouping)
+    .eeg_lst$.segments <- filter.(.eeg_lst$.segments, !!!dots_segments, .by = grouping)
     .eeg_lst$.signal <- semi_join_dt(.eeg_lst$.signal, .eeg_lst$.segments, by = ".id")
   }
   .eeg_lst$.events <- semi_join_dt(.eeg_lst$.events, data.table::as.data.table(.eeg_lst$.segments), by = ".id")

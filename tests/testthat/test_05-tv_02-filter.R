@@ -708,34 +708,37 @@ test_that("grouped filter works", {
     eeg_ungroup(), data_NAm1id)
 })
 
-data_NA$.signal %>% dplyr::filter(dplyr::across(channel_names(data_NA), ~ !is.na(.)))
-data_NA$.signal %>% tidytable::filter.(across.(channel_names(data_NA), ~ !is.na(.)))
-data_NA %>% eeg_filter(across_ch( ~ !is.na(.)))
-
-.eeg_lst <- data_NA
-dots <- rlang::quos(across_ch( ~ !is.na(.)))
+# data_NA$.signal %>% dplyr::filter(dplyr::across(channel_names(data_NA), ~ !is.na(.)))
+# data_NA$.signal %>% tidytable::filter.(across.(channel_names(data_NA), ~ !is.na(.)))
+# data_NA %>% eeg_filter(across_ch( ~ !is.na(.)))
+# 
+# .eeg_lst <- data_NA
+# dots <- rlang::quos(across_ch( ~ !is.na(.)))
 
 test_that("dplyr::filter_at and grouped dplyr::filtered at", {
   ## everything except the NA:
   expect_equal(data_NA %>% eeg_filter(across_ch( ~ !is.na(.))), data_NAm1)
   expect_equal(data_NA %>%
-    dplyr::group_by(.id) %>%
-    dplyr::filter_at(channel_names(.), ~ !is.na(.)) %>%
-    dplyr::ungroup(), data_NAm1)
+    eeg_group_by(.id) %>%
+      eeg_filter(across_ch( ~ !is.na(.))) %>%
+    eeg_ungroup(), data_NAm1)
   ## removes .id ==1
   expect_equal(data_NA %>%
-    dplyr::group_by(.id) %>%
-    dplyr::filter_at(channel_names(.), ~ !anyNA(.)) %>%
-    dplyr::ungroup(), data_NAm1id)
+                 eeg_group_by(.id) %>%
+                 eeg_filter(across_ch( ~ !anyNA(.))) %>%
+                 eeg_ungroup(), data_NAm1id)
   expect_equal(data_NA %>%
-    dplyr::group_by(.id) %>%
-    dplyr::filter_at(channel_names(.), dplyr::all_vars(!anyNA(.))) %>%
-    dplyr::ungroup(), data_NAm1id)
+                 eeg_group_by(.id) %>%
+                 eeg_filter(across_ch( ~ !anyNA(.))) %>%
+    eeg_ungroup(), data_NAm1id)
 })
 
+
+
+
 test_that("slice_signal works", {
-  expect_equal(slice_signal(data, 11:60), dplyr::filter(data, .id != 1))
-  expect_equal(slice_signal(data, 1:5), dplyr::filter(data, .id == 1, .sample <= 0))
+  expect_equal(slice_signal(data, 11:60), eeg_filter(data, .id != 1))
+  expect_equal(slice_signal(data, 1:5), eeg_filter(data, .id == 1, .sample <= 0))
 })
 
 ####
