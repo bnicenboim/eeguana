@@ -105,7 +105,9 @@ test_that("dplyr::summarize works correctly on ungrouped data", {
   )
 })
 
-
+eeg_summarize(data, across(c("X","Y"), list(mean = mean)))
+.eeg_lst <- data
+dots <- rlang::quos(across(c("X","Y"), list(mean = mean)))
 
 # check against original data
 test_that("data didn't change", {

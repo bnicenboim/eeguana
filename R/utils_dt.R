@@ -230,6 +230,15 @@ rename. <- function(.df, ...) {
 }
 
 #' @noRd
+select. <- function(.df, ...) {
+  oldclass <- class(.df)
+    .df <- tidytable::select.(.df = .df, ...)  
+  class(.df) <- oldclass
+  .df
+}
+
+
+#' @noRd
 mutate. <- function(.df, ..., 
                     .by = NULL, 
                     .keep = c("all", "used", "unused","none") ) {

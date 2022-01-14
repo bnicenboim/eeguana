@@ -9,6 +9,8 @@ summarize_eeg_lst <- function(.eeg_lst, dots, .groups) {
                            .by =  !!by, 
                            j = TRUE)
   
+  extended_signal_dt <- summarize.(extended_signal_dt, !!!dots_signal, .by = by)
+  
   attr_sample_id <- attributes(.eeg_lst$.signal$.sample)
   
   if (!".sample" %in% colnames(extended_signal_dt)) {
