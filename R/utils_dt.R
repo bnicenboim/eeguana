@@ -234,9 +234,15 @@ mutate. <- function(.df, ...,
                     .by = NULL, 
                     .keep = c("all", "used", "unused","none") ) {
   oldclass <- class(.df)
-  .df <- tidytable::mutate.(.df = .df, ...,
-                            .by = .by, 
-                            .keep = .keep)
+  if(length(.by)>0) {
+    .df <- tidytable::mutate.(.df = .df, ...,
+                              .by = .by, 
+                              .keep = .keep)  
+  } else {
+    .df <- tidytable::mutate.(.df = .df, ...,
+                              .keep = .keep)  
+  }
+  
   class(.df) <- oldclass
   .df
 }

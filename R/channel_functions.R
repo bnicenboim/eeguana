@@ -29,10 +29,13 @@ chs_mean <- function(x, ..., na.rm = FALSE) {
 #' @export
 chs_mean.channel_dbl <- function(..., na.rm = FALSE) {
   dt_chs <- data.table::data.table(...)
-  rowMeans_ch(dt_chs, na.rm = na.rm)
+   rowMeans_ch(dt_chs, na.rm = na.rm)
 }
 
-
+#' @export
+chs_mean.data.frame <- function(..., na.rm = FALSE) {
+  rowMeans_ch(..., na.rm = na.rm)
+}
 
 ## This should work with tidyselect #115
 ## chs_mean.character <- function(..., na.rm = FALSE) {

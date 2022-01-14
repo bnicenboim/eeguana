@@ -157,7 +157,6 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_reference = FALS
                                     .by = by,
                                   .keep = "none")
     
-  
     #to remove->?
     #intersect in case there are less columns now
     # new_cols <- intersect(cols_signal, names(extended_signal_dt))
@@ -450,7 +449,8 @@ dots_by_tbl_quos <- function(.eeg_lst, dots) {
       # make it a vector of strings
       purrr::map_lgl(function(element) { # check for every element if it's a channel or if it's a channel function
         if(is.numeric(element)) return(FALSE)
-          
+        if(is.logical(element)) return(FALSE)
+        
         txt_element <-  rlang::as_name(element)
         
         if(txt_element == "") return(FALSE)

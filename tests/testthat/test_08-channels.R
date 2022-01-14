@@ -22,11 +22,41 @@ test_that("baseline works", {
 
 
 ### chs_mean
-data_M <- dplyr::transmute(data_sincos2id, mean = chs_mean(X, Y))
-#data_M_q <- dplyr::transmute(data_sincos2id, mean = chs_mean(c("X", "Y")))
+data_M <- eeg_transmute(data_sincos2id, mean = chs_mean(X, Y))
+data_NAsincos2id <- data_sincos2id
+data_NAsincos2id$.signal[1,"X"] <- NA
+data_MNA <- eeg_transmute(data_NAsincos2id, mean = chs_mean(X, Y, na.rm = TRUE))
+data_MNA2 <- eeg_transmute(data_NAsincos2id, mean = chs_mean(across(c("X", "Y")), na.rm = TRUE))
+# data_MNA2 <- eeg_transmute(data_NAsincos2id, mean = eeguana:::chs_mean.list(across(c(X, Y)), na.rm = TRUE))
+# data_MNA2 <- eeg_transmute(data_NAsincos2id, mean = eeguana:::chs_mean.list(across(starts_with("X")), na.rm = TRUE))
+# eeg_transmute(data_NAsincos2id, mean = rowMeans(across(c(X, Y)), na.rm = TRUE))
+# 
+# dots <- rlang::quos(mean = rowMeans(across(c(X, Y)), na.rm = TRUE))
+# .eeg_lst <- data_sincos2id
+# eeg_transmute(data_NAsincos2id, mean = chs_mean(across("X", "Y"), na.rm = TRUE))
+# eeg_transmute(data_NAsincos2id, mean = chs_mean.default(c(X,Y), na.rm = TRUE))
+# eeg_transmute(data_NAsincos2id, mean = chs_mean(across(.cols = where(is.numeric()) & c("X", "Y")), na.rm = TRUE))
+# 
+# 
+# data_M <- eeg_transmute(data_NAsincos2id, mean = eeguana:::rowMeans_ch(cbind(X, Y), na.rm = TRUE))
+#  eeg_transmute(data_NAsincos2id, mean = eeguana:::rowMeans_ch(across(c(X, Y)), na.rm = TRUE))
+# tidytable::transmute.(data_NAsincos2id$.signal, mean = eeguana:::rowMeans_ch(across.(c(X, Y)), na.rm = TRUE))
+# data_M <- eeg_transmute(data_NAsincos2id, mean = rowMeans(cbind(X, Y), na.rm = TRUE))
+# tidytable::transmute.(data_NAsincos2id$.signal, 
+#                       mean = rowMeans(across.(.cols = where(is.numeric) & c( Y), na.rm = TRUE)))
+# 
+# tidytable::transmute.(data_NAsincos2id$.signal,
+#                       mean = rowMeans_ch(across.(where(is_channel_dbl) & c(X, Y)) ))
+# # dplyr::transmute(data_NAsincos2id$.signal, 
+# #                       mean = rowSums(across(c(X, Y)) ))                                    
+# dots <- rlang::quos(mean = rowMeans(cbind(X, Y), na.rm = TRUE))
+# .eeg_lst <- data_NAsincos2id
+
 
 test_that("can take the mean of the channels", {
     expect_equal(data_M$.signal$mean %>% as.numeric(), rowMeans(data_sincos2id$.signal[, .(X, Y)]))
+  expect_equal(data_MNA$.signal$mean %>% as.numeric(), rowMeans(data_NAsincos2id$.signal[, .(X, Y)],na.rm = TRUE))
+  expect_equal(data_MNA,data_MNA2 )
     #TODO try to tfix
     # expect_equal(data_M_q$.signal$mean %>% as.numeric(), rowMeans(data_sincos2id$.signal[, .(X, Y)]))
 })
