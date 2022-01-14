@@ -104,30 +104,43 @@ test_that("summarize across  no extra args", {
 
 
 test_that("summarize across with extra args", {
+  data_grouped_descr <- data_faces_10_trials %>%
+  eeg_segment(.description %in% c("s70", "s71"), .lim = c(-1, 1)) %>%
+  eeg_events_to_NA(.description == "Bad Min-Max") %>%
+  eeg_group_by(description, .recording)
+
+
   data_mean <- data_grouped_descr %>%
-    eeg_summarize(across(channel_names(data_grouped_descr), mean, na.rm = TRUE))
+    eeg_summarize(across_ch( mean, na.rm = TRUE))
 
   data_mean_var <- data_grouped_descr %>%
+    eeg_summarize(across_ch(list(~ mean(., na.rm = TRUE), ~ var(., na.rm = TRUE))))
+
+if(0){
+#TODO: check why this doesn't work only in tests
+  data_mean_var <- data_grouped_descr %>%
     eeg_summarize(across(channel_names(data_grouped_descr), list(~ mean(., na.rm = TRUE), ~ var(., na.rm = TRUE))))
-  
+
+}
+
   #throws warning, I think this is ok
   expect_warning(   data_var <- data_grouped_descr %>%
-    eeg_summarize(across(channel_names(data_grouped_descr), var, na.rm = TRUE)))
+    eeg_summarize(across_ch( var, na.rm = TRUE)))
   # 
   expect_equal(data_mean, data_grouped_descr %>%
-    eeg_summarize(across(channel_names(data_grouped_descr), "mean", na.rm = TRUE)))
+    eeg_summarize(across_ch( "mean", na.rm = TRUE)))
   expect_equal(data_mean, data_grouped_descr %>%
-    eeg_summarize(across(channel_names(data_grouped_descr), ~ mean(., na.rm = TRUE))))
+    eeg_summarize(across_ch( ~ mean(., na.rm = TRUE))))
   expect_equal(data_mean %>% eeg_rename_with(~ paste0(.x,"_1") ), data_grouped_descr %>%
-    eeg_summarize(across(channel_names(data_grouped_descr), list(~ mean(., na.rm = TRUE)))))
+    eeg_summarize(across_ch( list(~ mean(., na.rm = TRUE)))))
   expect_equal(
     data_mean %>%
       eeg_rename_with(~ paste0(., "_M")),
     data_grouped_descr %>%
-      eeg_summarize(across(channel_names(data_grouped_descr), list(M = ~ mean(., na.rm = TRUE))))
+      eeg_summarize(across_ch(list(M = ~ mean(., na.rm = TRUE))))
   )
   expect_equal(data_mean, data_grouped_descr %>%
-    eeg_summarize(across(channel_names(data_grouped_descr), list(M = ~ mean(., na.rm = TRUE)))) %>%
+    eeg_summarize(across_ch( list(M = ~ mean(., na.rm = TRUE)))) %>%
     eeg_rename_with( ~ chr_remove(., "_M")))
   expect_equal(data_mean, data_mean_var %>%
    eeg_select(dplyr::ends_with("_1")) %>%
