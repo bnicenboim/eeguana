@@ -11,7 +11,7 @@ chs_fun(x, .funs, ..., .pars = list())
 
 \item{.funs}{A function \code{fun}, a quosure style lambda \code{~ fun(.)} or a list of either form.}
 
-\item{...}{A channel or a group of unquoted or quoted channels (if an \code{eeg_lst} is not specified).}
+\item{...}{A group of channels, it can be used in combination with \code{across}.}
 
 \item{.pars}{List that contains the additional arguments for the function calls in .funs.}
 }

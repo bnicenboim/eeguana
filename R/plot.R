@@ -295,12 +295,12 @@ plot_ica.eeg_ica_lst <- function(data,
   
   new_data <- data %>% 
    slice_signal(samples) %>%
-    eeg_ica_show(dplyr::one_of(ICAs)) %>%
+    eeg_ica_show(tidyselect::one_of(ICAs)) %>%
     ## we select want we want to show:
-    dplyr::select(tidyselect::all_of(c(ICAs, eog))) %>%
-    dplyr::group_by(.id) %>%
-    dplyr::mutate_at(eog, ~ .- mean(.)) %>%
-    dplyr::mutate_if(is_component_dbl, ~ . * scale_comp) 
+    eeg_select(tidyselect::all_of(c(ICAs, eog))) %>%
+    eeg_group_by(.id) %>%
+    eeg_mutate(across(ends_with(eog), ~ .- mean(.))) %>%
+    eeg_mutate(across(where(is_component_dbl), ~ . * scale_comp))
   
  ampls <- new_data %>%
     plot() + 
@@ -681,7 +681,7 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
 ggplot.eeg_lst <- function(data = NULL,
                            mapping = ggplot2::aes(),
                            ...,
-                           .max_sample  = 64000                           ) {
+                           .max_sample  = 64000) {
   df <- try_to_downsample(data, .max_sample) %>%
     data.table::as.data.table()
 

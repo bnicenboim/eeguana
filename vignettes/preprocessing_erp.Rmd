@@ -87,14 +87,14 @@ data_judg_s <- data_judg %>% eeg_segment(condition %in% c(1, 2), .lim = c(-0.2, 
 
 ## Pre-processing and re-referencing
 
-In this raw BrainVision dataset, the signal from all electrodes is monopolar and referenced to the left mastoid. We want the signal to be referenced to linked (left and right) mastoids. During the acquisition the 'RM' electrode (number 32) had been placed on the right mastoid. We first baseline the signal with `eeg_baseline()`. In order to re-reference the data (e.g. including also the right mastoid in the reference) we add implicit channel 'REF' to the channels (which represents the left mastoid) by creating a channel with `channel_dbl()` and filling it with zeros using `mutate()` overloaded by *eeguana* to work with `eeg_lst's` (see `` ?`dplyr-eeguana` ``). The we re-reference the data using 'REF' and 'RM', the left and right mastoids respectively using `eeg_rereference()`. Finally we apply a low-pass filter with a stop band frequency of 100 Hz using `eeg_filt_low_pass()`:
+In this raw BrainVision dataset, the signal from all electrodes is monopolar and referenced to the left mastoid. We want the signal to be referenced to linked (left and right) mastoids. During the acquisition the 'RM' electrode (number 32) had been placed on the right mastoid. We first baseline the signal with `eeg_baseline()`. In order to re-reference the data (e.g. including also the right mastoid in the reference) we add implicit channel 'REF' to the channels (which represents the left mastoid) by creating a channel with `channel_dbl()` and filling it with zeros using `eeg_mutate()` overloaded by *eeguana* to work with `eeg_lst's` (see `` ?`dplyr-eeguana` ``). The we re-reference the data using 'REF' and 'RM', the left and right mastoids respectively using `eeg_rereference()`. Finally we apply a low-pass filter with a stop band frequency of 100 Hz using `eeg_filt_low_pass()`:
 
 ```{r}
 data_judg_s <- data_judg_s %>%
   # From the beginning of our desired segment length:
   eeg_baseline(.lim = -.2) %>%
   # The reference channel REF is filled with 0
-  mutate(REF = channel_dbl(0)) %>%
+  eeg_mutate(REF = channel_dbl(0)) %>%
   # All channels are references with REF
   eeg_rereference(.ref = c("RM", "REF"))
 
@@ -112,14 +112,14 @@ and we use use `plot()` to generate a default `ggplot`:
 
 ```{r , fig.dim = c(10,7)}
 X27_filtered <- data_judg_s_p %>%
-  filter(segment == 2) %>%
-  select(X27) %>%
-  mutate(filter = "Filtered")
+  eeg_filter(segment == 2) %>%
+  eeg_select(X27) %>%
+  eeg_mutate(filter = "Filtered")
 
 X27_unfiltered <- data_judg_s %>%
-  filter(segment == 2) %>%
-  select(X27) %>%
-  mutate(filter = "Unfiltered")
+  eeg_filter(segment == 2) %>%
+  eeg_select(X27) %>%
+  eeg_mutate(filter = "Unfiltered")
 
 bind(X27_filtered, X27_unfiltered) %>%
   plot() +
@@ -143,8 +143,8 @@ which was placed below the subjects' left eye.
 data_judg_s_p <- data_judg_s_p %>%
   eeg_rereference(LEOG, .ref = "X53") %>%
   eeg_rereference(X25, .ref = "X57") %>%
-  rename(eogv = LEOG, eogh = X25) %>%
-  select(-X53, X57)
+  eeg_rename(eogv = LEOG, eogh = X25) %>%
+  eeg_select(-X53, X57)
 ```
 
 You can check the channel labels that are now present in the data:
@@ -177,7 +177,7 @@ We use here `ggplot()`, which is more flexible than `plot()`.
 
 ```{r}
 data_judg_s_p %>%
-  select(eogv) %>%
+  eeg_select(eogv) %>%
   ggplot(aes(x = .time, y = .value)) +
   geom_line() +
   facet_wrap(~segment) +
@@ -191,9 +191,9 @@ The data can be also displayed in a different way. And `ggplotly()` can help us 
 
 ```{r, fig.dim = c(10,7),fig.show='hold',echo= TRUE, out.width = "100%"}
 data_summary <- data_judg_s_p %>%
-  select(-eogh, -eogv) %>%
-  group_by(segment) %>%
-  summarize_at(channel_names(.), var)
+  eeg_select(-eogh, -eogv) %>%
+  eeg_group_by(segment) %>%
+  eeg_summarize(across_ch(~ channel_dbl(var(.)) ))
 
 plot_general <- data_summary %>%
   ggplot(aes(x = segment, y = .key, fill = .value)) +
@@ -201,8 +201,8 @@ plot_general <- data_summary %>%
   theme(legend.position = "none", axis.text.y = element_text(size = 6))
 
 plot_channels <- data_summary %>%
-  ungroup() %>%
-  summarize_at(channel_names(.), max) %>%
+  eeg_ungroup() %>%
+  eeg_summarize(across_ch(, max)) %>%
   ggplot(aes(x = .value, y = .key)) +
   geom_point() +
   theme(axis.text.y = element_text(size = 6))
@@ -213,7 +213,6 @@ plot_segments <- data_summary %>%
   geom_point() +
   theme(axis.text.y = element_text(size = 6))
 
-
 subplot(ggplotly(plot_general), ggplotly(plot_channels), ggplotly(plot_segments), nrows = 2)
 ```
 
@@ -222,7 +221,7 @@ see a drift in the channel 48.
 
 ```{r, results = "hold"}
 data_judg_s_p %>%
-  filter(segment == 90) %>%
+  eeg_filter(segment == 90) %>%
   plot() +
   facet_wrap(~.key) +
   theme(axis.text.x = element_text(angle = 90)) +
@@ -238,7 +237,7 @@ with blinks that we saw before.
 
 ```{r}
 data_judg_s_p <- data_judg_s_p %>%
-  filter(!segment %in% c(22, 42, 89, 90, 92, 126, 136, 150))
+  eeg_filter(!segment %in% c(22, 42, 89, 90, 92, 126, 136, 150))
 ```
 
 
@@ -246,13 +245,13 @@ data_judg_s_p <- data_judg_s_p %>%
 
 We now would like to compute the ERP's for two conditions: positive-negative
 judgment and human-animal judgment. This is straightforward to do with
-`group_by()` and `summarize_at()`.
+`eeg_group_by()` and `eeg_summarize()` with `across_ch()`.
 
 
 ```{r, message = FALSE}
 ERPs <- data_judg_s_p %>%
-  group_by(.sample, condition) %>%
-  summarize_at(channel_names(.), mean, na.rm = TRUE)
+  eeg_group_by(.sample, condition) %>%
+  eeg_summarize(across_ch(mean, na.rm = TRUE))
 
 ERPs %>%
   plot() +
@@ -267,11 +266,11 @@ The following code allows you to look at the ERP difference waves.
 
 ```{r, message = FALSE}
 diff_ERPs <- data_judg_s_p %>%
-  group_by(.sample) %>%
-  summarize_at(channel_names(.), list(~
+  eeg_group_by(.sample) %>%
+  eeg_summarize(across_ch(list(~
   mean(.[condition == 1] - .[condition == 2],
     na.rm = TRUE
-  )))
+  ))))
 
 diff_ERPs %>%
   plot() +

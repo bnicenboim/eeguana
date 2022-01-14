@@ -9,7 +9,7 @@ chs_mean(x, ..., na.rm = FALSE)
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
 
-\item{...}{A channel or a group of unquoted or quoted channels (if an \code{eeg_lst} is not specified).}
+\item{...}{A group of channels, it can be used in combination with \code{across}.}
 
 \item{na.rm}{a logical value indicating whether \code{NA}
     values should be stripped before the computation proceeds.}
