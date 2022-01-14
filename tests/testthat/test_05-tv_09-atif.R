@@ -22,6 +22,17 @@ data <- bind(data_1, data_2)
 
 # for checks later
 reference_data <- data.table::copy(data)
+data_grouped_descr <- data_faces_10_trials %>%
+  eeg_segment(.description %in% c("s70", "s71"), .lim = c(-1, 1)) %>%
+  eeg_events_to_NA(.description == "Bad Min-Max") %>%
+  eeg_group_by(description, .recording)
+
+segment_summ <- data.table::data.table(data_grouped_descr$.segments) %>%
+  .[, .(.recording = unique(.recording)), by = "description"] %>%
+  dplyr::bind_cols(dplyr::tibble(.id = c(1L, 2L)), .) %>%
+  dplyr::select(eeguana:::obligatory_cols[[".segments"]], dplyr::everything()) %>%
+  data.table::as.data.table()
+data.table::setkey(segment_summ, .id)
 
 
 test_that("eeg_summarize across works correctly on ungrouped data", {
@@ -59,34 +70,29 @@ test_that("eeg_mutate across works correctly on ungrouped data", {
 })
 
 
-data_grouped_descr <- data_faces_10_trials %>%
+
+test_that("summarize across  no extra args", {
+  data_grouped_descr <- data_faces_10_trials %>%
   eeg_segment(.description %in% c("s70", "s71"), .lim = c(-1, 1)) %>%
   eeg_events_to_NA(.description == "Bad Min-Max") %>%
   eeg_group_by(description, .recording)
 
-segment_summ <- data.table::data.table(data_grouped_descr$.segments) %>%
-  .[, .(.recording = unique(.recording)), by = "description"] %>%
-  dplyr::bind_cols(dplyr::tibble(.id = c(1L, 2L)), .) %>%
-  dplyr::select(eeguana:::obligatory_cols[[".segments"]], dplyr::everything()) %>%
-  data.table::as.data.table()
-data.table::setkey(segment_summ, .id)
 
-test_that("summarize across  no extra args", {
   data_mean <- data_grouped_descr %>%
-    eeg_summarize(across(channel_names(data), mean))
+    eeg_summarize(across_ch(mean))
 
   data_mean_2 <- data_grouped_descr %>%
-    eeg_summarize(across(channel_names(data), "mean"))
+    eeg_summarize(across_ch( "mean"))
 
   data_mean_3 <- data_grouped_descr %>%
-    eeg_summarize(across(channel_names(data), ~ mean(.)))
+    eeg_summarize(across_ch( ~ mean(.)))
   
   data_mean_4 <- data_grouped_descr %>%
-    eeg_summarize(across(channel_names(data), "mean"))
+    eeg_summarize(across_ch( "mean"))
   data_mean_5 <- data_grouped_descr %>%
-    eeg_summarize(across(channel_names(data), list(~ mean(.))))
+    eeg_summarize(across_ch( list(~ mean(.))))
   data_mean_6 <- data_grouped_descr %>%
-    eeg_summarize(across(channel_names(data), list(M =~ mean(.))))
+    eeg_summarize(across_ch( list(M =~ mean(.))))
  expect_equal(data_mean, data_mean_2)
  expect_equal(data_mean, data_mean_3)
  expect_equal(data_mean, data_mean_4)

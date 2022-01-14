@@ -248,7 +248,8 @@ mutate. <- function(.df, ...,
                               .by = .by, 
                               .keep = .keep)  
   } else {
-    .df <- tidytable::mutate.(.df = .df, ...,
+  #much faster to remove the by=character(0) when not needed
+        .df <- tidytable::mutate.(.df = .df, ...,
                               .keep = .keep)  
   }
   

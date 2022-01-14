@@ -238,7 +238,10 @@ if(.by_ref == FALSE){
 
 
   if (!grouped & keep) {
-    expect_message(data_NULL <- fun(data, Y = NULL))
+    expect_message(
+      data_NULL <- fun(data, Y = NULL)
+
+  )
     if(.by_ref == FALSE){
      expect_equal_eeg_lst(
        data_NULL,
@@ -284,12 +287,15 @@ if(.by_ref == FALSE){
   }
   
   if (!grouped & keep) {
-    # it doesn't throw an message anymore
-      data_cst <- fun(data, Y = 10)
+    #this way it keeps the class, otherwise its lost
+    #TODO: see again a way to keep track of the classes
+      data_cst <- fun(data, Y = 10 + Y *0)
   }
 
   if (!grouped & !keep) {
-    expect_message(data_cst <- fun(data, Y = 10))
+    #this way it keeps the class, otherwise its lost
+    #TODO: see again a way to keep track of the classes
+    expect_message(data_cst <- fun(data, Y = 10 + Y*0))
   }
 
   if (grouped) {
@@ -479,7 +485,8 @@ nsamples_ <- 100
 data_nsamples_ <- data %>% eeg_mutate(Z = X + nsamples_)
 data_100 <- data %>% eeg_mutate(Z = X + 100)
 data_nsamples <- data %>% eeg_mutate(Z = X + nsamples)
-
+data -> .egg_lst
+dots <- rlang::quos(Z = X + nsamples)
 test_that("dplyr:mutate functions understand the right scope", {
   expect_equal(data_100, data_nsamples)
   expect_equal(data_nsamples_, data_nsamples)
@@ -587,7 +594,7 @@ test_that("mutation of samples works when it should",{
   msample_1_dt$.signal[, bin := dplyr::ntile(.sample,5)]
   expect_equal(msample_1, msample_1_dt)
   #TODO better error
-  expect_warning(expect_error(data %>% eeg_mutate(.sample = NULL)))
+  expect_error(data %>% eeg_mutate(.sample = NULL))
   
   ## No more warning #TODO double warning is unnecessary
   # expect_warning(expect_message(expect_warning(data %>% eeg_mutate(.sample = 3),

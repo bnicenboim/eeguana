@@ -136,10 +136,13 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_reference = FALS
     # col_names <- rlang::quos_auto_name(new_dots$.signal) %>%
     #   names()
     # is it mutate or transmute?
-    if (keep_cols) {
+
       cols_signal <- colnames(.eeg_lst$.signal)
+    if (keep_cols) {
+      keep <- "all"
       } else {
-      cols_signal <- obligatory_cols$.signal
+        keep <- "none"
+#      cols_signal <- obligatory_cols$.signal
     }
     # names of columns that are used to conditionalize channels: F1[.recording=="1"]
     cond_cols <- names_other_col(.eeg_lst, dots, ".segments")
@@ -151,22 +154,22 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_reference = FALS
     by <- eeg_group_vars(.eeg_lst) 
     dots_signal <- prep_dots(dots = new_dots$.signal,data =  extended_signal_dt,.by =  !!by, j = TRUE)
     
-   
-    extended_signal_dt <- mutate.(extended_signal_dt, 
+    #added cols
+    aux_cols <- setdiff(colnames(extended_signal_dt), cols_signal)
+
+    extended_signal_dt <- mutate.(extended_signal_dt,
                                   !!!dots_signal,
-                                  # keep the relevant cols
-                                  # also when one col was removed with ch = NULL
-                                  across.(tidyselect::any_of(cols_signal)),
+                                  !!!(rlang::parse_exprs(obligatory_cols$.signal)),
                                   .by = by,
-                                  .keep = "none")
-    
+                                  .keep = keep)
+
+
     #to remove->?
     #intersect in case there are less columns now
-    # new_cols <- intersect(cols_signal, names(extended_signal_dt))
     #aux_cols <- setdiff(tmp_col, names(extended_signal_dt))
     
     # removes the extended by columns
-    aux_cols <- setdiff(by, colnames(.eeg_lst$.signal))
+    aux_cols <- intersect(aux_cols, colnames(extended_signal_dt))
     if(length(aux_cols)==0){
       .eeg_lst$.signal <- extended_signal_dt
     } else {
