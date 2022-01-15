@@ -7,24 +7,21 @@
 #'
 #' The following wrappers act in a special way for `eeg_lst` objects:
 #'
-#' * `*_join()`: joins an external table to the *segments* table of the eeg_lst.
+#' * `eeg_*_join()`: joins an external table to the *segments* table of the eeg_lst.
 #' * `eeg_mutate()` and `eeg_transmute()`: mutates the signal_tbl table when is applied to a channel (or a column of the signal table), and mutates the segments table otherwise. It can also mutates by reference.
-#' * `summarize()` summarizes the channel of the signal_tbl table.
+#' * `eeg_summarize()` summarizes the channel of the signal_tbl table.
 #' * `pull()` only pulls columns of the signal table
 #'
-#' In addition, `_at()`, and `_if()` versions of the functions should work as well. Notice that  the `_at()` versions are 
-#' much faster than the `_if()` versions of these commands.
+#' In addition, `across()`, and `c_across()` work as well. Notice that  there are convienent wrappers `across_ch()` and `c_across_ch()` where the argument `.cols` is always set to `where(is_channel_dbl)`.
 #'
 #' ## Gotchas
 #'
-#' These functions emulate [dplyr] functionality but they are actually powered by [data.table], and some times they might be behave a bit differently than the dplyr counterpart.
+#' These functions emulate [dplyr] functionality but they are actually powered by the wrapper of [data.table],  [tidytable] and some times they might be behave a bit differently than the dplyr counterpart.
 #'
 #' - The default values of the arguments might be different, and some arguments might not exist for the eeguana dplyr-like functions.
-#' - grouped mutations behave slightly different than ungrouped ones: Channel properties are removed if the data is ungrouped and one does `mutate(data, channel = 0)`, but not if the data is grouped.
-#' - eeguana's [mutate] doesn't allow to refer back to a recently created channel: `data_eeg %>% mutate(X = F1 *2, Y = X)` is not valid. One needs to do `data_eeg %>% mutate(X = F1) %>% mutate(Y = X)`.
-#' - eeguana's [mutate] doesn't use the most updated value of a column from the same call. If X is a channel, then `data_eeg %>% mutate(X = X *2, Y = X+1)` will add `1` to the original value of `X`, and not to the latest one.
-#' - `n()` doesn't work, instead `length(.sample)` will give the same answer.
-#' - `across()` and `where()` cannot be used.
+#' - grouped mutations behave slightly different than ungrouped ones: Channel properties are removed if the data is ungrouped and one does `eeg_mutate(data, channel = 0)`, but not if the data is grouped.
+#' - eeguana's [eeg_mutate] doesn't allow to refer back to a recently created channel: `data_eeg %>% eeg_mutate(X = F1 *2, Y = X)` is not valid. One needs to do `data_eeg %>% eeg_mutate(X = F1) %>% eeg_mutate(Y = X)`.
+#' - eeguana's [eeg_mutate] doesn't use the most updated value of a column from the same call. If X is a channel, then `data_eeg %>% eeg_mutate(X = X *2, Y = X+1)` will add `1` to the original value of `X`, and not to the latest one.
 #' - [eeg_filter] behaves similarly to dplyr's [`filter`][dplyr::filter]. If you want to filter the signal using IIR or FIR filters use [eeg_filt*][eeguana::filt] functions.
 #'
 #'
@@ -36,9 +33,9 @@
 #' @param .data An eeg_lst.
 #' @param x An eeg_lst.
 #' @param y A data frame, tibble, or data.table.
-#' @param .by_reference Acts in place rewriting the eeg_lst object.
 #' @inheritParams dplyr::join
 #' @inheritParams dplyr::pull
+#' @inheritParams tidytable::across.
 #' @param ... Name-value pairs of expressions; see [dplyr][dplyr::dplyr] for more help.
 #' @param .preserve Not in use, for compatibility reasons.
 #' @param .add When FALSE, the default, group_by() will override existing groups. To add to the existing groups, use .add = TRUE.
@@ -110,6 +107,7 @@ eeg_mutate.eeg_lst <- function(.data, ...) {
     validate_eeg_lst()
 }
 
+#' @noRd
 #' @export
 mutate.eeg_lst <- eeg_mutate.eeg_lst
 
@@ -469,3 +467,40 @@ eeg_pull.eeg_lst <- function(.data, var = -1, name = NULL, ...) {
 #' @export
 pull.eeg_lst <- eeg_pull.eeg_lst
 
+
+#' @rdname dplyr_verbs
+#' @export
+across <- function (.cols = everything(), .fns = NULL, ..., .names = NULL)
+{
+  if("dplyr" %in% (.packages())){
+  dplyr::across(.cols = .cols, .fns = .fns, ..., .names = .names)
+  } else {
+   stop("`across()` must only be used inside dplyr-like verbs. Tip: Maybe you forgot to specify the data before across()?")
+  }
+}
+
+#' @rdname dplyr_verbs
+#' @export
+across_ch <- function (.fns = NULL, ..., .names = NULL)
+{
+  stop("`across_ch()` must only be used inside dplyr-like verbs. Tip: Maybe you forgot to specify the data before across()?")
+}
+
+#' @rdname dplyr_verbs
+#' @export
+c_across_ch <- function ()
+{
+  stop("`c_across_ch()` must only be used inside dplyr-like verbs.")
+}
+
+
+#' @rdname dplyr_verbs
+#' @export
+c_across <- function (.cols = everything())
+{
+  if("dplyr" %in% (.packages())){
+    dplyr::c_across(.cols = .cols)
+  } else {
+    stop("`c_across()` must only be used inside dplyr-like verbs.")
+  }
+}

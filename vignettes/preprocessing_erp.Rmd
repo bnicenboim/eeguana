@@ -104,9 +104,9 @@ data_judg_s_p <- data_judg_s %>%
 ```
 
 We can have a look at one of the trials (the second one) of one channel
-(channel 27). We `filter()` the desired segment (meaning to select rows or
-samples, do not confuse with filtering the signal, e.g., `ch_filt_low_pass()`)
-and `select()` the channel, then we add information indicating if we are
+(channel 27). We `eeg_filter()` the desired segment (meaning to select rows or
+samples, do not confuse with filtering the signal, e.g., `eeg_filt_low_pass()`)
+and `eeg_select()` the channel, then we add information indicating if we are
 looking at the filtered or unfiltered data. Finally we bind both `eeg_lst's`
 and we use use `plot()` to generate a default `ggplot`:
 
@@ -121,7 +121,7 @@ X27_unfiltered <- data_judg_s %>%
   eeg_select(X27) %>%
   eeg_mutate(filter = "Unfiltered")
 
-bind(X27_filtered, X27_unfiltered) %>%
+eeg_bind(X27_filtered, X27_unfiltered) %>%
   plot() +
   geom_line(aes(color = filter)) +
   facet_wrap(~.key) +

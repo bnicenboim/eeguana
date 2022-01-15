@@ -359,14 +359,13 @@ faces_segs_some %>%
   ggplot(aes(x = .time, y = .value)) +
   geom_line(alpha = .1, aes(group = .id, color = condition)) +
   stat_summary(
-    fun.y = "mean", geom = "line", alpha = 1, size = 1.5,
+    fun = "mean", geom = "line", alpha = 1, size = 1.5,
     aes(color = condition)
   ) +
   facet_wrap(~.key) +
   geom_vline(xintercept = 0, linetype = "dashed") +
   geom_vline(xintercept = .17, linetype = "dotted") +
   theme(legend.position = "bottom")
-#> Warning: `fun.y` is deprecated. Use `fun` instead.
 ```
 
 <img src="man/figures/README-plot-1.png" width="100%" />
@@ -380,7 +379,7 @@ interpolated amplitudes and using the ggplot wrapper `plot_topo`.
 faces_segs_some %>%
   eeg_filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
   eeg_group_by(condition) %>%
-  dplyr::summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
+  eeg_summarize(across_ch(mean, na.rm = TRUE)) %>%
   plot_topo() +
   annotate_head() +
   geom_contour() +

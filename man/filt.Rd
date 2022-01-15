@@ -6,7 +6,7 @@
 \alias{eeg_filt_high_pass}
 \alias{eeg_filt_band_pass}
 \alias{eeg_filt_band_stop}
-\title{Apply a low-pass, high-pass, band-pass, or band-stop filter to every segment of an \code{eeg_lst}. These filters are adapted from the FIR and IIR filters in \href{https://mne-tools.github.io}{MNE package} (v 0.0.17.1)  of \href{https://www.python.org/}{python}. For background information about the FIR vs IIR filters, see \href{https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py}{here}.}
+\title{Apply a low-pass, high-pass, band-pass, or band-stop filter to every segment of an \code{eeg_lst}. These filters are adapted from the FIR and IIR filters in \href{https://mne-tools.github.io}{MNE package} (v 0.0.17.1)  of \href{https://www.python.org/}{python}. For background information about the FIR vs IIR filters, see \href{https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py}{here}. \strong{IIR filters are still on an experimental phase}.}
 \usage{
 eeg_filt_low_pass(
   .data,
@@ -93,11 +93,11 @@ data_ERPs_filtered <- data_faces_ERPs \%>\%
   eeg_filt_low_pass(.freq = 1)
 # Compare the ERPs
 data_faces_ERPs \%>\%
-  select(O1, O2, P7, P8) \%>\%
+  eeg_select(O1, O2, P7, P8) \%>\%
   plot() +
   facet_wrap(~.key)
 data_ERPs_filtered \%>\%
-  select(O1, O2, P7, P8) \%>\%
+  eeg_select(O1, O2, P7, P8) \%>\%
   plot() +
   facet_wrap(~.key)
 }

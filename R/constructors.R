@@ -223,29 +223,6 @@ is_channel_dbl <- function(x) {
   }
 }
 
-# they get lost anyways:
-#' #' @export
-#' var <- function(x, y = NULL, na.rm = FALSE, use) {
-#' UseMethod("var")
-#' }
-#' 
-#' #' @export
-#' var.default <- function(x, y = NULL, na.rm = FALSE, use) {
-#'   attrs <- attributes(x)
-#'   class(x) <- NULL
-#'   r <-stats::var(x = x, y = y, na.rm = na.rm, use = use)
-#'   mostattributes(r) <- attrs
-#'   r
-#' }
-#' #' @export
-#' var.channel_dbl <- function(x, y = NULL, na.rm = FALSE, use) {
-#'   NextMethod("var")
-#' }
-#' #' @export
-#' var.component_dbl <- function(x, y = NULL, na.rm = FALSE, use) {
-#'   NextMethod("var")
-#' }
-
 #' @export
 mean.channel_dbl <- function(x, ...) {
   attrs <- attributes(x)
@@ -335,3 +312,27 @@ subset.component_dbl <- function(x, ...) {
   mostattributes(r) <- attrs
   r
 }
+
+
+# they get lost anyways:
+#' #' @export
+#' var <- function(x, y = NULL, na.rm = FALSE, use) {
+#' UseMethod("var")
+#' }
+#' 
+#' #' @export
+#' var.default <- function(x, y = NULL, na.rm = FALSE, use) {
+#'   attrs <- attributes(x)
+#'   class(x) <- NULL
+#'   r <-stats::var(x = x, y = y, na.rm = na.rm, use = use)
+#'   mostattributes(r) <- attrs
+#'   r
+#' }
+#' #' @export
+#' var.channel_dbl <- function(x, y = NULL, na.rm = FALSE, use) {
+#'   NextMethod("var")
+#' }
+#' #' @export
+#' var.component_dbl <- function(x, y = NULL, na.rm = FALSE, use) {
+#'   NextMethod("var")
+#' }

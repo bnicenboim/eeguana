@@ -51,40 +51,7 @@ prep_expr_call <- function(x, data, .by = NULL, j = FALSE) {
   } 
 }
 
-#' @export
-across <- function (.cols = everything(), .fns = NULL, ..., .names = NULL) 
-{
-  if("dplyr" %in% (.packages())){
-  dplyr::across(.cols = .cols, .fns = .fns, ..., .names = .names) 
-  } else {
-   stop("`across()` must only be used inside dplyr-like verbs. Tip: Maybe you forgot to specify the data before across()?")
-  }
-}
-
-#' @export
-across_ch <- function (.fns = NULL, ..., .names = NULL) 
-{
-  stop("`across_ch()` must only be used inside dplyr-like verbs. Tip: Maybe you forgot to specify the data before across()?")
-}
-
-#' @export
-c_across_ch <- function () 
-{
-  stop("`c_across_ch()` must only be used inside dplyr-like verbs.")
-}
-
-
-#' @export
-c_across <- function (.cols = everything()) 
-{
-  if("dplyr" %in% (.packages())){
-    dplyr::c_across(.cols = .cols) 
-  } else {
-    stop("`c_across()` must only be used inside dplyr-like verbs.")
-  }
-}
-
-get_dt_env <- function (x, ...) 
+get_dt_env <- function (x, ...)
 {
   if (length(x) == 0) {
     dt_env <- rlang::caller_env(2)

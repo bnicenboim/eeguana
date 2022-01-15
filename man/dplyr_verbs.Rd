@@ -19,6 +19,10 @@
 \alias{eeg_semi_join}
 \alias{eeg_vars}
 \alias{eeg_pull}
+\alias{across}
+\alias{across_ch}
+\alias{c_across_ch}
+\alias{c_across}
 \title{Dplyr-like functions for manipulating eeg_lst objects.}
 \usage{
 eeg_mutate(.data, ...)
@@ -54,6 +58,14 @@ eeg_semi_join(x, y, by = NULL, suffix = c(".x", ".y"), ...)
 eeg_vars(x)
 
 eeg_pull(.data, var = -1, name = NULL, ...)
+
+across(.cols = everything(), .fns = NULL, ..., .names = NULL)
+
+across_ch(.fns = NULL, ..., .names = NULL)
+
+c_across_ch()
+
+c_across(.cols = everything())
 }
 \arguments{
 \item{.data}{An eeg_lst.}
@@ -67,6 +79,8 @@ eeg_pull(.data, var = -1, name = NULL, ...)
 \item{.add}{When FALSE, the default, group_by() will override existing groups. To add to the existing groups, use .add = TRUE.}
 
 \item{.drop}{Only .drop = FALSE is available, empty groups are never dropped.}
+
+\item{.cols}{vector \code{c()} of unquoted column names. \code{tidyselect} compatible.}
 
 \item{x}{An eeg_lst.}
 
@@ -116,7 +130,12 @@ names and column locations).}
 \item{name}{An optional parameter that specifies the column to be used
 as names for a named vector. Specified in a similar manner as \code{var}.}
 
-\item{.by_reference}{Acts in place rewriting the eeg_lst object.}
+\item{.fns}{Functions to pass. Can pass a list of functions.}
+
+\item{.names}{A glue specification that helps with renaming output columns.
+\code{{.col}} stands for the selected column, and \code{{.fn}} stands for the name of the function being applied.
+The default (\code{NULL}) is equivalent to \code{"{.col}"} for a single function case and \code{"{.col}_{.fn}"}
+when a list is used for \code{.fns}.}
 }
 \value{
 An eeg_lst object.
@@ -130,24 +149,21 @@ Wrappers for \code{\link[dplyr:dplyr-package]{dplyr}}'s commands that act on dif
 
 The following wrappers act in a special way for \code{eeg_lst} objects:
 \itemize{
-\item \verb{*_join()}: joins an external table to the \emph{segments} table of the eeg_lst.
+\item \verb{eeg_*_join()}: joins an external table to the \emph{segments} table of the eeg_lst.
 \item \code{eeg_mutate()} and \code{eeg_transmute()}: mutates the signal_tbl table when is applied to a channel (or a column of the signal table), and mutates the segments table otherwise. It can also mutates by reference.
-\item \code{summarize()} summarizes the channel of the signal_tbl table.
+\item \code{eeg_summarize()} summarizes the channel of the signal_tbl table.
 \item \code{pull()} only pulls columns of the signal table
 }
 
-In addition, \verb{_at()}, and \verb{_if()} versions of the functions should work as well. Notice that  the \verb{_at()} versions are
-much faster than the \verb{_if()} versions of these commands.
+In addition, \code{across()}, and \code{c_across()} work as well. Notice that  there are convienent wrappers \code{across_ch()} and \code{c_across_ch()} where the argument \code{.cols} is always set to \code{where(is_channel_dbl)}.
 \subsection{Gotchas}{
 
-These functions emulate \link{dplyr} functionality but they are actually powered by \link{data.table}, and some times they might be behave a bit differently than the dplyr counterpart.
+These functions emulate \link{dplyr} functionality but they are actually powered by the wrapper of \link{data.table},  \link{tidytable} and some times they might be behave a bit differently than the dplyr counterpart.
 \itemize{
 \item The default values of the arguments might be different, and some arguments might not exist for the eeguana dplyr-like functions.
-\item grouped mutations behave slightly different than ungrouped ones: Channel properties are removed if the data is ungrouped and one does \code{mutate(data, channel = 0)}, but not if the data is grouped.
-\item eeguana's \link{mutate} doesn't allow to refer back to a recently created channel: \code{data_eeg \%>\% mutate(X = F1 *2, Y = X)} is not valid. One needs to do \code{data_eeg \%>\% mutate(X = F1) \%>\% mutate(Y = X)}.
-\item eeguana's \link{mutate} doesn't use the most updated value of a column from the same call. If X is a channel, then \code{data_eeg \%>\% mutate(X = X *2, Y = X+1)} will add \code{1} to the original value of \code{X}, and not to the latest one.
-\item \code{n()} doesn't work, instead \code{length(.sample)} will give the same answer.
-\item \code{across()} and \code{where()} cannot be used.
+\item grouped mutations behave slightly different than ungrouped ones: Channel properties are removed if the data is ungrouped and one does \code{eeg_mutate(data, channel = 0)}, but not if the data is grouped.
+\item eeguana's \link{eeg_mutate} doesn't allow to refer back to a recently created channel: \code{data_eeg \%>\% eeg_mutate(X = F1 *2, Y = X)} is not valid. One needs to do \code{data_eeg \%>\% eeg_mutate(X = F1) \%>\% eeg_mutate(Y = X)}.
+\item eeguana's \link{eeg_mutate} doesn't use the most updated value of a column from the same call. If X is a channel, then \code{data_eeg \%>\% eeg_mutate(X = X *2, Y = X+1)} will add \code{1} to the original value of \code{X}, and not to the latest one.
 \item \link{eeg_filter} behaves similarly to dplyr's \code{\link[dplyr:filter]{filter}}. If you want to filter the signal using IIR or FIR filters use \link[=filt]{eeg_filt*} functions.
 }
 }
@@ -198,8 +214,8 @@ data_faces_ERPs \%>\%
 }
 \seealso{
 Other tidyverse-like functions: 
-\code{\link{bind}()},
 \code{\link{drop_incomplete_segments}()},
-\code{\link{slice_signal}()}
+\code{\link{eeg_bind}()},
+\code{\link{eeg_slice_signal}()}
 }
 \concept{tidyverse-like functions}

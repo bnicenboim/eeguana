@@ -419,9 +419,8 @@ drop_incomplete_segments <- function(x) {
   UseMethod("drop_incomplete_segments")
 }
 
-#' @rdname drop_incomplete_segments
 #' @export
-drop_incomplete_segment.eeg_lst <- function(x) {
+drop_incomplete_segments.eeg_lst <- function(x) {
     x %>% dplyr::group_by(.id) %>%
         dplyr::filter_at(channel_names(.),
             dplyr::all_vars(all(!is.na(.))))
