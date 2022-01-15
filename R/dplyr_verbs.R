@@ -35,6 +35,7 @@
 #' @param y A data frame, tibble, or data.table.
 #' @inheritParams dplyr::join
 #' @inheritParams dplyr::pull
+#' @inheritParams tidytable::rename_with.
 #' @inheritParams tidytable::across.
 #' @param ... Name-value pairs of expressions; see [dplyr][dplyr::dplyr] for more help.
 #' @param .preserve Not in use, for compatibility reasons.
@@ -153,16 +154,21 @@ eeg_filter.eeg_ica_lst <- function(.data, ..., .preserve = FALSE) {
   out
 }
 
-#' @noRd
 #' @export
 filter.eeg_lst <- eeg_filter.eeg_lst
-#' @noRd
+
 #' @export
 filter.eeg_ica_lst <- eeg_filter.eeg_ica_lst
 
 #' @rdname dplyr_verbs
 #' @export
 eeg_summarize <- function(.data, ..., .groups = "keep") {
+  UseMethod("eeg_summarize")
+}
+
+#' @rdname dplyr_verbs
+#' @export
+eeg_summarise <- function(.data, ..., .groups = "keep") {
   UseMethod("eeg_summarize")
 }
 
@@ -441,7 +447,6 @@ eeg_vars.eeg_lst <- function(x) {
   setdiff(dplyr::tbl_vars(x$.signal), c(dplyr::tbl_vars(x$.segments), c(".id", ".sample")))
 }
 
-#' @noRd
 #' @export
 tbl_vars.eeg_lst <- eeg_vars.eeg_lst
 
@@ -463,7 +468,6 @@ eeg_pull.eeg_lst <- function(.data, var = -1, name = NULL, ...) {
   rlang::set_names(.data[[var]], nm = .data[[name]])
 }
 
-#' @noRd
 #' @export
 pull.eeg_lst <- eeg_pull.eeg_lst
 

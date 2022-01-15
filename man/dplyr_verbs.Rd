@@ -6,6 +6,7 @@
 \alias{eeg_transmute}
 \alias{eeg_filter}
 \alias{eeg_summarize}
+\alias{eeg_summarise}
 \alias{eeg_group_by}
 \alias{eeg_ungroup}
 \alias{eeg_select}
@@ -32,6 +33,8 @@ eeg_transmute(.data, ...)
 eeg_filter(.data, ..., .preserve = FALSE)
 
 eeg_summarize(.data, ..., .groups = "keep")
+
+eeg_summarise(.data, ..., .groups = "keep")
 
 eeg_group_by(.data, ..., .add = FALSE, .drop = FALSE)
 
@@ -80,7 +83,9 @@ c_across(.cols = everything())
 
 \item{.drop}{Only .drop = FALSE is available, empty groups are never dropped.}
 
-\item{.cols}{vector \code{c()} of unquoted column names. \code{tidyselect} compatible.}
+\item{.fn}{Function to transform the names with.}
+
+\item{.cols}{Columns to rename. Defaults to all columns. \code{tidyselect} compatible.}
 
 \item{x}{An eeg_lst.}
 

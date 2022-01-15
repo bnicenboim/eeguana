@@ -68,6 +68,7 @@ eeg_bind <- function(...) {
   new_eeg_lst
 }
 
+#' @rdname eeg_bind
 #' @export
 bind <- eeg_bind
 
@@ -94,6 +95,7 @@ eeg_slice_signal.eeg_lst <- function(.data, ..., .preserve = FALSE){
   slice_signal_eeg_lst(.eeg_lst=.data,...)
 }
 
+#' @rdname eeg_slice_signal
 #' @export
 slice_signal <- eeg_slice_signal 
 

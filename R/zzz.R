@@ -34,6 +34,7 @@ if (getRversion() >= "2.15.1") {
   register_s3_method("dplyr", "transmute", "eeg_lst")
   register_s3_method("dplyr", "select", "eeg_lst")
   register_s3_method("dplyr", "rename", "eeg_lst")
+  register_s3_method("dplyr", "rename_with", "eeg_lst")
 
   register_s3_method("dplyr", "left_join", "eeg_lst")
   register_s3_method("dplyr", "semi_join", "eeg_lst")
