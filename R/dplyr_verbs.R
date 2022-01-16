@@ -108,8 +108,7 @@ eeg_mutate.eeg_lst <- function(.data, ...) {
     validate_eeg_lst()
 }
 
-#' @noRd
-#' @export
+# dynamically exported in zzz.R
 mutate.eeg_lst <- eeg_mutate.eeg_lst
 
 
@@ -126,8 +125,7 @@ eeg_transmute.eeg_lst <- function(.data, ...) {
   mutate_eeg_lst(.data, ..., keep_cols = FALSE)
 }
 
-#' @noRd
-#' @export
+# dynamically exported in zzz.R
 transmute.eeg_lst <- eeg_transmute.eeg_lst
 
 
@@ -154,10 +152,10 @@ eeg_filter.eeg_ica_lst <- function(.data, ..., .preserve = FALSE) {
   out
 }
 
-#' @export
+# dynamically exported in zzz.R
 filter.eeg_lst <- eeg_filter.eeg_lst
 
-#' @export
+# dynamically exported in zzz.R
 filter.eeg_ica_lst <- eeg_filter.eeg_ica_lst
 
 #' @rdname dplyr_verbs
@@ -182,11 +180,9 @@ eeg_summarize.eeg_lst <- function(.data, ..., .groups = "keep") {
   summarize_eeg_lst(.data, dots, .groups = "keep")
 }
 
-#' @noRd
-#' @export
+# dynamically exported in zzz.R
 summarize.eeg_lst <- eeg_summarize.eeg_lst
-#' @noRd
-#' @export
+# dynamically exported in zzz.R
 summarise.eeg_lst <- eeg_summarize.eeg_lst
 #' @noRd
 #' @export
@@ -220,11 +216,9 @@ eeg_ungroup.eeg_lst <- function(.data, ...) {
   validate_eeg_lst(.data)
 }
 
-#' @noRd
-#' @export
+# dynamically exported in zzz.R
 group_by.eeg_lst <- eeg_group_by.eeg_lst
-#' @noRd
-#' @export
+# dynamically exported in zzz.R
 ungroup.eeg_lst <- eeg_ungroup.eeg_lst
 
 #' @rdname dplyr_verbs
@@ -239,8 +233,7 @@ eeg_select.eeg_lst <- function(.data, ...) {
   select_rename(.data, select = TRUE, ...)
 }
 
-#' @noRd
-#' @export
+# dynamically exported in zzz.R
 select.eeg_lst <- eeg_select.eeg_lst
 
 
@@ -335,13 +328,11 @@ eeg_rename_with.eeg_lst <- function(.data, .fn, .cols = where(is_channel_dbl), .
     validate_eeg_lst()
 }
 
-#' @noRd
-#' @export
+# dynamically exported in zzz.R
 rename_with.eeg_lst <- eeg_rename_with.eeg_lst
 
 
-#' @noRd
-#' @export
+# dynamically exported in zzz.R
 rename.eeg_lst <- eeg_rename.eeg_lst
 
 
@@ -356,8 +347,7 @@ eeg_groups.eeg_lst <- function(x) {
   attributes(x)$vars %>% purrr::map(as.name)
 }
 
-#' @noRd
-#' @export
+# dynamically exported in zzz.R
 groups.eeg_lst <- eeg_groups.eeg_lst
 
 
@@ -371,8 +361,7 @@ eeg_group_vars.eeg_lst <- function(x) {
   attributes(x)$vars
 }
 
-#' @noRd
-#' @export
+# dynamically exported in zzz.R
 group_vars.eeg_lst <- eeg_group_vars.eeg_lst
 
 #' @rdname dplyr_verbs
@@ -393,8 +382,7 @@ eeg_anti_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x"
   x %>% validate_eeg_lst()
 }
 
-#' @noRd
-#' @export
+# dynamically exported in zzz.R
 anti_join.eeg_lst <- eeg_anti_join.eeg_lst
 
 #' @rdname dplyr_verbs
@@ -411,8 +399,8 @@ eeg_left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x"
 
   validate_eeg_lst(x)
 }
-#' @noRd
-#' @export
+
+# dynamically exported in zzz.R
 left_join.eeg_lst <- eeg_left_join.eeg_lst
 
 #' @rdname dplyr_verbs
@@ -433,21 +421,20 @@ eeg_semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) 
   x %>% validate_eeg_lst()
 }
 
-#' @noRd
-#' @export
+# dynamically exported in zzz.R
 semi_join.eeg_lst <- eeg_semi_join.eeg_lst
 
-#' @rdname dplyr_verbs
-#' @export
+# dynamically exported in zzz.R
 eeg_vars <- function(x) {
   UseMethod("eeg_vars")
 }
+
 #' @export
 eeg_vars.eeg_lst <- function(x) {
   setdiff(dplyr::tbl_vars(x$.signal), c(dplyr::tbl_vars(x$.segments), c(".id", ".sample")))
 }
 
-#' @export
+# dynamically exported in zzz.R
 tbl_vars.eeg_lst <- eeg_vars.eeg_lst
 
 
