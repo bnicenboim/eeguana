@@ -694,6 +694,7 @@ create_filter <- function(data,
       fir_window, fir_design
     )
   } else if(method == "iir"){
+    message("IIR filters are still experimental, and not fully tested method.")
     iir_params_names <- c("type", "b", "a", "sos", "output", "order", "gpass", "gstop", "rp", "rs", "padlen")
     is_arg_recognizable(config_names,c(iir_params_names, "method"),   pre_msg = "passing unknown arguments for fir method: ", call. = FALSE)
     if(is.null(config$type)) config$type <- "butter"

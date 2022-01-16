@@ -8,41 +8,13 @@
 \alias{eeg_filt_band_stop}
 \title{Apply a low-pass, high-pass, band-pass, or band-stop filter to every segment of an \code{eeg_lst}. These filters are adapted from the FIR and IIR filters in \href{https://mne-tools.github.io}{MNE package} (v 0.0.17.1)  of \href{https://www.python.org/}{python}. For background information about the FIR vs IIR filters, see \href{https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py}{here}. \strong{IIR filters are still on an experimental phase}.}
 \usage{
-eeg_filt_low_pass(
-  .data,
-  ...,
-  .freq = NULL,
-  .config = list(),
-  na.rm = FALSE,
-  .by_reference = FALSE
-)
+eeg_filt_low_pass(.data, ..., .freq = NULL, .config = list(), na.rm = FALSE)
 
-eeg_filt_high_pass(
-  .data,
-  ...,
-  .freq = NULL,
-  .config = list(),
-  na.rm = FALSE,
-  .by_reference = FALSE
-)
+eeg_filt_high_pass(.data, ..., .freq = NULL, .config = list(), na.rm = FALSE)
 
-eeg_filt_band_pass(
-  .data,
-  ...,
-  .freq = NULL,
-  .config = list(),
-  na.rm = FALSE,
-  .by_reference = FALSE
-)
+eeg_filt_band_pass(.data, ..., .freq = NULL, .config = list(), na.rm = FALSE)
 
-eeg_filt_band_stop(
-  .data,
-  ...,
-  .freq = NULL,
-  .config = list(),
-  na.rm = FALSE,
-  .by_reference = FALSE
-)
+eeg_filt_band_stop(.data, ..., .freq = NULL, .config = list(), na.rm = FALSE)
 }
 \arguments{
 \item{.data}{A channel or an eeg_lst.}
@@ -54,8 +26,6 @@ eeg_filt_band_stop(
 \item{.config}{Other parameters passed in a list to configure the filters. See details for options.}
 
 \item{na.rm}{=TRUE will set to NA the entire segment that contains an NA, otherwise the filter will stop with an error.}
-
-\item{.by_reference}{Filters in place, rewriting the eeg_lst object.}
 }
 \value{
 A channel or an eeg_lst.

@@ -28,7 +28,6 @@
 #' @param .freq A single cut frequency for `eeg_filt_low_pass` and `eeg_filt_high_pass`, two edges for `eeg_filt_band_pass` and `eeg_filt_band_stop`.
 #' @param .config Other parameters passed in a list to configure the filters. See details for options.
 #' @param na.rm =TRUE will set to NA the entire segment that contains an NA, otherwise the filter will stop with an error.
-#' @param .by_reference Filters in place, rewriting the eeg_lst object.
 #' @return A channel or an eeg_lst.
 #' @family Preprocessing functions.
 #'
@@ -53,28 +52,28 @@ NULL
 
 #' @rdname filt
 #' @export
-eeg_filt_low_pass <- function(.data, ..., .freq = NULL,  .config = list(), na.rm = FALSE, .by_reference = FALSE) {
+eeg_filt_low_pass <- function(.data, ..., .freq = NULL,  .config = list(), na.rm = FALSE) {
   UseMethod("eeg_filt_low_pass")
 }
 
 #' @rdname filt
 #' @export
-eeg_filt_high_pass <- function(.data, ..., .freq = NULL,  .config = list(), na.rm = FALSE, .by_reference = FALSE)  {
+eeg_filt_high_pass <- function(.data, ..., .freq = NULL,  .config = list(), na.rm = FALSE)  {
   UseMethod("eeg_filt_high_pass")
 }
 #' @rdname filt
 #' @export
-eeg_filt_band_pass <- function(.data, ..., .freq = NULL,  .config = list(), na.rm = FALSE, .by_reference = FALSE) {
+eeg_filt_band_pass <- function(.data, ..., .freq = NULL,  .config = list(), na.rm = FALSE) {
   UseMethod("eeg_filt_band_pass")
 }
 #' @rdname filt
 #' @export
-eeg_filt_band_stop <- function(.data, ..., .freq = NULL,  .config = list(), na.rm = FALSE, .by_reference = FALSE) {
+eeg_filt_band_stop <- function(.data, ..., .freq = NULL,  .config = list(), na.rm = FALSE) {
   UseMethod("eeg_filt_band_stop")
 }
 
 #' @export
-eeg_filt_low_pass.eeg_lst <- function(.data, ..., .freq = NULL,  .config = list(), na.rm = FALSE, .by_reference = FALSE) {
+eeg_filt_low_pass.eeg_lst <- function(.data, ..., .freq = NULL,  .config = list(), na.rm = FALSE) {
 
 
 
@@ -85,16 +84,18 @@ eeg_filt_low_pass.eeg_lst <- function(.data, ..., .freq = NULL,  .config = list(
 
     config = .config
   )
-  if(!.by_reference) .data <- data.table::copy(.data)
+  #if(!.by_reference) 
+    .data <- data.table::copy(.data)
 
   filt_eeg_lst_by_ref(.data$.signal, ..., h = h, na.rm = na.rm)
 
-  if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
+ # if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
 
-  if(.by_reference) invisible(.data) else .data
+#  if(.by_reference) invisible(.data) else 
+  .data
 }
 #' @export
-eeg_filt_high_pass.eeg_lst <- function(.data, ..., .freq = NULL,  .config = list(), na.rm = FALSE, .by_reference = FALSE) {
+eeg_filt_high_pass.eeg_lst <- function(.data, ..., .freq = NULL,  .config = list(), na.rm = FALSE) {
 
 
   h <- create_filter(
@@ -104,16 +105,18 @@ eeg_filt_high_pass.eeg_lst <- function(.data, ..., .freq = NULL,  .config = list
 
     config = .config
   )
-  if(!.by_reference) .data <- data.table::copy(.data)
+  #if(!.by_reference) 
+    .data <- data.table::copy(.data)
 
   filt_eeg_lst_by_ref(.data$.signal, ..., h = h, na.rm = na.rm)
 
-  if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
+#  if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
 
-  if(.by_reference) invisible(.data) else .data
+ # if(.by_reference) invisible(.data) else 
+  .data
 }
 #' @export
-eeg_filt_band_stop.eeg_lst <- function(.data, ..., .freq = NULL,  .config = list(), na.rm = FALSE, .by_reference = FALSE) {
+eeg_filt_band_stop.eeg_lst <- function(.data, ..., .freq = NULL,  .config = list(), na.rm = FALSE) {
 
 
   if (length(.freq) != 2) stop(".freq should contain two frequencies.")
@@ -127,16 +130,18 @@ eeg_filt_band_stop.eeg_lst <- function(.data, ..., .freq = NULL,  .config = list
     sampling_rate = sampling_rate(.data),
     config = .config
   )
-  if(!.by_reference) .data <- data.table::copy(.data)
+#  if(!.by_reference)
+    .data <- data.table::copy(.data)
 
   filt_eeg_lst_by_ref(.data$.signal, ..., h = h, na.rm = na.rm)
 
-  if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
+ # if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
 
-  if(.by_reference) invisible(.data) else .data
+  #if(.by_reference) invisible(.data) else 
+  .data
 }
 #' @export
-eeg_filt_band_pass.eeg_lst <- function(.data, ..., .freq = NULL,  .config = list(), na.rm = FALSE, .by_reference = FALSE) {
+eeg_filt_band_pass.eeg_lst <- function(.data, ..., .freq = NULL,  .config = list(), na.rm = FALSE) {
 
 
   if (length(.freq) != 2) stop(".freq should contain two frequencies.")
@@ -151,13 +156,15 @@ eeg_filt_band_pass.eeg_lst <- function(.data, ..., .freq = NULL,  .config = list
 
     config = .config
   )
-  if(!.by_reference) .data <- data.table::copy(.data)
+  #if(!.by_reference) 
+    .data <- data.table::copy(.data)
 
   filt_eeg_lst_by_ref(.data$.signal, ..., h = h, na.rm = na.rm)
 
-  if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
+ # if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
 
-  if(.by_reference) invisible(.data) else .data
+  # if(.by_reference) invisible(.data) else 
+  .data
 }
 
 #' @noRd

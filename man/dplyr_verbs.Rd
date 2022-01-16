@@ -18,7 +18,6 @@
 \alias{eeg_anti_join}
 \alias{eeg_left_join}
 \alias{eeg_semi_join}
-\alias{eeg_vars}
 \alias{eeg_pull}
 \alias{across}
 \alias{across_ch}
@@ -57,8 +56,6 @@ eeg_anti_join(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
 eeg_left_join(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
 
 eeg_semi_join(x, y, by = NULL, suffix = c(".x", ".y"), ...)
-
-eeg_vars(x)
 
 eeg_pull(.data, var = -1, name = NULL, ...)
 

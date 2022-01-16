@@ -63,7 +63,7 @@ Suggests:
     covr (>= 3.2.1),
     httr,
     cowplot
-LazyData: true
+LazyData: false
 VignetteBuilder: knitr
 Language: en-US
 Roxygen: list(markdown = TRUE)
