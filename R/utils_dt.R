@@ -1,4 +1,9 @@
 #' @noRd
+shallow <- function(x){
+  x[TRUE]
+}
+
+#' @noRd
 lapply_dtc <- function(X, FUN, ...){
   lapply(X, FUN, ...) %>%
     data.table::setDT()
@@ -90,12 +95,12 @@ filter_dt <- function(.data, ..., group_by_ = character(0)) {
 
 
 #' @noRd
-mutate_dt <- function(.data, ..., group_by_ = character(0), .by_ref = FALSE, omit_shallow = FALSE){
+mutate_dt <- function(.data, ..., group_by_ = character(0), .by_reference = FALSE, omit_shallow = FALSE){
 
   dots <- rlang::quos(...)
   dots <- rlang::quos_auto_name(dots)
   col_names <- names(dots)
-  if(!omit_shallow & !.by_ref){ #it might be done before, or it might be by reference
+  if(!omit_shallow & !.by_reference){ #it might be done before, or it might be by reference
     .data <- data.table:::shallow(.data)
   }
   if(length(group_by_) == 0) {
@@ -108,7 +113,7 @@ mutate_dt <- function(.data, ..., group_by_ = character(0), .by_ref = FALSE, omi
                                                        .SD),size = .N))]
     } else {
 
-      if (length(intersect(col_names, colnames(.data)))>0 & .by_ref==FALSE) {
+      if (length(intersect(col_names, colnames(.data)))>0 & .by_reference==FALSE) {
         #needs a real copy
         .data <- data.table::copy(.data)
         }
@@ -206,4 +211,66 @@ changed_objects <- function(obj){
   } else {
     message_verbose(changed, " has been changed in place.")
   }
+}
+
+#' @noRd
+distinct. <- function(.df, ..., .keep_all = FALSE) {
+  oldclass <- class(.df)
+  .df <- tidytable::distinct.(.df = .df, ..., .keep_all = .keep_all) 
+  class(.df) <- oldclass
+  .df
+}
+
+#' @noRd
+rename. <- function(.df, ...) {
+  oldclass <- class(.df)
+  .df <- tidytable::rename.(.df = .df, ...) 
+  class(.df) <- oldclass
+  .df
+}
+
+#' @noRd
+select. <- function(.df, ...) {
+  oldclass <- class(.df)
+    .df <- tidytable::select.(.df = .df, ...)  
+  class(.df) <- oldclass
+  .df
+}
+
+
+#' @noRd
+mutate. <- function(.df, ..., 
+                    .by = NULL, 
+                    .keep = c("all", "used", "unused","none") ) {
+  oldclass <- class(.df)
+  if(length(.by)>0) {
+    .df <- tidytable::mutate.(.df = .df, ...,
+                              .by = .by, 
+                              .keep = .keep)  
+  } else {
+  #much faster to remove the by=character(0) when not needed
+        .df <- tidytable::mutate.(.df = .df, ...,
+                              .keep = .keep)  
+  }
+  
+  class(.df) <- oldclass
+  .df
+}
+
+#' @noRd
+filter. <- function(.df, ..., 
+                    .by = NULL) {
+  oldclass <- class(.df)
+  .df <- tidytable::filter.(.df = .df, ...,
+                            .by = .by)
+  class(.df) <- oldclass
+  .df
+}
+
+#' @noRd
+summarize. <- function(.df, ..., .by= NULL, .sort = FALSE) {
+  oldclass <- class(.df)
+  .df <- tidytable::summarize.(.df = .df, ...,.by = .by, .sort = .sort)
+  class(.df) <- oldclass
+  .df
 }

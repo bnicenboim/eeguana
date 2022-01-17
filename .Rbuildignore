@@ -22,8 +22,11 @@ experimental
 ^vignettes\.*\.vhdr
 ^vignettes\.*\.vmrk
 ^vignettes\.*\.dat
+^vignettes\.*\.eeg
 ^vignettes\.*\.Rmd
 ^vignettes.*
 ^pkgdown.*
 ^_pipeline.*
 ^_.*
+
+

@@ -283,11 +283,11 @@ plot_ica.eeg_ica_lst <- function(data,
       #fixtidyselect::vars_select(channel_names(data), c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
     message_verbose("EOG channels detected as: ", toString(eog))
   } else {
-    eog <-  sel_ch(data, tidyselect::all_of(eog))
+    eog <-  sel_ch(data, tidyselect::all_of(!!eog))
   }
     
   message_verbose("Calculating the correlation of ICA components with filtered EOG channels...")
-  summ <- eeg_ica_summary_tbl(data %>% eeg_filt_band_pass(eog, .freq = c(.1, 30)))
+  summ <- eeg_ica_summary_tbl(data %>% eeg_filt_band_pass(tidyselect::all_of(!!eog), .freq = c(.1, 30)))
   data.table::setorderv(summ, .order, order = -1)
   ICAs <- unique(summ$.ICA)[components]
   
@@ -295,12 +295,13 @@ plot_ica.eeg_ica_lst <- function(data,
   
   new_data <- data %>% 
    slice_signal(samples) %>%
-    eeg_ica_show(dplyr::one_of(ICAs)) %>%
+    eeg_ica_show(tidyselect::one_of(ICAs)) %>%
     ## we select want we want to show:
-    dplyr::select(tidyselect::all_of(c(ICAs, eog))) %>%
-    dplyr::group_by(.id) %>%
-    dplyr::mutate_at(eog, ~ .- mean(.)) %>%
-    dplyr::mutate_if(is_component_dbl, ~ . * scale_comp) 
+    eeg_select(tidyselect::all_of(c(ICAs, eog))) %>%
+    eeg_group_by(.id)
+  
+  new_data <- new_data %>% eeg_mutate(across(.cols = tidyselect::all_of(!!eog), ~ .- mean(.))) %>%
+    eeg_mutate(across(where(is_component_dbl), ~ . * scale_comp))
   
  ampls <- new_data %>%
     plot() + 
@@ -308,13 +309,14 @@ plot_ica.eeg_ica_lst <- function(data,
     ggplot2::theme(legend.position='none')
   
   topo <- data %>%
-    eeg_ica_keep(ICAs) %>%
+    eeg_ica_keep(tidyselect::all_of(ICAs)) %>%
     plot_components() +
     annotate_head() +
     ggplot2::geom_contour() +
     ggplot2::geom_text(color = "black") +
     ggplot2::theme(legend.position = "none")
 
+  #TODO : tidy table
   c_text <- summ %>%
     dplyr::mutate(cor_t = as.character(round(cor,2)), pvar_t = as.character(round(var*100))) %>%
     dplyr::group_by(.recording, .ICA) %>%
@@ -681,7 +683,7 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
 ggplot.eeg_lst <- function(data = NULL,
                            mapping = ggplot2::aes(),
                            ...,
-                           .max_sample  = 64000                           ) {
+                           .max_sample  = 64000) {
   df <- try_to_downsample(data, .max_sample) %>%
     data.table::as.data.table()
 

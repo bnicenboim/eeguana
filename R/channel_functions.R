@@ -3,7 +3,7 @@
 #' Wrapper of `rowMeans` that performs a by-sample mean of the specified channels.
 #'
 #' @param x An `eeg_lst` object.
-#' @param ... A channel or a group of unquoted or quoted channels (if an `eeg_lst` is not specified).
+#' @param ... A group of channels, it can be used in combination with `across`.
 #' @inheritParams base::mean
 #' @return A new channel or an `eeg_lst` object with a `mean` channel instead of the previous channels.
 #' @family channel functions
@@ -29,8 +29,14 @@ chs_mean <- function(x, ..., na.rm = FALSE) {
 #' @export
 chs_mean.channel_dbl <- function(..., na.rm = FALSE) {
   dt_chs <- data.table::data.table(...)
-  rowMeans_ch(dt_chs, na.rm = na.rm)
+   rowMeans_ch(dt_chs, na.rm = na.rm)
 }
+
+#' @export
+chs_mean.data.frame <- function(..., na.rm = FALSE) {
+  rowMeans_ch(..., na.rm = na.rm)
+}
+
 ## This should work with tidyselect #115
 ## chs_mean.character <- function(..., na.rm = FALSE) {
 ##   dt_chs <- data.table::as.data.table(mget(..., envir = rlang::caller_env()))
@@ -39,14 +45,12 @@ chs_mean.channel_dbl <- function(..., na.rm = FALSE) {
 ## }
 #' @export
 chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
-  # channels_info <- channels_tbl(x)
   signal <- data.table:::shallow(x$.signal)
   signal[, mean := rowMeans_ch(.SD, na.rm = na.rm), .SDcols = channel_names(x)][, `:=`(channel_names(x), NULL)]
   x$.signal <- signal
-  update_events_channels(x) %>% # update_channels_tbl(channels_info) %>%
+  update_events_channels(x) %>% 
     validate_eeg_lst()
 }
-
 
 #' Re-reference a channel or group of channels.
 #'

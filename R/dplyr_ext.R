@@ -14,11 +14,11 @@
 #'     read_vhdr(.x)
 #' )
 #' # Bind all the eeg_lsts into a large one:
-#' faces <- bind(faces_list)
+#' faces <- eeg_bind(faces_list)
 #' }
 #'  
 #' @export
-bind <- function(...) {
+eeg_bind <- function(...) {
   eeg_lsts <- list(...)
   # hack to allow that "..." would already be a list
   if (class(eeg_lsts[[1]]) != "eeg_lst") {
@@ -68,6 +68,11 @@ bind <- function(...) {
   new_eeg_lst
 }
 
+#' @rdname eeg_bind
+#' @export
+bind <- eeg_bind
+
+
 #' Choose samples by the position
 #'
 #' Choose samples by their ordinal position in the signal table. Grouped eeg_lst object use the ordinal position in the signal table within the group.
@@ -78,18 +83,21 @@ bind <- function(...) {
 #' @family tidyverse-like functions
 #'
 #' @export
-slice_signal <- function(.data, ..., .preserve = FALSE){
-UseMethod("slice_signal")
+eeg_slice_signal <- function(.data, ..., .preserve = FALSE){
+UseMethod("eeg_slice_signal")
 }
 
-
 #' @export
-slice_signal.eeg_lst <- function(.data, ..., .preserve = FALSE){
+eeg_slice_signal.eeg_lst <- function(.data, ..., .preserve = FALSE){
  if(.preserve){
    warning("`.preserve`` is not implemented.")
  }
   slice_signal_eeg_lst(.eeg_lst=.data,...)
 }
+
+#' @rdname eeg_slice_signal
+#' @export
+slice_signal <- eeg_slice_signal 
 
 slice_signal_eeg_lst <- function(.eeg_lst,...) {
   extended_signal <- extended_signal(.eeg_lst)
@@ -109,3 +117,6 @@ slice_signal_eeg_lst <- function(.eeg_lst,...) {
     .eeg_lst$.segments <- dplyr::semi_join(.eeg_lst$.segments, .eeg_lst$.signal, by = ".id")
     validate_eeg_lst(.eeg_lst)
 }
+
+#' @export
+slice_signal.eeg_lst <- eeg_slice_signal.eeg_lst

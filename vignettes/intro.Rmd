@@ -129,8 +129,8 @@ faces_ls <- eeg_segment(faces_filt, .description == "s111", .end = .description 
 
 ```{r, fig.dim = c(10,15), out.width = "100%"}
 faces_ls %>%
-  select(-HEOG, -VEOG)%>%
-  filter(as_time(.sample, .unit = "s") %>% between(0, 90)) %>%
+  eeg_select(-HEOG, -VEOG)%>%
+  eeg_filter(as_time(.sample, .unit = "s") %>% between(0, 90)) %>%
   plot() +
   annotate_events() +
   theme(legend.position = "bottom")
@@ -186,7 +186,7 @@ events_tbl(faces_icaed) <- events_tbl(faces_icaed) %>%
   filter(!.type %in% "artifact")
 
 faces_seg <- faces_icaed %>%
-  select(-description, -type) %>%
+  eeg_select(-description, -type) %>%
   eeg_segment(.description %in% c("s70", "s71"), .lim = c(-.1, .5))
 
 faces_seg_artif <- faces_seg %>%
@@ -199,8 +199,8 @@ bad <- filter(events_tbl(faces_seg_artif), .type == "artifact") %>%
   unique()
 ## Show the segment with artifact and one before and after:
 faces_seg_artif %>%
-  filter(.id %in% c(bad-1, bad, bad+1)) %>%
-  select(-VEOG, -HEOG) %>%
+  eeg_filter(.id %in% c(bad-1, bad, bad+1)) %>%
+  eeg_select(-VEOG, -HEOG) %>%
   plot() +
   annotate_events() +
   theme(legend.position = "bottom")
@@ -222,11 +222,11 @@ We edit the segmentation information and add more descriptive labels.
 
 ```{r,  fig.dim = c(10,5)}
 faces_seg <- faces_seg %>%
-  mutate(
+  eeg_mutate(
     condition =
-      if_else(description == "s70", "faces", "non-faces")
+      ifelse(description == "s70", "faces", "non-faces")
   ) %>%
-  select(-type)
+  eeg_select(-type)
 
 faces_seg
 ```
@@ -236,11 +236,11 @@ With some `ggplot` skills, we can create customized plots. `ggplot` is overloade
 
 ```{r, fig.dim = c(10,10), out.width = "100%"}
 ## ggplot uses internally a table that looks like this:
-faces_seg %>% filter(.id %in% 1:3) %>%
+faces_seg %>% eeg_filter(.id %in% 1:3) %>%
   as_tibble()
 
 faces_seg %>%
-  select(O1, O2, P7, P8) %>%
+  eeg_select(O1, O2, P7, P8) %>%
   ggplot(aes(x = .time, y = .value)) +
   geom_line(alpha = .1, aes(group = .id, color = condition)) +
   stat_summary(
@@ -257,14 +257,14 @@ We can see here the N170 component in the faces condition for the average trial 
                                                               
 ```{r, fig.dim = c(10,5), out.width = "100%"}
 faces_seg %>%
-  transmute(
-    Occipital = chs_mean(O1, O2, Oz, na.rm = TRUE),
-    Parietal = chs_mean(P3, P4, P7, P8, Pz, na.rm = TRUE)
+  eeg_transmute(
+    Occipital = chs_mean(across(starts_with("O")), na.rm = TRUE), #O1, O2, Oz
+    Parietal = chs_mean(across(starts_with("O")), na.rm = TRUE) # P3, P4, P7, P8, Pz
   ) %>%
   ggplot(aes(x = .time, y = .value)) +
   geom_line(alpha = .1, aes(group = .id, color = condition)) +
   stat_summary(
-    fun.y = "mean", geom = "line", alpha = 1, size = 1,
+    fun = "mean", geom = "line", alpha = 1, size = 1,
     aes(color = condition)
   ) +
   facet_wrap(~.key) +
@@ -275,9 +275,9 @@ We can also calculate the ERPs and then plot them in their layout (and we'll add
 
 ```{r layout, fig.dim = c(10,10), out.width = "100%"}
 ERP_faces <- faces_seg %>%
-  group_by(.sample, condition) %>%
-  summarize_at(channel_names(.), mean, na.rm = TRUE)
-
+  eeg_group_by(.sample, condition) %>%
+  eeg_summarize(across_ch(mean, na.rm = TRUE))
+  
 ERP_plot <- ERP_faces %>%
   ggplot(aes(x = .time, y = .value)) +
   geom_line(aes(color = condition)) +
@@ -293,9 +293,9 @@ Another possibility is to create a topographic plot of the two conditions, by fi
 
 ```{r topo, fig.dim = c(10,5), out.width = "100%"}
 faces_seg %>%
-  filter(between(as_time(.sample, .unit = "s"), .1, .2)) %>%
-  group_by(condition) %>%
-  summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
+  eeg_filter(between(as_time(.sample, .unit = "s"), .1, .2)) %>%
+  eeg_group_by(condition) %>%
+  eeg_summarize(across_ch(mean, na.rm = TRUE)) %>%
   plot_topo() +
   annotate_head() +
   geom_contour() +
@@ -309,7 +309,7 @@ For more specialized plots or analyses, it might be necessary to extract the dat
 
 ```{r}
 df <- faces_seg %>%
-  select(O1, O2, P7, P8) %>%
+  eeg_select(O1, O2, P7, P8) %>%
   as_tibble() %>%
   # We can use regular dplyr functions now
   group_by(.key, .time) %>%
@@ -335,17 +335,17 @@ However, this can be also done in the without transforming the `eeg_lst` object:
 ```{r, fig.dim = c(10,10), out.width = "100%"}
 faces_seg_t <-
   faces_seg %>%
-  select(O1, O2, P7, P8) %>%
-  group_by(.sample) %>%
-  summarize_at(channel_names(.), list(t =  ~t.test(
+  eeg_select(O1, O2, P7, P8) %>%
+  eeg_group_by(.sample) %>%
+  eeg_summarize(across_ch(list(t =  ~t.test(
     .[condition == "faces"],
     .[condition == "non-faces"]
-  )$statistic))
+  )$statistic)))
 
 faces_seg_t %>%
   ggplot(aes(x = .time, y = .value)) +
   geom_line(alpha = .1, aes(group = .id)) +
-  stat_summary(fun.y = "mean", geom = "line", alpha = 1, size = 1) +
+  stat_summary(fun = "mean", geom = "line", alpha = 1, size = 1) +
   facet_wrap(~.key) +
   theme(legend.position = "bottom")
 ```

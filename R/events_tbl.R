@@ -142,13 +142,12 @@ validate_events_tbl <- function(events) {
     )
   }
   if (is.numeric(events$.initial) && is.numeric(events$.final) &&
-      any(events$.final < events$.initial)) {
+ any(events$.final < events$.initial, na.rm = TRUE) ){
     warning("Values of .final should be larger than values of .initial",
       call. = FALSE
     )
   }
-
-  events[]
+  events
 }
 
 

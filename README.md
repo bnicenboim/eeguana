@@ -87,7 +87,7 @@ We first need to read the data:
 
 ``` r
 faces <- read_vhdr("faces.vhdr")
-#> Reading file faces.vhdr...
+#> # Reading file faces.vhdr...
 #> # Data from ./faces.dat was read.
 #> # Data from 1 segment(s) and 34 channels was loaded.
 #> # Object size in memory 140.5 Mb
@@ -233,25 +233,13 @@ segments_tbl(faces_segs)
 #> 198: 198 faces.vhdr     198 Stimulus         s70
 #> 199: 199 faces.vhdr     199 Stimulus         s70
 #> 200: 200 faces.vhdr     200 Stimulus         s70
-library(dplyr)
-#> 
-#> Attaching package: 'dplyr'
-#> The following object is masked from 'package:eeguana':
-#> 
-#>     between
-#> The following objects are masked from 'package:stats':
-#> 
-#>     filter, lag
-#> The following objects are masked from 'package:base':
-#> 
-#>     intersect, setdiff, setequal, union
 ## We modify the entire object:
 faces_segs_some <- faces_segs %>%
-  mutate(
+  eeg_mutate(
     condition =
-      if_else(description == "s70", "faces", "non-faces")
+      ifelse(description == "s70", "faces", "non-faces")
   ) %>%
-  select(-type)
+  eeg_select(-type)
 
 faces_segs_some
 #> # EEG data:
@@ -367,18 +355,17 @@ into `ggplot`. This object can then be customized.
 ``` r
 library(ggplot2)
 faces_segs_some %>%
-  select(O1, O2, P7, P8) %>%
+  eeg_select(O1, O2, P7, P8) %>%
   ggplot(aes(x = .time, y = .value)) +
   geom_line(alpha = .1, aes(group = .id, color = condition)) +
   stat_summary(
-    fun.y = "mean", geom = "line", alpha = 1, size = 1.5,
+    fun = "mean", geom = "line", alpha = 1, size = 1.5,
     aes(color = condition)
   ) +
   facet_wrap(~.key) +
   geom_vline(xintercept = 0, linetype = "dashed") +
   geom_vline(xintercept = .17, linetype = "dotted") +
   theme(legend.position = "bottom")
-#> Warning: `fun.y` is deprecated. Use `fun` instead.
 ```
 
 <img src="man/figures/README-plot-1.png" width="100%" />
@@ -390,9 +377,9 @@ interpolated amplitudes and using the ggplot wrapper `plot_topo`.
 
 ``` r
 faces_segs_some %>%
-  filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
-  group_by(condition) %>%
-  summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
+  eeg_filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
+  eeg_group_by(condition) %>%
+  eeg_summarize(across_ch(mean, na.rm = TRUE)) %>%
   plot_topo() +
   annotate_head() +
   geom_contour() +

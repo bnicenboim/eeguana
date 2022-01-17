@@ -8,17 +8,7 @@
 \description{
 \if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
 
-Flexible manipulation of EEG data in R. It provides a data.table 
-    powered framework for manipulating EEG data with dplyr-based functions
-    (e.g., `mutate`, `filter`, `summarize`) extended to a new class, eeg_lst,
-    other EEG-specialized functions, and `ggplot` wrapper functions.  The new
-    class is inspired by tidyverse principles but it's not really "tidy" (due
-    to space considerations), it's a list of (i) a wide data table (signal_tbl)
-    that contains the signal amplitudes at every sample point of the EEG,  (ii)
-    an events data table with information about markers (or triggers), blinks
-    and other exported information, and (iii) a long table with experimental
-    information, such as participant number (.recording), conditions, etc.
-    eeguana can do only basic pre-processing for now.
+Flexible manipulation of EEG data in R. It provides a data.table powered framework for manipulating EEG data with dplyr-based functions (e.g., `mutate`, `filter`, `summarize`) extended to a new class, eeg_lst, other EEG-specialized functions, and `ggplot` wrapper functions. The new class is inspired by tidyverse principles but it's not really "tidy" (due to space considerations), it's a list of (i) a wide data table (signal_tbl) that contains the signal amplitudes at every sample point of the EEG, (ii) an events data table with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant number (.recording), conditions, etc. eeguana can do only basic pre-processing for now.
 }
 \seealso{
 Useful links:
@@ -29,11 +19,12 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Bruno Nicenboim \email{bruno.nicenboim@uni-potsdam.de}
+\strong{Maintainer}: Bruno Nicenboim \email{bruno.nicenboim@tilburguniversity.edu}
 
 Other contributors:
 \itemize{
   \item Kate Stone \email{kate.stone@uni-potsdam.de} [contributor]
+  \item Mark Fairbanks \email{mark.t.fairbanks@gmail.com} [contributor]
 }
 
 }
