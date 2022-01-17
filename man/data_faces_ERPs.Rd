@@ -8,7 +8,7 @@
 An eeg_lst  with 2 conditions (faces, non-faces)
 }
 \usage{
-data_faces_ERPs
+data(data_faces_ERPs)
 }
 \description{
 A dataset containing the ERPs elicited when one subject saw faces and non-faces objects. See also the vignette \href{https://bnicenboim.github.io/eeguana/articles/brainvision_files.html}{Introduction - Manipulating a clean EEG file exported from BrainVision 2.0}.

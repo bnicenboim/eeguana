@@ -455,7 +455,8 @@ eeg_pull.eeg_lst <- function(.data, var = -1, name = NULL, ...) {
   rlang::set_names(.data[[var]], nm = .data[[name]])
 }
 
-#' @export
+
+# dynamically exported in zzz.R
 pull.eeg_lst <- eeg_pull.eeg_lst
 
 

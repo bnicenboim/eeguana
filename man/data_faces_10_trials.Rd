@@ -20,7 +20,7 @@ An eeg_lst with the following events:
 }
 }
 \usage{
-data_faces_10_trials
+data(data_faces_10_trials)
 }
 \description{
 A dataset containing 10 trials where  one subject either saw faces or a non-faces objects with preprocessing done in BrainVision 2.0. See also the vignette \href{https://bnicenboim.github.io/eeguana/articles/brainvision_files.html}{Introduction - Manipulating a clean EEG file exported from BrainVision 2.0}.
