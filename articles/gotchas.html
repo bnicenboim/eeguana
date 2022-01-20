@@ -26,6 +26,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -38,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.6.9000</span>
       </span>
     </div>
 
@@ -46,7 +48,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
+    <span class="fa fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -77,8 +79,8 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/bnicenboim/eeguana">
-    <span class="fas fa-github fa-lg"></span>
+  <a href="https://github.com/bnicenboim/eeguana" class="external-link">
+    <span class="fa fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -96,11 +98,11 @@
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Pitfalls and gotchas</h1>
-                        <h4 class="author">Bruno Nicenboim</h4>
+                        <h4 data-toc-skip class="author">Bruno Nicenboim</h4>
             
-            <h4 class="date">2021-02-14</h4>
+            <h4 data-toc-skip class="date">2022-01-20</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/bnicenboim/eeguana/blob/master/vignettes/gotchas.Rmd"><code>vignettes/gotchas.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/bnicenboim/eeguana/blob/HEAD/vignettes/gotchas.Rmd" class="external-link"><code>vignettes/gotchas.Rmd</code></a></small>
       <div class="hidden name"><code>gotchas.Rmd</code></div>
 
     </div>
@@ -109,134 +111,35 @@
     
 <p>I address some potential sources of confusion here. To run this examples, we first load eeguana and dplyr:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bnicenboim/eeguana">eeguana</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span></code></pre></div>
-<div id="tidyverse-dplyr-like-functions" class="section level2">
-<h2 class="hasAnchor">
-<a href="#tidyverse-dplyr-like-functions" class="anchor"></a>Tidyverse dplyr-like functions</h2>
-<p>The package {eeguana} allows for functions that <em>look</em> like {dplyr} functions but they truly are powered by {data.table}. This means that there are subtle differences between dplyr’s behavior and eeguana dplyr-like function behavior.</p>
-<div id="default-values" class="section level3">
-<h3 class="hasAnchor">
-<a href="#default-values" class="anchor"></a>Default values</h3>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bnicenboim/eeguana" class="external-link">eeguana</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></code></pre></div>
+<div class="section level2">
+<h2 id="tidyverse-dplyr-like-functions">Tidyverse dplyr-like functions<a class="anchor" aria-label="anchor" href="#tidyverse-dplyr-like-functions"></a>
+</h2>
+<p>The package {eeguana} allows for functions that <em>look</em> like {dplyr} functions but they truly are powered by {tidy.table} and {data.table}. This means that there are subtle differences between dplyr’s behavior and eeguana dplyr-like function behavior.</p>
+<div class="section level3">
+<h3 id="default-values">Default values<a class="anchor" aria-label="anchor" href="#default-values"></a>
+</h3>
 <p>The default values of the arguments might be different, and some arguments might not exist for the eeguana dplyr-like functions.</p>
 </div>
-<div id="grouped-eeg_lst-objects" class="section level3">
-<h3 class="hasAnchor">
-<a href="#grouped-eeg_lst-objects" class="anchor"></a>Grouped eeg_lst objects</h3>
-<p>Grouped mutations behave slightly different than ungrouped ones. Channel properties are removed if the data is ungrouped and one overwrites a channel.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">new_data</span> <span class="op">&lt;-</span> <span class="va">data_faces_ERPs</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>C3 <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>
-<span class="co">#&gt; The following columns of signal_tbl are not channels (or ICA components): C3</span>
-<span class="co">#&gt; * To build a channel use `channel_dbl()` function, e.g. channel_dbl(0) to populate the table with a channel containing 0 microvolts.</span>
-<span class="co">#&gt; * To copy the structure of an existing channel one can do `new_ch = existing_channel * 0 + ...`</span>
-<span class="co"># C3 is no longer here:</span>
-<span class="fu"><a href="../reference/channels_tbl.html">channels_tbl</a></span><span class="op">(</span><span class="va">new_data</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">.channel</span> <span class="op">==</span> <span class="st">"C3"</span><span class="op">)</span>
-<span class="co">#&gt; # A tibble: 0 x 7</span>
-<span class="co">#&gt; # … with 7 variables: .channel &lt;chr&gt;, radius &lt;dbl&gt;, theta &lt;dbl&gt;, phi &lt;dbl&gt;,</span>
-<span class="co">#&gt; #   .x &lt;dbl&gt;, .y &lt;dbl&gt;, .z &lt;dbl&gt;</span></code></pre></div>
-<p>If one wants to ensure that C3 is a channel, it needs to be created as <em>a</em> channel:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">new_data</span> <span class="op">&lt;-</span> <span class="va">data_faces_ERPs</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>C3 <span class="op">=</span> <span class="fu"><a href="../reference/channel_dbl.html">channel_dbl</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span><span class="op">)</span>
-<span class="co"># C3 is  here, but without its meta data</span>
-<span class="fu"><a href="../reference/channels_tbl.html">channels_tbl</a></span><span class="op">(</span><span class="va">new_data</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">.channel</span> <span class="op">==</span> <span class="st">"C3"</span><span class="op">)</span>
-<span class="co">#&gt; # A tibble: 1 x 8</span>
-<span class="co">#&gt;   .channel radius theta   phi    .x    .y    .z .reference</span>
-<span class="co">#&gt;   &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;lgl&gt;     </span>
-<span class="co">#&gt; 1 C3           NA    NA    NA    NA    NA    NA NA</span></code></pre></div>
-<p>If one wants to ensure that the new C3 channel has the same information as the original, one can do the following:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">new_data</span> <span class="op">&lt;-</span> <span class="va">data_faces_ERPs</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>C3 <span class="op">=</span> <span class="fl">0</span> <span class="op">*</span> <span class="va">C3</span><span class="op">)</span>
-<span class="co"># C3 is  here, but without its meta data</span>
-<span class="fu"><a href="../reference/channels_tbl.html">channels_tbl</a></span><span class="op">(</span><span class="va">new_data</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">.channel</span> <span class="op">==</span> <span class="st">"C3"</span><span class="op">)</span>
-<span class="co">#&gt; # A tibble: 1 x 7</span>
-<span class="co">#&gt;   .channel radius theta   phi    .x    .y    .z</span>
-<span class="co">#&gt;   &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 C3            1   -45     0 -0.71     0  0.71</span></code></pre></div>
-<p>This is not the case if the data is grouped</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">new_data</span> <span class="op">&lt;-</span> <span class="va">data_faces_ERPs</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">condition</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>C3 <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>
-<span class="co"># C3 is no longer here:</span>
-<span class="fu"><a href="../reference/channels_tbl.html">channels_tbl</a></span><span class="op">(</span><span class="va">new_data</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">.channel</span> <span class="op">==</span> <span class="st">"C3"</span><span class="op">)</span>
-<span class="co">#&gt; # A tibble: 1 x 7</span>
-<span class="co">#&gt;   .channel radius theta   phi    .x    .y    .z</span>
-<span class="co">#&gt;   &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 C3            1   -45     0 -0.71     0  0.71</span></code></pre></div>
-</div>
-<div id="referring-back-to-recently-created-channels" class="section level3">
-<h3 class="hasAnchor">
-<a href="#referring-back-to-recently-created-channels" class="anchor"></a>Referring back to recently created channels</h3>
+<div class="section level3">
+<h3 id="referring-back-to-recently-created-channels">Referring back to recently created channels<a class="anchor" aria-label="anchor" href="#referring-back-to-recently-created-channels"></a>
+</h3>
 <p>Unlike dplyr’s mutate, {eeguana}’s [mutate] doesn’t allow to refer back to a recently created channel:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">new_data</span> <span class="op">&lt;-</span> <span class="va">data_faces_ERPs</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/scale.html">scale</a></span><span class="op">(</span><span class="va">C3</span><span class="op">)</span>, Y <span class="op">=</span> <span class="va">X</span> <span class="op">*</span> <span class="fl">2</span><span class="op">)</span>
-<span class="co">#&gt; Error: Problem with `mutate()` input `Y`.</span>
-<span class="co">#&gt; ✖ object 'X' not found</span>
-<span class="co">#&gt; ℹ Input `Y` is `X * 2`.</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">new_data</span> <span class="op">&lt;-</span> <span class="va">data_faces_ERPs</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
+  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_mutate</a></span><span class="op">(</span>X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="va">C3</span><span class="op">)</span>, Y <span class="op">=</span> <span class="va">X</span> <span class="op">*</span> <span class="fl">2</span><span class="op">)</span>
+<span class="co">#&gt; Error in eval(jsub, SDenv, parent.frame()): object 'X' not found</span></code></pre></div>
 <p>A workaround is to use two mutates:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">new_data</span> <span class="op">&lt;-</span> <span class="va">data_faces_ERPs</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/scale.html">scale</a></span><span class="op">(</span><span class="va">C3</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="va">X</span> <span class="op">*</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
-<p>Similarly, eeguana’s [mutate] won’t use the most updated value of a column from the same call:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">new_data</span> <span class="op">&lt;-</span> <span class="va">data_faces_ERPs</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>EOGV <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/scale.html">scale</a></span><span class="op">(</span><span class="va">EOGV</span><span class="op">)</span>, Y <span class="op">=</span> <span class="va">EOGV</span> <span class="op">*</span> <span class="fl">10</span><span class="op">)</span>
-<span class="fu"><a href="../reference/signal_tbl.html">signal_tbl</a></span><span class="op">(</span><span class="va">new_data</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span>
-<span class="co">#&gt;    .id .sample       Fp1       Fpz         Fp2        F7       F3        Fz</span>
-<span class="co">#&gt; 1:   1     -99 0.2235343 0.6683971 -0.03621027 0.8601528 1.716951 0.6631765</span>
-<span class="co">#&gt; 2:   1     -98 0.2525760 0.7361622 -0.04687375 0.8352839 1.696101 0.6964380</span>
-<span class="co">#&gt; 3:   1     -97 0.1330125 0.7052292 -0.15697831 0.7692707 1.536542 0.6526393</span>
-<span class="co">#&gt;              F4            F8      FC5      FC1       FC2       FC6</span>
-<span class="co">#&gt; 1: -0.092648050  0.0006219736 1.605390 1.543430 0.6253292 0.3170046</span>
-<span class="co">#&gt; 2:  0.007091334 -0.0072999994 1.536605 1.570444 0.6661446 0.4931471</span>
-<span class="co">#&gt; 3:  0.011369770 -0.1129255121 1.376906 1.544950 0.6605502 0.5423985</span>
-<span class="co">#&gt;              M1        T7       C3        Cz       C4        T8           M2</span>
-<span class="co">#&gt; 1: -0.010442968 0.7618859 2.333914 0.9975520 1.934568 0.1472479  0.010442968</span>
-<span class="co">#&gt; 2:  0.003450777 0.7753494 2.412899 1.0106905 1.954956 0.2699401 -0.003450777</span>
-<span class="co">#&gt; 3:  0.033199993 0.8647610 2.504287 0.9923178 1.936489 0.3409814 -0.033199993</span>
-<span class="co">#&gt;         CP5      CP1      CP2      CP6       P7       P3       Pz       P4</span>
-<span class="co">#&gt; 1: 1.429704 1.363838 1.468067 1.414527 1.054939 1.277304 1.144086 1.648778</span>
-<span class="co">#&gt; 2: 1.494439 1.409021 1.481492 1.454589 1.116253 1.285327 1.152601 1.671552</span>
-<span class="co">#&gt; 3: 1.616789 1.471170 1.517598 1.480513 1.353048 1.404817 1.202807 1.724722</span>
-<span class="co">#&gt;           P8       POz        O1        Oz        O2      EOGV     EOGH</span>
-<span class="co">#&gt; 1: 0.4936695 0.9985673 0.8084641 0.6250410 0.9080361 0.5143054 2.361059</span>
-<span class="co">#&gt; 2: 0.5009267 1.0276117 0.8976453 0.7248799 0.9601037 0.4574391 2.446400</span>
-<span class="co">#&gt; 3: 0.5416201 1.1316823 1.1302819 0.9194691 1.0825952 0.4689800 2.405026</span>
-<span class="co">#&gt;           Y</span>
-<span class="co">#&gt; 1: 13.86582</span>
-<span class="co">#&gt; 2: 13.00840</span>
-<span class="co">#&gt; 3: 13.18241</span></code></pre></div>
-<p>Notice that <code>Y</code> is 10 larger than the original VEOG and not the current one.</p>
-</div>
-<div id="dplyrs-context-dependent-expressions-such-as-n-across-and-where-wont-work-in-an-eeg_lst-object" class="section level3">
-<h3 class="hasAnchor">
-<a href="#dplyrs-context-dependent-expressions-such-as-n-across-and-where-wont-work-in-an-eeg_lst-object" class="anchor"></a>Dplyr’s context dependent expressions such as <code>n()</code>, <code>across()</code>, and <code>where()</code> won’t work in an <code>eeg_lst</code> object</h3>
-<p>While <code><a href="https://dplyr.tidyverse.org/reference/context.html">n()</a></code> won’t work,</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">new_data</span> <span class="op">&lt;-</span> <span class="va">data_faces_ERPs</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>C3 <span class="op">=</span> <span class="fu"><a href="../reference/channel_dbl.html">channel_dbl</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; Error: `n()` must only be used inside dplyr verbs.</span></code></pre></div>
-<p>using <code><a href="https://rdrr.io/r/base/length.html">length(.sample)</a></code> will achieve the same:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">new_data</span> <span class="op">&lt;-</span> <span class="va">data_faces_ERPs</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>C3 <span class="op">=</span> <span class="fu"><a href="../reference/channel_dbl.html">channel_dbl</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">.sample</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<p>For now <code><a href="https://dplyr.tidyverse.org/reference/across.html">across()</a></code> and <code>where()</code> can be replaced by <code>_at</code> and <code>_if</code> version of the dplyr verbs</p>
-</div>
-</div>
-<div id="other-pitfalls" class="section level2">
-<h2 class="hasAnchor">
-<a href="#other-pitfalls" class="anchor"></a>Other pitfalls</h2>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">new_data</span> <span class="op">&lt;-</span> <span class="va">data_faces_ERPs</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="va">C3</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="va">X</span> <span class="op">*</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
 <p>Dplyr-like functions not only edit the eeg_lst objects but they also do book-keeping: They remove unnecessary channels, or update their information and they ensure that three tables (signal, segments, and events) match. It’s then not recommended to edit the signal and segments table directly.</p>
 <p>Compare the correct way to filter out samples:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">new_data</span> <span class="op">&lt;-</span> <span class="va">data_faces_10_trials</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">.sample</span> <span class="op">&lt;</span> <span class="fl">20000</span><span class="op">)</span>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">new_data</span> <span class="op">&lt;-</span> <span class="va">data_faces_10_trials</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
+  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_filter</a></span><span class="op">(</span><span class="va">.sample</span> <span class="op">&lt;</span> <span class="fl">20000</span><span class="op">)</span>
 <span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">new_data</span><span class="op">)</span>
 <span class="co">#&gt;     .id        .type .description .initial .final .channel</span>
 <span class="co">#&gt;  1:   1 Bad Interval  Bad Min-Max    15000  15128      FC6</span>
@@ -305,10 +208,10 @@
 <span class="co">#&gt; 64:   1 Bad Interval  Bad Min-Max    19479  19791       F4</span>
 <span class="co">#&gt;     .id        .type .description .initial .final .channel</span></code></pre></div>
 <p>with the <em>non-recommended</em> version:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">new_data_BAD</span> <span class="op">&lt;-</span> <span class="va">data_faces_10_trials</span>
-<span class="va">new_data_BAD</span><span class="op">$</span><span class="va">.signal</span> <span class="op">&lt;-</span> <span class="va">new_data_BAD</span><span class="op">$</span><span class="va">.signal</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">.sample</span> <span class="op">&lt;</span> <span class="fl">20000</span><span class="op">)</span>
+<span class="va">new_data_BAD</span><span class="op">$</span><span class="va">.signal</span> <span class="op">&lt;-</span> <span class="va">new_data_BAD</span><span class="op">$</span><span class="va">.signal</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">.sample</span> <span class="op">&lt;</span> <span class="fl">20000</span><span class="op">)</span>
 <span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">new_data_BAD</span><span class="op">)</span>
 <span class="co">#&gt;      .id        .type .description .initial .final .channel</span>
 <span class="co">#&gt;   1:   1 Bad Interval  Bad Min-Max    15000  15128      FC6</span>
@@ -323,43 +226,43 @@
 <span class="co">#&gt; 543:   1     Stimulus          s70    56750  56750     &lt;NA&gt;</span>
 <span class="co">#&gt; 544:   1     Stimulus         s130    58328  58328     &lt;NA&gt;</span></code></pre></div>
 <p>In some occasions, the events or the channels tables need to be edited. In those cases, one can use <code>events_tbl(data_eeg) &lt;- ...</code> or <code>channels_tbl(data_eeg) &lt;- ...</code>).</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/channels_tbl.html">channels_tbl</a></span><span class="op">(</span><span class="va">data_faces_10_trials</span><span class="op">)</span>
-<span class="co">#&gt; # A tibble: 34 x 7</span>
+<span class="co">#&gt; <span style="color: #949494;"># A tibble: 34 × 7</span></span>
 <span class="co">#&gt;    .channel radius theta   phi    .x    .y    .z</span>
-<span class="co">#&gt;    &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;</span>
-<span class="co">#&gt;  1 Fp1           1   -90   -72 -0.31  0.95  0   </span>
-<span class="co">#&gt;  2 Fpz           1    90    90  0     1     0   </span>
-<span class="co">#&gt;  3 Fp2           1    90    72  0.31  0.95  0   </span>
-<span class="co">#&gt;  4 F7            1   -90   -36 -0.81  0.59  0   </span>
-<span class="co">#&gt;  5 F3            1   -60   -51 -0.55  0.67  0.5 </span>
-<span class="co">#&gt;  6 Fz            1    45    90  0     0.71  0.71</span>
-<span class="co">#&gt;  7 F4            1    60    51  0.55  0.67  0.5 </span>
-<span class="co">#&gt;  8 F8            1    90    36  0.81  0.59  0   </span>
-<span class="co">#&gt;  9 FC5           1   -69   -21 -0.87  0.33  0.36</span>
-<span class="co">#&gt; 10 FC1           1   -31   -46 -0.36  0.37  0.86</span>
-<span class="co">#&gt; # … with 24 more rows</span>
+<span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> Fp1           1   -<span style="color: #BB0000;">90</span>   -<span style="color: #BB0000;">72</span> -<span style="color: #BB0000;">0.31</span>  0.95  0   </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> Fpz           1    90    90  0     1     0   </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> Fp2           1    90    72  0.31  0.95  0   </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> F7            1   -<span style="color: #BB0000;">90</span>   -<span style="color: #BB0000;">36</span> -<span style="color: #BB0000;">0.81</span>  0.59  0   </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> F3            1   -<span style="color: #BB0000;">60</span>   -<span style="color: #BB0000;">51</span> -<span style="color: #BB0000;">0.55</span>  0.67  0.5 </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> Fz            1    45    90  0     0.71  0.71</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> F4            1    60    51  0.55  0.67  0.5 </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> F8            1    90    36  0.81  0.59  0   </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> FC5           1   -<span style="color: #BB0000;">69</span>   -<span style="color: #BB0000;">21</span> -<span style="color: #BB0000;">0.87</span>  0.33  0.36</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">10</span> FC1           1   -<span style="color: #BB0000;">31</span>   -<span style="color: #BB0000;">46</span> -<span style="color: #BB0000;">0.36</span>  0.37  0.86</span>
+<span class="co">#&gt; <span style="color: #949494;"># … with 24 more rows</span></span>
 <span class="va">new_data</span> <span class="op">&lt;-</span> <span class="va">data_faces_10_trials</span>
-<span class="fu"><a href="../reference/channels_tbl.html">channels_tbl</a></span><span class="op">(</span><span class="va">new_data</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/channels_tbl.html">channels_tbl</a></span><span class="op">(</span><span class="va">new_data</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>resolution <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>
+<span class="fu"><a href="../reference/channels_tbl.html">channels_tbl</a></span><span class="op">(</span><span class="va">new_data</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/channels_tbl.html">channels_tbl</a></span><span class="op">(</span><span class="va">new_data</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>resolution <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>
 <span class="fu"><a href="../reference/channels_tbl.html">channels_tbl</a></span><span class="op">(</span><span class="va">new_data</span><span class="op">)</span>
-<span class="co">#&gt; # A tibble: 34 x 8</span>
+<span class="co">#&gt; <span style="color: #949494;"># A tibble: 34 × 8</span></span>
 <span class="co">#&gt;    .channel radius theta   phi    .x    .y    .z resolution</span>
-<span class="co">#&gt;    &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;      &lt;dbl&gt;</span>
-<span class="co">#&gt;  1 Fp1           1   -90   -72 -0.31  0.95  0           0.1</span>
-<span class="co">#&gt;  2 Fpz           1    90    90  0     1     0           0.1</span>
-<span class="co">#&gt;  3 Fp2           1    90    72  0.31  0.95  0           0.1</span>
-<span class="co">#&gt;  4 F7            1   -90   -36 -0.81  0.59  0           0.1</span>
-<span class="co">#&gt;  5 F3            1   -60   -51 -0.55  0.67  0.5         0.1</span>
-<span class="co">#&gt;  6 Fz            1    45    90  0     0.71  0.71        0.1</span>
-<span class="co">#&gt;  7 F4            1    60    51  0.55  0.67  0.5         0.1</span>
-<span class="co">#&gt;  8 F8            1    90    36  0.81  0.59  0           0.1</span>
-<span class="co">#&gt;  9 FC5           1   -69   -21 -0.87  0.33  0.36        0.1</span>
-<span class="co">#&gt; 10 FC1           1   -31   -46 -0.36  0.37  0.86        0.1</span>
-<span class="co">#&gt; # … with 24 more rows</span></code></pre></div>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">new_data</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="op">)</span>
+<span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> Fp1           1   -<span style="color: #BB0000;">90</span>   -<span style="color: #BB0000;">72</span> -<span style="color: #BB0000;">0.31</span>  0.95  0           0.1</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> Fpz           1    90    90  0     1     0           0.1</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> Fp2           1    90    72  0.31  0.95  0           0.1</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> F7            1   -<span style="color: #BB0000;">90</span>   -<span style="color: #BB0000;">36</span> -<span style="color: #BB0000;">0.81</span>  0.59  0           0.1</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> F3            1   -<span style="color: #BB0000;">60</span>   -<span style="color: #BB0000;">51</span> -<span style="color: #BB0000;">0.55</span>  0.67  0.5         0.1</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> Fz            1    45    90  0     0.71  0.71        0.1</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> F4            1    60    51  0.55  0.67  0.5         0.1</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> F8            1    90    36  0.81  0.59  0           0.1</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> FC5           1   -<span style="color: #BB0000;">69</span>   -<span style="color: #BB0000;">21</span> -<span style="color: #BB0000;">0.87</span>  0.33  0.36        0.1</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">10</span> FC1           1   -<span style="color: #BB0000;">31</span>   -<span style="color: #BB0000;">46</span> -<span style="color: #BB0000;">0.36</span>  0.37  0.86        0.1</span>
+<span class="co">#&gt; <span style="color: #949494;"># … with 24 more rows</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">new_data</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
+  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt;    .id        .type .description .initial .final .channel</span>
 <span class="co">#&gt; 1:   1 Bad Interval  Bad Min-Max    15000  15128      FC6</span>
 <span class="co">#&gt; 2:   1 Bad Interval  Bad Min-Max    15000  15146       F8</span>
@@ -367,10 +270,10 @@
 <span class="co">#&gt; 4:   1 Bad Interval  Bad Min-Max    15000  15132      Fp2</span>
 <span class="co">#&gt; 5:   1 Bad Interval  Bad Min-Max    15000  15140      Fpz</span>
 <span class="co">#&gt; 6:   1 Bad Interval  Bad Min-Max    15000  15114       F7</span>
-<span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">new_data</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">new_data</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">.description</span> <span class="op">!=</span> <span class="st">"s130"</span><span class="op">)</span>
-<span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">new_data</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="op">)</span>
+<span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">new_data</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">new_data</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">.description</span> <span class="op">!=</span> <span class="st">"s130"</span><span class="op">)</span>
+<span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">new_data</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
+  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt;    .id        .type .description .initial .final .channel</span>
 <span class="co">#&gt; 1:   1 Bad Interval  Bad Min-Max    15000  15128      FC6</span>
 <span class="co">#&gt; 2:   1 Bad Interval  Bad Min-Max    15000  15146       F8</span>
@@ -378,6 +281,33 @@
 <span class="co">#&gt; 4:   1 Bad Interval  Bad Min-Max    15000  15132      Fp2</span>
 <span class="co">#&gt; 5:   1 Bad Interval  Bad Min-Max    15000  15140      Fpz</span>
 <span class="co">#&gt; 6:   1 Bad Interval  Bad Min-Max    15000  15114       F7</span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="losing-the-channel-properties">Losing the channel properties<a class="anchor" aria-label="anchor" href="#losing-the-channel-properties"></a>
+</h3>
+<p>Some functions keep the channel properties, e.g., <code>mean</code>, <code>scale</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/signal_tbl.html">signal_tbl</a></span><span class="op">(</span><span class="va">data_faces_10_trials</span><span class="op">)</span><span class="op">$</span><span class="va">Oz</span><span class="op">)</span>
+<span class="co">#&gt; # radius: 1; theta: 90; phi: -90; .x: 0; .y: -1; .z: 0 </span>
+<span class="co">#&gt; # Values </span>
+<span class="co">#&gt; [1] -16.631485 -12.549113  -8.650514  -8.433714 -12.844979 -19.946123</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="../reference/signal_tbl.html">signal_tbl</a></span><span class="op">(</span><span class="va">data_faces_10_trials</span><span class="op">)</span><span class="op">$</span><span class="va">Oz</span><span class="op">)</span><span class="op">)</span>
+<span class="co">#&gt; # radius: 1; theta: 90; phi: -90; .x: 0; .y: -1; .z: 0 </span>
+<span class="co">#&gt; # Values </span>
+<span class="co">#&gt; [1] -0.7590534</span></code></pre></div>
+<p>Some primitive functions remove the channel properties, e.g., <code>min</code>, <code>var</code>.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fu"><a href="../reference/signal_tbl.html">signal_tbl</a></span><span class="op">(</span><span class="va">data_faces_10_trials</span><span class="op">)</span><span class="op">$</span><span class="va">Oz</span><span class="op">)</span><span class="op">)</span>
+<span class="co">#&gt; [1] -68.00181</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var</a></span><span class="op">(</span><span class="fu"><a href="../reference/signal_tbl.html">signal_tbl</a></span><span class="op">(</span><span class="va">data_faces_10_trials</span><span class="op">)</span><span class="op">$</span><span class="va">Oz</span><span class="op">)</span><span class="op">)</span>
+<span class="co">#&gt; [1] 107.7272</span></code></pre></div>
+<p>A possible workaround is the following:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fu"><a href="../reference/signal_tbl.html">signal_tbl</a></span><span class="op">(</span><span class="va">data_faces_10_trials</span><span class="op">)</span><span class="op">$</span><span class="va">Oz</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0</span> <span class="op">*</span> <span class="fu"><a href="../reference/signal_tbl.html">signal_tbl</a></span><span class="op">(</span><span class="va">data_faces_10_trials</span><span class="op">)</span><span class="op">$</span><span class="va">Oz</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>
+<span class="co">#&gt; # radius: 1; theta: 90; phi: -90; .x: 0; .y: -1; .z: 0 </span>
+<span class="co">#&gt; # Values </span>
+<span class="co">#&gt; [1] -68.00181</span></code></pre></div>
+</div>
 </div>
   </div>
 
@@ -392,11 +322,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by <a href="http://www.ling.uni-potsdam.de/~nicenboim/">Bruno Nicenboim</a>.</p>
+  <p></p>
+<p>Developed by <a href="http://www.ling.uni-potsdam.de/~nicenboim/" class="external-link">Bruno Nicenboim</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer>
@@ -404,6 +336,8 @@
 
   
 
+
+  
 
   </body>
 </html>
