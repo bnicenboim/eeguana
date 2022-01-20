@@ -38,7 +38,7 @@ read_vhdr <- function(file, .sep = .type == "New Segment", .zero = .type == "Tim
   # file <- "/home/bruno/dev/eeguana_bugs/files/40.vhdr"
   # .sep = rlang::quo(.type == "New Segment")
   # .zero = rlang::quo(.type == "Time 0")
-
+  # .recording = file
   # Takes the files from the header:
   # file <- "faces.vhdr"
   file_path <- dirname(file)

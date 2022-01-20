@@ -27,7 +27,7 @@ faces_segs_some \%>\%
     Occipital = chs_mean(O1, O2, Oz, na.rm = TRUE),
     Parietal = chs_mean(P3, P4, P7, P8, Pz, na.rm = TRUE)
   )
-  
+
 faces_segs_some \%>\%
   eeg_transmute(
     Occipital = chs_mean(O1, O2, Oz, na.rm = TRUE),
@@ -35,8 +35,8 @@ faces_segs_some \%>\%
   )
 faces_seg \%>\%
   eeg_transmute(
-   Occipital = chs_mean(across(starts_with("O")), na.rm = TRUE), #O1, O2, Oz
-   Parietal = chs_mean(across(starts_with("O")), na.rm = TRUE) # P3, P4, P7, P8, Pz
+    Occipital = chs_mean(across(starts_with("O")), na.rm = TRUE), # O1, O2, Oz
+    Parietal = chs_mean(across(starts_with("O")), na.rm = TRUE) # P3, P4, P7, P8, Pz
   )
 faces_segs_some \%>\%
   chs_mean(na.rm = TRUE)

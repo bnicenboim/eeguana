@@ -20,11 +20,10 @@ Add independent components (or sources) to the signal table for visualization.
 library(ggplot2)
 library(dplyr)
 # Suppressing an important warning:
-  suppressWarnings(data_faces_10_trials \%>\%
-   eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))) \%>\%
-   eeg_ica_show(ICA1) \%>\%
-   plot()
-
+suppressWarnings(data_faces_10_trials \%>\%
+  eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))) \%>\%
+  eeg_ica_show(ICA1) \%>\%
+  plot()
 }
 \seealso{
 Other ICA functions: 

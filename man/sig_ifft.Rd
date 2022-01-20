@@ -47,6 +47,5 @@ is desired, it must be performed before calling ifft.
 
 a <- c(0, 4, 0, 0)
 sig_ifft(a)
-sig_ifft(sig_fft(a)) == a  
- 
+sig_ifft(sig_fft(a)) == a
 }

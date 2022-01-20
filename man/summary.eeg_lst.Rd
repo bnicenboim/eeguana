@@ -17,7 +17,6 @@ It's also possible to extract the elements by accessing it as a list.
 \examples{
 
 summary(data_faces_ERPs)
-
 }
 \seealso{
 Other summary functions: 

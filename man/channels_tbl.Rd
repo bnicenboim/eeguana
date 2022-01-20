@@ -29,10 +29,10 @@ library(dplyr)
 channels_tbl(faces_seg)
 # Set channel information using dplyr's mutate and replace
 channels_tbl(faces_seg) <- mutate(channels_tbl(faces_seg),
-              .channel = replace(.channel, .channel=="HEOG", "EOGH"),
-              .channel = replace(.channel, .channel=="VEOG", "EOGV"))
+  .channel = replace(.channel, .channel == "HEOG", "EOGH"),
+  .channel = replace(.channel, .channel == "VEOG", "EOGV")
+)
 }
-
 
 }
 \seealso{

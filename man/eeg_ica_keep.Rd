@@ -17,10 +17,9 @@ This function will transform the channels according to the independent component
 \examples{
 # For demonstration only, since ICA won't converge
 # Suppressing an important warning:
- suppressWarnings(data_faces_10_trials \%>\%
- eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))) \%>\%
- eeg_ica_keep(-ICA1)
-
+suppressWarnings(data_faces_10_trials \%>\%
+  eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))) \%>\%
+  eeg_ica_keep(-ICA1)
 }
 \seealso{
 Other preprocessing functions: 

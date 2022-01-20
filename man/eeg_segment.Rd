@@ -29,12 +29,12 @@ example, \code{lim = c(0,0)}, the segment would contain only sample 1.
 \examples{
 
 # Segments 500ms before and 1000ms after the triggers s70 and s71
-data_faces_10_trials \%>\% eeg_segment(.description \%in\% c("s70","s71"), 
-                                     .lim = c(-5,1))
+data_faces_10_trials \%>\% eeg_segment(.description \%in\% c("s70", "s71"),
+  .lim = c(-5, 1)
+)
 
 # Segments 500ms before and  after the triggers all the triggers (which start with s)
-data_faces_10_trials \%>\% eeg_segment(startsWith(.description,"s"))
-
+data_faces_10_trials \%>\% eeg_segment(startsWith(.description, "s"))
 }
 \seealso{
 Other preprocessing functions: 

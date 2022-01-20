@@ -208,7 +208,7 @@ data_faces_ERPs \%>\%
 
 # Mean of each channel
 data_faces_ERPs \%>\%
-eeg_summarize(across_ch(mean))
+  eeg_summarize(across_ch(mean))
 
 # Select specific electrodes
 data_faces_ERPs \%>\%

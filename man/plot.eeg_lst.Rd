@@ -42,7 +42,6 @@ plot(data_faces_ERPs)
 library(ggplot2)
 plot(data_faces_ERPs) +
   coord_cartesian(ylim = c(-500, 500))
-
 }
 \seealso{
 Other plotting functions: 

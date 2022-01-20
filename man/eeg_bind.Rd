@@ -22,13 +22,12 @@ Binds eeg_lst and throws a warning if there is a mismatch in the channel informa
 \dontrun{
 
 # Load multiple subjects using purrr::map, extracting subject IDs from file names.
-faces_list <- purrr::map(list.files("./","vhdr"), ~ 
-    read_vhdr(.x)
-)
+faces_list <- purrr::map(list.files("./", "vhdr"), ~
+read_vhdr(.x))
 # Bind all the eeg_lsts into a large one:
 faces <- eeg_bind(faces_list)
 }
- 
+
 }
 \seealso{
 Other tidyverse-like functions: 
