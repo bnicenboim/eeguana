@@ -28,7 +28,7 @@
 #' @param .config Other parameters passed in a list to configure the filters. See details for options.
 #' @param na.rm =TRUE will set to NA the entire segment that contains an NA, otherwise the filter will stop with an error.
 #' @return A channel or an eeg_lst.
-#' @family Preprocessing functions.
+#' @family preprocessing functions
 #'
 #' @examples
 #' library(dplyr)

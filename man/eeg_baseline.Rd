@@ -29,6 +29,7 @@ Other preprocessing functions:
 \code{\link{eeg_ica_keep}()},
 \code{\link{eeg_ica}()},
 \code{\link{eeg_rereference}()},
-\code{\link{eeg_segment}()}
+\code{\link{eeg_segment}()},
+\code{\link{filt}}
 }
 \concept{preprocessing functions}
