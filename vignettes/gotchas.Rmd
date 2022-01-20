@@ -111,3 +111,4 @@ A possible workaround is the following:
 head(min(signal_tbl(data_faces_10_trials)$Oz)) + 0 * signal_tbl(data_faces_10_trials)$Oz[1]
 ```
 
+
