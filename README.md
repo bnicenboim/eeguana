@@ -11,21 +11,22 @@ status](https://ci.appveyor.com/api/projects/status/github/bnicenboim/eeguana?br
 has not yet been a stable, usable release suitable for the
 public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 
-# eeguana <img src="man/figures/logo.png" align="right" height=140/>
+# eeguana <img src="man/figures/logo.png" align="right" style="width: 20vw; min-width: 25px;"/>
 
 ## Overview
 
-A package for flexible manipulation of EEG data. *eeguana* provides a
-*data.table* powered framework for manipulating EEG data with
-*dplyr*-based functions (e.g., `mutate`, `filter`, `summarize`) extended
-to a new class `eeg_lst`, other EEG-specialized functions, and `ggplot`
-wrapper functions. The new class is inspired by tidyverse principles but
-it’s not really “tidy” (due to space considerations), it’s a list of (i)
-a wide *data table* (`signal_tbl`) that contains the signal amplitudes
-at every sample point of the EEG, (ii) an events *data table* with
-information about markers (or triggers), blinks and other exported
-information, and (iii) a long table with experimental information, such
-as participant number (`.recording`), conditions, etc.
+A package for flexible manipulation of EEG data. `eeguana` provides a
+`data.table` powered framework (through `tidytable`) for manipulating
+EEG data with *dplyr*-like functions (e.g., `eeg_mutate`, `eeg_filter`,
+`eeg_summarize`) extended to a new class `eeg_lst`, other
+EEG-specialized functions, and `ggplot` wrapper functions. The new class
+is inspired by tidyverse principles but it’s not really “tidy” (due to
+space considerations), it’s a list of (i) a wide *data table*
+(`signal_tbl`) that contains the signal amplitudes at every sample point
+of the EEG, (ii) an events *data table* with information about markers
+(or triggers), blinks and other exported information, and (iii) a long
+table with experimental information, such as participant number
+(`.recording`), conditions, etc.
 
 *eeguana* can do only basic pre-processing for now, more complete
 packages exist for Matlab ([FieldTrip](http://www.fieldtriptoolbox.org/)
@@ -393,14 +394,14 @@ faces_segs_some %>%
 
 Other R packages for EEG/ERP data:
 
-  - [permuco4brain](https://jaromilfrossard.github.io/permuco4brain/index.html)
+-   [permuco4brain](https://jaromilfrossard.github.io/permuco4brain/index.html)
     provides functions to compute permutation test in brain imagery
     data. It is specially designed for M-EEG/ERP data. This a
     [vignette](https://jaromilfrossard.github.io/permuco4brain/articles/permuco4brain-with-eeguana.html)
     explains how to use it together with `eeguana`.
-  - [eegUtils](https://github.com/craddm/eegUtils) some helper utilities
+-   [eegUtils](https://github.com/craddm/eegUtils) some helper utilities
     for plotting and processing EEG data in active development by Matt
     Craddock.
-  - [erpR](https://cran.r-project.org/package=erpR) analysis of
+-   [erpR](https://cran.r-project.org/package=erpR) analysis of
     event-related potentials (ERPs) by Giorgio Arcara, Anna Petrova. It
     hasn’t been updated since 2014.

@@ -38,4 +38,4 @@ data_faces_10_trials <- faces %>%
   filter(.sample %>% between(15000, pos_10)) %>%
   ungroup()
 
-usethis::use_data(data_faces_ERPs, data_faces_10_trials, overwrite = TRUE)
+usethis::use_data(data_faces_ERPs, data_faces_10_trials, overwrite = TRUE,compress = "xz")

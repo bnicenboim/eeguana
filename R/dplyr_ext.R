@@ -78,7 +78,7 @@ bind <- eeg_bind
 #' Choose samples by their ordinal position in the signal table. Grouped eeg_lst object use the ordinal position in the signal table within the group.
 #'
 #' @param .data An eeg_lst object.
-#' @inheritParams dplyr::slice
+#' @param ... Integer row values. 
 #' @param .preserve Not in use.
 #' @family tidyverse-like functions
 #'

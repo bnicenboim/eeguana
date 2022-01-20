@@ -367,16 +367,14 @@ plot_ica.eeg_ica_lst <- function(data,
 #'
 #' @examples
 #' library(ggplot2)
-#' library(dplyr)
-#' 
 #' # Create a ggplot object with some grand averaged ERPs
 #' ERP_plot <- data_faces_ERPs %>%
 #'   # select a few electrodes
-#'   select(Fz, FC1, FC2, C3, Cz, C4, CP1, CP2, Pz) %>%
+#'   eeg_select(Fz, FC1, FC2, C3, Cz, C4, CP1, CP2, Pz) %>%
 #'   # group by time point and condition
-#'   group_by(.sample, condition) %>%
+#'   eeg_group_by(.sample, condition) %>%
 #'   # compute averages
-#'   summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
+#'   eeg_summarize(across_ch(mean, na.rm = TRUE)) %>%
 #'   ggplot(aes(x = .time, y = .value)) +
 #'   # plot the averaged waveforms
 #'   geom_line(aes(color = condition)) +
@@ -554,13 +552,11 @@ plot_in_layout.gg <- function(plot, .projection = "polar", .ratio = c(1, 1), ...
 #' @return A layer for a ggplot
 #'
 #' @examples
-#' library(dplyr)
 #' library(ggplot2)
-#' 
 #' data_faces_ERPs %>%
-#'   filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
-#'   group_by(condition) %>%
-#'   summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
+#'   eeg_filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
+#'   eeg_group_by(condition) %>%
+#'   eeg_summarize(across_ch(mean, na.rm = TRUE)) %>%
 #'   plot_topo() +
 #'   annotate_head(size = .9, color = "black", stroke = 1)
 #' @export

@@ -42,15 +42,13 @@ events_tbl.eeg_lst <- function(.data, ...) {
 #' 
 #' @examples
 #' \dontrun{
-#' 
+#' library(dplyr)
 #' # Get channel information:
 #' channels_tbl(faces_seg)
-#'                             
-#' # Set channel information:
+#' # Set channel information using dplyr's mutate and replace
 #' channels_tbl(faces_seg) <- mutate(channels_tbl(faces_seg),
 #'               .channel = replace(.channel, .channel=="HEOG", "EOGH"),
 #'               .channel = replace(.channel, .channel=="VEOG", "EOGV"))
-#'   
 #' }
 #' 
 #' 

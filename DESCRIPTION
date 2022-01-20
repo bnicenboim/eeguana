@@ -64,6 +64,7 @@ Suggests:
     httr,
     cowplot
 LazyData: true
+LazyDataCompression: xz
 VignetteBuilder: knitr
 Language: en-US
 Roxygen: list(markdown = TRUE)

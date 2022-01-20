@@ -8,9 +8,9 @@
 #' 
 #'
 #' @param file A vhdr file in a folder that contains a .vmrk and .dat files
-#' @param .sep Segment separation marker. By default: .type == "New Segment"
-#' @param .zero Time zero marker. By default: .type == "Time 0"
-#' @param .recording Recording name (file name, by default).
+#' @param .sep Segment separation marker. By default: `.type == "New Segment"`
+#' @param .zero Time zero marker. By default: `.type == "Time 0"`
+#' @param .recording Recording name (`file` name, by default).
 #' 
 #' @return An `eeg_lst` object with signal_tbl and event from file_name.dat,
 #' file_name.vhdr, and file_name.vmrk.
@@ -276,7 +276,9 @@ read_ft <- function(file, .layout = NULL, .recording = file) {
 #' @return An `eeg_lst` object.
 #' 
 #' @examples 
-#' \dontrun{s1 <- read_edf("./faces.edf", .recording = 1)}
+#' \dontrun{
+#' s1 <- read_edf("./faces.edf", .recording = 1)
+#' }
 #' 
 #' @family reading functions
 #'

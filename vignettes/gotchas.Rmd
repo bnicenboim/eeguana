@@ -89,4 +89,25 @@ events_tbl(new_data) %>%
   head()
 ```
 
+### Losing the channel properties
+
+Some functions keep the channel properties, e.g., `mean`, `scale`.
+
+```{r}
+head(signal_tbl(data_faces_10_trials)$Oz)
+head(mean(signal_tbl(data_faces_10_trials)$Oz))
+```
+
+Some primitive functions remove the channel properties, e.g., `min`, `var`.
+
+```{r}
+head(min(signal_tbl(data_faces_10_trials)$Oz))
+head(var(signal_tbl(data_faces_10_trials)$Oz))
+```
+
+A possible workaround is the following:
+
+```{r}
+head(min(signal_tbl(data_faces_10_trials)$Oz)) + 0 * signal_tbl(data_faces_10_trials)$Oz[1]
+```
 

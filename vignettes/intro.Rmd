@@ -17,13 +17,13 @@ knitr::opts_chunk$set(
 options(width = 80)
 ```
 
-The package *eeguana* provides a framework for doing simple pre-processing with specialized functions (starting with `eeg_` and `ch_`) and manipulating EEG data with *dplyr* verbs (e.g., `mutate`, `filter`, `summarize`) extended to a new class `eeg_lst`, and `ggplot` wrapper functions.  The new class is inspired by tidyverse principles but it's not really "tidy" (due to space considerations), it's a list of (i) a wide table that contains the signal amplitudes at every sample point of the EEG,  (ii) an events table with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant (`recording`), conditions, etc.  
+The package *eeguana* provides a framework for doing simple pre-processing with specialized functions and manipulating EEG data with *dplyr* verbs (e.g., `eeg_mutate`, `eeg_filter`, `eeg_summarize`) extended to a new class `eeg_lst`, and `ggplot` wrapper functions.  The new class is inspired by tidyverse principles but it's not really "tidy" (due to space considerations), it's a list of (i) a wide table that contains the signal amplitudes at every sample point of the EEG,  (ii) an events table with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant (`recording`), conditions, etc.  
 
 While it's possible to transform the `eeg_lst` to a `data.frame`, `data.table` or a `tibble` (with `as.data.frame()`, `as.data.table()` and `as_tibble()`), the motivation for manipulating the data in the `eeg_lst` format has to do with size considerations. In this case, the original file was 113 MB, converting it to a long format entails a lot of repetition and generates an object of 556 MB. While this will still work here, a long format quickly becomes prohibitive in real settings with longer recordings.
 
 # Working with eeguana
 
-Dplyr verbs always return an `eeg_lst` object, which allows us to use `magrittr`'s pipe, `%>%`  (see `` ?`dplyr-eeguana` ``).
+Dplyr-like verbs always return an `eeg_lst` object, which allows us to use `magrittr`'s pipe, `%>%`  (see `` ?`dplyr-eeguana` ``) or the new R pipe `|>`.
 In addition, `eeg_`/`ch_` functions will also return an `eeg_lst` unless they have a suffix  `_tbl` that indicates they return a data frame. In general, we will work with the `eeg_lst`, unless we want to modify the channels information (with `channels_tbl()`) or the events table containing markers, artifacts ans custom annotations (with `events_tbl`).
 
 # A practical example: the N170 effect
@@ -124,7 +124,7 @@ faces_ls <- eeg_segment(faces_filt, .description == "s111", .end = .description 
   eeg_artif_minmax(-HEOG, -VEOG, .threshold = 200, .window = 200, .unit = "ms")
 ```
 
-`eeg_artif_minimax()` only adds the artifacts in the events table and doesn't modify the signal. We can have a look at the type of artifacts that were detected, by plotting the signal and the events with `annotate_events()`. It would be a good idea to just check a couple of seconds of the signal, for that we use the `dplyr` "verb" `filter()` which is overloaded to work with `eeg_lst`s.
+`eeg_artif_minimax()` only adds the artifacts in the events table and doesn't modify the signal. We can have a look at the type of artifacts that were detected, by plotting the signal and the events with `annotate_events()`. It would be a good idea to just check a couple of seconds of the signal, for that we use the dplyr-like function `eeg_filter()`.
 
 
 ```{r, fig.dim = c(10,15), out.width = "100%"}

@@ -383,7 +383,6 @@ print.eeg_ica_lst <- function(x, ...) {
 #'
 #' @examples
 #' \dontrun{
-#' 
 #' faces_segs_some %>% count_complete_cases(.recording, .description)
 #' }
 #' @family summarize

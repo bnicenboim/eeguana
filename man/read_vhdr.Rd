@@ -14,11 +14,11 @@ read_vhdr(
 \arguments{
 \item{file}{A vhdr file in a folder that contains a .vmrk and .dat files}
 
-\item{.sep}{Segment separation marker. By default: .type == "New Segment"}
+\item{.sep}{Segment separation marker. By default: \code{.type == "New Segment"}}
 
-\item{.zero}{Time zero marker. By default: .type == "Time 0"}
+\item{.zero}{Time zero marker. By default: \code{.type == "Time 0"}}
 
-\item{.recording}{Recording name (file name, by default).}
+\item{.recording}{Recording name (\code{file} name, by default).}
 }
 \value{
 An \code{eeg_lst} object with signal_tbl and event from file_name.dat,

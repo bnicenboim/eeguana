@@ -204,4 +204,5 @@ usethis::use_data(data_sincos2id, data_sincos2id_2,
                   data_blinks, data_blinks_2,
                   data_no_blinks, data_no_blinks_2,
                   true_comps,
-                  internal = TRUE, overwrite = TRUE)
+                  internal = TRUE, overwrite = TRUE, 
+                  compress = "xz")

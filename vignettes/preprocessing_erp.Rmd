@@ -188,12 +188,13 @@ data_judg_s_p %>%
 
 
 The data can be also displayed in a different way. And `ggplotly()` can help us navigate the data.
+One quirk we need to take into account is that mean operations such as, `min`, `max`, `var` (but not `mean`) remove the properties of the channels. Rather than use this functions directly we use them in the following way `~ channel_dbl(fn(.))`, where `fn` is a placeholder:
 
 ```{r, fig.dim = c(10,7),fig.show='hold',echo= TRUE, out.width = "100%"}
 data_summary <- data_judg_s_p %>%
   eeg_select(-eogh, -eogv) %>%
   eeg_group_by(segment) %>%
-  eeg_summarize(across_ch(~ channel_dbl(var(.)) ))
+  eeg_summarize(across_ch(~ channel_dbl(var(.))))
 
 plot_general <- data_summary %>%
   ggplot(aes(x = segment, y = .key, fill = .value)) +
@@ -202,7 +203,7 @@ plot_general <- data_summary %>%
 
 plot_channels <- data_summary %>%
   eeg_ungroup() %>%
-  eeg_summarize(across_ch(, max)) %>%
+  eeg_summarize(across_ch(~ channel_dbl(max(.)) )) %>%
   ggplot(aes(x = .value, y = .key)) +
   geom_point() +
   theme(axis.text.y = element_text(size = 6))

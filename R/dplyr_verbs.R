@@ -1,16 +1,16 @@
 #' Dplyr-like functions for manipulating eeg_lst objects.
 #'
-#' Manipulate the signal table and the segments table of an eeg_lst.
+#' Manipulate the signal table and the segments table of an eeg_lst with dplyr-like functions.
 #'
-#' Wrappers for [`dplyr`][dplyr::dplyr]'s commands that act on different parts
-#' `eeg_lst` objects. Functions that drop or rename columns won't remove columns starting with a dot. These functions are powered by [`data.table`][data.table::data.table], and inspired by the way [`tidytable`][tidytable::tidytable] works.
+#' Wrappers for [`dplyr`][dplyr::dplyr]'s commands that act 
+#' `eeg_lst` objects. Functions that drop or rename columns won't remove columns starting with a dot. These functions are powered by [`data.table`][data.table::data.table] through [`tidytable`][tidytable::tidytable].
 #'
 #' The following wrappers act in a special way for `eeg_lst` objects:
 #'
 #' * `eeg_*_join()`: joins an external table to the *segments* table of the eeg_lst.
 #' * `eeg_mutate()` and `eeg_transmute()`: mutates the signal_tbl table when is applied to a channel (or a column of the signal table), and mutates the segments table otherwise. It can also mutates by reference.
 #' * `eeg_summarize()` summarizes the channel of the signal_tbl table.
-#' * `pull()` only pulls columns of the signal table
+#' * `eeg_pull()` only pulls columns of the signal table
 #'
 #' In addition, `across()`, and `c_across()` work as well. Notice that  there are convienent wrappers `across_ch()` and `c_across_ch()` where the argument `.cols` is always set to `where(is_channel_dbl)`.
 #'
@@ -19,7 +19,7 @@
 #' These functions emulate [dplyr] functionality but they are actually powered by the wrapper of [data.table],  [tidytable] and some times they might be behave a bit differently than the dplyr counterpart.
 #'
 #' - The default values of the arguments might be different, and some arguments might not exist for the eeguana dplyr-like functions.
-#' - grouped mutations behave slightly different than ungrouped ones: Channel properties are removed if the data is ungrouped and one does `eeg_mutate(data, channel = 0)`, but not if the data is grouped.
+#' - Grouped mutations behave slightly different than ungrouped ones: Channel properties are removed if the data is ungrouped and one does `eeg_mutate(data, channel = 0)`, but not if the data is grouped.
 #' - eeguana's [eeg_mutate] doesn't allow to refer back to a recently created channel: `data_eeg %>% eeg_mutate(X = F1 *2, Y = X)` is not valid. One needs to do `data_eeg %>% eeg_mutate(X = F1) %>% eeg_mutate(Y = X)`.
 #' - eeguana's [eeg_mutate] doesn't use the most updated value of a column from the same call. If X is a channel, then `data_eeg %>% eeg_mutate(X = X *2, Y = X+1)` will add `1` to the original value of `X`, and not to the latest one.
 #' - [eeg_filter] behaves similarly to dplyr's [`filter`][dplyr::filter]. If you want to filter the signal using IIR or FIR filters use [eeg_filt*][eeguana::filt] functions.
@@ -57,40 +57,44 @@
 #' library(dplyr)
 #' # Create new channel in the signal table
 #' data_faces_ERPs %>%
-#'   mutate(tmp = Fz - Cz)
+#'   eeg_mutate(tmp = Fz - Cz)
 #' 
 #' # Create a new condition in the segments table
 #' data_faces_ERPs %>%
-#'   mutate(code = ifelse(condition == "faces", 1, -1))
+#'   eeg_mutate(code = ifelse(condition == "faces", 1, -1))
 #' 
 #' # Create a new channel and drop all others
 #' data_faces_ERPs %>%
-#'   transmute(Occipital = chs_mean(O1, O2, Oz,
+#'   eeg_transmute(Occipital = chs_mean(O1, O2, Oz,
 #'     na.rm = TRUE
 #'   ))
 #' 
 #' # Extract data associated with a condition
 #' data_faces_ERPs %>%
-#'   filter(condition == "faces")
+#'   eeg_filter(condition == "faces")
 #' 
 #' # Group and summarize
 #' data_faces_ERPs %>%
 #'   # Convert samples to times, filter between timepoints
-#'   filter(between(
+#'   eeg_filter(between(
 #'     as_time(.sample, .unit = "ms"),
 #'     100, 200
 #'   )) %>%
 #'   # Find mean amplitude of Fz for each condition
-#'   group_by(condition) %>%
-#'   summarize(mean.amplitude = mean(Fz))
+#'   eeg_group_by(condition) %>%
+#'   eeg_summarize(mean.amplitude = mean(Fz))
+#'
+#' # Mean of each channel
+#' data_faces_ERPs %>%
+#' eeg_summarize(across_ch(mean))
 #' 
 #' # Select specific electrodes
 #' data_faces_ERPs %>%
-#'   select(O1, O2, P7, P8)
+#'   eeg_select(O1, O2, P7, P8)
 #' 
 #' # Rename a variable
 #' data_faces_ERPs %>%
-#'   rename(Predictor = condition)
+#'   eeg_rename(Predictor = condition)
 NULL
 # > NULL
 

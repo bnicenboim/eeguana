@@ -24,12 +24,12 @@ NULL
 #' 
 #' library(dplyr)
 #' data_faces_ERPs %>% 
-#'      filter(.sample %>% between(10,100))
+#'      eeg_filter(.sample %>% between(10,100))
 #' 
 #' # Compare with:
 #' \dontrun{
 #' data_faces_ERPs %>% 
-#'      filter(.sample %>% dplyr::between(10,100))
+#'      eeg_filter(.sample %>% dplyr::between(10,100))
 #' }
 #' @export
 NULL
