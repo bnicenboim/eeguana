@@ -1,6 +1,5 @@
-#
-" Apply a zero-phase low-pass, high-pass, band-pass, or band-stop FIR or IIR filter.
-#"
+#' Apply a zero-phase low-pass, high-pass, band-pass, or band-stop FIR or IIR filter.
+#'
 #' Apply a low-pass, high-pass, band-pass, or band-stop filter to every segment of an `eeg_lst`. These filters are adapted from the FIR and IIR filters in [MNE package](https://mne-tools.github.io) (v 0.0.17.1)  of [python](https://www.python.org/). For background information about the FIR vs IIR filters, see [here](https://martinos.org/mne/dev/auto_tutorials/plot_background_filtering.html#sphx-glr-auto-tutorials-plot-background-filtering-py). **IIR filters are still on an experimental phase**.
 #'
 #' * `eeg_filt_low_pass()` Low-pass or high-cut filter.
