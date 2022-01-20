@@ -1,6 +1,6 @@
 library(eeguana)
 set.seed(123)
-options(eeguana.verbose=FALSE)
+options(eeguana.verbose = FALSE)
 
 data <- eeguana:::data_no_blinks
 data_blinks <- eeguana:::data_blinks
@@ -35,7 +35,7 @@ data_fast_ICA2 <- eeg_ica(
 )
 
 if (0) {
-# check visually that it works fine
+  # check visually that it works fine
   eeg_ica_show(data_fast_ICA, ICA1, ICA2, ICA3) %>% plot() # ICA3 is blinks
   data_fast_ICA %>% plot()
   data_no_blinks <- data_fast_ICA %>% eeg_ica_keep(-ICA3)
@@ -65,16 +65,16 @@ test_that("different implementations aren't too different", {
     as.matrix()
 
 
-## mixed <- data_blinks$.signal[,-c(".id",".sample")] %>% as.matrix()
-## fICA::adapt_fICA(mixed)
-## out <- fICA::fICA(mixed)
-## S <- out$S %>% data.table::as.data.table() %>%
-##   data.table::melt(measure=1:3)
-## S[,sample := 1:.N , by = "variable"][]
+  ## mixed <- data_blinks$.signal[,-c(".id",".sample")] %>% as.matrix()
+  ## fICA::adapt_fICA(mixed)
+  ## out <- fICA::fICA(mixed)
+  ## S <- out$S %>% data.table::as.data.table() %>%
+  ##   data.table::melt(measure=1:3)
+  ## S[,sample := 1:.N , by = "variable"][]
 
-##   ggplot(S, aes(x = sample, y= value)) +
-##     facet_wrap(.~variable, ncol =1) +
-##     geom_line()
+  ##   ggplot(S, aes(x = sample, y= value)) +
+  ##     facet_wrap(.~variable, ncol =1) +
+  ##     geom_line()
 
   data_adapt_fast_ICA <- eeg_ica(data_blinks, .method = adapt_fast_ICA)
   recover_adapt_fast_ICA <- data_adapt_fast_ICA %>%
@@ -95,17 +95,20 @@ test_that("different implementations aren't too different", {
     .[, .(alpha = -scale(ICA3), noise = scale(ICA2), blink = scale(ICA1))] %>%
     as.matrix()
 
-  true_comps <- scale(eeguana:::true_comps)%>% c() %>% matrix(ncol=3)
-if(0){
-##  check how they look
-  eeg_ica_show(data_adapt_fast_ICA, ICA1, ICA2, ICA3) %>% plot()
-  S <- true_comps %>% data.table::as.data.table() %>%
-  data.table::melt(measure=1:3)
-  S[,sample := 1:.N , by = "variable"][]
-  ggplot(S, aes(x = sample, y= value)) +
-    facet_wrap(.~variable, ncol =1) +
-    geom_line()
-}
+  true_comps <- scale(eeguana:::true_comps) %>%
+    c() %>%
+    matrix(ncol = 3)
+  if (0) {
+    ##  check how they look
+    eeg_ica_show(data_adapt_fast_ICA, ICA1, ICA2, ICA3) %>% plot()
+    S <- true_comps %>%
+      data.table::as.data.table() %>%
+      data.table::melt(measure = 1:3)
+    S[, sample := 1:.N, by = "variable"][]
+    ggplot(S, aes(x = sample, y = value)) +
+      facet_wrap(. ~ variable, ncol = 1) +
+      geom_line()
+  }
   expect_equal(true_comps, recover_fast_ICA, tolerance = .05, ignore_attr = TRUE)
   expect_equal(true_comps, recover_fast_ICA2, tolerance = .15, ignore_attr = TRUE)
   expect_equal(true_comps, recover_adapt_fast_ICA, tolerance = .1, ignore_attr = TRUE)
@@ -208,7 +211,7 @@ test_that("ica grouped works", {
 })
 
 data_ica_b_m_NA <- data_blinks_more_NA %>% eeg_ica()
-#data_ica_b_m_NA %>% eeg_ica_show(ICA1, ICA2, ICA3)
+# data_ica_b_m_NA %>% eeg_ica_show(ICA1, ICA2, ICA3)
 data_b_m_rec_NA <- eeg_ica_keep(data_ica_b_m_NA, ICA1:ICA3)
 
 test_that("ica with NAs is a reversible", {

@@ -7,11 +7,11 @@ if (getRversion() >= "2.15.1") {
       "..cols_signal_temp", ".GRP", ".I", ".N", ".SD", ".lower", ".new_id", ".sid", ".upper", ".x", ".y",
       "BinaryFormat", "DataFile", "DataFormat", "DataOrientation", "L", "MarkerFile",
       "Mk_number=Type", "SamplingInterval", "V1", "V2", "amplitude",
-      "channel", "", "i..initial","i..final","x..upper",
+      "channel", "", "i..initial", "i..final", "x..upper",
       "i..size", "lowerb", "mk", "n", "offset", "", ".recording", "resolution",
       "time", ".type", "value", "x..lower", "x..sample",
       "xmin", "xmax", "Event", ".key", ".value", ".time",
-      ".first_sample", ".ICA",".group", ".BY", ".reference", "orig_names", "..orig_names", "where"
+      ".first_sample", ".ICA", ".group", ".BY", ".reference", "orig_names", "..orig_names", "where"
     )
   )
 }
@@ -29,7 +29,7 @@ if (getRversion() >= "2.15.1") {
   register_s3_method("dplyr", "filter", "eeg_ica_lst")
   register_s3_method("dplyr", "summarise", "eeg_lst")
   register_s3_method("dplyr", "summarize", "eeg_lst")
-  
+
   register_s3_method("dplyr", "mutate", "eeg_lst")
   register_s3_method("dplyr", "transmute", "eeg_lst")
   register_s3_method("dplyr", "select", "eeg_lst")
@@ -46,9 +46,9 @@ if (getRversion() >= "2.15.1") {
   register_s3_method("dplyr", "transmute", "events_tbl")
   register_s3_method("dplyr", "summarise", "events_tbl")
   register_s3_method("dplyr", "as_data_frame", "eeg_lst")
-  
+
   register_s3_method("dplyr", "pull", "eeg_lst")
-  
+
   register_s3_method("ggplot2", "ggplot", "eeg_lst")
   register_s3_method("ggplot2", "ggplot_add", "layer_events")
   register_s3_method("data.table", "as.data.table", "eeg_lst")
@@ -59,6 +59,6 @@ if (getRversion() >= "2.15.1") {
   )
   toset <- !(names(op.eeguana) %in% names(op))
   if (any(toset)) options(op.eeguana[toset])
-  
+
   invisible()
 }

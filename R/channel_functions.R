@@ -17,16 +17,16 @@
 #'     Occipital = chs_mean(O1, O2, Oz, na.rm = TRUE),
 #'     Parietal = chs_mean(P3, P4, P7, P8, Pz, na.rm = TRUE)
 #'   )
-#'   
+#'
 #' faces_segs_some %>%
 #'   eeg_transmute(
 #'     Occipital = chs_mean(O1, O2, Oz, na.rm = TRUE),
 #'     Parietal = chs_mean(P3, P4, P7, P8, Pz, na.rm = TRUE)
 #'   )
-#'faces_seg %>%
+#' faces_seg %>%
 #'   eeg_transmute(
-#'    Occipital = chs_mean(across(starts_with("O")), na.rm = TRUE), #O1, O2, Oz
-#'    Parietal = chs_mean(across(starts_with("O")), na.rm = TRUE) # P3, P4, P7, P8, Pz
+#'     Occipital = chs_mean(across(starts_with("O")), na.rm = TRUE), # O1, O2, Oz
+#'     Parietal = chs_mean(across(starts_with("O")), na.rm = TRUE) # P3, P4, P7, P8, Pz
 #'   )
 #' faces_segs_some %>%
 #'   chs_mean(na.rm = TRUE)
@@ -38,7 +38,7 @@ chs_mean <- function(x, ..., na.rm = FALSE) {
 #' @export
 chs_mean.channel_dbl <- function(..., na.rm = FALSE) {
   dt_chs <- data.table::data.table(...)
-   rowMeans_ch(dt_chs, na.rm = na.rm)
+  rowMeans_ch(dt_chs, na.rm = na.rm)
 }
 
 #' @export
@@ -57,7 +57,7 @@ chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
   signal <- data.table:::shallow(x$.signal)
   signal[, mean := rowMeans_ch(.SD, na.rm = na.rm), .SDcols = channel_names(x)][, `:=`(channel_names(x), NULL)]
   x$.signal <- signal
-  update_events_channels(x) %>% 
+  update_events_channels(x) %>%
     validate_eeg_lst()
 }
 
@@ -66,7 +66,7 @@ chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
 #' Re-reference a channel or group of channels.
 #'
 #' Notice that this function will also rereference the eye electrodes unless excluded. See examples.
-#' 
+#'
 #' @param .data An eeg_lst object.
 #' @param ... Channels to include. All the channels by default, but eye channels should be removed.
 #' @param .ref Character vector of channels that will be averaged as the reference.
@@ -78,13 +78,12 @@ chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
 #'
 #' @examples
 #' # Re-reference all channels using the left mastoid excluding the eye electrodes.
-#' data_faces_ERPs_M1 <- data_faces_ERPs %>% 
-#'                       eeg_rereference(-EOGV, -EOGH, .ref = "M1")
-#' 
+#' data_faces_ERPs_M1 <- data_faces_ERPs %>%
+#'   eeg_rereference(-EOGV, -EOGH, .ref = "M1")
+#'
 #' # Re-reference using the linked mastoids excluding the eye electrodes.
-#' data_faces_ERPs_M1M2 <- data_faces_ERPs %>% 
-#'                         eeg_rereference(-EOGV, -EOGH, .ref = c("M1","M2"))
-#' 
+#' data_faces_ERPs_M1M2 <- data_faces_ERPs %>%
+#'   eeg_rereference(-EOGV, -EOGH, .ref = c("M1", "M2"))
 #' @export
 eeg_rereference <- function(.data, ..., .ref = NULL, na.rm = FALSE) {
   UseMethod("eeg_rereference")
@@ -180,10 +179,9 @@ eeg_baseline <- function(x, ..., .lim = -Inf, .unit = "s") {
 }
 #' @export
 eeg_baseline.eeg_lst <- function(x, ..., .lim = -Inf, .unit = "s") {
-  
   ch_sel <- sel_ch(x, ...)
   sample_id <- as_sample_int(.lim, sampling_rate = sampling_rate(x), .unit)
-  
+
   x$.signal <- data.table::copy(x$.signal)
   x$.signal <- x$.signal[, (ch_sel) := lapply(.SD, fun_baseline, .sample, sample_id),
     .SDcols = (ch_sel),

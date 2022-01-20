@@ -168,30 +168,30 @@ if (0) {
 }
 
 message("to test using python fast ica")
-if(0){
-test_that("can use other (python) functions", {
-  skip_on_ci()
-  eeguana:::skip_on_actions()
-  sk <- reticulate::import("sklearn.decomposition")
-  py_fica <- function(x) {
-    x <- as.matrix(x)
-    ica <- sk$FastICA(whiten = TRUE, random_state = 23L)
-    X <- scale(x, scale = FALSE) %>%
-      as.matrix(x)
-    S <- ica$fit_transform(X)
-    W <- t(ica$components_)
-    list(W = W)
-  }
-  data_blinks <- eeguana:::data_blinks
-  data_no_blinks <- eeguana:::data_no_blinks
+if (0) {
+  test_that("can use other (python) functions", {
+    skip_on_ci()
+    eeguana:::skip_on_actions()
+    sk <- reticulate::import("sklearn.decomposition")
+    py_fica <- function(x) {
+      x <- as.matrix(x)
+      ica <- sk$FastICA(whiten = TRUE, random_state = 23L)
+      X <- scale(x, scale = FALSE) %>%
+        as.matrix(x)
+      S <- ica$fit_transform(X)
+      W <- t(ica$components_)
+      list(W = W)
+    }
+    data_blinks <- eeguana:::data_blinks
+    data_no_blinks <- eeguana:::data_no_blinks
 
-  data_ica_py <- eeg_ica(data_blinks, .method = py_fica)
-  ## data_ica_py %>% eeg_ica_show(ICA1, ICA2, ICA3) %>%
-  ##   dplyr::select(ICA1,ICA2, ICA3) %>%
-  ##   plot()
-  data_no_blinks_py <- data_ica_py %>% eeg_ica_keep(-ICA1)
-  expect_equal(data_no_blinks$.signal, data_no_blinks_py$.signal, tolerance = .4)
-})
+    data_ica_py <- eeg_ica(data_blinks, .method = py_fica)
+    ## data_ica_py %>% eeg_ica_show(ICA1, ICA2, ICA3) %>%
+    ##   dplyr::select(ICA1,ICA2, ICA3) %>%
+    ##   plot()
+    data_no_blinks_py <- data_ica_py %>% eeg_ica_keep(-ICA1)
+    expect_equal(data_no_blinks$.signal, data_no_blinks_py$.signal, tolerance = .4)
+  })
 }
 
 test_that("raw brainvision read and converted from MNE match", {

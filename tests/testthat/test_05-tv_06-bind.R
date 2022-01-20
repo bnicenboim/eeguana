@@ -1,5 +1,5 @@
 library(eeguana)
-options(eeguana.verbose=FALSE)
+options(eeguana.verbose = FALSE)
 
 
 data_0 <- eeg_lst(

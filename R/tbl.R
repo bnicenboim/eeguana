@@ -38,8 +38,8 @@ events_tbl.eeg_lst <- function(.data, ...) {
 #'
 #' @return A table.
 #' @family functions to expose internal parts of eeg_(ica_)_lst
-#' 
-#' 
+#'
+#'
 #' @examples
 #' \dontrun{
 #' library(dplyr)
@@ -47,11 +47,11 @@ events_tbl.eeg_lst <- function(.data, ...) {
 #' channels_tbl(faces_seg)
 #' # Set channel information using dplyr's mutate and replace
 #' channels_tbl(faces_seg) <- mutate(channels_tbl(faces_seg),
-#'               .channel = replace(.channel, .channel=="HEOG", "EOGH"),
-#'               .channel = replace(.channel, .channel=="VEOG", "EOGV"))
+#'   .channel = replace(.channel, .channel == "HEOG", "EOGH"),
+#'   .channel = replace(.channel, .channel == "VEOG", "EOGV")
+#' )
 #' }
-#' 
-#' 
+#'
 #' @export
 channels_tbl <- function(.data, ...) {
   UseMethod("channels_tbl")
@@ -72,9 +72,9 @@ channels_tbl.data.frame <- function(.data, ...) {
     purrr::map_dfr(~ {
       attrs <- attributes(.x)
       attrs[names(attrs) != "class"]
-      }) %>%
-    dplyr::bind_cols(dplyr::tibble(.channel = channels), .) 
-  
+    }) %>%
+    dplyr::bind_cols(dplyr::tibble(.channel = channels), .)
+
   if (tbl %>% nrow() == 0) {
     dplyr::tibble()
   } else {
@@ -124,8 +124,8 @@ channels_tbl.data.frame <- function(.data, ...) {
 #' @export
 `channels_tbl<-.data.table` <- function(.data, value) {
   orig_names <- channel_names(.data)
-  channels <- .data[,..orig_names]
-  nochannels <- .data[,-..orig_names]
+  channels <- .data[, ..orig_names]
+  nochannels <- .data[, -..orig_names]
   update <- data.table::setDT(update_channel_meta_data(channels, value))
   cbind(nochannels, update)
 }
@@ -133,7 +133,7 @@ channels_tbl.data.frame <- function(.data, ...) {
 #' @export
 `channels_tbl<-.signal_tbl` <- function(.data, value) {
   .data <- NextMethod()
-  #cbind from data.table method removes the class
+  # cbind from data.table method removes the class
   data.table::setattr(.data, "class", c("signal_tbl", class(.data)))
 }
 
@@ -188,4 +188,3 @@ ica_matrix_lst <- function(.data, ...) {
 ica_matrix_lst.eeg_ica_lst <- function(.data, ...) {
   .data$.ica
 }
-

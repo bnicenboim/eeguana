@@ -1,5 +1,5 @@
 library(eeguana)
-options(eeguana.verbose=FALSE)
+options(eeguana.verbose = FALSE)
 
 multiplexed_bin_bv1 <- read_vhdr(file = system.file("testdata", "asalab_export_bv.vhdr", package = "eeguana"), .recording = "bv2")
 multiplexed_bin_bv2 <- read_vhdr(system.file("testdata", "bv_export_bv_txt_bin_multi.vhdr", package = "eeguana"), .recording = "bv2")
@@ -119,7 +119,7 @@ channels_tbl(edf_f) <- ch_tbl
 
 channels_tbl(edf) <- channels_tbl(edf_bv)
 channels_tbl(edf_plus_bv) <- channels_tbl(edf_bv)
-events_bv <- data.table::copy(events_tbl(multiplexed_bin_bv2))[,`:=`(.type = NA_character_, .description = ifelse(.description == "", "New Segment", .description))]
+events_bv <- data.table::copy(events_tbl(multiplexed_bin_bv2))[, `:=`(.type = NA_character_, .description = ifelse(.description == "", "New Segment", .description))]
 events_edf <- events_tbl(edf_plus_bv)
 
 test_that("edf and dat files match", {

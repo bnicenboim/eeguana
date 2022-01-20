@@ -103,4 +103,3 @@ test_that("plot functions create ggplot2::ggplots", {
   data_shorter <- dplyr::filter(data_faces_10_trials, between(as_time(.sample), 91, 93))
   expect_gg(plot(data_shorter) + annotate_events())
 })
-

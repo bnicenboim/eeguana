@@ -37,5 +37,5 @@
 #' @format An table with channel names and locations
 #' @family topographic plots and layouts
 #' @usage data(layout_32_1020)
-#' 
+#'
 "layout_32_1020"

@@ -1,5 +1,5 @@
 library(eeguana)
-options(eeguana.verbose=FALSE)
+options(eeguana.verbose = FALSE)
 
 
 # create fake dataset
@@ -20,7 +20,7 @@ data <- bind(data_1, data_2)
 reference_data <- data.table::copy(data)
 
 test_that("internal (?) variables should show warnings", {
-#TODO fix two times warning
+  # TODO fix two times warning
   expect_warning(eeg_rename(data, ID = .id)) %>%
     expect_warning()
   expect_warning(eeg_rename(data, time = .sample))
@@ -122,29 +122,40 @@ test_that("renaming a grouped eeg_lst", {
 
 
 #### rename with
-test_that("rename_with works",{
-expect_equal(eeg_rename_with(data,.fn =  tolower, .cols = "X"),
-eeg_rename(data, x = X))
-expect_equal(eeg_rename_with(data,.fn =  tolower, .cols = where(is_channel_dbl)),
-eeg_rename(data, x = X, y = Y))
-expect_equal(eeg_rename_with(data,.fn =  tolower),
-  eeg_rename(data, x = X, y = Y))
-expect_equal(eeg_rename_with(data,.fn =  toupper, .cols = "segment"),
-             eeg_rename(data, SEGMENT = segment))
-expect_equal(eeg_rename_with(data %>% eeg_group_by(segment),.fn =  toupper, .cols = c("segment")),
-eeg_rename(data %>% eeg_group_by(segment), SEGMENT = segment))
+test_that("rename_with works", {
+  expect_equal(
+    eeg_rename_with(data, .fn = tolower, .cols = "X"),
+    eeg_rename(data, x = X)
+  )
+  expect_equal(
+    eeg_rename_with(data, .fn = tolower, .cols = where(is_channel_dbl)),
+    eeg_rename(data, x = X, y = Y)
+  )
+  expect_equal(
+    eeg_rename_with(data, .fn = tolower),
+    eeg_rename(data, x = X, y = Y)
+  )
+  expect_equal(
+    eeg_rename_with(data, .fn = toupper, .cols = "segment"),
+    eeg_rename(data, SEGMENT = segment)
+  )
+  expect_equal(
+    eeg_rename_with(data %>% eeg_group_by(segment), .fn = toupper, .cols = c("segment")),
+    eeg_rename(data %>% eeg_group_by(segment), SEGMENT = segment)
+  )
 
-expect_equal(eeg_rename_with(data %>% eeg_group_by(segment, X, .id),.fn =  toupper, .cols = c("segment")),
-             eeg_rename(data %>% eeg_group_by(segment, X, .id), SEGMENT = segment))
+  expect_equal(
+    eeg_rename_with(data %>% eeg_group_by(segment, X, .id), .fn = toupper, .cols = c("segment")),
+    eeg_rename(data %>% eeg_group_by(segment, X, .id), SEGMENT = segment)
+  )
 })
 
 
 
 test_that("internal variables  show errors if attempted to modify", {
-  expect_error(eeg_rename_with(data,.fn =  toupper, .cols = ".id"))
+  expect_error(eeg_rename_with(data, .fn = toupper, .cols = ".id"))
   expect_error(eeg_rename_with(data, time = .sample))
   expect_error(eeg_rename_with(data, participant = .recording))
-
 })
 
 
@@ -156,4 +167,3 @@ test_that("renaming in grouped segments table doesn't change data", {
   expect_equal(segments_tbl(renamed_eeg4), setNames(data$.segments, c(".id", ".recording", "segment", "cond")))
   expect_equal(reference_data, data)
 })
-

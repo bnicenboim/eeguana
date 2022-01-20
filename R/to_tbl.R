@@ -9,11 +9,10 @@
 #'
 #'
 as.data.table.eeg_lst <- function(x, .unit = "s") {
-  
   keys <- x$.signal %>%
-    select.(where(~ is_channel_dbl(.) ||  is_component_dbl(.))) %>%
+    select.(where(~ is_channel_dbl(.) || is_component_dbl(.))) %>%
     colnames()
-  if(length(keys)==0){
+  if (length(keys) == 0) {
     stop("No channels found.", call. = TRUE)
   }
   long_signal <- x$.signal %>%
@@ -23,7 +22,8 @@ as.data.table.eeg_lst <- function(x, .unit = "s") {
       value.name = ".value"
     )
   long_signal[, .key := as.character(.key)][
-    , .value := `attributes<-`(.value, NULL)]
+    , .value := `attributes<-`(.value, NULL)
+  ]
 
   long_table <- long_signal %>%
     left_join_dt(., data.table::as.data.table(x$.segments), by = ".id")

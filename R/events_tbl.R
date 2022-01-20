@@ -17,8 +17,8 @@
 #' @return A valid `events_tbl` table.
 #' @noRd
 new_events_tbl <- function(.id = integer(0),
-                           .type =  character(0),
-                           .description =  character(0),
+                           .type = character(0),
+                           .description = character(0),
                            .initial = sample_int(integer(0), integer(0)),
                            .final = sample_int(integer(0), integer(0)),
                            .channel = character(0),
@@ -28,11 +28,11 @@ new_events_tbl <- function(.id = integer(0),
     if (length(.channel) == 0) .channel <- NA_character_
     if (length(.type) == 0) .type <- NA_character_
     if (length(.description) == 0) .type <- NA_character_
-  } 
-    events <- data.table::data.table(
+  }
+  events <- data.table::data.table(
     .id = .id,
-    .type =  .type,
-    .description =  .description,
+    .type = .type,
+    .description = .description,
     .initial = .initial,
     .final = .final,
     .channel = .channel
@@ -40,11 +40,11 @@ new_events_tbl <- function(.id = integer(0),
 
   if (!is.null(sampling_rate)) {
     events[, .initial := sample_int(as.integer(.initial),
-      sampling_rate = sampling_rate)
-      ]
+      sampling_rate = sampling_rate
+    )]
     events[, .final := sample_int(as.integer(.final),
-      sampling_rate = sampling_rate)
-      ]
+      sampling_rate = sampling_rate
+    )]
   }
   data.table::setattr(events, "class", c("events_tbl", class(events)))
   events[]
@@ -117,7 +117,7 @@ validate_events_tbl <- function(events) {
   if (!is_events_tbl(events)) {
     warning("Class is not events_tbl", call. = FALSE)
   }
-  if(!all(obligatory_cols[[".events"]] %in% colnames(events))) {
+  if (!all(obligatory_cols[[".events"]] %in% colnames(events))) {
     warning("Missing obligatory columns in the events table, some functions may not work correctly", call. = FALSE)
   }
   if (!data.table::is.data.table(events)) {
@@ -133,7 +133,7 @@ validate_events_tbl <- function(events) {
   }
   if (!is.character(events$.channel)) {
     warning("Values of .channel should be characters (or NA_chararacter_)",
-            call. = FALSE
+      call. = FALSE
     )
   }
   if (!is_sample_int(events$.final)) {
@@ -142,7 +142,7 @@ validate_events_tbl <- function(events) {
     )
   }
   if (is.numeric(events$.initial) && is.numeric(events$.final) &&
- any(events$.final < events$.initial, na.rm = TRUE) ){
+    any(events$.final < events$.initial, na.rm = TRUE)) {
     warning("Values of .final should be larger than values of .initial",
       call. = FALSE
     )

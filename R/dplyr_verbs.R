@@ -2,7 +2,7 @@
 #'
 #' Manipulate the signal table and the segments table of an eeg_lst with dplyr-like functions.
 #'
-#' Wrappers for [`dplyr`][dplyr::dplyr]'s commands that act 
+#' Wrappers for [`dplyr`][dplyr::dplyr]'s commands that act
 #' `eeg_lst` objects. Functions that drop or rename columns won't remove columns starting with a dot. These functions are powered by [`data.table`][data.table::data.table] through [`tidytable`][tidytable::tidytable].
 #'
 #' The following wrappers act in a special way for `eeg_lst` objects:
@@ -46,7 +46,7 @@
 #' @importFrom dplyr group_by ungroup group_vars
 #' @importFrom dplyr groups
 #' @importFrom dplyr anti_join left_join right_join full_join semi_join inner_join
-#' 
+#'
 #' @return An eeg_lst object.
 #'
 #' @family tidyverse-like functions
@@ -58,21 +58,21 @@
 #' # Create new channel in the signal table
 #' data_faces_ERPs %>%
 #'   eeg_mutate(tmp = Fz - Cz)
-#' 
+#'
 #' # Create a new condition in the segments table
 #' data_faces_ERPs %>%
 #'   eeg_mutate(code = ifelse(condition == "faces", 1, -1))
-#' 
+#'
 #' # Create a new channel and drop all others
 #' data_faces_ERPs %>%
 #'   eeg_transmute(Occipital = chs_mean(O1, O2, Oz,
 #'     na.rm = TRUE
 #'   ))
-#' 
+#'
 #' # Extract data associated with a condition
 #' data_faces_ERPs %>%
 #'   eeg_filter(condition == "faces")
-#' 
+#'
 #' # Group and summarize
 #' data_faces_ERPs %>%
 #'   # Convert samples to times, filter between timepoints
@@ -86,12 +86,12 @@
 #'
 #' # Mean of each channel
 #' data_faces_ERPs %>%
-#' eeg_summarize(across_ch(mean))
-#' 
+#'   eeg_summarize(across_ch(mean))
+#'
 #' # Select specific electrodes
 #' data_faces_ERPs %>%
 #'   eeg_select(O1, O2, P7, P8)
-#' 
+#'
 #' # Rename a variable
 #' data_faces_ERPs %>%
 #'   eeg_rename(Predictor = condition)
@@ -178,7 +178,7 @@ eeg_summarise <- function(.data, ..., .groups = "keep") {
 eeg_summarize.eeg_lst <- function(.data, ..., .groups = "keep") {
   dots <- rlang::quos(...)
   .data <- update_eeg_lst(.data)
-  if(.groups != "keep") {
+  if (.groups != "keep") {
     warning("Only  'keep' option is available")
   }
   summarize_eeg_lst(.data, dots, .groups = "keep")
@@ -250,7 +250,7 @@ eeg_rename <- function(.data, ...) {
 #' @export
 eeg_rename.eeg_lst <- function(.data, ...) {
   .data <- update_eeg_lst(.data)
-  #TODO: simplify and use parts of eeg_rename_with
+  # TODO: simplify and use parts of eeg_rename_with
   select_rename(.data, select = FALSE, ...)
 }
 
@@ -266,68 +266,76 @@ eeg_rename_with.eeg_lst <- function(.data, .fn, .cols = where(is_channel_dbl), .
   .cols <- rlang::enquo(.cols)
   .fn <- rlang::as_function(.fn)
 
-    vars_signal <- tidyselect::eval_select(expr = rlang::expr(!!.cols),
-                            data = .data$.signal[0],
-                            strict = FALSE
-      ) %>%  names()
-    vars_segments <- tidyselect::eval_select(expr = rlang::expr(!!.cols),
-                            data = .data$.segments[0],
-                            strict = FALSE
-      ) %>%  names()
-    
-    if(length(c(vars_signal, vars_segments)) == 0){
-      stop("Can't subset columns that don't exist.\n ",
-           "Can't find columns that match ",rlang::as_label(.cols),
-           call. = FALSE)
-    }
-    
-    renamed_obligatory <- intersect(c(vars_signal, vars_segments),
-                                    c(obligatory_cols$.signal, 
-                                      obligatory_cols$.segments))
-    if(length(renamed_obligatory)>0){
-      stop("Trying to rename obligatory column(s): ", renamed_obligatory,
-           call. = FALSE)
-    }
-    
-    new_segments <- NULL
-    new_signal <- NULL
-     if(length(vars_signal) > 0){ 
+  vars_signal <- tidyselect::eval_select(
+    expr = rlang::expr(!!.cols),
+    data = .data$.signal[0],
+    strict = FALSE
+  ) %>% names()
+  vars_segments <- tidyselect::eval_select(
+    expr = rlang::expr(!!.cols),
+    data = .data$.segments[0],
+    strict = FALSE
+  ) %>% names()
 
-      .data$.signal <- shallow(.data$.signal)
-      
-      new_signal <- .fn(vars_signal,...) 
-      names(new_signal) <- vars_signal
-      data.table::setnames(.data$.signal, vars_signal, new_signal)
-      
-      # update channels in events
-      .data$.events <- .data$.events %>% 
-        mutate.(.channel = ifelse(.channel %in% vars_signal,
-                                                  new_signal[.channel],
-                                                  .channel))
-          }
-    if(length(vars_segments) > 0){ 
-      .data$.segments <- shallow(.data$.segments)
-      new_segments <- .fn(vars_segments,...)
-      names(new_segments) <- vars_segments
-      
-      data.table::setnames(.data$.segments, vars_segments, new_segments)
-      }
-    
-    # Update groups
-    g_vars <- eeg_group_vars(.data)
-    if(length(g_vars) >0 ) {
-      rel_vars <- c(vars_signal, vars_segments)
-      new_names <- c(new_signal, new_segments)
-      g_vars[eeg_group_vars(.data) %in% rel_vars] <- new_names[names(new_names) %in% eeg_group_vars(.data)]
-      #TODO: fix so this works:
-        #.data <- eeg_group_by(.data, across(g_vars))
-        #alternative
-        attributes(.data)$vars <- g_vars
-    }  
+  if (length(c(vars_signal, vars_segments)) == 0) {
+    stop("Can't subset columns that don't exist.\n ",
+      "Can't find columns that match ", rlang::as_label(.cols),
+      call. = FALSE
+    )
+  }
+
+  renamed_obligatory <- intersect(
+    c(vars_signal, vars_segments),
+    c(
+      obligatory_cols$.signal,
+      obligatory_cols$.segments
+    )
+  )
+  if (length(renamed_obligatory) > 0) {
+    stop("Trying to rename obligatory column(s): ", renamed_obligatory,
+      call. = FALSE
+    )
+  }
+
+  new_segments <- NULL
+  new_signal <- NULL
+  if (length(vars_signal) > 0) {
+    .data$.signal <- shallow(.data$.signal)
+
+    new_signal <- .fn(vars_signal, ...)
+    names(new_signal) <- vars_signal
+    data.table::setnames(.data$.signal, vars_signal, new_signal)
+
+    # update channels in events
+    .data$.events <- .data$.events %>%
+      mutate.(.channel = ifelse(.channel %in% vars_signal,
+        new_signal[.channel],
+        .channel
+      ))
+  }
+  if (length(vars_segments) > 0) {
+    .data$.segments <- shallow(.data$.segments)
+    new_segments <- .fn(vars_segments, ...)
+    names(new_segments) <- vars_segments
+
+    data.table::setnames(.data$.segments, vars_segments, new_segments)
+  }
+
+  # Update groups
+  g_vars <- eeg_group_vars(.data)
+  if (length(g_vars) > 0) {
+    rel_vars <- c(vars_signal, vars_segments)
+    new_names <- c(new_signal, new_segments)
+    g_vars[eeg_group_vars(.data) %in% rel_vars] <- new_names[names(new_names) %in% eeg_group_vars(.data)]
+    # TODO: fix so this works:
+    # .data <- eeg_group_by(.data, across(g_vars))
+    # alternative
+    attributes(.data)$vars <- g_vars
+  }
 
   data.table::setkey(.data$.signal, .id, .sample)
   data.table::setkey(.data$.segments, .id)
-  
+
   .data %>%
     validate_eeg_lst()
 }
@@ -466,35 +474,31 @@ pull.eeg_lst <- eeg_pull.eeg_lst
 
 #' @rdname dplyr_verbs
 #' @export
-across <- function (.cols = everything(), .fns = NULL, ..., .names = NULL)
-{
-  if("dplyr" %in% (.packages())){
-  dplyr::across(.cols = .cols, .fns = .fns, ..., .names = .names)
+across <- function(.cols = everything(), .fns = NULL, ..., .names = NULL) {
+  if ("dplyr" %in% (.packages())) {
+    dplyr::across(.cols = .cols, .fns = .fns, ..., .names = .names)
   } else {
-   stop("`across()` must only be used inside dplyr-like verbs. Tip: Maybe you forgot to specify the data before across()?")
+    stop("`across()` must only be used inside dplyr-like verbs. Tip: Maybe you forgot to specify the data before across()?")
   }
 }
 
 #' @rdname dplyr_verbs
 #' @export
-across_ch <- function (.fns = NULL, ..., .names = NULL)
-{
+across_ch <- function(.fns = NULL, ..., .names = NULL) {
   stop("`across_ch()` must only be used inside dplyr-like verbs. Tip: Maybe you forgot to specify the data before across()?")
 }
 
 #' @rdname dplyr_verbs
 #' @export
-c_across_ch <- function ()
-{
+c_across_ch <- function() {
   stop("`c_across_ch()` must only be used inside dplyr-like verbs.")
 }
 
 
 #' @rdname dplyr_verbs
 #' @export
-c_across <- function (.cols = everything())
-{
-  if("dplyr" %in% (.packages())){
+c_across <- function(.cols = everything()) {
+  if ("dplyr" %in% (.packages())) {
     dplyr::c_across(.cols = .cols)
   } else {
     stop("`c_across()` must only be used inside dplyr-like verbs.")

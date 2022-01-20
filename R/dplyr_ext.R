@@ -6,17 +6,16 @@
 #'
 #' @return An `eeg_lst` object.
 #' @family tidyverse-like functions
-#' @examples 
+#' @examples
 #' \dontrun{
-#' 
+#'
 #' # Load multiple subjects using purrr::map, extracting subject IDs from file names.
-#' faces_list <- purrr::map(list.files("./","vhdr"), ~ 
-#'     read_vhdr(.x)
-#' )
+#' faces_list <- purrr::map(list.files("./", "vhdr"), ~
+#' read_vhdr(.x))
 #' # Bind all the eeg_lsts into a large one:
 #' faces <- eeg_bind(faces_list)
 #' }
-#'  
+#'
 #' @export
 eeg_bind <- function(...) {
   eeg_lsts <- list(...)
@@ -64,7 +63,7 @@ eeg_bind <- function(...) {
     .signal = signal, .events = events, .segments = segments
   ) %>%
     validate_eeg_lst()
-   message_verbose(say_size(new_eeg_lst))
+  message_verbose(say_size(new_eeg_lst))
   new_eeg_lst
 }
 
@@ -78,44 +77,44 @@ bind <- eeg_bind
 #' Choose samples by their ordinal position in the signal table. Grouped eeg_lst object use the ordinal position in the signal table within the group.
 #'
 #' @param .data An eeg_lst object.
-#' @param ... Integer row values. 
+#' @param ... Integer row values.
 #' @param .preserve Not in use.
 #' @family tidyverse-like functions
 #'
 #' @export
-eeg_slice_signal <- function(.data, ..., .preserve = FALSE){
-UseMethod("eeg_slice_signal")
+eeg_slice_signal <- function(.data, ..., .preserve = FALSE) {
+  UseMethod("eeg_slice_signal")
 }
 
 #' @export
-eeg_slice_signal.eeg_lst <- function(.data, ..., .preserve = FALSE){
- if(.preserve){
-   warning("`.preserve`` is not implemented.")
- }
-  slice_signal_eeg_lst(.eeg_lst=.data,...)
+eeg_slice_signal.eeg_lst <- function(.data, ..., .preserve = FALSE) {
+  if (.preserve) {
+    warning("`.preserve`` is not implemented.")
+  }
+  slice_signal_eeg_lst(.eeg_lst = .data, ...)
 }
 
 #' @rdname eeg_slice_signal
 #' @export
-slice_signal <- eeg_slice_signal 
+slice_signal <- eeg_slice_signal
 
-slice_signal_eeg_lst <- function(.eeg_lst,...) {
+slice_signal_eeg_lst <- function(.eeg_lst, ...) {
   extended_signal <- extended_signal(.eeg_lst)
   by <- as.character(dplyr::group_vars(.eeg_lst))
-  if(length(by)!=0){
+  if (length(by) != 0) {
     cols_signal <- colnames(.eeg_lst$.signal)
-    .eeg_lst$.signal <- extended_signal[extended_signal[,.I[...],by=by]$V1] %>%
+    .eeg_lst$.signal <- extended_signal[extended_signal[, .I[...], by = by]$V1] %>%
       .[, ..cols_signal]
-    } else{
-      .eeg_lst$.signal <- .eeg_lst$.signal[list(...)[[1]],]  
-    }
-    
-  if (nrow(.eeg_lst$.events) > 0) {
-      range_s <- .eeg_lst$.signal[, .(.lower = min(.sample), .upper = max(.sample)), by = .id]
-      .eeg_lst$.events <- update_events(.eeg_lst$.events, range_s)
+  } else {
+    .eeg_lst$.signal <- .eeg_lst$.signal[list(...)[[1]], ]
   }
-    .eeg_lst$.segments <- dplyr::semi_join(.eeg_lst$.segments, .eeg_lst$.signal, by = ".id")
-    validate_eeg_lst(.eeg_lst)
+
+  if (nrow(.eeg_lst$.events) > 0) {
+    range_s <- .eeg_lst$.signal[, .(.lower = min(.sample), .upper = max(.sample)), by = .id]
+    .eeg_lst$.events <- update_events(.eeg_lst$.events, range_s)
+  }
+  .eeg_lst$.segments <- dplyr::semi_join(.eeg_lst$.segments, .eeg_lst$.signal, by = ".id")
+  validate_eeg_lst(.eeg_lst)
 }
 
 #' @export

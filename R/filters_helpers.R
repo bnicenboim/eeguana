@@ -165,16 +165,16 @@ firwin_design <- function(N, freq, gain, window = "hamming", sampling_rate) {
 #' # 40 Hz Chebyshev type 1 lowpass with specific gain characteristics in the
 #' # pass and stop bands (assuming the desired stop band is at 45 Hz), this
 #' # would be a filter with much longer ringing:
-#' py_run_string("iir_params = dict(ftype='cheby1', gpass=3, gstop=20, output='ba')")
-#' py_run_string("iir_params = mne.filter.construct_iir_filter(iir_params, 40, 50, 1000, 'low')")
-#' >>> print((2 * len(iir_params['sos']), iir_params['padlen']))  # doctest:+SKIP
+#' # py_run_string("iir_params = dict(ftype='cheby1', gpass=3, gstop=20, output='ba')")
+#' # py_run_string("iir_params = mne.filter.construct_iir_filter(iir_params, 40, 50, 1000, 'low')")
+#' #>>> print((2 * len(iir_params['sos']), iir_params['padlen']))  # doctest:+SKIP
 #' (6, 439)
 #' Padding and/or filter coefficients can also be manually specified. For
 #' a 10-sample moving window with no padding during filtering, for example,
 #' one can just do:
-#' >>> iir_params = dict(b=np.ones((10)), a=[1, 0], padlen=0)  # doctest:+SKIP
-#' >>> iir_params = construct_iir_filter(iir_params, return_copy=False)  # doctest:+SKIP
-#' >>> print((iir_params['b'], iir_params['a'], iir_params['padlen']))  # doctest:+SKIP
+#' #>>> iir_params = dict(b=np.ones((10)), a=[1, 0], padlen=0)  # doctest:+SKIP
+#' #>>> iir_params = construct_iir_filter(iir_params, return_copy=False)  # doctest:+SKIP
+#' #>>> print((iir_params['b'], iir_params['a'], iir_params['padlen']))  # doctest:+SKIP
 #' (array([1., 1., 1., 1., 1., 1., 1., 1., 1., 1.]), [1, 0], 0)
 #' @noRd
 

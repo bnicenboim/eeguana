@@ -19,7 +19,7 @@ data <- bind(data_1, data_2)
 # for checks later
 reference_data <- data.table::copy(data)
 
-###########3
+########### 3
 
 test_that("filter and eeg_filter are the same", {
   expect_equal_eeg_lst(eeg_filter(data, .id == 1), dplyr::filter(data, .id == 1))
@@ -711,25 +711,25 @@ test_that("grouped filter works", {
 # data_NA$.signal %>% dplyr::filter(dplyr::across(channel_names(data_NA), ~ !is.na(.)))
 # data_NA$.signal %>% tidytable::filter.(across.(channel_names(data_NA), ~ !is.na(.)))
 # data_NA %>% eeg_filter(across_ch( ~ !is.na(.)))
-# 
+#
 # .eeg_lst <- data_NA
 # dots <- rlang::quos(across_ch( ~ !is.na(.)))
 
 test_that("dplyr::filter_at and grouped dplyr::filtered at", {
   ## everything except the NA:
-  expect_equal(data_NA %>% eeg_filter(across_ch( ~ !is.na(.))), data_NAm1)
+  expect_equal(data_NA %>% eeg_filter(across_ch(~ !is.na(.))), data_NAm1)
   expect_equal(data_NA %>%
     eeg_group_by(.id) %>%
-      eeg_filter(across_ch( ~ !is.na(.))) %>%
+    eeg_filter(across_ch(~ !is.na(.))) %>%
     eeg_ungroup(), data_NAm1)
   ## removes .id ==1
   expect_equal(data_NA %>%
-                 eeg_group_by(.id) %>%
-                 eeg_filter(across_ch( ~ !anyNA(.))) %>%
-                 eeg_ungroup(), data_NAm1id)
+    eeg_group_by(.id) %>%
+    eeg_filter(across_ch(~ !anyNA(.))) %>%
+    eeg_ungroup(), data_NAm1id)
   expect_equal(data_NA %>%
-                 eeg_group_by(.id) %>%
-                 eeg_filter(across_ch( ~ !anyNA(.))) %>%
+    eeg_group_by(.id) %>%
+    eeg_filter(across_ch(~ !anyNA(.))) %>%
     eeg_ungroup(), data_NAm1id)
 })
 

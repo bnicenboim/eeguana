@@ -4,7 +4,7 @@
 #' This is a wrapper for [`decimate`][signal::decimate] from the
 #' [`signal`][signal::signal] package, see its documentation for details. Notice that
 #' the code of the signal package might be outdated. This function is used in plotting functions.
-#' 
+#'
 #' A factor q larger than 13 can result in NAs. To avoid this,
 #' the downsampling can be done in steps. For example, instead of setting
 #' `q = 20`, it is possible to set `q = c(2,10)`.
@@ -54,13 +54,16 @@ eeg_downsample.eeg_lst <- function(.data, .q = 2, .max_sample = NULL,
     .q <- factors(round(approx_q))
   }
   channels_to_decimate <- purrr::map_lgl(.data$.signal, ~ is_channel_dbl(.x) ||
-    is_component_dbl(.x)) %>% {
-    colnames(.data$.signal)[.]
-  }
+    is_component_dbl(.x)) %>%
+    {
+      colnames(.data$.signal)[.]
+    }
 
   ## add missing samples in case of a discontinuity
   .data$.signal <- add_missing_samples(.data$.signal)
-  discontinuity <- .data$.signal %>% dplyr::select(tidyselect::all_of( channels_to_decimate)) %>% anyNA()
+  discontinuity <- .data$.signal %>%
+    dplyr::select(tidyselect::all_of(channels_to_decimate)) %>%
+    anyNA()
   if (discontinuity) {
     warning("Some parts of the signal won't be filtered before the downsampling due to NA values or discontinuities")
   }
@@ -72,12 +75,12 @@ eeg_downsample.eeg_lst <- function(.data, .q = 2, .max_sample = NULL,
   .q <- as.integer(.q)
   factor <- prod(.q)
   new_sampling_rate <- sampling_rate(.data) / factor
- message_verbose(paste0(
+  message_verbose(paste0(
     "# Downsampling from ", sampling_rate(.data), "Hz to ",
     round(new_sampling_rate, 2), "Hz."
   ))
   if (!is.null(.max_sample) || .multiple_times) {
-  message_verbose("# Using the following factor(s) .q: ", paste0(.q, collapse = ", "))
+    message_verbose("# Using the following factor(s) .q: ", paste0(.q, collapse = ", "))
   }
 
 
@@ -103,13 +106,13 @@ eeg_downsample.eeg_lst <- function(.data, .q = 2, .max_sample = NULL,
   # even table needs to be adapted, starts from 1,
   # and the size is divided by two with a min of 1
   .data$.events <- data.table::copy(.data$.events)[, .initial :=
-    sample_int(ceiling(.initial / factor), new_sampling_rate)][, .final := sample_int(ceiling(.final / factor), new_sampling_rate) ][]
+    sample_int(ceiling(.initial / factor), new_sampling_rate)][, .final := sample_int(ceiling(.final / factor), new_sampling_rate)][]
 
   ## this shouldn't be needed:
   ## just in case I update the .id from segments table
   ## .data$.segments <- dplyr::mutate(.data$.segments, .id = seq_len(dplyr::.n()))
 
-   message_verbose(say_size(.data))
+  message_verbose(say_size(.data))
 
   .data %>% # update_channels_tbl(channels_info) %>%
     validate_eeg_lst()

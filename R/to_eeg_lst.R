@@ -1,8 +1,7 @@
 
 #' @export
 as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
-
-   units_list <- c(
+  units_list <- c(
     "mol/m^3", "hertz", "newton", "pascal", "joule", "watt", "coulomb",
     "volt", "farad", "ohm",
     "S", "weber", "tesla", "henry", "celsius", "lumen", "lux"
@@ -11,8 +10,8 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
     as.list()
   prefix <- c("", "deci", "centi", "milli", "micro", "nano") %>%
     stats::setNames(c(0, -1:-3, -6, -9) %>% as.character())
-  
-  
+
+
   ## create channel info
   ch_names <- .data$ch_names
   ## Meaning of kind code: https://github.com/mne-tools/mne-python/blob/2a0a55c6a795f618cf0a1603e22a72ee8e879f62/mne/io/constants.py
@@ -72,8 +71,10 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
 
   scale_head <- purrr::map_dbl(rel_ch, ~ sqrt(sum((0 - .x$loc[1:3])^2))) %>%
     .[. != 0] %>% # remove the ones that have all 0
-    #1 by default if there is no electrode info
-    {. %||% 0} %>%
+    # 1 by default if there is no electrode info
+    {
+      . %||% 0
+    } %>%
     min(na.rm = TRUE)
 
   ch_info <- rel_ch %>% purrr::map_dfr(function(ch) {
@@ -82,21 +83,21 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
     } else {
       location <- purrr::map(ch$loc[1:3], ~ round(. / scale_head, 2))
     }
-    
+
     if (ch$unit$numerator %in% as.numeric(names(units_list))) {
-      ch_unit <-  ch$unit$numerator
+      ch_unit <- ch$unit$numerator
     } else {
       ch_unit <- 107 # default to Volts
     }
     pref_id <- round(log10(ch$range)) %>% as.character()
-    if(pref_id %in% names(prefix)){
+    if (pref_id %in% names(prefix)) {
       unit <- paste0(
         prefix[[pref_id]],
         units_list[[ch_unit %>% as.character()]]
       )
     } else {
       warning("Unit cannot be identified", call. = FALSE)
-      unit <-NA 
+      unit <- NA
     }
     list(
       .channel = ch$ch_name,
@@ -110,8 +111,8 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
 
   signal_m <- .data$to_data_frame()
   data.table::setDT(signal_m)
-  if("time" %in% colnames(signal_m)) {
-    signal_m[,time:=NULL]
+  if ("time" %in% colnames(signal_m)) {
+    signal_m[, time := NULL]
   }
 
   if (length(sti_ch_names) > 0) {
@@ -133,8 +134,8 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
         sample_int(integer(0), sampling_rate = .data$info$sfreq)
     )
   } else {
-    descriptions_dt =tidyr::separate(data.table::data.table(annotation = ann$description),
-                                     col = "annotation", into = c(".type", ".description"), sep = "/", fill = "left"
+    descriptions_dt <- tidyr::separate(data.table::data.table(annotation = ann$description),
+      col = "annotation", into = c(".type", ".description"), sep = "/", fill = "left"
     )
     new_events <- new_events_tbl(
       .id = 1L,
@@ -152,5 +153,4 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
     events_tbl = new_events,
     segments_tbl = dplyr::tibble(.id = 1L, .recording = data_name, segment = 1L)
   )
-
 }

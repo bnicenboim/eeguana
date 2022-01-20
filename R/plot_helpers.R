@@ -86,7 +86,9 @@ eeg_interpolate_tbl.data.frame <- function(.data,
   }
 
 
-  l <- .data %>% dplyr::ungroup() %>% dplyr::select(dplyr::one_of(group_vars)) # %>%
+  l <- .data %>%
+    dplyr::ungroup() %>%
+    dplyr::select(dplyr::one_of(group_vars)) # %>%
 
   if (!identical(stats::na.omit(l), l)) {
     stop("Data cannot be grouped by a column that contains NAs.")
@@ -148,13 +150,14 @@ eeg_interpolate_tbl.data.frame <- function(.data,
 
 
   # if there are no groups, it will just create a list with the entire df
-  grid <- {
-    if (ncol(l) == 0) {
-      list(.data)
-    } else {
-      base::split(.data, l)
-    }
-  } %>%
+  grid <-
+    {
+      if (ncol(l) == 0) {
+        list(.data)
+      } else {
+        base::split(.data, l)
+      }
+    } %>%
     purrr::discard(~ nrow(.x) == 0) %>%
     purrr::map_dfr(function(.d) {
       common <- .d %>%

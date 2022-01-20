@@ -38,9 +38,9 @@ new_sample_int <- function(values, sampling_rate) {
 #'
 #' @noRd
 validate_sample_int <- function(.sample) {
-  if (!is.integer(.sample) && 
-      ## I also want to accept one Inf number, for e.g., baseline
-      !(length(.sample)==1 && is.infinite(.sample))) {
+  if (!is.integer(.sample) &&
+    ## I also want to accept one Inf number, for e.g., baseline
+    !(length(.sample) == 1 && is.infinite(.sample))) {
     warning("Samples should be integers.",
       call. = FALSE
     )
@@ -60,7 +60,8 @@ new_channel_dbl <- function(values, channel_info = list()) {
   values <- unclass(values) %>% as.double()
   # class(values) <- c("channel_dbl", class(values))
   class(values) <- "channel_dbl"
-    attributes(values) <- c(attributes(values),
+  attributes(values) <- c(
+    attributes(values),
     channel_info
   )
   values
@@ -171,22 +172,21 @@ validate_segments <- function(segments) {
   if (is.null(segments)) {
     segments <- dplyr::tibble(.id = integer(0), .recording = character(0))
   }
-  if(nrow(segments)>0){
+  if (nrow(segments) > 0) {
     if (!is.integer(segments$.id) & all(is_wholenumber(segments$.id))) {
-
       segments <- data.table:::shallow(segments[, .id := as.integer(.id)])
     } else if (!is.integer(segments$.id)) {
-    warning("Column .id of segments table is not an integer.")
+      warning("Column .id of segments table is not an integer.")
     }
-  
+
     if (!".recording" %in% colnames(segments)) {
-    warning("Column .recording of segments table is missing.")
-  }
-  if (length(segments$.id) != length(unique(segments$.id))) {
-    warning("Some .id are repeated in the segments table, there is something wrong going on. Please open an issue with a reproducible example in https://github.com/bnicenboim/eeguana/issues",
-      call. = FALSE
-    )
-  }
+      warning("Column .recording of segments table is missing.")
+    }
+    if (length(segments$.id) != length(unique(segments$.id))) {
+      warning("Some .id are repeated in the segments table, there is something wrong going on. Please open an issue with a reproducible example in https://github.com/bnicenboim/eeguana/issues",
+        call. = FALSE
+      )
+    }
   }
   segments
 }

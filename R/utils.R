@@ -20,15 +20,17 @@ col_names_main <- function(.eeg_lst) {
 }
 
 #' @noRd
-message_verbose <- function(...){
-  if(options()$eeguana.verbose) message(...)
+message_verbose <- function(...) {
+  if (options()$eeguana.verbose) message(...)
 }
 
 #' @noRd
-say_size <- function(eeg_lst) paste(
+say_size <- function(eeg_lst) {
+  paste(
     "# Object size in memory",
     utils::capture.output(print(utils::object.size(eeg_lst), units = "auto"))
   )
+}
 
 #' Get integers so that their prod is approx N
 #' @noRd
@@ -118,12 +120,13 @@ row_fun_ch <- function(x, .f, pars = list()) {
 
 #' @noRd
 try_to_downsample <- function(.data, max_sample) {
-    if (!anyNA(nsamples(.data)) && (is.numeric(max_sample) && max_sample != 0 &&
-                                  # it will downsample if the samples are at least twice as large than the max_sample
-                                  sum(nsamples(.data)) / 2 > max_sample)) {
+  if (!anyNA(nsamples(.data)) && (is.numeric(max_sample) && max_sample != 0 &&
+    # it will downsample if the samples are at least twice as large than the max_sample
+    sum(nsamples(.data)) / 2 > max_sample)) {
     q <- round(sum(nsamples(.data)) / max_sample)
-    .data <- eeg_downsample(.data, 
-                            q=q)
+    .data <- eeg_downsample(.data,
+      q = q
+    )
   } else {
     .data
   }
@@ -145,79 +148,89 @@ message_obj <- function(msg, obj) {
   paste0(msg, "\n", outp, "\n")
 }
 #' @noRd
-is_wholenumber <-  function(x, tol = .Machine$double.eps^0.5) {
-    abs(x - round(x)) < tol | is.infinite(x) | is.na(x)
-
+is_wholenumber <- function(x, tol = .Machine$double.eps^0.5) {
+  abs(x - round(x)) < tol | is.infinite(x) | is.na(x)
 }
 #' @noRd
-require_pkg <- function(pkg){
+require_pkg <- function(pkg) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
-    stop(paste0("Package '",pkg,"'  needed for this function to work. Please install it."),
-         call. = FALSE)
+    stop(paste0("Package '", pkg, "'  needed for this function to work. Please install it."),
+      call. = FALSE
+    )
   }
 }
 
 #' @noRd
-`%||%` <- function (x, y) {
-  if (is.null(x) || length(x)==0)
-  y
-  else x
+`%||%` <- function(x, y) {
+  if (is.null(x) || length(x) == 0) {
+    y
+  } else {
+    x
+  }
 }
 
 
 #' @noRd
-rep.channel_dbl <- function(x, ...){
+rep.channel_dbl <- function(x, ...) {
   y <- NextMethod()
   attributes(y) <- attributes(x)
   y
 }
 
 #' @noRd
-rep.sample_int <- function(x, ...){
+rep.sample_int <- function(x, ...) {
   y <- NextMethod()
   structure(y, class = class(x), sampling_rate = sampling_rate(x))
 }
 
 #' @noRd
-match_arg <- function(arg, choices, several.ok = FALSE){
-    if (missing(choices)) {
-        formal.args <- formals(sys.function(sysP <- sys.parent()))
-        choices <- eval(formal.args[[as.character(substitute(arg))]],
-            envir = sys.frame(sysP))
+match_arg <- function(arg, choices, several.ok = FALSE) {
+  if (missing(choices)) {
+    formal.args <- formals(sys.function(sysP <- sys.parent()))
+    choices <- eval(formal.args[[as.character(substitute(arg))]],
+      envir = sys.frame(sysP)
+    )
+  }
+  if (is.null(arg)) {
+    return(choices[1L])
+  } else if (!is.character(arg)) {
+    stop("'arg' must be NULL or a character vector")
+  }
+  if (!several.ok) {
+    if (identical(arg, choices)) {
+      return(arg[1L])
     }
-    if (is.null(arg))
-        return(choices[1L])
-    else if (!is.character(arg))
-        stop("'arg' must be NULL or a character vector")
-    if (!several.ok) {
-        if (identical(arg, choices))
-            return(arg[1L])
-        if (length(arg) > 1L)
-            stop("'arg' must be of length 1")
+    if (length(arg) > 1L) {
+      stop("'arg' must be of length 1")
     }
-    else if (length(arg) == 0L)
-        stop("'arg' must be of length >= 1")
+  } else if (length(arg) == 0L) {
+    stop("'arg' must be of length >= 1")
+  }
 
-    arg <- trimws(tolower(arg))
-    i <- pmatch(arg, choices, nomatch = 0L, duplicates.ok = TRUE)
-    if (all(i == 0L))
-        stop(gettextf("'arg' should be one of %s", paste(dQuote(choices),
-            collapse = ", ")), domain = NA)
-    i <- i[i > 0L]
-    if (!several.ok && length(i) > 1)
-        stop("there is more than one match in 'match_arg'")
-    choices[i]
+  arg <- trimws(tolower(arg))
+  i <- pmatch(arg, choices, nomatch = 0L, duplicates.ok = TRUE)
+  if (all(i == 0L)) {
+    stop(gettextf("'arg' should be one of %s", paste(dQuote(choices),
+      collapse = ", "
+    )), domain = NA)
+  }
+  i <- i[i > 0L]
+  if (!several.ok && length(i) > 1) {
+    stop("there is more than one match in 'match_arg'")
+  }
+  choices[i]
 }
 
 #' Copied from rstan
 #' @noRd
-is_arg_recognizable <- function (x, y, pre_msg = "", post_msg = "", ...)
-{
-    idx <- match(x, y)
-    na_idx <- which(is.na(idx))
-    if (length(na_idx) > 0) {
-        stop(pre_msg, paste(x[na_idx], collapse = ", "), ".",
-            post_msg, ...)
-    }
-    return(TRUE)
+is_arg_recognizable <- function(x, y, pre_msg = "", post_msg = "", ...) {
+  idx <- match(x, y)
+  na_idx <- which(is.na(idx))
+  if (length(na_idx) > 0) {
+    stop(
+      pre_msg, paste(x[na_idx], collapse = ", "), ".",
+      post_msg, ...
+    )
+  }
+  return(TRUE)
 }

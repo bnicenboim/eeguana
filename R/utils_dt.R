@@ -1,10 +1,10 @@
 #' @noRd
-shallow <- function(x){
+shallow <- function(x) {
   x[TRUE]
 }
 
 #' @noRd
-lapply_dtc <- function(X, FUN, ...){
+lapply_dtc <- function(X, FUN, ...) {
   lapply(X, FUN, ...) %>%
     data.table::setDT()
 }
@@ -66,7 +66,7 @@ left_join_dt <- function(x, y, by = NULL) {
   }
   out <- y[x, on = by]
 
-  #should I set allow.cartesian = TRUE?
+  # should I set allow.cartesian = TRUE?
   data.table::setnames(out, names(by), by)[]
 }
 
@@ -81,13 +81,13 @@ anti_join_dt <- function(x, y, by = NULL) {
 #' @noRd
 filter_dt <- function(.data, ..., group_by_ = character(0)) {
   dots <- rlang::quos(...)
-  newdots <- Reduce(x = dots,  f = function(x,y) rlang::quo(!!x & !!y))
- if(length(group_by_) == 0) {
-   #TODO: this might be dangerous
-   .data[rlang::eval_tidy(newdots, data = rlang::as_data_mask(.data))]
+  newdots <- Reduce(x = dots, f = function(x, y) rlang::quo(!!x & !!y))
+  if (length(group_by_) == 0) {
+    # TODO: this might be dangerous
+    .data[rlang::eval_tidy(newdots, data = rlang::as_data_mask(.data))]
   } else {
     col_order <- names(.data)
-  .data <- .data[, .SD[rlang::eval_tidy(newdots, data = cbind(.SD,data.table::as.data.table(.BY)))], by = c(group_by_)]
+    .data <- .data[, .SD[rlang::eval_tidy(newdots, data = cbind(.SD, data.table::as.data.table(.BY)))], by = c(group_by_)]
     data.table::setcolorder(.data, col_order)
     .data
   }
@@ -97,46 +97,50 @@ filter_dt <- function(.data, ..., group_by_ = character(0)) {
 
 #' @noRd
 unnest_dt <- function(.data, col) {
-    #https://www.johannesbgruber.eu/post/a-faster-unnest/#fn1
-    col <- rlang::ensyms(col)
-    clnms <- rlang::syms(setdiff(colnames(.data), as.character(col)))
-    tbl <- eval(
-        rlang::expr(.data[, as.character(unlist(!!!col)), by = list(!!!clnms)])
-    )
-    colnames(.data) <- c(as.character(clnms), as.character(col))
-    .data
+  # https://www.johannesbgruber.eu/post/a-faster-unnest/#fn1
+  col <- rlang::ensyms(col)
+  clnms <- rlang::syms(setdiff(colnames(.data), as.character(col)))
+  tbl <- eval(
+    rlang::expr(.data[, as.character(unlist(!!!col)), by = list(!!!clnms)])
+  )
+  colnames(.data) <- c(as.character(clnms), as.character(col))
+  .data
 }
 
 #' Converts a struct from matlab into a data table
 #' @noRd
 struct_to_dt <- function(struct, .id = NULL) {
-  if(length(struct)==0) {
+  if (length(struct) == 0) {
     data.table::data.table()
   } else {
-    list_str <-  apply(struct,3,
-                       function(x) lapply(x[,1],
-                                          function(x){
-                         x <- x %||% NA
-                         #unmatrix
-#                         if(all((dim(x) %||% 1) ==c(1,1)))
-                           c(unlist(x)) %||% rep(NA, length(x))
-
-                       }  ))
-    map_dtr(list_str, data.table::setDT, .id =.id)
-
+    list_str <- apply(
+      struct, 3,
+      function(x) {
+        lapply(
+          x[, 1],
+          function(x) {
+            x <- x %||% NA
+            # unmatrix
+            #                         if(all((dim(x) %||% 1) ==c(1,1)))
+            c(unlist(x)) %||% rep(NA, length(x))
+          }
+        )
+      }
+    )
+    map_dtr(list_str, data.table::setDT, .id = .id)
   }
 }
 
 #' @noRd
-changed_objects <- function(obj){
+changed_objects <- function(obj) {
   ## name <- rlang::eval_tidy(rlang::as_name(rlang::enquo(obj)))
-  oo <- ls(envir=.GlobalEnv)
-  mem <- data.table::data.table(mem = lapply(oo, function(x)  do.call(data.table::address,list(rlang::sym(x))) ) %>% unlist(), names = oo)
+  oo <- ls(envir = .GlobalEnv)
+  mem <- data.table::data.table(mem = lapply(oo, function(x) do.call(data.table::address, list(rlang::sym(x)))) %>% unlist(), names = oo)
 
   loc <- data.table::address(force(obj))
-  changed <- mem[mem ==loc,]$names
-  if(length(changed)>1){
-    message_verbose("The following objects have been changed in place: ", paste0(changed,sep =", "))
+  changed <- mem[mem == loc, ]$names
+  if (length(changed) > 1) {
+    message_verbose("The following objects have been changed in place: ", paste0(changed, sep = ", "))
   } else {
     message_verbose(changed, " has been changed in place.")
   }
@@ -145,7 +149,7 @@ changed_objects <- function(obj){
 #' @noRd
 distinct. <- function(.df, ..., .keep_all = FALSE) {
   oldclass <- class(.df)
-  .df <- tidytable::distinct.(.df = .df, ..., .keep_all = .keep_all) 
+  .df <- tidytable::distinct.(.df = .df, ..., .keep_all = .keep_all)
   class(.df) <- oldclass
   .df
 }
@@ -154,7 +158,7 @@ distinct. <- function(.df, ..., .keep_all = FALSE) {
 #' #' @noRd
 #' rename. <- function(.df, ...) {
 #'   oldclass <- class(.df)
-#'   .df <- tidytable::rename.(.df = .df, ...) 
+#'   .df <- tidytable::rename.(.df = .df, ...)
 #'   class(.df) <- oldclass
 #'   .df
 #' }
@@ -162,45 +166,51 @@ distinct. <- function(.df, ..., .keep_all = FALSE) {
 #' @noRd
 select. <- function(.df, ...) {
   oldclass <- class(.df)
-    .df <- tidytable::select.(.df = .df, ...)  
+  .df <- tidytable::select.(.df = .df, ...)
   class(.df) <- oldclass
   .df
 }
 
 
 #' @noRd
-mutate. <- function(.df, ..., 
-                    .by = NULL, 
-                    .keep = c("all", "used", "unused","none") ) {
+mutate. <- function(.df, ...,
+                    .by = NULL,
+                    .keep = c("all", "used", "unused", "none")) {
   oldclass <- class(.df)
-  if(length(.by)>0) {
-    .df <- tidytable::mutate.(.df = .df, ...,
-                              .by = .by, 
-                              .keep = .keep)  
+  if (length(.by) > 0) {
+    .df <- tidytable::mutate.(
+      .df = .df, ...,
+      .by = .by,
+      .keep = .keep
+    )
   } else {
-  #much faster to remove the by=character(0) when not needed
-        .df <- tidytable::mutate.(.df = .df, ...,
-                              .keep = .keep)  
+    # much faster to remove the by=character(0) when not needed
+    .df <- tidytable::mutate.(
+      .df = .df, ...,
+      .keep = .keep
+    )
   }
-  
+
   class(.df) <- oldclass
   .df
 }
 
 #' @noRd
-filter. <- function(.df, ..., 
+filter. <- function(.df, ...,
                     .by = NULL) {
   oldclass <- class(.df)
-  .df <- tidytable::filter.(.df = .df, ...,
-                            .by = .by)
+  .df <- tidytable::filter.(
+    .df = .df, ...,
+    .by = .by
+  )
   class(.df) <- oldclass
   .df
 }
 
 #' @noRd
-summarize. <- function(.df, ..., .by= NULL, .sort = FALSE) {
+summarize. <- function(.df, ..., .by = NULL, .sort = FALSE) {
   oldclass <- class(.df)
-  .df <- tidytable::summarize.(.df = .df, ...,.by = .by, .sort = .sort)
+  .df <- tidytable::summarize.(.df = .df, ..., .by = .by, .sort = .sort)
   class(.df) <- oldclass
   .df
 }

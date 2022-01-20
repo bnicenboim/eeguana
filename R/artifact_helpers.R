@@ -3,16 +3,17 @@ window_samples <- function(window, sampling_rate, unit) {
   if (!is.numeric(window) || window < 0) {
     stop("`window` should be a positive number.", call. = FALSE)
   }
-  
+
   window_s <- round(as_sample_int(window, sampling_rate = sampling_rate, .unit = unit) - 1L)
-  
-  if (window_s <= 0)
+
+  if (window_s <= 0) {
     stop("The `window` needs to contain at least one sample.")
+  }
   window_s
 }
 
 
-lim_samples <- function(lim, sampling_rate, unit){
+lim_samples <- function(lim, sampling_rate, unit) {
   if (length(lim) < 2) {
     stop("Two values for `lim` are needed", call. = FALSE)
   }
@@ -23,17 +24,16 @@ lim_samples <- function(lim, sampling_rate, unit){
 
 #' @noRd
 events_artif_custom <- function(.signal, ...,
-                             fun,
-                              args) {
-
-  if ("window_samples" %in% names(args) && 
-      args$window_samples >= (args$lim_samples[2] - args$lim_samples[1])) {
-      warning(
-        "The number of samples in `window` (", args$window_samples,
-        ") should be smaller than half of the samples contained in  `lim` (",
-        (args$lim_samples[2] - args$lim_samples[1]) / 2, ")."
-      )
-    }
+                                fun,
+                                args) {
+  if ("window_samples" %in% names(args) &&
+    args$window_samples >= (args$lim_samples[2] - args$lim_samples[1])) {
+    warning(
+      "The number of samples in `window` (", args$window_samples,
+      ") should be smaller than half of the samples contained in  `lim` (",
+      (args$lim_samples[2] - args$lim_samples[1]) / 2, ")."
+    )
+  }
 
   artifacts_found <- search_artifacts(.signal,
     ...,
@@ -53,7 +53,6 @@ events_artif_custom <- function(.signal, ...,
     sample_range = args$lim_samples,
     .type = paste(fun_txt, args_txt, sep = "_")
   )
-
 }
 
 #' @noRd
@@ -68,16 +67,18 @@ detect_minmax <- function(x, args = list(window_samples = NULL, threshold = NULL
 
 
 #' @noRd
-detect_peak <- function(x, args = list(window_samples = NULL, threshold = NULL)){
-    ##TODO better version of findpeaks
-  peaks <-  pracma::findpeaks(c(x), minpeakheight = args$threshold,
-                                minpeakdistance = args$window_samples,
-                                        ##setting threshold for avoiding flat peaks
-                                threshold = .0001)[,2]
-    x <- rep(FALSE, length(x))
-    x[peaks] <- TRUE
-    x
- }
+detect_peak <- function(x, args = list(window_samples = NULL, threshold = NULL)) {
+  ## TODO better version of findpeaks
+  peaks <- pracma::findpeaks(c(x),
+    minpeakheight = args$threshold,
+    minpeakdistance = args$window_samples,
+    ## setting threshold for avoiding flat peaks
+    threshold = .0001
+  )[, 2]
+  x <- rep(FALSE, length(x))
+  x[peaks] <- TRUE
+  x
+}
 
 #' @noRd
 detect_step <- function(x, args = list(window_samples = NULL, threshold = NULL)) {
@@ -118,7 +119,7 @@ add_missing_samples <- function(signal) {
 add_intervals_from_artifacts <- function(sampling_rate, artifacts_tbl, sample_range, .type) {
   events_found <- artifacts_tbl %>%
     split(., .$.id) %>%
-    map_dtr(function(.eeg)
+    map_dtr(function(.eeg) {
       .eeg %>%
         dplyr::select(-dplyr::one_of(obligatory_cols[[".signal"]])) %>%
         imap_dtr(~ {
@@ -157,9 +158,9 @@ add_intervals_from_artifacts <- function(sampling_rate, artifacts_tbl, sample_ra
               .channel = .y
             )
           }
-        }), .id = TRUE)
+        })
+    }, .id = TRUE)
   events_found[, .id := as.integer(.id)]
- message_verbose(paste0("# Number of intervals with artifacts: ", nrow(events_found)))
+  message_verbose(paste0("# Number of intervals with artifacts: ", nrow(events_found)))
   events_found
-
 }

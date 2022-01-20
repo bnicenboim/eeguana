@@ -7,7 +7,5 @@ test_that("prints correctly", {
 })
 
 test_that("summary is correct", {
- expect_snapshot(summary(data_faces_10_trials))
+  expect_snapshot(summary(data_faces_10_trials))
 })
-
-

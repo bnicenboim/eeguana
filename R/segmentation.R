@@ -15,12 +15,12 @@
 #' @examples
 #'
 #' # Segments 500ms before and 1000ms after the triggers s70 and s71
-#' data_faces_10_trials %>% eeg_segment(.description %in% c("s70","s71"), 
-#'                                      .lim = c(-5,1))
+#' data_faces_10_trials %>% eeg_segment(.description %in% c("s70", "s71"),
+#'   .lim = c(-5, 1)
+#' )
 #'
 #' # Segments 500ms before and  after the triggers all the triggers (which start with s)
-#' data_faces_10_trials %>% eeg_segment(startsWith(.description,"s"))
-#'
+#' data_faces_10_trials %>% eeg_segment(startsWith(.description, "s"))
 #' @return An `eeg_lst`.
 #'
 #'
@@ -30,17 +30,17 @@ eeg_segment <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s") {
 }
 #' @export
 eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s") {
-  #to avoid no visible binding for global variable
+  # to avoid no visible binding for global variable
   first_sample <- NULL
-  
+
   dots <- rlang::enquos(...)
   .end <- rlang::enquo(.end)
 
-  times0 <- filter_dt(.data$.events, !!!dots)[,-c(".channel",".final")] %>%
+  times0 <- filter_dt(.data$.events, !!!dots)[, -c(".channel", ".final")] %>%
     unique()
-  data.table::setnames(times0,".initial", ".first_sample" )
+  data.table::setnames(times0, ".initial", ".first_sample")
 
-  #old tidyverse version:
+  # old tidyverse version:
   ## times0 <- dplyr::filter(dplyr::as_tibble(.data$.events), !!!dots) %>%
   ##   dplyr::select(-.channel, -.final) %>%
   ##   dplyr::rename(.first_sample = .initial) %>%
@@ -48,10 +48,10 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
 
   if (!rlang::quo_is_missing(.end)) {
     times_end <-
-      filter_dt(.data$.events, !!.end)[,-c(".channel",".final")] %>%
-    unique()
-    data.table::setnames(times_end,".initial", ".first_sample" )
-    #tidyverse version:
+      filter_dt(.data$.events, !!.end)[, -c(".channel", ".final")] %>%
+      unique()
+    data.table::setnames(times_end, ".initial", ".first_sample")
+    # tidyverse version:
     ## times_end <- dplyr::filter(dplyr::as_tibble(.data$.events), !!.end) %>%
     ##   dplyr::select(-.channel, -.final) %>%
     ##   dplyr::rename(.first_sample = .initial) %>%
@@ -71,19 +71,18 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
       .lower = .first_sample + sample_lim[[1]] %>% as_integer(),
       .upper = .first_sample + sample_lim[[2]] %>% as_integer(),
       .new_id = seq_len(.N)
-     )]
+    )]
 
     ## I don't want to remove extra columns:
-    ##if(length(seg_names)>0) times0[,`:=`(c(seg_names), NULL)] #deletes cols in seg_names
-
+    ## if(length(seg_names)>0) times0[,`:=`(c(seg_names), NULL)] #deletes cols in seg_names
   } else if (rlang::quo_is_missing(.end)) {
     stop("Wrong dimension of .lim")
   } else if (!rlang::quo_is_missing(.end)) {
     # to avoid no visible binding for global variable
     .zero <- NULL
-#          warning(sprintf("Number of initial markers (%d) doesn't match the number of final markers (%d)", nrow(times0), nrow(times_end)))
+    #          warning(sprintf("Number of initial markers (%d) doesn't match the number of final markers (%d)", nrow(times0), nrow(times_end)))
     times0[, .zero := TRUE]
-    times_end[, .zero:= FALSE]
+    times_end[, .zero := FALSE]
 
     times <- rbind(times0, times_end)
     data.table::setorder(times, .id, .first_sample)
@@ -96,46 +95,45 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
     ##       unmatched_final <- times %>%
     ##           dplyr::filter(!dplyr::lag(.zero,default = FALSE), !.zero)%>%
     ##           dplyr::select(-.zero)
-    if(nrow(unmatched_initial) >0){
-      warning("Unmatched initial segments:\n\n",  paste0(
-          utils::capture.output(unmatched_initial%>%
-        dplyr::rename(.initial = .first_sample)),
-          collapse = "\n"
-        ))
+    if (nrow(unmatched_initial) > 0) {
+      warning("Unmatched initial segments:\n\n", paste0(
+        utils::capture.output(unmatched_initial %>%
+          dplyr::rename(.initial = .first_sample)),
+        collapse = "\n"
+      ))
       times_end <- rbind(times_end, unmatched_initial, fill = TRUE)
-      data.table::setorder(times_end,.id, .first_sample)
+      data.table::setorder(times_end, .id, .first_sample)
 
-      times0 <- times0[!unmatched_initial, on = c(".id",".type",".description",".first_sample"), allow.cartesian = TRUE] %>%
-        rbind(., unmatched_initial[,.type := "incorrect segment"], fill = TRUE)
-      data.table::setorder(times0,.id, .first_sample)
+      times0 <- times0[!unmatched_initial, on = c(".id", ".type", ".description", ".first_sample"), allow.cartesian = TRUE] %>%
+        rbind(., unmatched_initial[, .type := "incorrect segment"], fill = TRUE)
+      data.table::setorder(times0, .id, .first_sample)
       ## times0 <- dplyr::anti_join(times0, unmatched_initial, by =c(".id",".type",".description",".first_sample")) %>%
       ##           dplyr::bind_rows(unmatched_initial %>% dplyr::mutate(.type = "incorrect segment")) %>%
       ##           dplyr::arrange(.id, .first_sample)
-    } 
-    if(nrow(unmatched_final) >0){
-      warning("Unmatched final segments:\n\n",  paste0(
-          utils::capture.output(unmatched_final%>%
-        dplyr::rename(.initial = .first_sample)),
-          collapse = "\n"
-        ))
-      times0 <- rbind(times0, unmatched_final[,.type := "incorrect segment"], fill = TRUE)
+    }
+    if (nrow(unmatched_final) > 0) {
+      warning("Unmatched final segments:\n\n", paste0(
+        utils::capture.output(unmatched_final %>%
+          dplyr::rename(.initial = .first_sample)),
+        collapse = "\n"
+      ))
+      times0 <- rbind(times0, unmatched_final[, .type := "incorrect segment"], fill = TRUE)
       data.table::setorder(times0, .id, .first_sample)
     }
-    times0[,.zero := NULL]
+    times0[, .zero := NULL]
     times_end[, .zero := NULL]
-    
+
     seg_names <- colnames(times0)[!startsWith(colnames(times0), ".")]
 
     times0[, `:=`(
       .lower = .first_sample,
       .upper = times_end$.first_sample,
       .new_id = seq_len(.N)
-     )]
+    )]
 
     # don't remove extra cols
- #    if(length(seg_names)>0) times0[,`:=`(c(seg_names), NULL)] #deletes cols in seg_names
-
-  }       
+    #    if(length(seg_names)>0) times0[,`:=`(c(seg_names), NULL)] #deletes cols in seg_names
+  }
 
   times0[, .first_sample := sample_int(.first_sample, sampling_rate = sampling_rate(.data))]
   # update the signal tbl:
@@ -151,28 +149,33 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
   # .sample is now the lower bound
   # x..sample is the original columns
   new_signal[, .sample := x..sample - .first_sample + 1L][
-    , .first_sample := NULL][,
-                             x..sample := NULL ]
-  
+    , .first_sample := NULL
+  ][
+    ,
+    x..sample := NULL
+  ]
+
   data.table::setnames(new_signal, ".new_id", ".id")
-  ##TODO: this should probablu go sooner, it makes NA all the problematic segments
-  
-  data.table::set(new_signal, 
-                  which(new_signal$.id %in% times0[.type =="incorrect segment",]$.id),
-                  c(".sample",channel_names(new_signal)), NA)
+  ## TODO: this should probablu go sooner, it makes NA all the problematic segments
+
+  data.table::set(
+    new_signal,
+    which(new_signal$.id %in% times0[.type == "incorrect segment", ]$.id),
+    c(".sample", channel_names(new_signal)), NA
+  )
   attributes(new_signal$.sample) <- attributes(.data$.signal$.sample)
   data.table::setkey(new_signal, .id, .sample)
-  
+
   .data$.signal <- new_signal
 
   .data$.events <- update_events(.data$.events, times0)
   ## data.table::setattr(.data$.events,"class",c("events_tbl",class(.data$.events)))
 
 
-   message_verbose(paste0("# Total of ", max(.data$.signal$.id), " segments found."))
+  message_verbose(paste0("# Total of ", max(.data$.signal$.id), " segments found."))
 
-  #remove the irrelevant columns:
-  times0[,`:=`(c(".first_sample", ".lower",".upper",".new_id"), NULL)]
+  # remove the irrelevant columns:
+  times0[, `:=`(c(".first_sample", ".lower", ".upper", ".new_id"), NULL)]
 
 
 
@@ -184,17 +187,17 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
 }
 
 
-update_segments_tbl <- function(old_segments,new_events){
+update_segments_tbl <- function(old_segments, new_events) {
   new_events <- data.table::copy(new_events)
   # remove the . from the segments so that it's clear that it's not protected
   data.table::setnames(new_events, -1, chr_remove(colnames(new_events)[-1], "^\\."))
-  #right join:
-  new_segments <-  old_segments[new_events, on =".id", allow.cartesian = TRUE ][, .id := 1:.N]
+  # right join:
+  new_segments <- old_segments[new_events, on = ".id", allow.cartesian = TRUE][, .id := 1:.N]
 
   if (!is.null(new_segments$.recording) && !anyNA(new_segments$.recording)) {
-    new_segments <- new_segments[,segment := seq_len(.N) ,by = ".recording"]
+    new_segments <- new_segments[, segment := seq_len(.N), by = ".recording"]
   }
-new_segments
+  new_segments
 }
 
 
@@ -208,11 +211,11 @@ new_segments
 #' @noRd
 update_events <- function(events_dt, segmentation) {
   segmentation <- data.table:::shallow(segmentation)
-  #needs to remove the class quickly:
+  # needs to remove the class quickly:
   data.table::setDT(segmentation)
-  segmentation[, .new_id := if (!".new_id" %in% colnames(segmentation)) .id else .new_id ]
+  segmentation[, .new_id := if (!".new_id" %in% colnames(segmentation)) .id else .new_id]
   segmentation[, .first_sample := if (!".first_sample" %in% colnames(segmentation)) 1 else .first_sample]
-  segmentation <- segmentation[, c(".id", ".first_sample", ".lower",".upper",".new_id")]
+  segmentation <- segmentation[, c(".id", ".first_sample", ".lower", ".upper", ".new_id")]
   cols_events <- colnames(events_dt)
   cols_events_temp <- unique(c(cols_events, colnames(segmentation), "i..initial"))
   # i..initial is the.initial of events

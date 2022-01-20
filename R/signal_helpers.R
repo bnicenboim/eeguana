@@ -8,40 +8,39 @@ sinc <- function(x) {
 }
 
 #' Compute the one-dimensional inverse discrete Fourier Transform.
-#' 
+#'
 #' This function computes the inverse of the one-dimensional n-point discrete Fourier
 #'  transform computed by fft using a wrapper of `fft(z, inverse= TRUE)/length(z)` with
-#'   an extra argument making it similar to   [numpy.fft.ifft](https://docs.scipy.org/doc/numpy-1.17.0/reference/generated/numpy.fft.ifft.html#numpy.fft.ifft). 
+#'   an extra argument making it similar to   [numpy.fft.ifft](https://docs.scipy.org/doc/numpy-1.17.0/reference/generated/numpy.fft.ifft.html#numpy.fft.ifft).
 #'  For a general description of the algorithm and definitions, see [fft](stats::fft) and [numpy.fft](https://docs.scipy.org/doc/numpy-1.17.0/reference/generated/numpy.fft.ifft.html#numpy.fft.ifft).
-#' 
+#'
 #' The input should be ordered in the same way as is returned by fft, i.e.,
 #' (*if I converted the indexes from python correctly*)
-#' 
+#'
 #' * `a[1]` should contain the zero frequency term,
 #' * `a[2:ceiling(n/2)]` should contain the positive-frequency terms,
-#' * `a[ceiling(n/2) + 2:length(a)]` should contain the negative-frequency terms, 
+#' * `a[ceiling(n/2) + 2:length(a)]` should contain the negative-frequency terms,
 #' in increasing order starting from the most negative frequency.
-#' * For an even number of input points, `a[ceiling(n/2)]` represents 
-#' the sum of the values at the positive and negative Nyquist frequencies, 
+#' * For an even number of input points, `a[ceiling(n/2)]` represents
+#' the sum of the values at the positive and negative Nyquist frequencies,
 #' as the two are aliased together. See see [numpy.fft](https://docs.scipy.org/doc/numpy-1.17.0/reference/generated/numpy.fft.ifft.html#numpy.fft.ifft) for details.
-#' 
+#'
 #' **Notes**
-#' 
-#' If the input parameter `n` is larger than the size of the input, 
-#' the input is padded by appending zeros at the end. Even though this is 
-#' the common approach, it might lead to surprising results. If a different padding 
+#'
+#' If the input parameter `n` is larger than the size of the input,
+#' the input is padded by appending zeros at the end. Even though this is
+#' the common approach, it might lead to surprising results. If a different padding
 #' is desired, it must be performed before calling ifft.
-#' 
+#'
 #' @inheritParams sig_fft
 #' @return A vector
 #' @export
 #'
 #' @examples
-#' 
+#'
 #' a <- c(0, 4, 0, 0)
 #' sig_ifft(a)
-#' sig_ifft(sig_fft(a)) == a  
-#'  
+#' sig_ifft(sig_fft(a)) == a
 sig_ifft <- function(x, n = NULL) {
   if (is.null(n) || n == length(x)) {
     x
@@ -54,22 +53,21 @@ sig_ifft <- function(x, n = NULL) {
 }
 
 #' Compute the one-dimensional discrete Fourier Transform.
-#' 
-#' Computes the Discrete Fourier Transform (DFT) of an array 
-#' with a fast algorithm, the “Fast Fourier Transform” (FFT). Wrapper 
+#'
+#' Computes the Discrete Fourier Transform (DFT) of an array
+#' with a fast algorithm, the “Fast Fourier Transform” (FFT). Wrapper
 #' of [fft](stats::fft) with an extra argument similar to python's [numpy.fft.fft](https://docs.scipy.org/doc/numpy/reference/generated/numpy.fft.fft.html#numpy.fft.fft).
 #'
 #' @param x A vector
 #' @param n Length of the transformed axis of the output. If `n` is smaller
-#'  than the length of the input, the input is cropped. If it is larger, the input 
-#'  is padded with zeros. If n is not given, the length of the input along 
-#'  the axis specified by axis is used. 
+#'  than the length of the input, the input is cropped. If it is larger, the input
+#'  is padded with zeros. If n is not given, the length of the input along
+#'  the axis specified by axis is used.
 #'
 #'
 #' @examples
 #' a <- c(0, 4, 0, 0)
 #' sig_fft(a)
-#' 
 #' @export
 sig_fft <- function(x, n = NULL) {
   if (is.null(n) || n == length(x)) {
@@ -79,7 +77,7 @@ sig_fft <- function(x, n = NULL) {
   } else {
     x <- c(x, rep(0, n - length(x)))
   }
-  stats::fft(x) #/ length(x)
+  stats::fft(x) # / length(x)
 }
 
 #' Apply a digital filter forward and backward to a signal.
@@ -92,46 +90,48 @@ sig_fft <- function(x, n = NULL) {
 #' @param padlen The number of elements by which to extend `x` at both ends of `axis` before applying the filter.  This value must be less than ``x.shape[axis] - 1``.  ``padlen=0`` implies no padding. The default value is ``3 * max(len(a), len(b))``. (The type of padding is always odd, as the default of scipy.signal.filtfilt)
 #'
 #' @noRd
-sig_filtfilt <- function(x, b, a, padlen = 3 * max(length(a), length(b))){
+sig_filtfilt <- function(x, b, a, padlen = 3 * max(length(a), length(b))) {
 
   # ext = odd_ext(x, padlen) #edge = padlen
   # signal._arraytools.odd_ext(np.array([1,2,3,4,5,6,7,8,9,10]),3 )
-  if(padlen == 0){
-ext <- x
+  if (padlen == 0) {
+    ext <- x
   } else {
-  left_end = x[1]
-  left_ext = x[seq.int(from = padlen + 1, to = 2, by = -1)]
-  right_end = x[length(x)]
-  right_ext = x[seq.int(from = length(x)- 1, to = length(x) - padlen, by = -1)]
-  ext = c(2 * left_end - left_ext,
-                          x,
-                          2 * right_end - right_ext)
+    left_end <- x[1]
+    left_ext <- x[seq.int(from = padlen + 1, to = 2, by = -1)]
+    right_end <- x[length(x)]
+    right_ext <- x[seq.int(from = length(x) - 1, to = length(x) - padlen, by = -1)]
+    ext <- c(
+      2 * left_end - left_ext,
+      x,
+      2 * right_end - right_ext
+    )
   }
 
   # forward filter
   y <- signal::filter(filt = b, a = a, x = ext) # init = zi * ext[1]
- # backward filter
+  # backward filter
   y <- rev(signal::filter(filt = b, a = a, x = rev(y))) # init = zi * y[length(y)]
-  y[(padlen +1):(padlen +length(x))]
+  y[(padlen + 1):(padlen + length(x))]
 }
 
 
 #' Does the same as scipy.signal.l_filter_zi
 #' @noRd
-sig_lfilter_zi <- function(b, a){
+sig_lfilter_zi <- function(b, a) {
   # Determine initial state (solve zi = A*zi + B, see g)
-  if(a[1] != 1.0){
-       # Normalize the coefficients so a[0] == 1.
-        b = b / a[1]
-        a = a / a[1]
-  } else if(a[1] == 0) {
+  if (a[1] != 1.0) {
+    # Normalize the coefficients so a[0] == 1.
+    b <- b / a[1]
+    a <- a / a[1]
+  } else if (a[1] == 0) {
     a <- a[2:length(a)]
   }
-  if(length(a)!=length(b)) stop("a and b are of different size, please open a bug.")
+  if (length(a) != length(b)) stop("a and b are of different size, please open a bug.")
   n <- max(length(a), length(b))
   B <- b[2:length(b)] - a[2:length(a)] * b[1]
   A <- t(pracma::compan(a))
-  solve( diag(rep(1,n-1)) - A, B)
+  solve(diag(rep(1, n - 1)) - A, B)
 }
 
 #' @noRd
@@ -229,8 +229,12 @@ hamming <- function(M, sym = TRUE) {
   ## """
   ## # Docstring adapted from NumPy's hamming function
 
-  if (M < 1) return(numeric(0))
-  if (M == 1) return(1)
+  if (M < 1) {
+    return(numeric(0))
+  }
+  if (M == 1) {
+    return(1)
+  }
   odd <- M %% 2
   if (!sym && !odd) M <- M + 1
 
@@ -467,10 +471,11 @@ firwin <- function(N = NULL, cutoff = NULL, width = NULL, window = "hamming", pa
   ## Build up the coefficients.
   alpha <- 0.5 * (N - 1)
   m <- seq.int(0, N - 1) - alpha
-  h <- {
-    (bands[, 2] %>% map_matr(~ .x * sinc(.x %*% m)) %>% colSums()) -
-      (bands[, 1] %>% map_matr(~ .x * sinc(.x %*% m)) %>% colSums())
-  } %>%
+  h <-
+    {
+      (bands[, 2] %>% map_matr(~ .x * sinc(.x %*% m)) %>% colSums()) -
+        (bands[, 1] %>% map_matr(~ .x * sinc(.x %*% m)) %>% colSums())
+    } %>%
     # apply the window function.
     {
       . * win
@@ -503,28 +508,28 @@ firwin <- function(N = NULL, cutoff = NULL, width = NULL, window = "hamming", pa
 #' @param btype Filter type, one of ‘"low"’ for a low-pass filter, ‘"high"’ for a high-pass filter, ‘"stop"’ for a stop-band (band-reject) filter, or ‘"pass"’ for a pass-band filter.
 #' @noRd
 #'
-iirfilter <- function(n, Wn, rp, rs,  btype, type = c("butter", "cheby1", "cheby2", "ellip"), output = c("ba", "zpk", "sos")){
-
+iirfilter <- function(n, Wn, rp, rs, btype, type = c("butter", "cheby1", "cheby2", "ellip"), output = c("ba", "zpk", "sos")) {
   type <- match.arg(type)
 
-  out <- switch(type, butter = signal::butter(n, W = Wn, type = btype),
-                cheby1 = signal::cheby1(n, Rp = rp, W = Wn, type = btype),
-                cheby2 = signal::cheby2(n, Rp = rp, W = Wn, type = btype),
-                ellip = signal::ellip(n, Rp = rp, Rs = rs, W = Wn, type = btype),
-                )
+  out <- switch(type,
+    butter = signal::butter(n, W = Wn, type = btype),
+    cheby1 = signal::cheby1(n, Rp = rp, W = Wn, type = btype),
+    cheby2 = signal::cheby2(n, Rp = rp, W = Wn, type = btype),
+    ellip = signal::ellip(n, Rp = rp, Rs = rs, W = Wn, type = btype),
+  )
 
   output <- match.arg(output)
-  if(output == "ba"){
-    list(b = out$b, a =out$a)
-    } else if(output == "zpk"){
-      zpk = signal::as.Zpg(out)
-      list(z = zpk$zero, p = zpk$pole, k = zpk$gain )
-    } else if(output == "sos"){
-      stop("sos not available yet")
-      ## require_pkg("gsignal")
-       ## sos <- gsignal::as.Sos(out)
-       ## list(sos = sos$sos, g = sos$g)
-    }
+  if (output == "ba") {
+    list(b = out$b, a = out$a)
+  } else if (output == "zpk") {
+    zpk <- signal::as.Zpg(out)
+    list(z = zpk$zero, p = zpk$pole, k = zpk$gain)
+  } else if (output == "sos") {
+    stop("sos not available yet")
+    ## require_pkg("gsignal")
+    ## sos <- gsignal::as.Sos(out)
+    ## list(sos = sos$sos, g = sos$g)
+  }
 }
 
 
@@ -611,48 +616,53 @@ iirfilter <- function(n, Wn, rp, rs,  btype, type = c("butter", "cheby1", "cheby
 
 #' @noRd
 #'
-iirdesign <- function(wp, ws, gpass, gstop, type='ellip', output='ba'){
+iirdesign <- function(wp, ws, gpass, gstop, type = "ellip", output = "ba") {
 
-    ## except KeyError as e:
-    ##     raise ValueError("Invalid IIR filter type: %s" % type) from e
-    ## except IndexError as e:
-    ##     raise ValueError(("%s does not have order selection. Use "
-                          ## "iirfilter function.") % type) from e
-    ## wp = atleast_1d(wp)
-    ## ws = atleast_1d(ws)
+  ## except KeyError as e:
+  ##     raise ValueError("Invalid IIR filter type: %s" % type) from e
+  ## except IndexError as e:
+  ##     raise ValueError(("%s does not have order selection. Use "
+  ## "iirfilter function.") % type) from e
+  ## wp = atleast_1d(wp)
+  ## ws = atleast_1d(ws)
 
-    ## if wp.shape[0] != ws.shape[0] or wp.shape not in [(1,), (2,)]:
-    ##     raise ValueError("wp and ws must have one or two elements each, and"
-    ##                      "the same shape, got %s and %s"
-    ##                      % (wp.shape, ws.shape))
-    ## if wp.shape[0] == 2:
-    ##     if wp[0] < 0 or ws[0] < 0:
-    ##         raise ValueError("Values for wp, ws can't be negative")
-    ##     elif 1 < wp[1] or 1 < ws[1]:
-    ##         raise ValueError("Values for wp, ws can't be larger than 1")
-    ##     elif not((ws[0] < wp[0] and wp[1] < ws[1]) or
-    ##         (wp[0] < ws[0] and ws[1] < wp[1])):
-    ##         raise ValueError("Passband must lie strictly inside stopband"
-    ##                      " or vice versa")
+  ## if wp.shape[0] != ws.shape[0] or wp.shape not in [(1,), (2,)]:
+  ##     raise ValueError("wp and ws must have one or two elements each, and"
+  ##                      "the same shape, got %s and %s"
+  ##                      % (wp.shape, ws.shape))
+  ## if wp.shape[0] == 2:
+  ##     if wp[0] < 0 or ws[0] < 0:
+  ##         raise ValueError("Values for wp, ws can't be negative")
+  ##     elif 1 < wp[1] or 1 < ws[1]:
+  ##         raise ValueError("Values for wp, ws can't be larger than 1")
+  ##     elif not((ws[0] < wp[0] and wp[1] < ws[1]) or
+  ##         (wp[0] < ws[0] and ws[1] < wp[1])):
+  ##         raise ValueError("Passband must lie strictly inside stopband"
+  ##                      " or vice versa")
 
-    band_type <- 2 * (length(wp) - 1) + 1
-    if (wp[1] >= ws[1])
-        band_type <- band_type + 1
-
-
-    btype = switch(band_type,
-                   'low',
-                   'high',
-                   'stop',
-                   'pass')
+  band_type <- 2 * (length(wp) - 1) + 1
+  if (wp[1] >= ws[1]) {
+    band_type <- band_type + 1
+  }
 
 
-out <- switch(type,
-              butter = signal::buttord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
-              ellip =  signal::ellipord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
-              cheby1 = signal::cheb1ord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
-              stop("type can be butter, ellip or cheby1"))
+  btype <- switch(band_type,
+    "low",
+    "high",
+    "stop",
+    "pass"
+  )
 
-iirfilter(out$n, out$Wc, rp=gpass, rs=gstop, btype=btype,
-                     type=type, output=output)
+
+  out <- switch(type,
+    butter = signal::buttord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
+    ellip =  signal::ellipord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
+    cheby1 = signal::cheb1ord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
+    stop("type can be butter, ellip or cheby1")
+  )
+
+  iirfilter(out$n, out$Wc,
+    rp = gpass, rs = gstop, btype = btype,
+    type = type, output = output
+  )
 }

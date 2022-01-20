@@ -1,6 +1,6 @@
 library(eeguana)
 set.seed(123)
-options(eeguana.verbose=FALSE)
+options(eeguana.verbose = FALSE)
 
 N <- 1000
 signal <- dplyr::tibble(
@@ -36,10 +36,10 @@ data_sin_more_ref <- data.table::copy(data_sin_more)
 data_sin_X1 <- eeg_filt_low_pass(data_sin, .freq = 500 * 1.5 / (2 * pi))
 
 data_sin_X1_iir <- eeg_filt_low_pass(data_sin, .freq = 500 * 1.5 / (2 * pi), .config = list(method = "iir"))
- # data_sin_X1r <- data.table::copy(data_sin)
-  # eeg_filt_low_pass(data_sin_X1r, .freq = 500 * 1.5 / (2 * pi), .by_reference = TRUE)
-  # data_sin_X1r_iir <- data.table::copy(data_sin)
-  # eeg_filt_low_pass(data_sin_X1r_iir, .freq = 500 * 1.5 / (2 * pi), .config = list(method = "iir"), .by_reference = TRUE)
+# data_sin_X1r <- data.table::copy(data_sin)
+# eeg_filt_low_pass(data_sin_X1r, .freq = 500 * 1.5 / (2 * pi), .by_reference = TRUE)
+# data_sin_X1r_iir <- data.table::copy(data_sin)
+# eeg_filt_low_pass(data_sin_X1r_iir, .freq = 500 * 1.5 / (2 * pi), .config = list(method = "iir"), .by_reference = TRUE)
 
 ## microbenchmark::microbenchmark(
 ## eeg_filt_low_pass(data_sin, .freq = 500 * 1 / (2 * pi)),
@@ -59,9 +59,9 @@ data_sin_X1_iir <- eeg_filt_low_pass(data_sin, .freq = 500 * 1.5 / (2 * pi), .co
 ## plot(data_sin_X1_iir)
 
 
-test_that("low pass default pars",{
-  expect_equal(data_sin_X1, eeg_filt_low_pass(data_sin, .freq = 500 * 1.5 / (2 * pi), .config = list(h_trans_bandwidth = 29.8415518297304 )))
-  expect_equal( data_sin_X1_iir, eeg_filt_low_pass(data_sin, .freq = 500 * 1.5 / (2 * pi),  .config = list(method = "iir",type = "butter", order = 6)))
+test_that("low pass default pars", {
+  expect_equal(data_sin_X1, eeg_filt_low_pass(data_sin, .freq = 500 * 1.5 / (2 * pi), .config = list(h_trans_bandwidth = 29.8415518297304)))
+  expect_equal(data_sin_X1_iir, eeg_filt_low_pass(data_sin, .freq = 500 * 1.5 / (2 * pi), .config = list(method = "iir", type = "butter", order = 6)))
 })
 
 test_that("low pass signal fir", {
@@ -74,18 +74,22 @@ test_that("low pass signal fir", {
 
 test_that("low pass iir and fir are not too different", {
   expect_equal(data_sin_X1 %>% dplyr::filter(as_time(.sample) %>% between(.25, 1.75)),
-               data_sin_X1_iir %>% dplyr::filter(as_time(.sample) %>% between(.25, 1.75)), tolerance = .01)
+    data_sin_X1_iir %>% dplyr::filter(as_time(.sample) %>% between(.25, 1.75)),
+    tolerance = .01
+  )
 })
 
 test_that("low pass iir python implementation is not too different", {
-   eeguana:::skip_on_actions()
-   skip_on_ci()
-   mne <- reticulate::import("mne")
-  X3_iirmne <-  mne$filter$filter_data(signal$X3, sfreq =500, h_freq = 500 * 1.5 / (2 * pi), l_freq = NULL, method='iir', iir_params = list(ftype = "butter", order = 6, output ="ba"))
+  eeguana:::skip_on_actions()
+  skip_on_ci()
+  mne <- reticulate::import("mne")
+  X3_iirmne <- mne$filter$filter_data(signal$X3, sfreq = 500, h_freq = 500 * 1.5 / (2 * pi), l_freq = NULL, method = "iir", iir_params = list(ftype = "butter", order = 6, output = "ba"))
 
   expect_equal(data_sin_X1_iir$.signal$X3 %>% c(),
-               X3_iirmne %>% c(), tolerance = .001)
-#ggplot(data = data.frame(y= c(X3_iirmne), x=seq_along(c(X3_iirmne))), aes(x=x,y=y)) + geom_line()
+    X3_iirmne %>% c(),
+    tolerance = .001
+  )
+  # ggplot(data = data.frame(y= c(X3_iirmne), x=seq_along(c(X3_iirmne))), aes(x=x,y=y)) + geom_line()
 })
 
 data_sin_X3 <- eeg_filt_high_pass(data_sin, .freq = 500 * 3 / (2 * pi))
@@ -101,27 +105,29 @@ test_that("high pass signal", {
   expect_equal(data_sin_X3$.signal$X3, data_sin$.signal$X3, tolerance = .002)
   expect_lte(max(data_sin_X3$.signal$X2, data_sin_X3$.signal$X1), .004)
 })
-test_that("high pass default pars",{
-  expect_equal(data_sin_X3, eeg_filt_high_pass(data_sin, .freq = 500 * 3 / (2 * pi),  .config = list(l_trans_bandwidth = 59.6831036594608  )))
-  expect_equal( data_sin_X3_iir, eeg_filt_high_pass(data_sin, .freq = 500 * 3 / (2 * pi),  .config = list(method = "iir",type = "butter", order = 6)))
+test_that("high pass default pars", {
+  expect_equal(data_sin_X3, eeg_filt_high_pass(data_sin, .freq = 500 * 3 / (2 * pi), .config = list(l_trans_bandwidth = 59.6831036594608)))
+  expect_equal(data_sin_X3_iir, eeg_filt_high_pass(data_sin, .freq = 500 * 3 / (2 * pi), .config = list(method = "iir", type = "butter", order = 6)))
 })
 
-#plot(data_sin_X3_iir)
-#plot(data_sin_X3)
+# plot(data_sin_X3_iir)
+# plot(data_sin_X3)
 
 test_that("high pass iir python implementation is not too different", {
- eeguana:::skip_on_actions()
- skip_on_ci()
- mne <- reticulate::import("mne")
-  X3_iirmne <-  mne$filter$filter_data(signal$X3, sfreq =500, l_freq = 500 * 3 / (2 * pi), h_freq = NULL, method='iir', iir_params = list(ftype = "butter", order = 6, output ="ba"))
+  eeguana:::skip_on_actions()
+  skip_on_ci()
+  mne <- reticulate::import("mne")
+  X3_iirmne <- mne$filter$filter_data(signal$X3, sfreq = 500, l_freq = 500 * 3 / (2 * pi), h_freq = NULL, method = "iir", iir_params = list(ftype = "butter", order = 6, output = "ba"))
 
   expect_equal(data_sin_X3_iir$.signal$X3 %>% c(),
-               X3_iirmne %>% c(), tolerance = .01)
-#ggplot(data = data.frame(y= c(X3_iirmne), x=seq_along(c(X3_iirmne))), aes(x=x,y=y)) + geom_line()
+    X3_iirmne %>% c(),
+    tolerance = .01
+  )
+  # ggplot(data = data.frame(y= c(X3_iirmne), x=seq_along(c(X3_iirmne))), aes(x=x,y=y)) + geom_line()
 })
 
 data_sin_X2 <- eeg_filt_band_pass(data_sin, .freq = c(1.5, 2.2) * 500 / (2 * pi))
-data_sin_X2_iir <- eeg_filt_band_pass(data_sin, .freq = c(1.5, 2.2) * 500 / (2 * pi), .config = list(method ="iir"))
+data_sin_X2_iir <- eeg_filt_band_pass(data_sin, .freq = c(1.5, 2.2) * 500 / (2 * pi), .config = list(method = "iir"))
 # data_sin_X2r <- data.table::copy(data_sin)
 # eeg_filt_band_pass(data_sin_X2r, .freq = c(1.5, 2.2) * 500 / (2 * pi), .by_reference = TRUE)
 
@@ -134,24 +140,26 @@ test_that("band pass signal", {
   expect_lte(max(data_sin_X2$.signal$X3, data_sin_X2$.signal$X1), .004)
 })
 
-test_that("band pass default pars",{
-  expect_equal(data_sin_X2, eeg_filt_band_pass(data_sin, .freq = c(1.5, 2.2)  * 500 / (2 * pi),  .config = list(l_trans_bandwidth = 29.8415518297304, h_trans_bandwidth = 43.7676093502712    )))
-  expect_equal(data_sin_X2_iir, eeg_filt_band_pass(data_sin, .freq = c(1.5, 2.2)  * 500/ (2 * pi),  .config = list(method = "iir",type = "butter", order = 4)))
+test_that("band pass default pars", {
+  expect_equal(data_sin_X2, eeg_filt_band_pass(data_sin, .freq = c(1.5, 2.2) * 500 / (2 * pi), .config = list(l_trans_bandwidth = 29.8415518297304, h_trans_bandwidth = 43.7676093502712)))
+  expect_equal(data_sin_X2_iir, eeg_filt_band_pass(data_sin, .freq = c(1.5, 2.2) * 500 / (2 * pi), .config = list(method = "iir", type = "butter", order = 4)))
 })
 
 test_that("band pass iir python implementation is not too different", {
- eeguana:::skip_on_actions()
- skip_on_ci()
- mne <- reticulate::import("mne")
-  X2_iirmne <-  mne$filter$filter_data(signal$X3, sfreq =500, l_freq = 500 * 1.5 / (2 * pi), h_freq = 500 * 2.2 / (2 * pi), method='iir', iir_params = list(ftype = "butter", order = 4, output ="ba"))
+  eeguana:::skip_on_actions()
+  skip_on_ci()
+  mne <- reticulate::import("mne")
+  X2_iirmne <- mne$filter$filter_data(signal$X3, sfreq = 500, l_freq = 500 * 1.5 / (2 * pi), h_freq = 500 * 2.2 / (2 * pi), method = "iir", iir_params = list(ftype = "butter", order = 4, output = "ba"))
 
   expect_equal(data_sin_X2_iir$.signal$X3 %>% c(),
-               X2_iirmne %>% c(), tolerance = .01)
+    X2_iirmne %>% c(),
+    tolerance = .01
+  )
 })
 
 
 data_sin_X1X3 <- eeg_filt_band_stop(data_sin, .freq = c(2.8, 1.5) * 500 / (2 * pi))
-data_sin_X1X3_iir <- eeg_filt_band_stop(data_sin, .freq = c(2.8, 1.5) * 500 / (2 * pi),.config =list(method ="iir"))
+data_sin_X1X3_iir <- eeg_filt_band_stop(data_sin, .freq = c(2.8, 1.5) * 500 / (2 * pi), .config = list(method = "iir"))
 # data_sin_X1X3r <- data.table::copy(data_sin)
 # eeg_filt_band_stop(data_sin_X1X3r, .freq = c(2.8, 1.5) * 500 / (2 * pi), .by_reference = TRUE)
 ## plot(data_sin_X1X3)
@@ -168,13 +176,13 @@ test_that("band stop signal", {
   expect_lte(max(data_sin_X1X3$.signal$X2), .004)
 })
 
-test_that("band stop default pars",{
-  expect_equal(data_sin_X1X3, eeg_filt_band_stop(data_sin, .freq = c(2.8, 1.5)  * 500 / (2 * pi), .config = list(l_trans_bandwidth = 29.8415518297304, h_trans_bandwidth = 27.1830796713465   )))
-  expect_equal(data_sin_X1X3_iir, eeg_filt_band_stop(data_sin, .freq = c(2.8, 1.5)  * 500/ (2 * pi),  .config = list(method = "iir",type = "butter", order = 4)))
+test_that("band stop default pars", {
+  expect_equal(data_sin_X1X3, eeg_filt_band_stop(data_sin, .freq = c(2.8, 1.5) * 500 / (2 * pi), .config = list(l_trans_bandwidth = 29.8415518297304, h_trans_bandwidth = 27.1830796713465)))
+  expect_equal(data_sin_X1X3_iir, eeg_filt_band_stop(data_sin, .freq = c(2.8, 1.5) * 500 / (2 * pi), .config = list(method = "iir", type = "butter", order = 4)))
 })
 
 
-test_that("original doesn't change",{
+test_that("original doesn't change", {
   expect_equal(data_sin_ref, data_sin)
 })
 

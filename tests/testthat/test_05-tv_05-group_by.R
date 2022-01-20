@@ -1,5 +1,5 @@
 library(eeguana)
-options(eeguana.verbose=FALSE)
+options(eeguana.verbose = FALSE)
 # tests when factors are used should be done.
 
 # create fake dataset
@@ -51,13 +51,15 @@ reference_data <- data.table::copy(data)
 data_g_segment <- data %>% dplyr::group_by(segment)
 data_g_recording <- data %>% dplyr::group_by(.recording)
 data_g_recording_segment <- data %>% dplyr::group_by(.recording, segment)
-data_g_segment2 <- data %>% dplyr::group_by(.recording) %>% dplyr::group_by(segment)
-data_g_recording_segment2 <- data %>% dplyr::group_by(.recording) %>% 
+data_g_segment2 <- data %>%
+  dplyr::group_by(.recording) %>%
+  dplyr::group_by(segment)
+data_g_recording_segment2 <- data %>%
+  dplyr::group_by(.recording) %>%
   dplyr::group_by(segment, .add = TRUE)
 
-test_that("grouping works",{
-expect_equal(data_g_segment, data_g_segment2)
-expect_equal(data_g_recording_segment, data_g_recording_segment2)
-expect_equal(dplyr::group_vars(data), character(0))
+test_that("grouping works", {
+  expect_equal(data_g_segment, data_g_segment2)
+  expect_equal(data_g_recording_segment, data_g_recording_segment2)
+  expect_equal(dplyr::group_vars(data), character(0))
 })
-
