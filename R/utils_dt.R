@@ -94,55 +94,6 @@ filter_dt <- function(.data, ..., group_by_ = character(0)) {
 }
 
 
-#' @noRd
-mutate_dt <- function(.data, ..., group_by_ = character(0), .by_reference = FALSE, omit_shallow = FALSE){
-
-  dots <- rlang::quos(...)
-  dots <- rlang::quos_auto_name(dots)
-  col_names <- names(dots)
-  if(!omit_shallow & !.by_reference){ #it might be done before, or it might be by reference
-    .data <- data.table:::shallow(.data)
-  }
-  if(length(group_by_) == 0) {
-      # From: https://github.com/markfairbanks/tidytable/blob/549f330837be5adb510b4599142cc5f4a615a4be/R/mutate.R
-      # Prevent modify-by-reference if the column already exists in the data.table
-      # Fixes cases when user supplies a single value ex. 1, -1, "a"
-      .data[, `:=`((col_names),
-                                   lapply(dots, recycle_eval,
-                                                     data = rlang::as_data_mask(
-                                                       .SD),size = .N))]
-    } else {
-
-      if (length(intersect(col_names, colnames(.data)))>0 & .by_reference==FALSE) {
-        #needs a real copy
-        .data <- data.table::copy(.data)
-        }
-        .data[, `:=`((col_names),
-                                  lapply(dots, rlang::eval_tidy,
-                                                 data= rlang::as_data_mask(
-                                                   cbind(.SD,data.table::as.data.table(.BY))
-                                                  ))),
-                               by = c(group_by_)]
-    }
-
-}
-
-#' @noRd
-summarize_dt <- function(.data, ..., group_by_ = character(0)){
-  dots <- rlang::quos(...)
-  if(length(group_by_) > 0) {
-    .data <- .data[,
-                                             lapply(dots, rlang::eval_tidy,
-                                               data =
-                                                 rlang::as_data_mask(cbind(.SD,data.table::as.data.table(.BY)))),
-                                      keyby = c(group_by_)]
-  } else {
-    .data <- .data[, lapply(dots, rlang::eval_tidy,
-                                               data= rlang::as_data_mask(.SD))]
-  }
-  .data[]
-}
-
 
 #' @noRd
 unnest_dt <- function(.data, col) {
@@ -176,28 +127,6 @@ struct_to_dt <- function(struct, .id = NULL) {
   }
 }
 
-
-
-#' @noRd
-recycle <- function(x, size) {
-
-  if(is.null(x)) return(NULL)
-
-  x_length <- length(x)
-
-  if (x_length != 1 && x_length != size)
-    stop(paste0("x must have length 1 or length ", size))
-
-  if (x_length == 1) x <- rep(x, size)
-
-  x
-}
-
-
-#' @noRd
-recycle_eval <- function(expr, data = NULL, env= rlang::caller_env(), size){
-  recycle(rlang::eval_tidy(expr, data = data, env = env),size = size)
-}
 #' @noRd
 changed_objects <- function(obj){
   ## name <- rlang::eval_tidy(rlang::as_name(rlang::enquo(obj)))
@@ -221,13 +150,14 @@ distinct. <- function(.df, ..., .keep_all = FALSE) {
   .df
 }
 
-#' @noRd
-rename. <- function(.df, ...) {
-  oldclass <- class(.df)
-  .df <- tidytable::rename.(.df = .df, ...) 
-  class(.df) <- oldclass
-  .df
-}
+#' not in use yet
+#' #' @noRd
+#' rename. <- function(.df, ...) {
+#'   oldclass <- class(.df)
+#'   .df <- tidytable::rename.(.df = .df, ...) 
+#'   class(.df) <- oldclass
+#'   .df
+#' }
 
 #' @noRd
 select. <- function(.df, ...) {
