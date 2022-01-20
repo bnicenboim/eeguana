@@ -5,6 +5,7 @@
 #'
 #' @format An eeg_lst  with 2 conditions (faces, non-faces)
 #' @family EEG datasets
+#' @usage data(data_faces_ERPs)
 "data_faces_ERPs"
 
 #' EEGs elicited when one subject saw faces and non-faces objects.
@@ -24,6 +25,7 @@
 #'   * `.type == "Stimulus", .description == "s70` indicates that a face was presented.
 #'   * `.type == "Stimulus", .description == "s71` indicates that a non-face was presented.
 #' @family EEG datasets
+#' @usage data(data_faces_10_trials)
 "data_faces_10_trials"
 
 
@@ -34,4 +36,6 @@
 #'
 #' @format An table with channel names and locations
 #' @family topographic plots and layouts
+#' @usage data(layout_32_1020)
+#'
 "layout_32_1020"

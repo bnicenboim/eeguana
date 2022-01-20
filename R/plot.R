@@ -27,34 +27,35 @@
 #' @examples
 #' # Basic plot
 #' plot(data_faces_ERPs)
-#' 
+#'
 #' # Add ggplot layers
 #' library(ggplot2)
 #' plot(data_faces_ERPs) +
 #'   coord_cartesian(ylim = c(-500, 500))
-#'
 #' @export
 plot.eeg_lst <- function(x, .max_sample = 6400, ...) {
   ellipsis::check_dots_unnamed()
-  #pick the last channel as reference
-  breaks <- x$.signal[[ncol(x$.signal)]]  %>% 
-    stats::quantile(probs = c(.025,.975), na.rm=TRUE) %>% 
-    signif(2) %>% c(0)
+  # pick the last channel as reference
+  breaks <- x$.signal[[ncol(x$.signal)]] %>%
+    stats::quantile(probs = c(.025, .975), na.rm = TRUE) %>%
+    signif(2) %>%
+    c(0)
   names(breaks) <- breaks
-  lims <-  (breaks * 1.5) %>% 
+  lims <- (breaks * 1.5) %>%
     range()
-  
+
   plot <- ggplot.eeg_lst(x, ggplot2::aes(x = .time, y = .value, group = .id), .max_sample = .max_sample) +
-    ggplot2::geom_hline(yintercept = 0, color = "gray",alpha =.8) +
+    ggplot2::geom_hline(yintercept = 0, color = "gray", alpha = .8) +
     ggplot2::geom_line() +
     ggplot2::facet_grid(.key ~ .id,
       labeller = ggplot2::label_wrap_gen(multi_line = FALSE),
-      scales = "free", space= "free"
+      scales = "free", space = "free"
     ) +
     ggplot2::scale_x_continuous("Time (s)") +
-    ggplot2::scale_y_continuous("Amplitude", 
-                                #breaks = breaks,
-                                ) +
+    ggplot2::scale_y_continuous(
+      "Amplitude",
+      # breaks = breaks,
+    ) +
     ggplot2::coord_cartesian(ylim = lims, clip = FALSE, expand = FALSE) +
     theme_eeguana()
   plot
@@ -101,7 +102,7 @@ plot.eeg_lst <- function(x, .max_sample = 6400, ...) {
 #'   # add electrode labels
 #'   geom_text(color = "black") +
 #'   facet_grid(~condition)
-#' 
+#'
 #' # The same but with interpolation
 #' data_faces_ERPs %>%
 #'   filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
@@ -120,22 +121,27 @@ plot_topo <- function(data, ...) {
 #' @rdname plot_topo
 #' @export
 plot_topo.tbl_df <- function(data, .value = .value, .label = .key, ...) {
-  if(all(is.na(data$.x)) && all(is.na(data$.y)) ) {
-    stop("X and Y coordinates missing. You probably need to add a layout to the data.", call. = FALSE)}
-  if(all(is.na(data$.x))) {stop("X coordinate missing.", call. = FALSE)}
-  if(all(is.na(data$.y))) {stop("Y coordinate missing.", call. = FALSE)}
+  if (all(is.na(data$.x)) && all(is.na(data$.y))) {
+    stop("X and Y coordinates missing. You probably need to add a layout to the data.", call. = FALSE)
+  }
+  if (all(is.na(data$.x))) {
+    stop("X coordinate missing.", call. = FALSE)
+  }
+  if (all(is.na(data$.y))) {
+    stop("Y coordinate missing.", call. = FALSE)
+  }
   .value <- rlang::enquo(.value)
   .label <- rlang::enquo(.label)
-  data <- data %>%  dplyr::ungroup()
+  data <- data %>% dplyr::ungroup()
   # Labels positions mess up with geom_raster, they need to be excluded
   # and then add the labels to the data that was interpolated
   d <- dplyr::filter(data, !is.na(.x), !is.na(.y), is.na(!!.label)) %>%
     dplyr::select(-!!.label)
   label_pos <- dplyr::filter(data, !is.na(.x), !is.na(.y), !is.na(!!.label)) %>%
     dplyr::distinct(.x, .y, !!.label)
-  label_corrected_pos <- purrr::map_df(label_pos %>% 
-                                         dplyr::select(.x, .y, !!.label) %>%
-                                         purrr::transpose(), function(l) {
+  label_corrected_pos <- purrr::map_df(label_pos %>%
+    dplyr::select(.x, .y, !!.label) %>%
+    purrr::transpose(), function(l) {
     d %>%
       dplyr::select(-!!.value) %>%
       dplyr::filter((.x - l$.x)^2 + (.y - l$.y)^2 == min((.x - l$.x)^2 + (.y - l$.y)^2)) %>%
@@ -192,31 +198,30 @@ plot_topo.eeg_lst <- function(data, .projection = "polar", ...) {
 #' # For demonstration only, since ICA won't converge
 #' library(ggplot2)
 #' # Suppressing an important warning:
-#'   suppressWarnings(data_faces_10_trials %>%
-#'    eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))) %>%
-#'    eeg_ica_keep(ICA1, ICA2) %>%
-#'    plot_components()+
-#'    annotate_head() +
-#'    geom_contour() +
-#'    geom_text(color = "black") +
-#'    theme(legend.position = "none")
-#'
+#' suppressWarnings(data_faces_10_trials %>%
+#'   eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))) %>%
+#'   eeg_ica_keep(ICA1, ICA2) %>%
+#'   plot_components() +
+#'   annotate_head() +
+#'   geom_contour() +
+#'   geom_text(color = "black") +
+#'   theme(legend.position = "none")
 #' @export
 #'
 plot_components <- function(data, ..., .projection = "polar", .standardize = TRUE) {
   UseMethod("plot_components")
 }
 #' @export
-plot_components.eeg_ica_lst <- function(data,..., .projection = "polar", .standardize = TRUE) {
-
-  channels_tbl(data) <- change_coord(channels_tbl(data),  .projection)
+plot_components.eeg_ica_lst <- function(data, ..., .projection = "polar", .standardize = TRUE) {
+  channels_tbl(data) <- change_coord(channels_tbl(data), .projection)
   ## TODO: move to data.table, ignore group, just do it by .recording
   long_table <- map_dtr(data$.ica, ~ {
     dt <- .x$mixing_matrix %>%
-      data.table::as.data.table(keep.rownames = TRUE) 
-    dt[, .ICA := factor(rn, levels = rn)][ , rn := NULL][]
+      data.table::as.data.table(keep.rownames = TRUE)
+    dt[, .ICA := factor(rn, levels = rn)][, rn := NULL][]
   },
-  .id = ".recording") %>%
+  .id = ".recording"
+  ) %>%
     data.table::melt(
       variable.name = ".key",
       id.vars = c(".ICA", ".recording"),
@@ -226,14 +231,14 @@ plot_components.eeg_ica_lst <- function(data,..., .projection = "polar", .standa
 
   long_table <- left_join_dt(long_table, data.table::as.data.table(channels_tbl(data)), by = c(".key" = ".channel")) %>%
     dplyr::group_by(.recording, .ICA)
-  
-long_table %>%
+
+  long_table %>%
     eeg_interpolate_tbl(...) %>%
     dplyr::group_by(.recording, .ICA) %>%
     dplyr::mutate(.value = c(scale(.value, center = .standardize, scale = .standardize))) %>%
     dplyr::ungroup() %>%
     plot_topo() +
-    ggplot2::facet_wrap(~.recording + .ICA)
+    ggplot2::facet_wrap(~ .recording + .ICA)
 }
 
 
@@ -246,14 +251,14 @@ plot_ica <- function(data, ...) {
 plot_ica.eeg_ica_lst <- function(data,
                                  samples = 1:4000,
                                  components = 1:16,
-                                 eog=c(),
-                                 .recording=NULL,
+                                 eog = c(),
+                                 .recording = NULL,
                                  scale_comp = 2,
-                                 .order = c("var","cor"),
-                                 .max_sample =2400,
-                                 topo_config = list( .projection = "polar",.standardize= TRUE),
-                                 interp_config =list()) {
-# to avoid no visible binding for global variable
+                                 .order = c("var", "cor"),
+                                 .max_sample = 2400,
+                                 topo_config = list(.projection = "polar", .standardize = TRUE),
+                                 interp_config = list()) {
+  # to avoid no visible binding for global variable
   cor <- NULL
   var <- NULL
   EOG <- NULL
@@ -267,75 +272,78 @@ plot_ica.eeg_ica_lst <- function(data,
   i..final <- NULL
   x..upper <- NULL
   incomplete <- NULL
-  
+
   warning("This is an experimental function, and it might change or disappear in the future. (Or it might be transformed into a shinyapp)")
-  #first filter then this is applied:
-  if(!is.null(.recording)){
+  # first filter then this is applied:
+  if (!is.null(.recording)) {
     data <- dplyr::filter(data, .recording == .recording)
   } else {
     .recording <- segments_tbl(data)$.recording[1]
-    message("Using recording: ",.recording)
-      data <- dplyr::filter(data, .recording == .recording)
-    }
+    message_verbose("Using recording: ", .recording)
+    data <- dplyr::filter(data, .recording == .recording)
+  }
 
   if (length(eog) == 0) {
-    eog <-  sel_ch(data, c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
-      #fixtidyselect::vars_select(channel_names(data), c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
-    message("EOG channels detected as: ", toString(eog))
+    eog <- sel_ch(data, c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
+    # fixtidyselect::vars_select(channel_names(data), c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
+    message_verbose("EOG channels detected as: ", toString(eog))
   } else {
-    eog <-  sel_ch(data, tidyselect::all_of(eog))
+    eog <- sel_ch(data, tidyselect::all_of(!!eog))
   }
-    
-  message("Calculating the correlation of ICA components with filtered EOG channels...")
-  summ <- eeg_ica_summary_tbl(data %>% eeg_filt_band_pass(eog, .freq = c(.1, 30)))
+
+  message_verbose("Calculating the correlation of ICA components with filtered EOG channels...")
+  summ <- eeg_ica_summary_tbl(data %>% eeg_filt_band_pass(tidyselect::all_of(!!eog), .freq = c(.1, 30)))
   data.table::setorderv(summ, .order, order = -1)
   ICAs <- unique(summ$.ICA)[components]
-  
+
   summ <- summ[.ICA %in% ICAs]
-  
-  new_data <- data %>% 
-   slice_signal(samples) %>%
-    eeg_ica_show(dplyr::one_of(ICAs)) %>%
+
+  new_data <- data %>%
+    slice_signal(samples) %>%
+    eeg_ica_show(tidyselect::one_of(ICAs)) %>%
     ## we select want we want to show:
-    dplyr::select(tidyselect::all_of(c(ICAs, eog))) %>%
-    dplyr::group_by(.id) %>%
-    dplyr::mutate_at(eog, ~ .- mean(.)) %>%
-    dplyr::mutate_if(is_component_dbl, ~ . * scale_comp) 
-  
- ampls <- new_data %>%
-    plot() + 
-    annotate_events()+ 
-    ggplot2::theme(legend.position='none')
-  
+    eeg_select(tidyselect::all_of(c(ICAs, eog))) %>%
+    eeg_group_by(.id)
+
+  new_data <- new_data %>%
+    eeg_mutate(across(.cols = tidyselect::all_of(!!eog), ~ . - mean(.))) %>%
+    eeg_mutate(across(where(is_component_dbl), ~ . * scale_comp))
+
+  ampls <- new_data %>%
+    plot() +
+    annotate_events() +
+    ggplot2::theme(legend.position = "none")
+
   topo <- data %>%
-    eeg_ica_keep(ICAs) %>%
+    eeg_ica_keep(tidyselect::all_of(ICAs)) %>%
     plot_components() +
     annotate_head() +
     ggplot2::geom_contour() +
     ggplot2::geom_text(color = "black") +
     ggplot2::theme(legend.position = "none")
 
+  # TODO : tidy table
   c_text <- summ %>%
-    dplyr::mutate(cor_t = as.character(round(cor,2)), pvar_t = as.character(round(var*100))) %>%
+    dplyr::mutate(cor_t = as.character(round(cor, 2)), pvar_t = as.character(round(var * 100))) %>%
     dplyr::group_by(.recording, .ICA) %>%
-    dplyr::summarize(text = paste0(stringr::str_extract(EOG,"^."),": ", cor_t, collapse ="\n") %>%
-                paste0("\n",unique(pvar_t),"%")) %>%
-    dplyr::mutate(x=1,y=1,.value= NA, .key = NA) %>% 
-    dplyr::left_join(dplyr::distinct(topo$data,.recording,.ICA) %>% 
-                       dplyr::mutate(.ICA= as.character(.ICA)),., by =c(".recording",".ICA"))%>%
+    dplyr::summarize(text = paste0(chr_extract(EOG, "^."), ": ", cor_t, collapse = "\n") %>%
+      paste0("\n", unique(pvar_t), "%")) %>%
+    dplyr::mutate(x = 1, y = 1, .value = NA, .key = NA) %>%
+    dplyr::left_join(dplyr::distinct(topo$data, .recording, .ICA) %>%
+      dplyr::mutate(.ICA = as.character(.ICA)), ., by = c(".recording", ".ICA")) %>%
     dplyr::mutate(.ICA = factor(.ICA, levels = .$.ICA))
-  
-  topo <-    topo + 
-    ggplot2::geom_text(data=c_text, ggplot2::aes(label=text,x=x,y=y), inherit.aes=FALSE) +
-    ggplot2::coord_cartesian(clip=FALSE) + 
-    ggplot2::facet_wrap(~.ICA, ncol=4) +
-    ggplot2::theme(strip.text=ggplot2::element_text(size=12))
-  
+
+  topo <- topo +
+    ggplot2::geom_text(data = c_text, ggplot2::aes(label = text, x = x, y = y), inherit.aes = FALSE) +
+    ggplot2::coord_cartesian(clip = FALSE) +
+    ggplot2::facet_wrap(~.ICA, ncol = 4) +
+    ggplot2::theme(strip.text = ggplot2::element_text(size = 12))
+
   topo$layers[[5]] <- NULL
-  
+
   ## right <- cowplot::plot_grid(topo, legend_p1, ncol=1, rel_heights=c(.8,.2))
-  plot <- cowplot::plot_grid(ampls, topo, ncol=2,rel_widths=c(.6,.4))
- plot  
+  plot <- cowplot::plot_grid(ampls, topo, ncol = 2, rel_widths = c(.6, .4))
+  plot
 }
 
 #' Arrange ERP plots according to scalp layout
@@ -365,16 +373,14 @@ plot_ica.eeg_ica_lst <- function(data,
 #'
 #' @examples
 #' library(ggplot2)
-#' library(dplyr)
-#' 
 #' # Create a ggplot object with some grand averaged ERPs
 #' ERP_plot <- data_faces_ERPs %>%
 #'   # select a few electrodes
-#'   select(Fz, FC1, FC2, C3, Cz, C4, CP1, CP2, Pz) %>%
+#'   eeg_select(Fz, FC1, FC2, C3, Cz, C4, CP1, CP2, Pz) %>%
 #'   # group by time point and condition
-#'   group_by(.sample, condition) %>%
+#'   eeg_group_by(.sample, condition) %>%
 #'   # compute averages
-#'   summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
+#'   eeg_summarize(across_ch(mean, na.rm = TRUE)) %>%
 #'   ggplot(aes(x = .time, y = .value)) +
 #'   # plot the averaged waveforms
 #'   geom_line(aes(color = condition)) +
@@ -383,7 +389,7 @@ plot_ica.eeg_ica_lst <- function(data,
 #'   # add a legend and title
 #'   theme(legend.position = "bottom") +
 #'   ggtitle("ERPs for faces vs non-faces")
-#' 
+#'
 #' # Call the ggplot object with the layout function
 #' plot_in_layout(ERP_plot)
 #' @export
@@ -552,13 +558,11 @@ plot_in_layout.gg <- function(plot, .projection = "polar", .ratio = c(1, 1), ...
 #' @return A layer for a ggplot
 #'
 #' @examples
-#' library(dplyr)
 #' library(ggplot2)
-#' 
 #' data_faces_ERPs %>%
-#'   filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
-#'   group_by(condition) %>%
-#'   summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
+#'   eeg_filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
+#'   eeg_group_by(condition) %>%
+#'   eeg_summarize(across_ch(mean, na.rm = TRUE)) %>%
 #'   plot_topo() +
 #'   annotate_head(size = .9, color = "black", stroke = 1)
 #' @export
@@ -613,11 +617,13 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
   } else {
     events_tbl <- object$layer$data
   }
-  if(nrow(events_tbl)==0) return(NULL)  #nothing to plot
-  info_events <- c(".type", ".description") 
+  if (nrow(events_tbl) == 0) {
+    return(NULL)
+  } # nothing to plot
+  info_events <- c(".type", ".description")
   events_tbl <- data.table::as.data.table(events_tbl)
-  events_tbl[, xmin := as_time(.initial) ]
-  events_tbl[, xmax := as_time(.final) ]
+  events_tbl[, xmin := as_time(.initial)]
+  events_tbl[, xmax := as_time(.final)]
   events_tbl[, Event := (do.call(paste, c(.SD, sep = "."))), .SDcols = c(info_events)]
   # single events
   segs <- plot$data %>%
@@ -681,14 +687,14 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
 ggplot.eeg_lst <- function(data = NULL,
                            mapping = ggplot2::aes(),
                            ...,
-                           .max_sample  = 64000                           ) {
+                           .max_sample = 64000) {
   df <- try_to_downsample(data, .max_sample) %>%
     data.table::as.data.table()
 
-  #sometimes might be useful to pass the environment
-  dots <-  list(...)
-  if(!"environment" %in% names(args)){
-    environment = parent.frame()
+  # sometimes might be useful to pass the environment
+  dots <- list(...)
+  if (!"environment" %in% names(args)) {
+    environment <- parent.frame()
   }
 
   df[, .key := factor(.key, levels = unique(.key))]
@@ -714,13 +720,13 @@ theme_eeguana <- function() {
   ggplot2::`%+replace%`(
     ggplot2::theme_bw(),
     ggplot2::theme(
-      #,
+      # ,
       # panel.grid =ggplot2::element_blank(),
       strip.background = ggplot2::element_rect(color = "transparent", fill = "transparent"),
       strip.text.y = ggplot2::element_text(angle = 00),
       panel.spacing = ggplot2::unit(.01, "points"),
       panel.border = ggplot2::element_rect(color = "transparent", fill = "transparent"),
-      panel.background = ggplot2::element_rect(fill = "transparent", color ="transparent")
+      panel.background = ggplot2::element_rect(fill = "transparent", color = "transparent")
     )
   )
 }
@@ -737,5 +743,3 @@ theme_eeguana2 <- function() {
     )
   )
 }
-
-

@@ -3,7 +3,7 @@
 #' Wrapper of `rowMeans` that performs a by-sample mean of the specified channels.
 #'
 #' @param x An `eeg_lst` object.
-#' @param ... A channel or a group of unquoted or quoted channels (if an `eeg_lst` is not specified).
+#' @param ... A group of channels, it can be used in combination with `across`.
 #' @inheritParams base::mean
 #' @return A new channel or an `eeg_lst` object with a `mean` channel instead of the previous channels.
 #' @family channel functions
@@ -12,13 +12,22 @@
 #'
 #' @examples
 #' \dontrun{
-#' 
 #' faces_segs_some %>%
-#'   transmute(
+#'   eeg_transmute(
 #'     Occipital = chs_mean(O1, O2, Oz, na.rm = TRUE),
 #'     Parietal = chs_mean(P3, P4, P7, P8, Pz, na.rm = TRUE)
 #'   )
-#' 
+#'
+#' faces_segs_some %>%
+#'   eeg_transmute(
+#'     Occipital = chs_mean(O1, O2, Oz, na.rm = TRUE),
+#'     Parietal = chs_mean(P3, P4, P7, P8, Pz, na.rm = TRUE)
+#'   )
+#' faces_seg %>%
+#'   eeg_transmute(
+#'     Occipital = chs_mean(across(starts_with("O")), na.rm = TRUE), # O1, O2, Oz
+#'     Parietal = chs_mean(across(starts_with("O")), na.rm = TRUE) # P3, P4, P7, P8, Pz
+#'   )
 #' faces_segs_some %>%
 #'   chs_mean(na.rm = TRUE)
 #' }
@@ -31,6 +40,12 @@ chs_mean.channel_dbl <- function(..., na.rm = FALSE) {
   dt_chs <- data.table::data.table(...)
   rowMeans_ch(dt_chs, na.rm = na.rm)
 }
+
+#' @export
+chs_mean.data.frame <- function(..., na.rm = FALSE) {
+  rowMeans_ch(..., na.rm = na.rm)
+}
+
 ## This should work with tidyselect #115
 ## chs_mean.character <- function(..., na.rm = FALSE) {
 ##   dt_chs <- data.table::as.data.table(mget(..., envir = rlang::caller_env()))
@@ -39,21 +54,19 @@ chs_mean.channel_dbl <- function(..., na.rm = FALSE) {
 ## }
 #' @export
 chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
-  # channels_info <- channels_tbl(x)
-  signal <- data.table::copy(x$.signal)
+  signal <- data.table:::shallow(x$.signal)
   signal[, mean := rowMeans_ch(.SD, na.rm = na.rm), .SDcols = channel_names(x)][, `:=`(channel_names(x), NULL)]
   x$.signal <- signal
-  update_events_channels(x) %>% # update_channels_tbl(channels_info) %>%
+  update_events_channels(x) %>%
     validate_eeg_lst()
 }
-
 
 #' Re-reference a channel or group of channels.
 #'
 #' Re-reference a channel or group of channels.
 #'
 #' Notice that this function will also rereference the eye electrodes unless excluded. See examples.
-#' 
+#'
 #' @param .data An eeg_lst object.
 #' @param ... Channels to include. All the channels by default, but eye channels should be removed.
 #' @param .ref Character vector of channels that will be averaged as the reference.
@@ -65,13 +78,12 @@ chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
 #'
 #' @examples
 #' # Re-reference all channels using the left mastoid excluding the eye electrodes.
-#' data_faces_ERPs_M1 <- data_faces_ERPs %>% 
-#'                       eeg_rereference(-EOGV, -EOGH, .ref = "M1")
-#' 
+#' data_faces_ERPs_M1 <- data_faces_ERPs %>%
+#'   eeg_rereference(-EOGV, -EOGH, .ref = "M1")
+#'
 #' # Re-reference using the linked mastoids excluding the eye electrodes.
-#' data_faces_ERPs_M1M2 <- data_faces_ERPs %>% 
-#'                         eeg_rereference(-EOGV, -EOGH, .ref = c("M1","M2"))
-#' 
+#' data_faces_ERPs_M1M2 <- data_faces_ERPs %>%
+#'   eeg_rereference(-EOGV, -EOGH, .ref = c("M1", "M2"))
 #' @export
 eeg_rereference <- function(.data, ..., .ref = NULL, na.rm = FALSE) {
   UseMethod("eeg_rereference")
@@ -167,10 +179,9 @@ eeg_baseline <- function(x, ..., .lim = -Inf, .unit = "s") {
 }
 #' @export
 eeg_baseline.eeg_lst <- function(x, ..., .lim = -Inf, .unit = "s") {
-  
   ch_sel <- sel_ch(x, ...)
   sample_id <- as_sample_int(.lim, sampling_rate = sampling_rate(x), .unit)
-  
+
   x$.signal <- data.table::copy(x$.signal)
   x$.signal <- x$.signal[, (ch_sel) := lapply(.SD, fun_baseline, .sample, sample_id),
     .SDcols = (ch_sel),

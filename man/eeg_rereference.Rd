@@ -27,13 +27,12 @@ Notice that this function will also rereference the eye electrodes unless exclud
 }
 \examples{
 # Re-reference all channels using the left mastoid excluding the eye electrodes.
-data_faces_ERPs_M1 <- data_faces_ERPs \%>\% 
-                      eeg_rereference(-EOGV, -EOGH, .ref = "M1")
+data_faces_ERPs_M1 <- data_faces_ERPs \%>\%
+  eeg_rereference(-EOGV, -EOGH, .ref = "M1")
 
 # Re-reference using the linked mastoids excluding the eye electrodes.
-data_faces_ERPs_M1M2 <- data_faces_ERPs \%>\% 
-                        eeg_rereference(-EOGV, -EOGH, .ref = c("M1","M2"))
-
+data_faces_ERPs_M1M2 <- data_faces_ERPs \%>\%
+  eeg_rereference(-EOGV, -EOGH, .ref = c("M1", "M2"))
 }
 \seealso{
 Other preprocessing functions: 
@@ -41,7 +40,6 @@ Other preprocessing functions:
 \code{\link{eeg_downsample}()},
 \code{\link{eeg_ica_keep}()},
 \code{\link{eeg_ica}()},
-\code{\link{eeg_segment}()},
-\code{\link{filt}}
+\code{\link{eeg_segment}()}
 }
 \concept{preprocessing functions}

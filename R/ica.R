@@ -1,16 +1,16 @@
 #' EEG signal decomposition using Independent Component Analysis (ICA)
-#'  
-#' @description  This function returns an extended `eeg_lst`, `eeg_ica_lst`, with the mixing and unmixing 
+#'
+#' @description  This function returns an extended `eeg_lst`, `eeg_ica_lst`, with the mixing and unmixing
 #' matrix of every recording. It is possible to visualize the topography
 #' of the components with [plot_components()]. In order to extract the amplitude of
-#' the components with respect to time use [eeg_ica_show()], see examples section. To remove the 
+#' the components with respect to time use [eeg_ica_show()], see examples section. To remove the
 #' unwanted components, use [eeg_ica_keep()].
-#' 
+#'
 #' @details It is possible to also use a custom function in the `method` argument. The function should return
 #'  a list that with `A` (mixing matrix), consistent with the formulation `X = S %*% A`, where X is matrix
 #'   of N_samples by N_channels and/or `W` (unmixing matrix), consistent with the formulation `X %*% W = S`.
 #' Some packages with other ICA methods or implementations: `steadyICA` and `ica`.
-#' 
+#'
 #' @param .data An eeg_lst object
 #' @param ... Channels to include in ICA transformation. All the channels by default, but eye channels
 #' and reference channels should be removed.
@@ -25,25 +25,25 @@
 #' @examples
 #' # For demonstration only, since ICA won't converge
 #' # Suppressing an important warning:
-#'   suppressWarnings(data_faces_10_trials %>%
-#'  eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10)))
+#' suppressWarnings(data_faces_10_trials %>%
+#'   eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10)))
 #'
 #' ## The example can only bu run, if python is properly configured (see reticulate package help)
 #' ## Here a python ICA function is used:
 #' \dontrun{
 #' library(reticulate)
-#' use_condaenv("anaconda3") #use the appropriate environment
+#' use_condaenv("anaconda3") # use the appropriate environment
 #' sk <- import("sklearn.decomposition")
 #' py_fica <- function(x) {
 #'   x <- as.matrix(x)
 #'   ica <- sk$FastICA(whiten = TRUE, random_state = 23L)
-#'    X <- scale(x, scale = FALSE) %>%
-#'   as.matrix(x)
-#'    S <- ica$fit_transform(X)
-#'    W <- t(ica$components_)
-#'    list(W = W)
-#'  }
-#'  data_ica_py <- eeg_ica(data_faces_10_trials, -EOGH, -EOGV, -M1, -M2, .method = py_fica)
+#'   X <- scale(x, scale = FALSE) %>%
+#'     as.matrix(x)
+#'   S <- ica$fit_transform(X)
+#'   W <- t(ica$components_)
+#'   list(W = W)
+#' }
+#' data_ica_py <- eeg_ica(data_faces_10_trials, -EOGH, -EOGV, -M1, -M2, .method = py_fica)
 #' }
 #' @export
 eeg_ica <- function(.data,
@@ -77,7 +77,7 @@ eeg_ica.eeg_lst <- function(.data,
   .ignore <- rlang::enquo(.ignore)
 
   if (!rlang::quo_is_null(.ignore)) {
-    signal_raw <-  eeg_events_to_NA(.data, !!.ignore,
+    signal_raw <- eeg_events_to_NA(.data, !!.ignore,
       all_chs = FALSE,
       entire_seg = FALSE,
       drop_events = FALSE
@@ -103,14 +103,14 @@ eeg_ica.eeg_lst <- function(.data,
     nomatch = 0
   ][, .id := NULL][]
   used <- nrow(signal_raw)
- 
-  #TODO maybe it can be done inside data.table?
+
+  # TODO maybe it can be done inside data.table?
   signal_raw <- split(signal_raw, by = ".recording", keep.by = FALSE)
 
   method_label <- rlang::as_label(.method)
-  message(paste0("# ICA is being done using ", method_label, "..."))
- if(total > used){
-    message("# ",round(used/total,2)*100, "% of the samples will be used.")
+  message_verbose(paste0("# ICA is being done using ", method_label, "..."))
+  if (total > used) {
+    message_verbose("# ", round(used / total, 2) * 100, "% of the samples will be used.")
   }
   data_out <- function(x) {
     out <- list()
@@ -147,7 +147,7 @@ eeg_ica.eeg_lst <- function(.data,
 
   end_time <- Sys.time()
   timing <- end_time - start_time
-  message(paste0("# ICA took ", round(timing[[1]], 2), " ", attributes(timing)$units))
+  message_verbose(paste0("# ICA took ", round(timing[[1]], 2), " ", attributes(timing)$units))
   as_eeg_ica_lst(.data)
 }
 #' Add independent components (or sources) to the signal table for visualization.
@@ -161,11 +161,10 @@ eeg_ica.eeg_lst <- function(.data,
 #' library(ggplot2)
 #' library(dplyr)
 #' # Suppressing an important warning:
-#'   suppressWarnings(data_faces_10_trials %>%
-#'    eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))) %>%
-#'    eeg_ica_show(ICA1) %>%
-#'    plot()
-#'
+#' suppressWarnings(data_faces_10_trials %>%
+#'   eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))) %>%
+#'   eeg_ica_show(ICA1) %>%
+#'   plot()
 #' @export
 eeg_ica_show <- function(.data, ...) {
   UseMethod("eeg_ica_show")
@@ -177,8 +176,8 @@ eeg_ica_show.eeg_ica_lst <- function(.data, ...) {
   comp_sel <- tidyselect::vars_select(component_names(.data), !!!dots)
   signal_raw <- .data$.signal[, c(".id", channel_ica_names(.data)), with = FALSE] %>%
     .[data.table::as.data.table(.data$.segments)
-    [, .(.id, .recording)]
-    , ,
+    [, .(.id, .recording)],
+    ,
     on = ".id", nomatch = 0
     ]
   signal_raw[, ".id" := NULL]
@@ -187,10 +186,12 @@ eeg_ica_show.eeg_ica_lst <- function(.data, ...) {
 
   ica_c <- map2_dtr(l_signal, .data$.ica, ~ {
     X <- scale(.x, scale = FALSE)
-    {tcrossprod(as.matrix(X), t(.y$unmixing_matrix[, comp_sel, drop = FALSE])) *
-      ## I make it 10 times larger so that the components can be plot alongside
-      ## the channels
-       10} %>%
+    {
+      tcrossprod(as.matrix(X), t(.y$unmixing_matrix[, comp_sel, drop = FALSE])) *
+        ## I make it 10 times larger so that the components can be plot alongside
+        ## the channels
+        10
+    } %>%
       data.table::as.data.table() %>%
       .[, lapply(.SD, component_dbl)]
   })
@@ -212,10 +213,9 @@ eeg_ica_show.eeg_ica_lst <- function(.data, ...) {
 #' @examples
 #' # For demonstration only, since ICA won't converge
 #' # Suppressing an important warning:
-#'  suppressWarnings(data_faces_10_trials %>%
-#'  eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))) %>%
-#'  eeg_ica_keep(-ICA1)
-#'
+#' suppressWarnings(data_faces_10_trials %>%
+#'   eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))) %>%
+#'   eeg_ica_keep(-ICA1)
 #' @export
 eeg_ica_keep <- function(.data, ...) {
   UseMethod("eeg_ica_keep")
@@ -223,43 +223,41 @@ eeg_ica_keep <- function(.data, ...) {
 
 #' @export
 eeg_ica_keep.eeg_ica_lst <- function(.data, ...) {
-    dots <- rlang::enquos(...)
-    if(all(unique(names(dots))!="")){
-        ## in case recording1 = ICA1, ... syntax is used
-        comp_sel <- lapply(dots, function(dot) {
-            tidyselect::vars_select(component_names(.data), !!dot)
-        })
-                                        #names and order
-        comp_sel <- purrr::imap(.data$.ica, ~{
-            if(.y %in% names(comp_sel)){
-                comp_sel[[.y]]
-            } else {
-                                        #all
-                comp_sel <- colnames(.x$unmixing_matrix)
-                names(comp_sel) <- comp_sel
-                comp_sel
-            }
-        }
-        )
-    } else {
-        comp_sel <- purrr::imap(.data$.ica, ~ {
-            tidyselect::vars_select(component_names(.data), !!!dots)
-        })
-    }
+  dots <- rlang::enquos(...)
+  if (all(unique(names(dots)) != "")) {
+    ## in case recording1 = ICA1, ... syntax is used
+    comp_sel <- lapply(dots, function(dot) {
+      tidyselect::vars_select(component_names(.data), !!dot)
+    })
+    # names and order
+    comp_sel <- purrr::imap(.data$.ica, ~ {
+      if (.y %in% names(comp_sel)) {
+        comp_sel[[.y]]
+      } else {
+        # all
+        comp_sel <- colnames(.x$unmixing_matrix)
+        names(comp_sel) <- comp_sel
+        comp_sel
+      }
+    })
+  } else {
+    comp_sel <- purrr::imap(.data$.ica, ~ {
+      tidyselect::vars_select(component_names(.data), !!!dots)
+    })
+  }
 
-    .data$.ica <- purrr::map2(comp_sel, .data$.ica, function(sel, ica) {
-        list(
-            unmixing_matrix = ica$unmixing_matrix[, sel, drop = FALSE],
-            mixing_matrix = ica$mixing_matrix[sel, , drop = FALSE]
-        )
-    }
-)
+  .data$.ica <- purrr::map2(comp_sel, .data$.ica, function(sel, ica) {
+    list(
+      unmixing_matrix = ica$unmixing_matrix[, sel, drop = FALSE],
+      mixing_matrix = ica$mixing_matrix[sel, , drop = FALSE]
+    )
+  })
   chs <- colnames(.data$.ica[[1]]$mixing_matrix)
 
   signal_raw <- .data$.signal[, c(".id", chs), with = FALSE][
     data.table::as.data.table(.data$.segments)
-    [, .(.id, .recording)]
-    , ,
+    [, .(.id, .recording)],
+    ,
     on = ".id"
   ][, .id := NULL]
 
@@ -299,5 +297,9 @@ as_eeg_lst.eeg_ica_lst <- function(.data, ...) {
 }
 #' @export
 as_eeg_lst.eeg_lst <- function(.data, ...) {
+  if (!data.table::is.data.table(.data$.segments)) {
+    .data$.segments <- data.table::as.data.table(.data$.segments)
+    data.table::setkey(.data$.segments, .id)
+  }
   validate_eeg_lst(.data)
 }

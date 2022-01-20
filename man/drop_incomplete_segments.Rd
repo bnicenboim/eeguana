@@ -2,12 +2,9 @@
 % Please edit documentation in R/out.R
 \name{drop_incomplete_segments}
 \alias{drop_incomplete_segments}
-\alias{drop_incomplete_segment.eeg_lst}
 \title{Drop segments with NAs from the eeg_lst}
 \usage{
 drop_incomplete_segments(x)
-
-drop_incomplete_segment.eeg_lst(x)
 }
 \arguments{
 \item{x}{eeg_lst}
@@ -20,8 +17,8 @@ Drop segments with NAs from the eeg_lst.
 }
 \seealso{
 Other tidyverse-like functions: 
-\code{\link{bind}()},
 \code{\link{dplyr_verbs}},
-\code{\link{slice_signal}()}
+\code{\link{eeg_bind}()},
+\code{\link{eeg_slice_signal}()}
 }
 \concept{tidyverse-like functions}

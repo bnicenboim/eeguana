@@ -26,13 +26,22 @@ segmentation, the \code{eeg_lst} contain one segment. (Fieldtrip calls the
 segment "trials".) The limits of \code{segment} are inclusive: If, for
 example, \code{lim = c(0,0)}, the segment would contain only sample 1.
 }
+\examples{
+
+# Segments 500ms before and 1000ms after the triggers s70 and s71
+data_faces_10_trials \%>\% eeg_segment(.description \%in\% c("s70", "s71"),
+  .lim = c(-5, 1)
+)
+
+# Segments 500ms before and  after the triggers all the triggers (which start with s)
+data_faces_10_trials \%>\% eeg_segment(startsWith(.description, "s"))
+}
 \seealso{
 Other preprocessing functions: 
 \code{\link{eeg_baseline}()},
 \code{\link{eeg_downsample}()},
 \code{\link{eeg_ica_keep}()},
 \code{\link{eeg_ica}()},
-\code{\link{eeg_rereference}()},
-\code{\link{filt}}
+\code{\link{eeg_rereference}()}
 }
 \concept{preprocessing functions}

@@ -22,15 +22,14 @@ Note that unlike \link{plot_topo}, there is no need for faceting, or adding laye
 # For demonstration only, since ICA won't converge
 library(ggplot2)
 # Suppressing an important warning:
-  suppressWarnings(data_faces_10_trials \%>\%
-   eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))) \%>\%
-   eeg_ica_keep(ICA1, ICA2) \%>\%
-   plot_components()+
-   annotate_head() +
-   geom_contour() +
-   geom_text(color = "black") +
-   theme(legend.position = "none")
-
+suppressWarnings(data_faces_10_trials \%>\%
+  eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))) \%>\%
+  eeg_ica_keep(ICA1, ICA2) \%>\%
+  plot_components() +
+  annotate_head() +
+  geom_contour() +
+  geom_text(color = "black") +
+  theme(legend.position = "none")
 }
 \seealso{
 Other plotting functions: 

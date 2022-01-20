@@ -41,16 +41,14 @@ to individual facets. x-axis and y-axis labels cannot be added at this stage.
 }
 \examples{
 library(ggplot2)
-library(dplyr)
-
 # Create a ggplot object with some grand averaged ERPs
 ERP_plot <- data_faces_ERPs \%>\%
   # select a few electrodes
-  select(Fz, FC1, FC2, C3, Cz, C4, CP1, CP2, Pz) \%>\%
+  eeg_select(Fz, FC1, FC2, C3, Cz, C4, CP1, CP2, Pz) \%>\%
   # group by time point and condition
-  group_by(.sample, condition) \%>\%
+  eeg_group_by(.sample, condition) \%>\%
   # compute averages
-  summarize_at(channel_names(.), mean, na.rm = TRUE) \%>\%
+  eeg_summarize(across_ch(mean, na.rm = TRUE)) \%>\%
   ggplot(aes(x = .time, y = .value)) +
   # plot the averaged waveforms
   geom_line(aes(color = condition)) +

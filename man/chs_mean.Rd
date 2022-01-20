@@ -9,7 +9,7 @@ chs_mean(x, ..., na.rm = FALSE)
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
 
-\item{...}{A channel or a group of unquoted or quoted channels (if an \code{eeg_lst} is not specified).}
+\item{...}{A group of channels, it can be used in combination with \code{across}.}
 
 \item{na.rm}{a logical value indicating whether \code{NA}
     values should be stripped before the computation proceeds.}
@@ -22,13 +22,22 @@ Wrapper of \code{rowMeans} that performs a by-sample mean of the specified chann
 }
 \examples{
 \dontrun{
-
 faces_segs_some \%>\%
-  transmute(
+  eeg_transmute(
     Occipital = chs_mean(O1, O2, Oz, na.rm = TRUE),
     Parietal = chs_mean(P3, P4, P7, P8, Pz, na.rm = TRUE)
   )
 
+faces_segs_some \%>\%
+  eeg_transmute(
+    Occipital = chs_mean(O1, O2, Oz, na.rm = TRUE),
+    Parietal = chs_mean(P3, P4, P7, P8, Pz, na.rm = TRUE)
+  )
+faces_seg \%>\%
+  eeg_transmute(
+    Occipital = chs_mean(across(starts_with("O")), na.rm = TRUE), # O1, O2, Oz
+    Parietal = chs_mean(across(starts_with("O")), na.rm = TRUE) # P3, P4, P7, P8, Pz
+  )
 faces_segs_some \%>\%
   chs_mean(na.rm = TRUE)
 }

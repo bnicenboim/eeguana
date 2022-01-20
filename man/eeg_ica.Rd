@@ -44,25 +44,25 @@ Some packages with other ICA methods or implementations: \code{steadyICA} and \c
 \examples{
 # For demonstration only, since ICA won't converge
 # Suppressing an important warning:
-  suppressWarnings(data_faces_10_trials \%>\%
- eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10)))
+suppressWarnings(data_faces_10_trials \%>\%
+  eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10)))
 
 ## The example can only bu run, if python is properly configured (see reticulate package help)
 ## Here a python ICA function is used:
 \dontrun{
 library(reticulate)
-use_condaenv("anaconda3") #use the appropriate environment
+use_condaenv("anaconda3") # use the appropriate environment
 sk <- import("sklearn.decomposition")
 py_fica <- function(x) {
   x <- as.matrix(x)
   ica <- sk$FastICA(whiten = TRUE, random_state = 23L)
-   X <- scale(x, scale = FALSE) \%>\%
-  as.matrix(x)
-   S <- ica$fit_transform(X)
-   W <- t(ica$components_)
-   list(W = W)
- }
- data_ica_py <- eeg_ica(data_faces_10_trials, -EOGH, -EOGV, -M1, -M2, .method = py_fica)
+  X <- scale(x, scale = FALSE) \%>\%
+    as.matrix(x)
+  S <- ica$fit_transform(X)
+  W <- t(ica$components_)
+  list(W = W)
+}
+data_ica_py <- eeg_ica(data_faces_10_trials, -EOGH, -EOGV, -M1, -M2, .method = py_fica)
 }
 }
 \seealso{
@@ -79,8 +79,7 @@ Other preprocessing functions:
 \code{\link{eeg_downsample}()},
 \code{\link{eeg_ica_keep}()},
 \code{\link{eeg_rereference}()},
-\code{\link{eeg_segment}()},
-\code{\link{filt}}
+\code{\link{eeg_segment}()}
 }
 \concept{ICA functions}
 \concept{preprocessing functions}

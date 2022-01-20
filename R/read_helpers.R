@@ -1,31 +1,43 @@
 #' Helper function to read the dat files directly,
 #' samples doesn't do anything for now
 #' @noRd
-read_dat <- function(file, header_info = NULL, events = NULL,
+read_dat <- function(file, header_info = NULL, events_dt = NULL,
                      .recording, sep, zero, samples) {
   n_chan <- nrow(header_info$chan_info)
   common_info <- header_info$common_info
 
-  multiplexed <- dplyr::case_when(
-    stringr::str_detect(common_info$orientation, stringr::regex("vector",
-      ignore_case = TRUE
-    )) ~ FALSE,
-    stringr::str_detect(common_info$orientation, stringr::regex("multipl",
-      ignore_case = TRUE
-    )) ~ TRUE,
-    TRUE ~ NA
-  ) %>% {
-    if (is.na(.)) {
-      stop("Orientiation needs to be vectorized or multiplexed.")
-    } else {
-      .
-    }
+  if (chr_detect(common_info$orientation, "vector",
+    ignore.case = TRUE
+  )) {
+    multiplexed <- FALSE
+  } else if (chr_detect(common_info$orientation, "multipl",
+    ignore.case = TRUE
+  )) {
+    multiplexed <- TRUE
+  } else {
+    stop("Orientation needs to be vectorized or multiplexed.", call. = FALSE)
   }
+
+  ## multiplexed <- dplyr::case_when(
+  ##   chr_detect(common_info$orientation, "vector",
+  ##     ignore.case = TRUE
+  ##   ) ~ FALSE,
+  ##   chr_detect(common_info$orientation, "multipl",
+  ##     ignore.case = TRUE
+  ##   ) ~ TRUE,
+  ##   TRUE ~ NA
+  ## ) %>% {
+  ##   if (is.na(.)) {
+  ##     stop("Orientation needs to be vectorized or multiplexed.")
+  ##   } else {
+  ##     .
+  ##   }
+  ## }
 
 
   if (common_info$format == "BINARY") {
-    type <- stringr::str_extract(common_info$bits, stringr::regex("float|int", ignore_case = TRUE)) %>%
-      stringr::str_to_lower() %>%
+    type <- chr_extract(common_info$bits, "float|int", ignore.case = TRUE) %>%
+      tolower() %>%
       {
         dplyr::case_when(
           . == "float" ~ "double",
@@ -37,19 +49,9 @@ read_dat <- function(file, header_info = NULL, events = NULL,
       stop(sprintf("Type '%s' is not recognized (it should be double (float) or integer (int)", type))
     }
 
-    bytes <- stringr::str_extract(common_info$bits, stringr::regex("\\d*$")) %>%
-      as.numeric() %>%
-      {
-        . / 8
-      }
+    bytes <- as.numeric(chr_extract(common_info$bits, "\\d*$")) / 8
 
-    amps <- readBin(file,
-      what = type, n = file.info(file)$size/bytes,
-      size = bytes)
-
-    # TODO: check to optimize the following line
-    raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = multiplexed) %>%
-      data.table::as.data.table()
+    raw_signal <- read_bin_signal(file, type = type, bytes = bytes, n_chan = n_chan, sample_x_channels = multiplexed)
   } else if (common_info$format == "ASCII") {
     raw_signal <- data.table::fread(file,
       skip = common_info$SkipLines,
@@ -72,21 +74,21 @@ read_dat <- function(file, header_info = NULL, events = NULL,
 
   # TODO maybe convert to data.table directly
   # Adding the channel names to event table
-  events <- add_event_channel(events, header_info$chan_info$.channel) %>%
-    data.table::as.data.table() 
+  events_dt <- add_event_channel(events_dt, labels = header_info$chan_info$.channel) %>%
+    data.table::as.data.table()
 
 
   # Initial samples as in Brainvision
   max_sample <- nrow(raw_signal)
   sample_id <- seq_len(max_sample)
 
-  if (nrow(events %>% dplyr::filter(!!sep)) == 0) {
+  if (nrow(events_dt %>% dplyr::filter(!!sep)) == 0) {
     stop("Segment separation marker ", rlang::quo_text(sep), " not found in the events table.")
   }
 
   # the first event can't be the end of the segment
   # and the last segment ends at the end of the file
-  .upper <- events %>%
+  .upper <- events_dt %>%
     dplyr::filter(!!sep) %>%
     dplyr::slice(-1) %>%
     {
@@ -94,9 +96,11 @@ read_dat <- function(file, header_info = NULL, events = NULL,
     } %>%
     c(., max_sample)
 
-  .lower <- events %>% dplyr::filter(!!sep) %>% .$.initial
+  .lower <- events_dt %>%
+    dplyr::filter(!!sep) %>%
+    .$.initial
 
-  .first_sample <- events %>%
+  .first_sample <- events_dt %>%
     dplyr::filter(!!zero) %>%
     .$.initial
 
@@ -120,9 +124,9 @@ read_dat <- function(file, header_info = NULL, events = NULL,
     .sample = new_sample_int(seg_sample_id$.sample, sampling_rate = common_info$sampling_rate),
     channels_tbl = header_info$chan_info
   )
-  events[, .id := 1]
+  events_dt[, .id := 1]
   segmentation[, .new_id := .id][, .id := 1]
-  seg_events <- update_events(as_events_tbl(events, common_info$sampling_rate), segmentation)
+  seg_events <- update_events(as_events_tbl(events_dt, common_info$sampling_rate), segmentation)
 
   segments <- build_segments_tbl(
     .id = seq(length(.lower)),
@@ -135,41 +139,38 @@ read_dat <- function(file, header_info = NULL, events = NULL,
     segments_tbl = segments
   )
 
-  message(paste0(
+  message_verbose(paste0(
     "# Data from ", file,
     " was read."
   ))
-  message(paste0(
+  message_verbose(paste0(
     "# Data from ", nrow(eeg_lst$.segments),
     " segment(s) and ", nchannels(eeg_lst), " channels was loaded."
   ))
-  message(say_size(eeg_lst))
+  message_verbose(say_size(eeg_lst))
   eeg_lst
 }
 
 build_segments_tbl <- function(.id, .recording) {
-  dplyr::tibble(
-    .id = .id,
-    .recording = .recording
-  ) %>%
-    dplyr::group_by(.recording) %>%
-    dplyr::mutate(segment = 1:dplyr::n()) %>%
-    dplyr::ungroup()
+  data.table::data.table(.id = .id)[
+    ,
+    .recording := .recording
+  ][
+    , segment := seq_len(.N),
+    by = ".recording"
+  ]
 }
+
+# TODO check this function, it might be unnecesary
 add_event_channel <- function(events, labels) {
   labels <- make_names(labels)
-  dplyr::mutate(events, .channel = if (".channel" %in% names(events)) {
-    .channel
-  } else {
-    0L
-  }) %>%
-    dplyr::mutate(
-      .channel = dplyr::if_else(
-        .channel == 0, NA_integer_,
-        .channel
-      ) %>%
-        labels[.]
-    )
+
+  if (!".channel" %in% names(events)) {
+    events[, .channel := NA_character_]
+  }
+  # having a zero is problematic for labels[.channel]
+  events[.channel == 0, .channel := NA]
+  events[, .channel := labels[.channel]]
 }
 
 segment_events <- function(events, .lower, .initial, .upper) {
@@ -199,6 +200,19 @@ segment_events <- function(events, .lower, .initial, .upper) {
 }
 
 
+built_eeg_lst <- function(eeg_lst, file) {
+  message_verbose(paste0(
+    "# Data from ", file,
+    " was read."
+  ))
+  message_verbose(paste0(
+    "# Data from ", nrow(eeg_lst$.segments),
+    " segment(s) and ", nchannels(eeg_lst), " channels was loaded."
+  ))
+  message_verbose(say_size(eeg_lst))
+  validate_eeg_lst(eeg_lst)
+}
+
 
 read_vmrk <- function(file) {
   # Each entry looks like this in the vmrk file:
@@ -209,7 +223,8 @@ read_vmrk <- function(file) {
   # http://pressrelease.brainproducts.com/markers/
 
   markers <- readChar(file, file.info(file)$size) %>%
-    stringr::str_extract(stringr::regex("^Mk[0-9]*?=.*^Mk[0-9]*?=.*?$", multiline = TRUE, dotall = TRUE))
+    chr_extract("(?ms)^Mk[0-9]*?=.*^Mk[0-9]*?=.*?$") %>%
+    chr_remove("\r$")
 
   col_names <- c(
     ".type", ".description", ".initial",
@@ -221,14 +236,14 @@ read_vmrk <- function(file) {
     col.names = col_names
   )
   # splits Mk<Marker number>=<Type>, removes the Mk.., and <Date>
-  events[, .type := stringr::str_split(.type, "=") %>%
+  events[, .type := strsplit(.type, "=") %>%
     purrr::map_chr(~ .x[[2]])][, date := NULL]
   events[, .final := .initial + .final - 1L]
 
 
   ## bug of BV1, first sample is supposed to be 1
   BV1 <- "BrainVision Data Exchange Marker File, Version 1.0"
-  if (stringr::str_detect(readChar(file, nchar(BV1)), BV1) &&
+  if (chr_detect(readChar(file, nchar(BV1)), BV1) &&
     events[.type == "New Segment", .initial][1] == 0) {
     events[.type == "New Segment" & .initial == 0, c(".initial", ".final") := list(1, 1)]
   }
@@ -236,26 +251,26 @@ read_vmrk <- function(file) {
 }
 
 read_vhdr_metadata <- function(file) {
-    vhdr <- ini::read.ini(file)
+  vhdr <- ini::read.ini(file)
 
   channel_info <- vhdr[["Channel Infos"]] %>%
-    imap_dtr(~ c(.y, stringr::str_split(.x, ",")[[1]]) %>%
-                      t() %>%
-                      data.table::as.data.table()) 
-   
-      if (ncol(channel_info) == 4) {
-        channel_info <- dplyr::mutate(channel_info, empty_col = NA_real_)
-        }
- 
-    
+    imap_dtr(~ c(.y, strsplit(.x, ",")[[1]]) %>%
+      t() %>%
+      data.table::as.data.table())
+
+  if (ncol(channel_info) == 4) {
+    channel_info <- dplyr::mutate(channel_info, empty_col = NA_real_)
+  }
+
+
   channel_info <- channel_info %>%
-      stats::setNames(c("number", ".channel", ".reference", "resolution", "unit")) %>%
+    stats::setNames(c("number", ".channel", ".reference", "resolution", "unit")) %>%
     dplyr::mutate(
       resolution = as.double(resolution),
       unit = "microvolt",
-      .reference = data.table::fifelse(.reference=="", NA_character_,.reference)
+      .reference = data.table::fifelse(.reference == "", NA_character_, .reference)
     )
-   # To avoid problems with the unicode characters, it seems that brainvision uses "mu" instead of "micro"
+  # To avoid problems with the unicode characters, it seems that brainvision uses "mu" instead of "micro"
   # TODO: check if the unit could be different here
 
 
@@ -263,7 +278,7 @@ read_vhdr_metadata <- function(file) {
     coordinates <- dplyr::tibble(number = channel_info$number, radius = NA_real_, theta = NA_real_, phi = NA_real_)
   } else {
     coordinates <- vhdr$Coordinates %>%
-      imap_dtr(~ c(.y, stringr::str_split(.x, ",")[[1]]) %>%
+      imap_dtr(~ c(.y, strsplit(.x, ",")[[1]]) %>%
         t() %>%
         data.table::as.data.table(.name_repair = "unique")) %>%
       stats::setNames(c("number", "radius", "theta", "phi")) %>%
@@ -299,16 +314,17 @@ read_vhdr_metadata <- function(file) {
     common_info <- common_info %>%
       dplyr::mutate(bits = vhdr[["Binary Infos"]][["BinaryFormat"]])
   }
-  
-  if (stringr::str_sub(common_info$domain, 1, nchar("time")) %>%
-    stringr::str_to_lower() != "time") {
+
+  if (substr(common_info$domain, start = 1, stop = nchar("time")) %>%
+    tolower() != "time") {
     stop("DataType needs to be 'time'")
   }
 
+  # TODO use the _dt version as in read_set
   chan_info <- dplyr::full_join(channel_info, coordinates, by = "number") %>%
     dplyr::bind_cols(purrr::pmap_dfr(
       list(.$radius, .$theta, .$phi),
-      brainvision_loc_2_xyz
+      spherical_to_xyz
     ))
 
   out <- list()
@@ -317,14 +333,65 @@ read_vhdr_metadata <- function(file) {
   return(out)
 }
 
+## #' Spherical horiz. angle ("sph_theta")
+## #' Spherical azimuth angle ("sph_phi")', ...
+## #' Spherical radius ("sph_radius")'
+## #' @noRd
+## besa_loc_2_xyz <- function(azimuth, horiz_angle) {
+##   spherical_to_xyz(radius = 1, theta = azimuth, phi = horiz_angle)
+## }
 
-besa_loc_2_xyz <- function(azimuth, horiz_angle) {
-  brainvision_loc_2_xyz(radius = 1, theta = azimuth, phi = horiz_angle)
+#' Transform spherical coordinates to xyz
+#'
+#' Transform spherical coordinates, such as the ones provided by BrainVision or sph.....
+#'
+#' @noRd
+spherical_to_xyz <- function(radius = 1, theta = NULL, phi = NULL) {
+  radius <- ifelse((is.na(radius) | is.null(radius)) & is.numeric(theta) & is.numeric(phi), 1, radius)
+
+  x <- ifelse(radius != 0, round(sin(theta * pi / 180) * cos(phi * pi / 180), 2), NA_real_)
+  y <- ifelse(radius != 0, round(sin(theta * pi / 180) * sin(phi * pi / 180), 2), NA_real_)
+  z <- ifelse(radius != 0, round(cos(theta * pi / 180), 2), NA_real_)
+  dplyr::tibble(.x = x, .y = y, .z = z)
 }
 
-brainvision_loc_2_xyz <- function(radius = 1, theta = NULL, phi = NULL) {
-  x <- dplyr::if_else(radius != 0, round(sin(theta * pi / 180) * cos(phi * pi / 180), 2), NA_real_)
-  y <- dplyr::if_else(radius != 0, round(sin(theta * pi / 180) * sin(phi * pi / 180), 2), NA_real_)
-  z <- dplyr::if_else(radius != 0, round(cos(theta * pi / 180), 2), NA_real_)
-  dplyr::tibble(.x = x, .y = y, .z = z)
+spherical_to_xyz_dt <- function(radius = 1, theta = NULL, phi = NULL) {
+  radius <- ifelse((is.na(radius) | is.null(radius)) & is.numeric(theta) & is.numeric(phi), 1, radius)
+
+  data.table::data.table(
+    .x = ifelse(radius != 0, round(sin(theta * pi / 180) * cos(phi * pi / 180), 2), NA_real_),
+    .y = ifelse(radius != 0, round(sin(theta * pi / 180) * sin(phi * pi / 180), 2), NA_real_),
+    .z = ifelse(radius != 0, round(cos(theta * pi / 180), 2), NA_real_)
+  )
+
+  # x,y,z
+}
+
+read_bin_signal <- function(file, type = "double", bytes = 4, n_chan, n_trials = 1, sample_x_channels = TRUE) {
+  if (!file.exists(file)) stop("Binary file ", file, " cannot be found.", call. = FALSE)
+  amps <- readBin(file,
+    what = type, n = file.info(file)$size / bytes,
+    size = bytes
+  )
+  if (n_trials == 1) {
+    matrix(amps, ncol = n_chan, byrow = sample_x_channels) %>%
+      data.table::as.data.table()
+  } else {
+    samples <- length(amps) / (n_trials * n_chan)
+    arraydata <- array(amps, dim = c(n_chan, n_trials, samples)) %>%
+      apply(1, c)
+
+    if (!sample_x_channels) {
+      arraydata <- t(arraydata)
+    }
+    data.table::as.data.table(arraydata)
+  }
+
+
+  ## that one is faster than:
+  ## raw_signal <- matrix(as.matrix(amps), ncol = n_chan, byrow = multiplexed) %>%
+  ##   data.table::as.data.table(),
+  ## raw_signal <- data.table::data.table(matrix(amps, ncol = n_chan, byrow = multiplexed)
+  ## )
+  ## )
 }

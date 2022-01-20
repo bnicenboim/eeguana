@@ -3,7 +3,7 @@ output: github_document
 ---
  [![R build status](https://github.com/bnicenboim/eeguana/workflows/R-CMD-check/badge.svg)](https://github.com/bnicenboim/eeguana/actions)
 [![Codecov test coverage](https://codecov.io/gh/bnicenboim/eeguana/branch/master/graph/badge.svg)](https://codecov.io/gh/bnicenboim/eeguana?branch=master) 
-[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/bnicenboim/eeguana?branch=master&svg=true)](https://ci.appveyor.com/project/bnicenboim/eeguana) [![DOI](https://zenodo.org/badge/153299577.svg)](https://zenodo.org/badge/latestdoi/153299577)  [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![DOI](https://zenodo.org/badge/153299577.svg)](https://zenodo.org/badge/latestdoi/153299577)  [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 
 
@@ -17,11 +17,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-# eeguana <img src="man/figures/logo.png" align="right" height=140/>
+# eeguana <img src="man/figures/logo.png" align="right" style="width: 20vw; min-width: 25px;"/>
 
 ## Overview
 
-A package for flexible manipulation of EEG data. *eeguana* provides a *data.table* powered framework for manipulating EEG data with *dplyr*-based functions (e.g., `mutate`, `filter`, `summarize`) extended to a new class `eeg_lst`,  other EEG-specialized functions, and `ggplot` wrapper functions.  The new class is inspired by tidyverse principles but it's not really "tidy" (due to space considerations), it's a list of (i) a wide *data table* (`signal_tbl`) that contains the signal amplitudes at every sample point of the EEG,  (ii) an events *data table* with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant number (`.recording`), conditions, etc.  
+A package for flexible manipulation of EEG data. `eeguana` provides a `data.table` powered framework (through `tidytable`) for manipulating EEG data with *dplyr*-like functions (e.g., `eeg_mutate`, `eeg_filter`, `eeg_summarize`) extended to a new class `eeg_lst`,  other EEG-specialized functions, and `ggplot` wrapper functions.  The new class is inspired by tidyverse principles but it's not really "tidy" (due to space considerations), it's a list of (i) a wide *data table* (`signal_tbl`) that contains the signal amplitudes at every sample point of the EEG,  (ii) an events *data table* with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant number (`.recording`), conditions, etc.  
 
 *eeguana* can do only basic pre-processing for now, more complete packages exist for Matlab ([FieldTrip](http://www.fieldtriptoolbox.org/) and [EEGLAB](https://sccn.ucsd.edu/eeglab/index.php)) and python ([MNE](https://martinos.org/mne/stable/index.html)).
 
@@ -105,14 +105,13 @@ We can also edit the segmentation information and add more descriptive labels. O
 ```{r}
 ## To only see the segments table:
 segments_tbl(faces_segs)
-library(dplyr)
 ## We modify the entire object:
 faces_segs_some <- faces_segs %>%
-  mutate(
+  eeg_mutate(
     condition =
-      if_else(description == "s70", "faces", "non-faces")
+      ifelse(description == "s70", "faces", "non-faces")
   ) %>%
-  select(-type)
+  eeg_select(-type)
 
 faces_segs_some
 ```
@@ -122,11 +121,11 @@ With some "regular" `ggplot` skills, we can create customized plots. `ggplot()` 
 ```{r plot, fig.dim = c(10,15), out.width = "100%", results = "hide"}
 library(ggplot2)
 faces_segs_some %>%
-  select(O1, O2, P7, P8) %>%
+  eeg_select(O1, O2, P7, P8) %>%
   ggplot(aes(x = .time, y = .value)) +
   geom_line(alpha = .1, aes(group = .id, color = condition)) +
   stat_summary(
-    fun.y = "mean", geom = "line", alpha = 1, size = 1.5,
+    fun = "mean", geom = "line", alpha = 1, size = 1.5,
     aes(color = condition)
   ) +
   facet_wrap(~.key) +
@@ -143,9 +142,9 @@ of the stimuli, creating a table with interpolated amplitudes and using the ggpl
 
 ```{r topo, fig.dim = c(10,5), out.width = "100%", results = "hide"}
 faces_segs_some %>%
-  filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
-  group_by(condition) %>%
-  summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
+  eeg_filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
+  eeg_group_by(condition) %>%
+  eeg_summarize(across_ch(mean, na.rm = TRUE)) %>%
   plot_topo() +
   annotate_head() +
   geom_contour() +

@@ -14,11 +14,11 @@ read_vhdr(
 \arguments{
 \item{file}{A vhdr file in a folder that contains a .vmrk and .dat files}
 
-\item{.sep}{Segment separation marker. By default: .type == "New Segment"}
+\item{.sep}{Segment separation marker. By default: \code{.type == "New Segment"}}
 
-\item{.zero}{Time zero marker. By default: .type == "Time 0"}
+\item{.zero}{Time zero marker. By default: \code{.type == "Time 0"}}
 
-\item{.recording}{Recording name (file name, by default).}
+\item{.recording}{Recording name (\code{file} name, by default).}
 }
 \value{
 An \code{eeg_lst} object with signal_tbl and event from file_name.dat,
@@ -36,16 +36,16 @@ files must be in the same directory.
 s1 <- read_vhdr("./faces.vhdr", .recording = "1")
 
 # load multiple subjects using purrr::map, extracting subject IDs from file names
-faces_list <- purrr::map(list.files("./","vhdr"), ~ 
-    read_vhdr(.x)
-)
+faces_list <- purrr::map(list.files("./", "vhdr"), ~
+read_vhdr(.x))
 faces <- bind(faces_list)
 }
- 
+
 }
 \seealso{
 Other reading functions: 
 \code{\link{read_edf}()},
-\code{\link{read_ft}()}
+\code{\link{read_ft}()},
+\code{\link{read_set}()}
 }
 \concept{reading functions}

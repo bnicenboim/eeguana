@@ -2,55 +2,70 @@
 % Please edit documentation in R/dplyr_verbs.R
 \name{dplyr_verbs}
 \alias{dplyr_verbs}
-\alias{mutate.eeg_lst}
-\alias{transmute.eeg_lst}
-\alias{filter.eeg_lst}
-\alias{filter.eeg_ica_lst}
-\alias{summarise.eeg_lst}
-\alias{group_by.eeg_lst}
-\alias{ungroup.eeg_lst}
-\alias{select.eeg_lst}
-\alias{rename.eeg_lst}
-\alias{groups.eeg_lst}
-\alias{group_vars.eeg_lst}
-\alias{anti_join.eeg_lst}
-\alias{left_join.eeg_lst}
-\alias{semi_join.eeg_lst}
-\alias{tbl_vars.eeg_lst}
-\alias{pull.eeg_lst}
-\title{Dplyr verbs overloaded for manipulating eeg_lst objects.}
+\alias{eeg_mutate}
+\alias{eeg_transmute}
+\alias{eeg_filter}
+\alias{eeg_summarize}
+\alias{eeg_summarise}
+\alias{eeg_group_by}
+\alias{eeg_ungroup}
+\alias{eeg_select}
+\alias{eeg_rename}
+\alias{eeg_rename_with}
+\alias{eeg_groups}
+\alias{eeg_groups.eeg_lst}
+\alias{eeg_group_vars}
+\alias{eeg_anti_join}
+\alias{eeg_left_join}
+\alias{eeg_semi_join}
+\alias{eeg_pull}
+\alias{across}
+\alias{across_ch}
+\alias{c_across_ch}
+\alias{c_across}
+\title{Dplyr-like functions for manipulating eeg_lst objects.}
 \usage{
-\method{mutate}{eeg_lst}(.data, ...)
+eeg_mutate(.data, ...)
 
-\method{transmute}{eeg_lst}(.data, ...)
+eeg_transmute(.data, ...)
 
-filter.eeg_lst(.data, ..., .preserve = FALSE)
+eeg_filter(.data, ..., .preserve = FALSE)
 
-filter.eeg_ica_lst(.data, ..., .preserve = FALSE)
+eeg_summarize(.data, ..., .groups = "keep")
 
-\method{summarise}{eeg_lst}(.data, ..., .groups = "keep")
+eeg_summarise(.data, ..., .groups = "keep")
 
-\method{group_by}{eeg_lst}(.data, ..., .add = FALSE, .drop = FALSE)
+eeg_group_by(.data, ..., .add = FALSE, .drop = FALSE)
 
-\method{ungroup}{eeg_lst}(.data, ...)
+eeg_ungroup(.data, ...)
 
-\method{select}{eeg_lst}(.data, ...)
+eeg_select(.data, ...)
 
-\method{rename}{eeg_lst}(.data, ...)
+eeg_rename(.data, ...)
 
-\method{groups}{eeg_lst}(x)
+eeg_rename_with(.data, .fn, .cols = where(is_channel_dbl), ...)
 
-\method{group_vars}{eeg_lst}(x)
+eeg_groups(x)
 
-\method{anti_join}{eeg_lst}(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
+\method{eeg_groups}{eeg_lst}(x)
 
-\method{left_join}{eeg_lst}(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
+eeg_group_vars(x)
 
-\method{semi_join}{eeg_lst}(x, y, by = NULL, suffix = c(".x", ".y"), ...)
+eeg_anti_join(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
 
-tbl_vars.eeg_lst(x)
+eeg_left_join(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
 
-pull.eeg_lst(.data, var = -1, name = NULL, ...)
+eeg_semi_join(x, y, by = NULL, suffix = c(".x", ".y"), ...)
+
+eeg_pull(.data, var = -1, name = NULL, ...)
+
+across(.cols = everything(), .fns = NULL, ..., .names = NULL)
+
+across_ch(.fns = NULL, ..., .names = NULL)
+
+c_across_ch()
+
+c_across(.cols = everything())
 }
 \arguments{
 \item{.data}{An eeg_lst.}
@@ -64,6 +79,10 @@ pull.eeg_lst(.data, var = -1, name = NULL, ...)
 \item{.add}{When FALSE, the default, group_by() will override existing groups. To add to the existing groups, use .add = TRUE.}
 
 \item{.drop}{Only .drop = FALSE is available, empty groups are never dropped.}
+
+\item{.fn}{Function to transform the names with.}
+
+\item{.cols}{Columns to rename. Defaults to all columns. \code{tidyselect} compatible.}
 
 \item{x}{An eeg_lst.}
 
@@ -112,36 +131,42 @@ names and column locations).}
 
 \item{name}{An optional parameter that specifies the column to be used
 as names for a named vector. Specified in a similar manner as \code{var}.}
+
+\item{.fns}{Functions to pass. Can pass a list of functions.}
+
+\item{.names}{A glue specification that helps with renaming output columns.
+\code{{.col}} stands for the selected column, and \code{{.fn}} stands for the name of the function being applied.
+The default (\code{NULL}) is equivalent to \code{"{.col}"} for a single function case and \code{"{.col}_{.fn}"}
+when a list is used for \code{.fns}.}
 }
 \value{
 An eeg_lst object.
 }
 \description{
-Manipulate the signal table and the segments table of an eeg_lst.
+Manipulate the signal table and the segments table of an eeg_lst with dplyr-like functions.
 }
 \details{
-Wrappers for \code{\link[dplyr:dplyr-package]{dplyr}}'s commands that act on different parts
-\code{eeg_lst} objects. Functions that drop or rename column won't remove columns starting with a dot.
+Wrappers for \code{\link[dplyr:dplyr-package]{dplyr}}'s commands that act
+\code{eeg_lst} objects. Functions that drop or rename columns won't remove columns starting with a dot. These functions are powered by \code{\link[data.table:data.table]{data.table}} through \code{\link[tidytable:tidytable]{tidytable}}.
+
 The following wrappers act in a special way for \code{eeg_lst} objects:
 \itemize{
-\item \verb{*_join()}: joins an external table to the \emph{segments} table of the eeg_lst.
-\item \code{mutate()} and \code{transmute()} Variables that are a function of a channel are added to the signal_tbl table, and other variables are added to the segments table.
-\item \code{summarize()} summarizes the channel of the signal_tbl table.
-\item \code{pull()} only pulls columns of the signal table
+\item \verb{eeg_*_join()}: joins an external table to the \emph{segments} table of the eeg_lst.
+\item \code{eeg_mutate()} and \code{eeg_transmute()}: mutates the signal_tbl table when is applied to a channel (or a column of the signal table), and mutates the segments table otherwise. It can also mutates by reference.
+\item \code{eeg_summarize()} summarizes the channel of the signal_tbl table.
+\item \code{eeg_pull()} only pulls columns of the signal table
 }
 
-In addition, \verb{_at()}, and \verb{_if()} versions of the functions should work as well. Notice that  the \verb{_at()} versions are
-much faster than the \verb{_if()} versions of these commands.
+In addition, \code{across()}, and \code{c_across()} work as well. Notice that  there are convienent wrappers \code{across_ch()} and \code{c_across_ch()} where the argument \code{.cols} is always set to \code{where(is_channel_dbl)}.
 \subsection{Gotchas}{
 
-These functions emulate \link{dplyr} functionality but they are actually powered by \link{data.table}, and some times they might be behave a bit differently than the dplyr counterpart.
+These functions emulate \link{dplyr} functionality but they are actually powered by the wrapper of \link{data.table},  \link{tidytable} and some times they might be behave a bit differently than the dplyr counterpart.
 \itemize{
 \item The default values of the arguments might be different, and some arguments might not exist for the eeguana dplyr-like functions.
-\item grouped mutations behave slightly different than ungrouped ones: Channel properties are removed if the data is ungrouped and one does \code{mutate(data, channel = 0)}, but not if the data is grouped.
-\item eeguana's \link{mutate} doesn't allow to refer back to a recently created channel: \code{data_eeg \%>\% mutate(X = F1 *2, Y = X)} is not valid. One needs to do \code{data_eeg \%>\% mutate(X = F1) \%>\% mutate(Y = X)}.
-\item eeguana's \link{mutate} doesn't use the most updated value of a column from the same call. If X is a channel, then \code{data_eeg \%>\% mutate(X = X *2, Y = X+1)} will add \code{1} to the original value of \code{X}, and not to the latest one.
-\item \code{n()} doesn't work, instead \code{length(.sample)} will give the same answer.
-\item \code{across()} and \code{where()} cannot be used.
+\item Grouped mutations behave slightly different than ungrouped ones: Channel properties are removed if the data is ungrouped and one does \code{eeg_mutate(data, channel = 0)}, but not if the data is grouped.
+\item eeguana's \link{eeg_mutate} doesn't allow to refer back to a recently created channel: \code{data_eeg \%>\% eeg_mutate(X = F1 *2, Y = X)} is not valid. One needs to do \code{data_eeg \%>\% eeg_mutate(X = F1) \%>\% eeg_mutate(Y = X)}.
+\item eeguana's \link{eeg_mutate} doesn't use the most updated value of a column from the same call. If X is a channel, then \code{data_eeg \%>\% eeg_mutate(X = X *2, Y = X+1)} will add \code{1} to the original value of \code{X}, and not to the latest one.
+\item \link{eeg_filter} behaves similarly to dplyr's \code{\link[dplyr:filter]{filter}}. If you want to filter the signal using IIR or FIR filters use \link[=filt]{eeg_filt*} functions.
 }
 }
 
@@ -154,45 +179,49 @@ These functions not only edit the eeg_lst objects but they also do book-keeping:
 library(dplyr)
 # Create new channel in the signal table
 data_faces_ERPs \%>\%
-  mutate(tmp = Fz - Cz)
+  eeg_mutate(tmp = Fz - Cz)
 
 # Create a new condition in the segments table
 data_faces_ERPs \%>\%
-  mutate(code = ifelse(condition == "faces", 1, -1))
+  eeg_mutate(code = ifelse(condition == "faces", 1, -1))
 
 # Create a new channel and drop all others
 data_faces_ERPs \%>\%
-  transmute(Occipital = chs_mean(O1, O2, Oz,
+  eeg_transmute(Occipital = chs_mean(O1, O2, Oz,
     na.rm = TRUE
   ))
 
 # Extract data associated with a condition
 data_faces_ERPs \%>\%
-  filter(condition == "faces")
+  eeg_filter(condition == "faces")
 
 # Group and summarize
 data_faces_ERPs \%>\%
   # Convert samples to times, filter between timepoints
-  filter(between(
+  eeg_filter(between(
     as_time(.sample, .unit = "ms"),
     100, 200
   )) \%>\%
   # Find mean amplitude of Fz for each condition
-  group_by(condition) \%>\%
-  summarize(mean.amplitude = mean(Fz))
+  eeg_group_by(condition) \%>\%
+  eeg_summarize(mean.amplitude = mean(Fz))
+
+# Mean of each channel
+data_faces_ERPs \%>\%
+  eeg_summarize(across_ch(mean))
 
 # Select specific electrodes
 data_faces_ERPs \%>\%
-  select(O1, O2, P7, P8)
+  eeg_select(O1, O2, P7, P8)
 
 # Rename a variable
 data_faces_ERPs \%>\%
-  rename(Predictor = condition)
+  eeg_rename(Predictor = condition)
 }
 \seealso{
 Other tidyverse-like functions: 
-\code{\link{bind}()},
 \code{\link{drop_incomplete_segments}()},
-\code{\link{slice_signal}()}
+\code{\link{eeg_bind}()},
+\code{\link{eeg_slice_signal}()}
 }
 \concept{tidyverse-like functions}

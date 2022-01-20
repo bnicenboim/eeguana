@@ -18,7 +18,7 @@ eeg_interpolate_tbl.eeg_lst <- function(.data, .radius = 1.2, .diam_points = 100
   grouping <- dplyr::group_vars(.data)
   .data <- dplyr::as_tibble(.data) %>%
     dplyr::left_join(channels_tbl(.data), by = c(".key" = ".channel")) %>%
-    dplyr::group_by_at(dplyr::vars(grouping))
+    dplyr::group_by_at(dplyr::vars(tidyselect::all_of(grouping)))
   dots <- rlang::enquos(...)
   # NextMethod()
   eeg_interpolate_tbl(.data,
@@ -86,13 +86,15 @@ eeg_interpolate_tbl.data.frame <- function(.data,
   }
 
 
-  l <- .data %>% dplyr::ungroup() %>% dplyr::select(dplyr::one_of(group_vars)) # %>%
+  l <- .data %>%
+    dplyr::ungroup() %>%
+    dplyr::select(dplyr::one_of(group_vars)) # %>%
 
   if (!identical(stats::na.omit(l), l)) {
     stop("Data cannot be grouped by a column that contains NAs.")
   }
 
-  if (stringr::str_to_lower(.method) == "mba") {
+  if (tolower(.method) == "mba") {
     if (!"MBA" %in% rownames(utils::installed.packages())) {
       stop("Package MBA needs to be installed to interpolate using multilevel B-splines ")
     }
@@ -120,7 +122,7 @@ eeg_interpolate_tbl.data.frame <- function(.data,
         !!rlang::quo_name(.value) := c(results$xyz$z)
       )
     }
-  } else if (stringr::str_to_lower(.method) == "akima") {
+  } else if (tolower(.method) == "akima") {
     if (!"akima" %in% rownames(utils::installed.packages())) {
       stop("Package akima needs to be installed to interpolate using bicubic spline Akima interpolation algorithm.")
     }
@@ -148,13 +150,14 @@ eeg_interpolate_tbl.data.frame <- function(.data,
 
 
   # if there are no groups, it will just create a list with the entire df
-  grid <- {
-    if (ncol(l) == 0) {
-      list(.data)
-    } else {
-      base::split(.data, l)
-    }
-  } %>%
+  grid <-
+    {
+      if (ncol(l) == 0) {
+        list(.data)
+      } else {
+        base::split(.data, l)
+      }
+    } %>%
     purrr::discard(~ nrow(.x) == 0) %>%
     purrr::map_dfr(function(.d) {
       common <- .d %>%
@@ -287,11 +290,11 @@ orthographic <- function(x, y, z) {
 #'
 #' @export
 change_coord <- function(data, .projection = "polar") {
-  if (stringr::str_to_lower(.projection) == "orthographic") {
+  if (tolower(.projection) == "orthographic") {
     project <- orthographic
-  } else if (stringr::str_to_lower(.projection) == "polar") {
+  } else if (tolower(.projection) == "polar") {
     project <- polar
-  } else if (stringr::str_to_lower(.projection) == "stereographic") {
+  } else if (tolower(.projection) == "stereographic") {
     project <- stereographic
   }
 

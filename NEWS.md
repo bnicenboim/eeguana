@@ -1,3 +1,17 @@
+# eeguana 0.1.6.9000
+
+- **Breaking change**: `_at`, `_if`, `_all` functions don't work anymore. Now one should use the new `across()` (or `across_ch()`) notation. If your code doesn't work anymore and you don't know how to fix it, please post it in https://github.com/bnicenboim/eeguana/discussions
+- **Potential breaking change**: when segments with repeated columns are joined, they use data.table notation (`i...`) rather than dplyr notation. This might affect the `join` family and `eeg_segment`.
+- dplyr-like functions get an `eeg_` prefix (e.g., `eeg_mutate`, `eeg_filter`), they still work without the prefix (for now). 
+- NEW FEATURES:
+    - filters have more options (including IIR, experimental).
+    - read eeglab set files (still experimental)
+- documentation:
+    - more examples
+- internal changes:
+    - removed dependency with `stringr`
+    - changed internal structure of `eeg_lst`, the segments table is a data.table rather than a tibble and they depend on `tidytable`
+    
 # eeguana 0.1.5.9000
   - Bugs: 
     - weird dplyr filter behavior fixed  [#136](https://github.com/bnicenboim/eeguana/issues/136)

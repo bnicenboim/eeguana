@@ -24,12 +24,15 @@ default behavior of \href{https://mne.tools/0.18/generated/mne.find_events.html?
 If you have a case where this assumption is incorrect, please open an issue in \url{https://github.com/bnicenboim/eeguana/issues}.
 }
 \examples{
-\dontrun{s1 <- read_edf("./faces.edf", .recording = 1)}
+\dontrun{
+s1 <- read_edf("./faces.edf", .recording = 1)
+}
 
 }
 \seealso{
 Other reading functions: 
 \code{\link{read_ft}()},
+\code{\link{read_set}()},
 \code{\link{read_vhdr}()}
 }
 \concept{reading functions}

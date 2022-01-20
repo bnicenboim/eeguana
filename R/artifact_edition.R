@@ -23,13 +23,15 @@
 #'
 #' @examples
 #' \dontrun{
+#'
 #' # Artifacts are annotated in the events table:
 #' faces_seg_artif <- faces_seg %>%
 #'   eeg_artif_minmax(-HEOG, -VEOG, .threshold = 100, .window = 150, unit = "ms") %>%
 #'   eeg_artif_step(-HEOG, -VEOG, .threshold = 50, .window = 200, unit = "ms")
-#' # Signals with artifacts are turned into NA values
-#' faces_clean <-  faces_seg_artif %>%
-#'    eeg_events_to_NA(.type == "artifact", entire_seg = TRUE, all_chans = FALSE, drop_events = TRUE)
+#'
+#' # Signals with artifacts are turned into NA values:
+#' faces_clean <- faces_seg_artif %>%
+#'   eeg_events_to_NA(.type == "artifact", entire_seg = TRUE, all_chans = FALSE, drop_events = TRUE)
 #' }
 #'
 NULL
@@ -58,8 +60,7 @@ eeg_artif_minmax.eeg_lst <- function(.data,
                                      .unit = "s",
                                      .freq = NULL,
                                      .config = list()) {
-  
-
+  .signal <- .data$.signal
   if (!is.null(.freq)) {
     h <- create_filter(
       l_freq = .freq[[1]],
@@ -67,19 +68,19 @@ eeg_artif_minmax.eeg_lst <- function(.data,
       sampling_rate = sampling_rate(.data),
       config = .config
     )
-    .signal <- filt_eeg_lst(.data$.signal, ..., h = h, na.rm = TRUE)
-  } else {
-    .signal <- .data$.signal
+    .signal <- data.table::copy(.signal)
+    filt_eeg_lst_by_ref(.signal, ..., h = h, na.rm = TRUE)
   }
-  
-  events_found <-  events_artif_custom(
+
+
+  events_found <- events_artif_custom(
     .signal,
     ...,
     fun = detect_minmax,
     args = list(
       threshold = .threshold,
-      lim_samples = lim_samples(.lim, sampling_rate(.data), .unit ),
-      window_samples = window_samples(.window, sampling_rate(.data), .unit )
+      lim_samples = lim_samples(.lim, sampling_rate(.data), .unit),
+      window_samples = window_samples(.window, sampling_rate(.data), .unit)
     )
   )
   events_tbl(.data) <- rbind(events_found, .data$.events, fill = TRUE)
@@ -96,7 +97,7 @@ eeg_artif_step <- function(.data,
                            .lim = c(-.window, .window),
                            .unit = "s",
                            .freq = NULL,
-                           .config = list())  {
+                           .config = list()) {
   UseMethod("eeg_artif_step")
 }
 #' @export
@@ -108,6 +109,7 @@ eeg_artif_step.eeg_lst <- function(.data,
                                    .unit = "s",
                                    .freq = NULL,
                                    .config = list()) {
+  .signal <- .data$.signal
   if (!is.null(.freq)) {
     h <- create_filter(
       l_freq = .freq[[1]],
@@ -115,13 +117,12 @@ eeg_artif_step.eeg_lst <- function(.data,
       sampling_rate = sampling_rate(.data),
       config = .config
     )
-    .signal <-
-      filt_eeg_lst(.data$.signal, ..., h = h, na.rm = TRUE)
-  } else {
-    .signal <- .data$.signal
+    .signal <- data.table::copy(.signal)
+    filt_eeg_lst_by_ref(.signal, ..., h = h, na.rm = TRUE)
   }
-  
-  events_found <-  events_artif_custom(
+
+
+  events_found <- events_artif_custom(
     .signal,
     ...,
     fun = detect_step,
@@ -159,7 +160,8 @@ eeg_artif_amplitude.eeg_lst <- function(.data,
   if (length(.threshold) < 2) {
     stop("Two thresholds are needed", call. = FALSE)
   }
-  
+
+  .signal <- .data$.signal
   if (!is.null(.freq)) {
     h <- create_filter(
       l_freq = .freq[[1]],
@@ -167,13 +169,12 @@ eeg_artif_amplitude.eeg_lst <- function(.data,
       sampling_rate = sampling_rate(.data),
       config = .config
     )
-    .signal <-
-      filt_eeg_lst(.data$.signal, ..., h = h, na.rm = TRUE)
-  } else {
-    .signal <- .data$.signal
+    .signal <- data.table::copy(.signal)
+    filt_eeg_lst_by_ref(.signal, ..., h = h, na.rm = TRUE)
   }
-  
-  events_found <-  events_artif_custom(
+
+
+  events_found <- events_artif_custom(
     .signal,
     ...,
     fun = detect_amplitude,
@@ -183,7 +184,7 @@ eeg_artif_amplitude.eeg_lst <- function(.data,
     )
   )
   events_tbl(.data) <- rbind(events_found, .data$.events, fill = TRUE)
-   data.table::setorder(.data$.events, .id, .initial, .channel)
+  data.table::setorder(.data$.events, .id, .initial, .channel)
   .data
 }
 
@@ -211,6 +212,7 @@ eeg_artif_peak.eeg_lst <- function(.data,
   if (!is.numeric(.window) || .window < 0) {
     stop("`.window` should be a positive number.", call. = FALSE)
   }
+  .signal <- .data$.signal
   if (!is.null(.freq)) {
     h <- create_filter(
       l_freq = .freq[[1]],
@@ -218,21 +220,22 @@ eeg_artif_peak.eeg_lst <- function(.data,
       sampling_rate = sampling_rate(.data),
       config = .config
     )
-    .signal <-
-      filt_eeg_lst(.data$.signal, ..., h = h, na.rm = TRUE)
-  } else {
-    .signal <- .data$.signal
+    .signal <- data.table::copy(.signal)
+    filt_eeg_lst_by_ref(.signal, ..., h = h, na.rm = TRUE)
   }
-  
-  events_found <-  events_artif_custom(
+
+
+  events_found <- events_artif_custom(
     .signal,
     ...,
     fun = detect_peak,
     args = list(
       threshold = .threshold,
       lim_samples = lim_samples(.lim, sampling_rate(.data), .unit),
-      window_samples = window_samples(.window, sampling_rate(.data), .unit)))
-    
+      window_samples = window_samples(.window, sampling_rate(.data), .unit)
+    )
+  )
+
   events_tbl(.data) <- rbind(events_found, .data$.events, fill = TRUE)
   data.table::setorder(.data$.events, .id, .initial, .channel)
   .data
@@ -249,6 +252,20 @@ eeg_artif_peak.eeg_lst <- function(.data,
 #' @param .drop_events If set to `TRUE` (default), the events that were used for setting signals to NA, will be removed from the events table.
 #'
 #' @family events functions
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # Signals with artifacts are turned into NA values:
+#' faces_clean <- faces_seg_artif %>%
+#'   eeg_events_to_NA(.type == "artifact", entire_seg = TRUE, all_chans = FALSE, drop_events = TRUE)
+#'
+#'
+#' # Specific segments are turned into NA values:
+#' faces_clean <- faces_seg_artif %>%
+#'   eeg_events_to_NA(.id %in% c(1:3), entire_seg = TRUE, all_chans = FALSE, drop_events = TRUE)
+#' }
+#'
 #' @return An eeg_lst.
 #' @export
 eeg_events_to_NA <-
@@ -268,35 +285,38 @@ eeg_events_to_NA.eeg_lst <-
            .entire_seg = TRUE,
            .drop_events = TRUE) {
     dots <- rlang::enquos(...)
-    
+
     # TODO in data.table
     ## signal <- as.data.frame(x$.signal)
     signal <- data.table::copy(x$.signal)
     ## x$.events <- dplyr::as_tibble(x$.events)
-    
+
     # dots <- rlang::quos(.type == "Bad Interval")
-    
+
     # Hack for match 2 columns with 2 columns, similar to semi_join but allowing
     # for assignment
-    baddies <- filter_dt(x$.events,!!!dots)
-    
-    if (.all_chs)
+    baddies <- filter_dt(x$.events, !!!dots)
+
+    if (.all_chs) {
       baddies <- dplyr::mutate(baddies, .channel = NA_character_)
-    
+    }
+
     # For the replacement in parts of the segments
-    b_chans <- dplyr::filter(baddies,!is.na(.channel)) %>%
+    b_chans <- dplyr::filter(baddies, !is.na(.channel)) %>%
       dplyr::distinct(.channel) %>%
       dplyr::pull()
-    
+
     for (ch in b_chans) {
-      b <- dplyr::filter(baddies, .channel == ch,!is.na(.channel))
+      b <- dplyr::filter(baddies, .channel == ch, !is.na(.channel))
       if (!.entire_seg) {
         for (i in seq(1, nrow(b))) {
           data.table::set(
             signal,
             i = which(
-              signal$.id %in% b$.id[i] & between(signal$.sample, b$.initial[i],
-                                                 b$.final[i])
+              signal$.id %in% b$.id[i] & between(
+                signal$.sample, b$.initial[i],
+                b$.final[i]
+              )
             ),
             j = ch,
             NA_real_
@@ -314,15 +334,17 @@ eeg_events_to_NA.eeg_lst <-
     # For the replacement in the complete of the segments
     b_all <-
       dplyr::filter(baddies, is.na(.channel)) %>% dplyr::distinct()
-    
+
     if (!.entire_seg & nrow(b_all) != 0) {
       for (i in seq(1, nrow(b_all))) {
         data.table::set(
           signal,
           which(
             signal$.id == b_all$.id[i] &
-              between(signal$.sample, b_all$.initial[i],
-                      b_all$.final[i])
+              between(
+                signal$.sample, b_all$.initial[i],
+                b_all$.final[i]
+              )
           ),
           j = channel_names(x),
           value = NA_real_
@@ -330,16 +352,17 @@ eeg_events_to_NA.eeg_lst <-
       }
     } else {
       data.table::set(signal,
-                      which(signal$.id %in% b_all$.id),
-                      j = channel_names(x),
-                      value = NA_real_)
+        which(signal$.id %in% b_all$.id),
+        j = channel_names(x),
+        value = NA_real_
+      )
     }
-    
-    
+
+
     if (.drop_events) {
-      x$.events <- anti_join_dt(x$.events, filter_dt(x$.events,!!!dots))
+      x$.events <- anti_join_dt(x$.events, filter_dt(x$.events, !!!dots))
     }
     x$.signal <- signal
-    
+
     validate_eeg_lst(x)
   }

@@ -7,29 +7,35 @@
 #' @inheritParams fastICA::fastICA
 #' @return A list with the unmixing matrix W and the mixing matrix A.
 #' @export
-fast_ICA <-function(X, n.comp=NULL, alg.typ = "parallel",
-            fun = "logcosh", alpha = 1.0, method = "C",
-            row.norm = FALSE, maxit = 1000, tol = 1e-06,
-            w.init = NULL){
-  if(is.null(n.comp)){
-    n.comp = ncol(X)
-  } 
- capture <-  utils::capture.output(res <- fastICA::fastICA(X=X, n.comp=n.comp, alg.typ = alg.typ,
-          fun = fun, alpha = alpha, method = method,
-          row.norm = row.norm, maxit = maxit, tol = tol, verbose = TRUE,
-          w.init = w.init))
-  last_line <- stringr::str_match(capture[length(capture)], "Iteration (\\d*) tol=(.*)")
-  
-  out_tol <- as.numeric(last_line[,3])
-  out_maxit <- as.numeric(last_line[,2])
- if(out_tol > tol){
-   warning("fastICA didn't converge. Expected tolerance: ", tol,
-           ". Tolerance: ",res$tol,". Increase the number of iterations to more than ",
-           maxit," with `maxit`", call. = FALSE)
- }
- message("# ICA finished in ", out_maxit," iterations. With a tolerance of ",out_tol,
-         ". (Maximum expected tolerance: ",tol,".)")
- list(A= res$A, W =res$K %*% res$W)
+fast_ICA <- function(X, n.comp = NULL, alg.typ = "parallel",
+                     fun = "logcosh", alpha = 1.0, method = "C",
+                     row.norm = FALSE, maxit = 1000, tol = 1e-06,
+                     w.init = NULL) {
+  if (is.null(n.comp)) {
+    n.comp <- ncol(X)
+  }
+  capture <- utils::capture.output(res <- fastICA::fastICA(
+    X = X, n.comp = n.comp, alg.typ = alg.typ,
+    fun = fun, alpha = alpha, method = method,
+    row.norm = row.norm, maxit = maxit, tol = tol, verbose = TRUE,
+    w.init = w.init
+  ))
+  last_line <- chr_match(capture[length(capture)], "Iteration (\\d*) tol=(.*)")
+
+  out_tol <- as.numeric(last_line[, 3])
+  out_maxit <- as.numeric(last_line[, 2])
+  if (out_tol > tol) {
+    warning("fastICA didn't converge. Expected tolerance: ", tol,
+      ". Tolerance: ", res$tol, ". Increase the number of iterations to more than ",
+      maxit, " with `maxit`",
+      call. = FALSE
+    )
+  }
+  message_verbose(
+    "# ICA finished in ", out_maxit, " iterations. With a tolerance of ", out_tol,
+    ". (Maximum expected tolerance: ", tol, ".)"
+  )
+  list(A = res$A, W = res$K %*% res$W)
 }
 
 
@@ -65,8 +71,7 @@ adapt_fast_ICA <-
     if (!(kj %in% 1:p)) {
       W0 <- JADE::FOBI(X)$W
       init_est <- "FOBI"
-    }
-    else {
+    } else {
       W0 <- JADE::k_JADE(X, k = kj, eps = eps, maxiter = maxiter)$W
       init_est <- paste(kj, "-JADE", sep = "")
     }
@@ -74,14 +79,14 @@ adapt_fast_ICA <-
     X <- sweep(X, 2, colMeans(X))
     name <- fICA::gnames
     # garbage collection before calling the function:
-    #TODO: may need to clean this up later
-    if("full" %in% methods::formalArgs(gc)){
+    # TODO: may need to clean this up later
+    if ("full" %in% methods::formalArgs(gc)) {
       gc(full = TRUE)
     } else {
-      #older version of R
+      # older version of R
       gc()
     }
-    
+
     res <- .Call("adfica", X, eps, maxiter, PACKAGE = "fICA")
     cnam <- paste("comp", 1:p)
     V <- res$W
@@ -94,8 +99,7 @@ adapt_fast_ICA <-
     }
     if (length(ord) == (p - 1)) {
       ord[p] <- sum(1:p) - sum(ord)
-    }
-    else {
+    } else {
       ord <- 1:p
     }
     W <- crossprod(V, W0)
@@ -109,7 +113,7 @@ adapt_fast_ICA <-
 #' @rdname fICA
 #' @export
 fast_ICA2 <- function(X, g = "tanh", dg = NULL, G = NULL, init = NULL, n.init = 1,
-                     method = "def", eps = 1e-06, maxiter = 1000) {
+                      method = "def", eps = 1e-06, maxiter = 1000) {
   X <- as.matrix(X)
   n <- nrow(X)
   p <- ncol(X)
@@ -130,44 +134,46 @@ fast_ICA2 <- function(X, g = "tanh", dg = NULL, G = NULL, init = NULL, n.init = 
   if (is.null(init)) {
     VN <- diag(p)
   } else {
-    mat.sqrt <- function(A)    {
+    mat.sqrt <- function(A) {
       eig <- eigen(A, symmetric = TRUE)
-      eig$vectors %*% (diag(eig$values^(1/2))) %*% t(eig$vectors)
+      eig$vectors %*% (diag(eig$values^(1 / 2))) %*% t(eig$vectors)
     }
-    
+
     VN <- crossprod(t(init), S0.5)
     VN <- crossprod(
       solve(mat.sqrt(tcrossprod(VN, VN))),
       VN
     )
   }
-  V <- switch(method, sym2 = {
-    if (!(is.function(g) && is.function(dg) && is.function(G))) {
+  V <- switch(method,
+    sym2 = {
+      if (!(is.function(g) && is.function(dg) && is.function(G))) {
+        gi <- which(name == g[1])
+        g1 <- fICA::gf[[gi]]
+        dg1 <- fICA::dgf[[gi]]
+        G1 <- fICA::Gf[[gi]]
+      } else {
+        g1 <- g
+        dg1 <- dg
+        G1 <- G
+      }
+      stop("c++ code not available for method sym2 yet. Use fICA::fICA")
+    },
+    sym = {
       gi <- which(name == g[1])
-      g1 <- fICA::gf[[gi]]
-      dg1 <- fICA::dgf[[gi]]
-      G1 <- fICA::Gf[[gi]]
-    } else {
-      g1 <- g
-      dg1 <- dg
-      G1 <- G
+      V <- .Call("ficasym", X, gi, VN, p * eps, maxiter,
+        PACKAGE = "fICA"
+      )
+    },
+    def = {
+      gi <- which(name == g[1])
+      V <- .Call("ficadef", X, gi, VN, eps, maxiter, PACKAGE = "fICA")
     }
-    stop("c++ code not available for method sym2 yet. Use fICA::fICA")
-    
-  }, sym = {
-    gi <- which(name == g[1])
-    V <- .Call("ficasym", X, gi, VN, p * eps, maxiter,
-      PACKAGE = "fICA"
-    )
-  }, def = {
-    gi <- which(name == g[1])
-    V <- .Call("ficadef", X, gi, VN, eps, maxiter, PACKAGE = "fICA")
-  })
+  )
   if (sum(abs(V$W)) > 0) {
     W <- crossprod(V$W, S0.5inv)
     W <- t(crossprod(diag(sign(rowMeans(W))), W))
-  }
-  else {
+  } else {
     stop("no convergence")
   }
   A <- MASS::ginv(W)

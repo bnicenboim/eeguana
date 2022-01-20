@@ -43,8 +43,8 @@ as_sample_int.numeric <- function(x, sampling_rate = NULL, .unit = "s", ...) {
   scale <- scaling(sampling_rate, unit = .unit)
   # shift if it's in time scale so that sample 1 corresponds to time 0,
   # but not shift if it's converting samples into samples
-  shift <- if(scale == 1) 0 else 1
-  samples <- round(x * scale + shift) 
+  shift <- if (scale == 1) 0 else 1
+  samples <- round(x * scale + shift)
   sample_int(samples, sampling_rate)
 }
 #' @export

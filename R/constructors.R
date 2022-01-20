@@ -18,48 +18,51 @@
 #' @return A valid eeg_lst.
 #' @export
 eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, channels_tbl = NULL) {
-  if(is.null(signal_tbl) ){
+  if (is.null(signal_tbl)) {
     signal_tbl <- new_signal_tbl()
   } else if (!is_signal_tbl(signal_tbl)) {
     signal_tbl <- data.table::as.data.table(signal_tbl)
     if (!is.null(channels_tbl)) {
       data.table::set(signal_tbl,
-                      ## columns with channels
-                      j = channels_tbl$.channel,
-                      ## columns that need to be updated with attributes
-                      value = signal_tbl[, (update_channel_meta_data(.SD, channels_tbl)),
-                                         .SDcols = (channels_tbl$.channel)
-                                         ]
+        ## columns with channels
+        j = channels_tbl$.channel,
+        ## columns that need to be updated with attributes
+        value = signal_tbl[, (update_channel_meta_data(.SD, channels_tbl)),
+          .SDcols = (channels_tbl$.channel)
+        ]
       )
     }
-    
+
     signal_tbl <- as_signal_tbl(signal_tbl)
   } else {
     signal_tbl <- validate_signal_tbl(signal_tbl)
   }
-  if(is.null(events_tbl) ) {
+
+  if (is.null(events_tbl)) {
     events_tbl <- new_events_tbl(sampling_rate = sampling_rate(signal_tbl))
-  } else if ( !is_events_tbl(events_tbl)){
-    
+  } else if (!is_events_tbl(events_tbl)) {
     events_tbl <- as_events_tbl(events_tbl, sampling_rate = sampling_rate(signal_tbl))
   } else {
     events_tbl <- validate_events_tbl(events_tbl)
   }
   if (is.null(segments_tbl)) {
-    segments_tbl <- dplyr::tibble(.id = unique(signal_tbl$.id), .recording = NA_character_)
+    segments_tbl <- data.table::data.table(.id = unique(signal_tbl$.id))[, .recording := NA_character_]
   } else {
-    if(!".recording" %in% colnames(segments_tbl)){
-      segments_tbl <- dplyr::mutate(segments_tbl, .recording = NA)
+    if (!".recording" %in% colnames(segments_tbl)) {
+      segments_tbl <- data.table:::shallow(segments_tbl[, .recording := NA])
     }
   }
+  segments_tbl <- data.table::as.data.table(segments_tbl)
+  data.table::setkey(segments_tbl, .id)
   segments_tbl <- validate_segments(segments_tbl)
-  
-  validate_eeg_lst(x = new_eeg_lst(
-    .signal = signal_tbl,
-    .events = events_tbl,
-    .segments = segments_tbl
-  ),
-  recursive = FALSE
+
+  validate_eeg_lst(
+    x = new_eeg_lst(
+      .signal = signal_tbl,
+      .events = events_tbl,
+      .segments = segments_tbl
+    ),
+    recursive = FALSE
   )
 }
 
@@ -85,7 +88,7 @@ is_eeg_lst <- function(x) {
 #'
 #' @export
 #' @examples
-#' 
+#'
 #' sample_int(1:100, sampling_rate = 500)
 sample_int <- function(values, sampling_rate) {
   validate_sample_int(new_sample_int(values, sampling_rate))
@@ -105,8 +108,8 @@ is_sample_int <- function(x) {
 }
 
 #' Builds a channel.
-#' 
-#' Builds a channel from a vector of numbers. 
+#'
+#' Builds a channel from a vector of numbers.
 #'
 #' @param values Vector of doubles indicating amplitudes.
 #' @param x Position in the scalp.
@@ -120,7 +123,7 @@ is_sample_int <- function(x) {
 #' @return  A channel_dbl.
 #' @export
 #' @examples
-#' 
+#'
 #' Cz <- channel_dbl(runif(100, -5, 5))
 channel_dbl <- function(values, x = NA_real_, y = NA_real_, z = NA_real_, reference = NA, ...) {
   validate_channel_dbl(new_channel_dbl(values, channel_info = list(.x = x, .y = y, .z = z, .reference = reference, ...)))
@@ -130,37 +133,37 @@ channel_dbl <- function(values, x = NA_real_, y = NA_real_, z = NA_real_, refere
 #' @param x A vector.
 #' @return  A channel_dbl.
 #' @family channel
-#' @export 
-as_channel_dbl <- function(x){
+#' @export
+as_channel_dbl <- function(x) {
   class(x) <- c("channel_dbl", "numeric")
-  for( . in c(".x", ".y", ".z",".reference")){
-                if (is.null(attr(x, .))) {
-                  attr(x, .) <- NA_real_
-                }
+  for (. in c(".x", ".y", ".z", ".reference")) {
+    if (is.null(attr(x, .))) {
+      attr(x, .) <- NA_real_
     }
+  }
   validate_channel_dbl(x)
 }
 
 #' @export
-print.channel_dbl <- function(x,...) {
-  attrs <- attributes(x)[names(attributes(x))!="class"] %>%
-    purrr::imap_chr(~ paste0(.y,": ",.x)) %>%
+print.channel_dbl <- function(x, ...) {
+  attrs <- attributes(x)[names(attributes(x)) != "class"] %>%
+    purrr::imap_chr(~ paste0(.y, ": ", .x)) %>%
     paste0(collapse = "; ")
-  
-  channel_name <- names(x) 
-    
-  if(!is.null(channel_name)) {
-    cat(paste("# Channel named ", channel_name,"\n"))
-    }
-  cat(paste("#", attrs,"\n"))
+
+  channel_name <- names(x)
+
+  if (!is.null(channel_name)) {
+    cat(paste("# Channel named ", channel_name, "\n"))
+  }
+  cat(paste("#", attrs, "\n"))
   cat(paste("# Values \n"))
-  
+
   print(as.numeric(x))
   invisible(x)
 }
 
 #' Test if the object is a channel or EOG channel
-#' 
+#'
 #' * `is_channel_dbl()` returns TRUE for all  channels including EOG channels.
 #' * `is_eog_channel_dbl()` returns TRUE only for EOG channels.
 #'
@@ -171,7 +174,7 @@ print.channel_dbl <- function(x,...) {
 #' @return `TRUE` if the object inherits from the `channel_dbl` class.
 #' @export
 is_channel_dbl <- function(x) {
-  "channel_dbl" %in% class(x) 
+  "channel_dbl" %in% class(x)
 }
 
 
@@ -252,7 +255,7 @@ subset.channel_dbl <- function(x, ...) {
 #'
 #' @export
 #' @examples
-#' 
+#'
 #' Cz <- component_dbl(runif(100, -5))
 component_dbl <- function(values) {
   validate_component_dbl(new_component_dbl(values))
@@ -268,7 +271,7 @@ component_dbl <- function(values) {
 #' @return `TRUE` if the object inherits from the `sample_id` class.
 #' @export
 is_component_dbl <- function(x) {
-  "component_dbl" %in%  class(x)
+  "component_dbl" %in% class(x)
 }
 
 #' @export
@@ -307,3 +310,27 @@ subset.component_dbl <- function(x, ...) {
   mostattributes(r) <- attrs
   r
 }
+
+
+# they get lost anyways:
+#' #' @export
+#' var <- function(x, y = NULL, na.rm = FALSE, use) {
+#' UseMethod("var")
+#' }
+#'
+#' #' @export
+#' var.default <- function(x, y = NULL, na.rm = FALSE, use) {
+#'   attrs <- attributes(x)
+#'   class(x) <- NULL
+#'   r <-stats::var(x = x, y = y, na.rm = na.rm, use = use)
+#'   mostattributes(r) <- attrs
+#'   r
+#' }
+#' #' @export
+#' var.channel_dbl <- function(x, y = NULL, na.rm = FALSE, use) {
+#'   NextMethod("var")
+#' }
+#' #' @export
+#' var.component_dbl <- function(x, y = NULL, na.rm = FALSE, use) {
+#'   NextMethod("var")
+#' }

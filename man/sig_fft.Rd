@@ -22,5 +22,4 @@ of \href{stats::fft}{fft} with an extra argument similar to python's \href{https
 \examples{
 a <- c(0, 4, 0, 0)
 sig_fft(a)
-
 }

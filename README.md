@@ -3,29 +3,28 @@
 status](https://github.com/bnicenboim/eeguana/workflows/R-CMD-check/badge.svg)](https://github.com/bnicenboim/eeguana/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/bnicenboim/eeguana/branch/master/graph/badge.svg)](https://codecov.io/gh/bnicenboim/eeguana?branch=master)
-[![AppVeyor build
-status](https://ci.appveyor.com/api/projects/status/github/bnicenboim/eeguana?branch=master&svg=true)](https://ci.appveyor.com/project/bnicenboim/eeguana)
 [![DOI](https://zenodo.org/badge/153299577.svg)](https://zenodo.org/badge/latestdoi/153299577)
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![Project Status: WIP – Initial development is in progress, but there
 has not yet been a stable, usable release suitable for the
 public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 
-# eeguana <img src="man/figures/logo.png" align="right" height=140/>
+# eeguana <img src="man/figures/logo.png" align="right" style="width: 20vw; min-width: 25px;"/>
 
 ## Overview
 
-A package for flexible manipulation of EEG data. *eeguana* provides a
-*data.table* powered framework for manipulating EEG data with
-*dplyr*-based functions (e.g., `mutate`, `filter`, `summarize`) extended
-to a new class `eeg_lst`, other EEG-specialized functions, and `ggplot`
-wrapper functions. The new class is inspired by tidyverse principles but
-it’s not really “tidy” (due to space considerations), it’s a list of (i)
-a wide *data table* (`signal_tbl`) that contains the signal amplitudes
-at every sample point of the EEG, (ii) an events *data table* with
-information about markers (or triggers), blinks and other exported
-information, and (iii) a long table with experimental information, such
-as participant number (`.recording`), conditions, etc.
+A package for flexible manipulation of EEG data. `eeguana` provides a
+`data.table` powered framework (through `tidytable`) for manipulating
+EEG data with *dplyr*-like functions (e.g., `eeg_mutate`, `eeg_filter`,
+`eeg_summarize`) extended to a new class `eeg_lst`, other
+EEG-specialized functions, and `ggplot` wrapper functions. The new class
+is inspired by tidyverse principles but it’s not really “tidy” (due to
+space considerations), it’s a list of (i) a wide *data table*
+(`signal_tbl`) that contains the signal amplitudes at every sample point
+of the EEG, (ii) an events *data table* with information about markers
+(or triggers), blinks and other exported information, and (iii) a long
+table with experimental information, such as participant number
+(`.recording`), conditions, etc.
 
 *eeguana* can do only basic pre-processing for now, more complete
 packages exist for Matlab ([FieldTrip](http://www.fieldtriptoolbox.org/)
@@ -54,8 +53,7 @@ participant was presented 100 faces and 100 assorted images in random
 order. The task of the experiment was to mentally count the number of
 faces.
 
-First we download the
-data:
+First we download the data:
 
 ``` r
 # Run the following or just download the files from brain_vision folder in https://osf.io/tbwvz/
@@ -88,8 +86,8 @@ We first need to read the data:
 
 ``` r
 faces <- read_vhdr("faces.vhdr")
-#> Reading file faces.vhdr...
-#> # Data from faces.dat was read.
+#> # Reading file faces.vhdr...
+#> # Data from ./faces.dat was read.
 #> # Data from 1 segment(s) and 34 channels was loaded.
 #> # Object size in memory 140.5 Mb
 ```
@@ -191,10 +189,8 @@ faces
 #> 4276:   1 Bad Interval  Bad Min-Max   525073 525207       O2
 #> 
 #> # Segments table:
-#> # A tibble: 1 x 3
-#>     .id .recording segment
-#>   <int> <chr>        <int>
-#> 1     1 faces.vhdr       1
+#>    .id .recording segment
+#> 1:   1 faces.vhdr       1
 ```
 
 Some intervals were marked as “bad” by BrainVision, and so we’ll remove
@@ -224,39 +220,25 @@ piped using `magrittr`’s pipe, `%>%`.
 ``` r
 ## To only see the segments table:
 segments_tbl(faces_segs)
-#> # A tibble: 200 x 5
-#>      .id .recording segment type     description
-#>    <int> <chr>        <int> <chr>    <chr>      
-#>  1     1 faces.vhdr       1 Stimulus s70        
-#>  2     2 faces.vhdr       2 Stimulus s71        
-#>  3     3 faces.vhdr       3 Stimulus s71        
-#>  4     4 faces.vhdr       4 Stimulus s71        
-#>  5     5 faces.vhdr       5 Stimulus s70        
-#>  6     6 faces.vhdr       6 Stimulus s71        
-#>  7     7 faces.vhdr       7 Stimulus s71        
-#>  8     8 faces.vhdr       8 Stimulus s70        
-#>  9     9 faces.vhdr       9 Stimulus s70        
-#> 10    10 faces.vhdr      10 Stimulus s70        
-#> # … with 190 more rows
-library(dplyr)
-#> 
-#> Attaching package: 'dplyr'
-#> The following object is masked from 'package:eeguana':
-#> 
-#>     between
-#> The following objects are masked from 'package:stats':
-#> 
-#>     filter, lag
-#> The following objects are masked from 'package:base':
-#> 
-#>     intersect, setdiff, setequal, union
+#>      .id .recording segment     type description
+#>   1:   1 faces.vhdr       1 Stimulus         s70
+#>   2:   2 faces.vhdr       2 Stimulus         s71
+#>   3:   3 faces.vhdr       3 Stimulus         s71
+#>   4:   4 faces.vhdr       4 Stimulus         s71
+#>   5:   5 faces.vhdr       5 Stimulus         s70
+#>  ---                                            
+#> 196: 196 faces.vhdr     196 Stimulus         s71
+#> 197: 197 faces.vhdr     197 Stimulus         s70
+#> 198: 198 faces.vhdr     198 Stimulus         s70
+#> 199: 199 faces.vhdr     199 Stimulus         s70
+#> 200: 200 faces.vhdr     200 Stimulus         s70
 ## We modify the entire object:
 faces_segs_some <- faces_segs %>%
-  mutate(
+  eeg_mutate(
     condition =
-      if_else(description == "s70", "faces", "non-faces")
+      ifelse(description == "s70", "faces", "non-faces")
   ) %>%
-  select(-type)
+  eeg_select(-type)
 
 faces_segs_some
 #> # EEG data:
@@ -350,20 +332,18 @@ faces_segs_some
 #> 200: 200 Stimulus          s70        1      1     <NA>
 #> 
 #> # Segments table:
-#> # A tibble: 200 x 5
 #>      .id .recording segment description condition
-#>    <int> <chr>        <int> <chr>       <chr>    
-#>  1     1 faces.vhdr       1 s70         faces    
-#>  2     2 faces.vhdr       2 s71         non-faces
-#>  3     3 faces.vhdr       3 s71         non-faces
-#>  4     4 faces.vhdr       4 s71         non-faces
-#>  5     5 faces.vhdr       5 s70         faces    
-#>  6     6 faces.vhdr       6 s71         non-faces
-#>  7     7 faces.vhdr       7 s71         non-faces
-#>  8     8 faces.vhdr       8 s70         faces    
-#>  9     9 faces.vhdr       9 s70         faces    
-#> 10    10 faces.vhdr      10 s70         faces    
-#> # … with 190 more rows
+#>   1:   1 faces.vhdr       1         s70     faces
+#>   2:   2 faces.vhdr       2         s71 non-faces
+#>   3:   3 faces.vhdr       3         s71 non-faces
+#>   4:   4 faces.vhdr       4         s71 non-faces
+#>   5:   5 faces.vhdr       5         s70     faces
+#>  ---                                             
+#> 196: 196 faces.vhdr     196         s71 non-faces
+#> 197: 197 faces.vhdr     197         s70     faces
+#> 198: 198 faces.vhdr     198         s70     faces
+#> 199: 199 faces.vhdr     199         s70     faces
+#> 200: 200 faces.vhdr     200         s70     faces
 ```
 
 With some “regular” `ggplot` skills, we can create customized plots.
@@ -374,18 +354,17 @@ into `ggplot`. This object can then be customized.
 ``` r
 library(ggplot2)
 faces_segs_some %>%
-  select(O1, O2, P7, P8) %>%
+  eeg_select(O1, O2, P7, P8) %>%
   ggplot(aes(x = .time, y = .value)) +
   geom_line(alpha = .1, aes(group = .id, color = condition)) +
   stat_summary(
-    fun.y = "mean", geom = "line", alpha = 1, size = 1.5,
+    fun = "mean", geom = "line", alpha = 1, size = 1.5,
     aes(color = condition)
   ) +
   facet_wrap(~.key) +
   geom_vline(xintercept = 0, linetype = "dashed") +
   geom_vline(xintercept = .17, linetype = "dotted") +
   theme(legend.position = "bottom")
-#> Warning: `fun.y` is deprecated. Use `fun` instead.
 ```
 
 <img src="man/figures/README-plot-1.png" width="100%" />
@@ -397,9 +376,9 @@ interpolated amplitudes and using the ggplot wrapper `plot_topo`.
 
 ``` r
 faces_segs_some %>%
-  filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
-  group_by(condition) %>%
-  summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
+  eeg_filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
+  eeg_group_by(condition) %>%
+  eeg_summarize(across_ch(mean, na.rm = TRUE)) %>%
   plot_topo() +
   annotate_head() +
   geom_contour() +
@@ -411,8 +390,7 @@ faces_segs_some %>%
 
 ## See also
 
-Other R packages for EEG/ERP
-    data:
+Other R packages for EEG/ERP data:
 
   - [permuco4brain](https://jaromilfrossard.github.io/permuco4brain/index.html)
     provides functions to compute permutation test in brain imagery
