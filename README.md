@@ -3,8 +3,6 @@
 status](https://github.com/bnicenboim/eeguana/workflows/R-CMD-check/badge.svg)](https://github.com/bnicenboim/eeguana/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/bnicenboim/eeguana/branch/master/graph/badge.svg)](https://codecov.io/gh/bnicenboim/eeguana?branch=master)
-[![AppVeyor build
-status](https://ci.appveyor.com/api/projects/status/github/bnicenboim/eeguana?branch=master&svg=true)](https://ci.appveyor.com/project/bnicenboim/eeguana)
 [![DOI](https://zenodo.org/badge/153299577.svg)](https://zenodo.org/badge/latestdoi/153299577)
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![Project Status: WIP – Initial development is in progress, but there
