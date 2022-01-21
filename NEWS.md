@@ -1,3 +1,8 @@
+# eeguana 0.1.7.9000
+
+- BUGS:
+  - some brainvision files produced by eeglab couldn't be read.
+
 # eeguana 0.1.6.9000
 
 - **Breaking change**: `_at`, `_if`, `_all` functions don't work anymore. Now one should use the new `across()` (or `across_ch()`) notation. If your code doesn't work anymore and you don't know how to fix it, please post it in https://github.com/bnicenboim/eeguana/discussions

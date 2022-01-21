@@ -258,21 +258,50 @@ read_vhdr_metadata <- function(file) {
       t() %>%
       data.table::as.data.table())
 
-  if (ncol(channel_info) == 4) {
-    channel_info <- dplyr::mutate(channel_info, empty_col = NA_real_)
+  
+  entry_line <- 
+    readLines(file) %>% paste(collapse = "\n") %>%
+  chr_extract("\\[Channel Infos\\].*?\n.*?Each entry:.*(\n)?.*>")
+  
+  if(length(entry_line)>0){
+    entries <- entry_line %>%
+      chr_extract_all("<.*?>") %>%
+      .[[1]] %>%
+      chr_remove("<|>") %>%
+      tolower()
+    ch_cols <-  data.table::fcase(endsWith(entries,"number"), "number",
+                      startsWith(entries,"name"), ".channel",
+                      startsWith(entries,"reference"), ".reference",
+                      startsWith(entries,"resolution"), "resolution",
+                      startsWith(entries,"unit"), "unit"
+          )
+    unit_found <- entries[startsWith(entries,"resolution")] %>%
+                    chr_match("resolution in (.*)") %>%
+                    .[,2]
+    
+  } else {
+    ch_cols <- c("number", ".channel", ".reference", "resolution", "unit")
   }
-
-
+  if (!"unit" %in% ch_cols){
+    ch_cols <- c(ch_cols, "unit")
+  }
+  
+  # adds missing cols if necessary
+  n_missing_cols <- length(ch_cols) - ncol(channel_info)
+  channel_info <- cbind(channel_info, 
+                          matrix(nrow= nrow(channel_info), ncol = n_missing_cols))
+  
   channel_info <- channel_info %>%
-    stats::setNames(c("number", ".channel", ".reference", "resolution", "unit")) %>%
-    dplyr::mutate(
+    stats::setNames(ch_cols) %>%
+    mutate.(
       resolution = as.double(resolution),
-      unit = "microvolt",
-      .reference = data.table::fifelse(.reference == "", NA_character_, .reference)
+      unit = ifelse(unit %in% c("µV", "μV", "microvolt"), "microvolt", "?"),
+      .reference = ifelse(.reference == "", NA_character_, .reference)
     )
-  # To avoid problems with the unicode characters, it seems that brainvision uses "mu" instead of "micro"
-  # TODO: check if the unit could be different here
-
+  if(!is.null(unit_found) & all(channel_info$unit =="?")) {
+    channel_info <- channel_info %>%
+      mutate.(unit = unit_found)
+  }
 
   if (is.null(vhdr$Coordinates)) {
     coordinates <- dplyr::tibble(number = channel_info$number, radius = NA_real_, theta = NA_real_, phi = NA_real_)

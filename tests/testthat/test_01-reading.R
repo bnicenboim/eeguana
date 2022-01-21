@@ -166,3 +166,8 @@ test_that("seg matches", {
   expect_equal(events_tbl(seg_bin_bv2)[.type == "Stimulus"], events_tbl(seged_bin))
   expect_equal(seg_bin_bv2$.segments, seged_bin$.segments[, -c("type", "description")])
 })
+
+test_that("special vhdr file"){
+  meta <- eeguana:::read_vhdr_metadata(system.file("testdata", "EMP01.vhdr", package = "eeguana"))
+ expect_snapshot(meta)  
+}
