@@ -68,7 +68,7 @@ eeg_artif_minmax.eeg_lst <- function(.data,
       sampling_rate = sampling_rate(.data),
       config = .config
     )
-    filt_eeg_lst(.signal, ..., h = h, na.rm = TRUE)
+    .signal <- filt_eeg_lst(.signal, ..., h = h, na.rm = TRUE)
   }
 
 
@@ -116,7 +116,7 @@ eeg_artif_step.eeg_lst <- function(.data,
       sampling_rate = sampling_rate(.data),
       config = .config
     )
-    filt_eeg_lst(.signal, ..., h = h, na.rm = TRUE)
+    .signal <- filt_eeg_lst(.signal, ..., h = h, na.rm = TRUE)
   }
 
 
@@ -167,7 +167,7 @@ eeg_artif_amplitude.eeg_lst <- function(.data,
       sampling_rate = sampling_rate(.data),
       config = .config
     )
-    filt_eeg_lst(.signal, ..., h = h, na.rm = TRUE)
+    .signal <- filt_eeg_lst(.signal, ..., h = h, na.rm = TRUE)
   }
 
 
@@ -217,7 +217,7 @@ eeg_artif_peak.eeg_lst <- function(.data,
       sampling_rate = sampling_rate(.data),
       config = .config
     )
-    filt_eeg_lst(.signal, ..., h = h, na.rm = TRUE)
+    .signal <- filt_eeg_lst(.signal, ..., h = h, na.rm = TRUE)
   }
 
 
