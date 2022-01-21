@@ -65,16 +65,16 @@ test_that("low pass default pars", {
 })
 
 test_that("low pass signal fir", {
-  data_sin_X1 <- data_sin_X1 %>% dplyr::filter(as_time(.sample) %>% between(.25, 1.75))
-  data_sin <- data_sin %>% dplyr::filter(as_time(.sample) %>% between(.25, 1.75))
+  data_sin_X1 <- data_sin_X1 %>% eeg_filter(as_time(.sample) %>% between(.25, 1.75))
+  data_sin <- data_sin %>% eeg_filter(as_time(.sample) %>% between(.25, 1.75))
   expect_equal(data_sin_X1$.signal$X1, data_sin_X1$.signal$X4, tolerance = .002)
   expect_equal(data_sin_X1$.signal$X1, data_sin$.signal$X1, tolerance = .005)
   ## expect_lte(max(data_sin_X1$.signal$X2, data_sin_X1$.signal$X3), .001)
 })
 
 test_that("low pass iir and fir are not too different", {
-  expect_equal(data_sin_X1 %>% dplyr::filter(as_time(.sample) %>% between(.25, 1.75)),
-    data_sin_X1_iir %>% dplyr::filter(as_time(.sample) %>% between(.25, 1.75)),
+  expect_equal(data_sin_X1 %>% eeg_filter(as_time(.sample) %>% between(.25, 1.75)),
+    data_sin_X1_iir %>% eeg_filter(as_time(.sample) %>% between(.25, 1.75)),
     tolerance = .01
   )
 })

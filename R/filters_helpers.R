@@ -932,7 +932,7 @@ overlap_add_filter <- function(x, h, n_fft = NULL, phase = "zero",
   x_ext <- smart_pad(x, c(n_edge, n_edge), pad)
   ## works x2 = mne$cuda$`_smart_pad`(np$array(x), c(n_edge,n_edge) %>% as.integer, pad)
   n_x <- length(x_ext)
-  x_filtered <- rep(0, n_x)
+  x_filtered <- rep(0 * x[1], n_x) ## BN: this should keep the class and attr
   n_h <- length(h)
   n_seg <- n_fft - n_h + 1
   n_segments <- as.integer(ceiling(n_x / n_seg))

@@ -112,7 +112,9 @@ sig_filtfilt <- function(x, b, a, padlen = 3 * max(length(a), length(b))) {
   y <- signal::filter(filt = b, a = a, x = ext) # init = zi * ext[1]
   # backward filter
   y <- rev(signal::filter(filt = b, a = a, x = rev(y))) # init = zi * y[length(y)]
-  y[(padlen + 1):(padlen + length(x))]
+  y <- y[(padlen + 1):(padlen + length(x))] 
+  attributes(y) <- attributes(x)
+  y
 }
 
 

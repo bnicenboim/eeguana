@@ -79,13 +79,9 @@ eeg_filt_low_pass.eeg_lst <- function(.data, ..., .freq = NULL, .config = list()
     sampling_rate = sampling_rate(.data),
     config = .config
   )
-  # if(!.by_reference)
-  .data <- data.table::copy(.data)
 
-  filt_eeg_lst_by_ref(.data$.signal, ..., h = h, na.rm = na.rm)
-
+  .data$.signal <- filt_eeg_lst(.data$.signal, ..., h = h, na.rm = na.rm, .by_ref = FALSE)
   # if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
-
   #  if(.by_reference) invisible(.data) else
   .data
 }
@@ -97,14 +93,10 @@ eeg_filt_high_pass.eeg_lst <- function(.data, ..., .freq = NULL, .config = list(
     sampling_rate = sampling_rate(.data),
     config = .config
   )
-  # if(!.by_reference)
-  .data <- data.table::copy(.data)
 
-  filt_eeg_lst_by_ref(.data$.signal, ..., h = h, na.rm = na.rm)
-
-  #  if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
-
-  # if(.by_reference) invisible(.data) else
+  data$.signal <- filt_eeg_lst(.data$.signal, ..., h = h, na.rm = na.rm, .by_ref = FALSE)
+  # if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
+  #  if(.by_reference) invisible(.data) else
   .data
 }
 #' @export
@@ -120,14 +112,10 @@ eeg_filt_band_stop.eeg_lst <- function(.data, ..., .freq = NULL, .config = list(
     sampling_rate = sampling_rate(.data),
     config = .config
   )
-  #  if(!.by_reference)
-  .data <- data.table::copy(.data)
 
-  filt_eeg_lst_by_ref(.data$.signal, ..., h = h, na.rm = na.rm)
-
+  data$.signal <- filt_eeg_lst(.data$.signal, ..., h = h, na.rm = na.rm, .by_ref = FALSE)
   # if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
-
-  # if(.by_reference) invisible(.data) else
+  #  if(.by_reference) invisible(.data) else
   .data
 }
 #' @export
@@ -143,19 +131,16 @@ eeg_filt_band_pass.eeg_lst <- function(.data, ..., .freq = NULL, .config = list(
     sampling_rate = sampling_rate(.data),
     config = .config
   )
-  # if(!.by_reference)
-  .data <- data.table::copy(.data)
 
-  filt_eeg_lst_by_ref(.data$.signal, ..., h = h, na.rm = na.rm)
+  .data$.signal <- filt_eeg_lst(.data$.signal, ..., h = h, na.rm = na.rm, .by_ref = FALSE)
 
   # if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
-
-  # if(.by_reference) invisible(.data) else
+  #  if(.by_reference) invisible(.data) else
   .data
 }
 
 #' @noRd
-filt_eeg_lst_by_ref <- function(.signal, ..., h, na.rm = FALSE) {
+filt_eeg_lst <- function(.signal, ..., h, na.rm = FALSE, .by_ref = FALSE) {
   ch_sel <- sel_ch(.signal, ...)
 
   if (na.rm == FALSE) {
@@ -165,19 +150,42 @@ filt_eeg_lst_by_ref <- function(.signal, ..., h, na.rm = FALSE) {
     }
   }
 
-  if (all(c("b", "a") %in% names(h))) {
-    # iir filter
-    padlen <- min(h[["padlen"]], nrow(.signal)) #-1?
-    .signal[, (ch_sel) := lapply(.SD, sig_filtfilt,
-      b = h[["b"]], a = h[["a"]],
-      padlen = padlen
-    ), .SDcols = (ch_sel), by = ".id"]
+  # Filters can go faster if there is only one segment:
+  if (length(unique(.signal$.id)) == 1) {
+    .signal <- shallow(.signal)
+    #chs <- channels_tbl(.signal) 
+    if (all(c("b", "a") %in% names(h))) {
+      # iir filter
+      padlen <- min(h[["padlen"]], nrow(.signal)) #-1?
+      .signal[, (ch_sel) := lapply(.SD, sig_filtfilt,
+        b = h[["b"]], a = h[["a"]],
+        padlen = padlen
+      ), .SDcols = (ch_sel)]
+    } else {
+      # fir filter
+      .signal[, (ch_sel) := lapply(.SD, overlap_add_filter, h),
+        .SDcols = (ch_sel)
+      ]
+    }
+    
   } else {
-    # fir filter
-    .signal[, (ch_sel) := lapply(.SD, overlap_add_filter, h),
-      .SDcols = (ch_sel), by = ".id"
-    ]
+    # several segments:
+    .signal <- data.table::copy(.signal)
+
+    if (all(c("b", "a") %in% names(h))) {
+      # iir filter
+      padlen <- min(h[["padlen"]], nrow(.signal)) #-1?
+      .signal[, (ch_sel) := lapply(.SD, sig_filtfilt,
+        b = h[["b"]], a = h[["a"]],
+        padlen = padlen
+      ), .SDcols = (ch_sel), by = ".id"]
+    } else {
+      # fir filter
+      .signal[, (ch_sel) := lapply(.SD, overlap_add_filter, h),
+        .SDcols = (ch_sel), by = ".id"
+      ]
+    }
   }
 
-  .signal
+  .signal[]
 }
