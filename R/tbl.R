@@ -91,27 +91,45 @@ channels_tbl.data.frame <- function(.data, ...) {
 
 #' @export
 `channels_tbl<-.eeg_lst` <- function(.data, value) {
-  orig_names <- channel_names(.data$.signal)
-  channels_sg <- .data$.signal[, channel_names(.data$.signal), with = FALSE]
-  nochannels_sg <- .data$.signal[, setdiff(colnames(.data$.signal), channel_names(.data$.signal)), with = FALSE]
-  .data$.signal <- cbind(
-    nochannels_sg,
-    data.table::as.data.table(
-      update_channel_meta_data(
-        channels_sg,
-        value
-      )
-    )
-  ) %>%
-    as_signal_tbl()
-  new_names <- channel_names(.data$.signal)
+  
+ .data$.signal <- data.table::copy(.data$.signal)
+ data.table::setnames(.data$.signal, channel_names(.data$.signal), value$.channel)
+ purrr::iwalk(signal, function(col, name) {
+   #list of attributes for each channel without .channel
+  attr_list <- c(data.table::as.data.table(value)[.channel == name,])[-1]
+  purrr::imap(attr_list, function(attr_v, attr_n) {
+    data.table::setattr(col,attr_n, attr_v)
+  })
+})
 
-  .data$.signal <- data.table::copy(.data$.signal)
-  for (i in seq_len(nchannels(.data$.signal))) {
-    data.table::set(.data$.signal, which(.data$.signal$.channel == orig_names[i]), ".channel", new_names[i])
-  }
-  .data
-}
+ .data
+ }
+
+#old version:
+# `channels_tbl<-.eeg_lst` <- function(.data, value) {
+#   
+#   
+#   orig_names <- channel_names(.data$.signal)
+#   channels_sg <- .data$.signal[, channel_names(.data$.signal), with = FALSE]
+#   nochannels_sg <- .data$.signal[, setdiff(colnames(.data$.signal), channel_names(.data$.signal)), with = FALSE]
+#   .data$.signal <- cbind(
+#     nochannels_sg,
+#     data.table::as.data.table(
+#       update_channel_meta_data(
+#         channels_sg,
+#         value
+#       )
+#     )
+#   ) %>%
+#     as_signal_tbl()
+#   new_names <- channel_names(.data$.signal)
+# 
+#   .data$.signal <- data.table::copy(.data$.signal)
+#   for (i in seq_len(nchannels(.data$.signal))) {
+#     data.table::set(.data$.signal, which(.data$.signal$.channel == orig_names[i]), ".channel", new_names[i])
+#   }
+#   .data
+# }
 
 #' @export
 `channels_tbl<-.data.frame` <- function(.data, value) {

@@ -91,6 +91,7 @@ eeg_rereference <- function(.data, ..., .ref = NULL, na.rm = FALSE) {
 #' @export
 eeg_rereference.eeg_lst <- function(.data, ..., .ref = NULL, na.rm = FALSE) {
   signal <- data.table::copy(.data$.signal)
+  signal <- shallow(.data$.signal)
   sel_ch <- sel_ch(.data, ...)
   .ref <- unlist(.ref) # rlang::quos_auto_name(dots) %>% names()
 

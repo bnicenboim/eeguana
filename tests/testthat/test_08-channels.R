@@ -2,7 +2,8 @@ library(eeguana)
 options(eeguana.verbose = FALSE)
 
 data_sincos2id <- eeguana:::data_sincos2id
-
+# for checks later
+reference_data <- data.table::copy(data_sincos2id)
 
 #### eeg_baseline
 test_that("baseline works", {
@@ -91,6 +92,8 @@ test_that("both chs_fun and chs_mean give the same output", {
 
 ## data_reref <- dplyr::mutate(data_sincos2id, X = ch_rereference(X, X, Y))
 data_sincos2id_Z <- data_sincos2id %>% dplyr::mutate(Z = channel_dbl(0))
+reference_data_Z <- data.table::copy(data_sincos2id_Z)
+
 X_reref <- data_sincos2id_Z$.signal$X - (data_sincos2id$.signal$X + data_sincos2id$.signal$Y) / 2
 Y_reref <- data_sincos2id_Z$.signal$Y - (data_sincos2id$.signal$X + data_sincos2id$.signal$Y) / 2
 Z_reref <- data_sincos2id_Z$.signal$Z - (data_sincos2id$.signal$X + data_sincos2id$.signal$Y) / 2
@@ -120,3 +123,7 @@ test_that(".reference changes", {
 ##   expect_equal(data_reref_all$.signal$X %>% as.numeric, data_reref_all_chs$.signal$X %>% as.numeric)
 ##   expect_equal(data_reref_all$.signal$Y %>% as.numeric, data_reref_all_chs$.signal$Y %>% as.numeric)
 ## })
+test_that("data didn't change after grouping and mutate functions", {
+  expect_equal_eeg_lst(reference_data, data_sincos2id)
+  expect_equal_eeg_lst(reference_data_Z, data_sincos2id_Z)
+})
