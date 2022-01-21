@@ -238,8 +238,9 @@ read_vmrk <- function(file) {
   # splits Mk<Marker number>=<Type>, removes the Mk.., and <Date>
   events[, .type := strsplit(.type, "=") %>%
     purrr::map_chr(~ .x[[2]])][, date := NULL]
-  events[, .final := .initial + .final - 1L]
-
+  
+  # punctual events shouldn't have a .final < .initial
+  events[, .final := .initial + ifelse(.final - 1L == -1, .final, .final - 1L)]
 
   ## bug of BV1, first sample is supposed to be 1
   BV1 <- "BrainVision Data Exchange Marker File, Version 1.0"
