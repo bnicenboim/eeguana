@@ -91,19 +91,25 @@ channels_tbl.data.frame <- function(.data, ...) {
 
 #' @export
 `channels_tbl<-.eeg_lst` <- function(.data, value) {
-  
- .data$.signal <- data.table::copy(.data$.signal)
- data.table::setnames(.data$.signal, channel_names(.data$.signal), value$.channel)
- purrr::iwalk(signal, function(col, name) {
-   #list of attributes for each channel without .channel
-  attr_list <- c(data.table::as.data.table(value)[.channel == name,])[-1]
-  purrr::imap(attr_list, function(attr_v, attr_n) {
-    data.table::setattr(col,attr_n, attr_v)
+  .data$.signal <- data.table::copy(.data$.signal)
+  data.table::setnames(.data$.signal, channel_names(.data$.signal), value$.channel)
+  purrr::iwalk(.data$.signal, function(col, name) {
+    if (is_channel_dbl(col)) {
+      # remove attributes first (except class)
+      remove_attr <- names(attributes(col))[-1]
+      purrr::walk(remove_attr, function(attr_n) {
+        data.table::setattr(col, attr_n, NULL)
+      })
+      # list of attributes for each channel without .channel
+      attr_list <- c(data.table::as.data.table(value)[.channel == name, ])[-1]
+      # check unnessary attributes besides class (the first one)
+      purrr::iwalk(attr_list, function(attr_v, attr_n) {
+        data.table::setattr(col, attr_n, attr_v)
+      })
+    }
   })
-})
-
- .data
- }
+  .data
+}
 
 #old version:
 # `channels_tbl<-.eeg_lst` <- function(.data, value) {

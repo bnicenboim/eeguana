@@ -167,7 +167,7 @@ test_that("seg matches", {
   expect_equal(seg_bin_bv2$.segments, seged_bin$.segments[, -c("type", "description")])
 })
 
-test_that("special vhdr file"){
+test_that("special vhdr file",{
   vhdr_eeglab <- system.file("testdata", "EMP01.vhdr", package = "eeguana")
   vmrk_eeglab <- system.file("testdata", "EMP01.vmrk", package = "eeguana")
   meta <- eeguana:::read_vhdr_metadata(vhdr_eeglab)
@@ -179,4 +179,4 @@ test_that("special vhdr file"){
   events_mrk <- events %>% tidytable::filter.(!is.na(.description)) %>%
     tidytable::select.(.description, .initial)
   expect_equal(events_tbl, events_mrk)
-}
+})
