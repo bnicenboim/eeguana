@@ -1,5 +1,6 @@
 # eeguana 0.1.7.9000
 - Modifying channels with `channels_tbl()` is much faster now.
+- Signal filtering is slightly faster.
 - BUGS:
   - some brainvision files produced by eeglab couldn't be read.
 

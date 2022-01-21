@@ -93,8 +93,7 @@ eeg_filt_high_pass.eeg_lst <- function(.data, ..., .freq = NULL, .config = list(
     sampling_rate = sampling_rate(.data),
     config = .config
   )
-
-  data$.signal <- filt_eeg_lst(.data$.signal, ..., h = h, na.rm = na.rm, .by_ref = FALSE)
+  .data$.signal <- filt_eeg_lst(.data$.signal, ..., h = h, na.rm = na.rm, .by_ref = FALSE)
   # if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
   #  if(.by_reference) invisible(.data) else
   .data
@@ -113,7 +112,7 @@ eeg_filt_band_stop.eeg_lst <- function(.data, ..., .freq = NULL, .config = list(
     config = .config
   )
 
-  data$.signal <- filt_eeg_lst(.data$.signal, ..., h = h, na.rm = na.rm, .by_ref = FALSE)
+  .data$.signal <- filt_eeg_lst(.data$.signal, ..., h = h, na.rm = na.rm, .by_ref = FALSE)
   # if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
   #  if(.by_reference) invisible(.data) else
   .data
@@ -149,7 +148,6 @@ filt_eeg_lst <- function(.signal, ..., h, na.rm = FALSE, .by_ref = FALSE) {
       stop("Missing values in the following channels: ", paste(NA_channels, sep = ","), "; use na.rm =TRUE, to proceed setting to NA the entire segment that contains an NA", call. = FALSE)
     }
   }
-
   # Filters can go faster if there is only one segment:
   if (length(unique(.signal$.id)) == 1) {
     .signal <- shallow(.signal)
@@ -167,7 +165,6 @@ filt_eeg_lst <- function(.signal, ..., h, na.rm = FALSE, .by_ref = FALSE) {
         .SDcols = (ch_sel)
       ]
     }
-    
   } else {
     # several segments:
     .signal <- data.table::copy(.signal)
@@ -186,6 +183,5 @@ filt_eeg_lst <- function(.signal, ..., h, na.rm = FALSE, .by_ref = FALSE) {
       ]
     }
   }
-
-  .signal[]
+  .signal
 }
