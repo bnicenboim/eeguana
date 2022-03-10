@@ -2,6 +2,10 @@
 #'
 #' These functions search for artifacts on the signal table based on a threshold and a sliding window (when relevant), and annotate an event in the events table that spans from `-lim` to `+lim`. The signal table remains unchanged until [eeg_events_to_NA()].
 #'
+#' `eeg_artif_peak()` is wrapper around [pracma::findpeaks],  `.threshold` is the minimum (absolute) height a peak has to have to be recognized as such and `.window` is the minimum distance  peaks have to have to be counted.
+#' 
+#' `eeg_artif_minmax()` is also refered as a peak-to-peak artifact detector.
+#' 
 #' `eeg_artif_minmax()` and `eeg_artif_step()` can be used to detect blinks and horizontal eye movements in the electro-oculographic (V/HEOG) channels or large voltage jumps in other channels.
 #'
 #' For the EOG channels, a relatively low threshold (e.g., 30 µV) is recommended. For non EOG channels, a relatively high threshold (e.g., 100 µV) would be more appropriate.
@@ -9,6 +13,7 @@
 #' @param .data An `eeg_lst` object.
 #' @param ... Channels to include. All the channels by default, but eye channels should be removed.
 #' @param .threshold Voltage threshold that indicates an artifact
+#' @param .direction Whether to look "above" or "below" the threshold.
 #' @param .window Sliding window length for the artifact detection (same unit as `lim`). This is the full width of the step function: this means that we are looking for a period of one voltage for half of the window  immediately followed by a period of a different voltage (indicated by the threshold) for half of the window.
 #' @param .lim Vector with two values indicating the time before and after the artifact that will be included in events_tbl (by default the size the window before and afterwards).
 #' @param .freq Vector with two values indicates whether to prefilter the signal prior to the artifact detection. (The filtering is not saved in the signal). For a low pass filter the first value should be `NA`, for a high-pass filter the second value should be `NA`.
@@ -43,6 +48,7 @@ NULL
 eeg_artif_minmax <- function(.data,
                              ...,
                              .threshold = 100,
+                             .direction = "above",
                              .window = .2,
                              .lim = c(-.window, .window),
                              .unit = "s",
@@ -55,6 +61,7 @@ eeg_artif_minmax <- function(.data,
 eeg_artif_minmax.eeg_lst <- function(.data,
                                      ...,
                                      .threshold = 100,
+                                     .direction = "above",
                                      .window = .2,
                                      .lim = c(-.window, .window),
                                      .unit = "s",
@@ -79,7 +86,8 @@ eeg_artif_minmax.eeg_lst <- function(.data,
     args = list(
       threshold = .threshold,
       lim_samples = lim_samples(.lim, sampling_rate(.data), .unit),
-      window_samples = window_samples(.window, sampling_rate(.data), .unit)
+      window_samples = window_samples(.window, sampling_rate(.data), .unit),
+      direction = .direction
     )
   )
   events_tbl(.data) <- rbind(events_found, .data$.events, fill = TRUE)
@@ -283,9 +291,9 @@ eeg_events_to_NA.eeg_lst <-
     dots <- rlang::enquos(...)
 
     # TODO in data.table
-    ## signal <- as.data.frame(x$.signal)
+    
     signal <- data.table::copy(x$.signal)
-    ## x$.events <- dplyr::as_tibble(x$.events)
+    
 
     # dots <- rlang::quos(.type == "Bad Interval")
 

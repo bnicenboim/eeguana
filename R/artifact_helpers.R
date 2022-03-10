@@ -56,13 +56,19 @@ events_artif_custom <- function(.signal, ...,
 }
 
 #' @noRd
-detect_minmax <- function(x, args = list(window_samples = NULL, threshold = NULL)) {
+detect_minmax <- function(x, args = list(window_samples = NULL, threshold = NULL, direction = "above")) {
   rmin <- RcppRoll::roll_minr(x, n = args$window_samples, na.rm = TRUE) # na.rm  allows for comparing vectors that include some NA
   rmax <- RcppRoll::roll_maxr(x, n = args$window_samples, na.rm = TRUE)
   ## If there is only one non NA value, there should be an NA
   rmin[rmin == Inf] <- NA
   rmax[rmax == -Inf] <- NA
-  abs(rmin - rmax) >= args$threshold
+  if(args$direction %in% tolower(c("above",">",">=")))  {
+    abs(rmin - rmax) >= args$threshold
+  } else if(args$direction %in% tolower(c("below","<","<="))){
+    abs(rmin - rmax) <= args$threshold
+  } else {
+    stop("The argument `direction` can only include 'above' or 'below'", call.=FALSE)
+  }
 }
 
 
