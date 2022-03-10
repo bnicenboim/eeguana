@@ -29,7 +29,7 @@ new_sample_int <- function(values, sampling_rate) {
   }
   values <- unclass(values)
   structure(values,
-    class = "sample_int",
+    class = c("sample_int","integer"),
     sampling_rate = sampling_rate
   )
 }

@@ -135,7 +135,7 @@ channel_dbl <- function(values, x = NA_real_, y = NA_real_, z = NA_real_, refere
 #' @family channel
 #' @export
 as_channel_dbl <- function(x) {
-  x <- as.double(x)
+  x <- as.double
   class(x) <- c("channel_dbl", "numeric")
   for (. in c(".x", ".y", ".z", ".reference")) {
     if (is.null(attr(x, .))) {
@@ -143,6 +143,12 @@ as_channel_dbl <- function(x) {
     }
   }
   validate_channel_dbl(x)
+}
+
+#' @export
+print.sample_int <- function(x,...){
+  cat(paste("# Sampling rate: ", attributes(x)$sampling_rate,"\n"))
+  print(as.integer(x))
 }
 
 #' @export
