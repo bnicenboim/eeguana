@@ -61,7 +61,7 @@ test_that("different implementations aren't too different", {
     eeg_ica_show(ICA1, ICA2, ICA3) %>%
     dplyr::select(ICA1, ICA2, ICA3) %>%
     signal_tbl() %>%
-    .[, .(alpha = scale(ICA1), noise = scale(ICA2), blink = -scale(ICA3))] %>%
+    .[, .(alpha = scale(ICA1), noise = -scale(ICA2), blink = -scale(ICA3))] %>%
     as.matrix()
 
 
@@ -92,7 +92,7 @@ test_that("different implementations aren't too different", {
     eeg_ica_show(ICA1, ICA2, ICA3) %>%
     dplyr::select(ICA1, ICA2, ICA3) %>%
     signal_tbl() %>%
-    .[, .(alpha = -scale(ICA3), noise = scale(ICA2), blink = scale(ICA1))] %>%
+    .[, .(alpha = scale(ICA2), noise = scale(ICA3), blink = scale(ICA1))] %>%
     as.matrix()
 
   true_comps <- scale(eeguana:::true_comps) %>%
@@ -100,16 +100,30 @@ test_that("different implementations aren't too different", {
     matrix(ncol = 3)
   if (0) {
     ##  check how they look
-    eeg_ica_show(data_adapt_fast_ICA, ICA1, ICA2, ICA3) %>% plot()
+    colnames(recover_fast_ICA2) <- c("alpha","noise","blink")
+    rICA <- recover_fast_ICA2%>%
+      data.table::as.data.table() %>%
+      data.table::melt(measure = 1:3)
+    rICA[, sample := 1:.N, by = "variable"][,type :="rICA"]
+    
+    colnames(recover_adapt_fast_ICA) <- c("alpha","noise","blink")
+   rICA <- recover_adapt_fast_ICA%>%
+      data.table::as.data.table() %>%
+      data.table::melt(measure = 1:3)
+   rICA[, sample := 1:.N, by = "variable"][,type :="rICA"]
+   
+    colnames(true_comps) <- c("alpha","noise","blink")
     S <- true_comps %>%
       data.table::as.data.table() %>%
       data.table::melt(measure = 1:3)
-    S[, sample := 1:.N, by = "variable"][]
-    ggplot(S, aes(x = sample, y = value)) +
-      facet_wrap(. ~ variable, ncol = 1) +
-      geom_line()
+    S[, sample := 1:.N, by = "variable"][,type:= "true"]
+    
+    
+    ggplot2::ggplot(rbind(S,rICA), ggplot2::aes(x = sample, y = value, color = type)) +
+      ggplot2::facet_wrap(. ~ variable, ncol = 1) +
+      ggplot2::geom_line()
   }
-  expect_equal(true_comps, recover_fast_ICA, tolerance = .05, ignore_attr = TRUE)
+  expect_equal(true_comps, recover_fast_ICA, tolerance = .1, ignore_attr = TRUE)
   expect_equal(true_comps, recover_fast_ICA2, tolerance = .15, ignore_attr = TRUE)
   expect_equal(true_comps, recover_adapt_fast_ICA, tolerance = .1, ignore_attr = TRUE)
 })
@@ -157,16 +171,16 @@ test_that("ica is a reversible", {
 })
 
 
-# data_fast_ICA %>% eeg_ica_keep(ICA2,ICA3) %>% plot()
-
+data_fast_ICA %>% eeg_ica_keep(ICA2,ICA3) %>% plot()
+data_fast_ICA %>% eeg_ica_show(ICA1,ICA2, ICA3) %>% plot()
 data_no_blinks <- data_fast_ICA %>% eeg_ica_keep(-ICA3)
 data_blinks_ref <- dplyr::mutate(data_blinks, R = channel_dbl(0))
 data_ica_default_ref <- eeg_ica(data_blinks_ref, -R, .config = list(w.init = m))
 ## eeg_ica_show(data_ica_default_ref, ICA1, ICA2, ICA3) %>% plot()
 data_no_blinks_ref <- data_ica_default_ref %>% eeg_ica_keep(-ICA3)
 test_that("ica can remove blinks", {
-  expect_equal(data$.signal, data_no_blinks$.signal, tolerance = .25)
-  expect_equal(data$.signal, data_no_blinks_ref$.signal[, -6], tolerance = .25)
+  expect_equal(data$.signal, data_no_blinks$.signal, tolerance = .3)
+  expect_equal(data$.signal, data_no_blinks_ref$.signal[, -6], tolerance = .3)
 })
 
 
@@ -174,10 +188,12 @@ test_that("ica can remove blinks", {
 data_ica_2participants <- data_blinks_more %>%
   eeg_ica(.method = fast_ICA, .config = list(w.init = m))
 
-## data_ica_2participants %>%
-##   eeg_ica_show(ICA1:ICA3) %>%
-##   dplyr::select(ICA1:ICA3) %>%
-##   plot() + ggplot2::facet_wrap(.recording~.key)
+if(0){
+data_ica_2participants %>%
+  eeg_ica_show(ICA1:ICA3) %>%
+  dplyr::select(ICA1:ICA3) %>%
+  plot() + ggplot2::facet_wrap(.recording~.key)
+}
 
 data_ica_2participants_keepall <- eeg_ica_keep(data_ica_2participants, ICA1, ICA2, ICA3)
 
@@ -203,7 +219,7 @@ test_that("ica grouped works", {
   expect_equal(data_blinks_more$.signal, data_ica_2participants_keepall$.signal)
   expect_equal(data_blinks_more$.signal, data_ica_2participants_exFz$.signal)
   expect_equal(data_more$.signal, data_blinks_more_no_blinks$.signal, tolerance = .25)
-  expect_equal(dplyr::filter(data_more, .recording == "recording2")$.signal, data_ica_p2$.signal,
+  expect_equal(eeg_filter(data_more, .recording == "recording2")$.signal, data_ica_p2$.signal,
     tolerance = .35
   )
   expect_equal(signal_tbl(data_ica_p2), signal_tbl(data_ica_p2_filtered), tolerance = .15)
@@ -227,3 +243,4 @@ test_that("other functions work correctly in the eeg_ica_lst", {
   expect_error(dplyr::select(data_fast_ICA, -Fz) %>% eeg_ica_keep(ICA1, ICA2, ICA3)) # TODO, better error
   expect_equal(class(as_eeg_lst(data_fast_ICA)), "eeg_lst")
 })
+

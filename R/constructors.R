@@ -17,12 +17,12 @@
 #'
 #' @return A valid eeg_lst.
 #' @export
-eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, channels_tbl = NULL) {
+eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, channels_tbl = NULL, sampling_rate = NULL) {
   if (is.null(signal_tbl)) {
     signal_tbl <- new_signal_tbl()
   } else if (!is_signal_tbl(signal_tbl)) {
-    signal_tbl <- data.table::as.data.table(signal_tbl)
     if (!is.null(channels_tbl)) {
+      signal_tbl <- data.table::as.data.table(signal_tbl)
       data.table::set(signal_tbl,
         ## columns with channels
         j = channels_tbl$.channel,
@@ -32,7 +32,17 @@ eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, c
         ]
       )
     }
-
+    if(!".id" %in% names(signal_tbl)) signal_tbl$.id <- 1L
+    if(!".sample" %in% signal_tbl && is.numeric(sampling_rate)){
+      signal_tbl$.sample <- sample_int(1:nrow(signal_tbl),sampling_rate = sampling_rate)
+    } 
+    if(!".sample" %in% names(signal_tbl) && !is.null(sampling_rate)){
+      stop("Specify a sampling rate or indicate the samples in the signal table.",call. = FALSE)
+    }
+    if(".sample" %in% names(signal_tbl) & !is.null(sampling_rate)){
+      if(attributes(signal_tbl$.sample)$sampling_rate != sampling_rate) 
+        warning("The argument `sampling_rate` is being ignored.", call. = FALSE)
+    }
     signal_tbl <- as_signal_tbl(signal_tbl)
   } else {
     signal_tbl <- validate_signal_tbl(signal_tbl)
@@ -104,7 +114,7 @@ sample_int <- function(values, sampling_rate) {
 #' @return `TRUE` if the object inherits from the `sample` class.
 #' @export
 is_sample_int <- function(x) {
-  class(x) == "sample_int"
+  "sample_int" %in% class(x) 
 }
 
 #' Builds a channel.

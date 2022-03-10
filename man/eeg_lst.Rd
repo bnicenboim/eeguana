@@ -8,7 +8,8 @@ eeg_lst(
   signal_tbl = NULL,
   events_tbl = NULL,
   segments_tbl = NULL,
-  channels_tbl = NULL
+  channels_tbl = NULL,
+  sampling_rate = NULL
 )
 }
 \arguments{
