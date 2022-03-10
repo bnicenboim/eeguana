@@ -171,8 +171,8 @@ test_that("ica is a reversible", {
 })
 
 
-data_fast_ICA %>% eeg_ica_keep(ICA2,ICA3) %>% plot()
-data_fast_ICA %>% eeg_ica_show(ICA1,ICA2, ICA3) %>% plot()
+#data_fast_ICA %>% eeg_ica_keep(ICA2,ICA3) %>% plot()
+#data_fast_ICA %>% eeg_ica_show(ICA1,ICA2, ICA3) %>% plot()
 data_no_blinks <- data_fast_ICA %>% eeg_ica_keep(-ICA3)
 data_blinks_ref <- dplyr::mutate(data_blinks, R = channel_dbl(0))
 data_ica_default_ref <- eeg_ica(data_blinks_ref, -R, .config = list(w.init = m))
@@ -218,7 +218,7 @@ data_ica_p2_filtered <- data_blinks_more %>%
 test_that("ica grouped works", {
   expect_equal(data_blinks_more$.signal, data_ica_2participants_keepall$.signal)
   expect_equal(data_blinks_more$.signal, data_ica_2participants_exFz$.signal)
-  expect_equal(data_more$.signal, data_blinks_more_no_blinks$.signal, tolerance = .25)
+  expect_equal(data_more$.signal, data_blinks_more_no_blinks$.signal, tolerance = .35)
   expect_equal(eeg_filter(data_more, .recording == "recording2")$.signal, data_ica_p2$.signal,
     tolerance = .35
   )
