@@ -135,6 +135,7 @@ channel_dbl <- function(values, x = NA_real_, y = NA_real_, z = NA_real_, refere
 #' @family channel
 #' @export
 as_channel_dbl <- function(x) {
+  x <- as.double(x)
   class(x) <- c("channel_dbl", "numeric")
   for (. in c(".x", ".y", ".z", ".reference")) {
     if (is.null(attr(x, .))) {

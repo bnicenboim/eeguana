@@ -58,8 +58,7 @@ validate_sample_int <- function(.sample) {
 #' @noRd
 new_channel_dbl <- function(values, channel_info = list()) {
   values <- unclass(values) %>% as.double()
-  # class(values) <- c("channel_dbl", class(values))
-  class(values) <- "channel_dbl"
+  class(values) <- c("channel_dbl", "numeric")
   attributes(values) <- c(
     attributes(values),
     channel_info
