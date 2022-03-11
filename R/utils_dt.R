@@ -10,6 +10,16 @@ lapply_dtc <- function(X, FUN, ...) {
 }
 
 #' @noRd
+vec_index <- function (x) names(x) %||% seq_along(x)
+
+#' @noRd
+imap_chr <- function (.x, .f, ...) {
+  .f <- rlang::as_function(.f)
+  tidytable::map2_chr.(.x, vec_index(.x), .f, ...)
+}
+  
+
+#' @noRd
 map_dtr <- function(.x, .f, ..., .id = NULL) {
   .f <- purrr::as_mapper(.f, ...)
   res <- purrr::map(.x, .f, ...)
