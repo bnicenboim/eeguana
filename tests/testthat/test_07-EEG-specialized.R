@@ -9,6 +9,7 @@ data_sincos2id_c <- data_sincos2id
 events_tbl(data_sincos2id_c)$.channel <- NA
 data_sincos2id_2 <- eeguana:::data_sincos2id_2
 
+data_sincos2id_3 <- data_sincos2id_2 %>% eeg_mutate(Z = X)
 
 test_that("can clean files with entire_seg = FALSE", {
   clean_data <- eeg_events_to_NA(data_sincos2id, .type == "Bad", .entire_seg = FALSE)
@@ -31,11 +32,18 @@ test_that("can clean files with entire_seg = FALSE", {
 })
 
 test_that("can clean whole channels in files", {
-  clean_data_chan <- eeg_events_to_NA(data_sincos2id, .type == "Bad", .all_chs = TRUE, .entire_seg = FALSE)
+  clean_data_chan <- eeg_events_to_NA(data_sincos2id, .type == "Bad", .n_chs = 1, .entire_seg = FALSE)
   clean_data_chan2 <- eeg_events_to_NA(data_sincos2id_b, .type == "Bad", .entire_seg = FALSE)
-  clean_data_chan3 <- eeg_events_to_NA(data_sincos2id_b, .type == "Bad", .all_chs = TRUE, .entire_seg = FALSE)
-  clean_data_sincos2id_22 <- eeg_events_to_NA(data_sincos2id_2, .type == "Bad", .all_chs = TRUE, .entire_seg = FALSE)
-  expect_equal(clean_data_chan, clean_data_chan2)
+  clean_data_chan3 <- eeg_events_to_NA(data_sincos2id_b, .type == "Bad", .n_chs = 1, .entire_seg = FALSE)
+  clean_data_sincos2id_22 <- eeg_events_to_NA(data_sincos2id_2, .type == "Bad", .n_chs = 1, .entire_seg = FALSE)
+  clean_data_sincos2id_3 <- eeg_events_to_NA(data_sincos2id_3, .type == "Bad", .n_chs = 2, .entire_seg = FALSE)
+  data_sincos2id_3b <- data_sincos2id_3
+  tmp <- events_tbl(data_sincos2id_3b)[3]
+  tmp$.channel <- "Z"
+  events_tbl(data_sincos2id_3b) <- rbind(events_tbl(data_sincos2id_3b), tmp)
+  clean_data_sincos2id_3_b <- eeg_events_to_NA(data_sincos2id_3b, .type == "Bad", .n_chs = 1, .entire_seg = FALSE)
+  expect_equal(clean_data_sincos2id_3 %>% eeg_filter(.id==1), clean_data_sincos2id_3_b %>% eeg_filter(.id==1))
+    expect_equal(clean_data_chan, clean_data_chan2)
   expect_equal(clean_data_chan, clean_data_chan3)
   expect_equal(clean_data_chan, clean_data_sincos2id_22)
   expect_equal(nrow(clean_data_chan$.events), 4)

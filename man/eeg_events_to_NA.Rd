@@ -7,9 +7,10 @@
 eeg_events_to_NA(
   x,
   ...,
-  .all_chs = FALSE,
+  .n_chs = NULL,
   .entire_seg = TRUE,
-  .drop_events = TRUE
+  .drop_events = TRUE,
+  .all_chs = FALSE
 )
 }
 \arguments{
@@ -17,11 +18,13 @@ eeg_events_to_NA(
 
 \item{...}{Description of the problematic event.}
 
-\item{.all_chs}{If set to \code{TRUE}, it will consider samples from all channels (Default:  \code{.all_chs = FALSE}).}
+\item{.n_chs}{If set to \code{NULL} (default), it will only set \code{NA} to the relevant channel.If set to a number \code{N}, it will set all the channels of the entire segment or interval to \code{NA}, if \code{N} or more channels have a certain event, and otherwise only the relevant channel.}
 
 \item{.entire_seg}{If set to \code{FALSE}, it will consider only the marked part of the segment, otherwise it will consider the entire segment (Default: .entire_seg = TRUE).}
 
 \item{.drop_events}{If set to \code{TRUE} (default), the events that were used for setting signals to NA, will be removed from the events table.}
+
+\item{.all_chs}{Deprecated.}
 }
 \value{
 An eeg_lst.
@@ -34,12 +37,12 @@ Remove (transform to NA) problematic events from the signal table of an eeg_lst.
 
 # Signals with artifacts are turned into NA values:
 faces_clean <- faces_seg_artif \%>\%
-  eeg_events_to_NA(.type == "artifact", .entire_seg = TRUE, .all_chs = FALSE, .drop_events = TRUE)
+  eeg_events_to_NA(.type == "artifact", .entire_seg = TRUE, .drop_events = TRUE)
 
 
 # Specific segments are turned into NA values:
 faces_clean <- faces_seg_artif \%>\%
-  eeg_events_to_NA(.id \%in\% c(1:3), .entire_seg = TRUE, .all_chs = FALSE, .drop_events = TRUE)
+  eeg_events_to_NA(.id \%in\% c(1:3), .entire_seg = TRUE, .drop_events = TRUE)
 }
 
 }

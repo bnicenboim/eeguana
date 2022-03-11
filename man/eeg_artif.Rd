@@ -96,7 +96,7 @@ faces_seg_artif <- faces_seg \%>\%
 
 # Signals with artifacts are turned into NA values:
 faces_clean <- faces_seg_artif \%>\%
-  eeg_events_to_NA(.type == "artifact", .entire_seg = TRUE, .all_chs = FALSE, .drop_events = TRUE)
+  eeg_events_to_NA(.type == "artifact", .entire_seg = TRUE, .drop_events = TRUE)
 }
 
 }

@@ -20,6 +20,8 @@ eeg_lst(
 \item{segments_tbl}{A tibble of segment numbers and related information. See \code{\link[=segments_tbl]{segments_tbl()}}.}
 
 \item{channels_tbl}{Optionally a table with channels information. See \code{\link[=channels_tbl]{channels_tbl()}}.}
+
+\item{sampling_rate}{Optional: If the signal_tbl doesn't have samples, they will be included with this sampling rate.}
 }
 \value{
 A valid eeg_lst.

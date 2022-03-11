@@ -80,7 +80,7 @@ eeg_ica.eeg_lst <- function(.data,
     signal_raw <- eeg_events_to_NA(
       x = .data,
       !!.ignore,
-      .all_chs = FALSE,
+      .n_chs = NULL,
       .entire_seg = FALSE,
       .drop_events = FALSE
     ) %>% .$.signal
