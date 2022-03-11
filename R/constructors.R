@@ -12,6 +12,7 @@
 #' @param events_tbl See [events_tbl()].
 #' @param segments_tbl A tibble of segment numbers and related information. See [segments_tbl()].
 #' @param channels_tbl Optionally a table with channels information. See [channels_tbl()].
+#' @param sampling_rate Optional: If the signal_tbl doesn't have samples, they will be included with this sampling rate.
 #'
 #' @family eeg_lst
 #'

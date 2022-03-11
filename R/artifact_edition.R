@@ -3,9 +3,9 @@
 #' These functions search for artifacts on the signal table based on a threshold and a sliding window (when relevant), and annotate an event in the events table that spans from `-lim` to `+lim`. The signal table remains unchanged until [eeg_events_to_NA()].
 #'
 #' `eeg_artif_peak()` is wrapper around [pracma::findpeaks],  `.threshold` is the minimum (absolute) height a peak has to have to be recognized as such and `.window` is the minimum distance  peaks have to have to be counted.
-#' 
+#'
 #' `eeg_artif_minmax()` is also refered as a peak-to-peak artifact detector.
-#' 
+#'
 #' `eeg_artif_minmax()` and `eeg_artif_step()` can be used to detect blinks and horizontal eye movements in the electro-oculographic (V/HEOG) channels or large voltage jumps in other channels.
 #'
 #' For the EOG channels, a relatively low threshold (e.g., 30 µV) is recommended. For non EOG channels, a relatively high threshold (e.g., 100 µV) would be more appropriate.
@@ -36,7 +36,7 @@
 #'
 #' # Signals with artifacts are turned into NA values:
 #' faces_clean <- faces_seg_artif %>%
-#'   eeg_events_to_NA(.type == "artifact", entire_seg = TRUE, all_chans = FALSE, drop_events = TRUE)
+#'   eeg_events_to_NA(.type == "artifact", .entire_seg = TRUE, .drop_events = TRUE)
 #' }
 #'
 NULL
@@ -250,10 +250,10 @@ eeg_artif_peak.eeg_lst <- function(.data,
 #'
 #' @param x An `eeg_lst` object.
 #' @param ... Description of the problematic event.
-#' @param .all_chs If set to `TRUE`,
-#'     it will consider samples from all channels (Default:  `.all_chs = FALSE`).
+#' @param .n_chs  If set to `NULL` (default), it will only set `NA` to the relevant channel.If set to a number `N`, it will set all the channels of the entire segment or interval to `NA`, if `N` or more channels have a certain event, and otherwise only the relevant channel.
 #' @param .entire_seg If set to `FALSE`, it will consider only the marked part of the segment, otherwise it will consider the entire segment (Default: .entire_seg = TRUE).
 #' @param .drop_events If set to `TRUE` (default), the events that were used for setting signals to NA, will be removed from the events table.
+#' @param .all_chs Deprecated.
 #'
 #' @family events functions
 #'
@@ -262,12 +262,12 @@ eeg_artif_peak.eeg_lst <- function(.data,
 #'
 #' # Signals with artifacts are turned into NA values:
 #' faces_clean <- faces_seg_artif %>%
-#'   eeg_events_to_NA(.type == "artifact", entire_seg = TRUE, all_chans = FALSE, drop_events = TRUE)
+#'   eeg_events_to_NA(.type == "artifact", .entire_seg = TRUE, .drop_events = TRUE)
 #'
 #'
 #' # Specific segments are turned into NA values:
 #' faces_clean <- faces_seg_artif %>%
-#'   eeg_events_to_NA(.id %in% c(1:3), entire_seg = TRUE, all_chans = FALSE, drop_events = TRUE)
+#'   eeg_events_to_NA(.id %in% c(1:3), .entire_seg = TRUE, .drop_events = TRUE)
 #' }
 #'
 #' @return An eeg_lst.
@@ -275,9 +275,10 @@ eeg_artif_peak.eeg_lst <- function(.data,
 eeg_events_to_NA <-
   function(x,
            ...,
-           .all_chs = FALSE,
+           .n_chs = NULL,
            .entire_seg = TRUE,
-           .drop_events = TRUE) {
+           .drop_events = TRUE,
+           .all_chs = FALSE) {
     UseMethod("eeg_events_to_NA")
   }
 
@@ -285,33 +286,43 @@ eeg_events_to_NA <-
 eeg_events_to_NA.eeg_lst <-
   function(x,
            ...,
-           .all_chs = FALSE,
+           .n_chs = NULL,
            .entire_seg = TRUE,
-           .drop_events = TRUE) {
+           .drop_events = TRUE,
+           .all_chs = FALSE) {
     dots <- rlang::enquos(...)
 
-    # TODO in data.table
-    
     signal <- data.table::copy(x$.signal)
-    
-
     # dots <- rlang::quos(.type == "Bad Interval")
+    #dots <- rlang::quos(.type == "Bad")
 
+    # 
     # Hack for match 2 columns with 2 columns, similar to semi_join but allowing
     # for assignment
-    baddies <- filter_dt(x$.events, !!!dots)
-
-    if (.all_chs) {
-      baddies <- dplyr::mutate(baddies, .channel = NA_character_)
+    baddies <- filter.(x$.events, !!!dots)
+    if (!missing(".all_chs")){
+      warning("The argument `.all_chs` is deprecated.\n",
+              "Set `.n_chs = NULL` to reproduce the behavior of `.all_chs = FALSE`. ",
+              "Set `.n_chs = 1` to reproduce the behavior of `.all_chs = TRUE`.")
+      if(.all_chs) .n_chs <- 1 else .n_chs <- NULL
+    }
+    if (!is.null(.n_chs)) {
+    ## this doesn't work
+            # baddies <- baddies %>% mutate.(.channel = 
+            #                 tidytable::case_when.(n() > .n_chs ~ NA_character_,
+            #                                       TRUE ~ .channel),
+            #                                       .by = ".id")
+      baddies[baddies[, .I[.N >= .n_chs], .id]$V1, .channel := NA_character_] 
+            # baddies <- mutate.(baddies, .channel = NA_character_)
     }
 
     # For the replacement in parts of the segments
-    b_chans <- dplyr::filter(baddies, !is.na(.channel)) %>%
-      dplyr::distinct(.channel) %>%
-      dplyr::pull()
+    b_chans <- filter.(baddies, !is.na(.channel)) %>%
+      distinct.(.channel) %>%
+      tidytable::pull.()
 
     for (ch in b_chans) {
-      b <- dplyr::filter(baddies, .channel == ch, !is.na(.channel))
+      b <- filter.(baddies, .channel == ch, !is.na(.channel))
       if (!.entire_seg) {
         for (i in seq(1, nrow(b))) {
           data.table::set(
@@ -337,7 +348,7 @@ eeg_events_to_NA.eeg_lst <-
     }
     # For the replacement in the complete of the segments
     b_all <-
-      dplyr::filter(baddies, is.na(.channel)) %>% dplyr::distinct()
+      filter.(baddies, is.na(.channel)) %>% distinct.()
 
     if (!.entire_seg & nrow(b_all) != 0) {
       for (i in seq(1, nrow(b_all))) {
@@ -364,7 +375,7 @@ eeg_events_to_NA.eeg_lst <-
 
 
     if (.drop_events) {
-      x$.events <- anti_join_dt(x$.events, filter_dt(x$.events, !!!dots))
+      x$.events <- anti_join.(x$.events, filter.(x$.events, !!!dots))
     }
     x$.signal <- signal
 

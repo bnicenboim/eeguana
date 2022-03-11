@@ -1,18 +1,18 @@
-
+#' @noRd
 window_samples <- function(window, sampling_rate, unit) {
   if (!is.numeric(window) || window < 0) {
     stop("`window` should be a positive number.", call. = FALSE)
   }
-
-  window_s <- round(as_sample_int(window, sampling_rate = sampling_rate, .unit = unit) - 1L)
-
+  window_s <- round(as_sample_int(window, 
+                                  sampling_rate = sampling_rate,
+                                  .unit = unit) - 1L)
   if (window_s <= 0) {
     stop("The `window` needs to contain at least one sample.")
   }
   window_s
 }
 
-
+#' @noRd
 lim_samples <- function(lim, sampling_rate, unit) {
   if (length(lim) < 2) {
     stop("Two values for `lim` are needed", call. = FALSE)
@@ -43,7 +43,7 @@ events_artif_custom <- function(.signal, ...,
 
   fun_txt <- substitute(fun) %>%
     chr_remove("detect_")
-  args_txt <- purrr::imap_chr(args, ~ paste(.y, toString(.x), sep = "=")) %>%
+  args_txt <- imap_chr(args, ~ paste(.y, toString(.x), sep = "=")) %>%
     paste(collapse = "_")
 
   # new events table:
@@ -62,15 +62,14 @@ detect_minmax <- function(x, args = list(window_samples = NULL, threshold = NULL
   ## If there is only one non NA value, there should be an NA
   rmin[rmin == Inf] <- NA
   rmax[rmax == -Inf] <- NA
-  if(args$direction %in% tolower(c("above",">",">=")))  {
+  if (args$direction %in% tolower(c("above", ">", ">="))) {
     abs(rmin - rmax) >= args$threshold
-  } else if(args$direction %in% tolower(c("below","<","<="))){
+  } else if (args$direction %in% tolower(c("below", "<", "<="))) {
     abs(rmin - rmax) <= args$threshold
   } else {
-    stop("The argument `direction` can only include 'above' or 'below'", call.=FALSE)
+    stop("The argument `direction` can only include 'above' or 'below'", call. = FALSE)
   }
 }
-
 
 #' @noRd
 detect_peak <- function(x, args = list(window_samples = NULL, threshold = NULL)) {
@@ -93,6 +92,7 @@ detect_step <- function(x, args = list(window_samples = NULL, threshold = NULL))
   rmean <- c(means[seq.int(from = args$window_samples / 2 + 1L, to = length(means))], rep(NA, args$window / 2))
   abs(rmean - lmean) >= args$threshold
 }
+
 #' @noRd
 detect_amplitude <- function(x, args = list(threshold = NULL)) {
   x <= args$threshold[1] | x >= args$threshold[2]
@@ -102,8 +102,7 @@ detect_amplitude <- function(x, args = list(threshold = NULL)) {
 search_artifacts <- function(signal, ..., fun, args = list()) {
   ch_sel <- sel_ch(signal, ...)
 
-
-  ## in case there are missing .samples
+    ## in case there are missing .samples
   add_missing_samples(signal) %>%
     .[, c(
       list(.sample = .sample),
@@ -127,7 +126,7 @@ add_intervals_from_artifacts <- function(sampling_rate, artifacts_tbl, sample_ra
     split(., .$.id) %>%
     map_dtr(function(.eeg) {
       .eeg %>%
-        dplyr::select(-dplyr::one_of(obligatory_cols[[".signal"]])) %>%
+        select.(-tidyselect::one_of(obligatory_cols[[".signal"]])) %>%
         imap_dtr(~ {
           if (all(.x[!is.na(.x)] == FALSE)) {
             out <- new_events_tbl()

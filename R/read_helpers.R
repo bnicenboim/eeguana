@@ -296,7 +296,7 @@ read_vhdr_metadata <- function(file) {
     stats::setNames(ch_cols) %>%
     mutate.(
       resolution = as.double(resolution),
-      unit = ifelse(unit %in% c("µV", "μV", "microvolt"), "microvolt", "?"),
+      unit = ifelse(unit %in% c("\u00b5V", "\u03bcV", "microvolt"), "microvolt", "?"),
       .reference = ifelse(.reference == "", NA_character_, .reference)
     )
   if(!is.null(unit_found) & all(channel_info$unit =="?")) {
