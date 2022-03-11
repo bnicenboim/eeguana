@@ -214,3 +214,10 @@ summarize. <- function(.df, ..., .by = NULL, .sort = FALSE) {
   class(.df) <- oldclass
   .df
 }
+
+anti_join. <- function(x, y, by = NULL) {
+  oldclass <- class(x)
+  .df <- tidytable::anti_join.(x = x, y = y, by = by)
+  class(.df) <- oldclass
+  .df
+}
