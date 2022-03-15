@@ -11,7 +11,7 @@ eeg_rereference(.data, ..., .ref = NULL, na.rm = FALSE)
 
 \item{...}{Channels to include. All the channels by default, but eye channels should be removed.}
 
-\item{.ref}{Character vector of channels that will be averaged as the reference.}
+\item{.ref}{Channels that will be averaged as the reference. tidyselect compatible.}
 
 \item{na.rm}{a logical value indicating whether \code{NA}
     values should be stripped before the computation proceeds.}
@@ -28,11 +28,11 @@ Notice that this function will also rereference the eye electrodes unless exclud
 \examples{
 # Re-reference all channels using the left mastoid excluding the eye electrodes.
 data_faces_ERPs_M1 <- data_faces_ERPs \%>\%
-  eeg_rereference(-EOGV, -EOGH, .ref = "M1")
+  eeg_rereference(-EOGV, -EOGH, .ref = M1)
 
 # Re-reference using the linked mastoids excluding the eye electrodes.
 data_faces_ERPs_M1M2 <- data_faces_ERPs \%>\%
-  eeg_rereference(-EOGV, -EOGH, .ref = c("M1", "M2"))
+  eeg_rereference(-EOGV, -EOGH, .ref = c(M1, M2))
 }
 \seealso{
 Other preprocessing functions: 

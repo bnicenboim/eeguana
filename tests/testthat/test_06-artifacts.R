@@ -172,8 +172,39 @@ test_that("freq works", {
 
   step_h10 <- data %>%
     eeg_artif_minmax(.threshold = 10, .lim = c(0 / 500, 4 / 500), .window = 2 / 500, .unit = "second", .freq = c(10, NA))
+ 
+  events_h100s <- data %>%
+    eeg_filt_high_pass(.freq = 10) %>%
+    eeg_artif_step(.threshold = 10, .lim = c(0 / 500, 4 / 500), .window = 2 / 500, .unit = "second") %>%
+    events_tbl()
+  
+  step_h10s <- data %>%
+    eeg_artif_step(.threshold = 10, .lim = c(0 / 500, 4 / 500), .window = 2 / 500, .unit = "second", .freq = c(10, NA))
+
+  events_h100p <- data %>%
+    eeg_filt_high_pass(.freq = 10) %>%
+    eeg_artif_peak(.threshold = 10, .lim = c(0 / 500, 4 / 500), .window = 2 / 500, .unit = "second") %>%
+    events_tbl()
+  
+  step_h10p <- data %>%
+    eeg_artif_peak(.threshold = 10, .lim = c(0 / 500, 4 / 500), .window = 2 / 500, .unit = "second", .freq = c(10, NA))
+
+  events_h100a <- data %>%
+    eeg_filt_high_pass(.freq = 10) %>%
+    eeg_artif_amplitude(.threshold = c(-10,10), .lim = c(0 / 500, 4 / 500), .unit = "second") %>%
+    events_tbl()
+  
+  step_h10a <- data %>%
+    eeg_artif_amplitude(.threshold = c(-10,10), .lim = c(0 / 500, 4 / 500), .unit = "second", .freq = c(10, NA))
+  
   expect_equal(events_h100, events_tbl(step_h10))
   expect_equal(signal_tbl(data), signal_tbl(step_h10))
+  expect_equal(events_h100s, events_tbl(step_h10s))
+  expect_equal(signal_tbl(data), signal_tbl(step_h10s))
+  expect_equal(events_h100p, events_tbl(step_h10p))
+  expect_equal(signal_tbl(data), signal_tbl(step_h10p))
+  expect_equal(events_h100a, events_tbl(step_h10a))
+  expect_equal(signal_tbl(data), signal_tbl(step_h10a))
 })
 
 
@@ -254,3 +285,5 @@ test_that("low freq works", {
   expect_equal(events_l100, events_tbl(minmax_l100))
   expect_equal(data_1minmax, minmax_l100)
 })
+
+message("test amplitude and peak, they are not too well tested")
