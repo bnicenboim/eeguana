@@ -292,11 +292,11 @@ eeg_events_to_NA.eeg_lst <-
            .all_chs = FALSE) {
     dots <- rlang::enquos(...)
 
-    signal <- data.table::copy(x$.signal)
     # dots <- rlang::quos(.type == "Bad Interval")
     #dots <- rlang::quos(.type == "Bad")
-
-    # 
+    
+    signal <- data.table::copy(x$.signal)
+     
     # Hack for match 2 columns with 2 columns, similar to semi_join but allowing
     # for assignment
     baddies <- filter.(x$.events, !!!dots)
@@ -313,7 +313,12 @@ eeg_events_to_NA.eeg_lst <-
             #                                       TRUE ~ .channel),
             #                                       .by = ".id")
       baddies[baddies[, .I[.N >= .n_chs], .id]$V1, .channel := NA_character_] 
-            # baddies <- mutate.(baddies, .channel = NA_character_)
+      # it doesn't work:
+      # baddies[, if(.N >= .n_chs) .channel := NA_character_, by =.id] 
+      
+      # baddies <- mutate.(baddies, 
+      #                    .channel = ifelse (.N >= .n_chs, NA_character_, .channel),
+      #                    .by = ".id")
     }
 
     # For the replacement in parts of the segments

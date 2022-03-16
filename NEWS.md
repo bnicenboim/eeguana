@@ -4,6 +4,7 @@
 - BUGS:
   - some brainvision files produced by eeglab couldn't be read.
 - The argument `.all_chs` of `eeg_events_to_NA` was deprecated in favor of the more flexible `.n_chs`.
+- The argument `.ref` of `eeg_rereference()` now allows "tidyselect".
 
 # eeguana 0.1.6.9000
 
