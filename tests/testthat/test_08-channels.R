@@ -106,8 +106,9 @@ attributes(Z_reref)$.reference <- "X, Y"
 ## })
 
 data_reref_all_chs <- eeg_rereference(data_sincos2id_Z, .ref = c("X", "Y"))
-
+data_reref_all_chs2  <- eeg_rereference(data_sincos2id_Z, .ref = -Z)
 test_that(".reference changes", {
+  expect_equal(data_reref_all_chs, data_reref_all_chs2)
   expect_equal(unique(channels_tbl(data_reref_all_chs)$.reference), "X, Y")
   expect_equal(data_reref_all_chs$.signal$X %>% as.numeric(), X_reref %>% as.numeric())
   expect_equal(data_reref_all_chs$.signal$Y %>% as.numeric(), Y_reref %>% as.numeric())
