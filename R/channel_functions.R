@@ -92,7 +92,7 @@ eeg_rereference <- function(.data, ..., .ref = NULL, na.rm = FALSE) {
 eeg_rereference.eeg_lst <- function(.data, ..., .ref = NULL, na.rm = FALSE) {
   chs <- sel_ch(.data, ...)
   .ref <- rlang::enquo(.ref)
-  ref_v <- select.(.data$.signal, !!.ref)
+  ref_v <- .data$.signal %>% select.(tidyselect::all_of(channel_names(.data))) %>% select.( !!.ref)
   ref_value <- rowMeans(ref_v)
   reref <- function(x, ref_value) {
     x <- x - ref_value
