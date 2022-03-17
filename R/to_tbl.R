@@ -49,6 +49,20 @@ as_tibble.eeg_lst <- function(x, .unit = "second") {
     dplyr::as_tibble(.name_repair = "unique")
 }
 
+#' Convert an eeg_lst to a long table in [`tidytable`][tidytable::tidytable] format.
+#'
+#' Convert the signal_tbl table from wide to long format.
+#'
+#' @param x An `eeg_lst` object.
+#' @param .unit Unit for the `.time` column of the transformed object: "s" (default), "ms", "samples".
+#' @return  A [`tidytable`][tidytable::tidytable].
+#'
+#'
+#'
+as_tidytable.eeg_lst <- function(x, .unit = "s") {
+  data.table::as.data.table(x, .unit) %>%
+    tidytable::as_tidytable(.name_repair = "unique")
+}
 
 as_tibble.signal_tbl <- function(x, ..., .rows = NULL,
                                  .name_repair = c("check_unique", "unique", "universal", "minimal"),
