@@ -378,7 +378,7 @@ print.eeg_ica_lst <- function(x, ...) {
 #' Count number of complete segments of an eeg_lst object.
 #'
 #' @param x An `eeg_lst` object.
-#' @param ... Variables to group by.
+#' @param ... Variables from the segment table to group by.
 #'
 #'
 #' @return A tbl.
@@ -397,17 +397,14 @@ count_complete_cases_tbl <- function(x, ...) {
 #' @export
 count_complete_cases_tbl.eeg_lst <- function(x, ...) {
   dots <- rlang::enquos(...)
-
+  by <- tidytable::map_chr.(dots, rlang::quo_text)
+  
   x$.signal %>%
-    dplyr::group_by(.id) %>%
-    dplyr::filter_at(
-      dplyr::vars(dplyr::one_of(channel_names(x))),
-      dplyr::all_vars(all(!is.na(.)))
-    ) %>%
-    dplyr::summarize() %>%
-    dplyr::semi_join(x$.segments, ., by = ".id") %>%
-    dplyr::select(-.id, -segment) %>%
-    dplyr::count(!!!dots)
+    summarize.(N = as.integer(!anyNA(c_across.(tidyselect::one_of(channel_names(x))))), .by =".id") %>%
+    tidytable::left_join.(x$.segments) %>%
+    summarize.(N = sum(N), .by = by) %>%
+    data.table::as.data.table()
+
 }
 
 #' Drop segments with NAs from the eeg_lst
