@@ -22,11 +22,3 @@
     Output
       [1] 4722
 
----
-
-    Code
-      count_complete_cases_tbl(eeg_file)
-    Output
-         n
-      1: 1
-

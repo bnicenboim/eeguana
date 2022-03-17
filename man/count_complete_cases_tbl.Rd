@@ -9,7 +9,7 @@ count_complete_cases_tbl(x, ...)
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
 
-\item{...}{Variables to group by.}
+\item{...}{Variables from the segment table to group by.}
 }
 \value{
 A tbl.
