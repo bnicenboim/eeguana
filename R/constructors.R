@@ -10,7 +10,7 @@
 #'
 #' @param signal_tbl See [signal_tbl()].
 #' @param events_tbl See [events_tbl()].
-#' @param segments_tbl A tibble of segment numbers and related information. See [segments_tbl()].
+#' @param segments_tbl A data table of segment numbers and related information. See [segments_tbl()].
 #' @param channels_tbl Optionally a table with channels information. See [channels_tbl()].
 #' @param sampling_rate Optional: If the signal_tbl doesn't have samples, they will be included with this sampling rate.
 #'
@@ -23,15 +23,7 @@ eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, c
     signal_tbl <- new_signal_tbl()
   } else if (!is_signal_tbl(signal_tbl)) {
     if (!is.null(channels_tbl)) {
-      signal_tbl <- data.table::as.data.table(signal_tbl)
-      data.table::set(signal_tbl,
-        ## columns with channels
-        j = channels_tbl$.channel,
-        ## columns that need to be updated with attributes
-        value = signal_tbl[, (update_channel_meta_data(.SD, channels_tbl)),
-          .SDcols = (channels_tbl$.channel)
-        ]
-      )
+      signal_tbl <- add_channel_info(signal_tbl, channels_tbl)
     }
     if(!".id" %in% names(signal_tbl)) signal_tbl$.id <- 1L
     if(!".sample" %in% signal_tbl && is.numeric(sampling_rate)){
@@ -77,7 +69,70 @@ eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, c
   )
 }
 
+#' Creates a `psd_lst`.
+#' 
+#' @param psd_tbl See [psd_tbl()].
+#' @param segments_tbl A data table of segment numbers and related information. See [segments_tbl()].
+#' @param channels_tbl Optionally a table with channels information. See [channels_tbl()].
+#'
+#' @family psd_lst
+#'
+#' @return A valid psd_lst.
+#' @export
+psd_lst <- function(psd_tbl = NULL, segments_tbl = NULL, channels_tbl = NULL) {
+  if (is.null(psd_tbl)) {
+    psd_tbl <- new_psd_tbl()
+  } else if (!is_psd_tbl(psd_tbl)) {
+    if (!is.null(channels_tbl)) {
+      psd_tbl <- add_channel_info(psd_tbl, channels_tbl)
+    }
+    if(!".id" %in% names(psd_tbl)) psd_tbl$.id <- 1L
+    psd_tbl <- as_psd_tbl(psd_tbl)
+  } else {
+    psd_tbl <- validate_psd_tbl(psd_tbl)
+  }
+  
+  if (is.null(segments_tbl)) {
+    segments_tbl <- data.table::data.table(.id = unique(signal_tbl$.id))[, .recording := NA_character_]
+  } else {
+    if (!".recording" %in% colnames(segments_tbl)) {
+      segments_tbl <- data.table:::shallow(segments_tbl[, .recording := NA])
+    }
+  }
+  segments_tbl <- data.table::as.data.table(segments_tbl)
+  data.table::setkey(segments_tbl, .id)
+  segments_tbl <- validate_segments(segments_tbl)
+  
+  validate_psd_lst(
+    x = new_psd_lst(
+      .psd = psd_tbl,
+      .segments = segments_tbl
+    ),
+    recursive = FALSE
+  )
+}
+
+#'  Adds the channel info to a signal tbl or psd tbl
+#' @param df signal or psd tbl
+#' @param channels_tbl 
+#'
+#' @noRd
+add_channel_info <- function(df, channels_tbl){
+  df <- data.table::as.data.table(df)
+data.table::set(df,
+                ## columns with channels
+                j = channels_tbl$.channel,
+                ## columns that need to be updated with attributes
+                value = df[, (update_channel_meta_data(.SD, channels_tbl)),
+                                   .SDcols = (channels_tbl$.channel)
+                ]
+
+) 
+df
+}          
+
 #' Test if the object is an eeg_lst.
+#' 
 #' This function returns  TRUE for eeg_lsts.
 #'
 #' @param x An object.
@@ -90,6 +145,19 @@ is_eeg_lst <- function(x) {
   "eeg_lst" %in% class(x)
 }
 
+#' Test if the object is a psd_lst.
+#' 
+#' This function returns  TRUE for psd_lsts.
+#'
+#' @param x An object.
+#'
+#' @return `TRUE` if the object inherits from the `psd_lst` class.
+#'
+#' @family psd_lst
+#' @export
+is_psd_lst <- function(x) {
+  "psd_lst" %in% class(x)
+}
 #' Builds a series of sample numbers.
 #'
 #' @param values Sequence of integers.

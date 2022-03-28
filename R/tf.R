@@ -1,4 +1,18 @@
 
+#' Compute the power spectral density (PSD) of an `eeg_lst` object
+#'
+#' Wrapper of [gsignal::pwelch] function.
+#' 
+#' @param .data A `eeg_lst` object.
+#' @param .method "welch" for Welch’s method.
+#' @param .config  See [gsignal::pwelch].
+#'
+#' @return A `psd_lst` object
+#' @export
+#'
+#' @examples
+#' eeg_psd(data_)
+#' 
 eeg_psd <- function(.data, 
                              .method = "welch", 
                              .config = list(
@@ -7,13 +21,10 @@ eeg_psd <- function(.data,
                                 nfft = NULL,
                                 detrend = c("long-mean", "short-mean", "long-linear", "short-linear", "none"),
                                 range = "half")){
-  srate <- sampling_rate.eeg_lst(.data)
-
-  if(tolower(.method) != "welch") {
-    stop("Only 'welch' method is allowed.", call. = FALSE)
-  }
   
-  # taken from gsignal:
+  srate <- sampling_rate.eeg_lst(.data)
+  if(tolower(.method) != "welch") stop("Only 'welch' method is allowed.", call. = FALSE)
+  # isScalar is taken from gsignal
   isScalar <- function (x)  ifelse(is.character(x), nchar(x) == 1L, (is.atomic(x) && length(x) ==1L))
   chs <- channel_names(.data)
   dfs <- .data$.signal %>% split(by = ".id", keep.by = FALSE)
@@ -42,7 +53,10 @@ eeg_psd <- function(.data,
       }
       psd_dt
     })
-   .signal <- do.call("rbind", ls_signal)
+   
+  .psd <- do.call("rbind", ls_signal) 
   
-   .data$.segments
+  psd_lst(psd_tbl = .psd,
+          segments_tbl = .data$.segments,
+          channels_tbl = channels_tbl(.data))
 }

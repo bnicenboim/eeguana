@@ -17,6 +17,7 @@ Convert an eeg_lst to a (base) data frame.
 }
 \seealso{
 Other tibble: 
-\code{\link{as_tibble.eeg_lst}()}
+\code{\link{as_tibble.eeg_lst}()},
+\code{\link{as_tibble.psd_lst}()}
 }
 \concept{tibble}

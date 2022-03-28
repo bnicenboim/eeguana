@@ -28,6 +28,10 @@ channel_names.data.table <- function(x, ...) {
 channel_names.eeg_lst <- function(x, ...) {
   channel_names(x$.signal)
 }
+#' @export
+channel_names.psd_lst <- function(x, ...) {
+  channel_names(x$.psd)
+}
 #' @rdname summaries
 #' @export
 channel_ica_names <- function(x, ...) {
@@ -341,6 +345,22 @@ print.eeg_lst <- function(x, ...) {
     cat_line("No events.")
   }
 
+  cat_line("")
+  cat_line("# Segments table:")
+  print(x$.segments, ...)
+  invisible(x)
+}
+
+
+#' @export
+print.psd_lst <- function(x, ...) {
+  cat_line("# PSD data:")
+  if (length(dplyr::group_vars(x)) > 0) {
+    cat_line("# Grouped by: ", paste0(dplyr::group_vars(x), sep = ", "))
+  }
+  cat_line("")
+  cat_line("# PSD table:")
+  print(x$.psd, ...)
   cat_line("")
   cat_line("# Segments table:")
   print(x$.segments, ...)

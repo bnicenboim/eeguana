@@ -372,9 +372,14 @@ eeg_group_vars <- function(x) {
 eeg_group_vars.eeg_lst <- function(x) {
   attributes(x)$vars
 }
+#' @export
+eeg_group_vars.psd_lst <- function(x) {
+  attributes(x)$vars
+}
 
 # dynamically exported in zzz.R
 group_vars.eeg_lst <- eeg_group_vars.eeg_lst
+group_vars.psd_lst <- eeg_group_vars.psd_lst
 
 #' @rdname dplyr_verbs
 #' @export

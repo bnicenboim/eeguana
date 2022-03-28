@@ -12,6 +12,18 @@ new_eeg_lst <- function(.signal = NULL, .events = NULL, .segments = NULL) {
   )
 }
 
+#' @noRd
+new_psd_lst <- function(.psd = NULL, .segments = NULL) {
+  x <- list(
+    .psd = .psd,
+    .segments = .segments
+  )
+  x <- unclass(x)
+  structure(x,
+            class = c("psd_lst"),
+            vars = character(0)
+  )
+}
 
 
 #' @param values
@@ -125,7 +137,7 @@ update_channel_meta_data <- function(channels, channels_tbl) {
 
 #
 #' @param x
-#'
+#' @param recursive If TRUE validates that the interval tbls
 #' @noRd
 validate_eeg_lst <- function(x, recursive = TRUE) {
   if (!is_eeg_lst(x)) {
@@ -163,6 +175,41 @@ validate_eeg_lst <- function(x, recursive = TRUE) {
   }
   x
 }
+
+#
+#' @param x
+#' @param recursive If TRUE validates that the interval tbls
+#' @noRd
+validate_psd_lst <- function(x, recursive = TRUE) {
+  if (!is_psd_lst(x)) {
+    warning("Class is not eeg_lst", call. = FALSE)
+  }
+  
+  if (recursive) {
+    x$.psd <- validate_psd_tbl(x$.psd)
+    x$.segments <- validate_segments(x$.segments)
+  }
+  diff_channels <- setdiff(x$.events$.channel, channel_names(x))
+  if (length(diff_channels) != 0 & any(!is.na(diff_channels))) {
+    warning("Unknown channel in table of events",
+            call. = FALSE
+    )
+  }
+  if (!all.equal(unique(x$.psd$.id), unique(x$.segments$.id))) {
+    warning("The values of .id mismatch between tables.",
+            call. = FALSE
+    )
+  }
+  
+  if (any(!dplyr::group_vars(x) %in% c(colnames(x$.psd), colnames(x$.segments)))) {
+    warning("Grouping variables are missing.",
+            call. = FALSE
+    )
+  }
+ 
+  x
+}
+
 
 #' @param segments
 #'
@@ -211,3 +258,7 @@ validate_component_dbl <- function(component) {
   }
   component
 }
+
+
+
+

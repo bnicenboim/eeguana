@@ -225,9 +225,19 @@ summarize. <- function(.df, ..., .by = NULL, .sort = FALSE) {
   .df
 }
 
+#' @noRd
 anti_join. <- function(x, y, by = NULL) {
   oldclass <- class(x)
   .df <- tidytable::anti_join.(x = x, y = y, by = by)
+  class(.df) <- oldclass
+  .df
+}
+
+
+#' @noRd
+left_join. <- function(x, y, by = NULL) {
+  oldclass <- class(x)
+  .df <- tidytable::left_join.(x = x, y = y, by = by)
   class(.df) <- oldclass
   .df
 }

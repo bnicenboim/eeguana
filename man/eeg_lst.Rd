@@ -17,7 +17,7 @@ eeg_lst(
 
 \item{events_tbl}{See \code{\link[=events_tbl]{events_tbl()}}.}
 
-\item{segments_tbl}{A tibble of segment numbers and related information. See \code{\link[=segments_tbl]{segments_tbl()}}.}
+\item{segments_tbl}{A data table of segment numbers and related information. See \code{\link[=segments_tbl]{segments_tbl()}}.}
 
 \item{channels_tbl}{Optionally a table with channels information. See \code{\link[=channels_tbl]{channels_tbl()}}.}
 

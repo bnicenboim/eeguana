@@ -36,7 +36,6 @@ Imports:
     rlang (>= 0.3.1),
     signal (>= 0.7.6),
     MBA (>= 0.0.9),
-    tibble (>= 2.1.1),
     data.table (>= 1.12.2),
     edfReader (>= 1.2.0),
     gtable (>= 0.2.0),
@@ -52,6 +51,7 @@ Imports:
     tidytable (>= 0.6.7)
 Suggests:
     akima (>= 0.6.2),
+    tibble (>= 2.1.1),
     plotly (>= 4.8.0),
     R.matlab (>= 3.6.2),
     reticulate (>= 1.11.1),
