@@ -47,11 +47,11 @@ plot.eeg_lst <- function(x, .max_sample = 6400, ...) {
   plot <- ggplot.eeg_lst(x, ggplot2::aes(x = .time, y = .value, group = .id), .max_sample = .max_sample) +
     ggplot2::scale_x_continuous("Time (s)") +
     ggplot2::scale_y_continuous("Amplitude") +
-    gg_default_layers(lims) +
     ggplot2::facet_grid(.key ~ .id,
                         labeller = ggplot2::label_wrap_gen(multi_line = FALSE),
                         scales = "free", space = "free"
     ) +
+    gg_default_layers(lims) 
   plot
 }
 
