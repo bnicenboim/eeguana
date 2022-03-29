@@ -238,6 +238,13 @@ anti_join. <- function(x, y, by = NULL) {
   class(.df) <- oldclass
   .df
 }
+#' @noRd
+semi_join. <- function(x, y, by = NULL) {
+  oldclass <- class(x)
+  .df <- tidytable::semi_join.(x = x, y = y, by = by)
+  class(.df) <- oldclass
+  .df
+}
 
 
 #' @noRd

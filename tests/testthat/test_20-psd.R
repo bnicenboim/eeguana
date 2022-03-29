@@ -49,3 +49,15 @@ expect_equal(pband_default, eeg_power_band(data_sleep_psd_default))
 test_that("eeg_psd returns output of pwelch ", {
 expect_gg(plot(data_sleep_psd))
 })
+
+
+test_that("basic test tidyverse works with psd_lst ", {
+  data_sleep_psd_2 %>% eeg_select(f3 = F3)
+  data_sleep_psd_2 %>% eeg_rename(f3 = F3)
+  data_sleep_psd_2 %>% eeg_filter(.id==1)
+  data_sleep_psd_2 %>% eeg_summarize(mean(F3))
+  data_sleep_psd_2 %>% eeg_group_by(.id) %>% eeg_summarize(mean(F3))
+  data_sleep_psd_2 %>% eeg_mutate(F3 =F3 * 100)
+  data_sleep_psd_2 %>% eeg_transmute(F3 =F3 * 100)
+  
+})

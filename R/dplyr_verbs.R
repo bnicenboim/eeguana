@@ -145,12 +145,26 @@ eeg_filter.eeg_lst <- function(.data, ..., .preserve = FALSE) {
     warning("Ignoring `.preserve` argument.")
   }
   .data <- update_eeg_lst(.data)
-  filter_eeg_lst(.data, ...)
+  .data <- filter_lst(.data, ...)
+  data.table::setkey(.data$.signal, .id, .sample)
+  .data %>% validate_eeg_lst()
+}
+
+#' @export
+eeg_filter.psd_lst <- function(.data, ..., .preserve = FALSE) {
+  if (.preserve == TRUE) {
+    warning("Ignoring `.preserve` argument.")
+  }
+  .data <- filter_lst(.data, ...)
+  data.table::setkey(.data$.psd, .id, .freq)
+  .data %>% validate_psd_lst()
 }
 
 #' @export
 eeg_filter.eeg_ica_lst <- function(.data, ..., .preserve = FALSE) {
   out <- NextMethod()
+  data.table::setkey(out$.signal, .id, .sample)
+  out <- out %>% validate_eeg_lst()
   recordings <- unique(out$.segments$.recording)
   out$.ica <- out$.ica[recordings]
   out
@@ -158,8 +172,7 @@ eeg_filter.eeg_ica_lst <- function(.data, ..., .preserve = FALSE) {
 
 # dynamically exported in zzz.R
 filter.eeg_lst <- eeg_filter.eeg_lst
-
-# dynamically exported in zzz.R
+filter.psd_lst <- eeg_filter.psd_lst
 filter.eeg_ica_lst <- eeg_filter.eeg_ica_lst
 
 #' @rdname dplyr_verbs
@@ -181,16 +194,68 @@ eeg_summarize.eeg_lst <- function(.data, ..., .groups = "keep") {
   if (.groups != "keep") {
     warning("Only  'keep' option is available")
   }
-  summarize_eeg_lst(.data, dots, .groups = "keep")
+  attr_sample_id <- attributes(.data$.signal$.sample)
+  extended_signal_dt <- summarize_ext(.data, dots, .groups = "keep")
+  if (!".sample" %in% colnames(extended_signal_dt)) {
+    extended_signal_dt[, .sample := sample_int(NA_integer_, attr_sample_id$sampling_rate)]
+  } else {
+    attributes(extended_signal_dt$.sample) <- attr_sample_id
+  }
+  # Add .id in case it was removed by a summary
+  if (!".id" %in% colnames(extended_signal_dt)) {
+    extended_signal_dt[, .id := seq_len(.N), by = .sample]
+  }
+  data.table::setkey(extended_signal_dt, .id, .sample)
+  data.table::setcolorder(extended_signal_dt, c(".id", ".sample"))
+  .data$.signal <- extended_signal_dt
+  .data$.segments <- rebuild_segment_dt(.data)
+  # remove unnecessary cols
+  if (length(group_vars_only_segments(.data)) > 0) {
+    .data$.signal[, (group_vars_only_segments(.data)) := NULL]
+  }
+  ### CHECK !!!!!!!!!!!!! 
+  .data$.events <- new_events_tbl(sampling_rate = sampling_rate.eeg_lst(.data))
+  # update channels in the events and the meta data (summarize deletes the metadata of the channels)
+  .data <- update_events_channels(.data) #
+  validate_eeg_lst(.data)
+}
+
+#' @export
+eeg_summarize.psd_lst <- function(.data, ..., .groups = "keep") {
+  dots <- rlang::quos(...)
+  if (.groups != "keep") {
+    warning("Only  'keep' option is available")
+  }
+  extended_psd_dt <- summarize_ext(.data, dots, .groups = "keep")
+  if (!".freq" %in% colnames(extended_psd_dt)) extended_psd_dt[, .freq := NA]
+  
+  # Add .id in case it was removed by a summary
+  if (!".id" %in% colnames(extended_psd_dt)) {
+    extended_psd_dt[, .id := seq_len(.N), by = .freq]
+  }
+  data.table::setkey(extended_psd_dt, .id, .freq)
+  data.table::setcolorder(extended_psd_dt, c(".id", ".freq"))
+  .data$.psd <- extended_psd_dt
+  .data$.segments <- rebuild_segment_dt(.data)
+  # remove unnecessary cols
+  if (length(group_vars_only_segments(.data)) > 0) {
+    .data$.psd[, (group_vars_only_segments(.data)) := NULL]
+  }
+   validate_psd_lst(.data)
 }
 
 # dynamically exported in zzz.R
 summarize.eeg_lst <- eeg_summarize.eeg_lst
-# dynamically exported in zzz.R
 summarise.eeg_lst <- eeg_summarize.eeg_lst
+summarize.psd_lst <- eeg_summarize.psd_lst
+summarise.psd_lst <- eeg_summarize.psd_lst
+
 #' @noRd
 #' @export
 eeg_summarise.eeg_lst <- eeg_summarize.eeg_lst
+#' @noRd
+#' @export
+eeg_summarise.psd_lst <- eeg_summarize.psd_lst
 
 
 #' @rdname dplyr_verbs
@@ -211,13 +276,29 @@ eeg_group_by.eeg_lst <- function(.data, ..., .add = FALSE, .drop = FALSE) {
   if (.drop == TRUE) {
     warning("Ignoring .drop argument. It can only be set to FALSE.")
   }
-  group_by_eeg_lst(.eeg_lst = .data, dots, .add = .add)
+  group_by_lst(.data, dots, .add = .add)
+}
+
+#' @export
+eeg_group_by.psd_lst <- function(.data, ..., .add = FALSE, .drop = FALSE) {
+  dots <- rlang::quos(...)
+  if (.drop == TRUE) {
+    warning("Ignoring .drop argument. It can only be set to FALSE.")
+  }
+  group_by_lst(.data, dots, .add = .add)
 }
 
 #' @export
 eeg_ungroup.eeg_lst <- function(.data, ...) {
   attributes(.data)$vars <- character(0)
-  validate_eeg_lst(.data)
+  .data
+#  validate_eeg_lst(.data)
+}
+
+#' @export
+eeg_ungroup.psd_lst <- function(.data, ...) {
+  attributes(.data)$vars <- character(0)
+  .data
 }
 
 # dynamically exported in zzz.R
@@ -233,12 +314,23 @@ eeg_select <- function(.data, ...) {
 
 #' @export
 eeg_select.eeg_lst <- function(.data, ...) {
-  .data <- update_eeg_lst(.data)
-  select_rename(.data, select = TRUE, ...)
+  .data <- update_eeg_lst(.data) #TO remove at some point
+  .data <- select_rename(.data, select = TRUE, ...)
+  data.table::setkey(.data$.signal, .id, .sample)
+   validate_eeg_lst(.data)
 }
+
+#' @export
+eeg_select.psd_lst <- function(.data, ...) {
+  .data <-  select_rename(.data, select = TRUE, ...)
+  data.table::setkey(.data$.psd, .id, .freq)
+  validate_psd_lst(.data)
+}
+
 
 # dynamically exported in zzz.R
 select.eeg_lst <- eeg_select.eeg_lst
+select.psd_lst <- eeg_select.psd_lst
 
 
 #' @rdname dplyr_verbs
@@ -251,8 +343,18 @@ eeg_rename <- function(.data, ...) {
 eeg_rename.eeg_lst <- function(.data, ...) {
   .data <- update_eeg_lst(.data)
   # TODO: simplify and use parts of eeg_rename_with
-  select_rename(.data, select = FALSE, ...)
+  .data <- select_rename(.data, select = FALSE, ...)
+  data.table::setkey(.data$.signal, .id, .sample)
+  validate_eeg_lst(.data)
 }
+
+#' @export
+eeg_rename.psd_lst <- function(.data, ...) {
+  .data <- select_rename(.data, select = FALSE, ...)
+  data.table::setkey(.data$.psd, .id, .freq)
+  validate_psd_lst(.data)
+}
+
 
 #' @rdname dplyr_verbs
 #' @export
@@ -342,10 +444,9 @@ eeg_rename_with.eeg_lst <- function(.data, .fn, .cols = where(is_channel_dbl), .
 
 # dynamically exported in zzz.R
 rename_with.eeg_lst <- eeg_rename_with.eeg_lst
-
-
-# dynamically exported in zzz.R
+#rename_with.eeg_lst <- eeg_rename_with.psd_lst
 rename.eeg_lst <- eeg_rename.eeg_lst
+rename.psd_lst <- eeg_rename.psd_lst
 
 
 #' @rdname dplyr_verbs
