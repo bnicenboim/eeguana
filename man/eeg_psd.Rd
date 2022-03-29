@@ -26,6 +26,8 @@ A \code{psd_lst} object
 Wrapper of \link[gsignal:pwelch]{gsignal::pwelch} function.
 }
 \examples{
-eeg_psd(data_)
+psd_faces <- eeg_psd(data_faces_ERPs) 
+psd_faces \%>\% eeg_select(F1)
+plot(psd_faces)     
 
 }

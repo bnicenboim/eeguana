@@ -195,7 +195,9 @@ data_no_blinks_2 <- eeg_lst(
   segments_tbl = data.table::data.table(.id = seq.int(4), .recording = paste0("recording", c(1, 1, 2, 2)), segment = seq.int(4))
 )
 
-
+#From https://raphaelvallat.com/bandpower.html
+F3 <- tidytable::fread.("data.txt")[[1]]
+data_sleep_F3 <- eeg_lst(signal_tbl = data.frame(F3 = channel_dbl(F3)),sampling_rate = 100)
 
 
 usethis::use_data(data_sincos2id, data_sincos2id_2,
@@ -204,6 +206,7 @@ usethis::use_data(data_sincos2id, data_sincos2id_2,
   data_blinks, data_blinks_2,
   data_no_blinks, data_no_blinks_2,
   true_comps,
+  data_sleep_F3,
   internal = TRUE, overwrite = TRUE,
   compress = "xz"
 )

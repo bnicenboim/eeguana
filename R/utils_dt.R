@@ -17,7 +17,13 @@ imap_chr <- function (.x, .f, ...) {
   .f <- rlang::as_function(.f)
   tidytable::map2_chr.(.x, vec_index(.x), .f, ...)
 }
-  
+
+#' @noRd
+imap <- function (.x, .f, ...) 
+{
+  .f <- rlang::as_function(.f, ...)
+  tidytable::map2.(.x, vec_index(.x), .f, ...)
+}
 
 #' @noRd
 map_dtr <- function(.x, .f, ..., .id = NULL) {

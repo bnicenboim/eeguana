@@ -36,7 +36,8 @@
 plot.eeg_lst <- function(x, .max_sample = 6400, ...) {
   rlang::check_dots_unnamed()
   # pick the last channel as reference
-  breaks <- x$.signal[[ncol(x$.signal)]] %>%
+  chs <- channel_names(x)
+  breaks <- x$.signal[[chs[length(chs)]]] %>%
     stats::quantile(probs = c(.025, .975), na.rm = TRUE) %>%
     signif(2) %>%
     c(0)
@@ -59,8 +60,9 @@ plot.eeg_lst <- function(x, .max_sample = 6400, ...) {
 plot.psd_lst <- function(x, ...) {
   rlang::check_dots_unnamed()
   # pick the last channel as reference
-  breaks <- x$.psd[[ncol(x$.psd)]] %>%
-    stats::quantile(probs = c(.025, .975), na.rm = TRUE) %>%
+  chs <- channel_names(x)
+  breaks <- x$.psd[[chs[length(chs)]]] %>%
+    stats::quantile(probs = c(.01,.99), na.rm = TRUE) %>%
     signif(2) %>%
     c(0)
   names(breaks) <- breaks

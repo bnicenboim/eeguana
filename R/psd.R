@@ -91,12 +91,11 @@ validate_psd_tbl <- function(psd_tbl) {
             call. = FALSE
     )
   }
-  ## Validates .sample
-  if (!is.numeric(psd_tbl$.freq)) {
-    warning("Values of .freq should be numbers",
-            call. = FALSE
-    )
-  }
+  # if (!is.numeric(psd_tbl$.freq)) {
+  #   warning("Values of .freq should be numbers",
+  #           call. = FALSE
+  #   )
+  # }
   ## checks if there are channels
   if (nrow(psd_tbl) > 0) {
     nchannels <- sum(sapply(psd_tbl, is_channel_dbl))

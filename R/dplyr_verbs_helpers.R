@@ -310,11 +310,8 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
       }
     }
   }
-
   data.table::setkey(.eeg_lst$.signal, .id, .sample)
   data.table::setkey(.eeg_lst$.segments, .id)
-
-
   .eeg_lst %>%
     dplyr::group_by(!!!new_groups) %>%
     validate_eeg_lst()
