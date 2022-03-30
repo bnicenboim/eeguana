@@ -75,8 +75,7 @@ as_tibble.psd_lst <- function(x) {
 #'
 #' Convert the signal_tbl table from wide to long format.
 #'
-#' @param x An `eeg_lst` object.
-#' @param .unit Unit for the `.time` column of the transformed object: "s" (default), "ms", "samples".
+#' @inheritParams as.data.table.eeg_lst
 #' @return  A [`tidytable`][tidytable::tidytable].
 #'
 #'
@@ -119,17 +118,27 @@ as_data_frame.eeg_lst <- as_tibble.eeg_lst
 
 #' Convert an eeg_lst to a (base) data frame.
 #'
-#' @param ... Other arguments passed on to individual methods.
+#' @inheritParams as.data.table.eeg_lst
+#'
+#' @return A data frame.
+#'
+#' @export
+as.data.frame.eeg_lst <- function(x, .unit = "s") {
+  as.data.frame(as.data.table.eeg_lst(x, .unit = .unit))
+}
+
+#' Convert a psd_lst to a (base) data frame.
+#'
+#' @inheritParams as.data.table.psd_lst
 #'
 #' @return A tibble.
 #'
 #'
 #' @family tibble
 #' @export
-as.data.frame.eeg_lst <- function(...) {
-  as.data.frame(as_tibble.eeg_lst(...))
+as.data.frame.psd_lst <- function(x) {
+  as.data.frame(as.data.table.psd_lst(x))
 }
-
 
 
 #' @rdname as_tibble.eeg_lst

@@ -4,20 +4,16 @@
 \alias{as.data.frame.eeg_lst}
 \title{Convert an eeg_lst to a (base) data frame.}
 \usage{
-\method{as.data.frame}{eeg_lst}(...)
+\method{as.data.frame}{eeg_lst}(x, .unit = "s")
 }
 \arguments{
-\item{...}{Other arguments passed on to individual methods.}
+\item{x}{An \code{eeg_lst} object.}
+
+\item{.unit}{Unit for the \code{.time} column of the transformed object: "s" (default), "ms", "samples".}
 }
 \value{
-A tibble.
+A data frame.
 }
 \description{
 Convert an eeg_lst to a (base) data frame.
 }
-\seealso{
-Other tibble: 
-\code{\link{as_tibble.eeg_lst}()},
-\code{\link{as_tibble.psd_lst}()}
-}
-\concept{tibble}
