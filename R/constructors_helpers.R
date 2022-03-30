@@ -135,8 +135,9 @@ update_channel_meta_data <- function(channels, channels_tbl) {
   channels
 }
 
-#
-#' @param x
+#' Validates eeg_lst
+#'
+#' @param x eeg_lst
 #' @param recursive If TRUE validates that the interval tbls
 #' @noRd
 validate_eeg_lst <- function(x, recursive = TRUE) {
@@ -176,8 +177,9 @@ validate_eeg_lst <- function(x, recursive = TRUE) {
   x
 }
 
-#
-#' @param x
+#' Validates a psd_lst
+#' 
+#' @param x psd_lst
 #' @param recursive If TRUE validates that the interval tbls
 #' @noRd
 validate_psd_lst <- function(x, recursive = TRUE) {

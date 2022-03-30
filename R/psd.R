@@ -54,12 +54,10 @@ as_psd_tbl.NULL <- function(.data) {
   .data <- data.table::data.table(.id = integer(0), .freq = numeric(0))
   as_psd_tbl(.data)
 }
-#' @param psd_tbl
-#'
-#' @noRd
 
 
 #' Test if the object is a  psd_tbl
+#' 
 #' This function returns  TRUE for psds.
 #'
 #' @param x An object.
@@ -72,6 +70,7 @@ is_psd_tbl <- function(x) {
   "psd_tbl" %in% class(x)
 }
 
+#' @noRd
 validate_psd_tbl <- function(psd_tbl) {
   if (!data.table::is.data.table(psd_tbl)) {
     warning("'psd' should be a data.table.",

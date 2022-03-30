@@ -137,7 +137,7 @@ mutate_lst <- function(.data, ..., keep_cols = TRUE, .by_reference = FALSE) {
     }
     ## Check that the user did not mess up the attributes of the column:
   
-    non_obl <- .data[[1]][0, -obligatory_cols_main, with = FALSE]
+    non_obl <- extended_main_dt[0, -obligatory_cols_main, with = FALSE]
     # Remove below:
     non_ch <- names(non_obl)[!purrr::map_lgl(non_obl, is_channel_dbl)]
     non_comp <- names(non_ch)[!purrr::map_lgl(non_ch, is_component_dbl)]

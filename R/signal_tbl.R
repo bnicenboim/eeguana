@@ -71,6 +71,7 @@ as_signal_tbl.NULL <- function(.data) {
 
 
 #' Test if the object is a  signal_tbl
+#' 
 #' This function returns  TRUE for signals.
 #'
 #' @param x An object.
