@@ -108,12 +108,27 @@ eeg_mutate <- function(.data, ...) {
 #' @export
 eeg_mutate.eeg_lst <- function(.data, ...) {
   .data <- update_eeg_lst(.data)
-  mutate_eeg_lst(.data, ..., keep_cols = TRUE) %>%
+  .data <- mutate_lst(.data, ..., keep_cols = TRUE)
+  # updates the events and the channels
+  .data <- .data %>%
+    update_events_channels()
+  data.table::setkey(.data$.signal, .id, .sample)
+  .data %>%
     validate_eeg_lst()
+}
+
+#' @export
+eeg_mutate.psd_lst <- function(.data, ...) {
+  .data <- mutate_lst(.data, ..., keep_cols = TRUE)
+  # updates the events and the channels
+  data.table::setkey(.data$.psd, .id, .freq)
+  .data %>%
+    validate_psd_lst()
 }
 
 # dynamically exported in zzz.R
 mutate.eeg_lst <- eeg_mutate.eeg_lst
+mutate.psd_lst <- eeg_mutate.psd_lst
 
 
 #' @rdname dplyr_verbs
@@ -126,12 +141,28 @@ eeg_transmute <- function(.data, ...) {
 #' @export
 eeg_transmute.eeg_lst <- function(.data, ...) {
   .data <- update_eeg_lst(.data)
-  mutate_eeg_lst(.data, ..., keep_cols = FALSE)
+  .data <- mutate_lst(.data, ..., keep_cols = FALSE)
+  # updates the events and the channels
+  .data <- .data %>%
+    update_events_channels()
+  data.table::setkey(.data$.signal, .id, .sample)
+  .data %>%
+    validate_eeg_lst()
+}
+
+
+#' @export
+eeg_transmute.psd_lst <- function(.data, ...) {
+  .data <- mutate_lst(.data, ..., keep_cols = FALSE)
+  # updates the events and the channels
+  data.table::setkey(.data$.psd, .id, .freq)
+  .data %>%
+    validate_psd_lst()
 }
 
 # dynamically exported in zzz.R
 transmute.eeg_lst <- eeg_transmute.eeg_lst
-
+transmute.psd_lst <- eeg_transmute.psd_lst
 
 #' @rdname dplyr_verbs
 #' @export
@@ -213,7 +244,7 @@ eeg_summarize.eeg_lst <- function(.data, ..., .groups = "keep") {
   if (length(group_vars_only_segments(.data)) > 0) {
     .data$.signal[, (group_vars_only_segments(.data)) := NULL]
   }
-  ### CHECK !!!!!!!!!!!!! 
+  ### CHECK !!!!!!!!!!!!!
   .data$.events <- new_events_tbl(sampling_rate = sampling_rate.eeg_lst(.data))
   # update channels in the events and the meta data (summarize deletes the metadata of the channels)
   .data <- update_events_channels(.data) #
@@ -228,7 +259,7 @@ eeg_summarize.psd_lst <- function(.data, ..., .groups = "keep") {
   }
   extended_psd_dt <- summarize_ext(.data, dots, .groups = "keep")
   if (!".freq" %in% colnames(extended_psd_dt)) extended_psd_dt[, .freq := NA]
-  
+
   # Add .id in case it was removed by a summary
   if (!".id" %in% colnames(extended_psd_dt)) {
     extended_psd_dt[, .id := seq_len(.N), by = .freq]
@@ -241,7 +272,7 @@ eeg_summarize.psd_lst <- function(.data, ..., .groups = "keep") {
   if (length(group_vars_only_segments(.data)) > 0) {
     .data$.psd[, (group_vars_only_segments(.data)) := NULL]
   }
-   validate_psd_lst(.data)
+  validate_psd_lst(.data)
 }
 
 # dynamically exported in zzz.R
@@ -292,7 +323,7 @@ eeg_group_by.psd_lst <- function(.data, ..., .add = FALSE, .drop = FALSE) {
 eeg_ungroup.eeg_lst <- function(.data, ...) {
   attributes(.data)$vars <- character(0)
   .data
-#  validate_eeg_lst(.data)
+  #  validate_eeg_lst(.data)
 }
 
 #' @export
@@ -314,15 +345,15 @@ eeg_select <- function(.data, ...) {
 
 #' @export
 eeg_select.eeg_lst <- function(.data, ...) {
-  .data <- update_eeg_lst(.data) #TO remove at some point
+  .data <- update_eeg_lst(.data) # TO remove at some point
   .data <- select_rename(.data, select = TRUE, ...)
   data.table::setkey(.data$.signal, .id, .sample)
-   validate_eeg_lst(.data)
+  validate_eeg_lst(.data)
 }
 
 #' @export
 eeg_select.psd_lst <- function(.data, ...) {
-  .data <-  select_rename(.data, select = TRUE, ...)
+  .data <- select_rename(.data, select = TRUE, ...)
   data.table::setkey(.data$.psd, .id, .freq)
   validate_psd_lst(.data)
 }
@@ -444,7 +475,7 @@ eeg_rename_with.eeg_lst <- function(.data, .fn, .cols = where(is_channel_dbl), .
 
 # dynamically exported in zzz.R
 rename_with.eeg_lst <- eeg_rename_with.eeg_lst
-#rename_with.eeg_lst <- eeg_rename_with.psd_lst
+# rename_with.eeg_lst <- eeg_rename_with.psd_lst
 rename.eeg_lst <- eeg_rename.eeg_lst
 rename.psd_lst <- eeg_rename.psd_lst
 

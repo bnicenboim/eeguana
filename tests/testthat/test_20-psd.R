@@ -57,7 +57,6 @@ test_that("basic test tidyverse works with psd_lst ", {
   data_sleep_psd_2 %>% eeg_filter(.id==1)
   data_sleep_psd_2 %>% eeg_summarize(mean(F3))
   data_sleep_psd_2 %>% eeg_group_by(.id) %>% eeg_summarize(mean(F3))
-  data_sleep_psd_2 %>% eeg_mutate(F3 =F3 * 100)
+  data_sleep_psd_2 %>% eeg_mutate(F3 =F3 * 0)
   data_sleep_psd_2 %>% eeg_transmute(F3 =F3 * 100)
-  
 })
