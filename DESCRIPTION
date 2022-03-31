@@ -48,7 +48,8 @@ Imports:
     ellipsis (>= 0.1.0),
     fastICA,
     pracma,
-    tidytable (>= 0.6.7)
+    tidytable (>= 0.6.7),
+    gsignal
 Suggests:
     akima (>= 0.6.2),
     tibble (>= 2.1.1),
@@ -69,5 +70,5 @@ VignetteBuilder: knitr
 Language: en-US
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3
-Remotes:  
+Remotes: 
     markfairbanks/tidytable

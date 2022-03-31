@@ -7,7 +7,7 @@
 psd_lst(psd_tbl = NULL, segments_tbl = NULL, channels_tbl = NULL)
 }
 \arguments{
-\item{psd_tbl}{See \code{\link[=psd_tbl]{psd_tbl()}}.}
+\item{psd_tbl}{A psd_lst.}
 
 \item{segments_tbl}{A data table of segment numbers and related information. See \code{\link[=segments_tbl]{segments_tbl()}}.}
 

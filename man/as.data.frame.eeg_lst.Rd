@@ -4,15 +4,28 @@
 \alias{as.data.frame.eeg_lst}
 \title{Convert an eeg_lst to a (base) data frame.}
 \usage{
-\method{as.data.frame}{eeg_lst}(x, .unit = "s")
+\method{as.data.frame}{eeg_lst}(x, row.names = NULL, optional = FALSE, ..., .unit = "second")
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
 
+\item{row.names}{\code{NULL} or a character vector giving the row
+    names for the data frame.  Missing values are not allowed.}
+
+\item{optional}{logical. If \code{TRUE}, setting row names and
+    converting column names (to syntactic names: see
+    \code{\link[base]{make.names}}) is optional.  Note that all of \R's
+    \pkg{base} package \code{as.data.frame()} methods use
+    \code{optional} only for column names treatment, basically with the
+    meaning of \code{\link[base]{data.frame}(*, check.names = !optional)}.
+    See also the \code{make.names} argument of the \code{matrix} method.}
+
+\item{...}{Additional arguments to be passed to or from other methods.}
+
 \item{.unit}{Unit for the \code{.time} column of the transformed object: "s" (default), "ms", "samples".}
 }
 \value{
-A data frame.
+A data.frame.
 }
 \description{
 Convert an eeg_lst to a (base) data frame.

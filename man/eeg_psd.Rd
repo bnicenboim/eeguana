@@ -27,7 +27,8 @@ Wrapper of \link[gsignal:pwelch]{gsignal::pwelch} function.
 }
 \examples{
 psd_faces <- eeg_psd(data_faces_ERPs) 
-psd_faces \%>\% eeg_select(F1)
-plot(psd_faces)     
+psd_faces \%>\% 
+   eeg_select(F3) \%>\%
+   plot()     
 
 }

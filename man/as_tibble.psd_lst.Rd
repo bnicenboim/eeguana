@@ -2,8 +2,7 @@
 % Please edit documentation in R/to_tbl.R
 \name{as_tibble.psd_lst}
 \alias{as_tibble.psd_lst}
-\title{Convert an psd_lst to a long table in \code{\link[tibble:tibble]{tibble}} format.
-Convert the signal_tbl table from wide to long format.}
+\title{Convert an psd_lst to a long table in \code{\link[tibble:tibble]{tibble}} format.}
 \usage{
 as_tibble.psd_lst(x)
 }
@@ -14,7 +13,6 @@ as_tibble.psd_lst(x)
 A \code{\link[tibble:tibble]{tibble}}
 }
 \description{
-Convert an psd_lst to a long table in \code{\link[tibble:tibble]{tibble}} format.
 Convert the signal_tbl table from wide to long format.
 }
 \seealso{

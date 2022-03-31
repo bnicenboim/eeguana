@@ -80,6 +80,7 @@ plot.psd_lst <- function(x, ...) {
 }
 
 #' Default layers for plot()
+#' @noRd
 gg_default_layers <- function(lims){
   list(ggplot2::geom_hline(yintercept = 0, color = "gray", alpha = .8),
   ggplot2::geom_line(),

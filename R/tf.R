@@ -12,8 +12,9 @@
 #'
 #' @examples
 #' psd_faces <- eeg_psd(data_faces_ERPs) 
-#' psd_faces %>% eeg_select(F1)
-#' plot(psd_faces)     
+#' psd_faces %>% 
+#'    eeg_select(F3) %>%
+#'    plot()     
 #'
 #' @export
 eeg_psd <- function(.data, 
@@ -107,7 +108,8 @@ eeg_power_band <- function(.data, .bands= list(delta = c(0.5, 4),
 eeg_power_band.psd_lst <- function(.data, .bands= list(delta = c(0.5, 4),
                                               theta = c(4,8),
                                               alpha = c(8, 13),
-                                              beta = c(13,30))){
+                                              beta = c(13,30)),
+                                   ...){
   
 
   chs <- channel_names(.data)

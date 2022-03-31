@@ -4,8 +4,9 @@
 #'
 #' @param x An `eeg_lst` object.
 #' @param .unit Unit for the `.time` column of the transformed object: "s" (default), "ms", "samples".
+#' @inheritParams data.table::as.data.table
 #' @return  A [`data.table`][data.table::data.table].
-as.data.table.eeg_lst <- function(x, .unit = "s") {
+as.data.table.eeg_lst <- function(x, .unit = "s", ... ) {
   long_table <- long_dt(x$.signal, x$.segments) %>%
   mutate.(.time := as_time(.sample, .unit = .unit), .sample = NULL)    
   # long_table[, .time := as_time(.sample, .unit = .unit)]
@@ -19,8 +20,9 @@ as.data.table.eeg_lst <- function(x, .unit = "s") {
 #' Convert the psd_tbl table from wide to long format.
 #'
 #' @param x A `psd_lst` object.
+#' @inheritParams data.table::as.data.table
 #' @return  A [`data.table`][data.table::data.table].
-as.data.table.psd_lst <- function(x) {
+as.data.table.psd_lst <- function(x, ...) {
   long_table <- long_dt(x$.psd, x$.segments)
   long_table %>% select.(.freq, tidyselect::everything())
 }
@@ -49,6 +51,7 @@ long_dt <- function(dt,.segments){
 
 
 #' Convert an eeg_lst to a long table in [`tibble`][tibble::tibble] format.
+#' 
 #' Convert the signal_tbl table from wide to long format.
 #'
 #' @inheritParams as.data.table.eeg_lst
@@ -60,6 +63,7 @@ as_tibble.eeg_lst <- function(x, .unit = "second") {
 }
 
 #' Convert an psd_lst to a long table in [`tibble`][tibble::tibble] format.
+#' 
 #' Convert the signal_tbl table from wide to long format.
 #'
 #' @inheritParams as.data.table.psd_lst
@@ -119,25 +123,26 @@ as_data_frame.eeg_lst <- as_tibble.eeg_lst
 #' Convert an eeg_lst to a (base) data frame.
 #'
 #' @inheritParams as.data.table.eeg_lst
+#' @inheritParams base::as.data.frame
 #'
-#' @return A data frame.
+#' @return A data.frame.
 #'
 #' @export
-as.data.frame.eeg_lst <- function(x, .unit = "s") {
-  as.data.frame(as.data.table.eeg_lst(x, .unit = .unit))
+as.data.frame.eeg_lst <- function(x,  row.names = NULL, optional = FALSE, ..., .unit = "second") {
+  as.data.frame(as.data.table.eeg_lst(x, .unit = "second"), row.names = row.names, optional = optional, ...)
 }
 
 #' Convert a psd_lst to a (base) data frame.
 #'
 #' @inheritParams as.data.table.psd_lst
-#'
-#' @return A tibble.
+#' @inheritParams base::as.data.frame
+#' @return A data.frame.
 #'
 #'
 #' @family tibble
 #' @export
-as.data.frame.psd_lst <- function(x) {
-  as.data.frame(as.data.table.psd_lst(x))
+as.data.frame.psd_lst <- function(x,  row.names = NULL, optional = FALSE, ...) {
+  as.data.frame(as.data.table.psd_lst(x), row.names = row.names, optional = optional, ...)
 }
 
 

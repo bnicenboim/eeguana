@@ -65,9 +65,6 @@ as_signal_tbl.NULL <- function(.data) {
   .data <- data.table::data.table(.id = integer(0), .sample = sample_int(integer(0), integer(0)))
   as_signal_tbl(.data)
 }
-#' @param signal_tbl
-#'
-#' @noRd
 
 
 #' Test if the object is a  signal_tbl

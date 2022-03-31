@@ -4,8 +4,7 @@
 \alias{as_tibble.eeg_lst}
 \alias{as_data_frame.eeg_lst}
 \alias{as_long_tbl.eeg_lst}
-\title{Convert an eeg_lst to a long table in \code{\link[tibble:tibble]{tibble}} format.
-Convert the signal_tbl table from wide to long format.}
+\title{Convert an eeg_lst to a long table in \code{\link[tibble:tibble]{tibble}} format.}
 \usage{
 as_tibble.eeg_lst(x, .unit = "second")
 
@@ -22,7 +21,6 @@ as_data_frame.eeg_lst(x, .unit = "second")
 A \code{\link[tibble:tibble]{tibble}}
 }
 \description{
-Convert an eeg_lst to a long table in \code{\link[tibble:tibble]{tibble}} format.
 Convert the signal_tbl table from wide to long format.
 }
 \seealso{

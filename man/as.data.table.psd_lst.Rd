@@ -4,10 +4,12 @@
 \alias{as.data.table.psd_lst}
 \title{Convert a psd_lst list to a long table in \code{\link[data.table:data.table]{data.table}} format.}
 \usage{
-as.data.table.psd_lst(x)
+as.data.table.psd_lst(x, ...)
 }
 \arguments{
 \item{x}{A \code{psd_lst} object.}
+
+\item{...}{Additional arguments to be passed to or from other methods.}
 }
 \value{
 A \code{\link[data.table:data.table]{data.table}}.

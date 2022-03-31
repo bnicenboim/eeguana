@@ -71,7 +71,7 @@ eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, c
 
 #' Creates a `psd_lst`.
 #' 
-#' @param psd_tbl See [psd_tbl()].
+#' @param psd_tbl A psd_lst.
 #' @param segments_tbl A data table of segment numbers and related information. See [segments_tbl()].
 #' @param channels_tbl Optionally a table with channels information. See [channels_tbl()].
 #'
