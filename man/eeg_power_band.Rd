@@ -20,3 +20,8 @@ eeg_power_band(
 \description{
 Compute power bands.
 }
+\seealso{
+Other frequency-based functions: 
+\code{\link{eeg_psd}()}
+}
+\concept{frequency-based functions}

@@ -68,6 +68,7 @@ reference:
     - starts_with("eeg_ica")
     - has_concept("preprocessing functions")
     - has_concept("channel functions")
+    - has_concept("frequency-based functions")
   - title: "Plot functions"
     desc: >
       Wrappers to `ggplot` functions that first transform the `eeg_lst` to a wide `tibble`, together with some transformation (downsampling, interpolation, etc).
@@ -98,6 +99,7 @@ reference:
       Functions for creating objects.
     contents: 
     - '`eeg_lst`'
+    - '`psd_lst`'
     - '`sample_int`'
     - '`channel_dbl`'
     - '`component_dbl`'

@@ -2,7 +2,7 @@
 % Please edit documentation in R/tf.R
 \name{eeg_psd}
 \alias{eeg_psd}
-\title{Compute the power spectral density (PSD) of an \code{eeg_lst} object}
+\title{Compute the power spectral density (PSD) of an EEG signal.}
 \usage{
 eeg_psd(
   .data,
@@ -15,7 +15,7 @@ eeg_psd(
 \arguments{
 \item{.data}{A \code{eeg_lst} object.}
 
-\item{.method}{"welch" for Welch’s method.}
+\item{.method}{"welch" for Welch's method.}
 
 \item{.config}{See \link[gsignal:pwelch]{gsignal::pwelch}.}
 }
@@ -23,7 +23,7 @@ eeg_psd(
 A \code{psd_lst} object
 }
 \description{
-Wrapper of \link[gsignal:pwelch]{gsignal::pwelch} function.
+Compute the power spectral density (PSD) based on an \code{eeg_lst} object. For now it only uses Welch's method, so essentially it is a wrapper of the \link[gsignal:pwelch]{gsignal::pwelch} function.
 }
 \examples{
 psd_faces <- eeg_psd(data_faces_ERPs) 
@@ -32,3 +32,8 @@ psd_faces \%>\%
    plot()     
 
 }
+\seealso{
+Other frequency-based functions: 
+\code{\link{eeg_power_band}()}
+}
+\concept{frequency-based functions}

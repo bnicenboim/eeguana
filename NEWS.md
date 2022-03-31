@@ -1,11 +1,14 @@
 # eeguana 0.1.7.9000
+- New features:
+- The argument `.ref` of `eeg_rereference()` now allows "tidyselect".
+    - `as_tidytable()` added.
+    - `eeg_psd()` computes the power spectral density (PSD) of a en EEG signal (using only the Welch method for now).
+    - `eeg_band_power()` computes power bands.
 - Modifying channels with `channels_tbl()` is much faster now.
 - Signal filtering is slightly faster.
 - BUGS:
   - some brainvision files produced by eeglab couldn't be read.
 - The argument `.all_chs` of `eeg_events_to_NA` was deprecated in favor of the more flexible `.n_chs`.
-- The argument `.ref` of `eeg_rereference()` now allows "tidyselect".
-- `as_tidytable` added.
 
 
 # eeguana 0.1.6.9000
