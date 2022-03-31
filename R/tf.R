@@ -1,12 +1,14 @@
 
-#' Compute the power spectral density (PSD) of an `eeg_lst` object
+#' Compute the power spectral density (PSD) of an EEG signal. 
 #'
-#' Wrapper of [gsignal::pwelch] function.
+#' Compute the power spectral density (PSD) based on an `eeg_lst` object. For now it only uses Welch's method, so essentially it is a wrapper of the [gsignal::pwelch] function.
 #' 
 #' @param .data A `eeg_lst` object.
-#' @param .method "welch" for Welch’s method.
+#' @param .method "welch" for Welch's method.
 #' @param .config  See [gsignal::pwelch].
-#'
+#' 
+#' @family frequency-based functions
+#' 
 #' @return A `psd_lst` object
 #' @export
 #'
@@ -90,6 +92,8 @@ eeg_psd.eeg_lst <- function(.data,
 #' @param .bands A named list of frequency bands.
 #' @param ... Other arguments passed to `eeg_psd()`
 #'
+#' @family frequency-based functions
+#' 
 #' @export
 eeg_power_band <- function(.data, .bands= list(delta = c(0.5, 4),
                                               theta = c(4,8),
