@@ -1,71 +1,42 @@
 #' @noRd
-summarize_eeg_lst <- function(.eeg_lst, dots, .groups) {
-  cond_cols <- names_other_col(.eeg_lst, dots, ".segments")
-  extended_signal_dt <- extended_signal(.eeg_lst, cond_cols)
-  by <- eeg_group_vars(.eeg_lst)
-  dots_signal <- prep_dots(
+summarize_ext <- function(.data, dots, .groups) {
+  cond_cols <- names_other_col(.data, dots, ".segments")
+  extended_signal_dt <- extended_signal(.data, cond_cols)
+  by <- eeg_group_vars(.data)
+  dots_main <- prep_dots(
     dots = dots,
     data = extended_signal_dt,
     .by = !!by,
     j = TRUE
   )
+  summarize.(extended_signal_dt, !!!dots_main, .by = by)
+}
 
-  extended_signal_dt <- summarize.(extended_signal_dt, !!!dots_signal, .by = by)
-
-  attr_sample_id <- attributes(.eeg_lst$.signal$.sample)
-
-  if (!".sample" %in% colnames(extended_signal_dt)) {
-    extended_signal_dt[, .sample := sample_int(NA_integer_, attr_sample_id$sampling_rate)]
-  } else {
-    attributes(extended_signal_dt$.sample) <- attr_sample_id
-  }
-
-  # Add .id in case it was removed by a summary
-  if (!".id" %in% colnames(extended_signal_dt)) {
-    extended_signal_dt[, .id := seq_len(.N), by = .sample]
-  }
-
-  data.table::setkey(extended_signal_dt, .id, .sample)
-  data.table::setcolorder(extended_signal_dt, c(".id", ".sample"))
-
+rebuild_segment_dt <- function(.data) {
   # rebuild the segment table
-  if (length(group_vars_only_segments(.eeg_lst)) > 0) {
-    segment_dt <- distinct.(extended_signal_dt, ".id", group_vars_only_segments(.eeg_lst))
-    if (!".recording" %in% by) {
+  if (length(group_vars_only_segments(.data)) > 0) {
+    segment_dt <- distinct.(.data[[1]], ".id", group_vars_only_segments(.data))
+    if (!".recording" %in% eeg_group_vars(.data)) {
       segment_dt <- mutate.(segment_dt, .recording = NA_character_)
     }
-    data.table::setcolorder(segment_dt, obligatory_cols[[".segments"]])
+    data.table::setcolorder(segment_dt, obligatory_cols$.segments)
   } else {
     ## Restructure segments table to fit the new signal table
-    if (nrow(extended_signal_dt) != 0) {
-      last_id <- max(extended_signal_dt$.id)
+    if (nrow(.data[[1]]) != 0) {
+      last_id <- max(.data[[1]]$.id)
     } else {
       last_id <- integer(0)
     }
     segment_dt <- data.table::data.table(.id = seq_len(last_id), .recording = NA_character_)
     data.table::setkey(segment_dt, .id)
   }
-  .eeg_lst$.segments <- segment_dt
-
-  # remove unnecessary cols
-  if (length(group_vars_only_segments(.eeg_lst)) > 0) {
-    extended_signal_dt[, (group_vars_only_segments(.eeg_lst)) := NULL]
-  }
-  .eeg_lst$.signal <- extended_signal_dt
-
-
-  ## Restructure events table
-  # TODO maybe I can do some type of summary of the events table, instead
-
-  ### CHECK !!!!!!!!!!!!! this
-  .eeg_lst$.events <- new_events_tbl(sampling_rate = sampling_rate.eeg_lst(.eeg_lst))
-  # update channels in the events and the meta data (summarize deletes the metadata of the channels)
-  .eeg_lst <- update_events_channels(.eeg_lst) #
-  validate_eeg_lst(.eeg_lst)
+  segment_dt
 }
 
+
+
 #' @noRd
-group_by_eeg_lst <- function(.eeg_lst, dots, .add = FALSE) {
+group_by_lst <- function(.data, dots, .add = FALSE) {
   if (length(dots) != 0) {
     new_groups <- purrr::map_chr(dots, rlang::quo_text)
   } else {
@@ -73,129 +44,121 @@ group_by_eeg_lst <- function(.eeg_lst, dots, .add = FALSE) {
   }
   names(new_groups) <- NULL
   if (.add == FALSE) {
-    attributes(.eeg_lst)$vars <- new_groups
+    attributes(.data)$vars <- new_groups
   } else {
-    attributes(.eeg_lst)$vars <- unique(c(attributes(.eeg_lst)$vars, new_groups))
+    attributes(.data)$vars <- unique(c(attributes(.data)$vars, new_groups))
   }
-  allcols <- col_names_main(.eeg_lst)
-  if (length(setdiff(attributes(.eeg_lst)$vars, allcols)) > 0) {
-    notfound <- paste0(setdiff(attributes(.eeg_lst)$vars, allcols), collapse = ", ")
+  allcols <- col_names_main(.data)
+  if (length(setdiff(attributes(.data)$vars, allcols)) > 0) {
+    notfound <- paste0(setdiff(attributes(.data)$vars, allcols), collapse = ", ")
     stop(sprintf("Incorrect grouping. The groups %s were not found", notfound), call. = FALSE)
   }
-  .eeg_lst
+  .data
 }
 
 #' @noRd
-filter_eeg_lst <- function(.eeg_lst, ...) {
+filter_lst <- function(.data, ...) {
   dots <- rlang::quos(...)
-  new_dots <- dots_by_tbl_quos(.eeg_lst, dots)
+  new_dots <- dots_by_tbl_quos(.data, dots)
+  # first one is .signal or .psd
+  if (length(new_dots[[1]]) > 0) {
+    cond_cols <- names_other_col(.data, dots, tbl = ".segments")
+    ## events_col <- names_other_col(.data, dots,".events")
+    extended_signal_dt <- extended_signal(.data, cond_cols) # , events_col = events_col)
+    by <- as.character(eeg_group_vars(.data))
+    cols_main <- colnames(.data[[1]])
+    dots_main <- prep_dots(dots = new_dots[[1]], data = extended_signal_dt, .by = !!by, j = TRUE)
+    .data[[1]] <- filter.(extended_signal_dt, !!!dots_main, .by = by) %>%
+      .[, ..cols_main]
 
-  if (length(new_dots$.signal) > 0) {
-    cond_cols <- names_other_col(.eeg_lst, dots, tbl = ".segments")
-    ## events_col <- names_other_col(.eeg_lst, dots,".events")
-    extended_signal_dt <- extended_signal(.eeg_lst, cond_cols) # , events_col = events_col)
-    by <- as.character(dplyr::group_vars(.eeg_lst))
-    cols_signal <- colnames(.eeg_lst$.signal)
-    dots_signal <- prep_dots(dots = new_dots$.signal, data = extended_signal_dt, .by = !!by, j = TRUE)
-    .eeg_lst$.signal <- filter.(extended_signal_dt, !!!dots_signal, .by = by) %>%
-      .[, ..cols_signal]
-
-    if (nrow(.eeg_lst$.events) > 0) {
-      range_s <- .eeg_lst$.signal[, .(.lower = min(.sample), .upper = max(.sample)), by = .id]
-      .eeg_lst$.events <- update_events(.eeg_lst$.events, range_s)
+    if (!is.null(.data$.events) && nrow(.data$.events) > 0) {
+      range_s <- .data$.signal[, .(.lower = min(.sample), .upper = max(.sample)), by = .id]
+      .data$.events <- update_events(.data$.events, range_s)
     }
-    .eeg_lst$.segments <- semi_join_dt(.eeg_lst$.segments, .eeg_lst$.signal, by = ".id")
+    .data$.segments <- semi_join.(.data$.segments, .data[[1]], by = ".id")
   }
-  # filter the segments and update the signal_tbl
+  # filter the segments and update the signal_tbl/psd
   if (length(new_dots$.segments) > 0) {
-    grouping <- dplyr::group_vars(.eeg_lst)[dplyr::group_vars(.eeg_lst) %in% colnames(.eeg_lst$.segments)]
+    grouping <- eeg_group_vars(.data)[eeg_group_vars(.data) %in% colnames(.data$.segments)]
     dots_segments <- prep_dots(dots = new_dots$.segments, data = extended_signal_dt, .by = !!by, j = TRUE)
-    .eeg_lst$.segments <- filter.(.eeg_lst$.segments, !!!dots_segments, .by = grouping)
-    .eeg_lst$.signal <- semi_join_dt(.eeg_lst$.signal, .eeg_lst$.segments, by = ".id")
+    .data$.segments <- filter.(.data$.segments, !!!dots_segments, .by = grouping)
+    .data[[1]] <- semi_join.(.data[[1]], .data$.segments, by = ".id")
   }
-  .eeg_lst$.events <- semi_join_dt(.eeg_lst$.events, data.table::as.data.table(.eeg_lst$.segments), by = ".id")
 
+  if (!is.null(.data$.events)) {
+    .data$.events <- semi_join.(.data$.events, data.table::as.data.table(.data$.segments), by = ".id")
+    .data <- .data %>% update_events_channels()
+  }
   # Fix the indices in case some of them drop out
-  .eeg_lst <- .eeg_lst %>% update_events_channels()
-  data.table::setkey(.eeg_lst$.signal, .id, .sample)
-  data.table::setkey(.eeg_lst$.segments, .id)
-  .eeg_lst %>% validate_eeg_lst()
+  data.table::setkey(.data$.segments, .id)
+
+  .data
 }
 
 
 #' @noRd
-mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_reference = FALSE) {
-
+mutate_lst <- function(.data, ..., keep_cols = TRUE, .by_reference = FALSE) {
   # What to do by table in the object:
   dots <- rlang::quos(...)
-  new_dots <- dots_by_tbl_quos(.eeg_lst, dots)
-
+  new_dots <- dots_by_tbl_quos(.data, dots)
+  obligatory_cols_main <- obligatory_cols[[names(.data)[1]]]
   non_ch <- NULL # for msg at the end
-  if (length(new_dots$.signal) > 0) {
-    # New columns name:
-    # col_names <- rlang::quos_auto_name(new_dots$.signal) %>%
-    #   names()
+  if (length(new_dots[[1]]) > 0) {
     # is it mutate or transmute?
-
-    cols_signal <- colnames(.eeg_lst$.signal)
+    cols_main <- colnames(.data[[1]])
     if (keep_cols) {
       keep <- "all"
     } else {
       keep <- "none"
-      #      cols_signal <- obligatory_cols$.signal
     }
     # names of columns that are used to conditionalize channels: F1[.recording=="1"]
-    cond_cols <- names_other_col(.eeg_lst, dots, ".segments")
+    cond_cols <- names_other_col(.data, dots, ".segments")
 
     # extended signal dt with the group_by col, and the conditional columns
     # TODO: group_by columns could be pasted together and converted to factor
-    extended_signal_dt <- extended_signal(.eeg_lst, cond_cols = cond_cols, .by_reference = FALSE)
-    tmp_col <- setdiff(colnames(extended_signal_dt), colnames(.eeg_lst$.signal))
-    by <- eeg_group_vars(.eeg_lst)
-    dots_signal <- prep_dots(dots = new_dots$.signal, data = extended_signal_dt, .by = !!by, j = TRUE)
+    extended_main_dt <- extended_signal(.data, cond_cols = cond_cols)
+    tmp_col <- setdiff(colnames(extended_main_dt), colnames(.data[[1]]))
+    by <- eeg_group_vars(.data)
+    dots_main <- prep_dots(dots = new_dots[[1]], data = extended_main_dt, .by = !!by, j = TRUE)
 
     # added cols
-    aux_cols <- setdiff(colnames(extended_signal_dt), cols_signal)
+    aux_cols <- setdiff(colnames(extended_main_dt), cols_main)
 
-    extended_signal_dt <- mutate.(extended_signal_dt,
-      !!!dots_signal,
-      !!!(rlang::parse_exprs(obligatory_cols$.signal)),
+    extended_main_dt <- mutate.(extended_main_dt,
+      !!!dots_main,
+      !!!(rlang::parse_exprs(obligatory_cols_main)),
       .by = by,
       .keep = keep
     )
-
-
-    # to remove->?
-    # intersect in case there are less columns now
-    # aux_cols <- setdiff(tmp_col, names(extended_signal_dt))
-
     # removes the extended by columns
-    aux_cols <- intersect(aux_cols, colnames(extended_signal_dt))
-    if (length(aux_cols) == 0) {
-      .eeg_lst$.signal <- extended_signal_dt
-    } else {
-      .eeg_lst$.signal <- extended_signal_dt[, c(aux_cols) := NULL][]
+    aux_cols <- intersect(aux_cols, colnames(extended_main_dt))
+    if (!length(aux_cols) == 0) {
+        extended_main_dt <- extended_main_dt[, c(aux_cols) := NULL][]
     }
     ## Check that the user did not mess up the attributes of the column:
-    non_obl <- .eeg_lst$.signal[0, -obligatory_cols$.signal, with = FALSE]
+  
+    non_obl <- extended_main_dt[0, -obligatory_cols_main, with = FALSE]
     # Remove below:
-    # new_channels <- .eeg_lst$.signal[0,col_names[col_names %in% colnames(extended_signal_dt)], with = FALSE]
     non_ch <- names(non_obl)[!purrr::map_lgl(non_obl, is_channel_dbl)]
     non_comp <- names(non_ch)[!purrr::map_lgl(non_ch, is_component_dbl)]
     non_ch <- unique(c(non_ch, non_comp))
-    # updates the events and the channels
-    .eeg_lst <- .eeg_lst %>%
-      update_events_channels(.by_reference = .by_reference)
-    data.table::setkey(.eeg_lst$.signal, .id, .sample)
-  }
+    if (length(non_ch) > 0 & options()$eeguana.verbose) {
+      message_verbose(
+        "The following columns of signal_tbl are not channels (or ICA components): ", paste(non_ch, sep = ", "), "\n",
+        "* To build a channel use `channel_dbl()` function, e.g. channel_dbl(0) to populate the table with a channel containing 0 microvolts.\n",
+        "* To copy the structure of an existing channel one can do `new_ch = existing_channel * 0 + ...`"
+      )
+    }
 
+    .data[[1]] <- extended_main_dt
+  }
   # If relevant mutates segments as well
   if (length(new_dots$.segments) > 0) {
-    by <- intersect(eeg_group_vars(.eeg_lst), colnames(.eeg_lst$.segments))
+    by <- intersect(eeg_group_vars(.data), colnames(.data$.segments))
 
-    dots_segments <- prep_dots(new_dots$.segments, .eeg_lst$.segments, !!by, j = TRUE)
-    .eeg_lst$.segments <- mutate.(
-      .eeg_lst$.segments, !!!dots_segments,
+    dots_segments <- prep_dots(new_dots$.segments, .data$.segments, !!by, j = TRUE)
+    .data$.segments <- mutate.(
+      .data$.segments, !!!dots_segments,
       .by = by
     )
 
@@ -207,37 +170,23 @@ mutate_eeg_lst <- function(.eeg_lst, ..., keep_cols = TRUE, .by_reference = FALS
           obligatory_cols[[".segments"]],
           names(new_dots$.segments)
         ),
-        colnames(.eeg_lst$.segments)
+        colnames(.data$.segments)
       )
       if (!.by_reference) {
-        .eeg_lst$.segments <- .eeg_lst$.segments[, ..cols_to_keep]
+        .data$.segments <- .data$.segments[, ..cols_to_keep]
       } else {
-        remove_cols <- setdiff(colnames(.eeg_lst$.segments), cols_to_keep)
-        .eeg_lst$.segments[, c(remove_cols) := NULL][]
+        remove_cols <- setdiff(colnames(.data$.segments), cols_to_keep)
+        .data$.segments[, c(remove_cols) := NULL][]
       }
     }
   }
-
-  if (length(non_ch) > 0 & options()$eeguana.verbose) {
-    message_verbose(
-      "The following columns of signal_tbl are not channels (or ICA components): ", paste(non_ch, sep = ", "), "\n",
-      "* To build a channel use `channel_dbl()` function, e.g. channel_dbl(0) to populate the table with a channel containing 0 microvolts.\n",
-      "* To copy the structure of an existing channel one can do `new_ch = existing_channel * 0 + ...`"
-    )
-  }
-
-  out <- .eeg_lst %>% validate_eeg_lst()
-  if (.by_reference) {
-    invisible(out)
-  } else {
-    out
-  }
+  .data
 }
 
 
 
 #' @noRd
-select_rename <- function(.eeg_lst, select = TRUE, ...) {
+select_rename <- function(.data, select = TRUE, ...) {
   if (select) {
     vars_fun <- tidyselect::vars_select
   } else {
@@ -246,28 +195,31 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
   dots <- rlang::enquos(...)
 
   all_vars <- vars_fun(unique(c(
-    names(.eeg_lst$.signal),
-    names(.eeg_lst$.segments)
+    names(.data[[1]]), # .signal or .psd
+    names(.data$.segments)
   )), !!!dots)
 
-  new_groups <- dplyr::group_vars(.eeg_lst) %>%
+  new_groups <- eeg_group_vars(.data) %>%
     purrr::map_if(~ .x %in% all_vars, ~ all_vars[all_vars == .x] %>% names()) %>%
     rlang::syms()
 
   # TODO in a more elegant way:
-  select_in_df <- c(".signal", ".segments")
-  if (length(intersect(all_vars, names(.eeg_lst$.segments))) == 0) {
+  select_in_df <- c(".signal", ".psd", ".segments")
+  if (length(intersect(all_vars, names(.data$.segments))) == 0) {
     select_in_df <- select_in_df[select_in_df != ".segments"]
   }
-  if (length(intersect(all_vars, names(.eeg_lst$.signal))) == 0) {
+  if (length(intersect(all_vars, names(.data$.signal))) == 0) {
     select_in_df <- select_in_df[select_in_df != ".signal"]
+  }
+  if (length(intersect(all_vars, names(.data$.psd))) == 0) {
+    select_in_df <- select_in_df[select_in_df != ".psd"]
   }
 
   # Divide the variables into the relevant tables
   for (dfs in select_in_df) {
-    vars_dfs <- all_vars[all_vars %in% colnames(.eeg_lst[[dfs]])]
+    vars_dfs <- all_vars[all_vars %in% colnames(.data[[dfs]])]
     # add grouped vars if missing
-    groups <- eeg_group_vars(.eeg_lst)[eeg_group_vars(.eeg_lst) %in% colnames(.eeg_lst[[dfs]])]
+    groups <- eeg_group_vars(.data)[eeg_group_vars(.data) %in% colnames(.data[[dfs]])]
     missing_grouped_vars <- setdiff(groups, vars_dfs) %>%
       stats::setNames(., .)
     if (length(missing_grouped_vars) > 0) {
@@ -286,14 +238,14 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
     vars_dfs <- c(obligatory_cols[[dfs]], vars_dfs)
 
     if (length(vars_dfs) > 0) {
-      .eeg_lst[[dfs]] <- .eeg_lst[[dfs]] %>%
-        dplyr::select(tidyselect::all_of(vars_dfs))
+      .data[[dfs]] <- .data[[dfs]] %>%
+        select.(tidyselect::all_of(vars_dfs))
     }
 
     if (dfs == ".signal") { # if the signal tbl was modified, the events need to be updated:
 
       # TODO: reimplement all the following directly in data table, or maybe with purrr
-      old_channels <- events_tbl(.eeg_lst)$.channel
+      old_channels <- events_tbl(.data)$.channel
       new_channels <- all_vars[all_vars %in% old_channels] %>% sort()
       # removes the old channels that do not exist anymore
       ## (needed for e.g., select(ZZ=X))
@@ -302,22 +254,17 @@ select_rename <- function(.eeg_lst, select = TRUE, ...) {
       old_channels[!old_channels %in% new_channels] <- NA
       ## old_channels <- old_channels[old_channels %in% new_channels]
 
-      events_tbl(.eeg_lst)$.channel <- old_channels %>%
+      events_tbl(.data)$.channel <- old_channels %>%
         factor(labels = names(new_channels)) %>%
         as.character()
       if (length(rem_pos) > 0) {
-        events_tbl(.eeg_lst) <- events_tbl(.eeg_lst)[-rem_pos]
+        events_tbl(.data) <- events_tbl(.data)[-rem_pos]
       }
     }
   }
-
-  data.table::setkey(.eeg_lst$.signal, .id, .sample)
-  data.table::setkey(.eeg_lst$.segments, .id)
-
-
-  .eeg_lst %>%
-    dplyr::group_by(!!!new_groups) %>%
-    validate_eeg_lst()
+  data.table::setkey(.data$.segments, .id)
+  .data %>%
+    eeg_group_by(!!!new_groups)
 }
 
 #' @noRd
@@ -391,9 +338,9 @@ extended_signal <- function(.eeg_lst, cond_cols = NULL, events_cols = NULL, .by_
   ## For NOTES:
   ..events_cols <- NULL
   if (.by_reference) {
-    extended_signal_dt <- .eeg_lst$.signal
+    extended_signal_dt <- .eeg_lst[[1]] # signal or psd
   } else {
-    extended_signal_dt <- shallow(.eeg_lst$.signal)
+    extended_signal_dt <- shallow(.eeg_lst[[1]])
   }
   relevant_cols <- c(".id", eeg_group_vars(.eeg_lst), cond_cols)
   if (any(relevant_cols != ".id")) { # more than just .id
@@ -449,14 +396,14 @@ getAST <- function(ee) {
 }
 
 #' @noRd
-dots_by_tbl_quos <- function(.eeg_lst, dots) {
-  signal_cols <- c(
-    colnames(.eeg_lst$.signal),
-    paste0("`", channel_names(.eeg_lst), "`") # In case channel name is used with ` in the function call, NOT sure if needed anymore
+dots_by_tbl_quos <- function(.data, dots) {
+  main_cols <- c(
+    colnames(.data[[1]]), # main table: either signal or psd
+    paste0("`", channel_names(.data), "`") # In case channel name is used with ` in the function call, NOT sure if needed anymore
   )
 
-  signal_dots <- purrr::imap_lgl(dots, function(dot, name) {
-    if (name %in% signal_cols) {
+  main_dots <- purrr::imap_lgl(dots, function(dot, name) {
+    if (name %in% main_cols) {
       TRUE
     } else {
       # get the AST of each call and unlist it, removing the first item which is ~
@@ -477,7 +424,7 @@ dots_by_tbl_quos <- function(.eeg_lst, dots) {
             return(FALSE)
           }
 
-          if (txt_element %in% signal_cols) {
+          if (txt_element %in% main_cols) {
             return(TRUE)
           } else if (exists(txt_element) &&
             is.function(eval(parse(
@@ -501,11 +448,13 @@ dots_by_tbl_quos <- function(.eeg_lst, dots) {
 
   # things might fail if there is a function named as a signal column. TODO, check for that in the validate.
 
-  # signal_dots is a vector of TRUE/FALSE indicating for each call whether it belongs to signals
+  # main_dots is a vector of TRUE/FALSE indicating for each call whether it belongs to signals/psd
   # if both signal_tbl and segments columns are there, it will say that the dots should apply
   # to a signal_tbl dataframe.
-  .segments <- c(dots[!signal_dots], dots[signal_dots][rlang::quos(.id) %in% dots[signal_dots]])
-  list(.signal = dots[signal_dots], .segments = .segments)
+  .segments <- c(dots[!main_dots], dots[main_dots][rlang::quos(.id) %in% dots[main_dots]])
+  out <- list(.main = dots[main_dots], .segments = .segments)
+  names(out)[1] <- names(.data)[1]
+  out
 }
 
 

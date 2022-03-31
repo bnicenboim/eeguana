@@ -2,8 +2,7 @@
 % Please edit documentation in R/constructors.R
 \name{is_eeg_lst}
 \alias{is_eeg_lst}
-\title{Test if the object is an eeg_lst.
-This function returns  TRUE for eeg_lsts.}
+\title{Test if the object is an eeg_lst.}
 \usage{
 is_eeg_lst(x)
 }
@@ -14,7 +13,6 @@ is_eeg_lst(x)
 \code{TRUE} if the object inherits from the \code{eeg_lst} class.
 }
 \description{
-Test if the object is an eeg_lst.
 This function returns  TRUE for eeg_lsts.
 }
 \seealso{

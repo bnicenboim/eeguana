@@ -2,8 +2,7 @@
 % Please edit documentation in R/signal_tbl.R
 \name{is_signal_tbl}
 \alias{is_signal_tbl}
-\title{Test if the object is a  signal_tbl
-This function returns  TRUE for signals.}
+\title{Test if the object is a  signal_tbl}
 \usage{
 is_signal_tbl(x)
 }
@@ -14,7 +13,6 @@ is_signal_tbl(x)
 \code{TRUE} if the object inherits from the \code{signal_tbl} class.
 }
 \description{
-Test if the object is a  signal_tbl
 This function returns  TRUE for signals.
 }
 \concept{signal_tbl}

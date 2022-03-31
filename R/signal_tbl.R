@@ -65,62 +65,10 @@ as_signal_tbl.NULL <- function(.data) {
   .data <- data.table::data.table(.id = integer(0), .sample = sample_int(integer(0), integer(0)))
   as_signal_tbl(.data)
 }
-#' @param signal_tbl
-#'
-#' @noRd
-validate_signal_tbl <- function(signal_tbl) {
-  ## if(is.null(signal_tbl)) {
-  ##     signal_tbl <- data.table::data.table(.id= integer(0),.sample= integer(0))
-  ##     data.table::setkey(signal_tbl,.id,.sample)
-  ## }
-  ##  if(!data.table::is.data.table(signal_tbl) && is.data.frame(signal_tbl)) {
-  ##      signal <- data.table::as.data.table(signal_tbl)
-  ##      data.table::setkey(signal_tbl,.id,.sample)
-  # fs# }
-  if (!data.table::is.data.table(signal_tbl)) {
-    warning("'signal' should be a data.table.",
-      call. = FALSE
-    )
-  }
-  if (!is_signal_tbl(signal_tbl)) {
-    warning("Class is not signal_tbl", call. = FALSE)
-  }
-  if (!is.integer(signal_tbl$.id)) {
-    warning(".id should be an integer.",
-      call. = FALSE
-    )
-  }
-
-  if (!identical(data.table::key(signal_tbl), c(".id", ".sample"))) {
-    warning("`keys` of signal table are missing.",
-      call. = FALSE
-    )
-  }
-
-  ## Validates .sample
-  if (!is_sample_int(signal_tbl$.sample)) {
-    warning("Values of .sample should be samples",
-      call. = FALSE
-    )
-  }
-
-  ## checks if there are channels
-  if (nrow(signal_tbl) > 0) {
-    nchannels <- sum(sapply(signal_tbl, is_channel_dbl))
-    ncomponents <- sum(sapply(signal_tbl, is_component_dbl))
-    if (nchannels == 0 & ncomponents == 0) {
-      warning("No channels or components found.")
-    }
-  }
-
-  ## Validates channels
-  signal_tbl[, lapply(.SD, validate_channel_dbl), .SDcols = sapply(signal_tbl, is_channel_dbl)]
-  ## reorders
-  data.table::setcolorder(signal_tbl, obligatory_cols[[".signal"]])
-}
 
 
 #' Test if the object is a  signal_tbl
+#' 
 #' This function returns  TRUE for signals.
 #'
 #' @param x An object.
@@ -144,3 +92,54 @@ as_eeg_ica_lst.eeg_lst <- function(.data, ...) {
   class(.data) <- c("eeg_ica_lst", class(.data))
   .data
 }
+validate_signal_tbl <- function(signal_tbl) {
+  ## if(is.null(signal_tbl)) {
+  ##     signal_tbl <- data.table::data.table(.id= integer(0),.sample= integer(0))
+  ##     data.table::setkey(signal_tbl,.id,.sample)
+  ## }
+  ##  if(!data.table::is.data.table(signal_tbl) && is.data.frame(signal_tbl)) {
+  ##      signal <- data.table::as.data.table(signal_tbl)
+  ##      data.table::setkey(signal_tbl,.id,.sample)
+  # fs# }
+  if (!data.table::is.data.table(signal_tbl)) {
+    warning("'signal' should be a data.table.",
+            call. = FALSE
+    )
+  }
+  if (!is_signal_tbl(signal_tbl)) {
+    warning("Class is not signal_tbl", call. = FALSE)
+  }
+  if (!is.integer(signal_tbl$.id)) {
+    warning(".id should be an integer.",
+            call. = FALSE
+    )
+  }
+  
+  if (!identical(data.table::key(signal_tbl), c(".id", ".sample"))) {
+    warning("`keys` of signal table are missing.",
+            call. = FALSE
+    )
+  }
+  
+  ## Validates .sample
+  if (!is_sample_int(signal_tbl$.sample)) {
+    warning("Values of .sample should be samples",
+            call. = FALSE
+    )
+  }
+  
+  ## checks if there are channels
+  if (nrow(signal_tbl) > 0) {
+    nchannels <- sum(sapply(signal_tbl, is_channel_dbl))
+    ncomponents <- sum(sapply(signal_tbl, is_component_dbl))
+    if (nchannels == 0 & ncomponents == 0) {
+      warning("No channels or components found.")
+    }
+  }
+  
+  ## Validates channels
+  signal_tbl[, lapply(.SD, validate_channel_dbl), .SDcols = sapply(signal_tbl, is_channel_dbl)]
+  ## reorders
+  data.table::setcolorder(signal_tbl, obligatory_cols[[".signal"]])
+}
+

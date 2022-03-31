@@ -17,7 +17,13 @@ imap_chr <- function (.x, .f, ...) {
   .f <- rlang::as_function(.f)
   tidytable::map2_chr.(.x, vec_index(.x), .f, ...)
 }
-  
+
+#' @noRd
+imap <- function (.x, .f, ...) 
+{
+  .f <- rlang::as_function(.f, ...)
+  tidytable::map2.(.x, vec_index(.x), .f, ...)
+}
 
 #' @noRd
 map_dtr <- function(.x, .f, ..., .id = NULL) {
@@ -225,9 +231,26 @@ summarize. <- function(.df, ..., .by = NULL, .sort = FALSE) {
   .df
 }
 
+#' @noRd
 anti_join. <- function(x, y, by = NULL) {
   oldclass <- class(x)
   .df <- tidytable::anti_join.(x = x, y = y, by = by)
+  class(.df) <- oldclass
+  .df
+}
+#' @noRd
+semi_join. <- function(x, y, by = NULL) {
+  oldclass <- class(x)
+  .df <- tidytable::semi_join.(x = x, y = y, by = by)
+  class(.df) <- oldclass
+  .df
+}
+
+
+#' @noRd
+left_join. <- function(x, y, by = NULL) {
+  oldclass <- class(x)
+  .df <- tidytable::left_join.(x = x, y = y, by = by)
   class(.df) <- oldclass
   .df
 }
