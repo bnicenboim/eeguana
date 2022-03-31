@@ -52,6 +52,7 @@ data_faces_ERPs \%>\%
   # facet by channel
   facet_wrap(~.key) +
   theme(legend.position = "bottom")
+  
 }
 \seealso{
 Other plotting functions: 

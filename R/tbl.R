@@ -62,21 +62,26 @@ channels_tbl.eeg_lst <- function(.data, ...) {
   channels_tbl(.data$.signal)
 }
 
+#' @export
+channels_tbl.psd_lst <- function(.data, ...) {
+  channels_tbl(.data$.psd)
+}
+
 
 #' @export
 channels_tbl.data.frame <- function(.data, ...) {
-  channels <- dplyr::select_if(.data, is_channel_dbl) %>% colnames()
+  channels <- select.(.data, where(is_channel_dbl)) %>% colnames()
   ## first row is enough and it makes it faster
   tbl <- .data[1, ] %>%
-    dplyr::select(tidyselect::all_of(channels)) %>%
+    select.(tidyselect::all_of(channels)) %>%
     purrr::map_dfr(~ {
       attrs <- attributes(.x)
       attrs[names(attrs) != "class"]
     }) %>%
-    dplyr::bind_cols(dplyr::tibble(.channel = channels), .)
+    cbind(tidytable::tidytable(.channel = channels), .)
 
   if (tbl %>% nrow() == 0) {
-    dplyr::tibble()
+    tidytable::tidytable()
   } else {
     tbl
   }

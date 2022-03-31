@@ -36,7 +36,6 @@ Imports:
     rlang (>= 0.3.1),
     signal (>= 0.7.6),
     MBA (>= 0.0.9),
-    tibble (>= 2.1.1),
     data.table (>= 1.12.2),
     edfReader (>= 1.2.0),
     gtable (>= 0.2.0),
@@ -49,9 +48,11 @@ Imports:
     ellipsis (>= 0.1.0),
     fastICA,
     pracma,
-    tidytable (>= 0.6.7)
+    tidytable (>= 0.6.7),
+    gsignal
 Suggests:
     akima (>= 0.6.2),
+    tibble (>= 2.1.1),
     plotly (>= 4.8.0),
     R.matlab (>= 3.6.2),
     reticulate (>= 1.11.1),
@@ -69,5 +70,5 @@ VignetteBuilder: knitr
 Language: en-US
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3
-Remotes:  
+Remotes: 
     markfairbanks/tidytable

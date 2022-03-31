@@ -1,0 +1,62 @@
+---
+title: "Power spectral density example - Sleep stage classification from polysomnography (PSG) data"
+author: "Bruno Nicenboim"
+date: "`r Sys.Date()`"
+bibliography: references.bib
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Power spectral density example - Sleep stage classification from polysomnography (PSG) data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+options(width = 80)
+```
+
+https://mne.tools/stable/auto_tutorials/clinical/60_sleep.html
+
+
+First we download the data:
+
+https://physionet.org/content/sleep-edfx/1.0.0/
+
+```{r downloading, eval=any(!file.exists(c("SC4001E0-PSG.edf","SC4001E0-PSG.edf","s1_faces.eeg"))), cache=TRUE, include=TRUE, results='hide'}
+# Run the following or just download the files from raw_faces folder in https://osf.io/tbwvz/
+library(httr)
+GET("https://physionet.org/files/sleep-edfx/1.0.0/sleep-cassette/SC4001E0-PSG.edf?download",
+  write_disk("./SC4001E0-PSG.edf", overwrite = TRUE), 
+  progress()
+)
+GET("https://physionet.org/files/sleep-edfx/1.0.0/sleep-cassette/SC4001EC-Hypnogram.edf?download",
+  write_disk("./SC4001E0-PSG.edf", overwrite = TRUE), 
+  progress()
+)
+GET("https://physionet.org/files/sleep-edfx/1.0.0/sleep-cassette/SC4002E0-PSG.edf?download",
+  write_disk("./SC4002E0-PSG.edf", overwrite = TRUE), 
+  progress()
+)
+GET("https://physionet.org/files/sleep-edfx/1.0.0/sleep-cassette/SC4002EC-Hypnogram.edf?download",
+  write_disk("./SC4002EC-Hypnogram.edf", overwrite = TRUE), 
+  progress()
+)
+```
+
+
+```{r libs, message = FALSE}
+library(tidytable)
+library(ggplot2)
+library(eeguana)
+set.seed(123) 
+```
+
+
+
+```{r}
+psg_01 <- read_edf("SC4002E0-PSG.edf")
+
+```
