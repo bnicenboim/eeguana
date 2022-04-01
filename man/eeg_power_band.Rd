@@ -7,6 +7,7 @@
 eeg_power_band(
   .data,
   .bands = list(delta = c(0.5, 4), theta = c(4, 8), alpha = c(8, 13), beta = c(13, 30)),
+  relative = FALSE,
   ...
 )
 }
@@ -16,6 +17,8 @@ eeg_power_band(
 \item{.bands}{A named list of frequency bands.}
 
 \item{...}{Other arguments passed to \code{eeg_psd()}}
+
+\item{.relative}{Calculate band power relative to total power.}
 }
 \description{
 Compute power bands.

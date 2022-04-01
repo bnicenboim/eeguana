@@ -199,6 +199,14 @@ data_no_blinks_2 <- eeg_lst(
 F3 <- tidytable::fread.("data.txt")[[1]]
 data_sleep_F3 <- eeg_lst(signal_tbl = data.frame(F3 = channel_dbl(F3)),sampling_rate = 100)
 
+reticulate::use_condaenv("anaconda3")
+signal <- reticulate::import("scipy.signal")
+win <- 400
+srate <- 100
+
+#with python
+psd_scipy <- signal$welch(as.numeric(F3),fs = srate, nperseg=win)
+data_psd_scipy <- psd_lst(psd_tbl = data.frame(.id =1, .freq = psd_scipy[[1]], F3 =channel_dbl(psd_scipy[[2]])))
 
 usethis::use_data(data_sincos2id, data_sincos2id_2,
   data_sincos2id_1000,
@@ -207,6 +215,7 @@ usethis::use_data(data_sincos2id, data_sincos2id_2,
   data_no_blinks, data_no_blinks_2,
   true_comps,
   data_sleep_F3,
+  data_psd_scipy,
   internal = TRUE, overwrite = TRUE,
   compress = "xz"
 )

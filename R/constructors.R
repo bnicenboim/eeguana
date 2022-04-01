@@ -93,7 +93,7 @@ psd_lst <- function(psd_tbl = NULL, segments_tbl = NULL, channels_tbl = NULL) {
   }
   
   if (is.null(segments_tbl)) {
-    segments_tbl <- data.table::data.table(.id = unique(signal_tbl$.id))[, .recording := NA_character_]
+    segments_tbl <- data.table::data.table(.id = unique(psd_tbl$.id))[, .recording := NA_character_]
   } else {
     if (!".recording" %in% colnames(segments_tbl)) {
       segments_tbl <- data.table:::shallow(segments_tbl[, .recording := NA])

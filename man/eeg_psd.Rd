@@ -26,11 +26,10 @@ A \code{psd_lst} object
 Compute the power spectral density (PSD) based on an \code{eeg_lst} object. For now it only uses Welch's method, so essentially it is a wrapper of the \link[gsignal:pwelch]{gsignal::pwelch} function.
 }
 \examples{
-psd_faces <- eeg_psd(data_faces_ERPs) 
-psd_faces \%>\% 
-   eeg_select(F3) \%>\%
-   plot()     
-
+psd_faces <- eeg_psd(data_faces_ERPs)
+psd_faces \%>\%
+  eeg_select(F3) \%>\%
+  plot()
 }
 \seealso{
 Other frequency-based functions: 
