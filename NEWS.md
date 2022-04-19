@@ -2,6 +2,7 @@
 - New features:
 - The argument `.ref` of `eeg_rereference()` now allows "tidyselect".
     - `as_tidytable()` added.
+    - `sampling_rate()` shows the sampling rate of an object.
     - `eeg_psd()` computes the power spectral density (PSD) of a en EEG signal (using only the Welch method for now).
     - `eeg_band_power()` computes power bands.
 - Modifying channels with `channels_tbl()` is much faster now.

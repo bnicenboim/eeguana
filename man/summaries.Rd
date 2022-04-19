@@ -7,6 +7,7 @@
 \alias{nchannels}
 \alias{component_names}
 \alias{ncomponents}
+\alias{sampling_rate}
 \alias{nsamples}
 \title{Display information of the eeg_lst object.}
 \usage{
@@ -19,6 +20,8 @@ nchannels(x, ...)
 component_names(x, ...)
 
 ncomponents(x, ...)
+
+sampling_rate(x, ...)
 
 nsamples(x, ...)
 }
