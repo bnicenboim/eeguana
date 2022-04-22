@@ -233,7 +233,7 @@ read_vmrk <- function(file) {
 
 
 read_vhdr_metadata <- function(file) {
-  vhdr <- ini::read.ini(file)
+  vhdr <- read.ini(file)
 
   channel_info <- vhdr[["Channel Infos"]] %>%
     imap_dtr(~ c(.y, strsplit(.x, ",")[[1]]) %>%
@@ -289,7 +289,7 @@ read_vhdr_metadata <- function(file) {
   }
 
   if (is.null(vhdr$Coordinates)) {
-    coordinates <- dat.table::data.table(number = channel_info$number, radius = NA_real_, theta = NA_real_, phi = NA_real_)
+    coordinates <- data.table::data.table(number = channel_info$number, radius = NA_real_, theta = NA_real_, phi = NA_real_)
   } else {
     coordinates <- vhdr$Coordinates %>%
       imap_dtr(~ c(.y, strsplit(.x, ",")[[1]]) %>%
@@ -357,17 +357,6 @@ read_vhdr_metadata <- function(file) {
 #' Transform spherical coordinates, such as the ones provided by BrainVision or sph.....
 #'
 #' @noRd
-spherical_to_xyz <- function(radius = 1, theta = NULL, phi = NULL) {
-  radius <- ifelse((is.na(radius) | is.null(radius)) & is.numeric(theta) & is.numeric(phi), 1, radius)
-
-  x <- ifelse(radius != 0, round(sin(theta * pi / 180) * cos(phi * pi / 180), 2), NA_real_)
-  y <- ifelse(radius != 0, round(sin(theta * pi / 180) * sin(phi * pi / 180), 2), NA_real_)
-  z <- ifelse(radius != 0, round(cos(theta * pi / 180), 2), NA_real_)
-  dplyr::tibble(.x = x, .y = y, .z = z)
-}
-
-
-
 spherical_to_xyz_dt <- function(radius = 1, theta = NULL, phi = NULL) {
   radius <- ifelse((is.na(radius) | is.null(radius)) & is.numeric(theta) & is.numeric(phi), 1, radius)
 
@@ -376,10 +365,16 @@ spherical_to_xyz_dt <- function(radius = 1, theta = NULL, phi = NULL) {
     .y = ifelse(radius != 0, round(sin(theta * pi / 180) * sin(phi * pi / 180), 2), NA_real_),
     .z = ifelse(radius != 0, round(cos(theta * pi / 180), 2), NA_real_)
   )
-
-  # x,y,z
 }
 
+# spherical_to_xyz <- function(radius = 1, theta = NULL, phi = NULL) {
+#   radius <- ifelse((is.na(radius) | is.null(radius)) & is.numeric(theta) & is.numeric(phi), 1, radius)
+# 
+#   x <- ifelse(radius != 0, round(sin(theta * pi / 180) * cos(phi * pi / 180), 2), NA_real_)
+#   y <- ifelse(radius != 0, round(sin(theta * pi / 180) * sin(phi * pi / 180), 2), NA_real_)
+#   z <- ifelse(radius != 0, round(cos(theta * pi / 180), 2), NA_real_)
+#   dplyr::tibble(.x = x, .y = y, .z = z)
+# }
 
 
 read_bin_signal <- function(file, type = "double", bytes = 4, n_chan, n_trials = 1, sample_x_channels = TRUE) {

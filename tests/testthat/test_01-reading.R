@@ -180,3 +180,12 @@ test_that("special vhdr file",{
     tidytable::select.(.description, .initial)
   expect_equal(events_tbl, events_mrk)
 })
+
+
+test_that("write vhdr",{
+  write_vhdr(multiplexed_bin_bv2,"test")
+  multiplexed_bin_bv2_t <- read_vhdr("test.vhdr",.recording="bv2")
+  expect_equal(multiplexed_bin_bv2_t,multiplexed_bin_bv2)
+  mul <- bind(multiplexed_bin_bv2,multiplexed_bin_bv2 %>% eeg_mutate(.recording = "bv3"))
+  
+})
