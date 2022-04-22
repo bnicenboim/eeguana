@@ -286,4 +286,5 @@ test_that("low freq works", {
   expect_equal(data_1minmax, minmax_l100)
 })
 
+
 message("test amplitude and peak, they are not too well tested")

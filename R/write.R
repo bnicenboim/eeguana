@@ -1,4 +1,4 @@
-write_vhdr_metadata <- fuction(x, file){
+write_vhdr_metadata <- function(x, file){
   fname <- tools::file_path_sans_ext(basename(file))
   ver2 <- "Brain Vision Data Exchange Header File Version 2.0"
   chs <- channel_names(x)
