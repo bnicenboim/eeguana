@@ -245,7 +245,7 @@ eeg_summarize.eeg_lst <- function(.data, ..., .groups = "keep") {
     .data$.signal[, (group_vars_only_segments(.data)) := NULL]
   }
   ### CHECK !!!!!!!!!!!!!
-  .data$.events <- new_events_tbl(sampling_rate = sampling_rate.eeg_lst(.data))
+  .data$.events <- new_events_tbl(.sampling_rate = sampling_rate.eeg_lst(.data))
   # update channels in the events and the meta data (summarize deletes the metadata of the channels)
   .data <- update_events_channels(.data) #
   validate_eeg_lst(.data)

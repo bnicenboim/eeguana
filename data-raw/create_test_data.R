@@ -5,7 +5,7 @@ data_sincos2id <- eeg_lst(
     X = sin(1:20),
     Y = cos(1:20),
     .id = rep(c(1L, 2L), each = 10),
-    .sample = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500)
+    .sample = sample_int(rep(seq(-4L, 5L), times = 2), .sampling_rate = 500)
   ),
   channels_tbl =
     dplyr::tibble(
@@ -31,7 +31,7 @@ data_sincos2id_2 <- eeg_lst(
     Y = cos(1:20),
     .id = rep(c(1L, 2L), each = 10),
     .sample = sample_int(rep(seq(-4L, 5L), times = 2),
-      sampling_rate = 500
+      .sampling_rate = 500
     )
   ),
   channels_tbl = dplyr::tibble(
@@ -59,7 +59,7 @@ data_sincos2id_1000 <- eeg_lst(
       X = sin(1:N / 20),
       Y = cos(1:N / 20),
       .id = rep(c(1L, 2L), each = N / 2),
-      .sample = sample_int(rep(seq.int(-100, N / 2 - 101), times = 2), sampling_rate = 500)
+      .sample = sample_int(rep(seq.int(-100, N / 2 - 101), times = 2), .sampling_rate = 500)
     ),
   channels_tbl = dplyr::tibble(
     .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
@@ -83,7 +83,7 @@ data_sincos3id <- eeg_lst(
     dplyr::tibble(
       X = sin(1:30), Y = cos(1:30),
       .id = rep(c(1L, 2L, 3L), each = 10),
-      .sample = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500)
+      .sample = sample_int(rep(seq(-4L, 5L), times = 3), .sampling_rate = 500)
     ),
   channels_tbl = dplyr::tibble(
     .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
@@ -162,7 +162,7 @@ data_no_blinks <- eeg_lst(
   signal_tbl = signal %>%
     dplyr::mutate(
       .id = 1L,
-      .sample = sample_int(seq_len(N), sampling_rate = 500)
+      .sample = sample_int(seq_len(N), .sampling_rate = 500)
     ),
   segments_tbl = dplyr::tibble(.id = 1L, .recording = "recording1", segment = 1L)
 )
@@ -171,7 +171,7 @@ data_blinks <- eeg_lst(
   signal_tbl = signal_blinks %>%
     dplyr::mutate(
       .id = 1L,
-      .sample = sample_int(seq_len(N), sampling_rate = 500)
+      .sample = sample_int(seq_len(N), .sampling_rate = 500)
     ),
   segments_tbl = dplyr::tibble(.id = 1L, .recording = "recording1", segment = 1L)
 )
@@ -181,7 +181,7 @@ data_blinks_2 <- eeg_lst(
   signal_tbl = signal_blinks %>%
     dplyr::mutate(
       .id = rep(1:4, each = N / 4),
-      .sample = sample_int(rep(seq_len(N / 4), times = 4), sampling_rate = 500)
+      .sample = sample_int(rep(seq_len(N / 4), times = 4), .sampling_rate = 500)
     ),
   segments_tbl = data.table::data.table(.id = seq.int(4), .recording = paste0("recording", c(1, 1, 2, 2)), segment = seq.int(4))
 )
@@ -190,7 +190,7 @@ data_no_blinks_2 <- eeg_lst(
   signal_tbl = signal %>%
     dplyr::mutate(
       .id = rep(1:4, each = N / 4),
-      .sample = sample_int(rep(seq_len(N / 4), times = 4), sampling_rate = 500)
+      .sample = sample_int(rep(seq_len(N / 4), times = 4), .sampling_rate = 500)
     ),
   segments_tbl = data.table::data.table(.id = seq.int(4), .recording = paste0("recording", c(1, 1, 2, 2)), segment = seq.int(4))
 )

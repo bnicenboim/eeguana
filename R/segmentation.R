@@ -1,15 +1,19 @@
-#' Segment an eeg_lst.
+#' Segment (and unsegment) an eeg_lst.
 #'
-#' Subdivide of the EEG into different segments or epochs. When there is no
-#' segmentation, the `eeg_lst` contain one segment. (Fieldtrip calls the
-#' segment "trials".) The limits of `segment` are inclusive: If, for
-#' example, `lim = c(0,0)`, the segment would contain only sample 1.
+#' * `eeg_segment()` subdivides of the EEG into different segments or epochs.  (Fieldtrip calls the segment "trials".) The limits of `segment` are inclusive: If, for example, `lim = c(0,0)`, the segment would contain only sample 1.
+#' 
+#' * `eeg_unsegment()` does **not** reverse the segmentation, it simply concatenates all segments creating one object with only one segment.
+#' 
+#' When there is no segmentation, the `eeg_lst` contain one segment.
 #'
 #' @param .data An `eeg_lst` object.
 #' @param ... Description of the event.
 #' @param .unit "seconds" (or "s"), "milliseconds" (or "ms"), or samples.
 #' @param .lim Vector indicating the time before and after the event. Or dataframe with two columns, with nrow=total number of segments
 #' @param .end Description of the event that indicates the end of the segment, if this is used, `.lim` is ignored.
+#' @param .start Initial sample when an object is unsegmented 
+#' @param .sep Segment separation marker. By default: `.type == "New Segment"`
+#' @param .zero Time zero marker. By default: `.type == "Time 0"`
 #' @family preprocessing functions
 #'
 #' @examples
@@ -135,7 +139,8 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
     #    if(length(seg_names)>0) times0[,`:=`(c(seg_names), NULL)] #deletes cols in seg_names
   }
 
-  times0[, .first_sample := sample_int(.first_sample, sampling_rate = sampling_rate(.data))]
+  times0[, .first_sample := sample_int(.first_sample, 
+                                       .sampling_rate = sampling_rate(.data))]
   # update the signal tbl:
   cols_signal <- colnames(.data$.signal)
   cols_signal_temp <- c(".new_id", ".first_sample", "x..sample", cols_signal[cols_signal != ".id"])
@@ -225,5 +230,52 @@ update_events <- function(events_dt, segmentation) {
   new_events[, .initial := pmax(i..initial, .lower) - .first_sample + 1L]
   new_events[, .final := pmin(.final, .upper) - .first_sample + 1L]
   new_events[, .id := .new_id][, ..cols_events] %>%
-    as_events_tbl(., sampling_rate = sampling_rate(events_dt))
+    as_events_tbl(., .sampling_rate = sampling_rate(events_dt))
+}
+
+#' @rdname eeg_segment
+#' @export
+eeg_unsegment <- function(.data, .start = 1, .sep = c(.type = "New Segment", .description=""), .zero = c(.type = "Time 0", .description="")) {
+  UseMethod("eeg_unsegment")
+}
+#' @export
+eeg_unsegment.eeg_lst <- function(.data, .start = 1, .sep = c(.type = "New Segment", .description=""), .zero = c(.type = "Time 0", .description="")) {
+  
+  N <- nsamples(.data)
+  srate <- sampling_rate(.data)
+  s1 <- .data$.signal$.sample[1]
+  new_segment <- filter.(.data$.signal, .sample == .sample[1], .by= ".id") %>%
+    tidytable::pull.(.sample)
+  time_0 <- sample_int(rep(1, length(new_segment)), .sampling_rate = srate)
+  .data$.signal <- 
+    .data$.signal %>%
+              mutate.(.id = 1L, 
+              .sample =sample_int(values = seq.int(from = .start, length.out = sum(N)),
+                      .sampling_rate = srate) )
+  init_sample <- cumsum(c(-s1 +.start, N[1:(length(N)-1)]))
+  
+  new_events <- data.table::data.table(t(.sep),.initial = new_segment, .id = 1:length(new_segment)) 
+  if(nrow(new_events)> 1) {
+    new_events <- rbind(new_events,data.table::data.table(t(.zero), .initial = time_0,
+                                                          .id = 1:length(new_segment)))
+  }
+  new_events <- new_events %>%
+    mutate(.final = .initial)
+  
+  .data$.events <- .data$.events %>% rbind( new_events, fill = TRUE) %>% 
+    .[order(., .id,.initial),] %>%
+    unique()
+  .data$.events <- .data$.events %>% 
+    split(by = ".id") %>% 
+    tidytable::map2.(init_sample, 
+                     ~.x %>% mutate.(.initial = .initial +.y,
+                                     .final = .final + .y)) %>%
+    data.table::rbindlist() %>%
+    mutate.(.id = 1L) %>%
+    as_events_tbl.data.table()
+  
+  .data$.segments <- .data$.segments %>% summarize.(.id =1, .recording = paste(unique(.recording), collapse =";"))
+  data.table::setkey(.data$.signal, .id, .sample)
+  
+    validate_eeg_lst(.data)
 }

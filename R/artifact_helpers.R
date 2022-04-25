@@ -4,7 +4,7 @@ window_samples <- function(window, sampling_rate, unit) {
     stop("`window` should be a positive number.", call. = FALSE)
   }
   window_s <- round(as_sample_int(window, 
-                                  sampling_rate = sampling_rate,
+                                  .sampling_rate = sampling_rate,
                                   .unit = unit) - 1L)
   if (window_s <= 0) {
     stop("The `window` needs to contain at least one sample.")
@@ -17,7 +17,7 @@ lim_samples <- function(lim, sampling_rate, unit) {
   if (length(lim) < 2) {
     stop("Two values for `lim` are needed", call. = FALSE)
   }
-  as_sample_int(lim, sampling_rate = sampling_rate, .unit = unit)
+  as_sample_int(lim, .sampling_rate = sampling_rate, .unit = unit)
 }
 
 
@@ -114,7 +114,7 @@ search_artifacts <- function(signal, ..., fun, args = list()) {
 
 add_missing_samples <- function(signal) {
   signal[, list(.sample = sample_int(seq.int(min(.sample), max(.sample)),
-    sampling_rate = sampling_rate(signal)
+    .sampling_rate = sampling_rate(signal)
   )), by = .id] %>%
     left_join_dt(signal, by = c(".id", ".sample"))
 }
@@ -132,7 +132,7 @@ add_intervals_from_artifacts <- function(sampling_rate, artifacts_tbl, sample_ra
             out <- new_events_tbl()
             out[, .id := NULL][ ## I need to remove .id because it gets added by map
               , .initial := sample_int(integer(0),
-                sampling_rate =
+                .sampling_rate =
                   sampling_rate
               )
             ][]
@@ -153,11 +153,11 @@ add_intervals_from_artifacts <- function(sampling_rate, artifacts_tbl, sample_ra
               .type = "artifact",
               .description = .type,
               .initial = sample_int(intervals$start,
-                sampling_rate =
+                .sampling_rate =
                   sampling_rate
               ),
               .final = sample_int(intervals$stop,
-                sampling_rate =
+                .sampling_rate =
                   sampling_rate
               ),
               .channel = .y

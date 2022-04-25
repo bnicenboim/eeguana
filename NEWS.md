@@ -5,6 +5,8 @@
     - `sampling_rate()` shows the sampling rate of an object.
     - `eeg_psd()` computes the power spectral density (PSD) of a en EEG signal (using only the Welch method for now).
     - `eeg_band_power()` computes power bands.
+    - `na.omit()` now works for `eeg_lst` objects.
+    - `eeg_unsegment()` was added.
 - Modifying channels with `channels_tbl()` is much faster now.
 - Signal filtering is slightly faster.
 - BUGS:

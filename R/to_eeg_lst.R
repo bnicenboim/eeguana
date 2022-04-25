@@ -120,7 +120,7 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
   }
 
   t_s <- .data$times
-  samples <- as_sample_int(c(t_s), sampling_rate = .data$info$sfreq, unit = "s")
+  samples <- as_sample_int(c(t_s), .sampling_rate = .data$info$sfreq, unit = "s")
 
   new_signal <- new_signal_tbl(.id = 1L, .sample = samples, signal_matrix = signal_m, channels_tbl = ch_info)
 
@@ -129,9 +129,9 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
   if (length(ann$onset) == 0) {
     new_events <- new_events_tbl(
       .initial =
-        sample_int(integer(0), sampling_rate = .data$info$sfreq),
+        sample_int(integer(0), .sampling_rate = .data$info$sfreq),
       .final =
-        sample_int(integer(0), sampling_rate = .data$info$sfreq)
+        sample_int(integer(0), .sampling_rate = .data$info$sfreq)
     )
   } else {
     descriptions_dt <- tidyr::separate(data.table::data.table(annotation = ann$description),
@@ -142,8 +142,8 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
       .type = descriptions_dt$.type,
       .description = descriptions_dt$.description,
       .initial = ann$onset %>%
-        as_sample_int(sampling_rate = .data$info$sfreq, unit = "s"),
-      .final = as_sample_int(ann$onset + ann$duration, sampling_rate = .data$info$sfreq, unit = "s") - 1L,
+        as_sample_int(.sampling_rate = .data$info$sfreq, unit = "s"),
+      .final = as_sample_int(ann$onset + ann$duration, .sampling_rate = .data$info$sfreq, unit = "s") - 1L,
       .channel = NA_character_
     )
   }

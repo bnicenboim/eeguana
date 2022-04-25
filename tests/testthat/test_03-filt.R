@@ -15,7 +15,7 @@ data_sin <- eeg_lst(
   signal_tbl = signal %>%
     dplyr::mutate(
       .id = 1L,
-      .sample = sample_int(seq_len(N), sampling_rate = 500)
+      .sample = sample_int(seq_len(N), .sampling_rate = 500)
     ),
   segments_tbl = dplyr::tibble(.id = 1L, .recording = "recording1", segment = 1L)
 )
@@ -25,7 +25,7 @@ data_sin_more <- eeg_lst(
   signal_tbl = signal %>%
     dplyr::mutate(
       .id = rep(1:4, each = N / 4),
-      .sample = sample_int(rep(seq_len(N / 4), times = 4), sampling_rate = 500)
+      .sample = sample_int(rep(seq_len(N / 4), times = 4), .sampling_rate = 500)
     ),
   segments_tbl = dplyr::tibble(.id = seq.int(4), .recording = paste0("recording", c(1, 1, 2, 2)), segment = seq.int(4))
 )

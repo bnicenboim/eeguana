@@ -101,7 +101,7 @@ read_dat <- function(file, header_info = NULL, events_dt = NULL,
   signal_tbl <- new_signal_tbl(
     signal_matrix = raw_signal,
     .id = as.integer(seg_sample_id$.id),
-    .sample = new_sample_int(seg_sample_id$.sample, sampling_rate = common_info$sampling_rate),
+    .sample = new_sample_int(seg_sample_id$.sample, .sampling_rate = common_info$sampling_rate),
     channels_tbl = header_info$chan_info
   )
   events_dt[, .id := 1]

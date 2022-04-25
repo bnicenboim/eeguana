@@ -93,7 +93,7 @@ eeg_downsample.eeg_lst <- function(.data, .q = 2, .max_sample = NULL,
       list(.sample = new_sample_int(seq.int(
         from = ceiling(min(.sample) / factor),
         length.out = .N / factor
-      ), sampling_rate = new_sampling_rate)),
+      ), .sampling_rate = new_sampling_rate)),
       lapply(.SD, decimate_ch, q = .q, n = .n, ftype = .ftype)
     ),
     .SDcols = c(channels_to_decimate), by = c(".id")
