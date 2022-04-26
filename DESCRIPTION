@@ -71,5 +71,5 @@ Language: en-US
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3
 Remotes: 
-    markfairbanks/tidytable
+    markfairbanks/tidytable,
      gjmvanboxtel/gsignal
