@@ -195,5 +195,9 @@ test_that("write vhdr",{
   write_vhdr(x = seg_ascii_bv2,file="test_seg", overwrite = TRUE)
   test_seg <- read_vhdr(file = "test_seg.vhdr", .recording = "bv2")
   eeguana:::expect_equal_eeg_lst(seg_ascii_bv2,test_seg,tolerance = 0.0001 )
-    })
+  # df <- data_faces_10_trials %>% eeg_segment(.description == "s130",.lim = c(-.5,.5))
+  # write_vhdr(df, "df_test")
+  # read_vhdr("df_test.vhdr")
+      })
+
 
