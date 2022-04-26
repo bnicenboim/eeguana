@@ -37,7 +37,7 @@ write_vhdr <- function(x, file, overwrite = FALSE){
    file <- file.path(file, recs)
  } else  if(missing(file)) {
    file <- recs
- } else if(length(file) ==1 & !dir.exists(file)) {
+ } else if(length(file) ==1 & length(recs)>1 & !dir.exists(file)) {
    file <- paste0(file, "_",recs)
  }
 

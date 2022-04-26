@@ -45,9 +45,9 @@ test_that("repeated channels are not a problem", {
 ft <- read_ft(file = system.file("testdata", "fieldtrip_matrix.mat", package = "eeguana"), .recording = "bv2")
 channels_tbl(ft) <- channels_tbl(multiplexed_bin_bv2)
 
-test_that("can read fieldtrip files", {
-  #  expect_equal(ft,)
-})
+# test_that("can read fieldtrip files", {
+#   #  expect_equal(ft,)
+# })
 
 
 test_that("can read unique eeglab files ", {
@@ -188,9 +188,12 @@ test_that("write vhdr",{
   expect_equal(multiplexed_bin_bv2_t,multiplexed_bin_bv2)
   mul <- bind(multiplexed_bin_bv2,multiplexed_bin_bv2 %>% eeg_mutate(Fp1 =Fp1*0.1, .recording = "bv3"))
   write_vhdr(mul, "test_mul", overwrite = TRUE)
-  mul_test <- bind(read_vhdr("test_mul_bv2.vhdr",.recording = "bv2"),read_vhdr("test_mul_bv3.vhdr", .recording ="bv3"))
+  mul_test <- bind(read_vhdr("test_mul_bv2.vhdr",.recording = "bv2"),
+                   read_vhdr("test_mul_bv3.vhdr", .recording ="bv3"))
   expect_equal(mul, mul_test,tolerance = 0.0001)
+  
   write_vhdr(x = seg_ascii_bv2,file="test_seg", overwrite = TRUE)
-  test_seg <- read_vhdr(file = "test_seg_bv2.vhdr", .recording = "bv2")
-  expect_equal(seg_ascii_bv2,test_seg,tolerance = 0.0001 )
+  test_seg <- read_vhdr(file = "test_seg.vhdr", .recording = "bv2")
+  eeguana:::expect_equal_eeg_lst(seg_ascii_bv2,test_seg,tolerance = 0.0001 )
     })
+

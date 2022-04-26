@@ -62,7 +62,7 @@ expect_equal(delta_rel$.psd$F3, 0.787, tolerance = .02)
 })
 
 test_that("eeg_psd returns output of pwelch ", {
-expect_gg(plot(data_sleep_psd))
+eeguana:::expect_gg(plot(data_sleep_psd))
 })
 
 
