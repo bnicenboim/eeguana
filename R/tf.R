@@ -94,7 +94,7 @@ eeg_power_band <- function(.data, .bands = list(
                              alpha = c(8, 13),
                              beta = c(13, 30)
                            ),
-                           relative = FALSE, ...) {
+                           .relative = FALSE, ...) {
 
   # FREQ_BANDS = {"delta": [0.5, 4.5],
   #   "theta": [4.5, 8.5],

@@ -91,19 +91,19 @@ sampling_rate <- function(x, ...) {
 }
 
 #' @export
-sampling_rate.eeg_lst <- function(x) {
+sampling_rate.eeg_lst <- function(x,...) {
   attributes(x$.signal$.sample)$sampling_rate
 }
 #' @export
-sampling_rate.signal_tbl <- function(x) {
+sampling_rate.signal_tbl <- function(x,...) {
   attributes(x$.sample)$sampling_rate
 }
 #' @export
-sampling_rate.events_tbl <- function(x) {
+sampling_rate.events_tbl <- function(x,...) {
   attributes(x$.initial)$sampling_rate
 }
 #' @export
-sampling_rate.sample_int <- function(x) {
+sampling_rate.sample_int <- function(x,...) {
   attributes(x)$sampling_rate
 }
 

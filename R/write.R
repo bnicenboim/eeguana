@@ -7,7 +7,7 @@
 #' @param ... 	further arguments special methods could require.
 #' @export
 na.omit.eeg_lst <- function(object, ...){
-  object$.signal <- na.omit(object$.signal)
+  object$.signal <- stats::na.omit(object$.signal)
   if (!is.null(object$.events) && nrow(object$.events) > 0) {
     range_s <- object$.signal[, .(.lower = min(.sample), .upper = max(.sample)), by = .id]
     object$.events <- update_events(object$.events, range_s)
@@ -18,7 +18,7 @@ na.omit.eeg_lst <- function(object, ...){
 
 #' Write an eeg_lst object to BrainVision file(s) (experimental)
 #'
-#' The function will write each recording in a different file.
+#' The function will write each recording in a different file. The function is highly experimental, if a file fails to open in BrainVision, please report the bug in (https://github.com/bnicenboim/eeguana/issues).
 #'
 #' @param x `eeg_lst` object.
 #'
@@ -29,7 +29,7 @@ na.omit.eeg_lst <- function(object, ...){
 write_vhdr <- function(x, file, overwrite = FALSE){
   nr <- nrow(x$.signal)
   # remove NAs
-  x <- na.omit(x)
+  x <- eeguana:::na.omit.eeg_lst(x)
   nr_diff <- nr - nrow(x$.signal)
   if(nr_diff>0) warning(nr_diff, " samples were removed because they contained NAs.", call. = FALSE)
  recs <- unique(x$.segments$.recording)

@@ -48,6 +48,7 @@ if (getRversion() >= "2.15.1") {
   register_s3_method("dplyr", "as_data_frame", "eeg_lst")
 
   register_s3_method("dplyr", "pull", "eeg_lst")
+  register_s3_method("stats", "na.omit", "eeg_lst")
 
   register_s3_method("ggplot2", "ggplot", "eeg_lst")
   register_s3_method("ggplot2", "ggplot_add", "layer_events")

@@ -145,7 +145,7 @@ add_intervals_from_artifacts <- function(sampling_rate, artifacts_tbl, sample_ra
             right[right > max(.eeg$.sample)] <- max(.eeg$.sample)
             ## merge if there are steps closer than the window for removal
             intervals <- data.table::data.table(start = left, stop = right) %>%
-              na.omit() %>%
+              stats::na.omit() %>%
               .[, .(start = min(start), stop = max(stop)),
                 by = .(group = cumsum(c(1, tail((start - 1), -1) > head(stop, -1))))
               ]

@@ -32,7 +32,6 @@
 #' checkini
 #' checkini$`Hello World`$Foo
 #'
-#' @export
 #' @noRd
 read.ini <- function(filepath, encoding = getOption("encoding")) {
   
