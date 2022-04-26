@@ -9,7 +9,7 @@ eeg_lst(
   events_tbl = NULL,
   segments_tbl = NULL,
   channels_tbl = NULL,
-  sampling_rate = NULL
+  .sampling_rate = NULL
 )
 }
 \arguments{
@@ -21,7 +21,7 @@ eeg_lst(
 
 \item{channels_tbl}{Optionally a table with channels information. See \code{\link[=channels_tbl]{channels_tbl()}}.}
 
-\item{sampling_rate}{Optional: If the signal_tbl doesn't have samples, they will be included with this sampling rate.}
+\item{.sampling_rate}{Optional: If the signal_tbl doesn't have samples, they will be included with this sampling rate.}
 }
 \value{
 A valid eeg_lst.

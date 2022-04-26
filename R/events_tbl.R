@@ -22,7 +22,7 @@ new_events_tbl <- function(.id = integer(0),
                            .initial = sample_int(integer(0), integer(0)),
                            .final = sample_int(integer(0), integer(0)),
                            .channel = character(0),
-                           sampling_rate = NULL) {
+                           .sampling_rate = NULL) {
   # If there is something, but incomplete, fill with NAs the columns that might be empty
   if (length(.id) != 0) {
     if (length(.channel) == 0) .channel <- NA_character_
@@ -38,12 +38,12 @@ new_events_tbl <- function(.id = integer(0),
     .channel = .channel
   )
 
-  if (!is.null(sampling_rate)) {
+  if (!is.null(.sampling_rate)) {
     events[, .initial := sample_int(as.integer(.initial),
-      sampling_rate = sampling_rate
+      .sampling_rate = .sampling_rate
     )]
     events[, .final := sample_int(as.integer(.final),
-      sampling_rate = sampling_rate
+      .sampling_rate = .sampling_rate
     )]
   }
   data.table::setattr(events, "class", c("events_tbl", class(events)))
@@ -53,15 +53,15 @@ as_events_tbl <- function(.data, ...) {
   UseMethod("as_events_tbl")
 }
 
-as_events_tbl.data.table <- function(.data, sampling_rate = NULL) {
+as_events_tbl.data.table <- function(.data, .sampling_rate = NULL) {
   .data <- data.table::copy(.data)
   .data[, .id := as.integer(.id)]
-  if (!is.null(sampling_rate)) {
+  if (!is.null(.sampling_rate)) {
     .data[, .initial := sample_int(as.integer(.initial),
-      sampling_rate = sampling_rate
+      .sampling_rate = .sampling_rate
     )]
     .data[, .final := sample_int(as.integer(.final),
-      sampling_rate = sampling_rate
+      .sampling_rate = .sampling_rate
     )]
   }
   .data <- .data %>% dplyr::select(
@@ -72,28 +72,28 @@ as_events_tbl.data.table <- function(.data, sampling_rate = NULL) {
   validate_events_tbl(.data)
 }
 
-as_events_tbl.events_tbl <- function(.data, sampling_rate = NULL) {
-  if (!is.null(sampling_rate)) {
+as_events_tbl.events_tbl <- function(.data, .sampling_rate = NULL) {
+  if (!is.null(.sampling_rate)) {
     .data <- data.table::copy(.data)
     .data[, .initial := sample_int(as.integer(.initial),
-      sampling_rate = sampling_rate
+      .sampling_rate = .sampling_rate
     )]
     .data[, .final := sample_int(as.integer(.final),
-      sampling_rate = sampling_rate
+      .sampling_rate = .sampling_rate
     )]
   }
   validate_events_tbl(.data)
 }
 
 
-as_events_tbl.data.frame <- function(.data, sampling_rate = NULL) {
+as_events_tbl.data.frame <- function(.data, .sampling_rate = NULL) {
   .data <- data.table::as.data.table(.data)
-  as_events_tbl(.data, sampling_rate = sampling_rate)
+  as_events_tbl(.data, .sampling_rate = .sampling_rate)
 }
 
 #' @noRd
-as_events_tbl.NULL <- function(.data, sampling_rate = NULL) {
-  new_events_tbl(sampling_rate = sampling_rate)
+as_events_tbl.NULL <- function(.data, .sampling_rate = NULL) {
+  new_events_tbl(.sampling_rate = .sampling_rate)
 }
 
 #' Test if the object is an events_tbl

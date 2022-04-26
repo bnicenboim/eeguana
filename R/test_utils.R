@@ -19,7 +19,7 @@ remove_index <- function(.eeg_lst) {
 
 #' @noRd
 expect_equal_eeg_lst <- function(object, expected, ..., info = NULL, label = NULL, expected.label = NULL) {
-  eval(bquote(expect_equal(remove_index(.(object)), remove_index(.(expected)))))
+  eval(bquote(expect_equal(remove_index(.(object)), remove_index(.(expected)), ...)))
 }
 
 #' @noRd

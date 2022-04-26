@@ -113,7 +113,8 @@ eeg_mutate.eeg_lst <- function(.data, ...) {
   .data <- .data %>%
     update_events_channels()
   data.table::setkey(.data$.signal, .id, .sample)
-  .data %>%
+  data.table::setkey(.data$.segments, .id)
+    .data %>%
     validate_eeg_lst()
 }
 
@@ -122,6 +123,7 @@ eeg_mutate.psd_lst <- function(.data, ...) {
   .data <- mutate_lst(.data, ..., keep_cols = TRUE)
   # updates the events and the channels
   data.table::setkey(.data$.psd, .id, .freq)
+  data.table::setkey(.data$.segments, .id)
   .data %>%
     validate_psd_lst()
 }
@@ -146,6 +148,7 @@ eeg_transmute.eeg_lst <- function(.data, ...) {
   .data <- .data %>%
     update_events_channels()
   data.table::setkey(.data$.signal, .id, .sample)
+  data.table::setkey(.data$.segments, .id)
   .data %>%
     validate_eeg_lst()
 }
@@ -156,6 +159,7 @@ eeg_transmute.psd_lst <- function(.data, ...) {
   .data <- mutate_lst(.data, ..., keep_cols = FALSE)
   # updates the events and the channels
   data.table::setkey(.data$.psd, .id, .freq)
+  data.table::setkey(.data$.segments, .id)
   .data %>%
     validate_psd_lst()
 }
@@ -228,13 +232,13 @@ eeg_summarize.eeg_lst <- function(.data, ..., .groups = "keep") {
   attr_sample_id <- attributes(.data$.signal$.sample)
   extended_signal_dt <- summarize_ext(.data, dots, .groups = "keep")
   if (!".sample" %in% colnames(extended_signal_dt)) {
-    extended_signal_dt[, .sample := sample_int(NA_integer_, attr_sample_id$sampling_rate)]
+    extended_signal_dt <- mutate.(extended_signal_dt, .sample = sample_int(NA_integer_, attr_sample_id$sampling_rate))
   } else {
     attributes(extended_signal_dt$.sample) <- attr_sample_id
   }
   # Add .id in case it was removed by a summary
   if (!".id" %in% colnames(extended_signal_dt)) {
-    extended_signal_dt[, .id := seq_len(.N), by = .sample]
+    extended_signal_dt <- mutate.(extended_signal_dt, .id = seq_len(.N), .by = ".sample")
   }
   data.table::setkey(extended_signal_dt, .id, .sample)
   data.table::setcolorder(extended_signal_dt, c(".id", ".sample"))
@@ -245,7 +249,7 @@ eeg_summarize.eeg_lst <- function(.data, ..., .groups = "keep") {
     .data$.signal[, (group_vars_only_segments(.data)) := NULL]
   }
   ### CHECK !!!!!!!!!!!!!
-  .data$.events <- new_events_tbl(sampling_rate = sampling_rate.eeg_lst(.data))
+  .data$.events <- new_events_tbl(.sampling_rate = sampling_rate.eeg_lst(.data))
   # update channels in the events and the meta data (summarize deletes the metadata of the channels)
   .data <- update_events_channels(.data) #
   validate_eeg_lst(.data)
@@ -258,11 +262,13 @@ eeg_summarize.psd_lst <- function(.data, ..., .groups = "keep") {
     warning("Only  'keep' option is available")
   }
   extended_psd_dt <- summarize_ext(.data, dots, .groups = "keep")
-  if (!".freq" %in% colnames(extended_psd_dt)) extended_psd_dt[, .freq := NA]
-
+  if (!".freq" %in% colnames(extended_psd_dt)) {
+    extended_psd_dt <- extended_psd_dt %>% mutate.(.freq := NA)
+}
   # Add .id in case it was removed by a summary
   if (!".id" %in% colnames(extended_psd_dt)) {
-    extended_psd_dt[, .id := seq_len(.N), by = .freq]
+    extended_psd_dt <- extended_psd_dt %>%
+      mutate.(.id = seq_len(.N), .by = ".freq")
   }
   data.table::setkey(extended_psd_dt, .id, .freq)
   data.table::setcolorder(extended_psd_dt, c(".id", ".freq"))

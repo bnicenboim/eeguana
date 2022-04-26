@@ -1,10 +1,13 @@
 # eeguana 0.1.7.9000
 - New features:
 - The argument `.ref` of `eeg_rereference()` now allows "tidyselect".
-    - `as_tidytable()` added.
-    - `sampling_rate()` shows the sampling rate of an object.
+    - `write_vhdr()` writes BrainVision 2.0 files (experimental).
     - `eeg_psd()` computes the power spectral density (PSD) of a en EEG signal (using only the Welch method for now).
     - `eeg_band_power()` computes power bands.
+    - `na.omit()` now works for `eeg_lst` objects.
+    - `as_tidytable()` added.
+    - `sampling_rate()` shows the sampling rate of an object.
+    - `eeg_unsegment()` was added.
 - Modifying channels with `channels_tbl()` is much faster now.
 - Signal filtering is slightly faster.
 - BUGS:

@@ -2,9 +2,17 @@
 % Please edit documentation in R/segmentation.R
 \name{eeg_segment}
 \alias{eeg_segment}
-\title{Segment an eeg_lst.}
+\alias{eeg_unsegment}
+\title{Segment (and unsegment) an eeg_lst.}
 \usage{
 eeg_segment(.data, ..., .lim = c(-0.5, 0.5), .end, .unit = "s")
+
+eeg_unsegment(
+  .data,
+  .start = 1,
+  .sep = c(.type = "New Segment", .description = ""),
+  .zero = c(.type = "Time 0", .description = "")
+)
 }
 \arguments{
 \item{.data}{An \code{eeg_lst} object.}
@@ -16,15 +24,27 @@ eeg_segment(.data, ..., .lim = c(-0.5, 0.5), .end, .unit = "s")
 \item{.end}{Description of the event that indicates the end of the segment, if this is used, \code{.lim} is ignored.}
 
 \item{.unit}{"seconds" (or "s"), "milliseconds" (or "ms"), or samples.}
+
+\item{.start}{Initial sample when an object is unsegmented}
+
+\item{.sep}{Segment separation marker. By default: \code{.type == "New Segment"}}
+
+\item{.zero}{Time zero marker. By default: \code{.type == "Time 0"}}
 }
 \value{
 An \code{eeg_lst}.
 }
 \description{
-Subdivide of the EEG into different segments or epochs. When there is no
-segmentation, the \code{eeg_lst} contain one segment. (Fieldtrip calls the
-segment "trials".) The limits of \code{segment} are inclusive: If, for
-example, \code{lim = c(0,0)}, the segment would contain only sample 1.
+\itemize{
+\item \code{eeg_segment()} subdivides of the EEG into different segments or epochs.  (Fieldtrip calls the segment "trials".) The limits of \code{segment} are inclusive: If, for example, \code{lim = c(0,0)}, the segment would contain only sample 1.
+}
+}
+\details{
+\itemize{
+\item \code{eeg_unsegment()} does \strong{not} reverse the segmentation, it simply concatenates all segments creating one object with only one segment.
+}
+
+When there is no segmentation, the \code{eeg_lst} contain one segment.
 }
 \examples{
 

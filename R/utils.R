@@ -296,3 +296,5 @@ int.simpson2 <- function(x, y, equi = TRUE,
   )
   return(out)
 }
+
+

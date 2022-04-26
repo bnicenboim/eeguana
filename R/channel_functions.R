@@ -174,7 +174,7 @@ eeg_baseline <- function(x, ..., .lim = -Inf, .unit = "s") {
 #' @export
 eeg_baseline.eeg_lst <- function(x, ..., .lim = -Inf, .unit = "s") {
   ch_sel <- sel_ch(x, ...)
-  sample_id <- as_sample_int(.lim, sampling_rate = sampling_rate(x), .unit)
+  sample_id <- as_sample_int(.lim, .sampling_rate = sampling_rate(x), .unit)
 
   x$.signal <- data.table::copy(x$.signal)
   x$.signal <- x$.signal[, (ch_sel) := lapply(.SD, fun_baseline, .sample, sample_id),

@@ -28,10 +28,10 @@ new_psd_lst <- function(.psd = NULL, .segments = NULL) {
 
 #' @param values
 #'
-#' @param sampling_rate
+#' @param .sampling_rate
 #'
 #' @noRd
-new_sample_int <- function(values, sampling_rate) {
+new_sample_int <- function(values, .sampling_rate) {
   if (!all(is_wholenumber(values))) {
     stop("Sample integer values should be round numbers.",
       call. = FALSE
@@ -42,7 +42,7 @@ new_sample_int <- function(values, sampling_rate) {
   values <- unclass(values)
   structure(values,
     class = c("sample_int","integer"),
-    sampling_rate = sampling_rate
+    sampling_rate = .sampling_rate
   )
 }
 

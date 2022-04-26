@@ -187,6 +187,22 @@ select. <- function(.df, ...) {
   .df
 }
 
+#' @noRd
+transmute. <- function(.df, ..., .by = NULL){
+  oldclass <- class(.df)
+  if (length(.by) > 0) {
+    .df <- tidytable::transmute.(
+      .df = .df, ...,
+      .by = .by)
+  } else {
+    # much faster to remove the by=character(0) when not needed
+    .df <- tidytable::transmute.(
+      .df = .df, ...)
+  }
+  
+  class(.df) <- oldclass
+  .df
+}
 
 #' @noRd
 mutate. <- function(.df, ...,
@@ -246,11 +262,18 @@ semi_join. <- function(x, y, by = NULL) {
   .df
 }
 
-
 #' @noRd
 left_join. <- function(x, y, by = NULL) {
   oldclass <- class(x)
   .df <- tidytable::left_join.(x = x, y = y, by = by)
+  class(.df) <- oldclass
+  .df
+}
+
+#' @noRd
+full_join. <- function(x, y, by = NULL) {
+  oldclass <- class(x)
+  .df <- tidytable::full_join.(x = x, y = y, by = by)
   class(.df) <- oldclass
   .df
 }

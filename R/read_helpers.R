@@ -6,40 +6,20 @@ read_dat <- function(file, header_info = NULL, events_dt = NULL,
   n_chan <- nrow(header_info$chan_info)
   common_info <- header_info$common_info
 
-  if (chr_detect(common_info$orientation, "vector",
-    ignore.case = TRUE
-  )) {
+  if (chr_detect(common_info$orientation, "vector", ignore.case = TRUE)) {
     multiplexed <- FALSE
-  } else if (chr_detect(common_info$orientation, "multipl",
-    ignore.case = TRUE
-  )) {
+  } else if 
+        (chr_detect(common_info$orientation, "multipl", ignore.case = TRUE)) {
     multiplexed <- TRUE
   } else {
     stop("Orientation needs to be vectorized or multiplexed.", call. = FALSE)
   }
 
-  ## multiplexed <- dplyr::case_when(
-  ##   chr_detect(common_info$orientation, "vector",
-  ##     ignore.case = TRUE
-  ##   ) ~ FALSE,
-  ##   chr_detect(common_info$orientation, "multipl",
-  ##     ignore.case = TRUE
-  ##   ) ~ TRUE,
-  ##   TRUE ~ NA
-  ## ) %>% {
-  ##   if (is.na(.)) {
-  ##     stop("Orientation needs to be vectorized or multiplexed.")
-  ##   } else {
-  ##     .
-  ##   }
-  ## }
-
-
   if (common_info$format == "BINARY") {
     type <- chr_extract(common_info$bits, "float|int", ignore.case = TRUE) %>%
       tolower() %>%
       {
-        dplyr::case_when(
+        tidytable::case_when.(
           . == "float" ~ "double",
           . == "int" ~ "integer",
           TRUE ~ .
@@ -121,7 +101,7 @@ read_dat <- function(file, header_info = NULL, events_dt = NULL,
   signal_tbl <- new_signal_tbl(
     signal_matrix = raw_signal,
     .id = as.integer(seg_sample_id$.id),
-    .sample = new_sample_int(seg_sample_id$.sample, sampling_rate = common_info$sampling_rate),
+    .sample = new_sample_int(seg_sample_id$.sample, .sampling_rate = common_info$sampling_rate),
     channels_tbl = header_info$chan_info
   )
   events_dt[, .id := 1]
@@ -238,7 +218,7 @@ read_vmrk <- function(file) {
   # splits Mk<Marker number>=<Type>, removes the Mk.., and <Date>
   events[, .type := strsplit(.type, "=") %>%
     purrr::map_chr(~ .x[[2]])][, date := NULL]
-  
+
   # punctual events shouldn't have a .final < .initial
   events[, .final := .initial + ifelse(.final - 1L == -1, .final, .final - 1L)]
 
@@ -253,46 +233,49 @@ read_vmrk <- function(file) {
 
 
 read_vhdr_metadata <- function(file) {
-  vhdr <- ini::read.ini(file)
+  vhdr <- read.ini(file)
 
   channel_info <- vhdr[["Channel Infos"]] %>%
     imap_dtr(~ c(.y, strsplit(.x, ",")[[1]]) %>%
       t() %>%
       data.table::as.data.table())
 
-  
-  entry_line <- 
-    readLines(file) %>% paste(collapse = "\n") %>%
-  chr_extract("\\[Channel Infos\\].*?\n.*?Each entry:.*(\n)?.*>")
-  
-  if(length(entry_line)>0){
+
+  entry_line <-
+    readLines(file) %>%
+    paste(collapse = "\n") %>%
+    chr_extract("\\[Channel Infos\\].*?\n.*?Each entry:.*(\n)?.*>")
+
+  if (length(entry_line) > 0) {
     entries <- entry_line %>%
       chr_extract_all("<.*?>") %>%
       .[[1]] %>%
       chr_remove("<|>") %>%
       tolower()
-    ch_cols <-  data.table::fcase(endsWith(entries,"number"), "number",
-                      startsWith(entries,"name"), ".channel",
-                      startsWith(entries,"reference"), ".reference",
-                      startsWith(entries,"resolution"), "resolution",
-                      startsWith(entries,"unit"), "unit"
-          )
-    unit_found <- entries[startsWith(entries,"resolution")] %>%
-                    chr_match("resolution in (.*)") %>%
-                    .[,2]
-    
+    ch_cols <- data.table::fcase(
+      endsWith(entries, "number"), "number",
+      startsWith(entries, "name"), ".channel",
+      startsWith(entries, "reference"), ".reference",
+      startsWith(entries, "resolution"), "resolution",
+      startsWith(entries, "unit"), "unit"
+    )
+    unit_found <- entries[startsWith(entries, "resolution")] %>%
+      chr_match("resolution in (.*)") %>%
+      .[, 2]
   } else {
     ch_cols <- c("number", ".channel", ".reference", "resolution", "unit")
   }
-  if (!"unit" %in% ch_cols){
+  if (!"unit" %in% ch_cols) {
     ch_cols <- c(ch_cols, "unit")
   }
-  
+
   # adds missing cols if necessary
   n_missing_cols <- length(ch_cols) - ncol(channel_info)
-  channel_info <- cbind(channel_info, 
-                          matrix(nrow= nrow(channel_info), ncol = n_missing_cols))
-  
+  channel_info <- cbind(
+    channel_info,
+    matrix(nrow = nrow(channel_info), ncol = n_missing_cols)
+  )
+
   channel_info <- channel_info %>%
     stats::setNames(ch_cols) %>%
     mutate.(
@@ -300,20 +283,20 @@ read_vhdr_metadata <- function(file) {
       unit = ifelse(unit %in% c("\u00b5V", "\u03bcV", "microvolt"), "microvolt", "?"),
       .reference = ifelse(.reference == "", NA_character_, .reference)
     )
-  if(!is.null(unit_found) & all(channel_info$unit =="?")) {
+  if (!is.null(unit_found) & all(channel_info$unit == "?")) {
     channel_info <- channel_info %>%
       mutate.(unit = unit_found)
   }
 
   if (is.null(vhdr$Coordinates)) {
-    coordinates <- dplyr::tibble(number = channel_info$number, radius = NA_real_, theta = NA_real_, phi = NA_real_)
+    coordinates <- data.table::data.table(number = channel_info$number, radius = NA_real_, theta = NA_real_, phi = NA_real_)
   } else {
     coordinates <- vhdr$Coordinates %>%
       imap_dtr(~ c(.y, strsplit(.x, ",")[[1]]) %>%
         t() %>%
         data.table::as.data.table(.name_repair = "unique")) %>%
       stats::setNames(c("number", "radius", "theta", "phi")) %>%
-      dplyr::mutate_at(dplyr::vars(c("radius", "theta", "phi")), as.numeric)
+      mutate.(across.(tidyselect::all_of(c("radius", "theta", "phi")), as.numeric))
   }
 
   # this is in case it can't find DataPoints and DataType in the header file
@@ -322,7 +305,7 @@ read_vhdr_metadata <- function(file) {
 
   common_info <- vhdr[["Common Infos"]] %>%
     data.table::as.data.table() %>%
-    dplyr::transmute(
+    transmute.(
       data_points = as.numeric(DataPoints),
       # seg_data_points = as.numeric(SegmentDataPoints),
       orientation = DataOrientation,
@@ -336,14 +319,14 @@ read_vhdr_metadata <- function(file) {
 
   if (common_info$format == "ASCII") {
     common_info <- common_info %>%
-      dplyr::mutate(
+      mutate.(
         DecimalSymbol = vhdr[["ASCII Infos"]][["DecimalSymbol"]],
         SkipColumns = vhdr[["ASCII Infos"]][["SkipColumns"]] %>% as.integer(),
         SkipLines = vhdr[["ASCII Infos"]][["SkipLines"]] %>% as.integer()
       )
   } else if (common_info$format == "BINARY") {
     common_info <- common_info %>%
-      dplyr::mutate(bits = vhdr[["Binary Infos"]][["BinaryFormat"]])
+      mutate.(bits = vhdr[["Binary Infos"]][["BinaryFormat"]])
   }
 
   if (substr(common_info$domain, start = 1, stop = nchar("time")) %>%
@@ -352,11 +335,8 @@ read_vhdr_metadata <- function(file) {
   }
 
   # TODO use the _dt version as in read_set
-  chan_info <- dplyr::full_join(channel_info, coordinates, by = "number") %>%
-    dplyr::bind_cols(purrr::pmap_dfr(
-      list(.$radius, .$theta, .$phi),
-      spherical_to_xyz
-    ))
+  chan_info <- full_join.(channel_info, coordinates, by = "number") %>%
+    cbind(spherical_to_xyz_dt(coordinates$radius, coordinates$theta, coordinates$phi))
 
   out <- list()
   out$chan_info <- chan_info
@@ -377,17 +357,6 @@ read_vhdr_metadata <- function(file) {
 #' Transform spherical coordinates, such as the ones provided by BrainVision or sph.....
 #'
 #' @noRd
-spherical_to_xyz <- function(radius = 1, theta = NULL, phi = NULL) {
-  radius <- ifelse((is.na(radius) | is.null(radius)) & is.numeric(theta) & is.numeric(phi), 1, radius)
-
-  x <- ifelse(radius != 0, round(sin(theta * pi / 180) * cos(phi * pi / 180), 2), NA_real_)
-  y <- ifelse(radius != 0, round(sin(theta * pi / 180) * sin(phi * pi / 180), 2), NA_real_)
-  z <- ifelse(radius != 0, round(cos(theta * pi / 180), 2), NA_real_)
-  dplyr::tibble(.x = x, .y = y, .z = z)
-}
-
-
-
 spherical_to_xyz_dt <- function(radius = 1, theta = NULL, phi = NULL) {
   radius <- ifelse((is.na(radius) | is.null(radius)) & is.numeric(theta) & is.numeric(phi), 1, radius)
 
@@ -396,10 +365,16 @@ spherical_to_xyz_dt <- function(radius = 1, theta = NULL, phi = NULL) {
     .y = ifelse(radius != 0, round(sin(theta * pi / 180) * sin(phi * pi / 180), 2), NA_real_),
     .z = ifelse(radius != 0, round(cos(theta * pi / 180), 2), NA_real_)
   )
-
-  # x,y,z
 }
 
+# spherical_to_xyz <- function(radius = 1, theta = NULL, phi = NULL) {
+#   radius <- ifelse((is.na(radius) | is.null(radius)) & is.numeric(theta) & is.numeric(phi), 1, radius)
+# 
+#   x <- ifelse(radius != 0, round(sin(theta * pi / 180) * cos(phi * pi / 180), 2), NA_real_)
+#   y <- ifelse(radius != 0, round(sin(theta * pi / 180) * sin(phi * pi / 180), 2), NA_real_)
+#   z <- ifelse(radius != 0, round(cos(theta * pi / 180), 2), NA_real_)
+#   dplyr::tibble(.x = x, .y = y, .z = z)
+# }
 
 
 read_bin_signal <- function(file, type = "double", bytes = 4, n_chan, n_trials = 1, sample_x_channels = TRUE) {

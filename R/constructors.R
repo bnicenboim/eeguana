@@ -12,13 +12,13 @@
 #' @param events_tbl See [events_tbl()].
 #' @param segments_tbl A data table of segment numbers and related information. See [segments_tbl()].
 #' @param channels_tbl Optionally a table with channels information. See [channels_tbl()].
-#' @param sampling_rate Optional: If the signal_tbl doesn't have samples, they will be included with this sampling rate.
+#' @param .sampling_rate Optional: If the signal_tbl doesn't have samples, they will be included with this sampling rate.
 #'
 #' @family eeg_lst
 #'
 #' @return A valid eeg_lst.
 #' @export
-eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, channels_tbl = NULL, sampling_rate = NULL) {
+eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, channels_tbl = NULL, .sampling_rate = NULL) {
   if (is.null(signal_tbl)) {
     signal_tbl <- new_signal_tbl()
   } else if (!is_signal_tbl(signal_tbl)) {
@@ -26,15 +26,16 @@ eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, c
       signal_tbl <- add_channel_info(signal_tbl, channels_tbl)
     }
     if(!".id" %in% names(signal_tbl)) signal_tbl$.id <- 1L
-    if(!".sample" %in% signal_tbl && is.numeric(sampling_rate)){
-      signal_tbl$.sample <- sample_int(1:nrow(signal_tbl),sampling_rate = sampling_rate)
+    if(!".sample" %in% signal_tbl && is.numeric(.sampling_rate)){
+      signal_tbl$.sample <- sample_int(1:nrow(signal_tbl), 
+                                       .sampling_rate = .sampling_rate)
     } 
-    if(!".sample" %in% names(signal_tbl) && !is.null(sampling_rate)){
+    if(!".sample" %in% names(signal_tbl) && !is.null(.sampling_rate)){
       stop("Specify a sampling rate or indicate the samples in the signal table.",call. = FALSE)
     }
-    if(".sample" %in% names(signal_tbl) & !is.null(sampling_rate)){
-      if(attributes(signal_tbl$.sample)$sampling_rate != sampling_rate) 
-        warning("The argument `sampling_rate` is being ignored.", call. = FALSE)
+    if(".sample" %in% names(signal_tbl) & !is.null(.sampling_rate)){
+      if(attributes(signal_tbl$.sample)$sampling_rate != .sampling_rate) 
+        warning("The argument `.sampling_rate` is being ignored.", call. = FALSE)
     }
     signal_tbl <- as_signal_tbl(signal_tbl)
   } else {
@@ -42,9 +43,9 @@ eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, c
   }
 
   if (is.null(events_tbl)) {
-    events_tbl <- new_events_tbl(sampling_rate = sampling_rate(signal_tbl))
+    events_tbl <- new_events_tbl(.sampling_rate = sampling_rate(signal_tbl))
   } else if (!is_events_tbl(events_tbl)) {
-    events_tbl <- as_events_tbl(events_tbl, sampling_rate = sampling_rate(signal_tbl))
+    events_tbl <- as_events_tbl(events_tbl, .sampling_rate = sampling_rate(signal_tbl))
   } else {
     events_tbl <- validate_events_tbl(events_tbl)
   }
@@ -161,16 +162,16 @@ is_psd_lst <- function(x) {
 #' Builds a series of sample numbers.
 #'
 #' @param values Sequence of integers.
-#' @param sampling_rate Double indicating the sampling rate in Hz.
+#' @param .sampling_rate Double indicating the sampling rate in Hz.
 #'
 #' @family sample_int
 #'
 #' @export
 #' @examples
 #'
-#' sample_int(1:100, sampling_rate = 500)
-sample_int <- function(values, sampling_rate) {
-  validate_sample_int(new_sample_int(values, sampling_rate))
+#' sample_int(1:100, .sampling_rate = 500)
+sample_int <- function(values, .sampling_rate) {
+  validate_sample_int(new_sample_int(values, .sampling_rate))
 }
 
 #' Test if the object is a sample

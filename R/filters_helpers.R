@@ -211,13 +211,13 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
         Wp = f_pass / (sfreq / 2)
         # IT will de designed
         ## ftype_nice = _ftype_dict.get(type, type)
-        if(options()$eeguana.verbose){
+        
           message_verbose("IIR filter parameters\n",
                   "---------------------\n",
                   type," ", btype,
                   " zero-phase (two-pass forward and reverse) \n",
                     " non-causal filter:\n" )
-        }
+        
 # SciPy designs for -3dB but we do forward-backward, so this is -6dB
         if ('order' %in% names(iir_params)){
 
@@ -229,7 +229,7 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
                                type = type,
                                output = output)
           forder <-  (2 * iir_params[['order']] * length(Wp))
-            if(options()$eeguana.verbose)
+            
               message_verbose("- Filter order " , forder,"  (effective, after forward-backward)")
 
         } else {
@@ -555,19 +555,15 @@ create_filter <- function(data,
     l_freq <- h_freq
     h_freq <- h_temp
 
-    if(options()$eeguana.verbose)
       message_verbose("Setting up band-stop filter from ", h_freq, " - ", l_freq, " Hz")
   } else if (!is.null(l_freq) && !is.null(h_freq) && l_freq < h_freq) {
     type <- "pass"
-    if(options()$eeguana.verbose)
       message_verbose("Setting up band-pass filter from ", l_freq, " - ", h_freq, " Hz")
   } else if (!is.null(l_freq)) {
     type <- "high" # pass
-    if(options()$eeguana.verbose)
       message_verbose("Setting up high-pass filter at ", l_freq, " Hz")
   } else if (!is.null(h_freq)) {
     type <- "low" # pass
-    if(options()$eeguana.verbose)
       message("Setting up low-pass filter at ", h_freq, " Hz")
   } else {
     stop("Both freq can't be NULL")
@@ -585,7 +581,6 @@ create_filter <- function(data,
       l_trans_bandwidth <- Inf
     } else if (is.null(config$l_trans_bandwidth) || config$l_trans_bandwidth == "auto") {
       l_trans_bandwidth <- min(max(l_freq * 0.25, 2), l_freq)
-      if(options()$eeguana.verbose)
         message("Width of the transition band at the low cut-off frequency is ",
                 l_trans_bandwidth, " Hz" )
     } else {
@@ -596,7 +591,6 @@ create_filter <- function(data,
       h_trans_bandwidth <- Inf
     } else if (is.null(config$h_trans_bandwidth) || config$h_trans_bandwidth == "auto") {
       h_trans_bandwidth <- min(max(0.25 * h_freq, 2.), srate / 2. - h_freq)
-      if(options()$eeguana.verbose)
         message("Width of the transition band at the high cut-off frequency is ",h_trans_bandwidth, " Hz" )
     } else {
       h_trans_bandwidth <- config$h_trans_bandwidth
