@@ -21,7 +21,6 @@ na.omit.eeg_lst <- function(object, ...){
 #' The function will write each recording in a different file. The function is highly experimental, if a file fails to open in BrainVision, please report the bug in (https://github.com/bnicenboim/eeguana/issues).
 #'
 #' @param x `eeg_lst` object.
-#'
 #' @param file Either a vector of file names (with the same length as the number of recordings), one file name (which will be appended the recording name if needed), or a path which will use the recording names as file names. By default, it will use the recording name in the current path as file names.
 #' @param overwrite Stop writing if the file exists.
 #'
