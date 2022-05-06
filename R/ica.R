@@ -300,6 +300,13 @@ as_eeg_lst.eeg_lst <- function(.data, ...) {
   if (!data.table::is.data.table(.data$.segments)) {
     .data$.segments <- data.table::as.data.table(.data$.segments)
     data.table::setkey(.data$.segments, .id)
-  }
+    # fix the classes from old versions
+    .data <- .data %>% eeg_mutate(across_ch( ~  `class<-`(.x,  c("channel_dbl", "numeric") )))
+    .data <- .data %>% eeg_mutate(.sample = `class<-`(.sample,c("sample_int", "integer")) )
+    class(.data$.events$.initial) <- c("sample_int", "integer")
+    class(.data$.events$.final) <- c("sample_int", "integer")
+    }
+  
+  
   validate_eeg_lst(.data)
 }

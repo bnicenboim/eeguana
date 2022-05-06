@@ -215,13 +215,15 @@ channel_dbl <- function(values, x = NA_real_, y = NA_real_, z = NA_real_, refere
 #' @family channel
 #' @export
 as_channel_dbl <- function(x) {
-  x <- as.double
-  class(x) <- c("channel_dbl", "numeric")
+  if(!is.double(x))  {
+    x <- unclass(x) %>% as.double()
+  }
   for (. in c(".x", ".y", ".z", ".reference")) {
     if (is.null(attr(x, .))) {
       attr(x, .) <- NA_real_
     }
   }
+  class(x) <- c("channel_dbl", "numeric")
   validate_channel_dbl(x)
 }
 
