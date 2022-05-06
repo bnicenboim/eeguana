@@ -42,12 +42,12 @@ write_vhdr <- function(x, file, overwrite = FALSE){
   nr_diff <- nr - nrow(x$.signal)
   if(nr_diff>0) warning(nr_diff, " samples were removed because they contained NA values.", call. = FALSE)
  recs <- unique(x$.segments$.recording)
+ names(recs) <- recs %>% make.names(unique = TRUE) %>% gsub("\\.","_",.)
+ if(missing(file)) file <- names(recs)
  if(length(file) ==1 & dir.exists(file)) {
-   file <- file.path(file, recs)
- } else  if(missing(file)) {
-   file <- recs
+   file <- file.path(file, names(recs))
  } else if(length(file) ==1 & length(recs)>1 & !dir.exists(file)) {
-   file <- paste0(file, "_",recs)
+   file <- paste0(file, "_",names(recs))
  }
 
  for(n in seq_along(recs)){
@@ -94,7 +94,7 @@ write_vhdr_metadata <- function(x, file, overwrite= FALSE){
   chs <- channel_names(x)
   chs_n<- paste0("Ch",1:length(chs))
   unit <- ifelse(channels_tbl(x)$unit == "microvolt", "\u00b5V", channels_tbl(x)$unit) 
-  resolution <- ifelse(is.na(channels_tbl(x)$resolution),"",as.character(resolution)) 
+  resolution <- ifelse(is.na(channels_tbl(x)$resolution),"",as.character(channels_tbl(x)$resolution)) 
   ch_info <- paste0(chs,",,", resolution ,",",unit)
   names(ch_info) <- chs_n
   coordinates <- xyz_to_spherical_dt(.x = channels_tbl(x)$.x, .y=channels_tbl(x)$.y, .z = channels_tbl(x)$.z ) %>% apply(1, paste, collapse = "," ) 
