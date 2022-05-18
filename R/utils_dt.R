@@ -47,12 +47,16 @@ imap_dtr <- function(.x, .f, ..., .id = NULL) {
 }
 
 
-
 #' @noRd
 map2_dtr <- function(.x, .y, .f, ..., .id = NULL) {
   .f <- purrr::as_mapper(.f, ...)
   res <- purrr::map2(.x, .y, .f, ...)
   data.table::rbindlist(res, fill = TRUE, idcol = .id)
+}
+
+#' @noRd
+map2_dtc <- function(.x, .y, .f, ...) {
+    data.table::as.data.table(tidytable::map2_dfc.(.x=.x, .y = .y, .f =.f, ...) )
 }
 
 #' @noRd

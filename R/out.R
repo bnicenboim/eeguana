@@ -1,7 +1,9 @@
 #' Display information of the eeg_lst object.
 #'
-#' `*_names()` functions return a vector of names, `n*()` return the number of
-#' elements channels or components. Components are only available after running [eeg_ica()]. `channel_ica_names()` refers to channels used in the ICA.
+#' * `*_names()` functions return a vector of names, 
+#' * `n*()` return the number of elements channels or components. 
+#' 
+#' Components are only available after running [eeg_ica()]. `channel_ica_names()` refers to channels used in the ICA.
 #'
 #' @param x An eeg_lst object.
 #' @param ... Not in use.
@@ -45,6 +47,10 @@ channel_ica_names.eeg_ica_lst <- function(x, ...) {
   }) %>%
     unlist() %>%
     unique()
+}
+#' @export
+channel_ica_names.eeg_lst <- function(x, ...) {
+  NULL
 }
 #' @rdname summaries
 #' @export
