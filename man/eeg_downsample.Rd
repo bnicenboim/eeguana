@@ -21,9 +21,14 @@ eeg_downsample(
 
 \item{.max_sample}{Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total number of samples}
 
-\item{.n}{ filter order used in the downsampling. }
+\item{.n}{Order of the filter used prior to the downsampling, specified as a
+positive integer. Default: 8 if \code{ftype} equals \code{"iir"}; 30 of
+\code{ftype} equals \code{"fir"}.}
 
-\item{.ftype}{ filter type, \code{"iir"} or \code{"fir"} }
+\item{.ftype}{filter type; either \code{"fir"}, specifying a FIR filter of
+length \code{n} designed with the function \code{\link[gsignal]{fir1}}, or
+\code{"iir"} (default), specifying an IIR Chebyshev filter of order 8 using
+the function \code{\link[gsignal]{cheby1}}.}
 
 \item{.multiple_times}{Indicates whether to factorize `q`` and apply the downsampling in steps.}
 
@@ -31,9 +36,8 @@ eeg_downsample(
 }
 \description{
 Downsample a signal_tbl by a factor \code{q}, using an FIR or IIR filter.
-This is a wrapper for \code{\link[signal:decimate]{decimate}} from the
-\code{\link[signal:signal.package]{signal}} package, see its documentation for details. Notice that
-the code of the signal package might be outdated. This function is used in plotting functions.
+This is a wrapper for \code{\link[gsignal:decimate]{decimate}} from the
+\code{\link[signal:signal.package]{signal}} package, see its documentation for details.
 }
 \details{
 A factor q larger than 13 can result in NAs. To avoid this,

@@ -31,8 +31,13 @@ nsamples(x, ...)
 \item{...}{Not in use.}
 }
 \description{
-\verb{*_names()} functions return a vector of names, \verb{n*()} return the number of
-elements channels or components. Components are only available after running \code{\link[=eeg_ica]{eeg_ica()}}. \code{channel_ica_names()} refers to channels used in the ICA.
+\itemize{
+\item \verb{*_names()} functions return a vector of names,
+\item \verb{n*()} return the number of elements channels or components.
+}
+}
+\details{
+Components are only available after running \code{\link[=eeg_ica]{eeg_ica()}}. \code{channel_ica_names()} refers to channels used in the ICA.
 }
 \seealso{
 Other summary functions: 
