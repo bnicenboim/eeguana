@@ -82,38 +82,50 @@ sig_fft <- function(x, n = NULL) {
 
 #' Apply a digital filter forward and backward to a signal.
 #'
-#' Wrapper to signal::filtfilt with different order and padlen argument (based on scipy implementation). Right now because the initial state of the delay cannot be set, for small padlen values (e.g., default), the results are off in comparison with python.
-#'
-#' @inheritParams signal::filfilt
+#' Wrapper to [gsignal::filtfilt] with different order and padlen argument (based on scipy implementation). Right now because the initial state of the delay cannot be set, for small padlen values (e.g., default), the results are off in comparison with python.
+#' @param x the input signal to be filtered, specified as a numeric or complex vector or matrix. If x is a matrix, each column is filtered.
 #' @param b The numerator coefficient vector of the filter.
 #' @param a The denominator coefficient vector of the filter. (If ``a[0]`` is not 1, then both `a` and `b` are normalized by ``a[0]``.??).
 #' @param padlen The number of elements by which to extend `x` at both ends of `axis` before applying the filter.  This value must be less than ``x.shape[axis] - 1``.  ``padlen=0`` implies no padding. The default value is ``3 * max(len(a), len(b))``. (The type of padding is always odd, as the default of scipy.signal.filtfilt)
 #'
 #' @noRd
 sig_filtfilt <- function(x, b, a, padlen = 3 * max(length(a), length(b))) {
+  #https://github.com/scipy/scipy/blob/v1.8.1/scipy/signal/_signaltools.py#L3886-L4084
+  atx <- attributes(x)
+  if(is.null(dim(x))){
+    x <- matrix(x, ncol = 1)
+  }
 
   # ext = odd_ext(x, padlen) #edge = padlen
   # signal._arraytools.odd_ext(np.array([1,2,3,4,5,6,7,8,9,10]),3 )
   if (padlen == 0) {
     ext <- x
   } else {
-    left_end <- x[1]
-    left_ext <- x[seq.int(from = padlen + 1, to = 2, by = -1)]
-    right_end <- x[length(x)]
-    right_ext <- x[seq.int(from = length(x) - 1, to = length(x) - padlen, by = -1)]
-    ext <- c(
-      2 * left_end - left_ext,
+    #actually top and bottom end
+    # it applies scipy.signal._arraytools.odd_ext
+    left_end <- x[1,, drop = FALSE]
+    left_ext <- x[seq.int(from = padlen + 1, to = 2, by = -1),, drop = FALSE]
+    right_end <- x[nrow(x),, drop = FALSE]
+    right_ext <- x[seq.int(from = nrow(x)-1 , to = nrow(x) - padlen, by = -1),, drop = FALSE]
+    ext <- rbind(
+      c(2 * left_end) - left_ext,
       x,
-      2 * right_end - right_ext
+      c(2 * right_end) - right_ext
     )
   }
-
+  
+  # Get the steady state of the filter's step response.
+  zi = gsignal::filter_zi(filt = b,a = a) 
+  
   # forward filter
-  y <- signal::filter(filt = b, a = a, x = ext) # init = zi * ext[1]
+  zix0 <- matrix(zi, ncol = 1) %*% ext[1, ,drop = FALSE] 
+  y <- gsignal::filter(filt = b, a = a, x = ext,  zi = zix0)
   # backward filter
-  y <- rev(signal::filter(filt = b, a = a, x = rev(y))) # init = zi * y[length(y)]
-  y <- y[(padlen + 1):(padlen + length(x))] 
-  attributes(y) <- attributes(x)
+  ziy0 = zi %*% y$y[1, ,drop = FALSE] 
+  y <- gsignal::filter(filt = b, a = a, x = apply(y$y,2, rev), zi = ziy0) # 
+  y <- apply(y$y, 2 ,rev)
+  y <- y[(padlen + 1):(padlen + nrow(x)),, drop= FALSE] 
+  attributes(y) <- atx
   y
 }
 
