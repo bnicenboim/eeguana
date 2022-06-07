@@ -37,7 +37,7 @@ the function \code{\link[gsignal]{cheby1}}.}
 \description{
 Downsample a signal_tbl by a factor \code{q}, using an FIR or IIR filter.
 This is a wrapper for \code{\link[gsignal:decimate]{decimate}} from the
-\code{\link[signal:signal.package]{signal}} package, see its documentation for details.
+\code{\link[gsignal:signal]{gsignal}} package, see its documentation for details.
 }
 \details{
 A factor q larger than 13 can result in NAs. To avoid this,

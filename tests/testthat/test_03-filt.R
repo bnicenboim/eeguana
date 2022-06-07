@@ -256,11 +256,11 @@ test_that("band pass signal, sel", {
 })
 
 test_that("internal signal functions", {
-sig1 <- eeguana::sig_filtfilt(1:10, 1:2,2:3, padlen=2)  
-sig2 <- eeguana::sig_filtfilt(matrix(rep(1:10,2), ncol=2), 1:2,2:3, padlen=2)    
+sig1 <- eeguana:::sig_filtfilt(1:10, 1:2,2:3, padlen=2)  
+sig2 <- eeguana:::sig_filtfilt(matrix(rep(1:10,2), ncol=2), 1:2,2:3, padlen=2)    
 expect_equal(sig1, sig2[,1])  
 expect_equal(sig2[,1], sig2[,2])  
-eeguana::skip_on_actions()
+eeguana:::skip_on_actions()
 sci <- reticulate::import("scipy")
 signal <- sci$signal
 ba = signal$ellip(4, 0.01, 120, 0.125)  # Filter to be applied.
@@ -269,11 +269,10 @@ sig = rnorm(n)**3 + cumsum(3*rnorm(n))
 fpad = signal$filtfilt(ba[[1]], ba[[2]], sig, padlen=50L)
 b<- as.numeric(ba[[1]])
 a <- as.numeric(ba[[2]])
-expect_equal(as.numeric(fpad), eeguana::sig_filtfilt(sig, b,a, padlen=50L), tolerance = .001)
+expect_equal(as.numeric(fpad), eeguana:::sig_filtfilt(sig, b,a, padlen=50L), tolerance = .001)
 
 # expect_equal(as.numeric(signal$lfilter(ba[[1]], ba[[2]], sig)),
 # as.numeric(signal::filter(b,a, sig)))
-
 
 })
 

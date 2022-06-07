@@ -80,7 +80,7 @@ eeg_filt_low_pass.eeg_lst <- function(.data, ..., .freq = NULL, .config = list()
     config = .config
   )
 
-  .data$.signal <- filt_eeg_lst(.data$.signal, ..., h = h, na.rm = na.rm, .by_ref = FALSE)
+  .data$.signal <- filt_eeg_lst(.data$.signal, ..., h = h, na.rm = na.rm)
   # if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
   #  if(.by_reference) invisible(.data) else
   .data
@@ -93,7 +93,7 @@ eeg_filt_high_pass.eeg_lst <- function(.data, ..., .freq = NULL, .config = list(
     sampling_rate = sampling_rate(.data),
     config = .config
   )
-  .data$.signal <- filt_eeg_lst(.data$.signal, ..., h = h, na.rm = na.rm, .by_ref = FALSE)
+  .data$.signal <- filt_eeg_lst(.data$.signal, ..., h = h, na.rm = na.rm)
   # if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
   #  if(.by_reference) invisible(.data) else
   .data
@@ -131,7 +131,7 @@ eeg_filt_band_pass.eeg_lst <- function(.data, ..., .freq = NULL, .config = list(
     config = .config
   )
 
-  .data$.signal <- filt_eeg_lst(.data$.signal, ..., h = h, na.rm = na.rm, .by_ref = FALSE)
+  .data$.signal <- filt_eeg_lst(.data$.signal, ..., h = h, na.rm = na.rm)
 
   # if(.by_reference & options()$eeguana.verbose) changed_objects(.data)
   #  if(.by_reference) invisible(.data) else
@@ -148,40 +148,59 @@ filt_eeg_lst <- function(.signal, ..., h, na.rm = FALSE, .by_ref = FALSE) {
       stop("Missing values in the following channels: ", paste(NA_channels, sep = ","), "; use na.rm =TRUE, to proceed setting to NA the entire segment that contains an NA", call. = FALSE)
     }
   }
-  # Filters can go faster if there is only one segment:
-  if (length(unique(.signal$.id)) == 1) {
-    .signal <- shallow(.signal)
-    #chs <- channels_tbl(.signal) 
-    if (all(c("b", "a") %in% names(h))) {
-      # iir filter
-      padlen <- min(h[["padlen"]], nrow(.signal)) #-1?
-      .signal[, (ch_sel) := lapply(.SD, sig_filtfilt,
-        b = h[["b"]], a = h[["a"]],
-        padlen = padlen
-      ), .SDcols = (ch_sel)]
-    } else {
-      # fir filter
-      .signal[, (ch_sel) := lapply(.SD, overlap_add_filter, h),
-        .SDcols = (ch_sel)
-      ]
-    }
-  } else {
+  # # Filters can go faster if there is only one segment:
+  # if (length(unique(.signal$.id)) == 1) {
+  #   .signal <- shallow(.signal)
+  #   #chs <- channels_tbl(.signal) 
+  #   if (all(c("b", "a") %in% names(h))) {
+  #     # iir filter
+  #     padlen <- min(h[["padlen"]], nrow(.signal)) #-1?
+  #     .signal[, (ch_sel) := lapply(.SD, sig_filtfilt,
+  #       b = h[["b"]], a = h[["a"]],
+  #       padlen = padlen
+  #     ), .SDcols = (ch_sel)]
+  #   } else {
+  #     # fir filter
+  #     .signal[, (ch_sel) := lapply(.SD, overlap_add_filter, h),
+  #       .SDcols = (ch_sel)
+  #     ]
+  #   }
+  # } else {
     # several segments:
-    .signal <- data.table::copy(.signal)
-
+    # .signal <- data.table::copy(.signal)
+  
     if (all(c("b", "a") %in% names(h))) {
       # iir filter
-      padlen <- min(h[["padlen"]], nrow(.signal)) #-1?
-      .signal[, (ch_sel) := lapply(.SD, sig_filtfilt,
-        b = h[["b"]], a = h[["a"]],
-        padlen = padlen
-      ), .SDcols = (ch_sel), by = ".id"]
+      #apply one by one
+      # .signal <- mutate.(.signal, across(tidyselect::all_of(ch_sel),
+      #                              sig_filtfilt,
+      #                              b = h[["b"]], a = h[["a"]],
+      #                           padlen = min(h[["padlen"]],n()-1)), .by = ".id")
+      attrs <- lapply(.signal, attributes)
+      signal_non_sel <- select.(.signal, -tidyselect::all_of(ch_sel))
+      signal_sel <- select.(.signal, tidyselect::all_of(ch_sel))
+      .signal <-  bind_cols.(signal_non_sel,
+                       split(signal_sel,f =  .signal$.id)  %>%
+                         map_dtr( function(ss){
+                           sig_filtfilt(x = as.matrix(ss),
+                                        b = h$b, a = h$a,
+                                        padlen = min(h[["padlen"]],nrow(ss)-1)) %>%
+                             data.table::as.data.table()
+                         }
+                         )) 
+      .signal <- map2_dtc(.signal,attrs, function(c,a) {mostattributes(c)<-a
+      c}) %>% as_signal_tbl()
+      
     } else {
       # fir filter
-      .signal[, (ch_sel) := lapply(.SD, overlap_add_filter, h),
-        .SDcols = (ch_sel), by = ".id"
-      ]
+      .signal <- mutate.(.signal, across.(tidyselect::all_of(ch_sel),
+                                         overlap_add_filter, h),
+                                          .by = ".id")
+      # .signal[, (ch_sel) := lapply(.SD, overlap_add_filter, h),
+      #   .SDcols = (ch_sel), by = ".id"
+      # ]
     }
-  }
-  .signal
+  # }
+  
+  
 }

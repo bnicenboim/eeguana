@@ -209,6 +209,13 @@ transmute. <- function(.df, ..., .by = NULL){
 }
 
 #' @noRd
+bind_cols. <- function(...){
+  oldclass <- class(list(...)[[1]])
+  .df <- tidytable::bind_cols.(...)
+  class(.df) <- oldclass
+  .df
+}
+#' @noRd
 mutate. <- function(.df, ...,
                     .by = NULL,
                     .keep = c("all", "used", "unused", "none")) {

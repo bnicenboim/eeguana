@@ -108,11 +108,12 @@ sig_filtfilt <- function(x, b, a, padlen = 3 * max(length(a), length(b))) {
     right_end <- x[nrow(x),, drop = FALSE]
     right_ext <- x[seq.int(from = nrow(x)-1 , to = nrow(x) - padlen, by = -1),, drop = FALSE]
     ext <- rbind(
-      c(2 * left_end) - left_ext,
+      matrix(rep(2 * left_end,each=nrow(left_ext)),ncol=ncol(left_ext)) - left_ext,
       x,
-      c(2 * right_end) - right_ext
+      matrix(rep(2 * right_end,each=nrow(right_ext)),ncol=ncol(right_ext)) - right_ext
     )
   }
+  
   
   # Get the steady state of the filter's step response.
   zi = gsignal::filter_zi(filt = b,a = a) 
