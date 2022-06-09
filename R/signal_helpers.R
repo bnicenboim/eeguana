@@ -525,25 +525,25 @@ firwin <- function(N = NULL, cutoff = NULL, width = NULL, window = "hamming", pa
 #'
 iirfilter <- function(n, Wn, rp, rs, btype, type = c("butter", "cheby1", "cheby2", "ellip"), output = c("ba", "zpk", "sos")) {
   type <- match.arg(type)
-
+  
+  output <- match.arg(output)
+  out_type <- switch(output, 
+                     ba = "Arma",
+                     zpk = "Zpg",
+                     sos = "Sos")
   out <- switch(type,
-    butter = signal::butter(n, W = Wn, type = btype),
-    cheby1 = signal::cheby1(n, Rp = rp, W = Wn, type = btype),
-    cheby2 = signal::cheby2(n, Rp = rp, W = Wn, type = btype),
-    ellip = signal::ellip(n, Rp = rp, Rs = rs, W = Wn, type = btype),
+    butter = gsignal::butter(n, w = Wn, type = btype, output = out_type),
+    cheby1 = gsignal::cheby1(n, Rp = rp, w = Wn, type = btype, output = out_type),
+    cheby2 = gsignal::cheby2(n, Rs = rp, w = Wn, type = btype, output = out_type),
+    ellip = gsignal::ellip(n, Rp = rp, Rs = rs, w = Wn, type = btype, output = out_type),
   )
 
-  output <- match.arg(output)
   if (output == "ba") {
     list(b = out$b, a = out$a)
   } else if (output == "zpk") {
-    zpk <- signal::as.Zpg(out)
-    list(z = zpk$zero, p = zpk$pole, k = zpk$gain)
+    list(z = zpk$z, p = zpk$p, k = zpk$g)
   } else if (output == "sos") {
-    stop("sos not available yet")
-    ## require_pkg("gsignal")
-    ## sos <- gsignal::as.Sos(out)
-    ## list(sos = sos$sos, g = sos$g)
+    list(sos = sos$sos, g = sos$g)
   }
 }
 
@@ -670,9 +670,9 @@ iirdesign <- function(wp, ws, gpass, gstop, type = "ellip", output = "ba") {
 
 
   out <- switch(type,
-    butter = signal::buttord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
-    ellip =  signal::ellipord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
-    cheby1 = signal::cheb1ord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
+    butter = gsignal::buttord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
+    ellip =  gsignal::ellipord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
+    cheby1 = gsignal::cheb1ord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
     stop("type can be butter, ellip or cheby1")
   )
 

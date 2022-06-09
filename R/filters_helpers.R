@@ -17,7 +17,7 @@ check_zero_phase_length <- function(N, phase, gain_nyq = 0) {
 
 filter_attenuation <- function(h, freq, gain) {
   ##        """Compute minimum attenuation at stop frequency."""
-  filt_resp <- signal::freqz(h, n = pi * freq)[[1]] %>%
+  filt_resp <- gsignal::freqz(h, n = pi * freq)[[1]] %>%
     ## use amplitude respons
     abs()
   filt_resp[gain == 1] <- 0
@@ -221,7 +221,7 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
 # SciPy designs for -3dB but we do forward-backward, so this is -6dB
         if ('order' %in% names(iir_params)){
 
-           system <- iirfilter(iir_params[["order"]],
+           system <- iirfilter(n = iir_params[["order"]],
                                rp = iir_params[["rp"]],
                                rs = iir_params[["rs"]],
                                Wn = Wp,
@@ -253,39 +253,20 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
     if (!is.null(Wp)){
         if (output == 'sos'){
           #originally with sosfreqz, TODO check if it works
-          #cutoffs = gsignal::freqz(system, n=Wp * pi)$h
+         # cutoffs = gsignal::sosfreqz(system, n=Wp * pi)$h
         } else {
-          #CAN'T make this work in R
-        ## cuttoff <- s$signal$freqz(system$b, system$a, worN=Wp * pi)[[2]]
-
-        ## signal::buttord(Wp =40,Ws=40)
-        ## gsignal::freqz(system$b, a = system$a)$h
-##         s$signal$freqz(system$b, system$a, worN = .2)[[2]]
-## np <- reticulate::import("numpy")
-##         npp <- np$polynomial$polynomial
-##         zm1 = exp(-1i * Wp * pi)
-##         h = (signal::polyval(zm1, system$b) /
-##              pracma::polyval(zm1, system$a))
-
-##              pracma::polyval(zm1, 1)
-##         npp$polyval(zm1, 1)
-##         np$polyval(zm1, 1)
-##         (npp$polyval(zm1, system$b, tensor=FALSE) / npp$polyval(zm1, system$a, tensor=FALSE))
-##         (npp$polyval(zm1, system$b, tensor=TRUE) / npp$polyval(zm1, system$a, tensor=TRUE))
-
-##         n <- 2*pi*Wp  * pi/(2*pi)
-##         cutoffs <-
-##           signal::freqz(system$b, a = system$a,  n=Wp * pi)$h
-##           signal::freqz(system$b, a = system$a, n = .9)$h
-##           COUDN't DO it yet
- cutoffs <- NA
+          cutoff <- unlist(lapply(Wp, function(.x) gsignal::freqz(system$b, system$a, n = 1/.x)$h[2]))
+          #scipy$signal$freqz(system$b, system$a, worN=Wp * pi)
         }
 
         ## # 2 * 20 here because we do forward-backward filtering
-        cutoffs <- 40 * log10(abs(cutoffs))
-  ## if (options()$eeguana.verbose)
-    ## message_verbose("Cutoff(s) at ", edge_freqs, " Hz: ", cutoffs, "dB")
-    }
+        cutoffs <- 40 * log10(abs(cutoff)) %>%
+          signif(.,4) 
+        
+        cutoffs <-  paste0(cutoffs, collapse=", ")
+        
+     message_verbose("- Cutoff(s) at ", edge_freqs, " Hz: ", cutoffs , " dB")
+     }
 # now deal with padding
     if (!'padlen' %in% names(iir_params)){
         padlen = estimate_ringing_samples(system)
@@ -332,7 +313,7 @@ estimate_ringing_samples <- function(system, max_try=100000){
 
     for (ii in seq_len(n_chunks_max)){
         if (kind == 'ba'){
-            h = signal::filter(b, a, x)
+            h = signal::gfilter(b, a, x)
             # s$signal$lfilter(b, a, x, zi = zi)
         } else {
           stop("sos output for filters not implemented")

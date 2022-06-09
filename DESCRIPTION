@@ -34,7 +34,6 @@ Imports:
     tools,
     magrittr (>= 1.5),
     rlang (>= 0.3.1),
-    signal (>= 0.7.6),
     MBA (>= 0.0.9),
     data.table (>= 1.12.2),
     edfReader (>= 1.2.0),

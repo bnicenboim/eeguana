@@ -13,20 +13,37 @@ test_that("compare construct iir filter with python", {
   # reticulate::py_install("mne")
   reticulate::py_run_string("import mne")
   reticulate::py_run_string("import numpy")
-  reticulate::py_run_string("iir_params = dict(order=4, ftype='butter', output='ba')")
-  suppress_python_output(reticulate::py_run_string("iir_params = mne.filter.construct_iir_filter(iir_params, 40, None, 1000, 'low', return_copy=False)"))
+  reticulate::py_run_string("iir_params_0 = dict(order=4, ftype='butter', output='ba')")
+  suppress_python_output(reticulate::py_run_string("iir_params = mne.filter.construct_iir_filter(iir_params_0, 40, None, 1000, 'low', return_copy=False)"))
+  
   ##   IIR filter parameters
   ## ---------------------
   ## Butterworth low zero-phase (two-pass forward and reverse) non-causal filter:
   ## - Filter order 8 (effective, after forward-backward)
   ## - Cutoff at 40.00 Hz: -6.02 dB
-  iir_params <- list(order = 4, type = "butter", output = "ba")
-  iir_params <- eeguana:::construct_iir_filter(iir_params, f_pass = 40, f_stop = NULL, sfreq = 1000, btype = "low")
+  iir_params_0 <- list(order = 4, type = "butter", output = "ba")
+  options(eeguana.verbose = TRUE)
+  output <- capture.output(iir_params <- eeguana:::construct_iir_filter(iir_params_0, f_pass = 40, f_stop = NULL, sfreq = 1000, btype = "low"),type = "message")[1:7]
   py_iir_params <- reticulate::py$iir_params %>% lapply(c)
   names(py_iir_params)[[2]] <- "type"
   expect_equal(py_iir_params, iir_params)
-
-  ## sos not working
+expect_equal(output, c("IIR filter parameters", "---------------------", "butter low zero-phase (two-pass forward and reverse) ", 
+                       " non-causal filter:", "", "- Filter order 8  (effective, after forward-backward)", 
+                       "- Cutoff(s) at 40 Hz: -6.02 dB"))
+  
+reticulate::py_run_string("iir_params_0 = dict(order=4, ftype='butter', output='ba')")
+  suppress_python_output(reticulate::py_run_string("iir_params_b = mne.filter.construct_iir_filter(iir_params_0, [40,100], None, 1000, 'bandpass', return_copy=False)"))
+  options(eeguana.verbose = TRUE)
+  output_b <- capture.output(iir_params_b <- eeguana:::construct_iir_filter(iir_params = iir_params_0, f_pass = c(40,100), f_stop = NULL, sfreq = 1000, btype = "pass"),type = "message")
+  
+  py_iir_params_b <- reticulate::py$iir_params_b %>% lapply(c)
+  names(py_iir_params_b)[[2]] <- "type"
+  expect_equal(py_iir_params_b, iir_params_b)
+  expect_equal(output_b, c("IIR filter parameters", "---------------------", "butter pass zero-phase (two-pass forward and reverse) ", 
+                         " non-causal filter:", "", "- Filter order 16  (effective, after forward-backward)", 
+                         "- Cutoff(s) at 40, 100 Hz: -6.02, -6.02 dB"))
+  
+  ## sos not working?
   ## reticulate::py_run_string("import mne")
   ## reticulate::py_run_string("iir_params = dict(order=4, ftype='butter', output='sos')")
   ## reticulate::py_run_string("iir_params = mne.filter.construct_iir_filter(iir_params, 40, None, 1000, 'low', return_copy=False)")
@@ -55,7 +72,11 @@ test_that("compare construct iir filter with python", {
   py_iir_params <- reticulate::py$iir_params %>% lapply(c)
   expect_equal(py_iir_params, iir_params)
 
-
+  # ## TO TEST:
+  # mne <- reticulate::import("mne")
+  # mne$filter$`_filter_attenuation`(h, freq, gain)
+  # eeguana:::filter_attenuation(h, freq, gain)
+  # 
   wp <- 0.2
   ws <- 0.3
   gpass <- 1
@@ -130,7 +151,7 @@ test_that("lfilter", {
     0.18 * cos(2 * pi * 3.85 * t))
 
   # Create an order 3 lowpass butterworth filter:
-  h <- signal::butter(3, 0.05)
+  h <- gsignal::butter(3, 0.05)
   b <- h$b
   a <- h$a
   zi <- eeguana:::sig_lfilter_zi(b = b, a = a)

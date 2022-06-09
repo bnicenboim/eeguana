@@ -18,6 +18,6 @@ rpink <- function(n, scale = 1) {
   B <- c(0.049922035, -0.095993537, 0.050612699, -0.004408786)
   A <- c(1, -2.494956002, 2.017265875, -0.522189400)
   v <- stats::rnorm(n) # Gaussian white noise: N(0,1)
-  x <- signal::filter(B, A, v) * scale
+  x <- gsignal::filter(B, A, v) * scale
   x %>% as.numeric() # Apply 1/F roll-off to PSD
 }

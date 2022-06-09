@@ -9,10 +9,11 @@
     - `sampling_rate()` shows the sampling rate of an object.
     - `eeg_unsegment()` was added.
 - Modifying channels with `channels_tbl()` is much faster now.
-- Signal filtering is slightly faster.
+- Signal filtering is slightly faster and uses the `gsignal` package.
 - BUGS:
-  - some brainvision files produced by eeglab couldn't be read.
-- The argument `.all_chs` of `eeg_events_to_NA` was deprecated in favor of the more flexible `.n_chs`.
+  - some brainvision files produced by eeglab couldn't be read now work
+- DEPRECATIONS:
+  - The argument `.all_chs` of `eeg_events_to_NA` was deprecated in favor of the more flexible `.n_chs`.
 
 
 # eeguana 0.1.6.9000
