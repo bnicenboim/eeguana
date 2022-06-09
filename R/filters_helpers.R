@@ -313,7 +313,7 @@ estimate_ringing_samples <- function(system, max_try=100000){
 
     for (ii in seq_len(n_chunks_max)){
         if (kind == 'ba'){
-            h = signal::gfilter(b, a, x)
+            h = gsignal::filter(b, a, x)
             # s$signal$lfilter(b, a, x, zi = zi)
         } else {
           stop("sos output for filters not implemented")

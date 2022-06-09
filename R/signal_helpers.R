@@ -91,6 +91,9 @@ sig_fft <- function(x, n = NULL) {
 #' @noRd
 sig_filtfilt <- function(x, b, a, padlen = 3 * max(length(a), length(b))) {
   #https://github.com/scipy/scipy/blob/v1.8.1/scipy/signal/_signaltools.py#L3886-L4084
+  
+  gsignal::tf2zp(b, a)
+  
   atx <- attributes(x)
   if(is.null(dim(x))){
     x <- matrix(x, ncol = 1)
