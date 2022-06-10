@@ -44,12 +44,12 @@ reticulate::py_run_string("iir_params_0 = dict(order=4, ftype='butter', output='
                          "- Cutoff(s) at 40, 100 Hz: -6.02, -6.02 dB"))
   
   ### problem with the precision of gsignal with ba filters
-  iir_params_0 <- list(order = 4, type = "butter", output = "ba")
-  h <- eeguana:::construct_iir_filter(iir_params = iir_params_0, f_pass = c(0.1, 30), f_stop = NULL, sfreq = 512, btype = "pass")
- mne <- reticulate::import("mne")
-  h2 <- mne$filter$construct_iir_filter(list(order = 4, ftype = "butter", output = "ba"), f_pass = c(0.1, 30), f_stop = NULL, sfreq = 512, btype = "pass")
-  any(abs(gsignal::tf2zp(b = h$b, a = h$a)$p)> 1) 
-  any(abs(gsignal::tf2zp(b = as.numeric(h2$b), a =as.numeric(h2$a))$p)> 1) 
+ #  iir_params_0 <- list(order = 4, type = "butter", output = "ba")
+ #  h <- eeguana:::construct_iir_filter(iir_params = iir_params_0, f_pass = c(0.1, 30), f_stop = NULL, sfreq = 512, btype = "pass")
+ # mne <- reticulate::import("mne")
+ #  h2 <- mne$filter$construct_iir_filter(list(order = 4, ftype = "butter", output = "ba"), f_pass = c(0.1, 30), f_stop = NULL, sfreq = 512, btype = "pass")
+ #  any(abs(gsignal::tf2zp(b = h$b, a = h$a)$p)> 1) 
+ #  any(abs(gsignal::tf2zp(b = as.numeric(h2$b), a =as.numeric(h2$a))$p)> 1) 
   
   ## sos not working?
   reticulate::py_run_string("import mne")
@@ -57,10 +57,10 @@ reticulate::py_run_string("iir_params_0 = dict(order=4, ftype='butter', output='
   reticulate::py_run_string("iir_params = mne.filter.construct_iir_filter(iir_params, 40, None, 1000, 'low', return_copy=False)")
   iir_params = list(order =4, type ="butter", output="sos")
   iir_params <- eeguana:::construct_iir_filter(iir_params, f_pass = 40, f_stop = NULL, sfreq = 1000, btype = "low")
-  ## py_iir_params <- reticulate::py$iir_params %>% lapply(c)
-  ## expect_equal(py_iir_params, iir_params)
+  py_iir_paramssos <- reticulate::py$iir_params[[5]] %>% as.matrix()
+  expect_equal(py_iir_paramssos, iir_params[[5]], tolerance = .00001)
 
-  suppress_python_output(reticulate::py_run_string("iir_params = dict(ftype='cheby1', gpass=3, gstop=20, output='ba')"))
+  #suppress_python_output(reticulate::py_run_string("iir_params = dict(ftype='cheby1', gpass=3, gstop=20, output='ba')"))
   ##   IIR filter parameters
   ## ---------------------
   ## Chebyshev I low zero-phase (two-pass forward and reverse) non-causal filter:
@@ -158,15 +158,7 @@ test_that("lfilter", {
     0.1 * sin(2 * pi * 1.25 * t + 1) +
     0.18 * cos(2 * pi * 3.85 * t))
 
-  # Create an order 3 lowpass butterworth filter:
-  h <- gsignal::butter(3, 0.05)
-  b <- h$b
-  a <- h$a
-  zi <- eeguana:::sig_lfilter_zi(b = b, a = a)
-  eeguana:::skip_on_actions()
-  skip_on_ci()
-  sp <- reticulate::import("scipy")
-  expect_equal(zi, sp$signal$lfilter_zi(b, a) %>% c())
+ 
 })
 
 
