@@ -297,4 +297,10 @@ int.simpson2 <- function(x, y, equi = TRUE,
   return(out)
 }
 
-
+#' @noRd
+get_frac <- function(x) {
+  frac <- MASS::fractions(x)
+  splits <- strsplit(attr(frac,"fracs"), "/")[[1]]
+  splits[2] <- ifelse(is.na(splits[2]),1, splits[2])
+  list(num=as.numeric(splits[1]),denom=as.numeric(splits[2]))
+}

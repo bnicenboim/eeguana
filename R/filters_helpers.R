@@ -255,7 +255,11 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
           #originally with sosfreqz, TODO check if it works
          # cutoffs = gsignal::sosfreqz(system, n=Wp * pi)$h
         } else {
-          cutoff <- unlist(lapply(Wp, function(.x) gsignal::freqz(system$b, system$a, n = 1/.x)$h[2]))
+          cutoff <- unlist(lapply(Wp, function(.x) {
+            frac <- get_frac(1/.x)
+            gsignal::freqz(system$b, system$a, n = frac$num)$h[1 + frac$denom]}
+            ))
+          
           #scipy$signal$freqz(system$b, system$a, worN=Wp * pi)
         }
 

@@ -43,12 +43,20 @@ reticulate::py_run_string("iir_params_0 = dict(order=4, ftype='butter', output='
                          " non-causal filter:", "", "- Filter order 16  (effective, after forward-backward)", 
                          "- Cutoff(s) at 40, 100 Hz: -6.02, -6.02 dB"))
   
+  ### problem with the precision of gsignal with ba filters
+  iir_params_0 <- list(order = 4, type = "butter", output = "ba")
+  h <- eeguana:::construct_iir_filter(iir_params = iir_params_0, f_pass = c(0.1, 30), f_stop = NULL, sfreq = 512, btype = "pass")
+ mne <- reticulate::import("mne")
+  h2 <- mne$filter$construct_iir_filter(list(order = 4, ftype = "butter", output = "ba"), f_pass = c(0.1, 30), f_stop = NULL, sfreq = 512, btype = "pass")
+  any(abs(gsignal::tf2zp(b = h$b, a = h$a)$p)> 1) 
+  any(abs(gsignal::tf2zp(b = as.numeric(h2$b), a =as.numeric(h2$a))$p)> 1) 
+  
   ## sos not working?
-  ## reticulate::py_run_string("import mne")
-  ## reticulate::py_run_string("iir_params = dict(order=4, ftype='butter', output='sos')")
-  ## reticulate::py_run_string("iir_params = mne.filter.construct_iir_filter(iir_params, 40, None, 1000, 'low', return_copy=False)")
-  ## iir_params = list(order =4, ftype ="butter", output="sos")
-  ## iir_params <- eeguana:::construct_iir_filter(iir_params, f_pass = 40, f_stop = NULL, sfreq = 1000, btype = "low")
+  reticulate::py_run_string("import mne")
+  reticulate::py_run_string("iir_params = dict(order=4, ftype='butter', output='sos')")
+  reticulate::py_run_string("iir_params = mne.filter.construct_iir_filter(iir_params, 40, None, 1000, 'low', return_copy=False)")
+  iir_params = list(order =4, type ="butter", output="sos")
+  iir_params <- eeguana:::construct_iir_filter(iir_params, f_pass = 40, f_stop = NULL, sfreq = 1000, btype = "low")
   ## py_iir_params <- reticulate::py$iir_params %>% lapply(c)
   ## expect_equal(py_iir_params, iir_params)
 
