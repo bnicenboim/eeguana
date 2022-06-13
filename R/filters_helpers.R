@@ -267,8 +267,9 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
     
     cutoff <- unlist(lapply(Wp, function(.x) {
       frac <- get_frac(1/.x)
-      args_freqz <- c(args_freqz, n = frac$num)
-      do.call(gsignal::freqz, args_freqz)$h[1 + frac$denom]
+      frac_approx <- get_frac(signif(frac$num,4)/signif(frac$denom,4))
+      args_freqz <- c(args_freqz, n = frac_approx$num)
+      do.call(gsignal::freqz, args_freqz)$h[1 + frac_approx$denom]
       }
     ))
     ## # 2 * 20 here because we do forward-backward filtering

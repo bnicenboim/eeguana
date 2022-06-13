@@ -23,7 +23,7 @@ test_that("compare construct iir filter with python", {
   ## - Cutoff at 40.00 Hz: -6.02 dB
   iir_params_0 <- list(order = 4, type = "butter", output = "ba")
   options(eeguana.verbose = TRUE)
-  output <- capture.output(iir_params <- eeguana:::construct_iir_filter(iir_params_0, f_pass = 40, f_stop = NULL, sfreq = 1000, btype = "low"),type = "message")[1:7]
+  output <- capture.output(iir_params <- eeguana:::construct_iir_filter(iir_params = iir_params_0, f_pass = 40, f_stop = NULL, sfreq = 1000, btype = "low"),type = "message")[1:7]
   py_iir_params <- reticulate::py$iir_params %>% lapply(c)
   names(py_iir_params)[[2]] <- "type"
   expect_equal(py_iir_params, iir_params)
@@ -60,7 +60,7 @@ reticulate::py_run_string("iir_params_0 = dict(order=4, ftype='butter', output='
   py_iir_paramssos <- reticulate::py$iir_params[[5]] %>% as.matrix()
   expect_equal(py_iir_paramssos, iir_params[[5]], tolerance = .00001)
 
-  #suppress_python_output(reticulate::py_run_string("iir_params = dict(ftype='cheby1', gpass=3, gstop=20, output='ba')"))
+  suppress_python_output(reticulate::py_run_string("iir_params = dict(ftype='cheby1', gpass=3, gstop=20, output='ba')"))
   ##   IIR filter parameters
   ## ---------------------
   ## Chebyshev I low zero-phase (two-pass forward and reverse) non-causal filter:
@@ -69,17 +69,11 @@ reticulate::py_run_string("iir_params_0 = dict(order=4, ftype='butter', output='
   reticulate::py_run_string("iir_params = mne.filter.construct_iir_filter(iir_params, 40, 50, 1000, 'low')")
   iir_params <- list(type = "cheby1", gpass = 3, gstop = 20, output = "ba")
   iir_params <- eeguana:::construct_iir_filter(iir_params, f_pass = 40, f_stop = 50, sfreq = 1000, btype = "low")
-  py_iir_params <- reticulate::py$iir_params %>% lapply(c)
+  py_iir_params <- reticulate::py$iir_params
   names(py_iir_params)[[1]] <- "type"
-  expect_equal(py_iir_params, iir_params)
+  expect_equal(py_iir_params$sos, iir_params$sos)
 
-  reticulate::py_run_string("iir_params = dict(b=numpy.ones((10)), a=[1, 0], padlen=0)")
-  reticulate::py_run_string("iir_params = mne.filter.construct_iir_filter(iir_params, return_copy=False)")
-  iir_params <- list(b = rep(1, 10), a = c(1, 0), padlen = 0)
-  iir_params <- eeguana:::construct_iir_filter(iir_params)
-  py_iir_params <- reticulate::py$iir_params %>% lapply(c)
-  expect_equal(py_iir_params, iir_params)
-
+  
   # ## TO TEST:
   # mne <- reticulate::import("mne")
   # mne$filter$`_filter_attenuation`(h, freq, gain)
@@ -151,15 +145,7 @@ test_that("create filter", {
 })
 
 
-test_that("lfilter", {
-  t <- seq(-1, 1, length.out = 201)
 
-  x <- (sin(2 * pi * 0.75 * t * (1 - t) + 2.1) +
-    0.1 * sin(2 * pi * 1.25 * t + 1) +
-    0.18 * cos(2 * pi * 3.85 * t))
-
- 
-})
 
 
 

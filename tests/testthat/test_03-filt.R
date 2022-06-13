@@ -93,7 +93,7 @@ test_that("low pass iir python implementation is not too different", {
 })
 
 data_sin_X3 <- eeg_filt_high_pass(data_sin, .freq = 500 * 3 / (2 * pi))
-data_sin_X3_iir <- eeg_filt_high_pass(data_sin, .freq = 500 * 3 / (2 * pi), .config = list(method = "iir"))
+data_sin_X3_iir <- eeg_filt_high_pass(.data = data_sin, .freq = 500 * 3 / (2 * pi), .config = list(method = "iir"))
 # data_sin_X3r <- data.table::copy(data_sin)
 # eeg_filt_high_pass(data_sin_X3r, .freq = 500 * 3 / (2 * pi), .by_reference = TRUE)
 ## plot(data_sin_X3)
