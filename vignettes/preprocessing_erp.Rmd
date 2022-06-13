@@ -36,10 +36,10 @@ The EEG dataset used in this script is available in [Fieldtrip's ftp](ftp://ftp.
 First we download the data:
 
 ```{r downloading, eval = any(!file.exists("s04.eeg","s04.vmrk","s04.vhdr"))}
-download.file("ftp://ftp.fieldtriptoolbox.org/pub/fieldtrip/tutorial/preprocessing_erp/s04.eeg", "s04.eeg")
-download.file("ftp://ftp.fieldtriptoolbox.org/pub/fieldtrip/tutorial/preprocessing_erp/s04.vhdr", "s04.vhdr")
-download.file("ftp://ftp.fieldtriptoolbox.org/pub/fieldtrip/tutorial/preprocessing_erp/s04.vmrk", "s04.vmrk")
-download.file("ftp://ftp.fieldtriptoolbox.org/pub/fieldtrip/tutorial/preprocessing_erp/mpi_customized_acticap64.mat", "mpi_customized_acticap64.mat")
+download.file("https://download.fieldtriptoolbox.org/tutorial/preprocessing_erp/s04.eeg", "s04.eeg")
+download.file("https://download.fieldtriptoolbox.org/tutorial/preprocessing_erp/s04.vhdr", "s04.vhdr")
+download.file("https://download.fieldtriptoolbox.org/tutorial/preprocessing_erp/s04.vmrk", "s04.vmrk")
+download.file("https://download.fieldtriptoolbox.org/tutorial/preprocessing_erp/mpi_customized_acticap64.mat", "mpi_customized_acticap64.mat")
 ```
 
 And then we load the *eeguana* package and read the the `.vhdr` fileinto memory. 
