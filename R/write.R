@@ -21,9 +21,9 @@ na_omit.eeg_lst <- function(object, ...){
   object
 }
 
-#' @rdname na_omit
-#' @export
-`na.omit.eeg_lst` <- na_omit.eeg_lst
+# #' @rdname na_omit
+# #' @export
+# na.omit.eeg_lst <- na_omit.eeg_lst
 
   
 #' Write an eeg_lst object to BrainVision file(s) (experimental)

@@ -20,6 +20,7 @@ rebuild_segment_dt <- function(.data) {
       segment_dt <- mutate.(segment_dt, .recording = NA_character_)
     }
     data.table::setcolorder(segment_dt, obligatory_cols$.segments)
+    
   } else {
     ## Restructure segments table to fit the new signal table
     if (nrow(.data[[1]]) != 0) {
@@ -28,8 +29,8 @@ rebuild_segment_dt <- function(.data) {
       last_id <- integer(0)
     }
     segment_dt <- data.table::data.table(.id = seq_len(last_id), .recording = NA_character_)
-    data.table::setkey(segment_dt, .id)
   }
+  data.table::setkey(segment_dt, .id)
   segment_dt
 }
 
@@ -334,24 +335,19 @@ signal_from_parent_frame <- function(env = parent.frame()) {
 }
 
 #' @noRd
-extended_signal <- function(.eeg_lst, cond_cols = NULL, events_cols = NULL, .by_reference = FALSE) {
+extended_signal <- function(.eeg_lst, cond_cols = NULL, events_cols = NULL) {
   ## For NOTES:
   ..events_cols <- NULL
-  if (.by_reference) {
-    extended_signal_dt <- .eeg_lst[[1]] # signal or psd
-  } else {
-    extended_signal_dt <- shallow(.eeg_lst[[1]])
-  }
+  extended_signal_dt<- .eeg_lst[[1]]
   relevant_cols <- c(".id", eeg_group_vars(.eeg_lst), cond_cols)
   if (any(relevant_cols != ".id")) { # more than just .id
-    segments <- .eeg_lst$.segments[extended_signal_dt, unique(relevant_cols), with = FALSE]
-    extended_signal_dt[, `:=`(names(segments), segments)]
+    extended_signal_dt <- left_join.(extended_signal_dt, select.(.eeg_lst$.segments, tidyselect::any_of(relevant_cols)) , by = c(".id"))
   }
   if (length(events_cols) > 0) {
-    events_dt <- events_tbl(.eeg_lst)[extended_signal_dt, c(".id", events_col), with = FALSE]
-    extended_signal_dt[, `:=`(names(events_dt), events_dt)]
+    extended_signal_dt <- left_join.(extended_signal_dt, select.(events_tbl(.eeg_lst), tidyselect::all_of(events_col)) , by = c(".id"))
   }
-  extended_signal_dt[]
+  data.table::setkeyv(extended_signal_dt, cols = c(".id", colnames(extended_signal_dt)[2]))
+  extended_signal_dt
 }
 
 #' @noRd

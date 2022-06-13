@@ -82,7 +82,8 @@ sig_fft <- function(x, n = NULL) {
 
 #' Apply a digital filter forward and backward to a signal.
 #'
-#' Wrapper to [gsignal::filtfilt] with different order and padlen argument (based on scipy implementation). 
+#' Alternative to `gsignal::filtfilt` based on scipy implementation. 
+#' 
 #' @param x the input signal to be filtered, specified as a numeric or complex vector or matrix. If x is a matrix, each column is filtered.
 #' @param b The numerator coefficient vector of the filter.
 #' @param a The denominator coefficient vector of the filter. (If ``a[0]`` is not 1, then both `a` and `b` are normalized by ``a[0]``.??).
@@ -117,7 +118,8 @@ sig_filtfilt <- function(x, b, a, padlen = 3 * max(length(a), length(b))) {
 
 #' Apply a digital filter forward and backward to a signal using cascaded second-order sections.
 #'
-#' Wrapper to [gsignal::sosfiltfilt] with different order and padlen argument (based on scipy implementation). 
+#' Alternative to `gsignal::filtfilt` based on scipy implementation. 
+#' 
 #' @param x the input signal to be filtered, specified as a numeric or complex vector or matrix. If x is a matrix, each column is filtered.
 #' @param sos Matrix or array of second-order filter coefficients, must have dimensions n_sections x 6. Each row corresponds to a second-order section, with the first three columns providing the numerator coefficients and the last three providing the denominator coefficients.
 #' @param padlen The number of elements by which to extend `x` at both ends before applying the filter.  This value must be less than than the length (or the number of rows if x is a matrix).  `padlen=0` implies no padding. The default value is ``3 * max(len(a), len(b))``. (The type of padding is always odd, as the default of scipy.signal.filtfilt)

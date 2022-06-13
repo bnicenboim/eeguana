@@ -2,7 +2,7 @@
 #'
 #' Downsample a signal_tbl by a factor `q`, using an FIR or IIR filter.
 #' This is a wrapper for [`decimate`][gsignal::decimate] from the
-#' [`gsignal`][gsignal::signal] package, see its documentation for details. 
+#' `gsignal` package, see its documentation for details. 
 #'
 #' A factor q larger than 13 can result in NAs. To avoid this,
 #' the downsampling can be done in steps. For example, instead of setting

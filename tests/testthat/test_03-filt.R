@@ -105,6 +105,7 @@ test_that("high pass signal", {
   expect_equal(data_sin_X3$.signal$X3, data_sin$.signal$X3, tolerance = .002)
   expect_lte(max(data_sin_X3$.signal$X2, data_sin_X3$.signal$X1), .004)
 })
+
 test_that("high pass default pars", {
   expect_equal(data_sin_X3, eeg_filt_high_pass(data_sin, .freq = 500 * 3 / (2 * pi), .config = list(l_trans_bandwidth = 59.6831036594608)))
   expect_equal(data_sin_X3_iir, eeg_filt_high_pass(data_sin, .freq = 500 * 3 / (2 * pi), .config = list(method = "iir", type = "butter", order = 6)))
@@ -272,7 +273,7 @@ a <- as.numeric(ba[[2]])
 expect_equal(as.numeric(fpad), eeguana:::sig_filtfilt(sig, b,a, padlen=50L), tolerance = .001)
 
 # expect_equal(as.numeric(signal$lfilter(ba[[1]], ba[[2]], sig)),
-# as.numeric(signal::filter(b,a, sig)))
+# as.numeric(gsignal::filter(b,a, sig)))
 
 })
 

@@ -580,9 +580,9 @@ summarize_filter_tbl <- dplyr::left_join(dplyr::as_tibble(data$.signal), dplyr::
 
 
 summarize_at_filter_eeg <- data %>%
-  dplyr::group_by(.id, .recording, condition) %>%
+  eeg_group_by(.id, .recording, condition) %>%
   eeg_summarize(across(channel_names(data), mean)) %>%
-  dplyr::filter(X > 0 & Y > 0)
+  eeg_filter(X > 0 & Y > 0)
 
 
 summarize_at_filter_tbl <- dplyr::left_join(dplyr::as_tibble(data$.signal), dplyr::as_tibble(data$.segments), by = ".id") %>%
