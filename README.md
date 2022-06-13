@@ -3,8 +3,6 @@
 status](https://github.com/bnicenboim/eeguana/workflows/R-CMD-check/badge.svg)](https://github.com/bnicenboim/eeguana/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/bnicenboim/eeguana/branch/master/graph/badge.svg)](https://codecov.io/gh/bnicenboim/eeguana?branch=master)
-[![AppVeyor build
-status](https://ci.appveyor.com/api/projects/status/github/bnicenboim/eeguana?branch=master&svg=true)](https://ci.appveyor.com/project/bnicenboim/eeguana)
 [![DOI](https://zenodo.org/badge/153299577.svg)](https://zenodo.org/badge/latestdoi/153299577)
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![Project Status: WIP – Initial development is in progress, but there
@@ -394,14 +392,14 @@ faces_segs_some %>%
 
 Other R packages for EEG/ERP data:
 
-  - [permuco4brain](https://jaromilfrossard.github.io/permuco4brain/index.html)
+-   [permuco4brain](https://jaromilfrossard.github.io/permuco4brain/index.html)
     provides functions to compute permutation test in brain imagery
     data. It is specially designed for M-EEG/ERP data. This a
     [vignette](https://jaromilfrossard.github.io/permuco4brain/articles/permuco4brain-with-eeguana.html)
     explains how to use it together with `eeguana`.
-  - [eegUtils](https://github.com/craddm/eegUtils) some helper utilities
+-   [eegUtils](https://github.com/craddm/eegUtils) some helper utilities
     for plotting and processing EEG data in active development by Matt
     Craddock.
-  - [erpR](https://cran.r-project.org/package=erpR) analysis of
+-   [erpR](https://cran.r-project.org/package=erpR) analysis of
     event-related potentials (ERPs) by Giorgio Arcara, Anna Petrova. It
     hasn’t been updated since 2014.
