@@ -112,11 +112,12 @@ search_artifacts <- function(signal, ..., fun, args = list()) {
     ]
 }
 
+#' @noRd
 add_missing_samples <- function(signal) {
   signal[, list(.sample = sample_int(seq.int(min(.sample), max(.sample)),
     .sampling_rate = sampling_rate(signal)
   )), by = .id] %>%
-    left_join_dt(signal, by = c(".id", ".sample"))
+    left_join.(signal, by = c(".id", ".sample"))
 }
 
 #' add events from a table similar to signal, but with TRUE/FALSE depending if an artifact was detected.

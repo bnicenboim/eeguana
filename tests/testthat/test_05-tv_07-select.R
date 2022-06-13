@@ -19,7 +19,7 @@ reference_data <- data.table::copy(data)
 
 test_that("internal (?) variables should show warnings", {
   # TODO multiple warnings, check this:
-  expect_warning(dplyr::select(data, ID = .id)) %>%
+  expect_warning(eeg_select(data, ID = .id)) %>%
     expect_warning() %>%
     expect_warning()
 

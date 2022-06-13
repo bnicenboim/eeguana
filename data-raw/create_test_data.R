@@ -129,7 +129,7 @@ channels_tbl(data_mne_bdf) <- channels_tbl(data_mne_bdf)[, -5] # remove unit
 N <- 4000
 fs <- 100
 blink <- rbinom(N, 1, .003) %>%
-  signal::filter(signal::butter(2, c(1 * 2 / fs, 10 * 2 / fs), "pass"), .) * 200
+  gsignal::filter(gsignal::butter(2, c(1 * 2 / fs, 10 * 2 / fs), "pass"), .) * 200
 noise <- rpink(N, 100)
 alpha <- sin(2 * pi * 10 * as_time(sample_int(1:N, 500))) * 3
 # (abs(sin(10 * seq_len(N) / fs)) - 0.5) * 10

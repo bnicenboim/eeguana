@@ -39,16 +39,18 @@ as_signal_tbl <- function(.data, ...) {
 }
 #' @noRd
 as_signal_tbl.data.table <- function(.data) {
-  .data <- data.table::copy(.data)
-  set_signal_tbl(.data)[]
+    .data <- .data %>% mutate.(.id = as.integer(.id))
+    class(.data) <- c("signal_tbl", class(.data))
+    data.table::setkey(.data, .id, .sample)
+    validate_signal_tbl(.data)
 }
-
-set_signal_tbl <- function(.data){
-  .data[, .id := as.integer(.id)]
-  data.table::setattr(.data, "class", c("signal_tbl", class(.data)))
-  data.table::setkey(.data, .id, .sample)
-  validate_signal_tbl(.data)
-}
+# 
+# set_signal_tbl <- function(.data){
+#   .data[, .id := as.integer(.id)]
+#   data.table::setattr(.data, "class", c("signal_tbl", class(.data)))
+#   data.table::setkey(.data, .id, .sample)
+#   validate_signal_tbl(.data)
+# }
 
 #' @noRd
 as_signal_tbl.signal_tbl <- function(.data) {
@@ -57,7 +59,7 @@ as_signal_tbl.signal_tbl <- function(.data) {
 #' @noRd
 as_signal_tbl.data.frame <- function(.data) {
   .data <- data.table::as.data.table(.data)
-  set_signal_tbl(.data)[]
+  as_signal_tbl.data.table(.data)
 }
 
 #' @noRd

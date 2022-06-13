@@ -1,9 +1,8 @@
 #' Downsample EEG data
 #'
 #' Downsample a signal_tbl by a factor `q`, using an FIR or IIR filter.
-#' This is a wrapper for [`decimate`][signal::decimate] from the
-#' [`signal`][signal::signal] package, see its documentation for details. Notice that
-#' the code of the signal package might be outdated. This function is used in plotting functions.
+#' This is a wrapper for [`decimate`][gsignal::decimate] from the
+#' [`gsignal`][gsignal::signal] package, see its documentation for details. 
 #'
 #' A factor q larger than 13 can result in NAs. To avoid this,
 #' the downsampling can be done in steps. For example, instead of setting
@@ -13,7 +12,7 @@
 #' @param .q integer factor(s) to downsample by.
 #' @param .max_sample Optionally, the (approximated) maximum sample number can be defined here, which is at least half of the total number of samples
 #' @param .multiple_times Indicates whether to factorize `q`` and apply the downsampling in steps.
-#' @inheritParams signal::decimate
+#' @inheritParams gsignal::decimate
 #' @param ... Not in use.
 #'
 #' @family preprocessing functions
@@ -53,16 +52,14 @@ eeg_downsample.eeg_lst <- function(.data, .q = 2, .max_sample = NULL,
     approx_q <- len_samples / .max_sample
     .q <- factors(round(approx_q))
   }
-  channels_to_decimate <- purrr::map_lgl(.data$.signal, ~ is_channel_dbl(.x) ||
-    is_component_dbl(.x)) %>%
-    {
-      colnames(.data$.signal)[.]
-    }
+  # any signal or component in the signal table should be downampled
+  channels_to_decimate <- colnames(.data$.signal[0,])[
+    tidytable::map_lgl.(.data$.signal, ~ is_channel_dbl(.x) || is_component_dbl(.x))] 
 
-  ## add missing samples in case of a discontinuity
+        ## add missing samples in case of a discontinuity
   .data$.signal <- add_missing_samples(.data$.signal)
   discontinuity <- .data$.signal %>%
-    dplyr::select(tidyselect::all_of(channels_to_decimate)) %>%
+    select.(tidyselect::all_of(channels_to_decimate)) %>%
     anyNA()
   if (discontinuity) {
     warning("Some parts of the signal won't be filtered before the downsampling due to NA values or discontinuities")
@@ -82,32 +79,30 @@ eeg_downsample.eeg_lst <- function(.data, .q = 2, .max_sample = NULL,
   if (!is.null(.max_sample) || .multiple_times) {
     message_verbose("# Using the following factor(s) .q: ", paste0(.q, collapse = ", "))
   }
+#  channels_info <- channels_tbl(.data)
 
-
-
-  channels_info <- channels_tbl(.data)
-
-  .data$.signal <-
-    ## The first sample corresponds to the min(time) in sample units
-    .data$.signal[, c(
-      list(.sample = new_sample_int(seq.int(
-        from = ceiling(min(.sample) / factor),
-        length.out = .N / factor
-      ), .sampling_rate = new_sampling_rate)),
-      lapply(.SD, decimate_ch, q = .q, n = .n, ftype = .ftype)
-    ),
-    .SDcols = c(channels_to_decimate), by = c(".id")
-    ]
-
-
-  data.table::setkey(.data$.signal, .id, .sample)
-  data.table::setcolorder(.data$.signal, c(".id", ".sample"))
+  .data$.signal <-  .data$.signal %>%
+    split(by =".id") %>%
+    imap_dtr(~cbind(.id=.y,
+                    .sample = new_sample_int(seq.int(
+                      from = ceiling(min(.x$.sample) / factor),
+                      length.out = nrow(.x) / factor
+                    ), .sampling_rate = new_sampling_rate),
+                    decimate_chs(.x %>% select.(all_of(channels_to_decimate)),q = .q, n = .n, ftype = .ftype))) 
+ 
+  .data$.signal <-as_signal_tbl.data.table(.data$.signal)
+  
+  # data.table::setkey(.data$.signal, .id, .sample)
+  # data.table::setcolorder(.data$.signal, c(".id", ".sample"))
 
   # even table needs to be adapted, starts from 1,
   # and the size is divided by two with a min of 1
-  .data$.events <- data.table::copy(.data$.events)[, .initial :=
-    sample_int(ceiling(.initial / factor), new_sampling_rate)][, .final := sample_int(ceiling(.final / factor), new_sampling_rate)][]
-
+  # .data$.events <- data.table::copy(.data$.events)[, .initial :=
+  #   sample_int(ceiling(.initial / factor), new_sampling_rate)][, .final := sample_int(ceiling(.final / factor), new_sampling_rate)][]
+  .data$.events <- mutate.(.data$.events, 
+                           .initial = sample_int(ceiling(.initial / factor), new_sampling_rate), 
+                           .final = sample_int(ceiling(.final / factor), new_sampling_rate))
+  
   ## this shouldn't be needed:
   ## just in case I update the .id from segments table
   ## .data$.segments <- dplyr::mutate(.data$.segments, .id = seq_len(dplyr::.n()))

@@ -35,7 +35,7 @@ data_sin_more_ref <- data.table::copy(data_sin_more)
 
 data_sin_X1 <- eeg_filt_low_pass(data_sin, .freq = 500 * 1.5 / (2 * pi))
 
-data_sin_X1_iir <- eeg_filt_low_pass(data_sin, .freq = 500 * 1.5 / (2 * pi), .config = list(method = "iir"))
+data_sin_X1_iir <- eeg_filt_low_pass(.data = data_sin, .freq = 500 * 1.5 / (2 * pi), .config = list(method = "iir"))
 # data_sin_X1r <- data.table::copy(data_sin)
 # eeg_filt_low_pass(data_sin_X1r, .freq = 500 * 1.5 / (2 * pi), .by_reference = TRUE)
 # data_sin_X1r_iir <- data.table::copy(data_sin)
@@ -93,7 +93,7 @@ test_that("low pass iir python implementation is not too different", {
 })
 
 data_sin_X3 <- eeg_filt_high_pass(data_sin, .freq = 500 * 3 / (2 * pi))
-data_sin_X3_iir <- eeg_filt_high_pass(data_sin, .freq = 500 * 3 / (2 * pi), .config = list(method = "iir"))
+data_sin_X3_iir <- eeg_filt_high_pass(.data = data_sin, .freq = 500 * 3 / (2 * pi), .config = list(method = "iir"))
 # data_sin_X3r <- data.table::copy(data_sin)
 # eeg_filt_high_pass(data_sin_X3r, .freq = 500 * 3 / (2 * pi), .by_reference = TRUE)
 ## plot(data_sin_X3)
@@ -254,3 +254,26 @@ test_that("band pass signal, sel", {
   expect_equal(data_sin_more_X2_onlyX1X2$.signal$X4, data_sin_more$.signal$X4, tolerance = .002)
   ## expect_lte(max(data_sin_more_X2$.signal$X3, data_sin_more_X2$.signal$X1),.004)
 })
+
+test_that("internal signal functions", {
+sig1 <- eeguana:::sig_filtfilt(1:10, 1:2,2:3, padlen=2)  
+sig2 <- eeguana:::sig_filtfilt(matrix(rep(1:10,2), ncol=2), 1:2,2:3, padlen=2)    
+expect_equal(sig1, sig2[,1])  
+expect_equal(sig2[,1], sig2[,2])  
+eeguana:::skip_on_actions()
+sci <- reticulate::import("scipy")
+signal <- sci$signal
+ba = signal$ellip(4, 0.01, 120, 0.125)  # Filter to be applied.
+n = 60
+sig = rnorm(n)**3 + cumsum(3*rnorm(n))
+fpad = signal$filtfilt(ba[[1]], ba[[2]], sig, padlen=50L)
+b<- as.numeric(ba[[1]])
+a <- as.numeric(ba[[2]])
+expect_equal(as.numeric(fpad), eeguana:::sig_filtfilt(sig, b,a, padlen=50L), tolerance = .001)
+
+# expect_equal(as.numeric(signal$lfilter(ba[[1]], ba[[2]], sig)),
+# as.numeric(signal::filter(b,a, sig)))
+
+})
+
+
