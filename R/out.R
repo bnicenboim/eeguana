@@ -1,7 +1,9 @@
 #' Display information of the eeg_lst object.
 #'
-#' `*_names()` functions return a vector of names, `n*()` return the number of
-#' elements channels or components. Components are only available after running [eeg_ica()]. `channel_ica_names()` refers to channels used in the ICA.
+#' * `*_names()` functions return a vector of names, 
+#' * `n*()` return the number of elements channels or components. 
+#' 
+#' Components are only available after running [eeg_ica()]. `channel_ica_names()` refers to channels used in the ICA.
 #'
 #' @param x An eeg_lst object.
 #' @param ... Not in use.
@@ -28,6 +30,10 @@ channel_names.data.table <- function(x, ...) {
 channel_names.eeg_lst <- function(x, ...) {
   channel_names(x$.signal)
 }
+#' @export
+channel_names.psd_lst <- function(x, ...) {
+  channel_names(x$.psd)
+}
 #' @rdname summaries
 #' @export
 channel_ica_names <- function(x, ...) {
@@ -41,6 +47,10 @@ channel_ica_names.eeg_ica_lst <- function(x, ...) {
   }) %>%
     unlist() %>%
     unique()
+}
+#' @export
+channel_ica_names.eeg_lst <- function(x, ...) {
+  NULL
 }
 #' @rdname summaries
 #' @export
@@ -79,19 +89,27 @@ ncomponents <- function(x, ...) {
 ncomponents.eeg_lst <- function(x, ...) {
   component_names(x) %>% length()
 }
+
+#' @rdname summaries
+#' @export
 sampling_rate <- function(x, ...) {
   UseMethod("sampling_rate")
 }
-sampling_rate.eeg_lst <- function(x) {
+
+#' @export
+sampling_rate.eeg_lst <- function(x,...) {
   attributes(x$.signal$.sample)$sampling_rate
 }
-sampling_rate.signal_tbl <- function(x) {
+#' @export
+sampling_rate.signal_tbl <- function(x,...) {
   attributes(x$.sample)$sampling_rate
 }
-sampling_rate.events_tbl <- function(x) {
+#' @export
+sampling_rate.events_tbl <- function(x,...) {
   attributes(x$.initial)$sampling_rate
 }
-sampling_rate.sample_int <- function(x) {
+#' @export
+sampling_rate.sample_int <- function(x,...) {
   attributes(x)$sampling_rate
 }
 
@@ -347,6 +365,22 @@ print.eeg_lst <- function(x, ...) {
   invisible(x)
 }
 
+
+#' @export
+print.psd_lst <- function(x, ...) {
+  cat_line("# PSD data:")
+  if (length(dplyr::group_vars(x)) > 0) {
+    cat_line("# Grouped by: ", paste0(dplyr::group_vars(x), sep = ", "))
+  }
+  cat_line("")
+  cat_line("# PSD table:")
+  print(x$.psd, ...)
+  cat_line("")
+  cat_line("# Segments table:")
+  print(x$.segments, ...)
+  invisible(x)
+}
+
 #' @export
 print.eeg_ica_lst <- function(x, ...) {
   cat_line("# EEG data:")
@@ -378,7 +412,7 @@ print.eeg_ica_lst <- function(x, ...) {
 #' Count number of complete segments of an eeg_lst object.
 #'
 #' @param x An `eeg_lst` object.
-#' @param ... Variables to group by.
+#' @param ... Variables from the segment table to group by.
 #'
 #'
 #' @return A tbl.
@@ -397,17 +431,14 @@ count_complete_cases_tbl <- function(x, ...) {
 #' @export
 count_complete_cases_tbl.eeg_lst <- function(x, ...) {
   dots <- rlang::enquos(...)
-
+  by <- tidytable::map_chr.(dots, rlang::quo_text)
+  chs <- channel_names(x)
   x$.signal %>%
-    dplyr::group_by(.id) %>%
-    dplyr::filter_at(
-      dplyr::vars(dplyr::one_of(channel_names(x))),
-      dplyr::all_vars(all(!is.na(.)))
-    ) %>%
-    dplyr::summarize() %>%
-    dplyr::semi_join(x$.segments, ., by = ".id") %>%
-    dplyr::select(-.id, -segment) %>%
-    dplyr::count(!!!dots)
+    summarize.(N = as.integer(!anyNA(c_across.(tidyselect::one_of(!!chs)))), .by =".id") %>%
+    tidytable::left_join.(x$.segments) %>%
+    summarize.(N = sum(N), .by = by) %>%
+    data.table::as.data.table()
+
 }
 
 #' Drop segments with NAs from the eeg_lst

@@ -77,10 +77,12 @@ eeg_ica.eeg_lst <- function(.data,
   .ignore <- rlang::enquo(.ignore)
 
   if (!rlang::quo_is_null(.ignore)) {
-    signal_raw <- eeg_events_to_NA(.data, !!.ignore,
-      all_chs = FALSE,
-      entire_seg = FALSE,
-      drop_events = FALSE
+    signal_raw <- eeg_events_to_NA(
+      x = .data,
+      !!.ignore,
+      .n_chs = NULL,
+      .entire_seg = FALSE,
+      .drop_events = FALSE
     ) %>% .$.signal
   } else {
     signal_raw <- .data$.signal
@@ -176,8 +178,7 @@ eeg_ica_show.eeg_ica_lst <- function(.data, ...) {
   comp_sel <- tidyselect::vars_select(component_names(.data), !!!dots)
   signal_raw <- .data$.signal[, c(".id", channel_ica_names(.data)), with = FALSE] %>%
     .[data.table::as.data.table(.data$.segments)
-    [, .(.id, .recording)],
-    ,
+    [, .(.id, .recording)], ,
     on = ".id", nomatch = 0
     ]
   signal_raw[, ".id" := NULL]
@@ -256,8 +257,7 @@ eeg_ica_keep.eeg_ica_lst <- function(.data, ...) {
 
   signal_raw <- .data$.signal[, c(".id", chs), with = FALSE][
     data.table::as.data.table(.data$.segments)
-    [, .(.id, .recording)],
-    ,
+    [, .(.id, .recording)], ,
     on = ".id"
   ][, .id := NULL]
 
@@ -300,6 +300,13 @@ as_eeg_lst.eeg_lst <- function(.data, ...) {
   if (!data.table::is.data.table(.data$.segments)) {
     .data$.segments <- data.table::as.data.table(.data$.segments)
     data.table::setkey(.data$.segments, .id)
-  }
+    # fix the classes from old versions
+    .data <- .data %>% eeg_mutate(across_ch( ~  `class<-`(.x,  c("channel_dbl", "numeric") )))
+    .data <- .data %>% eeg_mutate(.sample = `class<-`(.sample,c("sample_int", "integer")) )
+    class(.data$.events$.initial) <- c("sample_int", "integer")
+    class(.data$.events$.final) <- c("sample_int", "integer")
+    }
+  
+  
   validate_eeg_lst(.data)
 }

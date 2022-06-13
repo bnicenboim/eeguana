@@ -145,7 +145,7 @@ read_ft <- function(file, .layout = NULL, .recording = file) {
     {
       unlist(lapply(mat$time, function(x) unlist(x))) * srate
     } %>%
-    new_sample_int(sampling_rate = srate)
+    new_sample_int(.sampling_rate = srate)
 
   signal_raw <- map_dtr(mat$trial,
     function(lsegment) {
@@ -316,7 +316,7 @@ read_edf <- function(file, .recording = file) {
   }
 
   # so that includes the last sample as well
-  times <- sample_int(c(samples[1], samples[2] + 1), sampling_rate = sampling_rate) %>%
+  times <- sample_int(c(samples[1], samples[2] + 1), .sampling_rate = sampling_rate) %>%
     as_time()
 
   signal_edf <- edfReader::readEdfSignals(header_edf, from = times[1], till = times[2], simplify = FALSE)
@@ -337,7 +337,7 @@ read_edf <- function(file, .recording = file) {
 
   if (header_edf$isContinuous && all(purrr::map_lgl(signal_edf, ~ .x$isContinuous))) {
     s_id <- rep(1L, nrow(signal_dt))
-    sample_id <- sample_int(seq_len(nrow(signal_dt)), sampling_rate = sampling_rate)
+    sample_id <- sample_int(seq_len(nrow(signal_dt)), .sampling_rate = sampling_rate)
   } else {
     stop("Non continuous edf/bdf files are not supported yet.")
   }
@@ -353,10 +353,10 @@ read_edf <- function(file, .recording = file) {
     channels_tbl = channel_info
   )
   if (length(event_channel) == 0) {
-    events <- new_events_tbl(sampling_rate = sampling_rate)
+    events <- new_events_tbl(.sampling_rate = sampling_rate)
   } else if (event_channel[[1]]$isAnnotation) {
     edf_events <- event_channel[[1]]$annotations
-    init_events <- sample_int(round(edf_events$onset * sampling_rate) + 1L, sampling_rate = sampling_rate)
+    init_events <- sample_int(round(edf_events$onset * sampling_rate) + 1L, .sampling_rate = sampling_rate)
     events <- new_events_tbl(
       .id = 1L,
       .initial = init_events,
@@ -381,7 +381,7 @@ read_edf <- function(file, .recording = file) {
 
     # for now it only reports growing changes
     init_events <- (which(diff(triggers) > 0) + 1) %>%
-      sample_int(sampling_rate = sampling_rate)
+      sample_int(.sampling_rate = sampling_rate)
 
 
     events <- new_events_tbl(
@@ -515,10 +515,10 @@ read_set <- function(file, .recording = file) {
     }
   }
   if (!is.null(times)) {
-    samples <- rep(as_sample_int(times, sampling_rate = srate, .unit = "ms"), times = n_trials)
+    samples <- rep(as_sample_int(times, .sampling_rate = srate, .unit = "ms"), times = n_trials)
   } else {
     # no times, then start from 0
-    samples <- rep(sample_int(seq.int(set$pnts[1, 1]), sampling_rate = srate), times = n_trials)
+    samples <- rep(sample_int(seq.int(set$pnts[1, 1]), .sampling_rate = srate), times = n_trials)
   }
 
   signal_ <- new_signal_tbl(
@@ -550,10 +550,10 @@ read_set <- function(file, .recording = file) {
     events_set <- events_set[epochs_set, on = c("epoch", "event")][, latency := NULL]
     data.table::setnames(events_set, c("eventlatency", "epoch"), c("latency", ".id"))
     ## confusingly enough, here latencies are eventlatency which are in "ms" unlike the latency from the set$event which are in samples
-    events_set[, latency := as_sample_int(round(latency), sampling_rate = srate, .unit = "ms")]
+    events_set[, latency := as_sample_int(round(latency), .sampling_rate = srate, .unit = "ms")]
   }
   events_set[, `:=`(
-    .initial = sample_int(round(latency), sampling_rate = srate),
+    .initial = sample_int(round(latency), .sampling_rate = srate),
     latency = NULL
   )]
   # remove cols with only NAs

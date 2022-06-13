@@ -15,7 +15,7 @@ data_sin <- eeg_lst(
   signal_tbl = signal %>%
     dplyr::mutate(
       .id = 1L,
-      .sample = sample_int(seq_len(N), sampling_rate = 500)
+      .sample = sample_int(seq_len(N), .sampling_rate = 500)
     ),
   segments_tbl = dplyr::tibble(.id = 1L, .recording = "recording1", segment = 1L)
 )
@@ -25,7 +25,7 @@ data_sin_more <- eeg_lst(
   signal_tbl = signal %>%
     dplyr::mutate(
       .id = rep(1:4, each = N / 4),
-      .sample = sample_int(rep(seq_len(N / 4), times = 4), sampling_rate = 500)
+      .sample = sample_int(rep(seq_len(N / 4), times = 4), .sampling_rate = 500)
     ),
   segments_tbl = dplyr::tibble(.id = seq.int(4), .recording = paste0("recording", c(1, 1, 2, 2)), segment = seq.int(4))
 )
@@ -35,7 +35,7 @@ data_sin_more_ref <- data.table::copy(data_sin_more)
 
 data_sin_X1 <- eeg_filt_low_pass(data_sin, .freq = 500 * 1.5 / (2 * pi))
 
-data_sin_X1_iir <- eeg_filt_low_pass(data_sin, .freq = 500 * 1.5 / (2 * pi), .config = list(method = "iir"))
+data_sin_X1_iir <- eeg_filt_low_pass(.data = data_sin, .freq = 500 * 1.5 / (2 * pi), .config = list(method = "iir"))
 # data_sin_X1r <- data.table::copy(data_sin)
 # eeg_filt_low_pass(data_sin_X1r, .freq = 500 * 1.5 / (2 * pi), .by_reference = TRUE)
 # data_sin_X1r_iir <- data.table::copy(data_sin)
@@ -65,16 +65,16 @@ test_that("low pass default pars", {
 })
 
 test_that("low pass signal fir", {
-  data_sin_X1 <- data_sin_X1 %>% dplyr::filter(as_time(.sample) %>% between(.25, 1.75))
-  data_sin <- data_sin %>% dplyr::filter(as_time(.sample) %>% between(.25, 1.75))
+  data_sin_X1 <- data_sin_X1 %>% eeg_filter(as_time(.sample) %>% between(.25, 1.75))
+  data_sin <- data_sin %>% eeg_filter(as_time(.sample) %>% between(.25, 1.75))
   expect_equal(data_sin_X1$.signal$X1, data_sin_X1$.signal$X4, tolerance = .002)
   expect_equal(data_sin_X1$.signal$X1, data_sin$.signal$X1, tolerance = .005)
   ## expect_lte(max(data_sin_X1$.signal$X2, data_sin_X1$.signal$X3), .001)
 })
 
 test_that("low pass iir and fir are not too different", {
-  expect_equal(data_sin_X1 %>% dplyr::filter(as_time(.sample) %>% between(.25, 1.75)),
-    data_sin_X1_iir %>% dplyr::filter(as_time(.sample) %>% between(.25, 1.75)),
+  expect_equal(data_sin_X1 %>% eeg_filter(as_time(.sample) %>% between(.25, 1.75)),
+    data_sin_X1_iir %>% eeg_filter(as_time(.sample) %>% between(.25, 1.75)),
     tolerance = .01
   )
 })
@@ -93,7 +93,7 @@ test_that("low pass iir python implementation is not too different", {
 })
 
 data_sin_X3 <- eeg_filt_high_pass(data_sin, .freq = 500 * 3 / (2 * pi))
-data_sin_X3_iir <- eeg_filt_high_pass(data_sin, .freq = 500 * 3 / (2 * pi), .config = list(method = "iir"))
+data_sin_X3_iir <- eeg_filt_high_pass(.data = data_sin, .freq = 500 * 3 / (2 * pi), .config = list(method = "iir"))
 # data_sin_X3r <- data.table::copy(data_sin)
 # eeg_filt_high_pass(data_sin_X3r, .freq = 500 * 3 / (2 * pi), .by_reference = TRUE)
 ## plot(data_sin_X3)
@@ -105,6 +105,7 @@ test_that("high pass signal", {
   expect_equal(data_sin_X3$.signal$X3, data_sin$.signal$X3, tolerance = .002)
   expect_lte(max(data_sin_X3$.signal$X2, data_sin_X3$.signal$X1), .004)
 })
+
 test_that("high pass default pars", {
   expect_equal(data_sin_X3, eeg_filt_high_pass(data_sin, .freq = 500 * 3 / (2 * pi), .config = list(l_trans_bandwidth = 59.6831036594608)))
   expect_equal(data_sin_X3_iir, eeg_filt_high_pass(data_sin, .freq = 500 * 3 / (2 * pi), .config = list(method = "iir", type = "butter", order = 6)))
@@ -254,3 +255,26 @@ test_that("band pass signal, sel", {
   expect_equal(data_sin_more_X2_onlyX1X2$.signal$X4, data_sin_more$.signal$X4, tolerance = .002)
   ## expect_lte(max(data_sin_more_X2$.signal$X3, data_sin_more_X2$.signal$X1),.004)
 })
+
+test_that("internal signal functions", {
+sig1 <- eeguana:::sig_filtfilt(1:10, 1:2,2:3, padlen=2)  
+sig2 <- eeguana:::sig_filtfilt(matrix(rep(1:10,2), ncol=2), 1:2,2:3, padlen=2)    
+expect_equal(sig1, sig2[,1])  
+expect_equal(sig2[,1], sig2[,2])  
+eeguana:::skip_on_actions()
+sci <- reticulate::import("scipy")
+signal <- sci$signal
+ba = signal$ellip(4, 0.01, 120, 0.125)  # Filter to be applied.
+n = 60
+sig = rnorm(n)**3 + cumsum(3*rnorm(n))
+fpad = signal$filtfilt(ba[[1]], ba[[2]], sig, padlen=50L)
+b<- as.numeric(ba[[1]])
+a <- as.numeric(ba[[2]])
+expect_equal(as.numeric(fpad), eeguana:::sig_filtfilt(sig, b,a, padlen=50L), tolerance = .001)
+
+# expect_equal(as.numeric(signal$lfilter(ba[[1]], ba[[2]], sig)),
+# as.numeric(gsignal::filter(b,a, sig)))
+
+})
+
+

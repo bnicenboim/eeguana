@@ -34,9 +34,10 @@
 #'   coord_cartesian(ylim = c(-500, 500))
 #' @export
 plot.eeg_lst <- function(x, .max_sample = 6400, ...) {
-  ellipsis::check_dots_unnamed()
+  rlang::check_dots_unnamed()
   # pick the last channel as reference
-  breaks <- x$.signal[[ncol(x$.signal)]] %>%
+  chs <- channel_names(x)
+  breaks <- x$.signal[[chs[length(chs)]]] %>%
     stats::quantile(probs = c(.025, .975), na.rm = TRUE) %>%
     signif(2) %>%
     c(0)
@@ -45,25 +46,47 @@ plot.eeg_lst <- function(x, .max_sample = 6400, ...) {
     range()
 
   plot <- ggplot.eeg_lst(x, ggplot2::aes(x = .time, y = .value, group = .id), .max_sample = .max_sample) +
-    ggplot2::geom_hline(yintercept = 0, color = "gray", alpha = .8) +
-    ggplot2::geom_line() +
-    ggplot2::facet_grid(.key ~ .id,
-      labeller = ggplot2::label_wrap_gen(multi_line = FALSE),
-      scales = "free", space = "free"
-    ) +
     ggplot2::scale_x_continuous("Time (s)") +
-    ggplot2::scale_y_continuous(
-      "Amplitude",
-      # breaks = breaks,
+    ggplot2::scale_y_continuous("Amplitude") +
+    ggplot2::facet_grid(.key ~ .id,
+                        labeller = ggplot2::label_wrap_gen(multi_line = FALSE),
+                        scales = "free", space = "free"
     ) +
-    ggplot2::coord_cartesian(ylim = lims, clip = FALSE, expand = FALSE) +
-    theme_eeguana()
+    gg_default_layers(lims) 
   plot
 }
 
+#' @export
+plot.psd_lst <- function(x, ...) {
+  rlang::check_dots_unnamed()
+  # pick the last channel as reference
+  chs <- channel_names(x)
+  breaks <- x$.psd[[chs[length(chs)]]] %>%
+    stats::quantile(probs = c(.01,.99), na.rm = TRUE) %>%
+    signif(2) %>%
+    c(0)
+  names(breaks) <- breaks
+  lims <- (breaks * 1.5) %>%
+    range()
+  plot <- ggplot.psd_lst(x, ggplot2::aes(x = .freq, y = .value, group = .id)) +
+    gg_default_layers(lims) +
+    ggplot2::facet_grid(.key ~ .id,
+                        labeller = ggplot2::label_wrap_gen(multi_line = FALSE),
+                        scales = "free", space = "free"
+    ) +
+    ggplot2::scale_x_continuous("Frequency (Hz)")+
+    ggplot2::scale_y_continuous("PSD") 
+  plot
+}
 
-
-
+#' Default layers for plot()
+#' @noRd
+gg_default_layers <- function(lims){
+  list(ggplot2::geom_hline(yintercept = 0, color = "gray", alpha = .8),
+  ggplot2::geom_line(),
+  ggplot2::coord_cartesian(ylim = lims, clip = FALSE, expand = FALSE),
+  theme_eeguana())
+}
 
 #' Create a topographic plot
 #'
@@ -684,6 +707,7 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
 #'   # facet by channel
 #'   facet_wrap(~.key) +
 #'   theme(legend.position = "bottom")
+#'   
 ggplot.eeg_lst <- function(data = NULL,
                            mapping = ggplot2::aes(),
                            ...,
@@ -702,6 +726,21 @@ ggplot.eeg_lst <- function(data = NULL,
 
   p$data_channels <- channels_tbl(data)
   p$data_events <- events_tbl(data)
+  p
+}
+
+#'   
+ggplot.psd_lst <- function(data = NULL,
+                           mapping = ggplot2::aes(),
+                           ...) {
+    # sometimes might be useful to pass the environment
+  dots <- list(...)
+  df <- data.table::as.data.table(data)
+    if (!"environment" %in% names(args)) {
+    environment <- parent.frame()
+  }
+  df[, .key := factor(.key, levels = unique(.key))]
+  p <- ggplot2::ggplot(data = df, mapping = mapping, ..., environment = environment)
   p$data_channels <- channels_tbl(data)
   p
 }

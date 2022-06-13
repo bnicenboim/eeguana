@@ -10,38 +10,42 @@
 #'
 #' @param signal_tbl See [signal_tbl()].
 #' @param events_tbl See [events_tbl()].
-#' @param segments_tbl A tibble of segment numbers and related information. See [segments_tbl()].
+#' @param segments_tbl A data table of segment numbers and related information. See [segments_tbl()].
 #' @param channels_tbl Optionally a table with channels information. See [channels_tbl()].
+#' @param .sampling_rate Optional: If the signal_tbl doesn't have samples, they will be included with this sampling rate.
 #'
 #' @family eeg_lst
 #'
 #' @return A valid eeg_lst.
 #' @export
-eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, channels_tbl = NULL) {
+eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, channels_tbl = NULL, .sampling_rate = NULL) {
   if (is.null(signal_tbl)) {
     signal_tbl <- new_signal_tbl()
   } else if (!is_signal_tbl(signal_tbl)) {
-    signal_tbl <- data.table::as.data.table(signal_tbl)
     if (!is.null(channels_tbl)) {
-      data.table::set(signal_tbl,
-        ## columns with channels
-        j = channels_tbl$.channel,
-        ## columns that need to be updated with attributes
-        value = signal_tbl[, (update_channel_meta_data(.SD, channels_tbl)),
-          .SDcols = (channels_tbl$.channel)
-        ]
-      )
+      signal_tbl <- add_channel_info(signal_tbl, channels_tbl)
     }
-
+    if(!".id" %in% names(signal_tbl)) signal_tbl$.id <- 1L
+    if(!".sample" %in% signal_tbl && is.numeric(.sampling_rate)){
+      signal_tbl$.sample <- sample_int(1:nrow(signal_tbl), 
+                                       .sampling_rate = .sampling_rate)
+    } 
+    if(!".sample" %in% names(signal_tbl) && !is.null(.sampling_rate)){
+      stop("Specify a sampling rate or indicate the samples in the signal table.",call. = FALSE)
+    }
+    if(".sample" %in% names(signal_tbl) & !is.null(.sampling_rate)){
+      if(attributes(signal_tbl$.sample)$sampling_rate != .sampling_rate) 
+        warning("The argument `.sampling_rate` is being ignored.", call. = FALSE)
+    }
     signal_tbl <- as_signal_tbl(signal_tbl)
   } else {
     signal_tbl <- validate_signal_tbl(signal_tbl)
   }
 
   if (is.null(events_tbl)) {
-    events_tbl <- new_events_tbl(sampling_rate = sampling_rate(signal_tbl))
+    events_tbl <- new_events_tbl(.sampling_rate = sampling_rate(signal_tbl))
   } else if (!is_events_tbl(events_tbl)) {
-    events_tbl <- as_events_tbl(events_tbl, sampling_rate = sampling_rate(signal_tbl))
+    events_tbl <- as_events_tbl(events_tbl, .sampling_rate = sampling_rate(signal_tbl))
   } else {
     events_tbl <- validate_events_tbl(events_tbl)
   }
@@ -66,7 +70,70 @@ eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, c
   )
 }
 
+#' Creates a `psd_lst`.
+#' 
+#' @param psd_tbl A psd_lst.
+#' @param segments_tbl A data table of segment numbers and related information. See [segments_tbl()].
+#' @param channels_tbl Optionally a table with channels information. See [channels_tbl()].
+#'
+#' @family psd_lst
+#'
+#' @return A valid psd_lst.
+#' @export
+psd_lst <- function(psd_tbl = NULL, segments_tbl = NULL, channels_tbl = NULL) {
+  if (is.null(psd_tbl)) {
+    psd_tbl <- new_psd_tbl()
+  } else if (!is_psd_tbl(psd_tbl)) {
+    if (!is.null(channels_tbl)) {
+      psd_tbl <- add_channel_info(psd_tbl, channels_tbl)
+    }
+    if(!".id" %in% names(psd_tbl)) psd_tbl$.id <- 1L
+    psd_tbl <- as_psd_tbl(psd_tbl)
+  } else {
+    psd_tbl <- validate_psd_tbl(psd_tbl)
+  }
+  
+  if (is.null(segments_tbl)) {
+    segments_tbl <- data.table::data.table(.id = unique(psd_tbl$.id))[, .recording := NA_character_]
+  } else {
+    if (!".recording" %in% colnames(segments_tbl)) {
+      segments_tbl <- data.table:::shallow(segments_tbl[, .recording := NA])
+    }
+  }
+  segments_tbl <- data.table::as.data.table(segments_tbl)
+  data.table::setkey(segments_tbl, .id)
+  segments_tbl <- validate_segments(segments_tbl)
+  
+  validate_psd_lst(
+    x = new_psd_lst(
+      .psd = psd_tbl,
+      .segments = segments_tbl
+    ),
+    recursive = FALSE
+  )
+}
+
+#'  Adds the channel info to a signal tbl or psd tbl
+#' @param df signal or psd tbl
+#' @param channels_tbl 
+#'
+#' @noRd
+add_channel_info <- function(df, channels_tbl){
+  df <- data.table::as.data.table(df)
+data.table::set(df,
+                ## columns with channels
+                j = channels_tbl$.channel,
+                ## columns that need to be updated with attributes
+                value = df[, (update_channel_meta_data(.SD, channels_tbl)),
+                                   .SDcols = (channels_tbl$.channel)
+                ]
+
+) 
+df
+}          
+
 #' Test if the object is an eeg_lst.
+#' 
 #' This function returns  TRUE for eeg_lsts.
 #'
 #' @param x An object.
@@ -79,19 +146,32 @@ is_eeg_lst <- function(x) {
   "eeg_lst" %in% class(x)
 }
 
+#' Test if the object is a psd_lst.
+#' 
+#' This function returns  TRUE for psd_lsts.
+#'
+#' @param x An object.
+#'
+#' @return `TRUE` if the object inherits from the `psd_lst` class.
+#'
+#' @family psd_lst
+#' @export
+is_psd_lst <- function(x) {
+  "psd_lst" %in% class(x)
+}
 #' Builds a series of sample numbers.
 #'
 #' @param values Sequence of integers.
-#' @param sampling_rate Double indicating the sampling rate in Hz.
+#' @param .sampling_rate Double indicating the sampling rate in Hz.
 #'
 #' @family sample_int
 #'
 #' @export
 #' @examples
 #'
-#' sample_int(1:100, sampling_rate = 500)
-sample_int <- function(values, sampling_rate) {
-  validate_sample_int(new_sample_int(values, sampling_rate))
+#' sample_int(1:100, .sampling_rate = 500)
+sample_int <- function(values, .sampling_rate) {
+  validate_sample_int(new_sample_int(values, .sampling_rate))
 }
 
 #' Test if the object is a sample
@@ -104,7 +184,7 @@ sample_int <- function(values, sampling_rate) {
 #' @return `TRUE` if the object inherits from the `sample` class.
 #' @export
 is_sample_int <- function(x) {
-  class(x) == "sample_int"
+  "sample_int" %in% class(x) 
 }
 
 #' Builds a channel.
@@ -135,13 +215,22 @@ channel_dbl <- function(values, x = NA_real_, y = NA_real_, z = NA_real_, refere
 #' @family channel
 #' @export
 as_channel_dbl <- function(x) {
-  class(x) <- c("channel_dbl", "numeric")
+  if(!is.double(x))  {
+    x <- unclass(x) %>% as.double()
+  }
   for (. in c(".x", ".y", ".z", ".reference")) {
     if (is.null(attr(x, .))) {
       attr(x, .) <- NA_real_
     }
   }
+  class(x) <- c("channel_dbl", "numeric")
   validate_channel_dbl(x)
+}
+
+#' @export
+print.sample_int <- function(x,...){
+  cat(paste("# Sampling rate: ", attributes(x)$sampling_rate,"\n"))
+  print(as.integer(x))
 }
 
 #' @export

@@ -234,3 +234,73 @@ is_arg_recognizable <- function(x, y, pre_msg = "", post_msg = "", ...) {
   }
   return(TRUE)
 }
+
+
+#' @title Simpson integration
+#' 
+#' @description Computes the integral using simpson or trapezoid rule integration.
+#' 
+#' @details 
+#' Slightly adapted from the package fda.usc, https://github.com/moviedo5/fda.usc/blob/master/R/int.simpson.R
+#' Possible values for \code{method} are: \itemize{ \item \code{"TRAPZ"}:
+#' Trapezoid rule integration. \item \code{"CSR"}: Composite Simpson's rule
+#' integration.  \item \code{"ESR"}: Extended Simpson's rule integration. } 
+#' \code{method=CSR} (default).
+#' 
+#' @param x Sorted vector of x-axis values: \code{argvals}.
+#' @param y Vector of y-axis values.
+#' @param equi =TRUE, the observed points on each curve are equally spaced (by
+#' default).
+#' @param method Method for numerical integration, see details.
+#' @author Manuel Febrero-Bande, Manuel Oviedo de la Fuente
+#' \email{manuel.oviedo@@udc.es}
+#' @noRd
+int.simpson2 <- function(x, y, equi = TRUE,
+                      method="CSR"){
+  n=length(x);ny=length(y)
+  
+  if (n!=ny) stop("Different length in the input data")
+  if( n==0) return(NA)
+  if (n==2 || ny==2) method="TRAPZ"
+  out <- switch(method,
+                "TRAPZ" = {
+                  if (!equi){
+                    idx=2:n
+                    value<-as.double((x[idx]-x[idx-1])%*%(y[idx]+y[idx-1]))/2
+                  } else {
+                    h=(max(x)-min(x))/(n-1)
+                    y[c(1,n)]=y[c(1,n)]/2
+                    value<-h*sum(y)
+                  }
+                  value
+                },"CSR" = {
+                  if (!equi){
+                    n=2*n-1
+                    app=approx(x,y,n=n);x=app$x;y=app$y}
+                  h=(max(x)-min(x))/(n-1)
+                  value=(h/3)*(y[n]+y[1]+2*sum(y[2*(1:((n-1)/2))+1])+4*sum(y[2*(1:((n-1)/2))]))
+                },
+                "ESR" = {
+                  if (!equi){
+                    n = 2*n-1
+                    app = approx(x,y,n=n)
+                    x=app$x
+                    y=app$y
+                  }
+                  h = (max(x)-min(x))/(n-1)
+                  if (n<=4) stop("This method needs n>4")
+                  value=17*(y[1]+y[n])+59*(y[2]+y[n-1])+43*(y[3]+y[n-2])+49*(y[4]+y[n-3])
+                  value=value+48*sum(y[5:(n-4)])
+                  value=(h/48)*value
+                }
+  )
+  return(out)
+}
+
+#' @noRd
+get_frac <- function(x) {
+  frac <- MASS::fractions(x)
+  splits <- strsplit(attr(frac,"fracs"), "/")[[1]]
+  splits[2] <- ifelse(is.na(splits[2]),1, splits[2])
+  list(num=as.numeric(splits[1]),denom=as.numeric(splits[2]))
+}

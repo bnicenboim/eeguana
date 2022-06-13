@@ -12,14 +12,26 @@ new_eeg_lst <- function(.signal = NULL, .events = NULL, .segments = NULL) {
   )
 }
 
+#' @noRd
+new_psd_lst <- function(.psd = NULL, .segments = NULL) {
+  x <- list(
+    .psd = .psd,
+    .segments = .segments
+  )
+  x <- unclass(x)
+  structure(x,
+            class = c("psd_lst"),
+            vars = character(0)
+  )
+}
 
 
 #' @param values
 #'
-#' @param sampling_rate
+#' @param .sampling_rate
 #'
 #' @noRd
-new_sample_int <- function(values, sampling_rate) {
+new_sample_int <- function(values, .sampling_rate) {
   if (!all(is_wholenumber(values))) {
     stop("Sample integer values should be round numbers.",
       call. = FALSE
@@ -29,8 +41,8 @@ new_sample_int <- function(values, sampling_rate) {
   }
   values <- unclass(values)
   structure(values,
-    class = "sample_int",
-    sampling_rate = sampling_rate
+    class = c("sample_int","integer"),
+    sampling_rate = .sampling_rate
   )
 }
 
@@ -58,8 +70,7 @@ validate_sample_int <- function(.sample) {
 #' @noRd
 new_channel_dbl <- function(values, channel_info = list()) {
   values <- unclass(values) %>% as.double()
-  # class(values) <- c("channel_dbl", class(values))
-  class(values) <- "channel_dbl"
+  class(values) <- c("channel_dbl", "numeric")
   attributes(values) <- c(
     attributes(values),
     channel_info
@@ -124,9 +135,10 @@ update_channel_meta_data <- function(channels, channels_tbl) {
   channels
 }
 
-#
-#' @param x
+#' Validates eeg_lst
 #'
+#' @param x eeg_lst
+#' @param recursive If TRUE validates that the interval tbls
 #' @noRd
 validate_eeg_lst <- function(x, recursive = TRUE) {
   if (!is_eeg_lst(x)) {
@@ -164,6 +176,42 @@ validate_eeg_lst <- function(x, recursive = TRUE) {
   }
   x
 }
+
+#' Validates a psd_lst
+#' 
+#' @param x psd_lst
+#' @param recursive If TRUE validates that the interval tbls
+#' @noRd
+validate_psd_lst <- function(x, recursive = TRUE) {
+  if (!is_psd_lst(x)) {
+    warning("Class is not eeg_lst", call. = FALSE)
+  }
+  
+  if (recursive) {
+    x$.psd <- validate_psd_tbl(x$.psd)
+    x$.segments <- validate_segments(x$.segments)
+  }
+  diff_channels <- setdiff(x$.events$.channel, channel_names(x))
+  if (length(diff_channels) != 0 & any(!is.na(diff_channels))) {
+    warning("Unknown channel in table of events",
+            call. = FALSE
+    )
+  }
+  if (!all.equal(unique(x$.psd$.id), unique(x$.segments$.id))) {
+    warning("The values of .id mismatch between tables.",
+            call. = FALSE
+    )
+  }
+  
+  if (any(!dplyr::group_vars(x) %in% c(colnames(x$.psd), colnames(x$.segments)))) {
+    warning("Grouping variables are missing.",
+            call. = FALSE
+    )
+  }
+ 
+  x
+}
+
 
 #' @param segments
 #'
@@ -212,3 +260,7 @@ validate_component_dbl <- function(component) {
   }
   component
 }
+
+
+
+

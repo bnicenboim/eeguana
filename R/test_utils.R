@@ -19,7 +19,7 @@ remove_index <- function(.eeg_lst) {
 
 #' @noRd
 expect_equal_eeg_lst <- function(object, expected, ..., info = NULL, label = NULL, expected.label = NULL) {
-  eval(bquote(expect_equal(remove_index(.(object)), remove_index(.(expected)))))
+  eval(bquote(expect_equal(remove_index(.(object)), remove_index(.(expected)), ...)))
 }
 
 #' @noRd
@@ -49,6 +49,14 @@ expect_equal_but_sgm <- function(object, expected, ..., info = NULL, label = NUL
   expected$.segments <- NULL
   eval(bquote(expect_equal_eeg_lst(.(object), .(expected))))
 }
+
+#' helper functions (borrowed from github.com/stan-dev/bayesplot/R/helpers-testthat.R)
+#' @noRd
+expect_gg <- function(x) {
+  testthat::expect_s3_class(x, "ggplot")
+  invisible(ggplot2::ggplot_build(x))
+}
+
 #' @noRd
 skip_on_actions <- function() {
   if (!identical(Sys.getenv("GITHUB_ACTIONS"), "true")) {

@@ -4,19 +4,19 @@
 \alias{sample_int}
 \title{Builds a series of sample numbers.}
 \usage{
-sample_int(values, sampling_rate)
+sample_int(values, .sampling_rate)
 }
 \arguments{
 \item{values}{Sequence of integers.}
 
-\item{sampling_rate}{Double indicating the sampling rate in Hz.}
+\item{.sampling_rate}{Double indicating the sampling rate in Hz.}
 }
 \description{
 Builds a series of sample numbers.
 }
 \examples{
 
-sample_int(1:100, sampling_rate = 500)
+sample_int(1:100, .sampling_rate = 500)
 }
 \seealso{
 Other sample_int: 

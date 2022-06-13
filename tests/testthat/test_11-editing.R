@@ -11,6 +11,8 @@ test_that("can read channels metadata", {
   expect_equal(length(channels_df$.x), nchannels(eeg_file))
 })
 
+
+
 test_that("can change channels metadata", {
   channels_info <- channels_tbl(eeg_file)
   channels_info$.channel[1] <- "NEW_CHANNEL"

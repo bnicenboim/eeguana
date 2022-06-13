@@ -7,7 +7,7 @@ data_0 <- eeg_lst(
     dplyr::tibble(
       X = sin(1:20), Y = cos(1:20),
       .id = rep(c(1L, 2L), each = 10),
-      .sample = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500)
+      .sample = sample_int(rep(seq(-4L, 5L), times = 2), .sampling_rate = 500)
     ),
   channels_tbl = dplyr::tibble(
     .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
@@ -32,7 +32,7 @@ data_1 <- eeg_lst(
     dplyr::tibble(
       X = sin(1:30), Y = cos(1:30),
       .id = rep(c(1L, 2L, 3L), each = 10),
-      .sample = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500)
+      .sample = sample_int(rep(seq(-4L, 5L), times = 3), .sampling_rate = 500)
     ),
   channels_tbl = dplyr::tibble(
     .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,

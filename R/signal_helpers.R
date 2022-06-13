@@ -82,56 +82,93 @@ sig_fft <- function(x, n = NULL) {
 
 #' Apply a digital filter forward and backward to a signal.
 #'
-#' Wrapper to signal::filtfilt with different order and padlen argument (based on scipy implementation). Right now because the initial state of the delay cannot be set, for small padlen values (e.g., default), the results are off in comparison with python.
-#'
-#' @inheritParams signal::filfilt
+#' Alternative to `gsignal::filtfilt` based on scipy implementation. 
+#' 
+#' @param x the input signal to be filtered, specified as a numeric or complex vector or matrix. If x is a matrix, each column is filtered.
 #' @param b The numerator coefficient vector of the filter.
 #' @param a The denominator coefficient vector of the filter. (If ``a[0]`` is not 1, then both `a` and `b` are normalized by ``a[0]``.??).
-#' @param padlen The number of elements by which to extend `x` at both ends of `axis` before applying the filter.  This value must be less than ``x.shape[axis] - 1``.  ``padlen=0`` implies no padding. The default value is ``3 * max(len(a), len(b))``. (The type of padding is always odd, as the default of scipy.signal.filtfilt)
+#' @param padlen The number of elements by which to extend `x` at both ends of `axis` before applying the filter.  This value must be less than than the length (or the number of rows if x is a matrix).  `padlen=0` implies no padding. The default value is ``3 * max(len(a), len(b))``. (The type of padding is always odd, as the default of scipy.signal.filtfilt)
 #'
 #' @noRd
 sig_filtfilt <- function(x, b, a, padlen = 3 * max(length(a), length(b))) {
-
-  # ext = odd_ext(x, padlen) #edge = padlen
-  # signal._arraytools.odd_ext(np.array([1,2,3,4,5,6,7,8,9,10]),3 )
-  if (padlen == 0) {
-    ext <- x
-  } else {
-    left_end <- x[1]
-    left_ext <- x[seq.int(from = padlen + 1, to = 2, by = -1)]
-    right_end <- x[length(x)]
-    right_ext <- x[seq.int(from = length(x) - 1, to = length(x) - padlen, by = -1)]
-    ext <- c(
-      2 * left_end - left_ext,
-      x,
-      2 * right_end - right_ext
-    )
+  #https://github.com/scipy/scipy/blob/v1.8.1/scipy/signal/_signaltools.py#L3886-L4084
+  
+  atx <- attributes(x)
+  if(is.null(dim(x))){
+    x <- matrix(x, ncol = 1)
   }
 
+  ext <- do_padding(x, padlen)
+  
+  # Get the steady state of the filter's step response.
+  zi = gsignal::filter_zi(filt = b,a = a) 
+  
   # forward filter
-  y <- signal::filter(filt = b, a = a, x = ext) # init = zi * ext[1]
+  zix0 <- matrix(zi, ncol = 1) %*% ext[1, ,drop = FALSE] 
+  y <- gsignal::filter(filt = b, a = a, x = ext,  zi = zix0)
   # backward filter
-  y <- rev(signal::filter(filt = b, a = a, x = rev(y))) # init = zi * y[length(y)]
-  y[(padlen + 1):(padlen + length(x))]
+  ziy0 = zi %*% y$y[1, ,drop = FALSE] 
+  y <- gsignal::filter(filt = b, a = a, x = apply(y$y,2, rev), zi = ziy0) # 
+  y <- apply(y$y, 2 ,rev)
+  y <- y[(padlen + 1):(padlen + nrow(x)),, drop= FALSE] 
+  attributes(y) <- atx
+  y
 }
 
 
-#' Does the same as scipy.signal.l_filter_zi
+#' Apply a digital filter forward and backward to a signal using cascaded second-order sections.
+#'
+#' Alternative to `gsignal::filtfilt` based on scipy implementation. 
+#' 
+#' @param x the input signal to be filtered, specified as a numeric or complex vector or matrix. If x is a matrix, each column is filtered.
+#' @param sos Matrix or array of second-order filter coefficients, must have dimensions n_sections x 6. Each row corresponds to a second-order section, with the first three columns providing the numerator coefficients and the last three providing the denominator coefficients.
+#' @param padlen The number of elements by which to extend `x` at both ends before applying the filter.  This value must be less than than the length (or the number of rows if x is a matrix).  `padlen=0` implies no padding. The default value is ``3 * max(len(a), len(b))``. (The type of padding is always odd, as the default of scipy.signal.filtfilt)
+#'
 #' @noRd
-sig_lfilter_zi <- function(b, a) {
-  # Determine initial state (solve zi = A*zi + B, see g)
-  if (a[1] != 1.0) {
-    # Normalize the coefficients so a[0] == 1.
-    b <- b / a[1]
-    a <- a / a[1]
-  } else if (a[1] == 0) {
-    a <- a[2:length(a)]
+sig_sosfiltfilt <- function(x,sos,g=1,  padlen=NULL){
+# # These steps follow the same form as filtfilt with modifications
+  atx <- attributes(x)
+  if(is.null(dim(x))){
+    x <- matrix(x, ncol = 1)
   }
-  if (length(a) != length(b)) stop("a and b are of different size, please open a bug.")
-  n <- max(length(a), length(b))
-  B <- b[2:length(b)] - a[2:length(a)] * b[1]
-  A <- t(pracma::compan(a))
-  solve(diag(rep(1, n - 1)) - A, B)
+  
+  ext <- do_padding(x, padlen)
+  Sos <- gsignal::Sos(sos,g) 
+  zi <- gsignal::filter_zi(Sos)  
+
+  #zi_a <- array(zi, dim = c(nrow(zi),ncol(x),1)) 
+   # forward filter
+  zix0 <- lapply(ext[1, ,drop = FALSE], function(.x) .x * zi) %>%
+    unlist() %>% array( dim = c(nrow(zi),ncol(zi),ncol(x))) 
+  y <- gsignal::filter(filt = Sos, x = ext,  zi = zix0)
+  # backward filter
+  ziy0 = lapply(y$y[1, ,drop = FALSE], function(.x) .x * zi) %>%
+    unlist() %>% array( dim = c(nrow(zi),ncol(zi),ncol(x))) 
+  y <- gsignal::filter(filt = Sos, x = apply(y$y,2, rev), zi = ziy0) # 
+  y <- apply(y$y, 2 ,rev)
+  y <- y[(padlen + 1):(padlen + nrow(x)),, drop= FALSE] 
+  attributes(y) <- atx
+  y
+}
+
+#' @noRd
+do_padding <- function(x, padlen){
+  if (padlen == 0) {
+    ext <- x
+  } else {
+    #actually top and bottom end
+    # it applies scipy.signal._arraytools.odd_ext
+    left_end <- x[1,, drop = FALSE]
+    left_ext <- x[seq.int(from = padlen + 1, to = 2, by = -1),, drop = FALSE]
+    right_end <- x[nrow(x),, drop = FALSE]
+    right_ext <- x[seq.int(from = nrow(x)-1 , to = nrow(x) - padlen, by = -1),, drop = FALSE]
+    ext <- rbind(
+      matrix(rep(2 * left_end,each=nrow(left_ext)),ncol=ncol(left_ext)) - left_ext,
+      x,
+      matrix(rep(2 * right_end,each=nrow(right_ext)),ncol=ncol(right_ext)) - right_ext
+    )
+  }
+  ext
 }
 
 #' @noRd
@@ -510,25 +547,29 @@ firwin <- function(N = NULL, cutoff = NULL, width = NULL, window = "hamming", pa
 #'
 iirfilter <- function(n, Wn, rp, rs, btype, type = c("butter", "cheby1", "cheby2", "ellip"), output = c("ba", "zpk", "sos")) {
   type <- match.arg(type)
-
+  
+  output <- match.arg(output)
+  out_type <- switch(output, 
+                     ba = "Arma",
+                     zpk = "Zpg",
+                     sos = "Sos")
   out <- switch(type,
-    butter = signal::butter(n, W = Wn, type = btype),
-    cheby1 = signal::cheby1(n, Rp = rp, W = Wn, type = btype),
-    cheby2 = signal::cheby2(n, Rp = rp, W = Wn, type = btype),
-    ellip = signal::ellip(n, Rp = rp, Rs = rs, W = Wn, type = btype),
+    butter = gsignal::butter(n, w = Wn, type = btype, output = out_type),
+    cheby1 = gsignal::cheby1(n, Rp = rp, w = Wn, type = btype, output = out_type),
+    cheby2 = gsignal::cheby2(n, Rs = rp, w = Wn, type = btype, output = out_type),
+    ellip = gsignal::ellip(n, Rp = rp, Rs = rs, w = Wn, type = btype, output = out_type),
   )
 
-  output <- match.arg(output)
   if (output == "ba") {
     list(b = out$b, a = out$a)
   } else if (output == "zpk") {
-    zpk <- signal::as.Zpg(out)
-    list(z = zpk$zero, p = zpk$pole, k = zpk$gain)
+    list(z = out$z, p = out$p, k = out$g)
   } else if (output == "sos") {
-    stop("sos not available yet")
-    ## require_pkg("gsignal")
-    ## sos <- gsignal::as.Sos(out)
-    ## list(sos = sos$sos, g = sos$g)
+    #scipy.signal incorporates the system gain in the first section, while gsignal (and Matlab/Octave) do not.
+    # https://github.com/gjmvanboxtel/gsignal/issues/1
+    sos <- out$sos 
+    sos[1,1:3] <- out$sos[1, 1:3] * out$g
+    list(sos = sos, g = 1)
   }
 }
 
@@ -655,9 +696,9 @@ iirdesign <- function(wp, ws, gpass, gstop, type = "ellip", output = "ba") {
 
 
   out <- switch(type,
-    butter = signal::buttord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
-    ellip =  signal::ellipord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
-    cheby1 = signal::cheb1ord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
+    butter = gsignal::buttord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
+    ellip =  gsignal::ellipord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
+    cheby1 = gsignal::cheb1ord(Wp = wp, Ws = ws, Rp = gpass, Rs = gstop),
     stop("type can be butter, ellip or cheby1")
   )
 

@@ -135,7 +135,7 @@ test_that("summarize across with extra args", {
     eeg_summarize(across_ch("mean", na.rm = TRUE)))
   expect_equal(data_mean, data_grouped_descr %>%
     eeg_summarize(across_ch(~ mean(., na.rm = TRUE))))
-  expect_equal(data_mean %>% eeg_rename_with(~ paste0(.x, "_1")), data_grouped_descr %>%
+  expect_equal_eeg_lst(data_mean %>% eeg_rename_with(~ paste0(.x, "_1")), data_grouped_descr %>%
     eeg_summarize(across_ch(list(~ mean(., na.rm = TRUE)))))
   expect_equal(
     data_mean %>%

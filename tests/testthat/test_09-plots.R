@@ -1,13 +1,13 @@
 library(eeguana)
 options(eeguana.verbose = FALSE)
-
+expect_gg <- eeguana:::expect_gg
 # create fake dataset
 data_1 <- eeg_lst(
   signal_tbl = dplyr::tibble(
     X = sin(1:30),
     Y = sin(1:30),
     .id = rep(c(1L, 2L, 3L), each = 10),
-    .sample = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500)
+    .sample = sample_int(rep(seq(-4L, 5L), times = 3), .sampling_rate = 500)
   ),
   channels_tbl = dplyr::tibble(
     .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
@@ -39,11 +39,6 @@ data("data_faces_ERPs")
 data("data_faces_10_trials")
 
 
-# helper functions (borrowed from github.com/stan-dev/bayesplot/R/helpers-testthat.R)
-expect_gg <- function(x) {
-  testthat::expect_s3_class(x, "ggplot")
-  invisible(ggplot2::ggplot_build(x))
-}
 
 # if eeguana plots were not classed as ggplot2::ggplot, could use something like this:
 # expect_eeguanaplot <- function(x) testthat::expect_s3_class(x, "eeguanaplot")

@@ -5,7 +5,7 @@ data_sincos2id <- eeg_lst(
     X = sin(1:20),
     Y = cos(1:20),
     .id = rep(c(1L, 2L), each = 10),
-    .sample = sample_int(rep(seq(-4L, 5L), times = 2), sampling_rate = 500)
+    .sample = sample_int(rep(seq(-4L, 5L), times = 2), .sampling_rate = 500)
   ),
   channels_tbl =
     dplyr::tibble(
@@ -31,7 +31,7 @@ data_sincos2id_2 <- eeg_lst(
     Y = cos(1:20),
     .id = rep(c(1L, 2L), each = 10),
     .sample = sample_int(rep(seq(-4L, 5L), times = 2),
-      sampling_rate = 500
+      .sampling_rate = 500
     )
   ),
   channels_tbl = dplyr::tibble(
@@ -59,7 +59,7 @@ data_sincos2id_1000 <- eeg_lst(
       X = sin(1:N / 20),
       Y = cos(1:N / 20),
       .id = rep(c(1L, 2L), each = N / 2),
-      .sample = sample_int(rep(seq.int(-100, N / 2 - 101), times = 2), sampling_rate = 500)
+      .sample = sample_int(rep(seq.int(-100, N / 2 - 101), times = 2), .sampling_rate = 500)
     ),
   channels_tbl = dplyr::tibble(
     .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
@@ -83,7 +83,7 @@ data_sincos3id <- eeg_lst(
     dplyr::tibble(
       X = sin(1:30), Y = cos(1:30),
       .id = rep(c(1L, 2L, 3L), each = 10),
-      .sample = sample_int(rep(seq(-4L, 5L), times = 3), sampling_rate = 500)
+      .sample = sample_int(rep(seq(-4L, 5L), times = 3), .sampling_rate = 500)
     ),
   channels_tbl = dplyr::tibble(
     .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
@@ -129,7 +129,7 @@ channels_tbl(data_mne_bdf) <- channels_tbl(data_mne_bdf)[, -5] # remove unit
 N <- 4000
 fs <- 100
 blink <- rbinom(N, 1, .003) %>%
-  signal::filter(signal::butter(2, c(1 * 2 / fs, 10 * 2 / fs), "pass"), .) * 200
+  gsignal::filter(gsignal::butter(2, c(1 * 2 / fs, 10 * 2 / fs), "pass"), .) * 200
 noise <- rpink(N, 100)
 alpha <- sin(2 * pi * 10 * as_time(sample_int(1:N, 500))) * 3
 # (abs(sin(10 * seq_len(N) / fs)) - 0.5) * 10
@@ -162,7 +162,7 @@ data_no_blinks <- eeg_lst(
   signal_tbl = signal %>%
     dplyr::mutate(
       .id = 1L,
-      .sample = sample_int(seq_len(N), sampling_rate = 500)
+      .sample = sample_int(seq_len(N), .sampling_rate = 500)
     ),
   segments_tbl = dplyr::tibble(.id = 1L, .recording = "recording1", segment = 1L)
 )
@@ -171,7 +171,7 @@ data_blinks <- eeg_lst(
   signal_tbl = signal_blinks %>%
     dplyr::mutate(
       .id = 1L,
-      .sample = sample_int(seq_len(N), sampling_rate = 500)
+      .sample = sample_int(seq_len(N), .sampling_rate = 500)
     ),
   segments_tbl = dplyr::tibble(.id = 1L, .recording = "recording1", segment = 1L)
 )
@@ -181,7 +181,7 @@ data_blinks_2 <- eeg_lst(
   signal_tbl = signal_blinks %>%
     dplyr::mutate(
       .id = rep(1:4, each = N / 4),
-      .sample = sample_int(rep(seq_len(N / 4), times = 4), sampling_rate = 500)
+      .sample = sample_int(rep(seq_len(N / 4), times = 4), .sampling_rate = 500)
     ),
   segments_tbl = data.table::data.table(.id = seq.int(4), .recording = paste0("recording", c(1, 1, 2, 2)), segment = seq.int(4))
 )
@@ -190,13 +190,23 @@ data_no_blinks_2 <- eeg_lst(
   signal_tbl = signal %>%
     dplyr::mutate(
       .id = rep(1:4, each = N / 4),
-      .sample = sample_int(rep(seq_len(N / 4), times = 4), sampling_rate = 500)
+      .sample = sample_int(rep(seq_len(N / 4), times = 4), .sampling_rate = 500)
     ),
   segments_tbl = data.table::data.table(.id = seq.int(4), .recording = paste0("recording", c(1, 1, 2, 2)), segment = seq.int(4))
 )
 
+#From https://raphaelvallat.com/bandpower.html
+F3 <- tidytable::fread.("data.txt")[[1]]
+data_sleep_F3 <- eeg_lst(signal_tbl = data.frame(F3 = channel_dbl(F3)),sampling_rate = 100)
 
+reticulate::use_condaenv("anaconda3")
+signal <- reticulate::import("scipy.signal")
+win <- 400
+srate <- 100
 
+#with python
+psd_scipy <- signal$welch(as.numeric(F3),fs = srate, nperseg=win)
+data_psd_scipy <- psd_lst(psd_tbl = data.frame(.id =1, .freq = psd_scipy[[1]], F3 =channel_dbl(psd_scipy[[2]])))
 
 usethis::use_data(data_sincos2id, data_sincos2id_2,
   data_sincos2id_1000,
@@ -204,6 +214,8 @@ usethis::use_data(data_sincos2id, data_sincos2id_2,
   data_blinks, data_blinks_2,
   data_no_blinks, data_no_blinks_2,
   true_comps,
+  data_sleep_F3,
+  data_psd_scipy,
   internal = TRUE, overwrite = TRUE,
   compress = "xz"
 )

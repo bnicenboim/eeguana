@@ -10,6 +10,22 @@ lapply_dtc <- function(X, FUN, ...) {
 }
 
 #' @noRd
+vec_index <- function (x) names(x) %||% seq_along(x)
+
+#' @noRd
+imap_chr <- function (.x, .f, ...) {
+  .f <- rlang::as_function(.f)
+  tidytable::map2_chr.(.x, vec_index(.x), .f, ...)
+}
+
+#' @noRd
+imap <- function (.x, .f, ...) 
+{
+  .f <- rlang::as_function(.f, ...)
+  tidytable::map2.(.x, vec_index(.x), .f, ...)
+}
+
+#' @noRd
 map_dtr <- function(.x, .f, ..., .id = NULL) {
   .f <- purrr::as_mapper(.f, ...)
   res <- purrr::map(.x, .f, ...)
@@ -31,12 +47,16 @@ imap_dtr <- function(.x, .f, ..., .id = NULL) {
 }
 
 
-
 #' @noRd
 map2_dtr <- function(.x, .y, .f, ..., .id = NULL) {
   .f <- purrr::as_mapper(.f, ...)
   res <- purrr::map2(.x, .y, .f, ...)
   data.table::rbindlist(res, fill = TRUE, idcol = .id)
+}
+
+#' @noRd
+map2_dtc <- function(.x, .y, .f, ...) {
+    data.table::as.data.table(tidytable::map2_dfc.(.x=.x, .y = .y, .f =.f, ...) )
 }
 
 #' @noRd
@@ -171,7 +191,30 @@ select. <- function(.df, ...) {
   .df
 }
 
+#' @noRd
+transmute. <- function(.df, ..., .by = NULL){
+  oldclass <- class(.df)
+  if (length(.by) > 0) {
+    .df <- tidytable::transmute.(
+      .df = .df, ...,
+      .by = .by)
+  } else {
+    # much faster to remove the by=character(0) when not needed
+    .df <- tidytable::transmute.(
+      .df = .df, ...)
+  }
+  
+  class(.df) <- oldclass
+  .df
+}
 
+#' @noRd
+bind_cols. <- function(...){
+  oldclass <- class(list(...)[[1]])
+  .df <- tidytable::bind_cols.(...)
+  class(.df) <- oldclass
+  .df
+}
 #' @noRd
 mutate. <- function(.df, ...,
                     .by = NULL,
@@ -211,6 +254,37 @@ filter. <- function(.df, ...,
 summarize. <- function(.df, ..., .by = NULL, .sort = FALSE) {
   oldclass <- class(.df)
   .df <- tidytable::summarize.(.df = .df, ..., .by = .by, .sort = .sort)
+  class(.df) <- oldclass
+  .df
+}
+
+#' @noRd
+anti_join. <- function(x, y, by = NULL) {
+  oldclass <- class(x)
+  .df <- tidytable::anti_join.(x = x, y = y, by = by)
+  class(.df) <- oldclass
+  .df
+}
+#' @noRd
+semi_join. <- function(x, y, by = NULL) {
+  oldclass <- class(x)
+  .df <- tidytable::semi_join.(x = x, y = y, by = by)
+  class(.df) <- oldclass
+  .df
+}
+
+#' @noRd
+left_join. <- function(x, y, by = NULL) {
+  oldclass <- class(x)
+  .df <- tidytable::left_join.(x = x, y = y, by = by)
+  class(.df) <- oldclass
+  .df
+}
+
+#' @noRd
+full_join. <- function(x, y, by = NULL) {
+  oldclass <- class(x)
+  .df <- tidytable::full_join.(x = x, y = y, by = by)
   class(.df) <- oldclass
   .df
 }

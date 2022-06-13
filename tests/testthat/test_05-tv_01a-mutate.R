@@ -376,7 +376,7 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
   }
 
   if (keep & !grouped) {
-    expect_message(expect_message(data_cst2 <- fun(data, Y = 1:n())))
+    expect_message(expect_message(data_cst2 <- fun(data, Y = 1:n()),"The following" ), "Removing events")
 
     expect_equal_but_sgl(
       data_cst2,

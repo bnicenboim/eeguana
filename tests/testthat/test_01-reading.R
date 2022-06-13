@@ -45,9 +45,9 @@ test_that("repeated channels are not a problem", {
 ft <- read_ft(file = system.file("testdata", "fieldtrip_matrix.mat", package = "eeguana"), .recording = "bv2")
 channels_tbl(ft) <- channels_tbl(multiplexed_bin_bv2)
 
-test_that("can read fieldtrip files", {
-  #  expect_equal(ft,)
-})
+# test_that("can read fieldtrip files", {
+#   #  expect_equal(ft,)
+# })
 
 
 test_that("can read unique eeglab files ", {
@@ -166,3 +166,55 @@ test_that("seg matches", {
   expect_equal(events_tbl(seg_bin_bv2)[.type == "Stimulus"], events_tbl(seged_bin))
   expect_equal(seg_bin_bv2$.segments, seged_bin$.segments[, -c("type", "description")])
 })
+
+test_that("special vhdr file",{
+  vhdr_eeglab <- system.file("testdata", "EMP01.vhdr", package = "eeguana")
+  vmrk_eeglab <- system.file("testdata", "EMP01.vmrk", package = "eeguana")
+  meta <- eeguana:::read_vhdr_metadata(vhdr_eeglab)
+ expect_snapshot(meta) 
+  events <- eeguana:::read_vmrk(vmrk_eeglab)
+  csv_eeglab <- system.file("testdata", "EMP01_events.csv", package = "eeguana")
+  events_tbl <- data.table::fread(csv_eeglab) %>%
+    tidytable::transmute.(.description = trigger, .initial = ceiling(latency))
+  events_mrk <- events %>% tidytable::filter.(!is.na(.description)) %>%
+    tidytable::select.(.description, .initial)
+  expect_equal(events_tbl, events_mrk)
+})
+
+
+test_that("write vhdr",{
+  write_vhdr(x = multiplexed_bin_bv2,file = "test", overwrite = TRUE)
+  expect_true(file.exists("test.vhdr"))
+  write_vhdr(x = multiplexed_bin_bv2,file = "./", overwrite = TRUE)
+  expect_true(file.exists("bv2.vhdr"))
+  #multiplexed_bin_bv2 %>% eeg_mutate(.recording = "../dasa/bv")
+  write_vhdr(x = multiplexed_bin_bv2,file = "~/", overwrite = TRUE)
+  multiplexed_bin_bv2_t <- read_vhdr("test.vhdr", .recording = "bv2")
+  weird_rec <- read_vhdr(file = system.file("testdata", "asalab_export_bv.vhdr", package = "eeguana"))
+  write_vhdr(x = weird_rec,file = "./", overwrite = TRUE)
+  file_weird <- file.path("./", gsub("\\.","_",make.names(weird_rec$.segments$.recording) ))
+  expect_true(file.exists(paste0(file_weird,".dat")))
+  file.remove(paste0(file_weird,".dat"))
+  file.remove(paste0(file_weird,".vhdr"))
+  file.remove(paste0(file_weird,".vmrk"))
+  write_vhdr(x = weird_rec, overwrite = TRUE)
+  expect_true(file.exists(paste0(file_weird,".dat")))
+  file.remove(paste0(file_weird,".dat"))
+  file.remove(paste0(file_weird,".vhdr"))
+  file.remove(paste0(file_weird,".vmrk"))
+  expect_equal(multiplexed_bin_bv2_t,multiplexed_bin_bv2)
+  mul <- bind(multiplexed_bin_bv2,multiplexed_bin_bv2 %>% eeg_mutate(Fp1 =Fp1*0.1, .recording = "bv3"))
+  write_vhdr(mul, "test_mul", overwrite = TRUE)
+  mul_test <- bind(read_vhdr("test_mul_bv2.vhdr",.recording = "bv2"),
+                   read_vhdr("test_mul_bv3.vhdr", .recording ="bv3"))
+  expect_equal(mul, mul_test,tolerance = 0.0001)
+  
+  write_vhdr(x = seg_ascii_bv2,file="test_seg", overwrite = TRUE)
+  test_seg <- read_vhdr(file = "test_seg.vhdr", .recording = "bv2")
+  eeguana:::expect_equal_eeg_lst(seg_ascii_bv2,test_seg,tolerance = 0.0001 )
+  # df <- data_faces_10_trials %>% eeg_segment(.description == "s130",.lim = c(-.5,.5))
+  # write_vhdr(df, "df_test")
+  # read_vhdr("df_test.vhdr")
+      })
+
+

@@ -17,7 +17,7 @@ check_zero_phase_length <- function(N, phase, gain_nyq = 0) {
 
 filter_attenuation <- function(h, freq, gain) {
   ##        """Compute minimum attenuation at stop frequency."""
-  filt_resp <- signal::freqz(h, n = pi * freq)[[1]] %>%
+  filt_resp <- gsignal::freqz(h, n = pi * freq)[[1]] %>%
     ## use amplitude respons
     abs()
   filt_resp[gain == 1] <- 0
@@ -60,7 +60,7 @@ firwin_design <- function(N, freq, gain, window = "hamming", sampling_rate) {
         )
       }
       this_h <- firwin(this_N, (prev_freq + this_freq) / 2,
-        window = window, pass_zero = TRUE, fs = freq[length(freq)] * 2
+                       window = window, pass_zero = TRUE, fs = freq[length(freq)] * 2
       )
       offset <- (N - this_N) %/% 2
       if (this_gain == 0) {
@@ -179,133 +179,127 @@ firwin_design <- function(N, freq, gain, window = "hamming", sampling_rate) {
 #' @noRd
 
 construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NULL,
-                         btype=NULL){
-
+                                 btype=NULL){
+  
+  Wp = NULL
+  
   known_filters = c("butter", "cheby1", "cheby2", "ellip")
+  # more filters supported by MNE:
   ## c('bessel', 'butter', 'butterworth', 'cauer', 'cheby1',
-  ##                    'cheby2', 'chebyshev1', 'chebyshev2', 'chebyshevi',
-  ##                    'chebyshevii', 'ellip', 'elliptic')
-    # if the filter has been designed, we're good to go
-    Wp = NULL
-    if ('sos' %in% names(iir_params)){
-        system = iir_params[['sos']]
-        output = 'sos'
-    } else if ('a' %in% names(iir_params) & 'b' %in% names(iir_params)){
-        system = list(b =iir_params[['b']], a = iir_params[['a']])
-        output = 'ba'
-    } else {
-        output = ifelse(is.null(iir_params[["output"]]), 'ba', iir_params[["output"]])
-        # ensure we have a valid type
-        if (!'type'  %in% names(iir_params))
-            stop("type must be an entry in iir_params if ''b'' ",
-                               "and ''a'' are not specified", call. = FALSE)
-        type = iir_params[['type']] %||% ""
-        if (!type  %in% known_filters)
-            stop("type must one of ", paste0(known_filters, sep = ", "))
-
-        # use order-based design
-        ## f_pass = np.atleast_1d(f_pass)
-        ## if f_pass.ndim > 1:
-            ## raise ValueError('frequencies must be 1D, got %dD' % f_pass.ndim)
-        edge_freqs <- paste0(f_pass, collapse = ", ")
-        Wp = f_pass / (sfreq / 2)
-        # IT will de designed
-        ## ftype_nice = _ftype_dict.get(type, type)
-        if(options()$eeguana.verbose){
-          message_verbose("IIR filter parameters\n",
+  ##   'cheby2', 'chebyshev1', 'chebyshev2', 'chebyshevi',
+  ##   'chebyshevii', 'ellip', 'elliptic')
+  
+  # Checks if the filter has been designed...
+  if ('sos' %in% names(iir_params)){
+    system = iir_params[['sos']]
+    output = 'sos'
+  } else if ('a' %in% names(iir_params) &&
+             'b' %in% names(iir_params)){
+    system = list(b =iir_params[['b']], a = iir_params[['a']])
+    output = 'ba'
+  } else {
+    # else it checks what's the output:
+    output = ifelse(is.null(iir_params[["output"]]), 'sos', iir_params[["output"]])
+  }
+  # Ensure we have a valid type
+  if (!'type'  %in% names(iir_params)){
+    stop("type must be an entry in iir_params if ''b'' ",
+         "and ''a'' are not specified", call. = FALSE)
+  }
+  type = iir_params[['type']] %||% ""
+  if (!type  %in% known_filters){
+    stop("type must one of ", paste0(known_filters, sep = ", "))
+  }
+  
+  # use order-based design
+  edge_freqs <- paste0(f_pass, collapse = ", ")
+  Wp = f_pass / (sfreq / 2)
+  
+  message_verbose("IIR filter parameters\n",
                   "---------------------\n",
                   type," ", btype,
                   " zero-phase (two-pass forward and reverse) \n",
-                    " non-causal filter:\n" )
-        }
-# SciPy designs for -3dB but we do forward-backward, so this is -6dB
-        if ('order' %in% names(iir_params)){
-
-           system <- iirfilter(iir_params[["order"]],
-                               rp = iir_params[["rp"]],
-                               rs = iir_params[["rs"]],
-                               Wn = Wp,
-                               btype = btype,
-                               type = type,
-                               output = output)
-          forder <-  (2 * iir_params[['order']] * length(Wp))
-            if(options()$eeguana.verbose)
-              message_verbose("- Filter order " , forder,"  (effective, after forward-backward)")
-
-        } else {
-            ## # use gpass / gstop design
-            Ws = f_stop / (sfreq / 2)
-            ## Ws = np.asanyarray(f_stop) / (float(sfreq) / 2)
-            ## if 'gpass' not in iir_params or 'gstop' not in iir_params:
-            ##     raise ValueError('iir_params must have at least ''gstop'' and'
-            ##                      ' ''gpass'' (or ''N'') entries')
-            system <- iirdesign(wp = Wp, ws = Ws, gpass = iir_params[['gpass']],
-                                gstop = iir_params[['gstop']], type=type, output=output)
-        }
-    }
-
-    if (is.null(system))
-        stop('coefficients could not be created from iir_params')
-    # do some sanity checks
-    ## _check_coefficients(system)
-
-    # get the gains at the cutoff frequencies
-    if (!is.null(Wp)){
-        if (output == 'sos'){
-          #originally with sosfreqz, TODO check if it works
-          #cutoffs = gsignal::freqz(system, n=Wp * pi)$h
-        } else {
-          #CAN'T make this work in R
-        ## cuttoff <- s$signal$freqz(system$b, system$a, worN=Wp * pi)[[2]]
-
-        ## signal::buttord(Wp =40,Ws=40)
-        ## gsignal::freqz(system$b, a = system$a)$h
-##         s$signal$freqz(system$b, system$a, worN = .2)[[2]]
-## np <- reticulate::import("numpy")
-##         npp <- np$polynomial$polynomial
-##         zm1 = exp(-1i * Wp * pi)
-##         h = (signal::polyval(zm1, system$b) /
-##              pracma::polyval(zm1, system$a))
-
-##              pracma::polyval(zm1, 1)
-##         npp$polyval(zm1, 1)
-##         np$polyval(zm1, 1)
-##         (npp$polyval(zm1, system$b, tensor=FALSE) / npp$polyval(zm1, system$a, tensor=FALSE))
-##         (npp$polyval(zm1, system$b, tensor=TRUE) / npp$polyval(zm1, system$a, tensor=TRUE))
-
-##         n <- 2*pi*Wp  * pi/(2*pi)
-##         cutoffs <-
-##           signal::freqz(system$b, a = system$a,  n=Wp * pi)$h
-##           signal::freqz(system$b, a = system$a, n = .9)$h
-##           COUDN't DO it yet
- cutoffs <- NA
-        }
-
-        ## # 2 * 20 here because we do forward-backward filtering
-        cutoffs <- 40 * log10(abs(cutoffs))
-  ## if (options()$eeguana.verbose)
-    ## message_verbose("Cutoff(s) at ", edge_freqs, " Hz: ", cutoffs, "dB")
-    }
-# now deal with padding
-    if (!'padlen' %in% names(iir_params)){
-        padlen = estimate_ringing_samples(system)
-    } else{
-        padlen = iir_params[['padlen']]
-    }
-
-    iir_params[["padlen"]] <- padlen
+                  " non-causal filter:\n" )
+  
+  # SciPy designs for -3dB but we do forward-backward, so this is -6dB
+  if ('order' %in% names(iir_params)){
+    
+    system <- iirfilter(n = iir_params[["order"]],
+                        rp = iir_params[["rp"]],
+                        rs = iir_params[["rs"]],
+                        Wn = Wp,
+                        btype = btype,
+                        type = type,
+                        output = output)
+    forder <-  (2 * iir_params[['order']] * length(Wp))
+    
+    message_verbose("- Filter order " , forder,"  (effective, after forward-backward)")
+    
+  } else {
+    ## # use gpass / gstop design
+    Ws = f_stop / (sfreq / 2)
+    ## Ws = np.asanyarray(f_stop) / (float(sfreq) / 2)
+    ## if 'gpass' not in iir_params or 'gstop' not in iir_params:
+    ##     raise ValueError('iir_params must have at least ''gstop'' and'
+    ##                      ' ''gpass'' (or ''N'') entries')
+    system <- iirdesign(wp = Wp, 
+                        ws = Ws, 
+                        gpass = iir_params[['gpass']],
+                        gstop = iir_params[['gstop']], 
+                        type=type, output=output)
+  }
+  
+  
+  if (is.null(system))
+    stop('coefficients could not be created from iir_params')
+  # do some sanity checks
+  check_coefficients(system)
+  
+  # get the gains at the cutoff frequencies
+  if (!is.null(Wp)){
     if (output == 'sos'){
-        iir_params[["sos"]] <- system$sos
+      args_freqz <- list(filt = gsignal::Sos(system$sos, system$g))
+      #scipy$signal$sosfreqz(system, worN=Wp * pi)[2]
     } else {
-        iir_params[["b"]] <- system$b
-        iir_params[["a"]] <- system$a
+     args_freqz <- list(filt = system$b, a = system$a)
+       #scipy$signal$freqz(system$b, system$a, worN=Wp * pi)
     }
-    iir_params
+    
+    cutoff <- unlist(lapply(Wp, function(.x) {
+      frac <- get_frac(1/.x)
+      frac_approx <- get_frac(signif(frac$num,4)/signif(frac$denom,4))
+      args_freqz <- c(args_freqz, n = frac_approx$num)
+      do.call(gsignal::freqz, args_freqz)$h[1 + frac_approx$denom]
+      }
+    ))
+    ## # 2 * 20 here because we do forward-backward filtering
+    cutoffs <- 40 * log10(abs(cutoff)) %>%
+      signif(.,4) 
+    cutoffs <- ifelse(is.infinite(cutoffs),NA, cutoffs)
+    cutoffs <-  paste0(cutoffs, collapse=", ")
+    
+    message_verbose("- Cutoff(s) at ", edge_freqs, " Hz: ", cutoffs , " dB")
+  }
+  
+  if (!'padlen' %in% names(iir_params)){
+    padlen = estimate_ringing_samples(system)
+  } else{
+    padlen = iir_params[['padlen']]
+  }
+  
+  iir_params[["padlen"]] <- padlen
+  if (output == 'sos'){
+    iir_params[["sos"]] <- system$sos
+  } else {
+    iir_params[["b"]] <- system$b
+    iir_params[["a"]] <- system$a
+  }
+  iir_params
 }
 
 #' Estimate filter ringing
 #'
-#' @param system  list(b, a)
+#' @param system  list(b, a), or list(sos)
 #' @param max_try  Approximate maximum number of samples to try. This will be changed to a multiple of 1000.
 #'
 #' @return integer with the approximate ringing.
@@ -313,46 +307,50 @@ construct_iir_filter <- function(iir_params, f_pass=NULL, f_stop=NULL, sfreq=NUL
 #' @noRd
 estimate_ringing_samples <- function(system, max_try=100000){
   if(all(c("a","b") %in% names(system))){
-      kind = 'ba'
-      b = system$b
-      a = system$a
-      zi=  rep(0, length(a) - 1)
-    }   else {
-      kind = 'sos'
-      sos = system$sos
+    kind = 'ba'
+    b = system$b
+    a = system$a
+    zi=  rep(0, length(a)-1)
+  }   else {
+    kind = 'sos'
+    sos = system$sos
+    zi =matrix(0, nrow = nrow(system$sos), ncol = 2)
+  }
+  
+  n_per_chunk = 1000
+  
+  n_chunks_max = ceiling(max_try/n_per_chunk)
+  x = rep(0, n_per_chunk)
+  x[1] = 1
+  last_good = n_per_chunk
+  thresh_val = 0
+  
+  for (ii in seq_len(n_chunks_max)){
+    if (kind == 'ba'){
+      out <- gsignal::filter(b, a, x, zi = zi)
+      # s$signal$lfilter(b, a, x, zi = zi)
+    } else {
+      #stop("sos output for filters not implemented")
+      out <- gsignal::sosfilt(sos, x, zi = zi)
+      #scipy$signal$sosfilt(sos, x, zi = zi)
     }
-
-    n_per_chunk = 1000
-
-    n_chunks_max = ceiling(max_try/n_per_chunk)
-    x = rep(0, n_per_chunk)
-    x[1] = 1
-    last_good = n_per_chunk
-    thresh_val = 0
-
-    for (ii in seq_len(n_chunks_max)){
-        if (kind == 'ba'){
-            h = signal::filter(b, a, x)
-            # s$signal$lfilter(b, a, x, zi = zi)
-        } else {
-          stop("sos output for filters not implemented")
-            ## h = gsignal::sosfilt(sos, x)
-        }
-        x[1] = 0  # for subsequent iterations we want zero input
-        h = abs(h)
-        #h is too high
-
-        thresh_val = max(0.001 * max(h), thresh_val)
-         ## np$where(np$abs(h) > thresh_val)[[1]]
-        idx = which(abs(h) > thresh_val)
-        # it should be vetweeb 1 and 83 for the example
-        if (length(idx) > 1){
-            last_good = idx[length(idx)] - 1
-        } else{  # this iteration had no sufficiently large values
-            idx = (ii - 2) * n_per_chunk + last_good
-            return(idx) #stops the for loop and return this
-        }
+    h <- out$y
+    zi <- out$zf
+    x[1] = 0  # for subsequent iterations we want zero input
+    h = abs(h)
+    #h is too high
+    
+    thresh_val = max(0.001 * max(h), thresh_val)
+    ## np$where(np$abs(h) > thresh_val)[[1]]
+    idx = which(abs(h) > thresh_val)
+    # it should be vetweeb 1 and 83 for the example
+    if (length(idx) > 1){
+      last_good = idx[length(idx)] - 1
+    } else{  # this iteration had no sufficiently large values
+      idx = (ii - 2) * n_per_chunk + last_good
+      return(idx) #stops the for loop and return this
     }
+  }
   warning('Could not properly estimate ringing for the filter')
   return(n_per_chunk * n_chunks_max)
 }
@@ -398,16 +396,16 @@ construct_fir_filter <- function(sampling_rate, freq, gain, filter_length, phase
   } else {
     stop("Unsupported filter_design", call. = FALSE)
   }
-
+  
   # issue a warning if attenuation is less than this
   min_att_db <- if (phase == "minimum") 12 else 20
-
+  
   # normalize frequencies
   n_freq <- freq / (sampling_rate / 2.)
   if (freq[1] != 0 || n_freq[length(freq)] != 1) {
     stop("freq must start at 0 and end an Nyquist,", sampling_rate / 2, ", got ", freq[length(freq)])
   }
-
+  
   # Use overlap-add filter with a fixed length
   N <- check_zero_phase_length(filter_length, phase, gain[length(gain)])
   # construct symmetric (linear phase) filter
@@ -422,7 +420,7 @@ construct_fir_filter <- function(sampling_rate, freq, gain, filter_length, phase
     stop("Wrong size of h")
   }
   att <- filter_attenuation(h, n_freq, gain)
-
+  
   if (phase == "zero-double") {
     att$db <- att$db + 6
   }
@@ -528,10 +526,10 @@ create_filter <- function(data,
                           l_freq = NULL,
                           h_freq = NULL,
                           config = list()) {
-
-
- if(is.null(config$method)) method <- "fir" else method <- config$method
-
+  
+  
+  if(is.null(config$method)) method <- "fir" else method <- config$method
+  
   config_names <- names(config)
   srate <- sampling_rate
   #srate <- 500
@@ -546,62 +544,56 @@ create_filter <- function(data,
     )
   }
   if (!is.null(l_freq) & all(l_freq == 0)) l_freq <- NULL
-
-
+  
+  
   ## Defaults
   if (!is.null(l_freq) && !is.null(h_freq) && l_freq > h_freq) {
     type <- "stop"
     h_temp <- l_freq
     l_freq <- h_freq
     h_freq <- h_temp
-
-    if(options()$eeguana.verbose)
-      message_verbose("Setting up band-stop filter from ", h_freq, " - ", l_freq, " Hz")
+    
+    message_verbose("Setting up band-stop filter from ", h_freq, " - ", l_freq, " Hz")
   } else if (!is.null(l_freq) && !is.null(h_freq) && l_freq < h_freq) {
     type <- "pass"
-    if(options()$eeguana.verbose)
-      message_verbose("Setting up band-pass filter from ", l_freq, " - ", h_freq, " Hz")
+    message_verbose("Setting up band-pass filter from ", l_freq, " - ", h_freq, " Hz")
   } else if (!is.null(l_freq)) {
     type <- "high" # pass
-    if(options()$eeguana.verbose)
-      message_verbose("Setting up high-pass filter at ", l_freq, " Hz")
+    message_verbose("Setting up high-pass filter at ", l_freq, " Hz")
   } else if (!is.null(h_freq)) {
     type <- "low" # pass
-    if(options()$eeguana.verbose)
-      message("Setting up low-pass filter at ", h_freq, " Hz")
+    message("Setting up low-pass filter at ", h_freq, " Hz")
   } else {
     stop("Both freq can't be NULL")
   }
-
+  
   if(method == "fir"){
-
+    
     phase <- "zero"
     filter_length <- "auto"
     fir_window <- "hamming"
     fir_design <- "firwin"
     is_arg_recognizable(config_names, c("method","l_trans_bandwidth", "h_trans_bandwidth"),   pre_msg = "passing unknown arguments for fir method: ", call. = FALSE)
-
+    
     if(is.null(l_freq)){
       l_trans_bandwidth <- Inf
     } else if (is.null(config$l_trans_bandwidth) || config$l_trans_bandwidth == "auto") {
       l_trans_bandwidth <- min(max(l_freq * 0.25, 2), l_freq)
-      if(options()$eeguana.verbose)
-        message("Width of the transition band at the low cut-off frequency is ",
-                l_trans_bandwidth, " Hz" )
+      message("Width of the transition band at the low cut-off frequency is ",
+              l_trans_bandwidth, " Hz" )
     } else {
-    l_trans_bandwidth <- config$l_trans_bandwidth
+      l_trans_bandwidth <- config$l_trans_bandwidth
     }
-
+    
     if(is.null(h_freq)){
       h_trans_bandwidth <- Inf
     } else if (is.null(config$h_trans_bandwidth) || config$h_trans_bandwidth == "auto") {
       h_trans_bandwidth <- min(max(0.25 * h_freq, 2.), srate / 2. - h_freq)
-      if(options()$eeguana.verbose)
-        message("Width of the transition band at the high cut-off frequency is ",h_trans_bandwidth, " Hz" )
+      message("Width of the transition band at the high cut-off frequency is ",h_trans_bandwidth, " Hz" )
     } else {
       h_trans_bandwidth <- config$h_trans_bandwidth
     }
-
+    
     mult_fact <- if (fir_design == "firwin2") 2 else 1
     length_factor <- list(hann = 3.1, hamming = 3.3, blackman = 5)
     filter_length <- max(as.integer(round(length_factor[[fir_window]] * srate * mult_fact /
@@ -611,11 +603,11 @@ create_filter <- function(data,
     }
     l_stop <- l_freq - l_trans_bandwidth
     h_stop <- h_freq + h_trans_bandwidth
-
-
+    
+    
     ## LOW PASS:
     if (type == "low") {
-
+      
       f_pass <- f_stop <- h_freq # iir
       freq <- c(0, h_freq, h_stop) # 0, f_p, f_s
       gain <- c(1, 1, 0)
@@ -625,7 +617,7 @@ create_filter <- function(data,
       }
       ## HIGH PASS
     } else if (type == "high") {
-
+      
       f_pass <- f_stop <- l_freq # iir
       freq <- c(l_stop, l_freq, srate / 2) # stop, pass,.._
       gain <- c(0, 1, 1)
@@ -649,8 +641,8 @@ create_filter <- function(data,
       if (length(l_freq) != length(h_freq)) {
         stop("l_freq and h_freq must be the same length")
       }
-
-
+      
+      
       ## Note: order of outputs is intentionally switched here!
       ## data, srate, f_s1, f_s2, f_p1, f_p2, filter_length, phase, \
       ## fir_window, fir_design = _triage_filter_params(
@@ -662,7 +654,7 @@ create_filter <- function(data,
       h_stop <- h_stop - h_trans_bandwidth
       h_freq <- h_freq - h_trans_bandwidth
       f_pass <- f_stop <- c(l_freq, h_freq) ## iir
-
+      
       freq <- c(l_stop, l_freq, h_freq, h_stop)
       gain <- c(
         rep(1, length(l_stop)),
@@ -688,21 +680,21 @@ create_filter <- function(data,
         )
       }
     }
-
+    
     construct_fir_filter(
       srate, freq, gain, filter_length, phase,
       fir_window, fir_design
     )
   } else if(method == "iir"){
-    message("IIR filters are still experimental, and not fully tested method.")
+  
     iir_params_names <- c("type", "b", "a", "sos", "output", "order", "gpass", "gstop", "rp", "rs", "padlen")
     is_arg_recognizable(config_names,c(iir_params_names, "method"),   pre_msg = "passing unknown arguments for fir method: ", call. = FALSE)
     if(is.null(config$type)) config$type <- "butter"
     if(is.null(config$order)){
       if(type %in% c("low", "high")) config$order <- 6 else config$order <-4
     }
-
-    construct_iir_filter(config[names(config) %in% iir_params_names], f_pass = c(l_freq, h_freq), f_stop = c(l_freq, h_freq) , srate, type)
+    
+    construct_iir_filter(iir_params = config[names(config) %in% iir_params_names], f_pass = c(l_freq, h_freq), f_stop = c(l_freq, h_freq) , srate, type)
   } else {
     stop("Invalid method, only iir and fir are possible.", call. = FALSE)
   }
@@ -743,19 +735,19 @@ next_fast_len <- function(target) {
     6480, 6561, 6750, 6912, 7200, 7290, 7500, 7680, 7776, 8000, 8100,
     8192, 8640, 8748, 9000, 9216, 9375, 9600, 9720, 10000
   )
-
+  
   if (target <= 6) return(target)
-
+  
   # Quickly check if it's already a power of 2
   if (!(bitwAnd(target, target - 1))) return(target)
-
+  
   # Get result quickly for small sizes, since FFT itself is similarly fast.
   if (target <= max(hams)) {
     return(hams[findInterval(target - 1, hams) + 1])
   }
   match <- Inf # Anything found will be smaller
   p5 <- 1
-
+  
   bit_length <- function(x) {
     bits <- intToBits(x) %>% as.numeric()
     length(bits) - which.max(rev(bits)) + 1
@@ -768,7 +760,7 @@ next_fast_len <- function(target) {
       # (quotient = ceil(target / p35))
       quotient <- -(-target %/% p35)
       p2 <- 2^bit_length(as.integer(quotient - 1))
-
+      
       N <- p2 * p35
       if (N == target) {
         message("ends 1")
@@ -789,7 +781,7 @@ next_fast_len <- function(target) {
       return(p5)
     }
   }
-
+  
   if (p5 < match) match <- p5
   return(match)
 }
@@ -828,7 +820,7 @@ smart_pad <- function(x, n_pad, pad = "reflect_limited") {
     ## need to pad with zeros if len(x) <= npad
     l_z_pad <- rep(0, max(n_pad[1] - length(x) + 1, 0))
     r_z_pad <- rep(0, max(n_pad[2] - length(x) + 1, 0))
-
+    
     return(c(
       l_z_pad,
       2 * x[1] - x[seq.int(min(length(x), n_pad[1] + 1), to = 2, by = -1)],
@@ -876,7 +868,7 @@ overlap_add_filter <- function(x, h, n_fft = NULL, phase = "zero",
   ## """
   # Extend the signal by mirroring the edges to reduce transient filter
   # response
-
+  
   # TODO?
   ## _check_zero_phase_length(len(h), phase)
   if (length(h) == 1) {
@@ -889,13 +881,13 @@ overlap_add_filter <- function(x, h, n_fft = NULL, phase = "zero",
   n_edge <- max(min(length(h), length(x)) - 1, 0)
   ## message("Smart-padding with,",n_edge," samples")
   n_x <- length(x) + 2 * n_edge
-
+  
   if (phase == "zero-double") {
     ## h = np.convolve(h, h[::-1])
     ## h <- linear_convolve(h, rev(h)) #TODO: see how to implement in R
     stop("phase zero-double not implemented")
   }
-
+  
   ## Determine FFT length to use
   min_fft <- 2 * length(h) - 1
   if (is.null(n_fft)) {
@@ -907,11 +899,11 @@ overlap_add_filter <- function(x, h, n_fft = NULL, phase = "zero",
         ceiling(log2(max_fft))
       )
       cost <- (ceiling(n_x / (N - length(h) + 1)) *
-        N * (log2(N) + 1)) +
+                 N * (log2(N) + 1)) +
         ## add a heuristic term to prevent too-long FFT"s which are slow
         ## (not predicted by mult. cost alone, 4e-5 exp. determined)
         4e-5 * N * n_x
-
+      
       n_fft <- N[which.min(cost)]
     } else {
       ## Use only a single block
@@ -925,14 +917,14 @@ overlap_add_filter <- function(x, h, n_fft = NULL, phase = "zero",
       "2 * len(h) - 1,", min_fft, ", got", n_fft
     )
   }
-
+  
   ## x = _1d_overlap_filter(x, len(h), n_edge, phase,
   ## cuda_dict, pad, n_fft)
   ## pad to reduce ringing
   x_ext <- smart_pad(x, c(n_edge, n_edge), pad)
   ## works x2 = mne$cuda$`_smart_pad`(np$array(x), c(n_edge,n_edge) %>% as.integer, pad)
   n_x <- length(x_ext)
-  x_filtered <- rep(0, n_x)
+  x_filtered <- rep(0 * x[1], n_x) ## BN: this should keep the class and attr
   n_h <- length(h)
   n_seg <- n_fft - n_h + 1
   n_segments <- as.integer(ceiling(n_x / n_seg))
@@ -946,7 +938,7 @@ overlap_add_filter <- function(x, h, n_fft = NULL, phase = "zero",
   ##                   rfft=np$fft$rfft,
   ##                   irfft=np$fft$irfft,
   ##                   h_fft=np$fft$rfft(h, n=n_fft))
-
+  
   for (seg_idx in (seq_len(n_segments) - 1)) {
     start <- seg_idx * n_seg
     stop <- (seg_idx + 1) * n_seg
@@ -962,4 +954,20 @@ overlap_add_filter <- function(x, h, n_fft = NULL, phase = "zero",
   }
   ## Remove mirrored edges that we added and cast (n_edge can be zero)
   x_filtered[seq.int(from = 1, to = length(x))]
+}
+
+
+#' @noRd
+check_coefficients <- function(h){
+  if(identical(names(h),c("b", "a"))){
+    if(any(abs(gsignal::tf2zp(b = h$b, a = h$a)$p)> 1) )
+      stop("Filter poles outside unit circle, filter will be 
+           unstable. Consider using different filter coefficients, or using `sos` rather than `ba` output.", call. = FALSE)
+  } else if(identical(names(h),c("sos", "g"))){
+    if(any(abs(gsignal::sos2zp(sos = h$sos, g = h$g)$p)> 1) )
+      stop("Filter poles outside unit circle, filter will be 
+           unstable. Consider using different filter coefficients, or using `sos` rather than `ba` output.", call. = FALSE)
+  } else {
+    stop("Unrecognized coefficients", call. = FALSE)
+  }
 }

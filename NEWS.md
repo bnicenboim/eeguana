@@ -1,3 +1,21 @@
+# eeguana 0.1.7.9000
+- New features:
+- The argument `.ref` of `eeg_rereference()` now allows "tidyselect".
+    - `write_vhdr()` writes BrainVision 2.0 files (experimental).
+    - `eeg_psd()` computes the power spectral density (PSD) of a en EEG signal (using only the Welch method for now).
+    - `eeg_band_power()` computes power bands.
+    - `na_omit()` removes NA values from `eeg_lst` objects.
+    - `as_tidytable()` added.
+    - `sampling_rate()` shows the sampling rate of an object.
+    - `eeg_unsegment()` was added.
+- Modifying channels with `channels_tbl()` is much faster now.
+- Signal filtering is slightly faster and uses the `gsignal` package.
+- BUGS:
+  - some brainvision files produced by eeglab couldn't be read now work
+- DEPRECATIONS:
+  - The argument `.all_chs` of `eeg_events_to_NA` was deprecated in favor of the more flexible `.n_chs`.
+
+
 # eeguana 0.1.6.9000
 
 - **Breaking change**: `_at`, `_if`, `_all` functions don't work anymore. Now one should use the new `across()` (or `across_ch()`) notation. If your code doesn't work anymore and you don't know how to fix it, please post it in https://github.com/bnicenboim/eeguana/discussions

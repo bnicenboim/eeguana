@@ -69,7 +69,7 @@ chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
 #'
 #' @param .data An eeg_lst object.
 #' @param ... Channels to include. All the channels by default, but eye channels should be removed.
-#' @param .ref Character vector of channels that will be averaged as the reference.
+#' @param .ref Channels that will be averaged as the reference. tidyselect compatible.
 #' @inheritParams base::mean
 #' @return An  eeg_lst with some channels re-referenced.
 #' @export
@@ -79,33 +79,27 @@ chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
 #' @examples
 #' # Re-reference all channels using the left mastoid excluding the eye electrodes.
 #' data_faces_ERPs_M1 <- data_faces_ERPs %>%
-#'   eeg_rereference(-EOGV, -EOGH, .ref = "M1")
+#'   eeg_rereference(-EOGV, -EOGH, .ref = M1)
 #'
 #' # Re-reference using the linked mastoids excluding the eye electrodes.
 #' data_faces_ERPs_M1M2 <- data_faces_ERPs %>%
-#'   eeg_rereference(-EOGV, -EOGH, .ref = c("M1", "M2"))
+#'   eeg_rereference(-EOGV, -EOGH, .ref = c(M1, M2))
 #' @export
 eeg_rereference <- function(.data, ..., .ref = NULL, na.rm = FALSE) {
   UseMethod("eeg_rereference")
 }
 #' @export
 eeg_rereference.eeg_lst <- function(.data, ..., .ref = NULL, na.rm = FALSE) {
-  signal <- data.table::copy(.data$.signal)
-  sel_ch <- sel_ch(.data, ...)
-  .ref <- unlist(.ref) # rlang::quos_auto_name(dots) %>% names()
-
-  # .ref <- rowMeans(.data$.signal[,..ref], na.rm = na.rm)
+  chs <- sel_ch(.data, ...)
+  .ref <- rlang::enquo(.ref)
+  ref_v <- .data$.signal %>% select.(tidyselect::all_of(channel_names(.data))) %>% select.( !!.ref)
+  ref_value <- rowMeans(ref_v)
   reref <- function(x, ref_value) {
     x <- x - ref_value
-    attributes(x)$.reference <- paste0(.ref, collapse = ", ")
+    attributes(x)$.reference <- paste0(colnames(ref_v), collapse = ", ")
     x
   }
-  # signal[, (ch_sel) := {.ref= rowMeans()   ;lapply(.SD, reref, .ref = .ref)},.SDcols = c(ch_sel)]
-  signal[, (sel_ch) := {
-    .ref <- rowMeans(.SD)
-    lapply(mget(sel_ch, inherits = TRUE), reref, ref_value = .ref)
-  }, .SDcols = c(.ref)]
-  .data$.signal <- signal
+  .data$.signal <- .data$.signal %>% mutate.(across.(tidyselect::all_of(!!chs), reref, ref_value))
   update_events_channels(.data) %>% validate_eeg_lst()
 }
 
@@ -166,9 +160,9 @@ chs_fun.eeg_lst <- function(x, .funs, .pars = list(), ...) {
 #'
 #' @param ... Channels to include. All channels by default.
 #' @param x An `eeg_lst` object or a channel.
-#' @param lim A negative number indicating from when to baseline; the interval is defined as \[lim,0\]. The default is to use all the negative times.
+#' @param .lim A negative number indicating from when to baseline; the interval is defined as \[lim,0\]. The default is to use all the negative times.
 #' @inheritParams eeg_artif
-#'
+#' 
 #' @family preprocessing functions
 #' @return An eeg_lst.
 #'
@@ -180,7 +174,7 @@ eeg_baseline <- function(x, ..., .lim = -Inf, .unit = "s") {
 #' @export
 eeg_baseline.eeg_lst <- function(x, ..., .lim = -Inf, .unit = "s") {
   ch_sel <- sel_ch(x, ...)
-  sample_id <- as_sample_int(.lim, sampling_rate = sampling_rate(x), .unit)
+  sample_id <- as_sample_int(.lim, .sampling_rate = sampling_rate(x), .unit)
 
   x$.signal <- data.table::copy(x$.signal)
   x$.signal <- x$.signal[, (ch_sel) := lapply(.SD, fun_baseline, .sample, sample_id),
@@ -190,6 +184,7 @@ eeg_baseline.eeg_lst <- function(x, ..., .lim = -Inf, .unit = "s") {
   x
 }
 
+#' @noRd
 fun_baseline <- function(x, .sample, lower) {
   x - mean(x[between(.sample, lower, 0)], na.rm = TRUE)
 }
