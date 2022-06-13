@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.6.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.7.9000</span>
       </span>
     </div>
 
@@ -32,7 +32,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -82,18 +82,25 @@
     <h2>Arguments</h2>
     <dl><dt>x</dt>
 <dd><p>An <code>eeg_lst</code> object or a channel.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Channels to include. All channels by default.</p></dd>
+
+
 <dt>.lim</dt>
-<dd><p>Vector with two values indicating the time before and after the artifact that will be included in events_tbl (by default the size the window before and afterwards).</p></dd>
+<dd><p>A negative number indicating from when to baseline; the interval is defined as [lim,0]. The default is to use all the negative times.</p></dd>
+
+
 <dt>.unit</dt>
 <dd><p>"seconds" (or "s"), "milliseconds" (or "ms")</p></dd>
-<dt>lim</dt>
-<dd><p>A negative number indicating from when to baseline; the interval is defined as [lim,0]. The default is to use all the negative times.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>An eeg_lst.</p>
+    
+
+<p>An eeg_lst.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -118,7 +125,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

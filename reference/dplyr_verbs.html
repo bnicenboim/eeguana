@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.6.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.7.9000</span>
       </span>
     </div>
 
@@ -32,7 +32,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -123,24 +123,44 @@
     <h2>Arguments</h2>
     <dl><dt>.data</dt>
 <dd><p>An eeg_lst.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Name-value pairs of expressions; see <a href="https://dplyr.tidyverse.org/reference/dplyr-package.html" class="external-link">dplyr</a> for more help.</p></dd>
+
+
 <dt>.preserve</dt>
 <dd><p>Not in use, for compatibility reasons.</p></dd>
+
+
 <dt>.groups</dt>
 <dd><p>Only .groups = "keep" is available.  Same grouping structure as .data.</p></dd>
+
+
 <dt>.add</dt>
 <dd><p>When FALSE, the default, group_by() will override existing groups. To add to the existing groups, use .add = TRUE.</p></dd>
+
+
 <dt>.drop</dt>
 <dd><p>Only .drop = FALSE is available, empty groups are never dropped.</p></dd>
+
+
 <dt>.fn</dt>
 <dd><p>Function to transform the names with.</p></dd>
+
+
 <dt>.cols</dt>
 <dd><p>Columns to rename. Defaults to all columns. <code>tidyselect</code> compatible.</p></dd>
+
+
 <dt>x</dt>
 <dd><p>An eeg_lst.</p></dd>
+
+
 <dt>y</dt>
 <dd><p>A data frame, tibble, or data.table.</p></dd>
+
+
 <dt>by</dt>
 <dd><p>A character vector of variables to join by.</p>
 <p>If <code>NULL</code>, the default, <code>*_join()</code> will perform a natural join, using all
@@ -155,15 +175,21 @@ For example, <code>by = c("a" = "b", "c" = "d")</code> will match <code>x$a</cod
 <code>x$c</code> to <code>y$d</code>.</p>
 <p>To perform a cross-join, generating all combinations of <code>x</code> and <code>y</code>,
 use <code>by = character()</code>.</p></dd>
+
+
 <dt>copy</dt>
 <dd><p>If <code>x</code> and <code>y</code> are not from the same data source,
 and <code>copy</code> is <code>TRUE</code>, then <code>y</code> will be copied into the
 same src as <code>x</code>.  This allows you to join tables across srcs, but
 it is a potentially expensive operation so you must opt into it.</p></dd>
+
+
 <dt>suffix</dt>
 <dd><p>If there are non-joined duplicate variables in <code>x</code> and
 <code>y</code>, these suffixes will be added to the output to disambiguate them.
 Should be a character vector of length 2.</p></dd>
+
+
 <dt>var</dt>
 <dd><p>A variable specified as:</p><ul><li><p>a literal variable name</p></li>
 <li><p>a positive integer, giving the position counting from the left</p></li>
@@ -171,22 +197,31 @@ Should be a character vector of length 2.</p></dd>
 </ul><p>The default returns the last column (on the assumption that's the
 column you've created most recently).</p>
 <p>This argument is taken by expression and supports
-<a href="https://rlang.r-lib.org/reference/nse-force.html" class="external-link">quasiquotation</a> (you can unquote column
+<a href="https://rlang.r-lib.org/reference/topic-inject.html" class="external-link">quasiquotation</a> (you can unquote column
 names and column locations).</p></dd>
+
+
 <dt>name</dt>
 <dd><p>An optional parameter that specifies the column to be used
 as names for a named vector. Specified in a similar manner as <code>var</code>.</p></dd>
+
+
 <dt>.fns</dt>
 <dd><p>Functions to pass. Can pass a list of functions.</p></dd>
+
+
 <dt>.names</dt>
 <dd><p>A glue specification that helps with renaming output columns.
 <code>{.col}</code> stands for the selected column, and <code>{.fn}</code> stands for the name of the function being applied.
 The default (<code>NULL</code>) is equivalent to <code>"{.col}"</code> for a single function case and <code>"{.col}_{.fn}"</code>
 when a list is used for <code>.fns</code>.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>An eeg_lst object.</p>
+    
+
+<p>An eeg_lst object.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -692,7 +727,7 @@ when a list is used for <code>.fns</code>.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

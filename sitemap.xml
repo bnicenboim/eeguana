@@ -43,7 +43,13 @@
     <loc>/reference/as.data.frame.eeg_lst.html</loc>
   </url>
   <url>
+    <loc>/reference/as.data.frame.psd_lst.html</loc>
+  </url>
+  <url>
     <loc>/reference/as.data.table.eeg_lst.html</loc>
+  </url>
+  <url>
+    <loc>/reference/as.data.table.psd_lst.html</loc>
   </url>
   <url>
     <loc>/reference/as_channel_dbl.html</loc>
@@ -56,6 +62,15 @@
   </url>
   <url>
     <loc>/reference/as_tibble.eeg_lst.html</loc>
+  </url>
+  <url>
+    <loc>/reference/as_tibble.psd_lst.html</loc>
+  </url>
+  <url>
+    <loc>/reference/as_tidytable.eeg_lst.html</loc>
+  </url>
+  <url>
+    <loc>/reference/as_tidytable.psd_lst.html</loc>
   </url>
   <url>
     <loc>/reference/as_time.html</loc>
@@ -139,6 +154,12 @@
     <loc>/reference/eeg_lst.html</loc>
   </url>
   <url>
+    <loc>/reference/eeg_power_band.html</loc>
+  </url>
+  <url>
+    <loc>/reference/eeg_psd.html</loc>
+  </url>
+  <url>
     <loc>/reference/eeg_rereference.html</loc>
   </url>
   <url>
@@ -184,6 +205,12 @@
     <loc>/reference/is_events_tbl.html</loc>
   </url>
   <url>
+    <loc>/reference/is_psd_lst.html</loc>
+  </url>
+  <url>
+    <loc>/reference/is_psd_tbl.html</loc>
+  </url>
+  <url>
     <loc>/reference/is_sample_int.html</loc>
   </url>
   <url>
@@ -191,6 +218,9 @@
   </url>
   <url>
     <loc>/reference/layout_32_1020.html</loc>
+  </url>
+  <url>
+    <loc>/reference/na_omit.html</loc>
   </url>
   <url>
     <loc>/reference/pipe.html</loc>
@@ -206,6 +236,9 @@
   </url>
   <url>
     <loc>/reference/plot_topo.html</loc>
+  </url>
+  <url>
+    <loc>/reference/psd_lst.html</loc>
   </url>
   <url>
     <loc>/reference/read_edf.html</loc>
@@ -245,5 +278,8 @@
   </url>
   <url>
     <loc>/reference/theme_eeguana.html</loc>
+  </url>
+  <url>
+    <loc>/reference/write_vhdr.html</loc>
   </url>
 </urlset>

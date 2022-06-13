@@ -20,7 +20,7 @@ files must be in the same directory."><meta property="og:image" content="/logo.p
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.6.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.7.9000</span>
       </span>
     </div>
 
@@ -35,7 +35,7 @@ files must be in the same directory."><meta property="og:image" content="/logo.p
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -93,16 +93,25 @@ files must be in the same directory.</p>
     <h2>Arguments</h2>
     <dl><dt>file</dt>
 <dd><p>A vhdr file in a folder that contains a .vmrk and .dat files</p></dd>
+
+
 <dt>.sep</dt>
 <dd><p>Segment separation marker. By default: <code>.type == "New Segment"</code></p></dd>
+
+
 <dt>.zero</dt>
 <dd><p>Time zero marker. By default: <code>.type == "Time 0"</code></p></dd>
+
+
 <dt>.recording</dt>
 <dd><p>Recording name (<code>file</code> name, by default).</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>An <code>eeg_lst</code> object with signal_tbl and event from file_name.dat,
+    
+
+<p>An <code>eeg_lst</code> object with signal_tbl and event from file_name.dat,
 file_name.vhdr, and file_name.vmrk.</p>
     </div>
     <div id="see-also">
@@ -139,7 +148,7 @@ file_name.vhdr, and file_name.vmrk.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

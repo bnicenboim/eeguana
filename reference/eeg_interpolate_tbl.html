@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.6.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.7.9000</span>
       </span>
     </div>
 
@@ -32,7 +32,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -104,22 +104,39 @@
     <h2>Arguments</h2>
     <dl><dt>.data</dt>
 <dd><p>An <code>eeg_lst</code> object or a long table with amplitudes..</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Various arguments passed to the interpolation method.</p></dd>
+
+
 <dt>.radius</dt>
 <dd><p>Indicates the radius of the extrapolation, for standard locations of electrodes,  <code>1</code> indicates no extrapolation beyond the position of the electrodes, <code>1.2</code> is the default</p></dd>
+
+
 <dt>.diam_points</dt>
 <dd><p>Density of the interpolation (number of points that are interpolated in the diameter of the scalp).</p></dd>
+
+
 <dt>.method</dt>
 <dd><p>Method of interpolation (<code>"MBA"</code> Multilevel B-splines using the function <code>mba.surf</code> of the package <code>MBA</code> or (<code>"akima"</code> bicubic spline Akima interpolation algorithm using the function <code>interp</code> of the package <code>akima</code>.)..).</p></dd>
+
+
 <dt>.x</dt>
 <dd><p>Variable storing the x coordinate, generally <code>.x</code> (default).</p></dd>
+
+
 <dt>.y</dt>
 <dd><p>Variable storing the y coordinate, generally <code>.y</code> (default).</p></dd>
+
+
 <dt>.value</dt>
 <dd><p>Values used for the interpolation, generally <code>.value</code> (default).</p></dd>
+
+
 <dt>.label</dt>
 <dd><p>Label of the points that are used for the interpolation, generally <code>.key</code> (default).</p></dd>
+
 </dl></div>
 
   </div>
@@ -134,7 +151,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.6.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.7.9000</span>
       </span>
     </div>
 
@@ -32,7 +32,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -78,9 +78,10 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">eeg_events_to_NA</span><span class="op">(</span>
   <span class="va">x</span>,
   <span class="va">...</span>,
-  .all_chs <span class="op">=</span> <span class="cn">FALSE</span>,
+  .n_chs <span class="op">=</span> <span class="cn">NULL</span>,
   .entire_seg <span class="op">=</span> <span class="cn">TRUE</span>,
-  .drop_events <span class="op">=</span> <span class="cn">TRUE</span>
+  .drop_events <span class="op">=</span> <span class="cn">TRUE</span>,
+  .all_chs <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
     </div>
 
@@ -88,19 +89,33 @@
     <h2>Arguments</h2>
     <dl><dt>x</dt>
 <dd><p>An <code>eeg_lst</code> object.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Description of the problematic event.</p></dd>
-<dt>.all_chs</dt>
-<dd><p>If set to <code>TRUE</code>,
-it will consider samples from all channels (Default:  <code>.all_chs = FALSE</code>).</p></dd>
+
+
+<dt>.n_chs</dt>
+<dd><p>If set to <code>NULL</code> (default), it will only set <code>NA</code> to the relevant channel.If set to a number <code>N</code>, it will set all the channels of the entire segment or interval to <code>NA</code>, if <code>N</code> or more channels have a certain event, and otherwise only the relevant channel.</p></dd>
+
+
 <dt>.entire_seg</dt>
 <dd><p>If set to <code>FALSE</code>, it will consider only the marked part of the segment, otherwise it will consider the entire segment (Default: .entire_seg = TRUE).</p></dd>
+
+
 <dt>.drop_events</dt>
 <dd><p>If set to <code>TRUE</code> (default), the events that were used for setting signals to NA, will be removed from the events table.</p></dd>
+
+
+<dt>.all_chs</dt>
+<dd><p>Deprecated.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>An eeg_lst.</p>
+    
+
+<p>An eeg_lst.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -114,12 +129,12 @@ it will consider samples from all channels (Default:  <code>.all_chs = FALSE</co
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># Signals with artifacts are turned into NA values:</span></span>
 <span class="r-in"><span class="va">faces_clean</span> <span class="op">&lt;-</span> <span class="va">faces_seg_artif</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span>
-<span class="r-in">  <span class="fu">eeg_events_to_NA</span><span class="op">(</span><span class="va">.type</span> <span class="op">==</span> <span class="st">"artifact"</span>, entire_seg <span class="op">=</span> <span class="cn">TRUE</span>, all_chans <span class="op">=</span> <span class="cn">FALSE</span>, drop_events <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span class="r-in">  <span class="fu">eeg_events_to_NA</span><span class="op">(</span><span class="va">.type</span> <span class="op">==</span> <span class="st">"artifact"</span>, .entire_seg <span class="op">=</span> <span class="cn">TRUE</span>, .drop_events <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># Specific segments are turned into NA values:</span></span>
 <span class="r-in"><span class="va">faces_clean</span> <span class="op">&lt;-</span> <span class="va">faces_seg_artif</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span>
-<span class="r-in">  <span class="fu">eeg_events_to_NA</span><span class="op">(</span><span class="va">.id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span>, entire_seg <span class="op">=</span> <span class="cn">TRUE</span>, all_chans <span class="op">=</span> <span class="cn">FALSE</span>, drop_events <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span class="r-in">  <span class="fu">eeg_events_to_NA</span><span class="op">(</span><span class="va">.id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span>, .entire_seg <span class="op">=</span> <span class="cn">TRUE</span>, .drop_events <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span class="r-in"><span class="op">}</span></span>
 <span class="r-in"></span>
 </code></pre></div>
@@ -136,7 +151,7 @@ it will consider samples from all channels (Default:  <code>.all_chs = FALSE</co
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

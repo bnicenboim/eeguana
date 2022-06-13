@@ -21,7 +21,7 @@ unwanted components, use eeg_ica_keep()."><meta property="og:image" content="/lo
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.6.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.7.9000</span>
       </span>
     </div>
 
@@ -36,7 +36,7 @@ unwanted components, use eeg_ica_keep()."><meta property="og:image" content="/lo
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -96,20 +96,31 @@ unwanted components, use <code><a href="eeg_ica_keep.html">eeg_ica_keep()</a></c
     <h2>Arguments</h2>
     <dl><dt>.data</dt>
 <dd><p>An eeg_lst object</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Channels to include in ICA transformation. All the channels by default, but eye channels
 and reference channels should be removed.</p></dd>
+
+
 <dt>.ignore</dt>
 <dd><p>Events that should be ignored in the ICA, set to NULL for not using the events table.</p></dd>
+
+
 <dt>.method</dt>
 <dd><p>Methods from different packages: <a href="fast_ICA.html">fast_ICA</a>, a wrapper of <a href="https://rdrr.io/pkg/fastICA/man/fastICA.html" class="external-link">fastICA::fastICA</a>, (default), and some more experimental .methods:
 <a href="fICA.html">fast_ICA2</a> and <a href="fICA.html">adapt_fast_ICA</a> adapted from <a href="https://rdrr.io/pkg/fICA/man/fICA.html" class="external-link">fICA</a> package. It can also accept a custom function, see details.</p></dd>
+
+
 <dt>.config</dt>
 <dd><p>Other parameters passed in a list to the ICA method. See the documentation of the relevant .method.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>An eeg_ica_lst object</p>
+    
+
+<p>An eeg_ica_lst object</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -143,8 +154,8 @@ Some packages with other ICA methods or implementations: <code>steadyICA</code> 
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="va">data_faces_10_trials</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span>
 <span class="r-in">  <span class="fu">eeg_ica</span><span class="op">(</span><span class="op">-</span><span class="va">EOGH</span>, <span class="op">-</span><span class="va">EOGV</span>, <span class="op">-</span><span class="va">M1</span>, <span class="op">-</span><span class="va">M2</span>, .method <span class="op">=</span> <span class="va">fast_ICA</span>, .config <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>maxit <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> # ICA is being done using fast_ICA...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> # ICA finished in 9 iterations. With a tolerance of 0.985808. (Maximum expected tolerance: 1e-06.)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> # ICA took 1.74 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> # ICA finished in 9 iterations. With a tolerance of 0.677398. (Maximum expected tolerance: 1e-06.)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> # ICA took 1.9 secs</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # EEG data:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Signal table:</span>
@@ -274,7 +285,7 @@ Some packages with other ICA methods or implementations: <code>steadyICA</code> 
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

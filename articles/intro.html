@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.6.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.7.9000</span>
       </span>
     </div>
 
@@ -56,7 +56,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -100,7 +100,7 @@
       <h1 data-toc-skip>Introduction - Preprocessing and visualization of EEG data</h1>
                         <h4 data-toc-skip class="author">Bruno Nicenboim</h4>
             
-            <h4 data-toc-skip class="date">2022-01-20</h4>
+            <h4 data-toc-skip class="date">2022-06-13</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bnicenboim/eeguana/blob/HEAD/vignettes/intro.Rmd" class="external-link"><code>vignettes/intro.Rmd</code></a></small>
       <div class="hidden name"><code>intro.Rmd</code></div>
@@ -267,20 +267,42 @@
 <p>We see that there is no electrode positions in the object, but since we know that the layout was a standard 10/20, we’ll add this layout to the object, using the dataset <code>layout_32_1020</code>. This is required to be able to create topographic plots.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/channels_tbl.html">channels_tbl</a></span><span class="op">(</span><span class="va">faces</span><span class="op">)</span>
-<span class="co">#&gt; <span style="color: #949494;"># A tibble: 34 × 11</span></span>
-<span class="co">#&gt;    .channel number .reference resolution unit     radius theta   phi    .x    .y</span>
-<span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> Fp1      Ch1    <span style="color: #BB0000;">NA</span>                  1 microvo…     <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> Fpz      Ch2    <span style="color: #BB0000;">NA</span>                  1 microvo…     <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> Fp2      Ch3    <span style="color: #BB0000;">NA</span>                  1 microvo…     <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> F7       Ch4    <span style="color: #BB0000;">NA</span>                  1 microvo…     <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> F3       Ch5    <span style="color: #BB0000;">NA</span>                  1 microvo…     <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> Fz       Ch6    <span style="color: #BB0000;">NA</span>                  1 microvo…     <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> F4       Ch7    <span style="color: #BB0000;">NA</span>                  1 microvo…     <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> F8       Ch8    <span style="color: #BB0000;">NA</span>                  1 microvo…     <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> FC5      Ch9    <span style="color: #BB0000;">NA</span>                  1 microvo…     <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">10</span> FC1      Ch10   <span style="color: #BB0000;">NA</span>                  1 microvo…     <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span></span>
-<span class="co">#&gt; <span style="color: #949494;"># … with 24 more rows, and 1 more variable: .z &lt;dbl&gt;</span></span>
+<span class="co">#&gt;     .channel number .reference resolution       unit radius theta phi .x .y .z</span>
+<span class="co">#&gt;  1:      Fp1    Ch1       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt;  2:      Fpz    Ch2       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt;  3:      Fp2    Ch3       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt;  4:       F7    Ch4       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt;  5:       F3    Ch5       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt;  6:       Fz    Ch6       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt;  7:       F4    Ch7       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt;  8:       F8    Ch8       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt;  9:      FC5    Ch9       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 10:      FC1   Ch10       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 11:      FC2   Ch11       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 12:      FC6   Ch12       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 13:       M1   Ch13       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 14:       T7   Ch14       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 15:       C3   Ch15       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 16:       Cz   Ch16       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 17:       C4   Ch17       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 18:       T8   Ch18       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 19:       M2   Ch19       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 20:      CP5   Ch20       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 21:      CP1   Ch21       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 22:      CP2   Ch22       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 23:      CP6   Ch23       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 24:       P7   Ch24       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 25:       P3   Ch25       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 26:       Pz   Ch26       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 27:       P4   Ch27       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 28:       P8   Ch28       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 29:      POz   Ch29       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 30:       O1   Ch30       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 31:       Oz   Ch31       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 32:       O2   Ch32       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 33:     HEOG   Ch33       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt; 34:     VEOG   Ch34       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
+<span class="co">#&gt;     .channel number .reference resolution       unit radius theta phi .x .y .z</span>
 <span class="co">## In case the order of the electrodes is different, we do a left_join instead of replacing the table:</span>
 <span class="fu"><a href="../reference/channels_tbl.html">channels_tbl</a></span><span class="op">(</span><span class="va">faces</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="fu"><a href="../reference/channels_tbl.html">channels_tbl</a></span><span class="op">(</span><span class="va">faces</span><span class="op">)</span>, <span class="va">.channel</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">layout_32_1020</span><span class="op">)</span>
@@ -341,7 +363,8 @@
 <span class="va">faces_ica</span> <span class="op">&lt;-</span> <span class="va">faces_ls</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
   <span class="fu"><a href="../reference/eeg_ica.html">eeg_ica</a></span><span class="op">(</span><span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span>, <span class="op">-</span><span class="va">M1</span>, <span class="op">-</span><span class="va">M2</span>, .method <span class="op">=</span> <span class="va">adapt_fast_ICA</span>, .ignore <span class="op">=</span> <span class="va">.type</span> <span class="op">==</span> <span class="st">"artifact"</span><span class="op">)</span>
 <span class="co">#&gt; # ICA is being done using adapt_fast_ICA...</span>
-<span class="co">#&gt; # ICA took 4.36 mins</span></code></pre></div>
+<span class="co">#&gt; # 97% of the samples will be used.</span>
+<span class="co">#&gt; # ICA took 2.07 mins</span></code></pre></div>
 <p>We can now check the different topographic plots of the ICAs with <code><a href="../reference/plot_components.html">plot_components()</a></code>, and their correlation with the EOG channels looking a the summary of the object.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">faces_ica</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/plot_components.html">plot_components</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
@@ -351,68 +374,68 @@
 <span class="co">#&gt; EOG channels detected as: HEOG, VEOG</span>
 <span class="co">#&gt; # Downsampling from 512Hz to 256Hz.</span>
 <span class="co">#&gt; # Object size in memory 53.8 Mb</span>
-<span class="co">#&gt;        .recording  EOG  .ICA           cor          var</span>
-<span class="co">#&gt;  1: s1_faces.vhdr VEOG  ICA1  0.3098529965 0.3387882911</span>
-<span class="co">#&gt;  2: s1_faces.vhdr HEOG  ICA1 -0.0001132202 0.3387882911</span>
-<span class="co">#&gt;  3: s1_faces.vhdr VEOG ICA29  0.0371242658 0.1793728208</span>
-<span class="co">#&gt;  4: s1_faces.vhdr HEOG ICA29 -0.0026311737 0.1793728208</span>
-<span class="co">#&gt;  5: s1_faces.vhdr VEOG ICA12  0.0504623472 0.0921613172</span>
-<span class="co">#&gt;  6: s1_faces.vhdr HEOG ICA12  0.0111921456 0.0921613172</span>
-<span class="co">#&gt;  7: s1_faces.vhdr VEOG ICA22  0.0219244495 0.0764852219</span>
-<span class="co">#&gt;  8: s1_faces.vhdr HEOG ICA22 -0.0038381089 0.0764852219</span>
-<span class="co">#&gt;  9: s1_faces.vhdr VEOG ICA15 -0.0414988976 0.0742544737</span>
-<span class="co">#&gt; 10: s1_faces.vhdr HEOG ICA15 -0.0106037734 0.0742544737</span>
-<span class="co">#&gt; 11: s1_faces.vhdr VEOG ICA20  0.0125608407 0.0516777429</span>
-<span class="co">#&gt; 12: s1_faces.vhdr HEOG ICA20 -0.0009543525 0.0516777429</span>
-<span class="co">#&gt; 13: s1_faces.vhdr VEOG ICA21  0.0165618940 0.0409542971</span>
-<span class="co">#&gt; 14: s1_faces.vhdr HEOG ICA21  0.0084487520 0.0409542971</span>
-<span class="co">#&gt; 15: s1_faces.vhdr VEOG ICA27 -0.0105839169 0.0305187652</span>
-<span class="co">#&gt; 16: s1_faces.vhdr HEOG ICA27 -0.0033444192 0.0305187652</span>
-<span class="co">#&gt; 17: s1_faces.vhdr HEOG  ICA9 -0.0104469531 0.0164572491</span>
-<span class="co">#&gt; 18: s1_faces.vhdr VEOG  ICA9 -0.0083677586 0.0164572491</span>
-<span class="co">#&gt; 19: s1_faces.vhdr VEOG  ICA4 -0.0207375364 0.0129502676</span>
-<span class="co">#&gt; 20: s1_faces.vhdr HEOG  ICA4 -0.0073950796 0.0129502676</span>
-<span class="co">#&gt; 21: s1_faces.vhdr HEOG ICA14  0.0042436080 0.0102705876</span>
-<span class="co">#&gt; 22: s1_faces.vhdr VEOG ICA14  0.0005749188 0.0102705876</span>
-<span class="co">#&gt; 23: s1_faces.vhdr VEOG ICA30  0.0110418330 0.0095064661</span>
-<span class="co">#&gt; 24: s1_faces.vhdr HEOG ICA30  0.0010016696 0.0095064661</span>
-<span class="co">#&gt; 25: s1_faces.vhdr VEOG ICA16 -0.0106949512 0.0091724722</span>
-<span class="co">#&gt; 26: s1_faces.vhdr HEOG ICA16  0.0015450154 0.0091724722</span>
-<span class="co">#&gt; 27: s1_faces.vhdr HEOG  ICA3 -0.0050633279 0.0079903661</span>
-<span class="co">#&gt; 28: s1_faces.vhdr VEOG  ICA3 -0.0050068321 0.0079903661</span>
-<span class="co">#&gt; 29: s1_faces.vhdr VEOG ICA10 -0.0033766588 0.0056931388</span>
-<span class="co">#&gt; 30: s1_faces.vhdr HEOG ICA10 -0.0017528404 0.0056931388</span>
-<span class="co">#&gt; 31: s1_faces.vhdr VEOG  ICA7  0.0169725199 0.0050171542</span>
-<span class="co">#&gt; 32: s1_faces.vhdr HEOG  ICA7  0.0018673074 0.0050171542</span>
-<span class="co">#&gt; 33: s1_faces.vhdr VEOG ICA25 -0.0142125420 0.0049558227</span>
-<span class="co">#&gt; 34: s1_faces.vhdr HEOG ICA25 -0.0045579878 0.0049558227</span>
-<span class="co">#&gt; 35: s1_faces.vhdr VEOG ICA24 -0.0114044328 0.0049425692</span>
-<span class="co">#&gt; 36: s1_faces.vhdr HEOG ICA24  0.0009826717 0.0049425692</span>
-<span class="co">#&gt; 37: s1_faces.vhdr VEOG ICA17  0.0044156334 0.0046351754</span>
-<span class="co">#&gt; 38: s1_faces.vhdr HEOG ICA17 -0.0017506491 0.0046351754</span>
-<span class="co">#&gt; 39: s1_faces.vhdr HEOG ICA11  0.0112879181 0.0038519218</span>
-<span class="co">#&gt; 40: s1_faces.vhdr VEOG ICA11  0.0084937376 0.0038519218</span>
-<span class="co">#&gt; 41: s1_faces.vhdr HEOG ICA23 -0.0037578749 0.0037972577</span>
-<span class="co">#&gt; 42: s1_faces.vhdr VEOG ICA23  0.0005125567 0.0037972577</span>
-<span class="co">#&gt; 43: s1_faces.vhdr VEOG ICA28  0.0076387797 0.0037188109</span>
-<span class="co">#&gt; 44: s1_faces.vhdr HEOG ICA28  0.0074422369 0.0037188109</span>
-<span class="co">#&gt; 45: s1_faces.vhdr VEOG ICA19  0.0098485902 0.0036669539</span>
-<span class="co">#&gt; 46: s1_faces.vhdr HEOG ICA19  0.0010267467 0.0036669539</span>
-<span class="co">#&gt; 47: s1_faces.vhdr VEOG ICA18 -0.0240453113 0.0033468363</span>
-<span class="co">#&gt; 48: s1_faces.vhdr HEOG ICA18 -0.0128927944 0.0033468363</span>
-<span class="co">#&gt; 49: s1_faces.vhdr HEOG  ICA2  0.0582359080 0.0017491995</span>
-<span class="co">#&gt; 50: s1_faces.vhdr VEOG  ICA2  0.0283023293 0.0017491995</span>
-<span class="co">#&gt; 51: s1_faces.vhdr VEOG  ICA6 -0.0180898570 0.0011369635</span>
-<span class="co">#&gt; 52: s1_faces.vhdr HEOG  ICA6 -0.0030368843 0.0011369635</span>
-<span class="co">#&gt; 53: s1_faces.vhdr VEOG ICA13 -0.0052967610 0.0008897330</span>
-<span class="co">#&gt; 54: s1_faces.vhdr HEOG ICA13  0.0033931878 0.0008897330</span>
-<span class="co">#&gt; 55: s1_faces.vhdr VEOG  ICA5 -0.0198211092 0.0006759164</span>
-<span class="co">#&gt; 56: s1_faces.vhdr HEOG  ICA5 -0.0177982275 0.0006759164</span>
-<span class="co">#&gt; 57: s1_faces.vhdr VEOG  ICA8  0.0087774305 0.0004218802</span>
-<span class="co">#&gt; 58: s1_faces.vhdr HEOG  ICA8 -0.0050821925 0.0004218802</span>
-<span class="co">#&gt; 59: s1_faces.vhdr HEOG ICA26 -0.0157882732 0.0001131337</span>
-<span class="co">#&gt; 60: s1_faces.vhdr VEOG ICA26 -0.0119805273 0.0001131337</span>
-<span class="co">#&gt;        .recording  EOG  .ICA           cor          var</span></code></pre></div>
+<span class="co">#&gt;        .recording  EOG  .ICA           cor           var</span>
+<span class="co">#&gt;  1: s1_faces.vhdr VEOG  ICA5  0.3110616894  3.757060e-01</span>
+<span class="co">#&gt;  2: s1_faces.vhdr HEOG  ICA5  0.0060600201  3.757060e-01</span>
+<span class="co">#&gt;  3: s1_faces.vhdr VEOG ICA14  0.0594109202  7.014111e-02</span>
+<span class="co">#&gt;  4: s1_faces.vhdr HEOG ICA14  0.0115211860  7.014111e-02</span>
+<span class="co">#&gt;  5: s1_faces.vhdr VEOG ICA25  0.0191137136  5.700123e-02</span>
+<span class="co">#&gt;  6: s1_faces.vhdr HEOG ICA25  0.0079409656  5.700123e-02</span>
+<span class="co">#&gt;  7: s1_faces.vhdr VEOG ICA28  0.0215901453  5.238948e-02</span>
+<span class="co">#&gt;  8: s1_faces.vhdr HEOG ICA28 -0.0026613292  5.238948e-02</span>
+<span class="co">#&gt;  9: s1_faces.vhdr VEOG ICA13 -0.0733915974  4.883685e-02</span>
+<span class="co">#&gt; 10: s1_faces.vhdr HEOG ICA13  0.0028042746  4.883685e-02</span>
+<span class="co">#&gt; 11: s1_faces.vhdr VEOG ICA16  0.0189808192  3.920688e-02</span>
+<span class="co">#&gt; 12: s1_faces.vhdr HEOG ICA16 -0.0052139432  3.920688e-02</span>
+<span class="co">#&gt; 13: s1_faces.vhdr VEOG ICA27 -0.0146958686  3.894467e-02</span>
+<span class="co">#&gt; 14: s1_faces.vhdr HEOG ICA27 -0.0005737728  3.894467e-02</span>
+<span class="co">#&gt; 15: s1_faces.vhdr HEOG ICA26 -0.0127623329  3.356956e-02</span>
+<span class="co">#&gt; 16: s1_faces.vhdr VEOG ICA26 -0.0103929696  3.356956e-02</span>
+<span class="co">#&gt; 17: s1_faces.vhdr VEOG ICA21 -0.0110379588  3.209204e-02</span>
+<span class="co">#&gt; 18: s1_faces.vhdr HEOG ICA21  0.0041385932  3.209204e-02</span>
+<span class="co">#&gt; 19: s1_faces.vhdr VEOG ICA30 -0.0318988532  3.195676e-02</span>
+<span class="co">#&gt; 20: s1_faces.vhdr HEOG ICA30 -0.0049492927  3.195676e-02</span>
+<span class="co">#&gt; 21: s1_faces.vhdr HEOG ICA11 -0.0080689883  1.531702e-02</span>
+<span class="co">#&gt; 22: s1_faces.vhdr VEOG ICA11 -0.0022034332  1.531702e-02</span>
+<span class="co">#&gt; 23: s1_faces.vhdr VEOG  ICA8 -0.0061078333  1.503477e-02</span>
+<span class="co">#&gt; 24: s1_faces.vhdr HEOG  ICA8 -0.0033160702  1.503477e-02</span>
+<span class="co">#&gt; 25: s1_faces.vhdr VEOG ICA22 -0.0729992398  1.342687e-02</span>
+<span class="co">#&gt; 26: s1_faces.vhdr HEOG ICA22 -0.0075857794  1.342687e-02</span>
+<span class="co">#&gt; 27: s1_faces.vhdr VEOG ICA19 -0.0113037545  1.276729e-02</span>
+<span class="co">#&gt; 28: s1_faces.vhdr HEOG ICA19  0.0040990970  1.276729e-02</span>
+<span class="co">#&gt; 29: s1_faces.vhdr HEOG ICA29 -0.0098960226  1.268464e-02</span>
+<span class="co">#&gt; 30: s1_faces.vhdr VEOG ICA29  0.0082034132  1.268464e-02</span>
+<span class="co">#&gt; 31: s1_faces.vhdr VEOG ICA10  0.0029772146  1.075145e-02</span>
+<span class="co">#&gt; 32: s1_faces.vhdr HEOG ICA10 -0.0012705350  1.075145e-02</span>
+<span class="co">#&gt; 33: s1_faces.vhdr VEOG ICA23 -0.0139531104  1.074652e-02</span>
+<span class="co">#&gt; 34: s1_faces.vhdr HEOG ICA23  0.0080386572  1.074652e-02</span>
+<span class="co">#&gt; 35: s1_faces.vhdr VEOG  ICA1  0.0590125612  9.976900e-03</span>
+<span class="co">#&gt; 36: s1_faces.vhdr HEOG  ICA1 -0.0556782278  9.976900e-03</span>
+<span class="co">#&gt; 37: s1_faces.vhdr VEOG  ICA2 -0.0126428949  7.926431e-03</span>
+<span class="co">#&gt; 38: s1_faces.vhdr HEOG  ICA2 -0.0078820112  7.926431e-03</span>
+<span class="co">#&gt; 39: s1_faces.vhdr VEOG ICA24 -0.0121801971  4.817643e-03</span>
+<span class="co">#&gt; 40: s1_faces.vhdr HEOG ICA24 -0.0016042248  4.817643e-03</span>
+<span class="co">#&gt; 41: s1_faces.vhdr HEOG  ICA7 -0.0020891334  3.213751e-03</span>
+<span class="co">#&gt; 42: s1_faces.vhdr VEOG  ICA7 -0.0003910153  3.213751e-03</span>
+<span class="co">#&gt; 43: s1_faces.vhdr VEOG ICA12  0.0144307012  1.612854e-03</span>
+<span class="co">#&gt; 44: s1_faces.vhdr HEOG ICA12  0.0128083915  1.612854e-03</span>
+<span class="co">#&gt; 45: s1_faces.vhdr HEOG ICA17 -0.0091874914  1.241979e-03</span>
+<span class="co">#&gt; 46: s1_faces.vhdr VEOG ICA17  0.0017426840  1.241979e-03</span>
+<span class="co">#&gt; 47: s1_faces.vhdr VEOG ICA18 -0.0131764353  8.322458e-04</span>
+<span class="co">#&gt; 48: s1_faces.vhdr HEOG ICA18 -0.0117696565  8.322458e-04</span>
+<span class="co">#&gt; 49: s1_faces.vhdr HEOG  ICA4 -0.0190202998  5.031384e-04</span>
+<span class="co">#&gt; 50: s1_faces.vhdr VEOG  ICA4 -0.0171506626  5.031384e-04</span>
+<span class="co">#&gt; 51: s1_faces.vhdr VEOG  ICA6 -0.0089105463  4.393376e-05</span>
+<span class="co">#&gt; 52: s1_faces.vhdr HEOG  ICA6  0.0049753303  4.393376e-05</span>
+<span class="co">#&gt; 53: s1_faces.vhdr VEOG ICA20 -0.0062150226  1.952630e-06</span>
+<span class="co">#&gt; 54: s1_faces.vhdr HEOG ICA20 -0.0011994425  1.952630e-06</span>
+<span class="co">#&gt; 55: s1_faces.vhdr HEOG  ICA9 -0.0019097967 -4.193651e-04</span>
+<span class="co">#&gt; 56: s1_faces.vhdr VEOG  ICA9  0.0015343447 -4.193651e-04</span>
+<span class="co">#&gt; 57: s1_faces.vhdr VEOG ICA15 -0.0265727074 -1.012212e-03</span>
+<span class="co">#&gt; 58: s1_faces.vhdr HEOG ICA15 -0.0041488999 -1.012212e-03</span>
+<span class="co">#&gt; 59: s1_faces.vhdr VEOG  ICA3  0.0866623859 -7.459639e-03</span>
+<span class="co">#&gt; 60: s1_faces.vhdr HEOG  ICA3 -0.0019740756 -7.459639e-03</span>
+<span class="co">#&gt;        .recording  EOG  .ICA           cor           var</span></code></pre></div>
 <p>We’ll look closer at the ICA that are more likely to be related to eye movements, and we’ll compare with signals that look like blinks and saccades:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">faces_ica</span> <span class="op">&lt;-</span> <span class="va">faces_ica</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
@@ -445,7 +468,7 @@
 <span class="co">#&gt; EOG channels detected as: HEOG, VEOG</span>
 <span class="co">#&gt; # Downsampling from 512Hz to 256Hz.</span>
 <span class="co">#&gt; # Object size in memory 53.9 Mb</span>
-<span class="co">#&gt; The following columns of signal_tbl are not channels (or ICA components): ICA1ICA29ICA12ICA22ICA15ICA20ICA21ICA27ICA9ICA4ICA14ICA30ICA16ICA3ICA10ICA7</span>
+<span class="co">#&gt; The following columns of signal_tbl are not channels (or ICA components): ICA5ICA14ICA25ICA28ICA13ICA16ICA27ICA26ICA21ICA30ICA11ICA8ICA22ICA19ICA29ICA10</span>
 <span class="co">#&gt; * To build a channel use `channel_dbl()` function, e.g. channel_dbl(0) to populate the table with a channel containing 0 microvolts.</span>
 <span class="co">#&gt; * To copy the structure of an existing channel one can do `new_ch = existing_channel * 0 + ...`</span></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-11-1.png" width="90%"></p>
@@ -468,8 +491,8 @@
 <span class="va">faces_seg_artif</span> <span class="op">&lt;-</span> <span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
   <span class="fu"><a href="../reference/eeg_artif.html">eeg_artif_minmax</a></span><span class="op">(</span><span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span>, .threshold <span class="op">=</span> <span class="fl">100</span>, .window <span class="op">=</span> <span class="fl">150</span>, .unit <span class="op">=</span> <span class="st">"ms"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
   <span class="fu"><a href="../reference/eeg_artif.html">eeg_artif_step</a></span><span class="op">(</span><span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span>, .threshold <span class="op">=</span> <span class="fl">50</span>, .window <span class="op">=</span> <span class="fl">200</span>, .unit <span class="op">=</span> <span class="st">"ms"</span><span class="op">)</span>
-<span class="co">#&gt; # Number of intervals with artifacts: 47</span>
-<span class="co">#&gt; # Number of intervals with artifacts: 109</span>
+<span class="co">#&gt; # Number of intervals with artifacts: 0</span>
+<span class="co">#&gt; # Number of intervals with artifacts: 1</span>
 
 <span class="co">## extracts the ids of the segments with artifacts</span>
 <span class="va">bad</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">faces_seg_artif</span><span class="op">)</span>, <span class="va">.type</span> <span class="op">==</span> <span class="st">"artifact"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
@@ -481,14 +504,12 @@
   <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_select</a></span><span class="op">(</span><span class="op">-</span><span class="va">VEOG</span>, <span class="op">-</span><span class="va">HEOG</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
   <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu"><a href="../reference/annotate_events.html">annotate_events</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span>
-<span class="co">#&gt; # Downsampling from 512Hz to 256Hz.</span>
-<span class="co">#&gt; # Object size in memory 3.1 Mb</span></code></pre></div>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-13-1.png" width="100%"></p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
 <span class="va">faces_seg</span> <span class="op">&lt;-</span> <span class="va">faces_seg_artif</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/eeg_events_to_NA.html">eeg_events_to_NA</a></span><span class="op">(</span><span class="va">.type</span> <span class="op">==</span> <span class="st">"artifact"</span>, .entire_seg <span class="op">=</span> <span class="cn">TRUE</span>, .all_chs <span class="op">=</span> <span class="cn">FALSE</span>, .drop_events <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+  <span class="fu"><a href="../reference/eeg_events_to_NA.html">eeg_events_to_NA</a></span><span class="op">(</span><span class="va">.type</span> <span class="op">==</span> <span class="st">"artifact"</span>, .entire_seg <span class="op">=</span> <span class="cn">TRUE</span>, .drop_events <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">faces_seg</span><span class="op">)</span>
 <span class="co">#&gt; # EEG data:</span>
@@ -497,7 +518,7 @@
 <span class="co">#&gt; # Total duration: 00:02:00.</span>
 <span class="co">#&gt; # Summary of segments</span>
 <span class="co">#&gt;       .recording n_segments n_incomplete</span>
-<span class="co">#&gt; 1: s1_faces.vhdr        200           36</span>
+<span class="co">#&gt; 1: s1_faces.vhdr        200            1</span>
 <span class="co">#&gt; # Summary of events</span>
 <span class="co">#&gt;       .type .description   n</span>
 <span class="co">#&gt; 1: Stimulus          s70 100</span>
@@ -522,78 +543,78 @@
 <span class="co">#&gt; # EEG data:</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; # Signal table:</span>
-<span class="co">#&gt;        .id .sample        Fp1       Fpz         Fp2         F7        F3</span>
-<span class="co">#&gt;     1:   1     -50 -1.3857821  2.506070 -0.39055047 -0.2702236  2.594597</span>
-<span class="co">#&gt;     2:   1     -49 -1.1274544  2.458017 -0.86212567  0.2474072  2.493453</span>
-<span class="co">#&gt;     3:   1     -48 -0.5343263  2.663517 -0.90710409  1.0784217  2.590668</span>
-<span class="co">#&gt;     4:   1     -47  0.2857946  3.060287 -0.57329056  2.1213955  2.852347</span>
-<span class="co">#&gt;     5:   1     -46  1.2293715  3.591034  0.08130834  3.2767737  3.249672</span>
+<span class="co">#&gt;        .id .sample        Fp1       Fpz        Fp2         F7       F3</span>
+<span class="co">#&gt;     1:   1     -50 -0.2239737  2.926696  0.1088197 -0.1107286 3.793132</span>
+<span class="co">#&gt;     2:   1     -49  0.9975430  3.910457  0.7585352  0.7172289 4.038747</span>
+<span class="co">#&gt;     3:   1     -48  2.2477072  4.853125  1.5129425  1.7686192 4.340948</span>
+<span class="co">#&gt;     4:   1     -47  3.3361201  5.596977  2.2208750  2.9135916 4.642705</span>
+<span class="co">#&gt;     5:   1     -46  4.0950011  6.007830  2.7411833  4.0297893 4.899710</span>
+<span class="co">#&gt;    ---                                                                </span>
+<span class="co">#&gt; 61596: 200     253 -7.4272958 -4.030794 -3.3414518  2.5704919 4.188729</span>
+<span class="co">#&gt; 61597: 200     254 -7.0028675 -4.076854 -3.7139526  1.3456003 3.356811</span>
+<span class="co">#&gt; 61598: 200     255 -6.3948136 -4.124318 -4.0795149  0.2178476 2.644884</span>
+<span class="co">#&gt; 61599: 200     256 -5.7744059 -4.236721 -4.4670174 -0.8343465 1.996052</span>
+<span class="co">#&gt; 61600: 200     257 -5.3225204 -4.474952 -4.9176401 -1.8464510 1.323714</span>
+<span class="co">#&gt;                Fz         F4          F8        FC5       FC1        FC2</span>
+<span class="co">#&gt;     1:   4.228278   2.840110 -3.15472635  1.6113910  1.592771  -2.364200</span>
+<span class="co">#&gt;     2:   4.270218   2.382479 -2.35472265  2.0405680  1.860704  -2.861841</span>
+<span class="co">#&gt;     3:   4.421612   2.013301 -1.24644410  2.4513040  2.219617  -3.123105</span>
+<span class="co">#&gt;     4:   4.591250   1.709526  0.05225002  2.8087541  2.615841  -3.167049</span>
+<span class="co">#&gt;     5:   4.700407   1.452931  1.40978255  3.1051410  3.005053  -3.015121</span>
 <span class="co">#&gt;    ---                                                                  </span>
-<span class="co">#&gt; 61596: 200     253 17.4224854 21.813508 24.78382742 10.3744498 13.869748</span>
-<span class="co">#&gt; 61597: 200     254 15.8996178 19.758151 22.22385059  8.5421730 12.264111</span>
-<span class="co">#&gt; 61598: 200     255 14.4494759 17.598267 19.55794290  6.7753923 10.723693</span>
-<span class="co">#&gt; 61599: 200     256 13.0353956 15.411060 16.91034524  5.0949942  9.243335</span>
-<span class="co">#&gt; 61600: 200     257 11.5917030 13.255274 14.37007893  3.5016414  7.781486</span>
-<span class="co">#&gt;                Fz         F4         F8        FC5        FC1        FC2</span>
-<span class="co">#&gt;     1:  4.0451583  1.7219231 -3.5039627  0.9787852 -2.0510342  -3.593674</span>
-<span class="co">#&gt;     2:  3.6861069  0.8413479 -3.1991905  1.1860153 -1.9148800  -4.337968</span>
-<span class="co">#&gt;     3:  3.5518103  0.2082478 -2.4387662  1.4601071 -1.5049328  -4.729796</span>
-<span class="co">#&gt;     4:  3.5879868 -0.1693005 -1.2959864  1.7821618 -0.8930260  -4.774948</span>
-<span class="co">#&gt;     5:  3.7455969 -0.2872642  0.1330329  2.1556332 -0.1488171  -4.487544</span>
-<span class="co">#&gt;    ---                                                                  </span>
-<span class="co">#&gt; 61596:  1.3319750 -0.6831873 11.1774884 10.7691806  2.9732808 -11.764766</span>
-<span class="co">#&gt; 61597: -0.1735025 -1.2701982  9.3928745  9.0858958  1.1318271 -12.803980</span>
-<span class="co">#&gt; 61598: -1.5290985 -1.8599549  7.7521538  7.3407476 -0.8911383 -13.812016</span>
-<span class="co">#&gt; 61599: -2.7185015 -2.4173607  6.3184340  5.5647397 -3.0334966 -14.752929</span>
-<span class="co">#&gt; 61600: -3.7619017 -2.9298388  5.1173740  3.7693201 -5.2449621 -15.608629</span>
-<span class="co">#&gt;               FC6        M1       T7         C3         Cz         C4</span>
-<span class="co">#&gt;     1: -2.3777222 -2.030141 7.844882 -2.0730707  -6.499112  -1.123574</span>
-<span class="co">#&gt;     2: -2.0384178 -1.922150 8.106049 -2.4121601  -6.855300  -1.877160</span>
-<span class="co">#&gt;     3: -1.3275775 -1.785010 7.959406 -2.6624122  -6.839697  -2.539230</span>
-<span class="co">#&gt;     4: -0.3222386 -1.654058 7.424104 -2.7796995  -6.468312  -3.055360</span>
-<span class="co">#&gt;     5:  0.8980345 -1.545839 6.573076 -2.7107143  -5.770478  -3.356224</span>
-<span class="co">#&gt;    ---                                                               </span>
-<span class="co">#&gt; 61596: -3.1732950  4.310870 7.422743  5.1400476  -8.944902 -27.861372</span>
-<span class="co">#&gt; 61597: -4.8199959  4.454409 6.981073  3.1227075 -10.823009 -29.156160</span>
-<span class="co">#&gt; 61598: -6.4644513  4.482182 6.378309  0.9284449 -12.880319 -30.420984</span>
-<span class="co">#&gt; 61599: -8.0073182  4.394789 5.544417 -1.3414921 -14.995715 -31.592958</span>
-<span class="co">#&gt; 61600: -9.3687803  4.203761 4.430326 -3.6043362 -17.054014 -32.612199</span>
+<span class="co">#&gt; 61596:  -8.730353 -12.167556 -1.36556543  4.6994268 -3.708406 -19.005953</span>
+<span class="co">#&gt; 61597:  -9.453131 -11.842863 -2.17206941  3.4988400 -4.958880 -19.459708</span>
+<span class="co">#&gt; 61598:  -9.985577 -11.460650 -2.78238153  2.2688876 -6.309382 -19.836152</span>
+<span class="co">#&gt; 61599: -10.366157 -11.047480 -3.20156158  1.0080235 -7.730844 -20.137723</span>
+<span class="co">#&gt; 61600: -10.661645 -10.644149 -3.46204537 -0.3005228 -9.204715 -20.380105</span>
+<span class="co">#&gt;                FC6        M1       T7         C3         Cz         C4</span>
+<span class="co">#&gt;     1:  -1.8391090 -2.030141 8.787014 -2.0086889  -5.711339  -0.795271</span>
+<span class="co">#&gt;     2:  -1.1455898 -1.922150 9.114149 -2.1197829  -5.858017  -1.282006</span>
+<span class="co">#&gt;     3:  -0.1976263 -1.785010 8.977623 -2.2059909  -5.721134  -1.762303</span>
+<span class="co">#&gt;     4:   0.8983126 -1.654058 8.398226 -2.2445165  -5.330143  -2.204568</span>
+<span class="co">#&gt;     5:   2.0401272 -1.545839 7.452935 -2.1993214  -4.723109  -2.557211</span>
+<span class="co">#&gt;    ---                                                                </span>
+<span class="co">#&gt; 61596: -12.4167239  4.310870 4.908478 -0.5437559 -14.854063 -34.752050</span>
+<span class="co">#&gt; 61597: -13.3369315  4.454409 4.680512 -2.1197706 -16.258766 -35.506742</span>
+<span class="co">#&gt; 61598: -14.2119912  4.482182 4.315460 -3.8504649 -17.808367 -36.200622</span>
+<span class="co">#&gt; 61599: -14.9925296  4.394789 3.730447 -5.6655686 -19.413279 -36.808126</span>
+<span class="co">#&gt; 61600: -15.6416067  4.203761 2.864558 -7.5086186 -20.985826 -37.301315</span>
 <span class="co">#&gt;                T8        M2        CP5        CP1        CP2         CP6</span>
-<span class="co">#&gt;     1:   4.286885  2.030141  2.1693528 -5.5593362  -4.009697   1.9388819</span>
-<span class="co">#&gt;     2:   5.612280  1.922150  1.4923855 -5.9252277  -4.807572   1.0801445</span>
-<span class="co">#&gt;     3:   7.012211  1.785010  0.6896479 -6.0851911  -5.388034   0.2764139</span>
-<span class="co">#&gt;     4:   8.228028  1.654058 -0.1284975 -6.0165472  -5.712001  -0.4261893</span>
-<span class="co">#&gt;     5:   9.003441  1.545839 -0.8348813 -5.6954771  -5.744126  -0.9713783</span>
+<span class="co">#&gt;     1:   3.910053  2.030141  2.1730493  -5.558311  -3.912675   2.0442154</span>
+<span class="co">#&gt;     2:   5.477720  1.922150  1.6874719  -5.681516  -4.454747   1.4513845</span>
+<span class="co">#&gt;     3:   7.069972  1.785010  1.0244766  -5.664134  -4.852158   0.8377522</span>
+<span class="co">#&gt;     4:   8.401729  1.654058  0.2760940  -5.506764  -5.089553   0.2248167</span>
+<span class="co">#&gt;     5:   9.193991  1.545839 -0.4454964  -5.204630  -5.150715  -0.3509800</span>
 <span class="co">#&gt;    ---                                                                  </span>
-<span class="co">#&gt; 61596: -20.202095 -4.310870  8.1591128  0.8839634 -25.424284 -22.8770129</span>
-<span class="co">#&gt; 61597: -21.826681 -4.454409  6.7768896 -1.1238025 -27.206824 -24.4041437</span>
-<span class="co">#&gt; 61598: -23.059555 -4.482182  5.1485130 -3.3667121 -28.961846 -25.9626922</span>
-<span class="co">#&gt; 61599: -23.874749 -4.394789  3.3451701 -5.7015560 -30.566857 -27.5070119</span>
-<span class="co">#&gt; 61600: -24.273419 -4.203761  1.4328467 -7.9929327 -31.907547 -28.9667789</span>
-<span class="co">#&gt;               P7        P3         Pz          P4         P8        POz</span>
-<span class="co">#&gt;     1: -2.004791 -2.738479  -3.441219  -0.7111998   0.360825 -1.4932577</span>
-<span class="co">#&gt;     2: -2.909541 -3.530474  -4.318017  -1.7703446  -2.238023 -2.9233947</span>
-<span class="co">#&gt;     3: -3.554971 -4.168055  -5.063847  -2.6760206  -4.638534 -4.2104023</span>
-<span class="co">#&gt;     4: -3.870379 -4.568174  -5.618316  -3.3489155  -6.544204 -5.2289503</span>
-<span class="co">#&gt;     5: -3.820075 -4.656549  -5.920637  -3.7163777  -7.706011 -5.8678723</span>
-<span class="co">#&gt;    ---                                                                 </span>
-<span class="co">#&gt; 61596:  6.304326  8.837763  -5.383201 -20.9371203 -17.772999  1.0674391</span>
-<span class="co">#&gt; 61597:  5.658292  7.238310  -7.165942 -22.0902450 -18.136742 -0.2756034</span>
-<span class="co">#&gt; 61598:  4.614197  5.418532  -9.012603 -23.1112292 -17.711772 -1.6783652</span>
-<span class="co">#&gt; 61599:  3.284832  3.487614 -10.795947 -23.9501039 -16.484018 -3.0459904</span>
-<span class="co">#&gt; 61600:  1.796745  1.549002 -12.398985 -24.5656352 -14.531866 -4.2979851</span>
-<span class="co">#&gt;               O1         Oz         O2       HEOG       VEOG</span>
-<span class="co">#&gt;     1: -3.352182 -0.4981054  1.3250303  -8.172153  -4.070868</span>
-<span class="co">#&gt;     2: -4.744847 -2.1798164 -0.4597926 -15.399203 -10.286688</span>
-<span class="co">#&gt;     3: -6.005732 -3.8014299 -2.2051573 -17.091586  -4.218329</span>
-<span class="co">#&gt;     4: -7.006345 -5.1896533 -3.7050433 -22.001254  -2.728094</span>
-<span class="co">#&gt;     5: -7.635930 -6.1835499 -4.7667551 -14.368930   3.892999</span>
-<span class="co">#&gt;    ---                                                      </span>
-<span class="co">#&gt; 61596:  7.113869  1.5908573 -0.5937514  40.897595 104.275391</span>
-<span class="co">#&gt; 61597:  6.142690  0.7273414  0.3127146  19.307751  67.568359</span>
-<span class="co">#&gt; 61598:  4.970325 -0.2404153  0.9526069  24.585583  66.189453</span>
-<span class="co">#&gt; 61599:  3.731996 -1.2390464  1.2760794   4.779675  43.698242</span>
-<span class="co">#&gt; 61600:  2.541580 -2.2117730  1.2452397  -2.815540  36.453125</span>
+<span class="co">#&gt; 61596: -25.822482 -4.310870  3.4352795  -5.102525 -31.824672 -29.5344073</span>
+<span class="co">#&gt; 61597: -27.019577 -4.454409  2.4188361  -6.646814 -33.109751 -30.5440118</span>
+<span class="co">#&gt; 61598: -27.809796 -4.482182  1.1739532  -8.403855 -34.341884 -31.5585170</span>
+<span class="co">#&gt; 61599: -28.198220 -4.394789 -0.2539754 -10.263130 -35.433438 -32.5685325</span>
+<span class="co">#&gt; 61600: -28.211914 -4.203761 -1.8208137 -12.116925 -36.299732 -33.5345508</span>
+<span class="co">#&gt;                P7         P3         Pz          P4          P8       POz</span>
+<span class="co">#&gt;     1: -1.8486407 -2.6437673  -3.191924  -0.6720984   0.5889623 -1.233383</span>
+<span class="co">#&gt;     2: -2.6139953 -3.1920017  -3.790144  -1.4646696  -1.8056977 -2.397317</span>
+<span class="co">#&gt;     3: -3.1638517 -3.6552420  -4.342437  -2.1770814  -4.0661883 -3.500260</span>
+<span class="co">#&gt;     4: -3.4395628 -3.9730269  -4.813028  -2.7552677  -5.9136674 -4.440224</span>
+<span class="co">#&gt;     5: -3.4148548 -4.0892851  -5.160562  -3.1471226  -7.1129100 -5.124399</span>
+<span class="co">#&gt;    ---                                                                   </span>
+<span class="co">#&gt; 61596:  2.7192767  2.7365646 -12.488676 -27.5485924 -23.0238529 -5.742807</span>
+<span class="co">#&gt; 61597:  2.3539444  1.6113645 -13.716290 -28.1890858 -22.9764754 -6.553364</span>
+<span class="co">#&gt; 61598:  1.6063736  0.2901116 -14.977399 -28.6721202 -22.1172213 -7.394155</span>
+<span class="co">#&gt; 61599:  0.5699239 -1.1512356 -16.183334 -28.9837949 -20.4604781 -8.207270</span>
+<span class="co">#&gt; 61600: -0.6454750 -2.6374742 -17.250028 -29.1134647 -18.1089704 -8.943773</span>
+<span class="co">#&gt;                O1         Oz         O2       HEOG       VEOG</span>
+<span class="co">#&gt;     1: -3.5386535 -0.7969323  0.8721568  -8.172153  -4.070868</span>
+<span class="co">#&gt;     2: -4.7377453 -2.2782486 -0.7106985 -15.399203 -10.286688</span>
+<span class="co">#&gt;     3: -5.8496010 -3.7413040 -2.2901256 -17.091586  -4.218329</span>
+<span class="co">#&gt;     4: -6.7658792 -5.0345596 -3.6833116 -22.001254  -2.728094</span>
+<span class="co">#&gt;     5: -7.3928468 -6.0157379 -4.7178515 -14.368930   3.892999</span>
+<span class="co">#&gt;    ---                                                       </span>
+<span class="co">#&gt; 61596:  2.5152642 -3.0701651 -5.1484950  40.897595 104.275391</span>
+<span class="co">#&gt; 61597:  1.8963234 -3.5788828 -3.8985745  19.307751  67.568359</span>
+<span class="co">#&gt; 61598:  1.0904936 -4.1790541 -2.9052267  24.585583  66.189453</span>
+<span class="co">#&gt; 61599:  0.2077071 -4.8230480 -2.2435981   4.779675  43.698242</span>
+<span class="co">#&gt; 61600: -0.6593847 -5.4755758 -1.9725447  -2.815540  36.453125</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; # Events table:</span>
 <span class="co">#&gt;      .id    .type .description .initial .final .channel</span>
@@ -628,18 +649,18 @@
 <span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_filter</a></span><span class="op">(</span><span class="va">.id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
   <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt; <span style="color: #949494;"># A tibble: 31,416 × 8</span></span>
-<span class="co">#&gt;      .time   .id .recording    segment description condition .key  .value</span>
-<span class="co">#&gt;      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> -<span style="color: #BB0000;">0.099</span><span style="color: #BB0000; text-decoration: underline;">6</span>     1 s1_faces.vhdr       1 s71         non-faces Fp1   -<span style="color: #BB0000;">1.39</span> </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> -<span style="color: #BB0000;">0.097</span><span style="color: #BB0000; text-decoration: underline;">7</span>     1 s1_faces.vhdr       1 s71         non-faces Fp1   -<span style="color: #BB0000;">1.13</span> </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> -<span style="color: #BB0000;">0.095</span><span style="color: #BB0000; text-decoration: underline;">7</span>     1 s1_faces.vhdr       1 s71         non-faces Fp1   -<span style="color: #BB0000;">0.534</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> -<span style="color: #BB0000;">0.093</span><span style="color: #BB0000; text-decoration: underline;">8</span>     1 s1_faces.vhdr       1 s71         non-faces Fp1    0.286</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> -<span style="color: #BB0000;">0.091</span><span style="color: #BB0000; text-decoration: underline;">8</span>     1 s1_faces.vhdr       1 s71         non-faces Fp1    1.23 </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> -<span style="color: #BB0000;">0.089</span><span style="color: #BB0000; text-decoration: underline;">8</span>     1 s1_faces.vhdr       1 s71         non-faces Fp1    2.21 </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> -<span style="color: #BB0000;">0.087</span><span style="color: #BB0000; text-decoration: underline;">9</span>     1 s1_faces.vhdr       1 s71         non-faces Fp1    3.15 </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> -<span style="color: #BB0000;">0.085</span><span style="color: #BB0000; text-decoration: underline;">9</span>     1 s1_faces.vhdr       1 s71         non-faces Fp1    4.02 </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> -<span style="color: #BB0000;">0.084</span><span style="color: #BB0000; text-decoration: underline;">0</span>     1 s1_faces.vhdr       1 s71         non-faces Fp1    4.80 </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">10</span> -<span style="color: #BB0000;">0.082</span><span style="color: #BB0000; text-decoration: underline;">0</span>     1 s1_faces.vhdr       1 s71         non-faces Fp1    5.48 </span>
+<span class="co">#&gt;      .time   .id .key  .value .recording    segment description condition</span>
+<span class="co">#&gt;      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> -<span style="color: #BB0000;">0.099</span><span style="color: #BB0000; text-decoration: underline;">6</span>     1 Fp1   -<span style="color: #BB0000;">0.224</span> s1_faces.vhdr       1 s71         non-faces</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> -<span style="color: #BB0000;">0.097</span><span style="color: #BB0000; text-decoration: underline;">7</span>     1 Fp1    0.998 s1_faces.vhdr       1 s71         non-faces</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> -<span style="color: #BB0000;">0.095</span><span style="color: #BB0000; text-decoration: underline;">7</span>     1 Fp1    2.25  s1_faces.vhdr       1 s71         non-faces</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> -<span style="color: #BB0000;">0.093</span><span style="color: #BB0000; text-decoration: underline;">8</span>     1 Fp1    3.34  s1_faces.vhdr       1 s71         non-faces</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> -<span style="color: #BB0000;">0.091</span><span style="color: #BB0000; text-decoration: underline;">8</span>     1 Fp1    4.10  s1_faces.vhdr       1 s71         non-faces</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> -<span style="color: #BB0000;">0.089</span><span style="color: #BB0000; text-decoration: underline;">8</span>     1 Fp1    4.40  s1_faces.vhdr       1 s71         non-faces</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> -<span style="color: #BB0000;">0.087</span><span style="color: #BB0000; text-decoration: underline;">9</span>     1 Fp1    4.19  s1_faces.vhdr       1 s71         non-faces</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> -<span style="color: #BB0000;">0.085</span><span style="color: #BB0000; text-decoration: underline;">9</span>     1 Fp1    3.49  s1_faces.vhdr       1 s71         non-faces</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> -<span style="color: #BB0000;">0.084</span><span style="color: #BB0000; text-decoration: underline;">0</span>     1 Fp1    2.36  s1_faces.vhdr       1 s71         non-faces</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">10</span> -<span style="color: #BB0000;">0.082</span><span style="color: #BB0000; text-decoration: underline;">0</span>     1 Fp1    0.972 s1_faces.vhdr       1 s71         non-faces</span>
 <span class="co">#&gt; <span style="color: #949494;"># … with 31,406 more rows</span></span>
 
 <span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
@@ -712,23 +733,24 @@
       <span class="va">.value</span><span class="op">[</span><span class="va">condition</span> <span class="op">==</span> <span class="st">"non-faces"</span><span class="op">]</span>
     <span class="op">)</span><span class="op">$</span><span class="va">statistic</span>
   <span class="op">)</span>
-<span class="co">#&gt; `summarise()` has grouped output by '.key'. You can override using the `.groups` argument.</span>
+<span class="co">#&gt; `summarise()` has grouped output by '.key'. You can override using the</span>
+<span class="co">#&gt; `.groups` argument.</span>
 
 <span class="va">df</span>
 <span class="co">#&gt; <span style="color: #949494;"># A tibble: 1,232 × 3</span></span>
 <span class="co">#&gt; <span style="color: #949494;"># Groups:   .key [4]</span></span>
 <span class="co">#&gt;    .key    .time `t-value`</span>
 <span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> O1    -<span style="color: #BB0000;">0.099</span><span style="color: #BB0000; text-decoration: underline;">6</span>    0.231 </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> O1    -<span style="color: #BB0000;">0.097</span><span style="color: #BB0000; text-decoration: underline;">7</span>    0.303 </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> O1    -<span style="color: #BB0000;">0.095</span><span style="color: #BB0000; text-decoration: underline;">7</span>    0.352 </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> O1    -<span style="color: #BB0000;">0.093</span><span style="color: #BB0000; text-decoration: underline;">8</span>    0.366 </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> O1    -<span style="color: #BB0000;">0.091</span><span style="color: #BB0000; text-decoration: underline;">8</span>    0.334 </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> O1    -<span style="color: #BB0000;">0.089</span><span style="color: #BB0000; text-decoration: underline;">8</span>    0.251 </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> O1    -<span style="color: #BB0000;">0.087</span><span style="color: #BB0000; text-decoration: underline;">9</span>    0.111 </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> O1    -<span style="color: #BB0000;">0.085</span><span style="color: #BB0000; text-decoration: underline;">9</span>   -<span style="color: #BB0000;">0.090</span><span style="color: #BB0000; text-decoration: underline;">9</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> O1    -<span style="color: #BB0000;">0.084</span><span style="color: #BB0000; text-decoration: underline;">0</span>   -<span style="color: #BB0000;">0.354</span> </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">10</span> O1    -<span style="color: #BB0000;">0.082</span><span style="color: #BB0000; text-decoration: underline;">0</span>   -<span style="color: #BB0000;">0.664</span> </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> O1    -<span style="color: #BB0000;">0.099</span><span style="color: #BB0000; text-decoration: underline;">6</span>    0.204 </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> O1    -<span style="color: #BB0000;">0.097</span><span style="color: #BB0000; text-decoration: underline;">7</span>    0.227 </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> O1    -<span style="color: #BB0000;">0.095</span><span style="color: #BB0000; text-decoration: underline;">7</span>    0.234 </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> O1    -<span style="color: #BB0000;">0.093</span><span style="color: #BB0000; text-decoration: underline;">8</span>    0.219 </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> O1    -<span style="color: #BB0000;">0.091</span><span style="color: #BB0000; text-decoration: underline;">8</span>    0.173 </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> O1    -<span style="color: #BB0000;">0.089</span><span style="color: #BB0000; text-decoration: underline;">8</span>    0.088<span style="text-decoration: underline;">0</span></span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> O1    -<span style="color: #BB0000;">0.087</span><span style="color: #BB0000; text-decoration: underline;">9</span>   -<span style="color: #BB0000;">0.041</span><span style="color: #BB0000; text-decoration: underline;">5</span></span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> O1    -<span style="color: #BB0000;">0.085</span><span style="color: #BB0000; text-decoration: underline;">9</span>   -<span style="color: #BB0000;">0.221</span> </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> O1    -<span style="color: #BB0000;">0.084</span><span style="color: #BB0000; text-decoration: underline;">0</span>   -<span style="color: #BB0000;">0.448</span> </span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">10</span> O1    -<span style="color: #BB0000;">0.082</span><span style="color: #BB0000; text-decoration: underline;">0</span>   -<span style="color: #BB0000;">0.713</span> </span>
 <span class="co">#&gt; <span style="color: #949494;"># … with 1,222 more rows</span></span></code></pre></div>
 <p>Then we just load the data frame into <code>ggplot</code>.</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
@@ -774,7 +796,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer>

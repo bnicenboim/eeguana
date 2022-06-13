@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.6.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.7.9000</span>
       </span>
     </div>
 
@@ -32,7 +32,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -100,7 +100,107 @@
           <h2 id="tidyverse-verbs-and-extensions-">Tidyverse verbs (and extensions) <a href="#tidyverse-verbs-and-extensions-" class="anchor" aria-hidden="true"></a></h2>
           <p class="section-desc"></p><p>Functions that overload some tidyverse functions and always return an <code>eeg_lst</code>.</p>
         </th>
+      </tr></tbody><tbody></tbody><tbody><tr><th colspan="2">
+          <h2 id="specialized-summarizing-functions">Specialized summarizing functions <a href="#specialized-summarizing-functions" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p><p>Functions that return useful summaries.</p>
+        </th>
       </tr></tbody><tbody><tr><td>
+          <p><code><a href="annotate_events.html">annotate_events()</a></code> </p>
+        </td>
+        <td><p>Adds a layer with the events on top of a plot of an eeg_lst.</p></td>
+      </tr><tr><td>
+          <p><code><a href="annotate_head.html">annotate_head()</a></code> </p>
+        </td>
+        <td><p>Add a head shape to a ggplot</p></td>
+      </tr><tr><td>
+          <p><code><a href="as.data.frame.eeg_lst.html">as.data.frame(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Convert an eeg_lst to a (base) data frame.</p></td>
+      </tr><tr><td>
+          <p><code><a href="as.data.frame.psd_lst.html">as.data.frame(<i>&lt;psd_lst&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Convert a psd_lst to a (base) data frame.</p></td>
+      </tr><tr><td>
+          <p><code><a href="as.data.table.eeg_lst.html">as.data.table.eeg_lst()</a></code> </p>
+        </td>
+        <td><p>Convert an eeg_lst to a long table in <code><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></code> format.</p></td>
+      </tr><tr><td>
+          <p><code><a href="as.data.table.psd_lst.html">as.data.table.psd_lst()</a></code> </p>
+        </td>
+        <td><p>Convert a psd_lst list to a long table in <code><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></code> format.</p></td>
+      </tr><tr><td>
+          <p><code><a href="as_channel_dbl.html">as_channel_dbl()</a></code> </p>
+        </td>
+        <td><p>Coerce a vector of real (double) numbers into a channel object</p></td>
+      </tr><tr><td>
+          <p><code><a href="as_eeg_lst.html">as_eeg_lst()</a></code> </p>
+        </td>
+        <td><p>Transforms an object to a eeg_lst</p></td>
+      </tr><tr><td>
+          <p><code><a href="as_sample_int.html">as_sample_int()</a></code> </p>
+        </td>
+        <td><p>Convert a time point  into a sample.</p></td>
+      </tr><tr><td>
+          <p><code><a href="as_tibble.eeg_lst.html">as_tibble.eeg_lst()</a></code> <code><a href="as_tibble.eeg_lst.html">as_data_frame.eeg_lst()</a></code> <code><a href="as_tibble.eeg_lst.html">as_long_tbl(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Convert an eeg_lst to a long table in <code><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></code> format.</p></td>
+      </tr><tr><td>
+          <p><code><a href="as_tibble.psd_lst.html">as_tibble.psd_lst()</a></code> </p>
+        </td>
+        <td><p>Convert an psd_lst to a long table in <code><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></code> format.</p></td>
+      </tr><tr><td>
+          <p><code><a href="as_tidytable.eeg_lst.html">as_tidytable.eeg_lst()</a></code> </p>
+        </td>
+        <td><p>Convert an eeg_lst to a long table in <code><a href="https://rdrr.io/pkg/tidytable/man/tidytable.html" class="external-link">tidytable</a></code> format.</p></td>
+      </tr><tr><td>
+          <p><code><a href="as_tidytable.psd_lst.html">as_tidytable.psd_lst()</a></code> </p>
+        </td>
+        <td><p>Convert an psd_lst to a long table in <code><a href="https://rdrr.io/pkg/tidytable/man/tidytable.html" class="external-link">tidytable</a></code> format.</p></td>
+      </tr><tr><td>
+          <p><code><a href="as_time.html">as_time()</a></code> </p>
+        </td>
+        <td><p>Convert a sample point into a time point.</p></td>
+      </tr><tr><td>
+          <p><code><a href="between.html">between</a></code> </p>
+        </td>
+        <td><p>Convenience function for range subsets</p></td>
+      </tr><tr><td>
+          <p><code><a href="change_coord.html">change_coord()</a></code> </p>
+        </td>
+        <td><p>Change coordinate system from 3D to 2D</p></td>
+      </tr><tr><td>
+          <p><code><a href="channel_dbl.html">channel_dbl()</a></code> </p>
+        </td>
+        <td><p>Builds a channel.</p></td>
+      </tr><tr><td>
+          <p><code><a href="channels_tbl.html">channels_tbl()</a></code> <code><a href="channels_tbl.html">`channels_tbl&lt;-`()</a></code> </p>
+        </td>
+        <td><p>Functions to get or set the channel information of an eeg_lst object.</p></td>
+      </tr><tr><td>
+          <p><code><a href="chs_fun.html">chs_fun()</a></code> </p>
+        </td>
+        <td><p>Get the by-sample (or by-row) function of the specified channels.</p></td>
+      </tr><tr><td>
+          <p><code><a href="chs_mean.html">chs_mean()</a></code> </p>
+        </td>
+        <td><p>Get the by-sample (or by-row) mean of the specified channels.</p></td>
+      </tr><tr><td>
+          <p><code><a href="component_dbl.html">component_dbl()</a></code> </p>
+        </td>
+        <td><p>Builds a component.</p></td>
+      </tr><tr><td>
+          <p><code><a href="count_complete_cases_tbl.html">count_complete_cases_tbl()</a></code> </p>
+        </td>
+        <td><p>Count number of complete segments of an eeg_lst object.</p></td>
+      </tr><tr><td>
+          <p><code><a href="data_faces_10_trials.html">data_faces_10_trials</a></code> </p>
+        </td>
+        <td><p>EEGs elicited when one subject saw faces and non-faces objects.</p></td>
+      </tr><tr><td>
+          <p><code><a href="data_faces_ERPs.html">data_faces_ERPs</a></code> </p>
+        </td>
+        <td><p>ERPs elicited when one subject saw faces and non-faces objects.</p></td>
+      </tr><tr><td>
           <p><code><a href="dplyr_verbs.html">eeg_mutate()</a></code> <code><a href="dplyr_verbs.html">eeg_transmute()</a></code> <code><a href="dplyr_verbs.html">eeg_filter()</a></code> <code><a href="dplyr_verbs.html">eeg_summarize()</a></code> <code><a href="dplyr_verbs.html">eeg_summarise()</a></code> <code><a href="dplyr_verbs.html">eeg_group_by()</a></code> <code><a href="dplyr_verbs.html">eeg_ungroup()</a></code> <code><a href="dplyr_verbs.html">eeg_select()</a></code> <code><a href="dplyr_verbs.html">eeg_rename()</a></code> <code><a href="dplyr_verbs.html">eeg_rename_with()</a></code> <code><a href="dplyr_verbs.html">eeg_groups()</a></code> <code><a href="dplyr_verbs.html">eeg_group_vars()</a></code> <code><a href="dplyr_verbs.html">eeg_anti_join()</a></code> <code><a href="dplyr_verbs.html">eeg_left_join()</a></code> <code><a href="dplyr_verbs.html">eeg_semi_join()</a></code> <code><a href="dplyr_verbs.html">eeg_pull()</a></code> <code><a href="dplyr_verbs.html">across()</a></code> <code><a href="dplyr_verbs.html">across_ch()</a></code> <code><a href="dplyr_verbs.html">c_across_ch()</a></code> <code><a href="dplyr_verbs.html">c_across()</a></code> </p>
         </td>
         <td><p>Dplyr-like functions for manipulating eeg_lst objects.</p></td>
@@ -109,49 +209,21 @@
         </td>
         <td><p>Drop segments with NAs from the eeg_lst</p></td>
       </tr><tr><td>
+          <p><code><a href="eeg_artif.html">eeg_artif_minmax()</a></code> <code><a href="eeg_artif.html">eeg_artif_step()</a></code> <code><a href="eeg_artif.html">eeg_artif_amplitude()</a></code> <code><a href="eeg_artif.html">eeg_artif_peak()</a></code> </p>
+        </td>
+        <td><p>Detect artifacts and add them in the events table of an <code>eeg_lst</code></p></td>
+      </tr><tr><td>
+          <p><code><a href="eeg_baseline.html">eeg_baseline()</a></code> </p>
+        </td>
+        <td><p>Baseline an eeg_lst</p></td>
+      </tr><tr><td>
           <p><code><a href="eeg_bind.html">eeg_bind()</a></code> <code><a href="eeg_bind.html">bind()</a></code> </p>
         </td>
         <td><p>Bind eeg_lst objects.</p></td>
       </tr><tr><td>
-          <p><code><a href="eeg_slice_signal.html">eeg_slice_signal()</a></code> <code><a href="eeg_slice_signal.html">slice_signal()</a></code> </p>
+          <p><code><a href="eeg_downsample.html">eeg_downsample()</a></code> </p>
         </td>
-        <td><p>Choose samples by the position</p></td>
-      </tr></tbody><tbody><tr><th colspan="2">
-          <h2 id="specialized-summarizing-functions">Specialized summarizing functions <a href="#specialized-summarizing-functions" class="anchor" aria-hidden="true"></a></h2>
-          <p class="section-desc"></p><p>Functions that return useful summaries.</p>
-        </th>
-      </tr></tbody><tbody><tr><td>
-          <p><code><a href="count_complete_cases_tbl.html">count_complete_cases_tbl()</a></code> </p>
-        </td>
-        <td><p>Count number of complete segments of an eeg_lst object.</p></td>
-      </tr><tr><td>
-          <p><code><a href="eeg_ica_cor_tbl.html">eeg_ica_cor_tbl()</a></code> </p>
-        </td>
-        <td><p>Show correlations between ICA sources and eye (EOG) electrodes.</p></td>
-      </tr><tr><td>
-          <p><code><a href="eeg_ica_summary_tbl.html">eeg_ica_summary_tbl()</a></code> </p>
-        </td>
-        <td><p>Show a table with a summary of the results of the ICA.</p></td>
-      </tr><tr><td>
-          <p><code><a href="eeg_ica_var_tbl.html">eeg_ica_var_tbl()</a></code> </p>
-        </td>
-        <td><p>Show the variance explained for each ICA sources.</p></td>
-      </tr><tr><td>
-          <p><code><a href="summaries.html">channel_names()</a></code> <code><a href="summaries.html">channel_ica_names()</a></code> <code><a href="summaries.html">nchannels()</a></code> <code><a href="summaries.html">component_names()</a></code> <code><a href="summaries.html">ncomponents()</a></code> <code><a href="summaries.html">nsamples()</a></code> </p>
-        </td>
-        <td><p>Display information of the eeg_lst object.</p></td>
-      </tr><tr><td>
-          <p><code><a href="summary.eeg_lst.html">summary(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Summary of eeg_lst information.</p></td>
-      </tr></tbody><tbody><tr><th colspan="2">
-          <h2 id="eeg-specialized-functions">EEG-specialized functions <a href="#eeg-specialized-functions" class="anchor" aria-hidden="true"></a></h2>
-          <p class="section-desc"></p><p>Functions for applying specialized actions on the signal table, channel, or the entire <code>eeg_lst</code>.</p>
-        </th>
-      </tr></tbody><tbody><tr><td>
-          <p><code><a href="eeg_artif.html">eeg_artif_minmax()</a></code> <code><a href="eeg_artif.html">eeg_artif_step()</a></code> <code><a href="eeg_artif.html">eeg_artif_amplitude()</a></code> <code><a href="eeg_artif.html">eeg_artif_peak()</a></code> </p>
-        </td>
-        <td><p>Detect artifacts and add them in the events table of an <code>eeg_lst</code></p></td>
+        <td><p>Downsample EEG data</p></td>
       </tr><tr><td>
           <p><code><a href="eeg_events_to_NA.html">eeg_events_to_NA()</a></code> </p>
         </td>
@@ -181,25 +253,252 @@
         </td>
         <td><p>Show the variance explained for each ICA sources.</p></td>
       </tr><tr><td>
-          <p><code><a href="eeg_baseline.html">eeg_baseline()</a></code> </p>
+          <p><code><a href="eeg_interpolate_tbl.html">eeg_interpolate_tbl()</a></code> </p>
         </td>
-        <td><p>Baseline an eeg_lst</p></td>
+        <td><p>Create a table with interpolated signals of an eeg_lst object.</p></td>
       </tr><tr><td>
-          <p><code><a href="eeg_downsample.html">eeg_downsample()</a></code> </p>
+          <p><code><a href="eeg_lst.html">eeg_lst()</a></code> </p>
         </td>
-        <td><p>Downsample EEG data</p></td>
+        <td><p>Create an eeg_lst</p></td>
+      </tr><tr><td>
+          <p><code><a href="eeg_power_band.html">eeg_power_band()</a></code> </p>
+        </td>
+        <td><p>Compute power bands.</p></td>
+      </tr><tr><td>
+          <p><code><a href="eeg_psd.html">eeg_psd()</a></code> </p>
+        </td>
+        <td><p>Compute the power spectral density (PSD) of an EEG signal.</p></td>
       </tr><tr><td>
           <p><code><a href="eeg_rereference.html">eeg_rereference()</a></code> </p>
         </td>
         <td><p>Re-reference a channel or group of channels.</p></td>
       </tr><tr><td>
-          <p><code><a href="eeg_segment.html">eeg_segment()</a></code> </p>
+          <p><code><a href="eeg_segment.html">eeg_segment()</a></code> <code><a href="eeg_segment.html">eeg_unsegment()</a></code> </p>
         </td>
-        <td><p>Segment an eeg_lst.</p></td>
+        <td><p>Segment (and unsegment) an eeg_lst.</p></td>
+      </tr><tr><td>
+          <p><code><a href="eeg_slice_signal.html">eeg_slice_signal()</a></code> <code><a href="eeg_slice_signal.html">slice_signal()</a></code> </p>
+        </td>
+        <td><p>Choose samples by the position</p></td>
+      </tr><tr><td>
+          <p><code><a href="events_tbl.html">events_tbl()</a></code> <code><a href="events_tbl.html">`events_tbl&lt;-`()</a></code> </p>
+        </td>
+        <td><p>Functions to get or set the events table of an eeg_lst object.</p></td>
+      </tr><tr><td>
+          <p><code><a href="fICA.html">adapt_fast_ICA()</a></code> <code><a href="fICA.html">fast_ICA2()</a></code> </p>
+        </td>
+        <td><p>Wrapper for FastICA methods for Independent Component Analysis from fICA package</p></td>
+      </tr><tr><td>
+          <p><code><a href="fast_ICA.html">fast_ICA()</a></code> </p>
+        </td>
+        <td><p>Wrapper for FastICA method for Independent Component Analysis from fastICA package</p></td>
       </tr><tr><td>
           <p><code><a href="filt.html">eeg_filt_low_pass()</a></code> <code><a href="filt.html">eeg_filt_high_pass()</a></code> <code><a href="filt.html">eeg_filt_band_pass()</a></code> <code><a href="filt.html">eeg_filt_band_stop()</a></code> </p>
         </td>
         <td><p>Apply a zero-phase low-pass, high-pass, band-pass, or band-stop FIR or IIR filter.</p></td>
+      </tr><tr><td>
+          <p><code><a href="ggplot.eeg_lst.html">ggplot(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Create an ERP plot</p></td>
+      </tr><tr><td>
+          <p><code><a href="ica_matrix_lst.html">ica_matrix_lst()</a></code> </p>
+        </td>
+        <td><p>Function to get the list of mixing and unmixing matrices of an eeg_ica_lst object.</p></td>
+      </tr><tr><td>
+          <p><code><a href="is_channel_dbl.html">is_channel_dbl()</a></code> </p>
+        </td>
+        <td><p>Test if the object is a channel or EOG channel</p></td>
+      </tr><tr><td>
+          <p><code><a href="is_component_dbl.html">is_component_dbl()</a></code> </p>
+        </td>
+        <td><p>Test if the object is a component
+This function returns  TRUE for components.</p></td>
+      </tr><tr><td>
+          <p><code><a href="is_eeg_lst.html">is_eeg_lst()</a></code> </p>
+        </td>
+        <td><p>Test if the object is an eeg_lst.</p></td>
+      </tr><tr><td>
+          <p><code><a href="is_events_tbl.html">is_events_tbl()</a></code> </p>
+        </td>
+        <td><p>Test if the object is an events_tbl
+This function returns  TRUE for events_tbl.</p></td>
+      </tr><tr><td>
+          <p><code><a href="is_psd_lst.html">is_psd_lst()</a></code> </p>
+        </td>
+        <td><p>Test if the object is a psd_lst.</p></td>
+      </tr><tr><td>
+          <p><code><a href="is_psd_tbl.html">is_psd_tbl()</a></code> </p>
+        </td>
+        <td><p>Test if the object is a  psd_tbl</p></td>
+      </tr><tr><td>
+          <p><code><a href="is_sample_int.html">is_sample_int()</a></code> </p>
+        </td>
+        <td><p>Test if the object is a sample
+This function returns  TRUE for samples.</p></td>
+      </tr><tr><td>
+          <p><code><a href="is_signal_tbl.html">is_signal_tbl()</a></code> </p>
+        </td>
+        <td><p>Test if the object is a  signal_tbl</p></td>
+      </tr><tr><td>
+          <p><code><a href="layout_32_1020.html">layout_32_1020</a></code> </p>
+        </td>
+        <td><p>Layout for a 32 electrodes cap at the standard 10-20 system</p></td>
+      </tr><tr><td>
+          <p><code><a href="na_omit.html">na_omit()</a></code> </p>
+        </td>
+        <td><p>Handle Missing Values in eeg_lst objects</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot.eeg_lst.html">plot(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Create a basic signal plot</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot_components.html">plot_components()</a></code> </p>
+        </td>
+        <td><p>Generates topographic plots of the components after running ICA on an eeg_lst</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot_in_layout.html">plot_in_layout()</a></code> </p>
+        </td>
+        <td><p>Arrange ERP plots according to scalp layout</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot_topo.html">plot_topo()</a></code> </p>
+        </td>
+        <td><p>Create a topographic plot</p></td>
+      </tr><tr><td>
+          <p><code><a href="psd_lst.html">psd_lst()</a></code> </p>
+        </td>
+        <td><p>Creates a <code>psd_lst</code>.</p></td>
+      </tr><tr><td>
+          <p><code><a href="read_edf.html">read_edf()</a></code> </p>
+        </td>
+        <td><p>Read an edf/edf+/bdf file into R</p></td>
+      </tr><tr><td>
+          <p><code><a href="read_ft.html">read_ft()</a></code> </p>
+        </td>
+        <td><p>Read a Fieldtrip file into R</p></td>
+      </tr><tr><td>
+          <p><code><a href="read_set.html">read_set()</a></code> </p>
+        </td>
+        <td><p>Read EEGlab set files (Matlab files) into R</p></td>
+      </tr><tr><td>
+          <p><code><a href="read_vhdr.html">read_vhdr()</a></code> </p>
+        </td>
+        <td><p>Read a BrainVision file into R</p></td>
+      </tr><tr><td>
+          <p><code><a href="rpink.html">rpink()</a></code> </p>
+        </td>
+        <td><p>Generates pink noise</p></td>
+      </tr><tr><td>
+          <p><code><a href="sample_int.html">sample_int()</a></code> </p>
+        </td>
+        <td><p>Builds a series of sample numbers.</p></td>
+      </tr><tr><td>
+          <p><code><a href="segments_tbl.html">segments_tbl()</a></code> </p>
+        </td>
+        <td><p>Function to get the segments table of an eeg_lst object.</p></td>
+      </tr><tr><td>
+          <p><code><a href="sig_fft.html">sig_fft()</a></code> </p>
+        </td>
+        <td><p>Compute the one-dimensional discrete Fourier Transform.</p></td>
+      </tr><tr><td>
+          <p><code><a href="sig_ifft.html">sig_ifft()</a></code> </p>
+        </td>
+        <td><p>Compute the one-dimensional inverse discrete Fourier Transform.</p></td>
+      </tr><tr><td>
+          <p><code><a href="signal_tbl.html">signal_tbl()</a></code> </p>
+        </td>
+        <td><p>Function to get the signal table of an eeg_lst object.</p></td>
+      </tr><tr><td>
+          <p><code><a href="summaries.html">channel_names()</a></code> <code><a href="summaries.html">channel_ica_names()</a></code> <code><a href="summaries.html">nchannels()</a></code> <code><a href="summaries.html">component_names()</a></code> <code><a href="summaries.html">ncomponents()</a></code> <code><a href="summaries.html">sampling_rate()</a></code> <code><a href="summaries.html">nsamples()</a></code> </p>
+        </td>
+        <td><p>Display information of the eeg_lst object.</p></td>
+      </tr><tr><td>
+          <p><code><a href="summary.eeg_lst.html">summary(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Summary of eeg_lst information.</p></td>
+      </tr><tr><td>
+          <p><code><a href="theme_eeguana.html">theme_eeguana()</a></code> <code><a href="theme_eeguana.html">theme_eeguana2()</a></code> </p>
+        </td>
+        <td><p>Eeguana ggplot themes</p></td>
+      </tr><tr><td>
+          <p><code><a href="write_vhdr.html">write_vhdr()</a></code> </p>
+        </td>
+        <td><p>Write an eeg_lst object to BrainVision file(s) (experimental)</p></td>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h2 id="eeg-specialized-functions">EEG-specialized functions <a href="#eeg-specialized-functions" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p><p>Functions for applying specialized actions on the signal table, channel, or the entire <code>eeg_lst</code>.</p>
+        </th>
+      </tr></tbody><tbody><tr><td>
+          <p><code><a href="annotate_events.html">annotate_events()</a></code> </p>
+        </td>
+        <td><p>Adds a layer with the events on top of a plot of an eeg_lst.</p></td>
+      </tr><tr><td>
+          <p><code><a href="annotate_head.html">annotate_head()</a></code> </p>
+        </td>
+        <td><p>Add a head shape to a ggplot</p></td>
+      </tr><tr><td>
+          <p><code><a href="as.data.frame.eeg_lst.html">as.data.frame(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Convert an eeg_lst to a (base) data frame.</p></td>
+      </tr><tr><td>
+          <p><code><a href="as.data.frame.psd_lst.html">as.data.frame(<i>&lt;psd_lst&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Convert a psd_lst to a (base) data frame.</p></td>
+      </tr><tr><td>
+          <p><code><a href="as.data.table.eeg_lst.html">as.data.table.eeg_lst()</a></code> </p>
+        </td>
+        <td><p>Convert an eeg_lst to a long table in <code><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></code> format.</p></td>
+      </tr><tr><td>
+          <p><code><a href="as.data.table.psd_lst.html">as.data.table.psd_lst()</a></code> </p>
+        </td>
+        <td><p>Convert a psd_lst list to a long table in <code><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></code> format.</p></td>
+      </tr><tr><td>
+          <p><code><a href="as_channel_dbl.html">as_channel_dbl()</a></code> </p>
+        </td>
+        <td><p>Coerce a vector of real (double) numbers into a channel object</p></td>
+      </tr><tr><td>
+          <p><code><a href="as_eeg_lst.html">as_eeg_lst()</a></code> </p>
+        </td>
+        <td><p>Transforms an object to a eeg_lst</p></td>
+      </tr><tr><td>
+          <p><code><a href="as_sample_int.html">as_sample_int()</a></code> </p>
+        </td>
+        <td><p>Convert a time point  into a sample.</p></td>
+      </tr><tr><td>
+          <p><code><a href="as_tibble.eeg_lst.html">as_tibble.eeg_lst()</a></code> <code><a href="as_tibble.eeg_lst.html">as_data_frame.eeg_lst()</a></code> <code><a href="as_tibble.eeg_lst.html">as_long_tbl(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Convert an eeg_lst to a long table in <code><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></code> format.</p></td>
+      </tr><tr><td>
+          <p><code><a href="as_tibble.psd_lst.html">as_tibble.psd_lst()</a></code> </p>
+        </td>
+        <td><p>Convert an psd_lst to a long table in <code><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></code> format.</p></td>
+      </tr><tr><td>
+          <p><code><a href="as_tidytable.eeg_lst.html">as_tidytable.eeg_lst()</a></code> </p>
+        </td>
+        <td><p>Convert an eeg_lst to a long table in <code><a href="https://rdrr.io/pkg/tidytable/man/tidytable.html" class="external-link">tidytable</a></code> format.</p></td>
+      </tr><tr><td>
+          <p><code><a href="as_tidytable.psd_lst.html">as_tidytable.psd_lst()</a></code> </p>
+        </td>
+        <td><p>Convert an psd_lst to a long table in <code><a href="https://rdrr.io/pkg/tidytable/man/tidytable.html" class="external-link">tidytable</a></code> format.</p></td>
+      </tr><tr><td>
+          <p><code><a href="as_time.html">as_time()</a></code> </p>
+        </td>
+        <td><p>Convert a sample point into a time point.</p></td>
+      </tr><tr><td>
+          <p><code><a href="between.html">between</a></code> </p>
+        </td>
+        <td><p>Convenience function for range subsets</p></td>
+      </tr><tr><td>
+          <p><code><a href="change_coord.html">change_coord()</a></code> </p>
+        </td>
+        <td><p>Change coordinate system from 3D to 2D</p></td>
+      </tr><tr><td>
+          <p><code><a href="channel_dbl.html">channel_dbl()</a></code> </p>
+        </td>
+        <td><p>Builds a channel.</p></td>
+      </tr><tr><td>
+          <p><code><a href="channels_tbl.html">channels_tbl()</a></code> <code><a href="channels_tbl.html">`channels_tbl&lt;-`()</a></code> </p>
+        </td>
+        <td><p>Functions to get or set the channel information of an eeg_lst object.</p></td>
       </tr><tr><td>
           <p><code><a href="chs_fun.html">chs_fun()</a></code> </p>
         </td>
@@ -208,6 +507,245 @@
           <p><code><a href="chs_mean.html">chs_mean()</a></code> </p>
         </td>
         <td><p>Get the by-sample (or by-row) mean of the specified channels.</p></td>
+      </tr><tr><td>
+          <p><code><a href="component_dbl.html">component_dbl()</a></code> </p>
+        </td>
+        <td><p>Builds a component.</p></td>
+      </tr><tr><td>
+          <p><code><a href="count_complete_cases_tbl.html">count_complete_cases_tbl()</a></code> </p>
+        </td>
+        <td><p>Count number of complete segments of an eeg_lst object.</p></td>
+      </tr><tr><td>
+          <p><code><a href="data_faces_10_trials.html">data_faces_10_trials</a></code> </p>
+        </td>
+        <td><p>EEGs elicited when one subject saw faces and non-faces objects.</p></td>
+      </tr><tr><td>
+          <p><code><a href="data_faces_ERPs.html">data_faces_ERPs</a></code> </p>
+        </td>
+        <td><p>ERPs elicited when one subject saw faces and non-faces objects.</p></td>
+      </tr><tr><td>
+          <p><code><a href="dplyr_verbs.html">eeg_mutate()</a></code> <code><a href="dplyr_verbs.html">eeg_transmute()</a></code> <code><a href="dplyr_verbs.html">eeg_filter()</a></code> <code><a href="dplyr_verbs.html">eeg_summarize()</a></code> <code><a href="dplyr_verbs.html">eeg_summarise()</a></code> <code><a href="dplyr_verbs.html">eeg_group_by()</a></code> <code><a href="dplyr_verbs.html">eeg_ungroup()</a></code> <code><a href="dplyr_verbs.html">eeg_select()</a></code> <code><a href="dplyr_verbs.html">eeg_rename()</a></code> <code><a href="dplyr_verbs.html">eeg_rename_with()</a></code> <code><a href="dplyr_verbs.html">eeg_groups()</a></code> <code><a href="dplyr_verbs.html">eeg_group_vars()</a></code> <code><a href="dplyr_verbs.html">eeg_anti_join()</a></code> <code><a href="dplyr_verbs.html">eeg_left_join()</a></code> <code><a href="dplyr_verbs.html">eeg_semi_join()</a></code> <code><a href="dplyr_verbs.html">eeg_pull()</a></code> <code><a href="dplyr_verbs.html">across()</a></code> <code><a href="dplyr_verbs.html">across_ch()</a></code> <code><a href="dplyr_verbs.html">c_across_ch()</a></code> <code><a href="dplyr_verbs.html">c_across()</a></code> </p>
+        </td>
+        <td><p>Dplyr-like functions for manipulating eeg_lst objects.</p></td>
+      </tr><tr><td>
+          <p><code><a href="drop_incomplete_segments.html">drop_incomplete_segments()</a></code> </p>
+        </td>
+        <td><p>Drop segments with NAs from the eeg_lst</p></td>
+      </tr><tr><td>
+          <p><code><a href="eeg_artif.html">eeg_artif_minmax()</a></code> <code><a href="eeg_artif.html">eeg_artif_step()</a></code> <code><a href="eeg_artif.html">eeg_artif_amplitude()</a></code> <code><a href="eeg_artif.html">eeg_artif_peak()</a></code> </p>
+        </td>
+        <td><p>Detect artifacts and add them in the events table of an <code>eeg_lst</code></p></td>
+      </tr><tr><td>
+          <p><code><a href="eeg_baseline.html">eeg_baseline()</a></code> </p>
+        </td>
+        <td><p>Baseline an eeg_lst</p></td>
+      </tr><tr><td>
+          <p><code><a href="eeg_bind.html">eeg_bind()</a></code> <code><a href="eeg_bind.html">bind()</a></code> </p>
+        </td>
+        <td><p>Bind eeg_lst objects.</p></td>
+      </tr><tr><td>
+          <p><code><a href="eeg_downsample.html">eeg_downsample()</a></code> </p>
+        </td>
+        <td><p>Downsample EEG data</p></td>
+      </tr><tr><td>
+          <p><code><a href="eeg_events_to_NA.html">eeg_events_to_NA()</a></code> </p>
+        </td>
+        <td><p>Remove (transform to NA) problematic events from the signal table of an eeg_lst.</p></td>
+      </tr><tr><td>
+          <p><code><a href="eeg_ica.html">eeg_ica()</a></code> </p>
+        </td>
+        <td><p>EEG signal decomposition using Independent Component Analysis (ICA)</p></td>
+      </tr><tr><td>
+          <p><code><a href="eeg_ica_cor_tbl.html">eeg_ica_cor_tbl()</a></code> </p>
+        </td>
+        <td><p>Show correlations between ICA sources and eye (EOG) electrodes.</p></td>
+      </tr><tr><td>
+          <p><code><a href="eeg_ica_keep.html">eeg_ica_keep()</a></code> </p>
+        </td>
+        <td><p>Select independent components (or sources) to keep.</p></td>
+      </tr><tr><td>
+          <p><code><a href="eeg_ica_show.html">eeg_ica_show()</a></code> </p>
+        </td>
+        <td><p>Add independent components (or sources) to the signal table for visualization.</p></td>
+      </tr><tr><td>
+          <p><code><a href="eeg_ica_summary_tbl.html">eeg_ica_summary_tbl()</a></code> </p>
+        </td>
+        <td><p>Show a table with a summary of the results of the ICA.</p></td>
+      </tr><tr><td>
+          <p><code><a href="eeg_ica_var_tbl.html">eeg_ica_var_tbl()</a></code> </p>
+        </td>
+        <td><p>Show the variance explained for each ICA sources.</p></td>
+      </tr><tr><td>
+          <p><code><a href="eeg_interpolate_tbl.html">eeg_interpolate_tbl()</a></code> </p>
+        </td>
+        <td><p>Create a table with interpolated signals of an eeg_lst object.</p></td>
+      </tr><tr><td>
+          <p><code><a href="eeg_lst.html">eeg_lst()</a></code> </p>
+        </td>
+        <td><p>Create an eeg_lst</p></td>
+      </tr><tr><td>
+          <p><code><a href="eeg_power_band.html">eeg_power_band()</a></code> </p>
+        </td>
+        <td><p>Compute power bands.</p></td>
+      </tr><tr><td>
+          <p><code><a href="eeg_psd.html">eeg_psd()</a></code> </p>
+        </td>
+        <td><p>Compute the power spectral density (PSD) of an EEG signal.</p></td>
+      </tr><tr><td>
+          <p><code><a href="eeg_rereference.html">eeg_rereference()</a></code> </p>
+        </td>
+        <td><p>Re-reference a channel or group of channels.</p></td>
+      </tr><tr><td>
+          <p><code><a href="eeg_segment.html">eeg_segment()</a></code> <code><a href="eeg_segment.html">eeg_unsegment()</a></code> </p>
+        </td>
+        <td><p>Segment (and unsegment) an eeg_lst.</p></td>
+      </tr><tr><td>
+          <p><code><a href="eeg_slice_signal.html">eeg_slice_signal()</a></code> <code><a href="eeg_slice_signal.html">slice_signal()</a></code> </p>
+        </td>
+        <td><p>Choose samples by the position</p></td>
+      </tr><tr><td>
+          <p><code><a href="events_tbl.html">events_tbl()</a></code> <code><a href="events_tbl.html">`events_tbl&lt;-`()</a></code> </p>
+        </td>
+        <td><p>Functions to get or set the events table of an eeg_lst object.</p></td>
+      </tr><tr><td>
+          <p><code><a href="fICA.html">adapt_fast_ICA()</a></code> <code><a href="fICA.html">fast_ICA2()</a></code> </p>
+        </td>
+        <td><p>Wrapper for FastICA methods for Independent Component Analysis from fICA package</p></td>
+      </tr><tr><td>
+          <p><code><a href="fast_ICA.html">fast_ICA()</a></code> </p>
+        </td>
+        <td><p>Wrapper for FastICA method for Independent Component Analysis from fastICA package</p></td>
+      </tr><tr><td>
+          <p><code><a href="filt.html">eeg_filt_low_pass()</a></code> <code><a href="filt.html">eeg_filt_high_pass()</a></code> <code><a href="filt.html">eeg_filt_band_pass()</a></code> <code><a href="filt.html">eeg_filt_band_stop()</a></code> </p>
+        </td>
+        <td><p>Apply a zero-phase low-pass, high-pass, band-pass, or band-stop FIR or IIR filter.</p></td>
+      </tr><tr><td>
+          <p><code><a href="ggplot.eeg_lst.html">ggplot(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Create an ERP plot</p></td>
+      </tr><tr><td>
+          <p><code><a href="ica_matrix_lst.html">ica_matrix_lst()</a></code> </p>
+        </td>
+        <td><p>Function to get the list of mixing and unmixing matrices of an eeg_ica_lst object.</p></td>
+      </tr><tr><td>
+          <p><code><a href="is_channel_dbl.html">is_channel_dbl()</a></code> </p>
+        </td>
+        <td><p>Test if the object is a channel or EOG channel</p></td>
+      </tr><tr><td>
+          <p><code><a href="is_component_dbl.html">is_component_dbl()</a></code> </p>
+        </td>
+        <td><p>Test if the object is a component
+This function returns  TRUE for components.</p></td>
+      </tr><tr><td>
+          <p><code><a href="is_eeg_lst.html">is_eeg_lst()</a></code> </p>
+        </td>
+        <td><p>Test if the object is an eeg_lst.</p></td>
+      </tr><tr><td>
+          <p><code><a href="is_events_tbl.html">is_events_tbl()</a></code> </p>
+        </td>
+        <td><p>Test if the object is an events_tbl
+This function returns  TRUE for events_tbl.</p></td>
+      </tr><tr><td>
+          <p><code><a href="is_psd_lst.html">is_psd_lst()</a></code> </p>
+        </td>
+        <td><p>Test if the object is a psd_lst.</p></td>
+      </tr><tr><td>
+          <p><code><a href="is_psd_tbl.html">is_psd_tbl()</a></code> </p>
+        </td>
+        <td><p>Test if the object is a  psd_tbl</p></td>
+      </tr><tr><td>
+          <p><code><a href="is_sample_int.html">is_sample_int()</a></code> </p>
+        </td>
+        <td><p>Test if the object is a sample
+This function returns  TRUE for samples.</p></td>
+      </tr><tr><td>
+          <p><code><a href="is_signal_tbl.html">is_signal_tbl()</a></code> </p>
+        </td>
+        <td><p>Test if the object is a  signal_tbl</p></td>
+      </tr><tr><td>
+          <p><code><a href="layout_32_1020.html">layout_32_1020</a></code> </p>
+        </td>
+        <td><p>Layout for a 32 electrodes cap at the standard 10-20 system</p></td>
+      </tr><tr><td>
+          <p><code><a href="na_omit.html">na_omit()</a></code> </p>
+        </td>
+        <td><p>Handle Missing Values in eeg_lst objects</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot.eeg_lst.html">plot(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Create a basic signal plot</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot_components.html">plot_components()</a></code> </p>
+        </td>
+        <td><p>Generates topographic plots of the components after running ICA on an eeg_lst</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot_in_layout.html">plot_in_layout()</a></code> </p>
+        </td>
+        <td><p>Arrange ERP plots according to scalp layout</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot_topo.html">plot_topo()</a></code> </p>
+        </td>
+        <td><p>Create a topographic plot</p></td>
+      </tr><tr><td>
+          <p><code><a href="psd_lst.html">psd_lst()</a></code> </p>
+        </td>
+        <td><p>Creates a <code>psd_lst</code>.</p></td>
+      </tr><tr><td>
+          <p><code><a href="read_edf.html">read_edf()</a></code> </p>
+        </td>
+        <td><p>Read an edf/edf+/bdf file into R</p></td>
+      </tr><tr><td>
+          <p><code><a href="read_ft.html">read_ft()</a></code> </p>
+        </td>
+        <td><p>Read a Fieldtrip file into R</p></td>
+      </tr><tr><td>
+          <p><code><a href="read_set.html">read_set()</a></code> </p>
+        </td>
+        <td><p>Read EEGlab set files (Matlab files) into R</p></td>
+      </tr><tr><td>
+          <p><code><a href="read_vhdr.html">read_vhdr()</a></code> </p>
+        </td>
+        <td><p>Read a BrainVision file into R</p></td>
+      </tr><tr><td>
+          <p><code><a href="rpink.html">rpink()</a></code> </p>
+        </td>
+        <td><p>Generates pink noise</p></td>
+      </tr><tr><td>
+          <p><code><a href="sample_int.html">sample_int()</a></code> </p>
+        </td>
+        <td><p>Builds a series of sample numbers.</p></td>
+      </tr><tr><td>
+          <p><code><a href="segments_tbl.html">segments_tbl()</a></code> </p>
+        </td>
+        <td><p>Function to get the segments table of an eeg_lst object.</p></td>
+      </tr><tr><td>
+          <p><code><a href="sig_fft.html">sig_fft()</a></code> </p>
+        </td>
+        <td><p>Compute the one-dimensional discrete Fourier Transform.</p></td>
+      </tr><tr><td>
+          <p><code><a href="sig_ifft.html">sig_ifft()</a></code> </p>
+        </td>
+        <td><p>Compute the one-dimensional inverse discrete Fourier Transform.</p></td>
+      </tr><tr><td>
+          <p><code><a href="signal_tbl.html">signal_tbl()</a></code> </p>
+        </td>
+        <td><p>Function to get the signal table of an eeg_lst object.</p></td>
+      </tr><tr><td>
+          <p><code><a href="summaries.html">channel_names()</a></code> <code><a href="summaries.html">channel_ica_names()</a></code> <code><a href="summaries.html">nchannels()</a></code> <code><a href="summaries.html">component_names()</a></code> <code><a href="summaries.html">ncomponents()</a></code> <code><a href="summaries.html">sampling_rate()</a></code> <code><a href="summaries.html">nsamples()</a></code> </p>
+        </td>
+        <td><p>Display information of the eeg_lst object.</p></td>
+      </tr><tr><td>
+          <p><code><a href="summary.eeg_lst.html">summary(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Summary of eeg_lst information.</p></td>
+      </tr><tr><td>
+          <p><code><a href="theme_eeguana.html">theme_eeguana()</a></code> <code><a href="theme_eeguana.html">theme_eeguana2()</a></code> </p>
+        </td>
+        <td><p>Eeguana ggplot themes</p></td>
+      </tr><tr><td>
+          <p><code><a href="write_vhdr.html">write_vhdr()</a></code> </p>
+        </td>
+        <td><p>Write an eeg_lst object to BrainVision file(s) (experimental)</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
           <h2 id="plot-functions">Plot functions <a href="#plot-functions" class="anchor" aria-hidden="true"></a></h2>
           <p class="section-desc"></p><p>Wrappers to <code>ggplot</code> functions that first transform the <code>eeg_lst</code> to a wide <code>tibble</code>, together with some transformation (downsampling, interpolation, etc).</p>
@@ -245,7 +783,7 @@
         </td>
         <td><p>Eeguana ggplot themes</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
-          <h2 id="-base-inspired-functions">'base'-inspired functions <a href="#-base-inspired-functions" class="anchor" aria-hidden="true"></a></h2>
+          <h2 id="-base-inspired-functions">‘base’-inspired functions <a href="#-base-inspired-functions" class="anchor" aria-hidden="true"></a></h2>
           <p class="section-desc"></p><p>Functions for getting specific information about the objects that compose an <code>eeg_lst</code>.</p>
         </th>
       </tr></tbody><tbody><tr><td>
@@ -265,6 +803,18 @@
         </td>
         <td><p>Convert an eeg_lst to a long table in <code><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></code> format.</p></td>
       </tr><tr><td>
+          <p><code><a href="as_tibble.psd_lst.html">as_tibble.psd_lst()</a></code> </p>
+        </td>
+        <td><p>Convert an psd_lst to a long table in <code><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></code> format.</p></td>
+      </tr><tr><td>
+          <p><code><a href="as_tidytable.eeg_lst.html">as_tidytable.eeg_lst()</a></code> </p>
+        </td>
+        <td><p>Convert an eeg_lst to a long table in <code><a href="https://rdrr.io/pkg/tidytable/man/tidytable.html" class="external-link">tidytable</a></code> format.</p></td>
+      </tr><tr><td>
+          <p><code><a href="as_tidytable.psd_lst.html">as_tidytable.psd_lst()</a></code> </p>
+        </td>
+        <td><p>Convert an psd_lst to a long table in <code><a href="https://rdrr.io/pkg/tidytable/man/tidytable.html" class="external-link">tidytable</a></code> format.</p></td>
+      </tr><tr><td>
           <p><code><a href="as_time.html">as_time()</a></code> </p>
         </td>
         <td><p>Convert a sample point into a time point.</p></td>
@@ -273,9 +823,17 @@
         </td>
         <td><p>Convert an eeg_lst to a (base) data frame.</p></td>
       </tr><tr><td>
+          <p><code><a href="as.data.frame.psd_lst.html">as.data.frame(<i>&lt;psd_lst&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Convert a psd_lst to a (base) data frame.</p></td>
+      </tr><tr><td>
           <p><code><a href="as.data.table.eeg_lst.html">as.data.table.eeg_lst()</a></code> </p>
         </td>
         <td><p>Convert an eeg_lst to a long table in <code><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></code> format.</p></td>
+      </tr><tr><td>
+          <p><code><a href="as.data.table.psd_lst.html">as.data.table.psd_lst()</a></code> </p>
+        </td>
+        <td><p>Convert a psd_lst list to a long table in <code><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></code> format.</p></td>
       </tr><tr><td>
           <p><code><a href="is_channel_dbl.html">is_channel_dbl()</a></code> </p>
         </td>
@@ -288,13 +846,20 @@ This function returns  TRUE for components.</p></td>
       </tr><tr><td>
           <p><code><a href="is_eeg_lst.html">is_eeg_lst()</a></code> </p>
         </td>
-        <td><p>Test if the object is an eeg_lst.
-This function returns  TRUE for eeg_lsts.</p></td>
+        <td><p>Test if the object is an eeg_lst.</p></td>
       </tr><tr><td>
           <p><code><a href="is_events_tbl.html">is_events_tbl()</a></code> </p>
         </td>
         <td><p>Test if the object is an events_tbl
 This function returns  TRUE for events_tbl.</p></td>
+      </tr><tr><td>
+          <p><code><a href="is_psd_lst.html">is_psd_lst()</a></code> </p>
+        </td>
+        <td><p>Test if the object is a psd_lst.</p></td>
+      </tr><tr><td>
+          <p><code><a href="is_psd_tbl.html">is_psd_tbl()</a></code> </p>
+        </td>
+        <td><p>Test if the object is a  psd_tbl</p></td>
       </tr><tr><td>
           <p><code><a href="is_sample_int.html">is_sample_int()</a></code> </p>
         </td>
@@ -303,10 +868,13 @@ This function returns  TRUE for samples.</p></td>
       </tr><tr><td>
           <p><code><a href="is_signal_tbl.html">is_signal_tbl()</a></code> </p>
         </td>
-        <td><p>Test if the object is a  signal_tbl
-This function returns  TRUE for signals.</p></td>
+        <td><p>Test if the object is a  signal_tbl</p></td>
       </tr><tr><td>
-          <p><code><a href="summaries.html">channel_names()</a></code> <code><a href="summaries.html">channel_ica_names()</a></code> <code><a href="summaries.html">nchannels()</a></code> <code><a href="summaries.html">component_names()</a></code> <code><a href="summaries.html">ncomponents()</a></code> <code><a href="summaries.html">nsamples()</a></code> </p>
+          <p><code><a href="na_omit.html">na_omit()</a></code> </p>
+        </td>
+        <td><p>Handle Missing Values in eeg_lst objects</p></td>
+      </tr><tr><td>
+          <p><code><a href="summaries.html">channel_names()</a></code> <code><a href="summaries.html">channel_ica_names()</a></code> <code><a href="summaries.html">nchannels()</a></code> <code><a href="summaries.html">component_names()</a></code> <code><a href="summaries.html">ncomponents()</a></code> <code><a href="summaries.html">sampling_rate()</a></code> <code><a href="summaries.html">nsamples()</a></code> </p>
         </td>
         <td><p>Display information of the eeg_lst object.</p></td>
       </tr><tr><td>
@@ -342,6 +910,10 @@ This function returns  TRUE for signals.</p></td>
         </td>
         <td><p>Create an eeg_lst</p></td>
       </tr><tr><td>
+          <p><code><a href="psd_lst.html">psd_lst()</a></code> </p>
+        </td>
+        <td><p>Creates a <code>psd_lst</code>.</p></td>
+      </tr><tr><td>
           <p><code><a href="sample_int.html">sample_int()</a></code> </p>
         </td>
         <td><p>Builds a series of sample numbers.</p></td>
@@ -369,18 +941,6 @@ This function returns  TRUE for signals.</p></td>
           <p><code><a href="rpink.html">rpink()</a></code> </p>
         </td>
         <td><p>Generates pink noise</p></td>
-      </tr><tr><td>
-          <p><code><a href="fICA.html">adapt_fast_ICA()</a></code> <code><a href="fICA.html">fast_ICA2()</a></code> </p>
-        </td>
-        <td><p>Wrapper for FastICA methods for Independent Component Analysis from fICA package</p></td>
-      </tr><tr><td>
-          <p><code><a href="fast_ICA.html">fast_ICA()</a></code> </p>
-        </td>
-        <td><p>Wrapper for FastICA method for Independent Component Analysis from fastICA package</p></td>
-      </tr><tr><td>
-          <p><code><a href="ica_matrix_lst.html">ica_matrix_lst()</a></code> </p>
-        </td>
-        <td><p>Function to get the list of mixing and unmixing matrices of an eeg_ica_lst object.</p></td>
       </tr><tr><td>
           <p><code><a href="between.html">between</a></code> </p>
         </td>
@@ -430,7 +990,7 @@ This function returns  TRUE for signals.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>
