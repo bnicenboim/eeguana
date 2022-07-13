@@ -26,7 +26,7 @@
 #' faces <- bind(faces_list)
 #' }
 #'
-#' @family reading functions
+#' @family reading and writing functions
 #'
 #' @export
 read_vhdr <- function(file, .sep = .type == "New Segment", .zero = .type == "Time 0",
@@ -115,7 +115,7 @@ read_vhdr <- function(file, .sep = .type == "New Segment", .zero = .type == "Tim
 #' s1 <- read_ft("./subject1.mat", layout = "easycapM25.mat", .recording = 1)
 #' }
 #'
-#' @family reading functions
+#' @family reading and writing functions
 #'
 #'
 #' @export
@@ -289,7 +289,7 @@ read_ft <- function(file, .layout = NULL, .recording = file) {
 #' s1 <- read_edf("./faces.edf", .recording = 1)
 #' }
 #'
-#' @family reading functions
+#' @family reading and writing functions
 #'
 #' @export
 read_edf <- function(file, .recording = file) {
@@ -420,7 +420,7 @@ read_edf <- function(file, .recording = file) {
 #' s1 <- read_ft("./subject1.set", .recording = 1)
 #' }
 #'
-#' @family reading functions
+#' @family reading and writing functions
 #'
 #'
 #' @export
