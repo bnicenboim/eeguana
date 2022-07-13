@@ -23,7 +23,7 @@
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
+<![endif]--><script>if(!sessionStorage.getItem("_swa")&&document.referrer.indexOf(location.protocol+"//"+location.host)!== 0){fetch("https://counter.dev/track?"+new URLSearchParams({referrer:document.referrer,screen:screen.width+"x"+screen.height,user:"bnicenboim",utcoffset:"1"}))};sessionStorage.setItem("_swa","1");</script>
 </head>
 <body data-spy="scroll" data-target="#toc">
     
@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.7.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.8.9000</span>
       </span>
     </div>
 
@@ -100,7 +100,7 @@
       <h1 data-toc-skip>Introduction - Preprocessing and visualization of EEG data</h1>
                         <h4 data-toc-skip class="author">Bruno Nicenboim</h4>
             
-            <h4 data-toc-skip class="date">2022-06-13</h4>
+            <h4 data-toc-skip class="date">2022-07-13</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bnicenboim/eeguana/blob/HEAD/vignettes/intro.Rmd" class="external-link"><code>vignettes/intro.Rmd</code></a></small>
       <div class="hidden name"><code>intro.Rmd</code></div>
@@ -122,197 +122,197 @@
 <p>Here, I exemplify the use of <em>eeguana</em> with raw EEG data exported in the format of BrainVision 1.0. The data belong to a simple experiment where a participant was presented 100 faces and 100 assorted images in random order. The task of the experiment was to mentally count the number of faces.</p>
 <p>First we download the data:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Run the following or just download the files from raw_faces folder in https://osf.io/tbwvz/</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://httr.r-lib.org/" class="external-link">httr</a></span><span class="op">)</span>
-<span class="fu"><a href="https://httr.r-lib.org/reference/GET.html" class="external-link">GET</a></span><span class="op">(</span><span class="st">"https://osf.io/wv5hp//?action=download"</span>,
-  <span class="fu"><a href="https://httr.r-lib.org/reference/write_disk.html" class="external-link">write_disk</a></span><span class="op">(</span><span class="st">"./s1_faces.vhdr"</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, 
-  <span class="fu"><a href="https://httr.r-lib.org/reference/progress.html" class="external-link">progress</a></span><span class="op">(</span><span class="op">)</span>
-<span class="op">)</span>
-<span class="fu"><a href="https://httr.r-lib.org/reference/GET.html" class="external-link">GET</a></span><span class="op">(</span><span class="st">"https://osf.io/c8wea//?action=download"</span>,
-  <span class="fu"><a href="https://httr.r-lib.org/reference/write_disk.html" class="external-link">write_disk</a></span><span class="op">(</span><span class="st">"./s1_faces.vmrk"</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, 
-  <span class="fu"><a href="https://httr.r-lib.org/reference/progress.html" class="external-link">progress</a></span><span class="op">(</span><span class="op">)</span>
-<span class="op">)</span>
-<span class="fu"><a href="https://httr.r-lib.org/reference/GET.html" class="external-link">GET</a></span><span class="op">(</span><span class="st">"https://osf.io/uhsde//?action=download"</span>,
-  <span class="fu"><a href="https://httr.r-lib.org/reference/write_disk.html" class="external-link">write_disk</a></span><span class="op">(</span><span class="st">"./s1_faces.eeg"</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, 
-  <span class="fu"><a href="https://httr.r-lib.org/reference/progress.html" class="external-link">progress</a></span><span class="op">(</span><span class="op">)</span>
-<span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Run the following or just download the files from raw_faces folder in https://osf.io/tbwvz/</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://httr.r-lib.org/" class="external-link">httr</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://httr.r-lib.org/reference/GET.html" class="external-link">GET</a></span><span class="op">(</span><span class="st">"https://osf.io/wv5hp//?action=download"</span>,</span>
+<span>  <span class="fu"><a href="https://httr.r-lib.org/reference/write_disk.html" class="external-link">write_disk</a></span><span class="op">(</span><span class="st">"./s1_faces.vhdr"</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://httr.r-lib.org/reference/progress.html" class="external-link">progress</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://httr.r-lib.org/reference/GET.html" class="external-link">GET</a></span><span class="op">(</span><span class="st">"https://osf.io/c8wea//?action=download"</span>,</span>
+<span>  <span class="fu"><a href="https://httr.r-lib.org/reference/write_disk.html" class="external-link">write_disk</a></span><span class="op">(</span><span class="st">"./s1_faces.vmrk"</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://httr.r-lib.org/reference/progress.html" class="external-link">progress</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://httr.r-lib.org/reference/GET.html" class="external-link">GET</a></span><span class="op">(</span><span class="st">"https://osf.io/uhsde//?action=download"</span>,</span>
+<span>  <span class="fu"><a href="https://httr.r-lib.org/reference/write_disk.html" class="external-link">write_disk</a></span><span class="op">(</span><span class="st">"./s1_faces.eeg"</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://httr.r-lib.org/reference/progress.html" class="external-link">progress</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>BrainVision 1.0 exports three files: <code>s1_faces.vhdr</code>, <code>s1_faces.vmrk</code>, and <code>s1_faces.eeg</code>. The file <code>s1_faces.vhdr</code> contains the metadata and links to the other two files, <code>s1_faces.vmrk</code> contains the triggers and other events in the samples, and <code>s1_faces.eeg</code> contains the signals at every sample for every channel recorded.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://stringr.tidyverse.org" class="external-link">stringr</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bnicenboim/eeguana" class="external-link">eeguana</a></span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span> <span class="co"># ICA will always find the same components</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://stringr.tidyverse.org" class="external-link">stringr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bnicenboim/eeguana" class="external-link">eeguana</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span> <span class="co"># ICA will always find the same components</span></span></code></pre></div>
 <p>We first need to read the data:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">faces</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_vhdr.html">read_vhdr</a></span><span class="op">(</span><span class="st">"s1_faces.vhdr"</span><span class="op">)</span>
-<span class="co">#&gt; # Reading file s1_faces.vhdr...</span>
-<span class="co">#&gt; # Data from ./s1_faces.eeg was read.</span>
-<span class="co">#&gt; # Data from 1 segment(s) and 34 channels was loaded.</span>
-<span class="co">#&gt; # Object size in memory 113.4 Mb</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">faces</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_vhdr.html">read_vhdr</a></span><span class="op">(</span><span class="st">"s1_faces.vhdr"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # Reading file s1_faces.vhdr...</span></span>
+<span><span class="co">#&gt; # Data from ./s1_faces.eeg was read.</span></span>
+<span><span class="co">#&gt; # Data from 1 segment(s) and 34 channels was loaded.</span></span>
+<span><span class="co">#&gt; # Object size in memory 113.4 Mb</span></span></code></pre></div>
 <p>The function <code><a href="../reference/read_vhdr.html">read_vhdr()</a></code> creates a list with data frames for the signal, events, segments information, and incorporates in its attributes generic EEG information.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">faces</span>
-<span class="co">#&gt; # EEG data:</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; # Signal table:</span>
-<span class="co">#&gt;         .id .sample       Fp1       Fpz       Fp2        F7         F3</span>
-<span class="co">#&gt;      1:   1       1 -17878.56 -8921.395 -14028.81 -284.2541 -1378.1467</span>
-<span class="co">#&gt;      2:   1       2 -17903.75 -8948.022 -14056.53 -303.9134 -1400.6560</span>
-<span class="co">#&gt;      3:   1       3 -17916.55 -8961.906 -14070.91 -307.1683 -1407.8466</span>
-<span class="co">#&gt;      4:   1       4 -17918.17 -8963.691 -14068.63 -299.8859 -1401.9985</span>
-<span class="co">#&gt;      5:   1       5 -17917.71 -8965.658 -14069.16 -294.7915 -1401.2996</span>
-<span class="co">#&gt;     ---                                                               </span>
-<span class="co">#&gt; 424484:   1  424484 -16094.71 -8234.730 -13505.21  609.9043  -236.9552</span>
-<span class="co">#&gt; 424485:   1  424485 -16140.11 -8280.301 -13547.56  603.1918  -311.0485</span>
-<span class="co">#&gt; 424486:   1  424486 -16145.24 -8275.078 -13528.22  541.3096  -291.0218</span>
-<span class="co">#&gt; 424487:   1  424487 -16165.22 -8294.479 -13546.50  467.7130  -302.0740</span>
-<span class="co">#&gt; 424488:   1  424488 -16167.39 -8305.199 -13561.12  576.3062  -319.2688</span>
-<span class="co">#&gt;                Fz       F4         F8       FC5       FC1       FC2       FC6</span>
-<span class="co">#&gt;      1: -8077.128 1167.489 -1663.4490 -2315.080 -9040.689 -795.0549 -3665.146</span>
-<span class="co">#&gt;      2: -8101.660 1145.292 -1685.9034 -2338.859 -9064.137 -816.1298 -3688.133</span>
-<span class="co">#&gt;      3: -8114.331 1138.028 -1691.4203 -2343.475 -9071.438 -823.4675 -3690.046</span>
-<span class="co">#&gt;      4: -8116.114 1139.702 -1683.0713 -2333.746 -9065.608 -817.9690 -3681.642</span>
-<span class="co">#&gt;      5: -8119.442 1136.373 -1684.2664 -2326.648 -9061.397 -817.2882 -3679.563</span>
-<span class="co">#&gt;     ---                                                                      </span>
-<span class="co">#&gt; 424484: -7991.669 1977.146  -162.8618 -2290.511 -9349.164 -318.8641 -2805.395</span>
-<span class="co">#&gt; 424485: -8045.019 1938.122  -183.0542 -2424.133 -9410.679 -364.1038 -2833.090</span>
-<span class="co">#&gt; 424486: -8032.237 1965.358  -132.3712 -2291.431 -9379.728 -342.3297 -2811.445</span>
-<span class="co">#&gt; 424487: -8052.393 1930.877  -180.4978 -2361.589 -9381.456 -358.2924 -2868.325</span>
-<span class="co">#&gt; 424488: -8065.579 1927.474  -188.0929 -2368.595 -9409.171 -363.8277 -2853.797</span>
-<span class="co">#&gt;         M1        T7        C3         Cz        C4         T8        M2</span>
-<span class="co">#&gt;      1:  0 -5156.998 -2466.320 -1568.4097 -4427.577 -10351.511 -1845.363</span>
-<span class="co">#&gt;      2:  0 -5184.417 -2490.411 -1591.3053 -4450.049 -10372.402 -1850.862</span>
-<span class="co">#&gt;      3:  0 -5186.146 -2495.726 -1597.7970 -4454.775 -10378.323 -1845.087</span>
-<span class="co">#&gt;      4:  0 -5174.358 -2487.358 -1591.5627 -4449.590 -10373.983 -1836.370</span>
-<span class="co">#&gt;      5:  0 -5170.146 -2481.878 -1588.5833 -4446.334 -10370.489 -1841.961</span>
-<span class="co">#&gt;     ---                                                                 </span>
-<span class="co">#&gt; 424484:  0 -3703.158 -2301.288  -395.4219 -2952.459  -9502.499 -2128.771</span>
-<span class="co">#&gt; 424485:  0 -3834.959 -2372.439  -444.3945 -2994.426  -9465.224 -2179.546</span>
-<span class="co">#&gt; 424486:  0 -3773.260 -2312.064  -419.6414 -2975.410  -9389.198 -2153.340</span>
-<span class="co">#&gt; 424487:  0 -3746.392 -2304.304  -426.3353 -2986.242  -9369.264 -2141.644</span>
-<span class="co">#&gt; 424488:  0 -3615.768 -2358.720  -437.9209 -2984.145  -9521.864 -2130.978</span>
-<span class="co">#&gt;               CP5       CP1        CP2       CP6        P7        P3         Pz</span>
-<span class="co">#&gt;      1: -8938.128 -4755.838 -1369.6688 -1729.708 -7513.455 -8512.474 -537.63159</span>
-<span class="co">#&gt;      2: -8963.231 -4778.917 -1391.3324 -1750.029 -7535.836 -8533.438 -557.97095</span>
-<span class="co">#&gt;      3: -8969.171 -4784.986 -1397.7506 -1757.532 -7541.739 -8537.741 -561.55725</span>
-<span class="co">#&gt;      4: -8957.989 -4775.938 -1391.9026 -1754.553 -7530.282 -8529.099 -552.78510</span>
-<span class="co">#&gt;      5: -8950.726 -4772.205 -1388.7207 -1755.197 -7524.361 -8523.562 -549.19885</span>
-<span class="co">#&gt;     ---                                                                        </span>
-<span class="co">#&gt; 424484: -8037.571 -4200.332  -677.7635 -1046.501 -5433.473 -8150.485  -34.94090</span>
-<span class="co">#&gt; 424485: -8083.840 -4253.405  -721.7708 -1080.431 -5470.565 -8197.932  -79.35287</span>
-<span class="co">#&gt; 424486: -8027.603 -4225.636  -702.5348 -1048.874 -5474.501 -8173.215  -60.83399</span>
-<span class="co">#&gt; 424487: -8046.398 -4230.160  -709.1735 -1040.856 -5488.533 -8182.244  -64.40166</span>
-<span class="co">#&gt; 424488: -8060.742 -4244.541  -712.0606 -1053.931 -5478.491 -8187.780  -69.53255</span>
-<span class="co">#&gt;                 P4        P8       POz        O1        Oz        O2      HEOG</span>
-<span class="co">#&gt;      1:  -99.10343 -875.6397 -852.6708 -4117.080 -1950.149 -817.4540 -5006.420</span>
-<span class="co">#&gt;      2: -117.14455 -892.3933 -871.1710 -4136.997 -1965.578 -825.3984 -5027.017</span>
-<span class="co">#&gt;      3: -122.82701 -892.9816 -873.9114 -4138.725 -1965.137 -824.5893 -5037.775</span>
-<span class="co">#&gt;      4: -117.75130 -886.6740 -866.0771 -4126.606 -1957.450 -823.7434 -5033.031</span>
-<span class="co">#&gt;      5: -117.82441 -885.3681 -865.5070 -4127.543 -1967.270 -834.0415 -5031.210</span>
-<span class="co">#&gt;     ---                                                                       </span>
-<span class="co">#&gt; 424484:  496.89807 -182.1897 -304.2810 -2730.290 -1170.744  -67.8408 -3137.224</span>
-<span class="co">#&gt; 424485:  458.84891 -229.4153 -345.6953 -2777.571 -1209.235 -104.1242 -3216.466</span>
-<span class="co">#&gt; 424486:  476.24600 -226.5095 -342.8815 -2794.121 -1232.792 -135.4974 -3136.874</span>
-<span class="co">#&gt; 424487:  471.66693 -247.6580 -343.4331 -2790.444 -1224.516 -152.9679 -3105.096</span>
-<span class="co">#&gt; 424488:  475.47369 -247.5108 -350.5685 -2804.640 -1245.077 -186.8792 -3162.988</span>
-<span class="co">#&gt;              VEOG</span>
-<span class="co">#&gt;      1: -9116.806</span>
-<span class="co">#&gt;      2: -9133.780</span>
-<span class="co">#&gt;      3: -9138.781</span>
-<span class="co">#&gt;      4: -9134.222</span>
-<span class="co">#&gt;      5: -9139.996</span>
-<span class="co">#&gt;     ---          </span>
-<span class="co">#&gt; 424484: -8591.514</span>
-<span class="co">#&gt; 424485: -8672.283</span>
-<span class="co">#&gt; 424486: -8648.578</span>
-<span class="co">#&gt; 424487: -8658.159</span>
-<span class="co">#&gt; 424488: -8660.311</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; # Events table:</span>
-<span class="co">#&gt;      .id       .type .description .initial .final .channel</span>
-<span class="co">#&gt;   1:   1 New Segment                     1      1     &lt;NA&gt;</span>
-<span class="co">#&gt;   2:   1    Stimulus         s111    10528  10528     &lt;NA&gt;</span>
-<span class="co">#&gt;   3:   1    Stimulus         s130    10742  10742     &lt;NA&gt;</span>
-<span class="co">#&gt;   4:   1    Stimulus          s71    11175  11175     &lt;NA&gt;</span>
-<span class="co">#&gt;   5:   1    Stimulus         s130    12806  12806     &lt;NA&gt;</span>
-<span class="co">#&gt;  ---                                                      </span>
-<span class="co">#&gt; 401:   1    Stimulus         s130   411197 411197     &lt;NA&gt;</span>
-<span class="co">#&gt; 402:   1    Stimulus          s71   411469 411469     &lt;NA&gt;</span>
-<span class="co">#&gt; 403:   1    Stimulus         s121   412943 412943     &lt;NA&gt;</span>
-<span class="co">#&gt; 404:   1    Stimulus         s122   412966 412966     &lt;NA&gt;</span>
-<span class="co">#&gt; 405:   1    Stimulus         s102   412989 412989     &lt;NA&gt;</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; # Segments table:</span>
-<span class="co">#&gt;    .id    .recording segment</span>
-<span class="co">#&gt; 1:   1 s1_faces.vhdr       1</span>
-<span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">faces</span><span class="op">)</span>
-<span class="co">#&gt; # EEG data:</span>
-<span class="co">#&gt; # Sampling rate: 512 Hz.</span>
-<span class="co">#&gt; # Size in memory: 113.4 Mb.</span>
-<span class="co">#&gt; # Total duration: 00:13:49.</span>
-<span class="co">#&gt; # Summary of segments</span>
-<span class="co">#&gt;       .recording n_segments n_incomplete</span>
-<span class="co">#&gt; 1: s1_faces.vhdr          1            0</span>
-<span class="co">#&gt; # Summary of events</span>
-<span class="co">#&gt;          .type .description   n</span>
-<span class="co">#&gt; 1: New Segment                1</span>
-<span class="co">#&gt; 2:    Stimulus         s102   1</span>
-<span class="co">#&gt; 3:    Stimulus         s111   1</span>
-<span class="co">#&gt; 4:    Stimulus         s121   1</span>
-<span class="co">#&gt; 5:    Stimulus         s122   1</span>
-<span class="co">#&gt; 6:    Stimulus         s130 200</span>
-<span class="co">#&gt; 7:    Stimulus          s70 100</span>
-<span class="co">#&gt; 8:    Stimulus          s71 100</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">faces</span></span>
+<span><span class="co">#&gt; # EEG data:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; # Signal table:</span></span>
+<span><span class="co">#&gt;         .id .sample       Fp1       Fpz       Fp2        F7         F3</span></span>
+<span><span class="co">#&gt;      1:   1       1 -17878.56 -8921.395 -14028.81 -284.2541 -1378.1467</span></span>
+<span><span class="co">#&gt;      2:   1       2 -17903.75 -8948.022 -14056.53 -303.9134 -1400.6560</span></span>
+<span><span class="co">#&gt;      3:   1       3 -17916.55 -8961.906 -14070.91 -307.1683 -1407.8466</span></span>
+<span><span class="co">#&gt;      4:   1       4 -17918.17 -8963.691 -14068.63 -299.8859 -1401.9985</span></span>
+<span><span class="co">#&gt;      5:   1       5 -17917.71 -8965.658 -14069.16 -294.7915 -1401.2996</span></span>
+<span><span class="co">#&gt;     ---                                                               </span></span>
+<span><span class="co">#&gt; 424484:   1  424484 -16094.71 -8234.730 -13505.21  609.9043  -236.9552</span></span>
+<span><span class="co">#&gt; 424485:   1  424485 -16140.11 -8280.301 -13547.56  603.1918  -311.0485</span></span>
+<span><span class="co">#&gt; 424486:   1  424486 -16145.24 -8275.078 -13528.22  541.3096  -291.0218</span></span>
+<span><span class="co">#&gt; 424487:   1  424487 -16165.22 -8294.479 -13546.50  467.7130  -302.0740</span></span>
+<span><span class="co">#&gt; 424488:   1  424488 -16167.39 -8305.199 -13561.12  576.3062  -319.2688</span></span>
+<span><span class="co">#&gt;                Fz       F4         F8       FC5       FC1       FC2       FC6</span></span>
+<span><span class="co">#&gt;      1: -8077.128 1167.489 -1663.4490 -2315.080 -9040.689 -795.0549 -3665.146</span></span>
+<span><span class="co">#&gt;      2: -8101.660 1145.292 -1685.9034 -2338.859 -9064.137 -816.1298 -3688.133</span></span>
+<span><span class="co">#&gt;      3: -8114.331 1138.028 -1691.4203 -2343.475 -9071.438 -823.4675 -3690.046</span></span>
+<span><span class="co">#&gt;      4: -8116.114 1139.702 -1683.0713 -2333.746 -9065.608 -817.9690 -3681.642</span></span>
+<span><span class="co">#&gt;      5: -8119.442 1136.373 -1684.2664 -2326.648 -9061.397 -817.2882 -3679.563</span></span>
+<span><span class="co">#&gt;     ---                                                                      </span></span>
+<span><span class="co">#&gt; 424484: -7991.669 1977.146  -162.8618 -2290.511 -9349.164 -318.8641 -2805.395</span></span>
+<span><span class="co">#&gt; 424485: -8045.019 1938.122  -183.0542 -2424.133 -9410.679 -364.1038 -2833.090</span></span>
+<span><span class="co">#&gt; 424486: -8032.237 1965.358  -132.3712 -2291.431 -9379.728 -342.3297 -2811.445</span></span>
+<span><span class="co">#&gt; 424487: -8052.393 1930.877  -180.4978 -2361.589 -9381.456 -358.2924 -2868.325</span></span>
+<span><span class="co">#&gt; 424488: -8065.579 1927.474  -188.0929 -2368.595 -9409.171 -363.8277 -2853.797</span></span>
+<span><span class="co">#&gt;         M1        T7        C3         Cz        C4         T8        M2</span></span>
+<span><span class="co">#&gt;      1:  0 -5156.998 -2466.320 -1568.4097 -4427.577 -10351.511 -1845.363</span></span>
+<span><span class="co">#&gt;      2:  0 -5184.417 -2490.411 -1591.3053 -4450.049 -10372.402 -1850.862</span></span>
+<span><span class="co">#&gt;      3:  0 -5186.146 -2495.726 -1597.7970 -4454.775 -10378.323 -1845.087</span></span>
+<span><span class="co">#&gt;      4:  0 -5174.358 -2487.358 -1591.5627 -4449.590 -10373.983 -1836.370</span></span>
+<span><span class="co">#&gt;      5:  0 -5170.146 -2481.878 -1588.5833 -4446.334 -10370.489 -1841.961</span></span>
+<span><span class="co">#&gt;     ---                                                                 </span></span>
+<span><span class="co">#&gt; 424484:  0 -3703.158 -2301.288  -395.4219 -2952.459  -9502.499 -2128.771</span></span>
+<span><span class="co">#&gt; 424485:  0 -3834.959 -2372.439  -444.3945 -2994.426  -9465.224 -2179.546</span></span>
+<span><span class="co">#&gt; 424486:  0 -3773.260 -2312.064  -419.6414 -2975.410  -9389.198 -2153.340</span></span>
+<span><span class="co">#&gt; 424487:  0 -3746.392 -2304.304  -426.3353 -2986.242  -9369.264 -2141.644</span></span>
+<span><span class="co">#&gt; 424488:  0 -3615.768 -2358.720  -437.9209 -2984.145  -9521.864 -2130.978</span></span>
+<span><span class="co">#&gt;               CP5       CP1        CP2       CP6        P7        P3         Pz</span></span>
+<span><span class="co">#&gt;      1: -8938.128 -4755.838 -1369.6688 -1729.708 -7513.455 -8512.474 -537.63159</span></span>
+<span><span class="co">#&gt;      2: -8963.231 -4778.917 -1391.3324 -1750.029 -7535.836 -8533.438 -557.97095</span></span>
+<span><span class="co">#&gt;      3: -8969.171 -4784.986 -1397.7506 -1757.532 -7541.739 -8537.741 -561.55725</span></span>
+<span><span class="co">#&gt;      4: -8957.989 -4775.938 -1391.9026 -1754.553 -7530.282 -8529.099 -552.78510</span></span>
+<span><span class="co">#&gt;      5: -8950.726 -4772.205 -1388.7207 -1755.197 -7524.361 -8523.562 -549.19885</span></span>
+<span><span class="co">#&gt;     ---                                                                        </span></span>
+<span><span class="co">#&gt; 424484: -8037.571 -4200.332  -677.7635 -1046.501 -5433.473 -8150.485  -34.94090</span></span>
+<span><span class="co">#&gt; 424485: -8083.840 -4253.405  -721.7708 -1080.431 -5470.565 -8197.932  -79.35287</span></span>
+<span><span class="co">#&gt; 424486: -8027.603 -4225.636  -702.5348 -1048.874 -5474.501 -8173.215  -60.83399</span></span>
+<span><span class="co">#&gt; 424487: -8046.398 -4230.160  -709.1735 -1040.856 -5488.533 -8182.244  -64.40166</span></span>
+<span><span class="co">#&gt; 424488: -8060.742 -4244.541  -712.0606 -1053.931 -5478.491 -8187.780  -69.53255</span></span>
+<span><span class="co">#&gt;                 P4        P8       POz        O1        Oz        O2      HEOG</span></span>
+<span><span class="co">#&gt;      1:  -99.10343 -875.6397 -852.6708 -4117.080 -1950.149 -817.4540 -5006.420</span></span>
+<span><span class="co">#&gt;      2: -117.14455 -892.3933 -871.1710 -4136.997 -1965.578 -825.3984 -5027.017</span></span>
+<span><span class="co">#&gt;      3: -122.82701 -892.9816 -873.9114 -4138.725 -1965.137 -824.5893 -5037.775</span></span>
+<span><span class="co">#&gt;      4: -117.75130 -886.6740 -866.0771 -4126.606 -1957.450 -823.7434 -5033.031</span></span>
+<span><span class="co">#&gt;      5: -117.82441 -885.3681 -865.5070 -4127.543 -1967.270 -834.0415 -5031.210</span></span>
+<span><span class="co">#&gt;     ---                                                                       </span></span>
+<span><span class="co">#&gt; 424484:  496.89807 -182.1897 -304.2810 -2730.290 -1170.744  -67.8408 -3137.224</span></span>
+<span><span class="co">#&gt; 424485:  458.84891 -229.4153 -345.6953 -2777.571 -1209.235 -104.1242 -3216.466</span></span>
+<span><span class="co">#&gt; 424486:  476.24600 -226.5095 -342.8815 -2794.121 -1232.792 -135.4974 -3136.874</span></span>
+<span><span class="co">#&gt; 424487:  471.66693 -247.6580 -343.4331 -2790.444 -1224.516 -152.9679 -3105.096</span></span>
+<span><span class="co">#&gt; 424488:  475.47369 -247.5108 -350.5685 -2804.640 -1245.077 -186.8792 -3162.988</span></span>
+<span><span class="co">#&gt;              VEOG</span></span>
+<span><span class="co">#&gt;      1: -9116.806</span></span>
+<span><span class="co">#&gt;      2: -9133.780</span></span>
+<span><span class="co">#&gt;      3: -9138.781</span></span>
+<span><span class="co">#&gt;      4: -9134.222</span></span>
+<span><span class="co">#&gt;      5: -9139.996</span></span>
+<span><span class="co">#&gt;     ---          </span></span>
+<span><span class="co">#&gt; 424484: -8591.514</span></span>
+<span><span class="co">#&gt; 424485: -8672.283</span></span>
+<span><span class="co">#&gt; 424486: -8648.578</span></span>
+<span><span class="co">#&gt; 424487: -8658.159</span></span>
+<span><span class="co">#&gt; 424488: -8660.311</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; # Events table:</span></span>
+<span><span class="co">#&gt;      .id       .type .description .initial .final .channel</span></span>
+<span><span class="co">#&gt;   1:   1 New Segment                     1      1     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt;   2:   1    Stimulus         s111    10528  10528     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt;   3:   1    Stimulus         s130    10742  10742     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt;   4:   1    Stimulus          s71    11175  11175     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt;   5:   1    Stimulus         s130    12806  12806     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt;  ---                                                      </span></span>
+<span><span class="co">#&gt; 401:   1    Stimulus         s130   411197 411197     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 402:   1    Stimulus          s71   411469 411469     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 403:   1    Stimulus         s121   412943 412943     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 404:   1    Stimulus         s122   412966 412966     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 405:   1    Stimulus         s102   412989 412989     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; # Segments table:</span></span>
+<span><span class="co">#&gt;    .id    .recording segment</span></span>
+<span><span class="co">#&gt; 1:   1 s1_faces.vhdr       1</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">faces</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # EEG data:</span></span>
+<span><span class="co">#&gt; # Sampling rate: 512 Hz.</span></span>
+<span><span class="co">#&gt; # Size in memory: 113.4 Mb.</span></span>
+<span><span class="co">#&gt; # Total duration: 00:13:49.</span></span>
+<span><span class="co">#&gt; # Summary of segments</span></span>
+<span><span class="co">#&gt;       .recording n_segments n_incomplete</span></span>
+<span><span class="co">#&gt; 1: s1_faces.vhdr          1            0</span></span>
+<span><span class="co">#&gt; # Summary of events</span></span>
+<span><span class="co">#&gt;          .type .description   n</span></span>
+<span><span class="co">#&gt; 1: New Segment                1</span></span>
+<span><span class="co">#&gt; 2:    Stimulus         s102   1</span></span>
+<span><span class="co">#&gt; 3:    Stimulus         s111   1</span></span>
+<span><span class="co">#&gt; 4:    Stimulus         s121   1</span></span>
+<span><span class="co">#&gt; 5:    Stimulus         s122   1</span></span>
+<span><span class="co">#&gt; 6:    Stimulus         s130 200</span></span>
+<span><span class="co">#&gt; 7:    Stimulus          s70 100</span></span>
+<span><span class="co">#&gt; 8:    Stimulus          s71 100</span></span></code></pre></div>
 <p>We see that there is no electrode positions in the object, but since we know that the layout was a standard 10/20, we’ll add this layout to the object, using the dataset <code>layout_32_1020</code>. This is required to be able to create topographic plots.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/channels_tbl.html">channels_tbl</a></span><span class="op">(</span><span class="va">faces</span><span class="op">)</span>
-<span class="co">#&gt;     .channel number .reference resolution       unit radius theta phi .x .y .z</span>
-<span class="co">#&gt;  1:      Fp1    Ch1       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt;  2:      Fpz    Ch2       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt;  3:      Fp2    Ch3       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt;  4:       F7    Ch4       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt;  5:       F3    Ch5       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt;  6:       Fz    Ch6       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt;  7:       F4    Ch7       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt;  8:       F8    Ch8       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt;  9:      FC5    Ch9       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 10:      FC1   Ch10       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 11:      FC2   Ch11       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 12:      FC6   Ch12       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 13:       M1   Ch13       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 14:       T7   Ch14       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 15:       C3   Ch15       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 16:       Cz   Ch16       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 17:       C4   Ch17       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 18:       T8   Ch18       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 19:       M2   Ch19       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 20:      CP5   Ch20       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 21:      CP1   Ch21       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 22:      CP2   Ch22       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 23:      CP6   Ch23       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 24:       P7   Ch24       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 25:       P3   Ch25       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 26:       Pz   Ch26       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 27:       P4   Ch27       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 28:       P8   Ch28       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 29:      POz   Ch29       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 30:       O1   Ch30       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 31:       Oz   Ch31       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 32:       O2   Ch32       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 33:     HEOG   Ch33       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt; 34:     VEOG   Ch34       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span>
-<span class="co">#&gt;     .channel number .reference resolution       unit radius theta phi .x .y .z</span>
-<span class="co">## In case the order of the electrodes is different, we do a left_join instead of replacing the table:</span>
-<span class="fu"><a href="../reference/channels_tbl.html">channels_tbl</a></span><span class="op">(</span><span class="va">faces</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="fu"><a href="../reference/channels_tbl.html">channels_tbl</a></span><span class="op">(</span><span class="va">faces</span><span class="op">)</span>, <span class="va">.channel</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">layout_32_1020</span><span class="op">)</span>
-<span class="co">#&gt; Joining, by = ".channel"</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/channels_tbl.html">channels_tbl</a></span><span class="op">(</span><span class="va">faces</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     .channel number .reference resolution       unit radius theta phi .x .y .z</span></span>
+<span><span class="co">#&gt;  1:      Fp1    Ch1       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt;  2:      Fpz    Ch2       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt;  3:      Fp2    Ch3       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt;  4:       F7    Ch4       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt;  5:       F3    Ch5       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt;  6:       Fz    Ch6       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt;  7:       F4    Ch7       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt;  8:       F8    Ch8       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt;  9:      FC5    Ch9       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 10:      FC1   Ch10       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 11:      FC2   Ch11       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 12:      FC6   Ch12       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 13:       M1   Ch13       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 14:       T7   Ch14       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 15:       C3   Ch15       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 16:       Cz   Ch16       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 17:       C4   Ch17       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 18:       T8   Ch18       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 19:       M2   Ch19       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 20:      CP5   Ch20       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 21:      CP1   Ch21       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 22:      CP2   Ch22       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 23:      CP6   Ch23       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 24:       P7   Ch24       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 25:       P3   Ch25       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 26:       Pz   Ch26       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 27:       P4   Ch27       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 28:       P8   Ch28       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 29:      POz   Ch29       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 30:       O1   Ch30       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 31:       Oz   Ch31       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 32:       O2   Ch32       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 33:     HEOG   Ch33       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt; 34:     VEOG   Ch34       &lt;NA&gt;          1 microvolts     NA    NA  NA NA NA NA</span></span>
+<span><span class="co">#&gt;     .channel number .reference resolution       unit radius theta phi .x .y .z</span></span>
+<span><span class="co">## In case the order of the electrodes is different, we do a left_join instead of replacing the table:</span></span>
+<span><span class="fu"><a href="../reference/channels_tbl.html">channels_tbl</a></span><span class="op">(</span><span class="va">faces</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="fu"><a href="../reference/channels_tbl.html">channels_tbl</a></span><span class="op">(</span><span class="va">faces</span><span class="op">)</span>, <span class="va">.channel</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">layout_32_1020</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Joining, by = ".channel"</span></span></code></pre></div>
 <p>The plots that <strong>eeguana</strong> produce are <code>ggplot</code> objects that can be modified like regular <code>ggplot</code>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">faces</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"All the experiment"</span><span class="op">)</span>
-<span class="co">#&gt; # Downsampling from 512Hz to 256Hz.</span>
-<span class="co">#&gt; # Object size in memory 56.7 Mb</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">faces</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"All the experiment"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # Downsampling from 512Hz to 256Hz.</span></span>
+<span><span class="co">#&gt; # Object size in memory 56.7 Mb</span></span></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-4-1.png" width="100%"></p>
 <div class="section level3">
 <h3 id="pre-processing">Pre-processing<a class="anchor" aria-label="anchor" href="#pre-processing"></a>
@@ -322,7 +322,7 @@
 </h4>
 <p>In this dataset, the signal from all electrodes is monopolar and referenced to the left mastoid (M1). We want the signal (excluding the EOG channels) to be referenced to linked (left and right) mastoids (M1 and M2).</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">faces</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/eeg_rereference.html">eeg_rereference</a></span><span class="op">(</span><span class="va">faces</span>, <span class="op">-</span><span class="va">VEOG</span>, <span class="op">-</span><span class="va">HEOG</span>, .ref <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"M1"</span>, <span class="st">"M2"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">faces</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/eeg_rereference.html">eeg_rereference</a></span><span class="op">(</span><span class="va">faces</span>, <span class="op">-</span><span class="va">VEOG</span>, <span class="op">-</span><span class="va">HEOG</span>, .ref <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"M1"</span>, <span class="st">"M2"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level3">
@@ -330,10 +330,10 @@
 </h3>
 <p>We apply a band pass filter of 0.1 to 30 Hz to all the channels except the EOG channels. We don’t segment yet, because discontinuities in the signal create artifacts on the edges.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">faces_filt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/filt.html">eeg_filt_band_pass</a></span><span class="op">(</span><span class="va">faces</span>, <span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span>, .freq <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.1</span>, <span class="fl">30</span><span class="op">)</span><span class="op">)</span> 
-<span class="co">#&gt; Setting up band-pass filter from 0.1 - 30 Hz</span>
-<span class="co">#&gt; Width of the transition band at the low cut-off frequency is 0.1 Hz</span>
-<span class="co">#&gt; Width of the transition band at the high cut-off frequency is 7.5 Hz</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">faces_filt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/filt.html">eeg_filt_band_pass</a></span><span class="op">(</span><span class="va">faces</span>, <span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span>, .freq <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.1</span>, <span class="fl">30</span><span class="op">)</span><span class="op">)</span> </span>
+<span><span class="co">#&gt; Setting up band-pass filter from 0.1 - 30 Hz</span></span>
+<span><span class="co">#&gt; Width of the transition band at the low cut-off frequency is 0.1 Hz</span></span>
+<span><span class="co">#&gt; Width of the transition band at the high cut-off frequency is 7.5 Hz</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="ica">ICA<a class="anchor" aria-label="anchor" href="#ica"></a>
@@ -341,439 +341,439 @@
 <p>We want to apply ICA to as much data as possible, but to “representative” data: to data of the experiment and not when the participants were moving or reading the instructions. For the same reason, we want to the ignore artifacts that we are sure are not representing brain activity, because of the extreme amplitudes in the signal.</p>
 <p>We first cut a large segment that excludes data before and after the experiment was ran using <code><a href="../reference/eeg_segment.html">eeg_segment()</a></code> (that is, only data from the marker “s111” to “s121”), and then we mark differences of 200 microvolts between peaks with <code><a href="../reference/eeg_artif.html">eeg_artif_minmax()</a></code>.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">faces_ls</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/eeg_segment.html">eeg_segment</a></span><span class="op">(</span><span class="va">faces_filt</span>, <span class="va">.description</span> <span class="op">==</span> <span class="st">"s111"</span>, .end <span class="op">=</span> <span class="va">.description</span> <span class="op">==</span> <span class="st">"s121"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/eeg_artif.html">eeg_artif_minmax</a></span><span class="op">(</span><span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span>, .threshold <span class="op">=</span> <span class="fl">200</span>, .window <span class="op">=</span> <span class="fl">200</span>, .unit <span class="op">=</span> <span class="st">"ms"</span><span class="op">)</span>
-<span class="co">#&gt; # Total of 1 segments found.</span>
-<span class="co">#&gt; # Object size in memory 107.5 Mb after segmentation.</span>
-<span class="co">#&gt; # Number of intervals with artifacts: 118</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">faces_ls</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/eeg_segment.html">eeg_segment</a></span><span class="op">(</span><span class="va">faces_filt</span>, <span class="va">.description</span> <span class="op">==</span> <span class="st">"s111"</span>, .end <span class="op">=</span> <span class="va">.description</span> <span class="op">==</span> <span class="st">"s121"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/eeg_artif.html">eeg_artif_minmax</a></span><span class="op">(</span><span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span>, .threshold <span class="op">=</span> <span class="fl">200</span>, .window <span class="op">=</span> <span class="fl">200</span>, .unit <span class="op">=</span> <span class="st">"ms"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # Total of 1 segments found.</span></span>
+<span><span class="co">#&gt; # Object size in memory 107.5 Mb after segmentation.</span></span>
+<span><span class="co">#&gt; # Number of intervals with artifacts: 118</span></span></code></pre></div>
 <p><code>eeg_artif_minimax()</code> only adds the artifacts in the events table and doesn’t modify the signal. We can have a look at the type of artifacts that were detected, by plotting the signal and the events with <code><a href="../reference/annotate_events.html">annotate_events()</a></code>. It would be a good idea to just check a couple of seconds of the signal, for that we use the dplyr-like function <code><a href="../reference/dplyr_verbs.html">eeg_filter()</a></code>.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">faces_ls</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_select</a></span><span class="op">(</span><span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span><span class="op">)</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_filter</a></span><span class="op">(</span><span class="fu"><a href="../reference/as_time.html">as_time</a></span><span class="op">(</span><span class="va">.sample</span>, .unit <span class="op">=</span> <span class="st">"s"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/between.html">between</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">90</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="../reference/annotate_events.html">annotate_events</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span>
-<span class="co">#&gt; # Downsampling from 512Hz to 256Hz.</span>
-<span class="co">#&gt; # Object size in memory 5.9 Mb</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">faces_ls</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_select</a></span><span class="op">(</span><span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span><span class="op">)</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_filter</a></span><span class="op">(</span><span class="fu"><a href="../reference/as_time.html">as_time</a></span><span class="op">(</span><span class="va">.sample</span>, .unit <span class="op">=</span> <span class="st">"s"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/between.html">between</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">90</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="../reference/annotate_events.html">annotate_events</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # Downsampling from 512Hz to 256Hz.</span></span>
+<span><span class="co">#&gt; # Object size in memory 5.9 Mb</span></span></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-8-1.png" width="100%"></p>
 <p>Now we can run ICA, removing the EOG and reference electrodes, and ignoring the artifacts.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">## By default, it will ignore artifacts</span>
-<span class="va">faces_ica</span> <span class="op">&lt;-</span> <span class="va">faces_ls</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/eeg_ica.html">eeg_ica</a></span><span class="op">(</span><span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span>, <span class="op">-</span><span class="va">M1</span>, <span class="op">-</span><span class="va">M2</span>, .method <span class="op">=</span> <span class="va">adapt_fast_ICA</span>, .ignore <span class="op">=</span> <span class="va">.type</span> <span class="op">==</span> <span class="st">"artifact"</span><span class="op">)</span>
-<span class="co">#&gt; # ICA is being done using adapt_fast_ICA...</span>
-<span class="co">#&gt; # 97% of the samples will be used.</span>
-<span class="co">#&gt; # ICA took 2.17 mins</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co">## By default, it will ignore artifacts</span></span>
+<span><span class="va">faces_ica</span> <span class="op">&lt;-</span> <span class="va">faces_ls</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/eeg_ica.html">eeg_ica</a></span><span class="op">(</span><span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span>, <span class="op">-</span><span class="va">M1</span>, <span class="op">-</span><span class="va">M2</span>, .method <span class="op">=</span> <span class="va">adapt_fast_ICA</span>, .ignore <span class="op">=</span> <span class="va">.type</span> <span class="op">==</span> <span class="st">"artifact"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # ICA is being done using adapt_fast_ICA...</span></span>
+<span><span class="co">#&gt; # 97% of the samples will be used.</span></span>
+<span><span class="co">#&gt; # ICA took 1.9 mins</span></span></code></pre></div>
 <p>We can now check the different topographic plots of the ICAs with <code><a href="../reference/plot_components.html">plot_components()</a></code>, and their correlation with the EOG channels looking a the summary of the object.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">faces_ica</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/plot_components.html">plot_components</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">faces_ica</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/plot_components.html">plot_components</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-9-1.png" width="100%"></p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/eeg_ica_summary_tbl.html">eeg_ica_summary_tbl</a></span><span class="op">(</span><span class="va">faces_ica</span><span class="op">)</span>
-<span class="co">#&gt; EOG channels detected as: HEOG, VEOG</span>
-<span class="co">#&gt; # Downsampling from 512Hz to 256Hz.</span>
-<span class="co">#&gt; # Object size in memory 53.8 Mb</span>
-<span class="co">#&gt;        .recording  EOG  .ICA           cor           var</span>
-<span class="co">#&gt;  1: s1_faces.vhdr VEOG  ICA5  0.3110616894  3.757060e-01</span>
-<span class="co">#&gt;  2: s1_faces.vhdr HEOG  ICA5  0.0060600201  3.757060e-01</span>
-<span class="co">#&gt;  3: s1_faces.vhdr VEOG ICA14  0.0594109202  7.014111e-02</span>
-<span class="co">#&gt;  4: s1_faces.vhdr HEOG ICA14  0.0115211860  7.014111e-02</span>
-<span class="co">#&gt;  5: s1_faces.vhdr VEOG ICA25  0.0191137136  5.700123e-02</span>
-<span class="co">#&gt;  6: s1_faces.vhdr HEOG ICA25  0.0079409656  5.700123e-02</span>
-<span class="co">#&gt;  7: s1_faces.vhdr VEOG ICA28  0.0215901453  5.238948e-02</span>
-<span class="co">#&gt;  8: s1_faces.vhdr HEOG ICA28 -0.0026613292  5.238948e-02</span>
-<span class="co">#&gt;  9: s1_faces.vhdr VEOG ICA13 -0.0733915974  4.883685e-02</span>
-<span class="co">#&gt; 10: s1_faces.vhdr HEOG ICA13  0.0028042746  4.883685e-02</span>
-<span class="co">#&gt; 11: s1_faces.vhdr VEOG ICA16  0.0189808192  3.920688e-02</span>
-<span class="co">#&gt; 12: s1_faces.vhdr HEOG ICA16 -0.0052139432  3.920688e-02</span>
-<span class="co">#&gt; 13: s1_faces.vhdr VEOG ICA27 -0.0146958686  3.894467e-02</span>
-<span class="co">#&gt; 14: s1_faces.vhdr HEOG ICA27 -0.0005737728  3.894467e-02</span>
-<span class="co">#&gt; 15: s1_faces.vhdr HEOG ICA26 -0.0127623329  3.356956e-02</span>
-<span class="co">#&gt; 16: s1_faces.vhdr VEOG ICA26 -0.0103929696  3.356956e-02</span>
-<span class="co">#&gt; 17: s1_faces.vhdr VEOG ICA21 -0.0110379588  3.209204e-02</span>
-<span class="co">#&gt; 18: s1_faces.vhdr HEOG ICA21  0.0041385932  3.209204e-02</span>
-<span class="co">#&gt; 19: s1_faces.vhdr VEOG ICA30 -0.0318988532  3.195676e-02</span>
-<span class="co">#&gt; 20: s1_faces.vhdr HEOG ICA30 -0.0049492927  3.195676e-02</span>
-<span class="co">#&gt; 21: s1_faces.vhdr HEOG ICA11 -0.0080689883  1.531702e-02</span>
-<span class="co">#&gt; 22: s1_faces.vhdr VEOG ICA11 -0.0022034332  1.531702e-02</span>
-<span class="co">#&gt; 23: s1_faces.vhdr VEOG  ICA8 -0.0061078333  1.503477e-02</span>
-<span class="co">#&gt; 24: s1_faces.vhdr HEOG  ICA8 -0.0033160702  1.503477e-02</span>
-<span class="co">#&gt; 25: s1_faces.vhdr VEOG ICA22 -0.0729992398  1.342687e-02</span>
-<span class="co">#&gt; 26: s1_faces.vhdr HEOG ICA22 -0.0075857794  1.342687e-02</span>
-<span class="co">#&gt; 27: s1_faces.vhdr VEOG ICA19 -0.0113037545  1.276729e-02</span>
-<span class="co">#&gt; 28: s1_faces.vhdr HEOG ICA19  0.0040990970  1.276729e-02</span>
-<span class="co">#&gt; 29: s1_faces.vhdr HEOG ICA29 -0.0098960226  1.268464e-02</span>
-<span class="co">#&gt; 30: s1_faces.vhdr VEOG ICA29  0.0082034132  1.268464e-02</span>
-<span class="co">#&gt; 31: s1_faces.vhdr VEOG ICA10  0.0029772146  1.075145e-02</span>
-<span class="co">#&gt; 32: s1_faces.vhdr HEOG ICA10 -0.0012705350  1.075145e-02</span>
-<span class="co">#&gt; 33: s1_faces.vhdr VEOG ICA23 -0.0139531104  1.074652e-02</span>
-<span class="co">#&gt; 34: s1_faces.vhdr HEOG ICA23  0.0080386572  1.074652e-02</span>
-<span class="co">#&gt; 35: s1_faces.vhdr VEOG  ICA1  0.0590125612  9.976900e-03</span>
-<span class="co">#&gt; 36: s1_faces.vhdr HEOG  ICA1 -0.0556782278  9.976900e-03</span>
-<span class="co">#&gt; 37: s1_faces.vhdr VEOG  ICA2 -0.0126428949  7.926431e-03</span>
-<span class="co">#&gt; 38: s1_faces.vhdr HEOG  ICA2 -0.0078820112  7.926431e-03</span>
-<span class="co">#&gt; 39: s1_faces.vhdr VEOG ICA24 -0.0121801971  4.817643e-03</span>
-<span class="co">#&gt; 40: s1_faces.vhdr HEOG ICA24 -0.0016042248  4.817643e-03</span>
-<span class="co">#&gt; 41: s1_faces.vhdr HEOG  ICA7 -0.0020891334  3.213751e-03</span>
-<span class="co">#&gt; 42: s1_faces.vhdr VEOG  ICA7 -0.0003910153  3.213751e-03</span>
-<span class="co">#&gt; 43: s1_faces.vhdr VEOG ICA12  0.0144307012  1.612854e-03</span>
-<span class="co">#&gt; 44: s1_faces.vhdr HEOG ICA12  0.0128083915  1.612854e-03</span>
-<span class="co">#&gt; 45: s1_faces.vhdr HEOG ICA17 -0.0091874914  1.241979e-03</span>
-<span class="co">#&gt; 46: s1_faces.vhdr VEOG ICA17  0.0017426840  1.241979e-03</span>
-<span class="co">#&gt; 47: s1_faces.vhdr VEOG ICA18 -0.0131764353  8.322458e-04</span>
-<span class="co">#&gt; 48: s1_faces.vhdr HEOG ICA18 -0.0117696565  8.322458e-04</span>
-<span class="co">#&gt; 49: s1_faces.vhdr HEOG  ICA4 -0.0190202998  5.031384e-04</span>
-<span class="co">#&gt; 50: s1_faces.vhdr VEOG  ICA4 -0.0171506626  5.031384e-04</span>
-<span class="co">#&gt; 51: s1_faces.vhdr VEOG  ICA6 -0.0089105463  4.393376e-05</span>
-<span class="co">#&gt; 52: s1_faces.vhdr HEOG  ICA6  0.0049753303  4.393376e-05</span>
-<span class="co">#&gt; 53: s1_faces.vhdr VEOG ICA20 -0.0062150226  1.952630e-06</span>
-<span class="co">#&gt; 54: s1_faces.vhdr HEOG ICA20 -0.0011994425  1.952630e-06</span>
-<span class="co">#&gt; 55: s1_faces.vhdr HEOG  ICA9 -0.0019097967 -4.193651e-04</span>
-<span class="co">#&gt; 56: s1_faces.vhdr VEOG  ICA9  0.0015343447 -4.193651e-04</span>
-<span class="co">#&gt; 57: s1_faces.vhdr VEOG ICA15 -0.0265727074 -1.012212e-03</span>
-<span class="co">#&gt; 58: s1_faces.vhdr HEOG ICA15 -0.0041488999 -1.012212e-03</span>
-<span class="co">#&gt; 59: s1_faces.vhdr VEOG  ICA3  0.0866623859 -7.459639e-03</span>
-<span class="co">#&gt; 60: s1_faces.vhdr HEOG  ICA3 -0.0019740756 -7.459639e-03</span>
-<span class="co">#&gt;        .recording  EOG  .ICA           cor           var</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/eeg_ica_summary_tbl.html">eeg_ica_summary_tbl</a></span><span class="op">(</span><span class="va">faces_ica</span><span class="op">)</span></span>
+<span><span class="co">#&gt; EOG channels detected as: HEOG, VEOG</span></span>
+<span><span class="co">#&gt; # Downsampling from 512Hz to 256Hz.</span></span>
+<span><span class="co">#&gt; # Object size in memory 53.8 Mb</span></span>
+<span><span class="co">#&gt;        .recording  EOG  .ICA           cor           var</span></span>
+<span><span class="co">#&gt;  1: s1_faces.vhdr VEOG  ICA5  0.3110616894  3.757060e-01</span></span>
+<span><span class="co">#&gt;  2: s1_faces.vhdr HEOG  ICA5  0.0060600201  3.757060e-01</span></span>
+<span><span class="co">#&gt;  3: s1_faces.vhdr VEOG ICA14  0.0594109202  7.014111e-02</span></span>
+<span><span class="co">#&gt;  4: s1_faces.vhdr HEOG ICA14  0.0115211860  7.014111e-02</span></span>
+<span><span class="co">#&gt;  5: s1_faces.vhdr VEOG ICA25  0.0191137136  5.700123e-02</span></span>
+<span><span class="co">#&gt;  6: s1_faces.vhdr HEOG ICA25  0.0079409656  5.700123e-02</span></span>
+<span><span class="co">#&gt;  7: s1_faces.vhdr VEOG ICA28  0.0215901453  5.238948e-02</span></span>
+<span><span class="co">#&gt;  8: s1_faces.vhdr HEOG ICA28 -0.0026613292  5.238948e-02</span></span>
+<span><span class="co">#&gt;  9: s1_faces.vhdr VEOG ICA13 -0.0733915974  4.883685e-02</span></span>
+<span><span class="co">#&gt; 10: s1_faces.vhdr HEOG ICA13  0.0028042746  4.883685e-02</span></span>
+<span><span class="co">#&gt; 11: s1_faces.vhdr VEOG ICA16  0.0189808192  3.920688e-02</span></span>
+<span><span class="co">#&gt; 12: s1_faces.vhdr HEOG ICA16 -0.0052139432  3.920688e-02</span></span>
+<span><span class="co">#&gt; 13: s1_faces.vhdr VEOG ICA27 -0.0146958686  3.894467e-02</span></span>
+<span><span class="co">#&gt; 14: s1_faces.vhdr HEOG ICA27 -0.0005737728  3.894467e-02</span></span>
+<span><span class="co">#&gt; 15: s1_faces.vhdr HEOG ICA26 -0.0127623329  3.356956e-02</span></span>
+<span><span class="co">#&gt; 16: s1_faces.vhdr VEOG ICA26 -0.0103929696  3.356956e-02</span></span>
+<span><span class="co">#&gt; 17: s1_faces.vhdr VEOG ICA21 -0.0110379588  3.209204e-02</span></span>
+<span><span class="co">#&gt; 18: s1_faces.vhdr HEOG ICA21  0.0041385932  3.209204e-02</span></span>
+<span><span class="co">#&gt; 19: s1_faces.vhdr VEOG ICA30 -0.0318988532  3.195676e-02</span></span>
+<span><span class="co">#&gt; 20: s1_faces.vhdr HEOG ICA30 -0.0049492927  3.195676e-02</span></span>
+<span><span class="co">#&gt; 21: s1_faces.vhdr HEOG ICA11 -0.0080689883  1.531702e-02</span></span>
+<span><span class="co">#&gt; 22: s1_faces.vhdr VEOG ICA11 -0.0022034332  1.531702e-02</span></span>
+<span><span class="co">#&gt; 23: s1_faces.vhdr VEOG  ICA8 -0.0061078333  1.503477e-02</span></span>
+<span><span class="co">#&gt; 24: s1_faces.vhdr HEOG  ICA8 -0.0033160702  1.503477e-02</span></span>
+<span><span class="co">#&gt; 25: s1_faces.vhdr VEOG ICA22 -0.0729992398  1.342687e-02</span></span>
+<span><span class="co">#&gt; 26: s1_faces.vhdr HEOG ICA22 -0.0075857794  1.342687e-02</span></span>
+<span><span class="co">#&gt; 27: s1_faces.vhdr VEOG ICA19 -0.0113037545  1.276729e-02</span></span>
+<span><span class="co">#&gt; 28: s1_faces.vhdr HEOG ICA19  0.0040990970  1.276729e-02</span></span>
+<span><span class="co">#&gt; 29: s1_faces.vhdr HEOG ICA29 -0.0098960226  1.268464e-02</span></span>
+<span><span class="co">#&gt; 30: s1_faces.vhdr VEOG ICA29  0.0082034132  1.268464e-02</span></span>
+<span><span class="co">#&gt; 31: s1_faces.vhdr VEOG ICA10  0.0029772146  1.075145e-02</span></span>
+<span><span class="co">#&gt; 32: s1_faces.vhdr HEOG ICA10 -0.0012705350  1.075145e-02</span></span>
+<span><span class="co">#&gt; 33: s1_faces.vhdr VEOG ICA23 -0.0139531104  1.074652e-02</span></span>
+<span><span class="co">#&gt; 34: s1_faces.vhdr HEOG ICA23  0.0080386572  1.074652e-02</span></span>
+<span><span class="co">#&gt; 35: s1_faces.vhdr VEOG  ICA1  0.0590125612  9.976900e-03</span></span>
+<span><span class="co">#&gt; 36: s1_faces.vhdr HEOG  ICA1 -0.0556782278  9.976900e-03</span></span>
+<span><span class="co">#&gt; 37: s1_faces.vhdr VEOG  ICA2 -0.0126428949  7.926431e-03</span></span>
+<span><span class="co">#&gt; 38: s1_faces.vhdr HEOG  ICA2 -0.0078820112  7.926431e-03</span></span>
+<span><span class="co">#&gt; 39: s1_faces.vhdr VEOG ICA24 -0.0121801971  4.817643e-03</span></span>
+<span><span class="co">#&gt; 40: s1_faces.vhdr HEOG ICA24 -0.0016042248  4.817643e-03</span></span>
+<span><span class="co">#&gt; 41: s1_faces.vhdr HEOG  ICA7 -0.0020891334  3.213751e-03</span></span>
+<span><span class="co">#&gt; 42: s1_faces.vhdr VEOG  ICA7 -0.0003910153  3.213751e-03</span></span>
+<span><span class="co">#&gt; 43: s1_faces.vhdr VEOG ICA12  0.0144307012  1.612854e-03</span></span>
+<span><span class="co">#&gt; 44: s1_faces.vhdr HEOG ICA12  0.0128083915  1.612854e-03</span></span>
+<span><span class="co">#&gt; 45: s1_faces.vhdr HEOG ICA17 -0.0091874914  1.241979e-03</span></span>
+<span><span class="co">#&gt; 46: s1_faces.vhdr VEOG ICA17  0.0017426840  1.241979e-03</span></span>
+<span><span class="co">#&gt; 47: s1_faces.vhdr VEOG ICA18 -0.0131764353  8.322458e-04</span></span>
+<span><span class="co">#&gt; 48: s1_faces.vhdr HEOG ICA18 -0.0117696565  8.322458e-04</span></span>
+<span><span class="co">#&gt; 49: s1_faces.vhdr HEOG  ICA4 -0.0190202998  5.031384e-04</span></span>
+<span><span class="co">#&gt; 50: s1_faces.vhdr VEOG  ICA4 -0.0171506626  5.031384e-04</span></span>
+<span><span class="co">#&gt; 51: s1_faces.vhdr VEOG  ICA6 -0.0089105463  4.393376e-05</span></span>
+<span><span class="co">#&gt; 52: s1_faces.vhdr HEOG  ICA6  0.0049753303  4.393376e-05</span></span>
+<span><span class="co">#&gt; 53: s1_faces.vhdr VEOG ICA20 -0.0062150226  1.952630e-06</span></span>
+<span><span class="co">#&gt; 54: s1_faces.vhdr HEOG ICA20 -0.0011994425  1.952630e-06</span></span>
+<span><span class="co">#&gt; 55: s1_faces.vhdr HEOG  ICA9 -0.0019097967 -4.193651e-04</span></span>
+<span><span class="co">#&gt; 56: s1_faces.vhdr VEOG  ICA9  0.0015343447 -4.193651e-04</span></span>
+<span><span class="co">#&gt; 57: s1_faces.vhdr VEOG ICA15 -0.0265727074 -1.012212e-03</span></span>
+<span><span class="co">#&gt; 58: s1_faces.vhdr HEOG ICA15 -0.0041488999 -1.012212e-03</span></span>
+<span><span class="co">#&gt; 59: s1_faces.vhdr VEOG  ICA3  0.0866623859 -7.459639e-03</span></span>
+<span><span class="co">#&gt; 60: s1_faces.vhdr HEOG  ICA3 -0.0019740756 -7.459639e-03</span></span>
+<span><span class="co">#&gt;        .recording  EOG  .ICA           cor           var</span></span></code></pre></div>
 <p>We’ll look closer at the ICA that are more likely to be related to eye movements, and we’ll compare with signals that look like blinks and saccades:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">faces_ica</span> <span class="op">&lt;-</span> <span class="va">faces_ica</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/eeg_artif.html">eeg_artif_step</a></span><span class="op">(</span><span class="va">HEOG</span>, <span class="va">VEOG</span>, .threshold <span class="op">=</span> <span class="fl">30</span>, .window <span class="op">=</span> <span class="fl">200</span>, .unit <span class="op">=</span> <span class="st">"ms"</span>, .freq <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/eeg_artif.html">eeg_artif_peak</a></span><span class="op">(</span><span class="va">VEOG</span>, .threshold <span class="op">=</span> <span class="fl">100</span>, .freq <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; Setting up band-pass filter from 1 - 10 Hz</span>
-<span class="co">#&gt; Width of the transition band at the low cut-off frequency is 1 Hz</span>
-<span class="co">#&gt; Width of the transition band at the high cut-off frequency is 2.5 Hz</span>
-<span class="co">#&gt; # Number of intervals with artifacts: 407</span>
-<span class="co">#&gt; Setting up band-pass filter from 1 - 10 Hz</span>
-<span class="co">#&gt; Width of the transition band at the low cut-off frequency is 1 Hz</span>
-<span class="co">#&gt; Width of the transition band at the high cut-off frequency is 2.5 Hz</span>
-<span class="co">#&gt; # Number of intervals with artifacts: 158</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">faces_ica</span> <span class="op">&lt;-</span> <span class="va">faces_ica</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/eeg_artif.html">eeg_artif_step</a></span><span class="op">(</span><span class="va">HEOG</span>, <span class="va">VEOG</span>, .threshold <span class="op">=</span> <span class="fl">30</span>, .window <span class="op">=</span> <span class="fl">200</span>, .unit <span class="op">=</span> <span class="st">"ms"</span>, .freq <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/eeg_artif.html">eeg_artif_peak</a></span><span class="op">(</span><span class="va">VEOG</span>, .threshold <span class="op">=</span> <span class="fl">100</span>, .freq <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Setting up band-pass filter from 1 - 10 Hz</span></span>
+<span><span class="co">#&gt; Width of the transition band at the low cut-off frequency is 1 Hz</span></span>
+<span><span class="co">#&gt; Width of the transition band at the high cut-off frequency is 2.5 Hz</span></span>
+<span><span class="co">#&gt; # Number of intervals with artifacts: 407</span></span>
+<span><span class="co">#&gt; Setting up band-pass filter from 1 - 10 Hz</span></span>
+<span><span class="co">#&gt; Width of the transition band at the low cut-off frequency is 1 Hz</span></span>
+<span><span class="co">#&gt; Width of the transition band at the high cut-off frequency is 2.5 Hz</span></span>
+<span><span class="co">#&gt; # Number of intervals with artifacts: 158</span></span></code></pre></div>
 <p>In order to investigate the ICA, we are using an experimental function not yet exported (that’s why we use the :::). This function will probably converted into a shiny app. It’s possible to get the same plots by using a combination of <code>plot_topo</code>, <code>eeg_ica_show</code>, <code>eeg_ica_summary_tbl</code>, and some <code>ggplot</code> and <code>cowplot</code> functions.</p>
 <p>We’ll see how the components explaining the most variance and most correlated to the EOG channels behave:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#samples with blinks</span>
-<span class="va">s_peaks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">faces_ica</span><span class="op">)</span>,  <span class="fu"><a href="https://stringr.tidyverse.org/reference/str_starts.html" class="external-link">str_starts</a></span><span class="op">(</span><span class="va">.description</span>, <span class="st">"peak"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">.initial</span><span class="op">)</span>
-<span class="fu">eeguana</span><span class="fu">:::</span><span class="fu">plot_ica.eeg_ica_lst</span><span class="op">(</span><span class="va">faces_ica</span>, samples <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="va">s_peaks</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">-</span><span class="fl">2000</span>,<span class="va">s_peaks</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">+</span><span class="fl">2000</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; Warning in eeguana:::plot_ica.eeg_ica_lst(faces_ica, samples = seq(s_peaks[1]</span>
-<span class="co">#&gt; - : This is an experimental function, and it might change or disappear in the</span>
-<span class="co">#&gt; future. (Or it might be transformed into a shinyapp)</span>
-<span class="co">#&gt; Using recording: s1_faces.vhdr</span>
-<span class="co">#&gt; EOG channels detected as: HEOG, VEOG</span>
-<span class="co">#&gt; Calculating the correlation of ICA components with filtered EOG channels...</span>
-<span class="co">#&gt; Setting up band-pass filter from 0.1 - 30 Hz</span>
-<span class="co">#&gt; Width of the transition band at the low cut-off frequency is 0.1 Hz</span>
-<span class="co">#&gt; Width of the transition band at the high cut-off frequency is 7.5 Hz</span>
-<span class="co">#&gt; EOG channels detected as: HEOG, VEOG</span>
-<span class="co">#&gt; # Downsampling from 512Hz to 256Hz.</span>
-<span class="co">#&gt; # Object size in memory 53.9 Mb</span>
-<span class="co">#&gt; The following columns of signal_tbl are not channels (or ICA components): ICA5ICA14ICA25ICA28ICA13ICA16ICA27ICA26ICA21ICA30ICA11ICA8ICA22ICA19ICA29ICA10</span>
-<span class="co">#&gt; * To build a channel use `channel_dbl()` function, e.g. channel_dbl(0) to populate the table with a channel containing 0 microvolts.</span>
-<span class="co">#&gt; * To copy the structure of an existing channel one can do `new_ch = existing_channel * 0 + ...`</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co">#samples with blinks</span></span>
+<span><span class="va">s_peaks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">faces_ica</span><span class="op">)</span>,  <span class="fu"><a href="https://stringr.tidyverse.org/reference/str_starts.html" class="external-link">str_starts</a></span><span class="op">(</span><span class="va">.description</span>, <span class="st">"peak"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">.initial</span><span class="op">)</span></span>
+<span><span class="fu">eeguana</span><span class="fu">:::</span><span class="fu">plot_ica.eeg_ica_lst</span><span class="op">(</span><span class="va">faces_ica</span>, samples <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="va">s_peaks</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">-</span><span class="fl">2000</span>,<span class="va">s_peaks</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">+</span><span class="fl">2000</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in eeguana:::plot_ica.eeg_ica_lst(faces_ica, samples = seq(s_peaks[1]</span></span>
+<span><span class="co">#&gt; - : This is an experimental function, and it might change or disappear in the</span></span>
+<span><span class="co">#&gt; future. (Or it might be transformed into a shinyapp)</span></span>
+<span><span class="co">#&gt; Using recording: s1_faces.vhdr</span></span>
+<span><span class="co">#&gt; EOG channels detected as: HEOG, VEOG</span></span>
+<span><span class="co">#&gt; Calculating the correlation of ICA components with filtered EOG channels...</span></span>
+<span><span class="co">#&gt; Setting up band-pass filter from 0.1 - 30 Hz</span></span>
+<span><span class="co">#&gt; Width of the transition band at the low cut-off frequency is 0.1 Hz</span></span>
+<span><span class="co">#&gt; Width of the transition band at the high cut-off frequency is 7.5 Hz</span></span>
+<span><span class="co">#&gt; EOG channels detected as: HEOG, VEOG</span></span>
+<span><span class="co">#&gt; # Downsampling from 512Hz to 256Hz.</span></span>
+<span><span class="co">#&gt; # Object size in memory 53.9 Mb</span></span>
+<span><span class="co">#&gt; The following columns of signal_tbl are not channels (or ICA components): ICA5ICA14ICA25ICA28ICA13ICA16ICA27ICA26ICA21ICA30ICA11ICA8ICA22ICA19ICA29ICA10</span></span>
+<span><span class="co">#&gt; * To build a channel use `channel_dbl()` function, e.g. channel_dbl(0) to populate the table with a channel containing 0 microvolts.</span></span>
+<span><span class="co">#&gt; * To copy the structure of an existing channel one can do `new_ch = existing_channel * 0 + ...`</span></span></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-11-1.png" width="90%"></p>
 <p>The clearest ones is ICA5, and so we’ll just remove that one.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">faces_icaed</span> <span class="op">&lt;-</span> <span class="va">faces_ica</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/eeg_ica_keep.html">eeg_ica_keep</a></span><span class="op">(</span><span class="op">-</span><span class="va">ICA5</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/as_eeg_lst.html">as_eeg_lst</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">faces_icaed</span> <span class="op">&lt;-</span> <span class="va">faces_ica</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/eeg_ica_keep.html">eeg_ica_keep</a></span><span class="op">(</span><span class="op">-</span><span class="va">ICA5</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/as_eeg_lst.html">as_eeg_lst</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Now we’ll segment the data to appropriate check if there are still artifacts.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">faces_icaed</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">faces_icaed</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="va">.type</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"artifact"</span><span class="op">)</span>
-
-<span class="va">faces_seg</span> <span class="op">&lt;-</span> <span class="va">faces_icaed</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_select</a></span><span class="op">(</span><span class="op">-</span><span class="va">description</span>, <span class="op">-</span><span class="va">type</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/eeg_segment.html">eeg_segment</a></span><span class="op">(</span><span class="va">.description</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"s70"</span>, <span class="st">"s71"</span><span class="op">)</span>, .lim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">.1</span>, <span class="fl">.5</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; # Total of 200 segments found.</span>
-<span class="co">#&gt; # Object size in memory 16.5 Mb after segmentation.</span>
-
-<span class="va">faces_seg_artif</span> <span class="op">&lt;-</span> <span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/eeg_artif.html">eeg_artif_minmax</a></span><span class="op">(</span><span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span>, .threshold <span class="op">=</span> <span class="fl">100</span>, .window <span class="op">=</span> <span class="fl">150</span>, .unit <span class="op">=</span> <span class="st">"ms"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/eeg_artif.html">eeg_artif_step</a></span><span class="op">(</span><span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span>, .threshold <span class="op">=</span> <span class="fl">50</span>, .window <span class="op">=</span> <span class="fl">200</span>, .unit <span class="op">=</span> <span class="st">"ms"</span><span class="op">)</span>
-<span class="co">#&gt; # Number of intervals with artifacts: 0</span>
-<span class="co">#&gt; # Number of intervals with artifacts: 1</span>
-
-<span class="co">## extracts the ids of the segments with artifacts</span>
-<span class="va">bad</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">faces_seg_artif</span><span class="op">)</span>, <span class="va">.type</span> <span class="op">==</span> <span class="st">"artifact"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">.id</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
-  <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co">## Show the segment with artifact and one before and after:</span>
-<span class="va">faces_seg_artif</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_filter</a></span><span class="op">(</span><span class="va">.id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">bad</span><span class="op">-</span><span class="fl">1</span>, <span class="va">bad</span>, <span class="va">bad</span><span class="op">+</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_select</a></span><span class="op">(</span><span class="op">-</span><span class="va">VEOG</span>, <span class="op">-</span><span class="va">HEOG</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="../reference/annotate_events.html">annotate_events</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">faces_icaed</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">faces_icaed</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="va">.type</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"artifact"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">faces_seg</span> <span class="op">&lt;-</span> <span class="va">faces_icaed</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_select</a></span><span class="op">(</span><span class="op">-</span><span class="va">description</span>, <span class="op">-</span><span class="va">type</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/eeg_segment.html">eeg_segment</a></span><span class="op">(</span><span class="va">.description</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"s70"</span>, <span class="st">"s71"</span><span class="op">)</span>, .lim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">.1</span>, <span class="fl">.5</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # Total of 200 segments found.</span></span>
+<span><span class="co">#&gt; # Object size in memory 16.5 Mb after segmentation.</span></span>
+<span></span>
+<span><span class="va">faces_seg_artif</span> <span class="op">&lt;-</span> <span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/eeg_artif.html">eeg_artif_minmax</a></span><span class="op">(</span><span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span>, .threshold <span class="op">=</span> <span class="fl">100</span>, .window <span class="op">=</span> <span class="fl">150</span>, .unit <span class="op">=</span> <span class="st">"ms"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/eeg_artif.html">eeg_artif_step</a></span><span class="op">(</span><span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span>, .threshold <span class="op">=</span> <span class="fl">50</span>, .window <span class="op">=</span> <span class="fl">200</span>, .unit <span class="op">=</span> <span class="st">"ms"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # Number of intervals with artifacts: 0</span></span>
+<span><span class="co">#&gt; # Number of intervals with artifacts: 1</span></span>
+<span></span>
+<span><span class="co">## extracts the ids of the segments with artifacts</span></span>
+<span><span class="va">bad</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">faces_seg_artif</span><span class="op">)</span>, <span class="va">.type</span> <span class="op">==</span> <span class="st">"artifact"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">.id</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">## Show the segment with artifact and one before and after:</span></span>
+<span><span class="va">faces_seg_artif</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_filter</a></span><span class="op">(</span><span class="va">.id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">bad</span><span class="op">-</span><span class="fl">1</span>, <span class="va">bad</span>, <span class="va">bad</span><span class="op">+</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_select</a></span><span class="op">(</span><span class="op">-</span><span class="va">VEOG</span>, <span class="op">-</span><span class="va">HEOG</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="../reference/annotate_events.html">annotate_events</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-13-1.png" width="100%"></p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R">
-<span class="va">faces_seg</span> <span class="op">&lt;-</span> <span class="va">faces_seg_artif</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/eeg_events_to_NA.html">eeg_events_to_NA</a></span><span class="op">(</span><span class="va">.type</span> <span class="op">==</span> <span class="st">"artifact"</span>, .entire_seg <span class="op">=</span> <span class="cn">TRUE</span>, .drop_events <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">faces_seg</span><span class="op">)</span>
-<span class="co">#&gt; # EEG data:</span>
-<span class="co">#&gt; # Sampling rate: 512 Hz.</span>
-<span class="co">#&gt; # Size in memory: 16.5 Mb.</span>
-<span class="co">#&gt; # Total duration: 00:02:00.</span>
-<span class="co">#&gt; # Summary of segments</span>
-<span class="co">#&gt;       .recording n_segments n_incomplete</span>
-<span class="co">#&gt; 1: s1_faces.vhdr        200            1</span>
-<span class="co">#&gt; # Summary of events</span>
-<span class="co">#&gt;       .type .description   n</span>
-<span class="co">#&gt; 1: Stimulus          s70 100</span>
-<span class="co">#&gt; 2: Stimulus          s71 100</span></code></pre></div>
+<code class="sourceCode R"><span></span>
+<span><span class="va">faces_seg</span> <span class="op">&lt;-</span> <span class="va">faces_seg_artif</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/eeg_events_to_NA.html">eeg_events_to_NA</a></span><span class="op">(</span><span class="va">.type</span> <span class="op">==</span> <span class="st">"artifact"</span>, .entire_seg <span class="op">=</span> <span class="cn">TRUE</span>, .drop_events <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">faces_seg</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # EEG data:</span></span>
+<span><span class="co">#&gt; # Sampling rate: 512 Hz.</span></span>
+<span><span class="co">#&gt; # Size in memory: 16.5 Mb.</span></span>
+<span><span class="co">#&gt; # Total duration: 00:02:00.</span></span>
+<span><span class="co">#&gt; # Summary of segments</span></span>
+<span><span class="co">#&gt;       .recording n_segments n_incomplete</span></span>
+<span><span class="co">#&gt; 1: s1_faces.vhdr        200            1</span></span>
+<span><span class="co">#&gt; # Summary of events</span></span>
+<span><span class="co">#&gt;       .type .description   n</span></span>
+<span><span class="co">#&gt; 1: Stimulus          s70 100</span></span>
+<span><span class="co">#&gt; 2: Stimulus          s71 100</span></span></code></pre></div>
 <p>Finally, we can baseline the segments:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">faces_seg</span> <span class="op">&lt;-</span> <span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/eeg_baseline.html">eeg_baseline</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">faces_seg</span> <span class="op">&lt;-</span> <span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/eeg_baseline.html">eeg_baseline</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="visualization">Visualization<a class="anchor" aria-label="anchor" href="#visualization"></a>
 </h3>
 <p>We edit the segmentation information and add more descriptive labels.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">faces_seg</span> <span class="op">&lt;-</span> <span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_mutate</a></span><span class="op">(</span>
-    condition <span class="op">=</span>
-      <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">description</span> <span class="op">==</span> <span class="st">"s70"</span>, <span class="st">"faces"</span>, <span class="st">"non-faces"</span><span class="op">)</span>
-  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_select</a></span><span class="op">(</span><span class="op">-</span><span class="va">type</span><span class="op">)</span>
-
-<span class="va">faces_seg</span>
-<span class="co">#&gt; # EEG data:</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; # Signal table:</span>
-<span class="co">#&gt;        .id .sample        Fp1       Fpz        Fp2         F7       F3</span>
-<span class="co">#&gt;     1:   1     -50 -0.2239737  2.926696  0.1088197 -0.1107286 3.793132</span>
-<span class="co">#&gt;     2:   1     -49  0.9975430  3.910457  0.7585352  0.7172289 4.038747</span>
-<span class="co">#&gt;     3:   1     -48  2.2477072  4.853125  1.5129425  1.7686192 4.340948</span>
-<span class="co">#&gt;     4:   1     -47  3.3361201  5.596977  2.2208750  2.9135916 4.642705</span>
-<span class="co">#&gt;     5:   1     -46  4.0950011  6.007830  2.7411833  4.0297893 4.899710</span>
-<span class="co">#&gt;    ---                                                                </span>
-<span class="co">#&gt; 61596: 200     253 -7.4272958 -4.030794 -3.3414518  2.5704919 4.188729</span>
-<span class="co">#&gt; 61597: 200     254 -7.0028675 -4.076854 -3.7139526  1.3456003 3.356811</span>
-<span class="co">#&gt; 61598: 200     255 -6.3948136 -4.124318 -4.0795149  0.2178476 2.644884</span>
-<span class="co">#&gt; 61599: 200     256 -5.7744059 -4.236721 -4.4670174 -0.8343465 1.996052</span>
-<span class="co">#&gt; 61600: 200     257 -5.3225204 -4.474952 -4.9176401 -1.8464510 1.323714</span>
-<span class="co">#&gt;                Fz         F4          F8        FC5       FC1        FC2</span>
-<span class="co">#&gt;     1:   4.228278   2.840110 -3.15472635  1.6113910  1.592771  -2.364200</span>
-<span class="co">#&gt;     2:   4.270218   2.382479 -2.35472265  2.0405680  1.860704  -2.861841</span>
-<span class="co">#&gt;     3:   4.421612   2.013301 -1.24644410  2.4513040  2.219617  -3.123105</span>
-<span class="co">#&gt;     4:   4.591250   1.709526  0.05225002  2.8087541  2.615841  -3.167049</span>
-<span class="co">#&gt;     5:   4.700407   1.452931  1.40978255  3.1051410  3.005053  -3.015121</span>
-<span class="co">#&gt;    ---                                                                  </span>
-<span class="co">#&gt; 61596:  -8.730353 -12.167556 -1.36556543  4.6994268 -3.708406 -19.005953</span>
-<span class="co">#&gt; 61597:  -9.453131 -11.842863 -2.17206941  3.4988400 -4.958880 -19.459708</span>
-<span class="co">#&gt; 61598:  -9.985577 -11.460650 -2.78238153  2.2688876 -6.309382 -19.836152</span>
-<span class="co">#&gt; 61599: -10.366157 -11.047480 -3.20156158  1.0080235 -7.730844 -20.137723</span>
-<span class="co">#&gt; 61600: -10.661645 -10.644149 -3.46204537 -0.3005228 -9.204715 -20.380105</span>
-<span class="co">#&gt;                FC6        M1       T7         C3         Cz         C4</span>
-<span class="co">#&gt;     1:  -1.8391090 -2.030141 8.787014 -2.0086889  -5.711339  -0.795271</span>
-<span class="co">#&gt;     2:  -1.1455898 -1.922150 9.114149 -2.1197829  -5.858017  -1.282006</span>
-<span class="co">#&gt;     3:  -0.1976263 -1.785010 8.977623 -2.2059909  -5.721134  -1.762303</span>
-<span class="co">#&gt;     4:   0.8983126 -1.654058 8.398226 -2.2445165  -5.330143  -2.204568</span>
-<span class="co">#&gt;     5:   2.0401272 -1.545839 7.452935 -2.1993214  -4.723109  -2.557211</span>
-<span class="co">#&gt;    ---                                                                </span>
-<span class="co">#&gt; 61596: -12.4167239  4.310870 4.908478 -0.5437559 -14.854063 -34.752050</span>
-<span class="co">#&gt; 61597: -13.3369315  4.454409 4.680512 -2.1197706 -16.258766 -35.506742</span>
-<span class="co">#&gt; 61598: -14.2119912  4.482182 4.315460 -3.8504649 -17.808367 -36.200622</span>
-<span class="co">#&gt; 61599: -14.9925296  4.394789 3.730447 -5.6655686 -19.413279 -36.808126</span>
-<span class="co">#&gt; 61600: -15.6416067  4.203761 2.864558 -7.5086186 -20.985826 -37.301315</span>
-<span class="co">#&gt;                T8        M2        CP5        CP1        CP2         CP6</span>
-<span class="co">#&gt;     1:   3.910053  2.030141  2.1730493  -5.558311  -3.912675   2.0442154</span>
-<span class="co">#&gt;     2:   5.477720  1.922150  1.6874719  -5.681516  -4.454747   1.4513845</span>
-<span class="co">#&gt;     3:   7.069972  1.785010  1.0244766  -5.664134  -4.852158   0.8377522</span>
-<span class="co">#&gt;     4:   8.401729  1.654058  0.2760940  -5.506764  -5.089553   0.2248167</span>
-<span class="co">#&gt;     5:   9.193991  1.545839 -0.4454964  -5.204630  -5.150715  -0.3509800</span>
-<span class="co">#&gt;    ---                                                                  </span>
-<span class="co">#&gt; 61596: -25.822482 -4.310870  3.4352795  -5.102525 -31.824672 -29.5344073</span>
-<span class="co">#&gt; 61597: -27.019577 -4.454409  2.4188361  -6.646814 -33.109751 -30.5440118</span>
-<span class="co">#&gt; 61598: -27.809796 -4.482182  1.1739532  -8.403855 -34.341884 -31.5585170</span>
-<span class="co">#&gt; 61599: -28.198220 -4.394789 -0.2539754 -10.263130 -35.433438 -32.5685325</span>
-<span class="co">#&gt; 61600: -28.211914 -4.203761 -1.8208137 -12.116925 -36.299732 -33.5345508</span>
-<span class="co">#&gt;                P7         P3         Pz          P4          P8       POz</span>
-<span class="co">#&gt;     1: -1.8486407 -2.6437673  -3.191924  -0.6720984   0.5889623 -1.233383</span>
-<span class="co">#&gt;     2: -2.6139953 -3.1920017  -3.790144  -1.4646696  -1.8056977 -2.397317</span>
-<span class="co">#&gt;     3: -3.1638517 -3.6552420  -4.342437  -2.1770814  -4.0661883 -3.500260</span>
-<span class="co">#&gt;     4: -3.4395628 -3.9730269  -4.813028  -2.7552677  -5.9136674 -4.440224</span>
-<span class="co">#&gt;     5: -3.4148548 -4.0892851  -5.160562  -3.1471226  -7.1129100 -5.124399</span>
-<span class="co">#&gt;    ---                                                                   </span>
-<span class="co">#&gt; 61596:  2.7192767  2.7365646 -12.488676 -27.5485924 -23.0238529 -5.742807</span>
-<span class="co">#&gt; 61597:  2.3539444  1.6113645 -13.716290 -28.1890858 -22.9764754 -6.553364</span>
-<span class="co">#&gt; 61598:  1.6063736  0.2901116 -14.977399 -28.6721202 -22.1172213 -7.394155</span>
-<span class="co">#&gt; 61599:  0.5699239 -1.1512356 -16.183334 -28.9837949 -20.4604781 -8.207270</span>
-<span class="co">#&gt; 61600: -0.6454750 -2.6374742 -17.250028 -29.1134647 -18.1089704 -8.943773</span>
-<span class="co">#&gt;                O1         Oz         O2       HEOG       VEOG</span>
-<span class="co">#&gt;     1: -3.5386535 -0.7969323  0.8721568  -8.172153  -4.070868</span>
-<span class="co">#&gt;     2: -4.7377453 -2.2782486 -0.7106985 -15.399203 -10.286688</span>
-<span class="co">#&gt;     3: -5.8496010 -3.7413040 -2.2901256 -17.091586  -4.218329</span>
-<span class="co">#&gt;     4: -6.7658792 -5.0345596 -3.6833116 -22.001254  -2.728094</span>
-<span class="co">#&gt;     5: -7.3928468 -6.0157379 -4.7178515 -14.368930   3.892999</span>
-<span class="co">#&gt;    ---                                                       </span>
-<span class="co">#&gt; 61596:  2.5152642 -3.0701651 -5.1484950  40.897595 104.275391</span>
-<span class="co">#&gt; 61597:  1.8963234 -3.5788828 -3.8985745  19.307751  67.568359</span>
-<span class="co">#&gt; 61598:  1.0904936 -4.1790541 -2.9052267  24.585583  66.189453</span>
-<span class="co">#&gt; 61599:  0.2077071 -4.8230480 -2.2435981   4.779675  43.698242</span>
-<span class="co">#&gt; 61600: -0.6593847 -5.4755758 -1.9725447  -2.815540  36.453125</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; # Events table:</span>
-<span class="co">#&gt;      .id    .type .description .initial .final .channel</span>
-<span class="co">#&gt;   1:   1 Stimulus          s71        1      1     &lt;NA&gt;</span>
-<span class="co">#&gt;   2:   2 Stimulus          s71        1      1     &lt;NA&gt;</span>
-<span class="co">#&gt;   3:   3 Stimulus          s71        1      1     &lt;NA&gt;</span>
-<span class="co">#&gt;   4:   4 Stimulus          s71        1      1     &lt;NA&gt;</span>
-<span class="co">#&gt;   5:   5 Stimulus          s71        1      1     &lt;NA&gt;</span>
-<span class="co">#&gt;  ---                                                   </span>
-<span class="co">#&gt; 196: 196 Stimulus          s71        1      1     &lt;NA&gt;</span>
-<span class="co">#&gt; 197: 197 Stimulus          s70        1      1     &lt;NA&gt;</span>
-<span class="co">#&gt; 198: 198 Stimulus          s71        1      1     &lt;NA&gt;</span>
-<span class="co">#&gt; 199: 199 Stimulus          s71        1      1     &lt;NA&gt;</span>
-<span class="co">#&gt; 200: 200 Stimulus          s71        1      1     &lt;NA&gt;</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; # Segments table:</span>
-<span class="co">#&gt;      .id    .recording segment description condition</span>
-<span class="co">#&gt;   1:   1 s1_faces.vhdr       1         s71 non-faces</span>
-<span class="co">#&gt;   2:   2 s1_faces.vhdr       2         s71 non-faces</span>
-<span class="co">#&gt;   3:   3 s1_faces.vhdr       3         s71 non-faces</span>
-<span class="co">#&gt;   4:   4 s1_faces.vhdr       4         s71 non-faces</span>
-<span class="co">#&gt;   5:   5 s1_faces.vhdr       5         s71 non-faces</span>
-<span class="co">#&gt;  ---                                                </span>
-<span class="co">#&gt; 196: 196 s1_faces.vhdr     196         s71 non-faces</span>
-<span class="co">#&gt; 197: 197 s1_faces.vhdr     197         s70     faces</span>
-<span class="co">#&gt; 198: 198 s1_faces.vhdr     198         s71 non-faces</span>
-<span class="co">#&gt; 199: 199 s1_faces.vhdr     199         s71 non-faces</span>
-<span class="co">#&gt; 200: 200 s1_faces.vhdr     200         s71 non-faces</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">faces_seg</span> <span class="op">&lt;-</span> <span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_mutate</a></span><span class="op">(</span></span>
+<span>    condition <span class="op">=</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">description</span> <span class="op">==</span> <span class="st">"s70"</span>, <span class="st">"faces"</span>, <span class="st">"non-faces"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_select</a></span><span class="op">(</span><span class="op">-</span><span class="va">type</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">faces_seg</span></span>
+<span><span class="co">#&gt; # EEG data:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; # Signal table:</span></span>
+<span><span class="co">#&gt;        .id .sample        Fp1       Fpz        Fp2         F7       F3</span></span>
+<span><span class="co">#&gt;     1:   1     -50 -0.2239737  2.926696  0.1088197 -0.1107286 3.793132</span></span>
+<span><span class="co">#&gt;     2:   1     -49  0.9975430  3.910457  0.7585352  0.7172289 4.038747</span></span>
+<span><span class="co">#&gt;     3:   1     -48  2.2477072  4.853125  1.5129425  1.7686192 4.340948</span></span>
+<span><span class="co">#&gt;     4:   1     -47  3.3361201  5.596977  2.2208750  2.9135916 4.642705</span></span>
+<span><span class="co">#&gt;     5:   1     -46  4.0950011  6.007830  2.7411833  4.0297893 4.899710</span></span>
+<span><span class="co">#&gt;    ---                                                                </span></span>
+<span><span class="co">#&gt; 61596: 200     253 -7.4272958 -4.030794 -3.3414518  2.5704919 4.188729</span></span>
+<span><span class="co">#&gt; 61597: 200     254 -7.0028675 -4.076854 -3.7139526  1.3456003 3.356811</span></span>
+<span><span class="co">#&gt; 61598: 200     255 -6.3948136 -4.124318 -4.0795149  0.2178476 2.644884</span></span>
+<span><span class="co">#&gt; 61599: 200     256 -5.7744059 -4.236721 -4.4670174 -0.8343465 1.996052</span></span>
+<span><span class="co">#&gt; 61600: 200     257 -5.3225204 -4.474952 -4.9176401 -1.8464510 1.323714</span></span>
+<span><span class="co">#&gt;                Fz         F4          F8        FC5       FC1        FC2</span></span>
+<span><span class="co">#&gt;     1:   4.228278   2.840110 -3.15472635  1.6113910  1.592771  -2.364200</span></span>
+<span><span class="co">#&gt;     2:   4.270218   2.382479 -2.35472265  2.0405680  1.860704  -2.861841</span></span>
+<span><span class="co">#&gt;     3:   4.421612   2.013301 -1.24644410  2.4513040  2.219617  -3.123105</span></span>
+<span><span class="co">#&gt;     4:   4.591250   1.709526  0.05225002  2.8087541  2.615841  -3.167049</span></span>
+<span><span class="co">#&gt;     5:   4.700407   1.452931  1.40978255  3.1051410  3.005053  -3.015121</span></span>
+<span><span class="co">#&gt;    ---                                                                  </span></span>
+<span><span class="co">#&gt; 61596:  -8.730353 -12.167556 -1.36556543  4.6994268 -3.708406 -19.005953</span></span>
+<span><span class="co">#&gt; 61597:  -9.453131 -11.842863 -2.17206941  3.4988400 -4.958880 -19.459708</span></span>
+<span><span class="co">#&gt; 61598:  -9.985577 -11.460650 -2.78238153  2.2688876 -6.309382 -19.836152</span></span>
+<span><span class="co">#&gt; 61599: -10.366157 -11.047480 -3.20156158  1.0080235 -7.730844 -20.137723</span></span>
+<span><span class="co">#&gt; 61600: -10.661645 -10.644149 -3.46204537 -0.3005228 -9.204715 -20.380105</span></span>
+<span><span class="co">#&gt;                FC6        M1       T7         C3         Cz         C4</span></span>
+<span><span class="co">#&gt;     1:  -1.8391090 -2.030141 8.787014 -2.0086889  -5.711339  -0.795271</span></span>
+<span><span class="co">#&gt;     2:  -1.1455898 -1.922150 9.114149 -2.1197829  -5.858017  -1.282006</span></span>
+<span><span class="co">#&gt;     3:  -0.1976263 -1.785010 8.977623 -2.2059909  -5.721134  -1.762303</span></span>
+<span><span class="co">#&gt;     4:   0.8983126 -1.654058 8.398226 -2.2445165  -5.330143  -2.204568</span></span>
+<span><span class="co">#&gt;     5:   2.0401272 -1.545839 7.452935 -2.1993214  -4.723109  -2.557211</span></span>
+<span><span class="co">#&gt;    ---                                                                </span></span>
+<span><span class="co">#&gt; 61596: -12.4167239  4.310870 4.908478 -0.5437559 -14.854063 -34.752050</span></span>
+<span><span class="co">#&gt; 61597: -13.3369315  4.454409 4.680512 -2.1197706 -16.258766 -35.506742</span></span>
+<span><span class="co">#&gt; 61598: -14.2119912  4.482182 4.315460 -3.8504649 -17.808367 -36.200622</span></span>
+<span><span class="co">#&gt; 61599: -14.9925296  4.394789 3.730447 -5.6655686 -19.413279 -36.808126</span></span>
+<span><span class="co">#&gt; 61600: -15.6416067  4.203761 2.864558 -7.5086186 -20.985826 -37.301315</span></span>
+<span><span class="co">#&gt;                T8        M2        CP5        CP1        CP2         CP6</span></span>
+<span><span class="co">#&gt;     1:   3.910053  2.030141  2.1730493  -5.558311  -3.912675   2.0442154</span></span>
+<span><span class="co">#&gt;     2:   5.477720  1.922150  1.6874719  -5.681516  -4.454747   1.4513845</span></span>
+<span><span class="co">#&gt;     3:   7.069972  1.785010  1.0244766  -5.664134  -4.852158   0.8377522</span></span>
+<span><span class="co">#&gt;     4:   8.401729  1.654058  0.2760940  -5.506764  -5.089553   0.2248167</span></span>
+<span><span class="co">#&gt;     5:   9.193991  1.545839 -0.4454964  -5.204630  -5.150715  -0.3509800</span></span>
+<span><span class="co">#&gt;    ---                                                                  </span></span>
+<span><span class="co">#&gt; 61596: -25.822482 -4.310870  3.4352795  -5.102525 -31.824672 -29.5344073</span></span>
+<span><span class="co">#&gt; 61597: -27.019577 -4.454409  2.4188361  -6.646814 -33.109751 -30.5440118</span></span>
+<span><span class="co">#&gt; 61598: -27.809796 -4.482182  1.1739532  -8.403855 -34.341884 -31.5585170</span></span>
+<span><span class="co">#&gt; 61599: -28.198220 -4.394789 -0.2539754 -10.263130 -35.433438 -32.5685325</span></span>
+<span><span class="co">#&gt; 61600: -28.211914 -4.203761 -1.8208137 -12.116925 -36.299732 -33.5345508</span></span>
+<span><span class="co">#&gt;                P7         P3         Pz          P4          P8       POz</span></span>
+<span><span class="co">#&gt;     1: -1.8486407 -2.6437673  -3.191924  -0.6720984   0.5889623 -1.233383</span></span>
+<span><span class="co">#&gt;     2: -2.6139953 -3.1920017  -3.790144  -1.4646696  -1.8056977 -2.397317</span></span>
+<span><span class="co">#&gt;     3: -3.1638517 -3.6552420  -4.342437  -2.1770814  -4.0661883 -3.500260</span></span>
+<span><span class="co">#&gt;     4: -3.4395628 -3.9730269  -4.813028  -2.7552677  -5.9136674 -4.440224</span></span>
+<span><span class="co">#&gt;     5: -3.4148548 -4.0892851  -5.160562  -3.1471226  -7.1129100 -5.124399</span></span>
+<span><span class="co">#&gt;    ---                                                                   </span></span>
+<span><span class="co">#&gt; 61596:  2.7192767  2.7365646 -12.488676 -27.5485924 -23.0238529 -5.742807</span></span>
+<span><span class="co">#&gt; 61597:  2.3539444  1.6113645 -13.716290 -28.1890858 -22.9764754 -6.553364</span></span>
+<span><span class="co">#&gt; 61598:  1.6063736  0.2901116 -14.977399 -28.6721202 -22.1172213 -7.394155</span></span>
+<span><span class="co">#&gt; 61599:  0.5699239 -1.1512356 -16.183334 -28.9837949 -20.4604781 -8.207270</span></span>
+<span><span class="co">#&gt; 61600: -0.6454750 -2.6374742 -17.250028 -29.1134647 -18.1089704 -8.943773</span></span>
+<span><span class="co">#&gt;                O1         Oz         O2       HEOG       VEOG</span></span>
+<span><span class="co">#&gt;     1: -3.5386535 -0.7969323  0.8721568  -8.172153  -4.070868</span></span>
+<span><span class="co">#&gt;     2: -4.7377453 -2.2782486 -0.7106985 -15.399203 -10.286688</span></span>
+<span><span class="co">#&gt;     3: -5.8496010 -3.7413040 -2.2901256 -17.091586  -4.218329</span></span>
+<span><span class="co">#&gt;     4: -6.7658792 -5.0345596 -3.6833116 -22.001254  -2.728094</span></span>
+<span><span class="co">#&gt;     5: -7.3928468 -6.0157379 -4.7178515 -14.368930   3.892999</span></span>
+<span><span class="co">#&gt;    ---                                                       </span></span>
+<span><span class="co">#&gt; 61596:  2.5152642 -3.0701651 -5.1484950  40.897595 104.275391</span></span>
+<span><span class="co">#&gt; 61597:  1.8963234 -3.5788828 -3.8985745  19.307751  67.568359</span></span>
+<span><span class="co">#&gt; 61598:  1.0904936 -4.1790541 -2.9052267  24.585583  66.189453</span></span>
+<span><span class="co">#&gt; 61599:  0.2077071 -4.8230480 -2.2435981   4.779675  43.698242</span></span>
+<span><span class="co">#&gt; 61600: -0.6593847 -5.4755758 -1.9725447  -2.815540  36.453125</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; # Events table:</span></span>
+<span><span class="co">#&gt;      .id    .type .description .initial .final .channel</span></span>
+<span><span class="co">#&gt;   1:   1 Stimulus          s71        1      1     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt;   2:   2 Stimulus          s71        1      1     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt;   3:   3 Stimulus          s71        1      1     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt;   4:   4 Stimulus          s71        1      1     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt;   5:   5 Stimulus          s71        1      1     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt;  ---                                                   </span></span>
+<span><span class="co">#&gt; 196: 196 Stimulus          s71        1      1     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 197: 197 Stimulus          s70        1      1     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 198: 198 Stimulus          s71        1      1     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 199: 199 Stimulus          s71        1      1     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 200: 200 Stimulus          s71        1      1     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; # Segments table:</span></span>
+<span><span class="co">#&gt;      .id    .recording segment description condition</span></span>
+<span><span class="co">#&gt;   1:   1 s1_faces.vhdr       1         s71 non-faces</span></span>
+<span><span class="co">#&gt;   2:   2 s1_faces.vhdr       2         s71 non-faces</span></span>
+<span><span class="co">#&gt;   3:   3 s1_faces.vhdr       3         s71 non-faces</span></span>
+<span><span class="co">#&gt;   4:   4 s1_faces.vhdr       4         s71 non-faces</span></span>
+<span><span class="co">#&gt;   5:   5 s1_faces.vhdr       5         s71 non-faces</span></span>
+<span><span class="co">#&gt;  ---                                                </span></span>
+<span><span class="co">#&gt; 196: 196 s1_faces.vhdr     196         s71 non-faces</span></span>
+<span><span class="co">#&gt; 197: 197 s1_faces.vhdr     197         s70     faces</span></span>
+<span><span class="co">#&gt; 198: 198 s1_faces.vhdr     198         s71 non-faces</span></span>
+<span><span class="co">#&gt; 199: 199 s1_faces.vhdr     199         s71 non-faces</span></span>
+<span><span class="co">#&gt; 200: 200 s1_faces.vhdr     200         s71 non-faces</span></span></code></pre></div>
 <p>With some <code>ggplot</code> skills, we can create customized plots. <code>ggplot</code> is overloaded to work on an <code>eeg_lst</code> by first downsampling the signal when necessary, and converting it to a long-format data frame that is feed into <code>ggplot</code>. This object can then be customized. (Notice that the channels, or component names are in a <code>.key</code> column and their amplitude in <code>.value</code> column, and instead of samples there are now <code>.time</code> in seconds).</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">## ggplot uses internally a table that looks like this:</span>
-<span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_filter</a></span><span class="op">(</span><span class="va">.id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; <span style="color: #949494;"># A tibble: 31,416 × 8</span></span>
-<span class="co">#&gt;      .time   .id .key  .value .recording    segment description condition</span>
-<span class="co">#&gt;      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> -<span style="color: #BB0000;">0.099</span><span style="color: #BB0000; text-decoration: underline;">6</span>     1 Fp1   -<span style="color: #BB0000;">0.224</span> s1_faces.vhdr       1 s71         non-faces</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> -<span style="color: #BB0000;">0.097</span><span style="color: #BB0000; text-decoration: underline;">7</span>     1 Fp1    0.998 s1_faces.vhdr       1 s71         non-faces</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> -<span style="color: #BB0000;">0.095</span><span style="color: #BB0000; text-decoration: underline;">7</span>     1 Fp1    2.25  s1_faces.vhdr       1 s71         non-faces</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> -<span style="color: #BB0000;">0.093</span><span style="color: #BB0000; text-decoration: underline;">8</span>     1 Fp1    3.34  s1_faces.vhdr       1 s71         non-faces</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> -<span style="color: #BB0000;">0.091</span><span style="color: #BB0000; text-decoration: underline;">8</span>     1 Fp1    4.10  s1_faces.vhdr       1 s71         non-faces</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> -<span style="color: #BB0000;">0.089</span><span style="color: #BB0000; text-decoration: underline;">8</span>     1 Fp1    4.40  s1_faces.vhdr       1 s71         non-faces</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> -<span style="color: #BB0000;">0.087</span><span style="color: #BB0000; text-decoration: underline;">9</span>     1 Fp1    4.19  s1_faces.vhdr       1 s71         non-faces</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> -<span style="color: #BB0000;">0.085</span><span style="color: #BB0000; text-decoration: underline;">9</span>     1 Fp1    3.49  s1_faces.vhdr       1 s71         non-faces</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> -<span style="color: #BB0000;">0.084</span><span style="color: #BB0000; text-decoration: underline;">0</span>     1 Fp1    2.36  s1_faces.vhdr       1 s71         non-faces</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">10</span> -<span style="color: #BB0000;">0.082</span><span style="color: #BB0000; text-decoration: underline;">0</span>     1 Fp1    0.972 s1_faces.vhdr       1 s71         non-faces</span>
-<span class="co">#&gt; <span style="color: #949494;"># … with 31,406 more rows</span></span>
-
-<span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_select</a></span><span class="op">(</span><span class="va">O1</span>, <span class="va">O2</span>, <span class="va">P7</span>, <span class="va">P8</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.time</span>, y <span class="op">=</span> <span class="va">.value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">.1</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>group <span class="op">=</span> <span class="va">.id</span>, color <span class="op">=</span> <span class="va">condition</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/stat_summary.html" class="external-link">stat_summary</a></span><span class="op">(</span>
-    fun <span class="op">=</span> <span class="st">"mean"</span>, geom <span class="op">=</span> <span class="st">"line"</span>, alpha <span class="op">=</span> <span class="fl">1</span>, size <span class="op">=</span> <span class="fl">1.5</span>,
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>color <span class="op">=</span> <span class="va">condition</span><span class="op">)</span>
-  <span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">.key</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">0</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">.17</span>, linetype <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co">## ggplot uses internally a table that looks like this:</span></span>
+<span><span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_filter</a></span><span class="op">(</span><span class="va">.id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 31,416 × 8</span></span></span>
+<span><span class="co">#&gt;      .time   .id .key  .value .recording    segment description condition</span></span>
+<span><span class="co">#&gt;      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> -<span style="color: #BB0000;">0.099</span><span style="color: #BB0000; text-decoration: underline;">6</span>     1 Fp1   -<span style="color: #BB0000;">0.224</span> s1_faces.vhdr       1 s71         non-faces</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> -<span style="color: #BB0000;">0.097</span><span style="color: #BB0000; text-decoration: underline;">7</span>     1 Fp1    0.998 s1_faces.vhdr       1 s71         non-faces</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> -<span style="color: #BB0000;">0.095</span><span style="color: #BB0000; text-decoration: underline;">7</span>     1 Fp1    2.25  s1_faces.vhdr       1 s71         non-faces</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> -<span style="color: #BB0000;">0.093</span><span style="color: #BB0000; text-decoration: underline;">8</span>     1 Fp1    3.34  s1_faces.vhdr       1 s71         non-faces</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> -<span style="color: #BB0000;">0.091</span><span style="color: #BB0000; text-decoration: underline;">8</span>     1 Fp1    4.10  s1_faces.vhdr       1 s71         non-faces</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> -<span style="color: #BB0000;">0.089</span><span style="color: #BB0000; text-decoration: underline;">8</span>     1 Fp1    4.40  s1_faces.vhdr       1 s71         non-faces</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> -<span style="color: #BB0000;">0.087</span><span style="color: #BB0000; text-decoration: underline;">9</span>     1 Fp1    4.19  s1_faces.vhdr       1 s71         non-faces</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> -<span style="color: #BB0000;">0.085</span><span style="color: #BB0000; text-decoration: underline;">9</span>     1 Fp1    3.49  s1_faces.vhdr       1 s71         non-faces</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> -<span style="color: #BB0000;">0.084</span><span style="color: #BB0000; text-decoration: underline;">0</span>     1 Fp1    2.36  s1_faces.vhdr       1 s71         non-faces</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> -<span style="color: #BB0000;">0.082</span><span style="color: #BB0000; text-decoration: underline;">0</span>     1 Fp1    0.972 s1_faces.vhdr       1 s71         non-faces</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># … with 31,406 more rows</span></span></span>
+<span></span>
+<span><span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_select</a></span><span class="op">(</span><span class="va">O1</span>, <span class="va">O2</span>, <span class="va">P7</span>, <span class="va">P8</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.time</span>, y <span class="op">=</span> <span class="va">.value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">.1</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>group <span class="op">=</span> <span class="va">.id</span>, color <span class="op">=</span> <span class="va">condition</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/stat_summary.html" class="external-link">stat_summary</a></span><span class="op">(</span></span>
+<span>    fun <span class="op">=</span> <span class="st">"mean"</span>, geom <span class="op">=</span> <span class="st">"line"</span>, alpha <span class="op">=</span> <span class="fl">1</span>, size <span class="op">=</span> <span class="fl">1.5</span>,</span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>color <span class="op">=</span> <span class="va">condition</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">.key</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">0</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">.17</span>, linetype <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-16-1.png" width="100%"></p>
 <p>We can see here the N170 component in the faces condition for the average trial on a single participant. We can investigate the signal by averaging the channels of the occipital and parietal lobes using <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">transmute()</a></code>, and the special function, <code><a href="../reference/chs_mean.html">chs_mean()</a></code>, a wrapper for <code><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans()</a></code>, which takes as arguments the relevant channels and whether missing values should be omitted from the calculations.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_transmute</a></span><span class="op">(</span>
-    Occipital <span class="op">=</span> <span class="fu"><a href="../reference/chs_mean.html">chs_mean</a></span><span class="op">(</span><span class="fu"><a href="../reference/dplyr_verbs.html">across</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"O"</span><span class="op">)</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="co">#O1, O2, Oz</span>
-    Parietal <span class="op">=</span> <span class="fu"><a href="../reference/chs_mean.html">chs_mean</a></span><span class="op">(</span><span class="fu"><a href="../reference/dplyr_verbs.html">across</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"O"</span><span class="op">)</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># P3, P4, P7, P8, Pz</span>
-  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.time</span>, y <span class="op">=</span> <span class="va">.value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">.1</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>group <span class="op">=</span> <span class="va">.id</span>, color <span class="op">=</span> <span class="va">condition</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/stat_summary.html" class="external-link">stat_summary</a></span><span class="op">(</span>
-    fun <span class="op">=</span> <span class="st">"mean"</span>, geom <span class="op">=</span> <span class="st">"line"</span>, alpha <span class="op">=</span> <span class="fl">1</span>, size <span class="op">=</span> <span class="fl">1</span>,
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>color <span class="op">=</span> <span class="va">condition</span><span class="op">)</span>
-  <span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">.key</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_transmute</a></span><span class="op">(</span></span>
+<span>    Occipital <span class="op">=</span> <span class="fu"><a href="../reference/chs_mean.html">chs_mean</a></span><span class="op">(</span><span class="fu"><a href="../reference/dplyr_verbs.html">across</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"O"</span><span class="op">)</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="co">#O1, O2, Oz</span></span>
+<span>    Parietal <span class="op">=</span> <span class="fu"><a href="../reference/chs_mean.html">chs_mean</a></span><span class="op">(</span><span class="fu"><a href="../reference/dplyr_verbs.html">across</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"O"</span><span class="op">)</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># P3, P4, P7, P8, Pz</span></span>
+<span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.time</span>, y <span class="op">=</span> <span class="va">.value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">.1</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>group <span class="op">=</span> <span class="va">.id</span>, color <span class="op">=</span> <span class="va">condition</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/stat_summary.html" class="external-link">stat_summary</a></span><span class="op">(</span></span>
+<span>    fun <span class="op">=</span> <span class="st">"mean"</span>, geom <span class="op">=</span> <span class="st">"line"</span>, alpha <span class="op">=</span> <span class="fl">1</span>, size <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>color <span class="op">=</span> <span class="va">condition</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">.key</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-17-1.png" width="100%"></p>
 <p>We can also calculate the ERPs and then plot them in their layout (and we’ll add the same theme that plot uses for <code>eeg_lst</code>s):</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">ERP_faces</span> <span class="op">&lt;-</span> <span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_group_by</a></span><span class="op">(</span><span class="va">.sample</span>, <span class="va">condition</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_summarize</a></span><span class="op">(</span><span class="fu"><a href="../reference/dplyr_verbs.html">across_ch</a></span><span class="op">(</span><span class="va">mean</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>
-  
-<span class="va">ERP_plot</span> <span class="op">&lt;-</span> <span class="va">ERP_faces</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.time</span>, y <span class="op">=</span> <span class="va">.value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>color <span class="op">=</span> <span class="va">condition</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">.key</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"ERPs for faces vs non-faces"</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="../reference/theme_eeguana.html">theme_eeguana</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="va">ERP_plot</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/plot_in_layout.html">plot_in_layout</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">ERP_faces</span> <span class="op">&lt;-</span> <span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_group_by</a></span><span class="op">(</span><span class="va">.sample</span>, <span class="va">condition</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_summarize</a></span><span class="op">(</span><span class="fu"><a href="../reference/dplyr_verbs.html">across_ch</a></span><span class="op">(</span><span class="va">mean</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span>  </span>
+<span><span class="va">ERP_plot</span> <span class="op">&lt;-</span> <span class="va">ERP_faces</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.time</span>, y <span class="op">=</span> <span class="va">.value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>color <span class="op">=</span> <span class="va">condition</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">.key</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"ERPs for faces vs non-faces"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="../reference/theme_eeguana.html">theme_eeguana</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ERP_plot</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/plot_in_layout.html">plot_in_layout</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="intro_files/figure-html/layout-1.png" width="100%"></p>
 <p>Another possibility is to create a topographic plot of the two conditions, by first making segments that include only the interval .1-.2 <em>s</em> after the onset of the stimuli, creating a table with interpolated amplitudes and using the ggplot wrapper <code><a href="../reference/plot_topo.html">plot_topo()</a></code>.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_filter</a></span><span class="op">(</span><span class="fu"><a href="../reference/between.html">between</a></span><span class="op">(</span><span class="fu"><a href="../reference/as_time.html">as_time</a></span><span class="op">(</span><span class="va">.sample</span>, .unit <span class="op">=</span> <span class="st">"s"</span><span class="op">)</span>, <span class="fl">.1</span>, <span class="fl">.2</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_group_by</a></span><span class="op">(</span><span class="va">condition</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_summarize</a></span><span class="op">(</span><span class="fu"><a href="../reference/dplyr_verbs.html">across_ch</a></span><span class="op">(</span><span class="va">mean</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/plot_topo.html">plot_topo</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="../reference/annotate_head.html">annotate_head</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_contour.html" class="external-link">geom_contour</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" class="external-link">facet_grid</a></span><span class="op">(</span><span class="op">~</span><span class="va">condition</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_filter</a></span><span class="op">(</span><span class="fu"><a href="../reference/between.html">between</a></span><span class="op">(</span><span class="fu"><a href="../reference/as_time.html">as_time</a></span><span class="op">(</span><span class="va">.sample</span>, .unit <span class="op">=</span> <span class="st">"s"</span><span class="op">)</span>, <span class="fl">.1</span>, <span class="fl">.2</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_group_by</a></span><span class="op">(</span><span class="va">condition</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_summarize</a></span><span class="op">(</span><span class="fu"><a href="../reference/dplyr_verbs.html">across_ch</a></span><span class="op">(</span><span class="va">mean</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/plot_topo.html">plot_topo</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="../reference/annotate_head.html">annotate_head</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_contour.html" class="external-link">geom_contour</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" class="external-link">facet_grid</a></span><span class="op">(</span><span class="op">~</span><span class="va">condition</span><span class="op">)</span></span></code></pre></div>
 <p><img src="intro_files/figure-html/topo-1.png" width="100%"></p>
 <p>For more specialized plots or analyses, it might be necessary to extract the data in long data frame format first. Even though, we can do this without transforming the object, here, we transform the data first and then we visualize independent t-tests at every electrode and time point.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_select</a></span><span class="op">(</span><span class="va">O1</span>, <span class="va">O2</span>, <span class="va">P7</span>, <span class="va">P8</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="co"># We can use regular dplyr functions now</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">.key</span>, <span class="va">.time</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span>
-    `t-value` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/t.test.html" class="external-link">t.test</a></span><span class="op">(</span>
-      <span class="va">.value</span><span class="op">[</span><span class="va">condition</span> <span class="op">==</span> <span class="st">"faces"</span><span class="op">]</span>,
-      <span class="va">.value</span><span class="op">[</span><span class="va">condition</span> <span class="op">==</span> <span class="st">"non-faces"</span><span class="op">]</span>
-    <span class="op">)</span><span class="op">$</span><span class="va">statistic</span>
-  <span class="op">)</span>
-<span class="co">#&gt; `summarise()` has grouped output by '.key'. You can override using the</span>
-<span class="co">#&gt; `.groups` argument.</span>
-
-<span class="va">df</span>
-<span class="co">#&gt; <span style="color: #949494;"># A tibble: 1,232 × 3</span></span>
-<span class="co">#&gt; <span style="color: #949494;"># Groups:   .key [4]</span></span>
-<span class="co">#&gt;    .key    .time `t-value`</span>
-<span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> O1    -<span style="color: #BB0000;">0.099</span><span style="color: #BB0000; text-decoration: underline;">6</span>    0.204 </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> O1    -<span style="color: #BB0000;">0.097</span><span style="color: #BB0000; text-decoration: underline;">7</span>    0.227 </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> O1    -<span style="color: #BB0000;">0.095</span><span style="color: #BB0000; text-decoration: underline;">7</span>    0.234 </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> O1    -<span style="color: #BB0000;">0.093</span><span style="color: #BB0000; text-decoration: underline;">8</span>    0.219 </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> O1    -<span style="color: #BB0000;">0.091</span><span style="color: #BB0000; text-decoration: underline;">8</span>    0.173 </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> O1    -<span style="color: #BB0000;">0.089</span><span style="color: #BB0000; text-decoration: underline;">8</span>    0.088<span style="text-decoration: underline;">0</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> O1    -<span style="color: #BB0000;">0.087</span><span style="color: #BB0000; text-decoration: underline;">9</span>   -<span style="color: #BB0000;">0.041</span><span style="color: #BB0000; text-decoration: underline;">5</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> O1    -<span style="color: #BB0000;">0.085</span><span style="color: #BB0000; text-decoration: underline;">9</span>   -<span style="color: #BB0000;">0.221</span> </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> O1    -<span style="color: #BB0000;">0.084</span><span style="color: #BB0000; text-decoration: underline;">0</span>   -<span style="color: #BB0000;">0.448</span> </span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">10</span> O1    -<span style="color: #BB0000;">0.082</span><span style="color: #BB0000; text-decoration: underline;">0</span>   -<span style="color: #BB0000;">0.713</span> </span>
-<span class="co">#&gt; <span style="color: #949494;"># … with 1,222 more rows</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_select</a></span><span class="op">(</span><span class="va">O1</span>, <span class="va">O2</span>, <span class="va">P7</span>, <span class="va">P8</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="co"># We can use regular dplyr functions now</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">.key</span>, <span class="va">.time</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span></span>
+<span>    `t-value` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/t.test.html" class="external-link">t.test</a></span><span class="op">(</span></span>
+<span>      <span class="va">.value</span><span class="op">[</span><span class="va">condition</span> <span class="op">==</span> <span class="st">"faces"</span><span class="op">]</span>,</span>
+<span>      <span class="va">.value</span><span class="op">[</span><span class="va">condition</span> <span class="op">==</span> <span class="st">"non-faces"</span><span class="op">]</span></span>
+<span>    <span class="op">)</span><span class="op">$</span><span class="va">statistic</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="co">#&gt; `summarise()` has grouped output by '.key'. You can override using the</span></span>
+<span><span class="co">#&gt; `.groups` argument.</span></span>
+<span></span>
+<span><span class="va">df</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1,232 × 3</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Groups:   .key [4]</span></span></span>
+<span><span class="co">#&gt;    .key    .time `t-value`</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> O1    -<span style="color: #BB0000;">0.099</span><span style="color: #BB0000; text-decoration: underline;">6</span>    0.204 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> O1    -<span style="color: #BB0000;">0.097</span><span style="color: #BB0000; text-decoration: underline;">7</span>    0.227 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> O1    -<span style="color: #BB0000;">0.095</span><span style="color: #BB0000; text-decoration: underline;">7</span>    0.234 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> O1    -<span style="color: #BB0000;">0.093</span><span style="color: #BB0000; text-decoration: underline;">8</span>    0.219 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> O1    -<span style="color: #BB0000;">0.091</span><span style="color: #BB0000; text-decoration: underline;">8</span>    0.173 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> O1    -<span style="color: #BB0000;">0.089</span><span style="color: #BB0000; text-decoration: underline;">8</span>    0.088<span style="text-decoration: underline;">0</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> O1    -<span style="color: #BB0000;">0.087</span><span style="color: #BB0000; text-decoration: underline;">9</span>   -<span style="color: #BB0000;">0.041</span><span style="color: #BB0000; text-decoration: underline;">5</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> O1    -<span style="color: #BB0000;">0.085</span><span style="color: #BB0000; text-decoration: underline;">9</span>   -<span style="color: #BB0000;">0.221</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> O1    -<span style="color: #BB0000;">0.084</span><span style="color: #BB0000; text-decoration: underline;">0</span>   -<span style="color: #BB0000;">0.448</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> O1    -<span style="color: #BB0000;">0.082</span><span style="color: #BB0000; text-decoration: underline;">0</span>   -<span style="color: #BB0000;">0.713</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># … with 1,222 more rows</span></span></span></code></pre></div>
 <p>Then we just load the data frame into <code>ggplot</code>.</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.time</span>, y <span class="op">=</span> <span class="va">`t-value`</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">.key</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.time</span>, y <span class="op">=</span> <span class="va">`t-value`</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">.key</span><span class="op">)</span></span></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-19-1.png" width="100%"></p>
 <p>However, this can be also done in the without transforming the <code>eeg_lst</code> object:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">faces_seg_t</span> <span class="op">&lt;-</span>
-  <span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_select</a></span><span class="op">(</span><span class="va">O1</span>, <span class="va">O2</span>, <span class="va">P7</span>, <span class="va">P8</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_group_by</a></span><span class="op">(</span><span class="va">.sample</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_summarize</a></span><span class="op">(</span><span class="fu"><a href="../reference/dplyr_verbs.html">across_ch</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>t <span class="op">=</span>  <span class="op">~</span><span class="fu"><a href="https://rdrr.io/r/stats/t.test.html" class="external-link">t.test</a></span><span class="op">(</span>
-    <span class="va">.</span><span class="op">[</span><span class="va">condition</span> <span class="op">==</span> <span class="st">"faces"</span><span class="op">]</span>,
-    <span class="va">.</span><span class="op">[</span><span class="va">condition</span> <span class="op">==</span> <span class="st">"non-faces"</span><span class="op">]</span>
-  <span class="op">)</span><span class="op">$</span><span class="va">statistic</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-
-<span class="va">faces_seg_t</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.time</span>, y <span class="op">=</span> <span class="va">.value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">.1</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>group <span class="op">=</span> <span class="va">.id</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/stat_summary.html" class="external-link">stat_summary</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="st">"mean"</span>, geom <span class="op">=</span> <span class="st">"line"</span>, alpha <span class="op">=</span> <span class="fl">1</span>, size <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">.key</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">faces_seg_t</span> <span class="op">&lt;-</span></span>
+<span>  <span class="va">faces_seg</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_select</a></span><span class="op">(</span><span class="va">O1</span>, <span class="va">O2</span>, <span class="va">P7</span>, <span class="va">P8</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_group_by</a></span><span class="op">(</span><span class="va">.sample</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_summarize</a></span><span class="op">(</span><span class="fu"><a href="../reference/dplyr_verbs.html">across_ch</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>t <span class="op">=</span>  <span class="op">~</span><span class="fu"><a href="https://rdrr.io/r/stats/t.test.html" class="external-link">t.test</a></span><span class="op">(</span></span>
+<span>    <span class="va">.</span><span class="op">[</span><span class="va">condition</span> <span class="op">==</span> <span class="st">"faces"</span><span class="op">]</span>,</span>
+<span>    <span class="va">.</span><span class="op">[</span><span class="va">condition</span> <span class="op">==</span> <span class="st">"non-faces"</span><span class="op">]</span></span>
+<span>  <span class="op">)</span><span class="op">$</span><span class="va">statistic</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">faces_seg_t</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.time</span>, y <span class="op">=</span> <span class="va">.value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">.1</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>group <span class="op">=</span> <span class="va">.id</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/stat_summary.html" class="external-link">stat_summary</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="st">"mean"</span>, geom <span class="op">=</span> <span class="st">"line"</span>, alpha <span class="op">=</span> <span class="fl">1</span>, size <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">.key</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-20-1.png" width="100%"></p>
 </div>
 </div>
@@ -796,7 +796,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer>
