@@ -45,11 +45,12 @@ reference:
   - title: About
     contents:
     - '`eeguana`'
-  - title: "Reading functions"
+  - title: "Reading and writing functions"
     desc: >
       Functions for reading external files and return an `eeg_lst`.
     contents: 
     - starts_with("read")
+    - starts_with("write")
   - title: "Tidyverse verbs (and extensions)"
     desc: >
       Functions that overload some tidyverse functions and always return an `eeg_lst`. 
