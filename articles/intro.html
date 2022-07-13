@@ -25,7 +25,8 @@
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--><script>if(!sessionStorage.getItem("_swa")&&document.referrer.indexOf(location.protocol+"//"+location.host)!== 0){fetch("https://counter.dev/track?"+new URLSearchParams({referrer:document.referrer,screen:screen.width+"x"+screen.height,user:"bnicenboim",utcoffset:"1"}))};sessionStorage.setItem("_swa","1");</script>
 </head>
-<body data-spy="scroll" data-target="#toc">
+<body>
+<p>,<script data-goatcounter="https://bnicenboim.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script></p>
     
 
     <div class="container template-article">
@@ -364,7 +365,7 @@
 <span>  <span class="fu"><a href="../reference/eeg_ica.html">eeg_ica</a></span><span class="op">(</span><span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span>, <span class="op">-</span><span class="va">M1</span>, <span class="op">-</span><span class="va">M2</span>, .method <span class="op">=</span> <span class="va">adapt_fast_ICA</span>, .ignore <span class="op">=</span> <span class="va">.type</span> <span class="op">==</span> <span class="st">"artifact"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # ICA is being done using adapt_fast_ICA...</span></span>
 <span><span class="co">#&gt; # 97% of the samples will be used.</span></span>
-<span><span class="co">#&gt; # ICA took 1.9 mins</span></span></code></pre></div>
+<span><span class="co">#&gt; # ICA took 2.22 mins</span></span></code></pre></div>
 <p>We can now check the different topographic plots of the ICAs with <code><a href="../reference/plot_components.html">plot_components()</a></code>, and their correlation with the EOG channels looking a the summary of the object.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">faces_ica</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/plot_components.html">plot_components</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -807,5 +808,6 @@
 
   
 
-  </body>
+  
+</body>
 </html>
