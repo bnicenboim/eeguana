@@ -1,3 +1,5 @@
+# eeguana 0.1.8.9000
+- `as_eeg_lst()` makes `eeg_lst` objects created with previous versions of eeguana compatible with the current version.
 # eeguana 0.1.7.9000
 - New features:
 - The argument `.ref` of `eeg_rereference()` now allows "tidyselect".

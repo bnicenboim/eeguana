@@ -27,6 +27,7 @@ A package for flexible manipulation of EEG data. `eeguana` provides a `data.tabl
 
 See [Reference](https://bnicenboim.github.io/eeguana/reference/index.html) for more information about the functions of *eeguana*.
 
+**NOTE: `eeg_lst` objects created with previous versions of eeguana can be made compatible with the latest version by doing `as_eeg_lst(old_obj)`**
 
 ## Installation
 
@@ -139,6 +140,11 @@ faces_segs_some %>%
 Another possibility is to create a topographic plot of the two conditions, by
 first making segments that include only the interval .1-.2 *s* after the onset
 of the stimuli, creating a table with interpolated amplitudes and using the ggplot wrapper `plot_topo`.
+
+```{r, echo = FALSE, results="hide", message = FALSE}
+#fixes bug?
+dev.off()
+```
 
 ```{r topo, fig.dim = c(10,5), out.width = "100%", results = "hide"}
 faces_segs_some %>%

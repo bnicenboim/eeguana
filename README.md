@@ -35,6 +35,10 @@ See
 [Reference](https://bnicenboim.github.io/eeguana/reference/index.html)
 for more information about the functions of *eeguana*.
 
+**NOTE: `eeg_lst` objects created with previous versions of eeguana can
+be made compatible with the latest version by doing
+`as_eeg_lst(old_obj)`**
+
 ## Installation
 
 There is still **no** released version of *eeguana*. The package is in
@@ -392,14 +396,14 @@ faces_segs_some %>%
 
 Other R packages for EEG/ERP data:
 
--   [permuco4brain](https://jaromilfrossard.github.io/permuco4brain/index.html)
+  - [permuco4brain](https://jaromilfrossard.github.io/permuco4brain/index.html)
     provides functions to compute permutation test in brain imagery
     data. It is specially designed for M-EEG/ERP data. This a
     [vignette](https://jaromilfrossard.github.io/permuco4brain/articles/permuco4brain-with-eeguana.html)
     explains how to use it together with `eeguana`.
--   [eegUtils](https://github.com/craddm/eegUtils) some helper utilities
+  - [eegUtils](https://github.com/craddm/eegUtils) some helper utilities
     for plotting and processing EEG data in active development by Matt
     Craddock.
--   [erpR](https://cran.r-project.org/package=erpR) analysis of
+  - [erpR](https://cran.r-project.org/package=erpR) analysis of
     event-related potentials (ERPs) by Giorgio Arcara, Anna Petrova. It
     hasn’t been updated since 2014.
