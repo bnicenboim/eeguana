@@ -35,6 +35,10 @@ See
 [Reference](https://bnicenboim.github.io/eeguana/reference/index.html)
 for more information about the functions of *eeguana*.
 
+**NOTE: `eeg_lst` objects created with previous versions of eeguana can
+be made compatible with the latest version by doing
+`as_eeg_lst(old_obj)`**
+
 ## Installation
 
 There is still **no** released version of *eeguana*. The package is in

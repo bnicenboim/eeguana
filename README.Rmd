@@ -27,6 +27,7 @@ A package for flexible manipulation of EEG data. `eeguana` provides a `data.tabl
 
 See [Reference](https://bnicenboim.github.io/eeguana/reference/index.html) for more information about the functions of *eeguana*.
 
+**NOTE: `eeg_lst` objects created with previous versions of eeguana can be made compatible with the latest version by doing `as_eeg_lst(old_obj)`**
 
 ## Installation
 
