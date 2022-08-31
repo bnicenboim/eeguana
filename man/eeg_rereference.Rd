@@ -13,8 +13,9 @@ eeg_rereference(.data, ..., .ref = NULL, na.rm = FALSE)
 
 \item{.ref}{Channels that will be averaged as the reference. tidyselect compatible.}
 
-\item{na.rm}{a logical value indicating whether \code{NA}
-    values should be stripped before the computation proceeds.}
+\item{na.rm}{a logical evaluating to \code{TRUE} or \code{FALSE}
+    indicating whether \code{NA} values should be stripped before the
+    computation proceeds.}
 }
 \value{
 An  eeg_lst with some channels re-referenced.
