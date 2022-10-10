@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.8.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.8.9001</span>
       </span>
     </div>
 
@@ -114,83 +114,83 @@
 <span class="r-in"><span>  <span class="fu"><a href="eeg_ica.html">eeg_ica</a></span><span class="op">(</span><span class="op">-</span><span class="va">EOGH</span>, <span class="op">-</span><span class="va">EOGV</span>, <span class="op">-</span><span class="va">M1</span>, <span class="op">-</span><span class="va">M2</span>, .method <span class="op">=</span> <span class="va">fast_ICA</span>, .config <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>maxit <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">eeg_ica_keep</span><span class="op">(</span><span class="op">-</span><span class="va">ICA1</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> # ICA is being done using fast_ICA...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> # ICA finished in 9 iterations. With a tolerance of 0.982379. (Maximum expected tolerance: 1e-06.)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> # ICA took 1.66 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> # ICA finished in 9 iterations. With a tolerance of 0.830862. (Maximum expected tolerance: 1e-06.)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> # ICA took 1.72 secs</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # EEG data:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Signal table:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        .id .sample       Fp1        Fpz         Fp2        F7         F3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1:   1   15000 -35.23106  -5.001963  -8.3947727 -6.204281 -11.595607</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     2:   1   15001 -34.97236 -16.629889 -10.9635721 -2.098308 -13.533216</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     3:   1   15002 -29.17531 -18.954975  -5.1305434  6.116569  -8.690620</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     4:   1   15003 -29.07631 -19.439704  -2.6794897  8.532879  -7.245339</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     5:   1   15004 -29.87777 -16.738663   0.2381033  9.047461  -5.621803</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        .id .sample       Fp1        Fpz         Fp2         F7        F3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     1:   1   15000 -32.24707  -4.388853  -2.8908265 -9.8411207 -7.104096</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     2:   1   15001 -28.31158 -11.356616  -4.7101960  1.6875249 -9.017591</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     3:   1   15002 -25.97296 -16.012272  -4.0300390 10.2069583 -7.914812</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     4:   1   15003 -26.30960 -16.757605  -2.1077117 12.5648823 -6.851094</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     5:   1   15004 -28.40190 -15.557377   0.2755778 10.8862797 -5.460543</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    ---                                                                  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43325:   1   58324 -25.30661 -20.300519 -16.7830338 -4.453907 -13.907997</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43326:   1   58325 -23.18102 -17.273351 -13.7316492 -3.348937 -11.223917</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43327:   1   58326 -22.74004 -18.075858 -14.6844867 -4.013707 -11.413087</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43328:   1   58327 -19.54956 -17.465003 -14.2568537 -2.790159 -10.930599</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43329:   1   58328 -17.27384 -17.041721 -13.8583684 -1.943942 -10.563915</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 Fz        F4        F8         FC5       FC1       FC2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1:   0.6607836  1.861829  3.236513   3.2941628 -6.615540  1.050703</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     2:  -4.9259825 -3.136618  6.162562   3.4582602 -8.664602 -4.985666</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     3:  -6.4665816 -4.242518  6.976669  -0.3250615 -5.634233 -7.610457</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     4:  -7.1902380 -4.492219  6.533916  -4.9984748 -4.585168 -8.864788</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     5:  -5.8546904 -2.744684  6.853297  -2.0443784 -4.115778 -7.568966</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    ---                                                                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43325: -11.2344280 -7.674347 -8.699674 -10.2360779 -4.632083 -6.045850</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43326:  -9.1002529 -5.100776 -8.497519 -10.8947770 -2.573996 -3.606324</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43327:  -8.7805159 -4.220677 -7.410503  -9.7786476 -2.386075 -3.245875</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43328:  -7.9864957 -3.082966 -6.290955  -4.1640904 -2.538549 -2.855093</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43329:  -7.4289331 -2.396647 -5.192715   1.8686815 -3.371692 -2.727256</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               FC6         M1           T7         C3         Cz        C4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1:  17.028412 -1.8668146 -15.38879467 -6.6652328 -11.804686  9.951918</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     2:   1.153829 -3.2960243  -9.57273159 -6.9056482 -12.711369  4.364950</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     3:  -7.749455 -3.7450671  -3.94164546 -0.6756449 -10.846658  1.716962</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     4:  -7.090138 -3.7946916  -7.99479446  3.7191368 -11.825012  1.671923</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     5:  -1.660540 -3.2719884 -12.78325163  3.8844168 -13.236347  2.910999</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    ---                                                                   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43325: -10.095567  0.8050708  -2.85678524 -1.2216581  -6.144579 -9.872466</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43326:  -7.914218  0.9832335  -1.34545265  0.7396955  -3.699203 -7.390379</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43327:  -6.131218  1.2051768  -1.19722422  0.8481265  -2.673317 -6.274475</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43328:  -4.926447  1.4103985  -0.00115807 -0.7550044  -2.377183 -5.891780</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43329:  -4.530597  1.1627738   0.52774570 -3.7120955  -3.195342 -5.752211</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 T8         M2        CP5         CP1       CP2        CP6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1: -22.4061953  1.8668146  1.3622101 -14.2671189 -6.078327   8.886011</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     2:  -2.3230064  3.2960243 -0.5412561 -14.5789858 -6.892780  12.069372</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     3:  13.4639870  3.7450671  2.6165474 -10.9567391 -5.257108  15.776713</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     4:  13.8041298  3.7946916  7.6064097  -9.5538263 -4.972736  18.532368</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     5:   6.8669470  3.2719884 10.7588364 -10.1600782 -6.005135  16.816913</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    ---                                                                   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43325:  -3.8731220 -0.8050708  2.2113516  -0.6106017 -9.146990 -14.432072</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43326:  -4.2345583 -0.9832335  2.8562596   1.2589761 -6.979903 -11.494469</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43327:  -0.2570553 -1.2051768  2.2735597   1.6384732 -5.844129  -8.856988</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43328:   4.2573032 -1.4103985  1.3957594   1.1577437 -5.846626  -7.782093</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43329:   6.2771489 -1.1627738  0.1589893  -0.3391156 -6.696724  -7.330554</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               P7          P3         Pz          P4          P8        POz</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1: 1.7065266 -2.18756084  -8.724875  -2.9440748 -11.1700951 -11.753951</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     2: 0.3705809 -4.57886248  -9.759971  -1.9261185  -5.0177678 -10.954280</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     3: 2.7142193 -3.30440588  -8.628938  -0.2429782   0.2996102  -9.000150</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     4: 5.2553919 -1.07535845  -8.870885   0.2526390   0.9723928  -8.943345</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     5: 6.7647676 -0.45065436 -10.332689  -1.6864740  -2.6950182 -11.055771</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43325:   1   58324 -17.83708 -13.980014  -7.9887605 -0.9040933 -7.881421</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43326:   1   58325 -18.59067 -13.694987  -7.4725155 -2.4067566 -6.845604</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43327:   1   58326 -17.92556 -14.090027  -8.5261421 -2.2981401 -7.172108</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43328:   1   58327 -16.32854 -14.932628  -9.8475955 -2.0971855 -7.866034</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43329:   1   58328 -15.00734 -15.317460 -10.6712208 -1.6170765 -8.344716</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               Fz          F4        F8         FC5         FC1         FC2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     1:  2.514379  7.83178899 12.241794   0.1409402 -4.72093861  5.46559892</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     2: -1.970082  0.09887244  7.065749   5.6998908 -6.15539217 -2.13532314</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     3: -5.523369 -5.05490063  3.352800   2.4809057 -4.99216711 -8.00642504</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     4: -6.461054 -5.69100212  2.488400  -2.1646820 -4.12776992 -9.57096489</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     5: -5.571272 -3.37820001  4.904046  -0.7711080 -3.94558547 -8.00421205</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    ---                                                                    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43325: 5.2490670  0.11369994  -4.974463 -10.1960983 -10.6670991  -5.349628</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43326: 5.2786140  0.61896439  -3.391607  -8.3948034  -9.0885315  -3.854860</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43327: 3.1532539 -0.01856089  -2.480387  -6.4120036  -6.1196643  -2.547984</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43328: 1.5005805 -1.44741032  -2.597536  -5.5249534  -3.9050595  -2.064760</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43329: 0.4775100 -3.45573391  -3.821158  -5.5930376  -3.1971314  -2.783065</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 O1         Oz          O2       EOGV       EOGH</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1: -11.0706293 -14.281580 -14.0678457 -205.85693 164.320831</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     2:  -9.0619059 -10.589281  -9.3517335 -214.15259 158.389755</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     3:  -5.6161607  -7.200621  -6.0380369 -220.57965 157.559784</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     4:  -4.2109384  -7.198806  -6.2651740 -218.24934 162.165161</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     5:  -6.1546933 -11.576113 -10.9425073 -217.16670 168.559723</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    ---                                                         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43325:   0.3512628  -5.141798  -7.2219530   18.41424   6.434383</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43326:   0.6914643  -3.923766  -5.8078363   19.22052   7.837689</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43327:  -0.2734270  -2.402766  -2.8558872   19.74028   8.659687</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43328:  -1.0893935  -1.359743  -0.7126990   19.20309   8.609533</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43329:  -1.5724812  -1.297205  -0.4095308   18.72752   8.829977</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43325: -7.375420 -2.60813266 -5.843741  -8.1282673 -1.24794556 -1.62617739</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43326: -6.531925 -0.80177138 -4.637263 -10.5398151 -0.23652468 -0.02911744</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43327: -6.173130 -0.35596788 -4.566375  -8.8559154 -0.05406192  0.05495427</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43328: -6.183953 -0.07888685 -3.615071  -3.9064973 -0.89529491 -0.34971759</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43329: -6.149312 -0.14947745 -3.049929   1.9170941 -2.19283876 -0.87235315</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              FC6         M1           T7         C3          Cz         C4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     1: 22.687154 -1.8668146 -17.63149537 -9.5623914 -10.3045263 14.3780125</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     2:  2.430781 -3.2960243  -7.51778011 -6.2148278 -10.8953177  6.2757094</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     3: -9.640350 -3.7450671  -1.76144255  1.0528794 -10.4875653  0.7020062</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     4: -9.249898 -3.7946916  -5.79388770  5.5393554 -11.5960161  0.3527392</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     5: -2.711073 -3.2719884 -11.82030552  4.7051224 -13.1771777  2.1397569</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    ---                                                                    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43325: -7.361213  0.8050708  -0.63608403 -0.8986476  -3.5814171 -6.5431452</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43326: -4.954895  0.9832335  -0.65014938  0.1947319  -1.8897396 -4.4015992</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43327: -3.739712  1.2051768  -0.04028933  0.7194492  -0.8786211 -3.6439259</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43328: -2.872486  1.4103985   0.50926713 -1.1124471  -1.1049968 -3.7887957</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43329: -2.939587  1.1627738   0.79255033 -4.0596354  -2.2833442 -4.1566411</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                T8         M2         CP5         CP1       CP2        CP6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     1: -14.647893  1.8668146 -6.80513655 -15.6472291 -2.914130  16.182018</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     2:  -2.135390  3.2960243 -0.99800861 -13.6671606 -5.723453  13.354459</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     3:  10.005640  3.7450671  5.93292034  -9.8446659 -6.053359  13.164176</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     4:  10.019100  3.7946916 11.28958135  -8.4099914 -5.964303  15.527580</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     5:   5.070975  3.2719884 12.40333312  -9.6694562 -6.540058  15.316073</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    ---                                                                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43325:  -2.149223 -0.8050708  0.45155474   0.4148388 -7.043711 -11.471771</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43326:  -1.312486 -0.9832335 -0.09866453   1.5243880 -4.998291  -8.014661</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43327:   1.739134 -1.2051768  0.26993142   2.1559323 -4.143072  -6.142017</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43328:   6.279146 -1.4103985 -0.63580457   1.3639733 -4.455968  -5.345660</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43329:   7.930107 -1.1627738 -1.50936597  -0.2453353 -5.634644  -5.404735</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 P7          P3         Pz        P4        P8        POz</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     1: -11.5150361 -10.7997954  -9.424803  1.190774 -6.215506 -14.668043</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     2:  -0.7773977  -5.6507512  -9.447899 -1.323730 -4.387737 -11.235329</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     3:   7.8026920  -0.1001299  -8.137937 -1.740233 -1.562850  -7.880214</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     4:  10.9673748   2.5560204  -8.346501 -1.458035 -1.141949  -7.667208</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     5:   9.3238525   1.2309271 -10.090177 -2.509041 -3.709198 -10.463789</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    ---                                                                  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43325:   1.9540273  -2.5587326  -4.652872 -8.767808 -9.063308  -6.105534</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43326:   0.2625960  -2.9669293  -3.368259 -6.577292 -6.969477  -4.969602</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43327:  -0.3532735  -2.6532892  -2.342847 -5.037537 -4.535009  -3.328878</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43328:  -1.9555808  -3.9237362  -2.572404 -4.250655 -2.419578  -2.831196</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43329:  -2.3339417  -5.4427013  -3.830606 -4.577994 -2.006789  -3.411969</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 O1         Oz         O2       EOGV       EOGH</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     1: -19.3910830 -19.819019 -15.886975 -205.85693 164.320831</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     2:  -9.7486124 -11.502271 -10.237117 -214.15259 158.389755</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     3:  -2.3408198  -5.231102  -5.646818 -220.57965 157.559784</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     4:  -0.5246842  -4.934055  -5.750961 -218.24934 162.165161</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     5:  -4.4480029 -10.489347 -10.643831 -217.16670 168.559723</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    ---                                                        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43325:  -1.7625430  -7.210809  -8.796753   18.41424   6.434383</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43326:  -2.5045389  -6.436767  -7.161250   19.22052   7.837689</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43327:  -2.5131521  -4.320360  -4.058998   19.74028   8.659687</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43328:  -3.2994951  -3.106040  -1.656144   19.20309   8.609533</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43329:  -3.3750895  -2.690126  -1.128599   18.72752   8.829977</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ## Events table:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      .id        .type .description .initial .final .channel</span>
@@ -227,7 +227,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>
