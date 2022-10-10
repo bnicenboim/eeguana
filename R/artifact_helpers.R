@@ -87,9 +87,14 @@ detect_peak <- function(x, args = list(window_samples = NULL, threshold = NULL))
 
 #' @noRd
 detect_step <- function(x, args = list(window_samples = NULL, threshold = NULL)) {
-  means <- RcppRoll::roll_meanr(x, n = args$window_samples / 2, na.rm = FALSE) # na.rm  allows for comparing vectors that include some NA
+  if(args$window_samples %% 2==1) {
+    win_samples <- args$window_samples + 1
+  } else {
+    win_samples <- args$window_samples
+  }
+  means <- RcppRoll::roll_meanr(x, n = win_samples / 2, na.rm = FALSE) # na.rm  allows for comparing vectors that include some NA
   lmean <- means
-  rmean <- c(means[seq.int(from = args$window_samples / 2 + 1L, to = length(means))], rep(NA, args$window / 2))
+  rmean <- c(means[seq.int(from = win_samples / 2 + 1L, to = length(means))], rep(NA, win_samples / 2))
   abs(rmean - lmean) >= args$threshold
 }
 
@@ -101,15 +106,13 @@ detect_amplitude <- function(x, args = list(threshold = NULL)) {
 #' @noRd
 search_artifacts <- function(signal, ..., fun, args = list()) {
   ch_sel <- sel_ch(signal, ...)
-
     ## in case there are missing .samples
-  add_missing_samples(signal) %>%
-    .[, c(
-      list(.sample = .sample),
-      lapply(.SD, fun, args)
-    ),
-    .SDcols = (ch_sel), by = .id
-    ]
+  add_missing_samples(signal) %>% 
+    transmute.(across.(tidyselect::all_of(ch_sel),  fun, args),
+               .sample, 
+               .by =".id") %>%
+    #necessary because of https://github.com/markfairbanks/tidytable/issues/578
+    mutate.(across.(tidyselect::all_of(ch_sel),  as.logical))
 }
 
 #' @noRd
@@ -130,13 +133,13 @@ add_intervals_from_artifacts <- function(sampling_rate, artifacts_tbl, sample_ra
         select.(-tidyselect::one_of(obligatory_cols[[".signal"]])) %>%
         imap_dtr(~ {
           if (all(.x[!is.na(.x)] == FALSE)) {
-            out <- new_events_tbl()
-            out[, .id := NULL][ ## I need to remove .id because it gets added by map
-              , .initial := sample_int(integer(0),
-                .sampling_rate =
-                  sampling_rate
-              )
-            ][]
+            new_events_tbl() %>%
+              ## I need to remove .id because it gets added by map
+            mutate.(.id = NULL,
+                    .initial = sample_int(integer(0),
+                                          .sampling_rate = sampling_rate),
+                    .final = sample_int(integer(0),
+                                          .sampling_rate = sampling_rate))
           } else {
             ## left and right values of the window of bad values (respecting the min max samples)
             left <- .eeg$.sample[.x] + sample_range[[1]] - 1L

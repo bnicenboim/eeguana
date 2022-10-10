@@ -11,8 +11,9 @@ chs_mean(x, ..., na.rm = FALSE)
 
 \item{...}{A group of channels, it can be used in combination with \code{across}.}
 
-\item{na.rm}{a logical value indicating whether \code{NA}
-    values should be stripped before the computation proceeds.}
+\item{na.rm}{a logical evaluating to \code{TRUE} or \code{FALSE}
+    indicating whether \code{NA} values should be stripped before the
+    computation proceeds.}
 }
 \value{
 A new channel or an \code{eeg_lst} object with a \code{mean} channel instead of the previous channels.

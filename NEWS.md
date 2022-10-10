@@ -1,3 +1,5 @@
+# eeguana 0.1.8.9001
+- fix of minor bug affecting eeg_artif_step(), when the number of samples in `window` was odd.
 # eeguana 0.1.8.9000
 - `as_eeg_lst()` makes `eeg_lst` objects created with previous versions of eeguana compatible with the current version.
 # eeguana 0.1.7.9000
