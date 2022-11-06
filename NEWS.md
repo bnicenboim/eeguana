@@ -1,3 +1,5 @@
+# eeguana 0.1.9.9001
+- fix installation of the dependency tidytable.
 # eeguana 0.1.8.9001
 - fix of minor bug affecting eeg_artif_step(), when the number of samples in `window` was odd.
 # eeguana 0.1.8.9000
