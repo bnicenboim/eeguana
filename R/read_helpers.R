@@ -19,7 +19,7 @@ read_dat <- function(file, header_info = NULL, events_dt = NULL,
     type <- chr_extract(common_info$bits, "float|int", ignore.case = TRUE) %>%
       tolower() %>%
       {
-        tidytable::case_when.(
+        tidytable::case_when(
           . == "float" ~ "double",
           . == "int" ~ "integer",
           TRUE ~ .

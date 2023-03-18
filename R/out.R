@@ -431,11 +431,11 @@ count_complete_cases_tbl <- function(x, ...) {
 #' @export
 count_complete_cases_tbl.eeg_lst <- function(x, ...) {
   dots <- rlang::enquos(...)
-  by <- tidytable::map_chr.(dots, rlang::quo_text)
+  by <- tidytable::map_chr(dots, rlang::quo_text)
   chs <- channel_names(x)
   x$.signal %>%
     summarize.(N = as.integer(!anyNA(c_across.(tidyselect::one_of(!!chs)))), .by =".id") %>%
-    tidytable::left_join.(x$.segments) %>%
+    tidytable::left_join(x$.segments) %>%
     summarize.(N = sum(N), .by = by) %>%
     data.table::as.data.table()
 

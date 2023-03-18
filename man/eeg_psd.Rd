@@ -7,8 +7,8 @@
 eeg_psd(
   .data,
   .method = "welch",
-  .config = list(window = function(x) 2^ceiling(log2(sqrt(NROW(x)))), overlap = 0.5,
-    nfft = NULL, detrend = c("long-mean", "short-mean", "long-linear", "short-linear",
+  .config = list(window = function(x) 2^ceiling(log2(sqrt(NROW(x)))), overlap = 0.5, nfft
+    = NULL, detrend = c("long-mean", "short-mean", "long-linear", "short-linear",
     "none"), range = "half")
 )
 }

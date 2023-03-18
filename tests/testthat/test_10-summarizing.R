@@ -8,11 +8,11 @@ data_sincos2id <- eeguana:::data_sincos2id_2
 
 d0 <- data_sincos2id %>% eeg_events_to_NA(.type == "Bad")
 d1 <- data_sincos2id
-events_tbl(d1) <- events_tbl(d1) %>% tidytable::filter.(!.id==2 | !.type == "Bad")
+events_tbl(d1) <- events_tbl(d1) %>% tidytable::filter(!.id==2 | !.type == "Bad")
 d1 <- d1 %>% eeg_events_to_NA(.type == "Bad")
 
 d2 <- data_sincos2id
-events_tbl(d2) <- events_tbl(d2) %>% tidytable::filter.(!.id==1 | !.type == "Bad")
+events_tbl(d2) <- events_tbl(d2) %>% tidytable::filter(!.id==1 | !.type == "Bad")
 d2 <- d2 %>% eeg_events_to_NA(.type == "Bad")
 
 test_that("count_complete_cases_tbl works", {

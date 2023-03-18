@@ -37,7 +37,7 @@ decimate_chs <- function(.channels, q, n = if (ftype == "iir") 8 else 30, ftype 
 }
 
 # d <- tidytable::tidytable(a=1:100, b=1:100)
-# tidytable::map_dfc.(d, function(c) {c})
+# tidytable::map_dfc(d, function(c) {c})
 # purrr::map_dfc(d, function(c) {c})
 
 

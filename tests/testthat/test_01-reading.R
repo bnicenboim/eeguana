@@ -175,9 +175,9 @@ test_that("special vhdr file",{
   events <- eeguana:::read_vmrk(vmrk_eeglab)
   csv_eeglab <- system.file("testdata", "EMP01_events.csv", package = "eeguana")
   events_tbl <- data.table::fread(csv_eeglab) %>%
-    tidytable::transmute.(.description = trigger, .initial = ceiling(latency))
-  events_mrk <- events %>% tidytable::filter.(!is.na(.description)) %>%
-    tidytable::select.(.description, .initial)
+    tidytable::transmute(.description = trigger, .initial = ceiling(latency))
+  events_mrk <- events %>% tidytable::filter(!is.na(.description)) %>%
+    tidytable::select(.description, .initial)
   expect_equal(events_tbl, events_mrk)
 })
 

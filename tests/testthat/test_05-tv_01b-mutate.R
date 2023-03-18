@@ -261,3 +261,11 @@ if (0) {
     test_mutates_sgm(d_grouped2, keep = FALSE, .by_ref = TRUE)
   })
 }
+
+
+test_that("case_when works correctly with eeg_mutate",{
+   expect_equal_eeg_lst(eeg_mutate(data, X = case_when(.recording == "recording2" ~ NA)),
+eeg_mutate(data, X = ifelse(.recording == "recording2", NA, X)))
+})
+
+# dots <- rlang::quos(X = case_when(.recording == "recording2" ~ NA))
