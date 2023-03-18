@@ -1,4 +1,5 @@
 # tidyselect ------------------------
+#' @importFrom tidyselect starts_with contains ends_with everything any_of all_of num_range matches last_col where
 #' @export
 tidyselect::starts_with
 

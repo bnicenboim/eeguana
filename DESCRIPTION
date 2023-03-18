@@ -47,7 +47,7 @@ Imports:
     ellipsis (>= 0.1.0),
     fastICA,
     pracma,
-    tidytable (>= 0.6.7),
+    tidytable (>= 0.10.0),
     gsignal
 Suggests:
     akima (>= 0.6.2),

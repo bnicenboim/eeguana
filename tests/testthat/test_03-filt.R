@@ -3,17 +3,15 @@ set.seed(123)
 options(eeguana.verbose = FALSE)
 
 N <- 1000
-signal <- dplyr::tibble(
-  X1 = sin(seq_len(N)), # f = 1/(2* pi)
-  X2 = sin(seq_len(N) * 2), # f = 3/(2*pi)
-  X3 = sin(seq_len(N) * 3), # f = 5/(2*pi)
-  X4 = X1 + X2 + X3
-) %>%
-  dplyr::mutate_all(channel_dbl)
+signal <- tidytable::tidytable(
+  X1 = channel_dbl(sin(seq_len(N))), # f = 1/(2* pi)
+  X2 = channel_dbl(sin(seq_len(N) * 2)), # f = 3/(2*pi)
+  X3 = channel_dbl(sin(seq_len(N) * 3))) %>% # f = 5/(2*pi)
+  tidytable::mutate(X4 = X1 + X2 + X3) 
 
 data_sin <- eeg_lst(
   signal_tbl = signal %>%
-    dplyr::mutate(
+    tidytable::mutate(
       .id = 1L,
       .sample = sample_int(seq_len(N), .sampling_rate = 500)
     ),
@@ -23,11 +21,11 @@ data_sin <- eeg_lst(
 
 data_sin_more <- eeg_lst(
   signal_tbl = signal %>%
-    dplyr::mutate(
+    tidytable::mutate(
       .id = rep(1:4, each = N / 4),
       .sample = sample_int(rep(seq_len(N / 4), times = 4), .sampling_rate = 500)
     ),
-  segments_tbl = dplyr::tibble(.id = seq.int(4), .recording = paste0("recording", c(1, 1, 2, 2)), segment = seq.int(4))
+  segments_tbl = tidytable::tidytable(.id = seq.int(4), .recording = paste0("recording", c(1, 1, 2, 2)), segment = seq.int(4))
 )
 
 data_sin_ref <- data.table::copy(data_sin)
@@ -80,8 +78,7 @@ test_that("low pass iir and fir are not too different", {
 })
 
 test_that("low pass iir python implementation is not too different", {
-  eeguana:::skip_on_actions()
-  skip_on_ci()
+  skip_if_no_python_stuff 
   mne <- reticulate::import("mne")
   X3_iirmne <- mne$filter$filter_data(signal$X3, sfreq = 500, h_freq = 500 * 1.5 / (2 * pi), l_freq = NULL, method = "iir", iir_params = list(ftype = "butter", order = 6, output = "ba"))
 
@@ -115,8 +112,8 @@ test_that("high pass default pars", {
 # plot(data_sin_X3)
 
 test_that("high pass iir python implementation is not too different", {
-  eeguana:::skip_on_actions()
-  skip_on_ci()
+skip_if_no_python_stuff()
+  
   mne <- reticulate::import("mne")
   X3_iirmne <- mne$filter$filter_data(signal$X3, sfreq = 500, l_freq = 500 * 3 / (2 * pi), h_freq = NULL, method = "iir", iir_params = list(ftype = "butter", order = 6, output = "ba"))
 
@@ -147,8 +144,8 @@ test_that("band pass default pars", {
 })
 
 test_that("band pass iir python implementation is not too different", {
-  eeguana:::skip_on_actions()
-  skip_on_ci()
+skip_if_no_python_stuff()
+  
   mne <- reticulate::import("mne")
   X2_iirmne <- mne$filter$filter_data(signal$X3, sfreq = 500, l_freq = 500 * 1.5 / (2 * pi), h_freq = 500 * 2.2 / (2 * pi), method = "iir", iir_params = list(ftype = "butter", order = 4, output = "ba"))
 
@@ -261,7 +258,7 @@ sig1 <- eeguana:::sig_filtfilt(1:10, 1:2,2:3, padlen=2)
 sig2 <- eeguana:::sig_filtfilt(matrix(rep(1:10,2), ncol=2), 1:2,2:3, padlen=2)    
 expect_equal(sig1, sig2[,1])  
 expect_equal(sig2[,1], sig2[,2])  
-eeguana:::skip_on_actions()
+skip_if_no_python_stuff()
 sci <- reticulate::import("scipy")
 signal <- sci$signal
 ba = signal$ellip(4, 0.01, 120, 0.125)  # Filter to be applied.

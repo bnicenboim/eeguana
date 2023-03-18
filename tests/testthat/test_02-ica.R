@@ -141,7 +141,7 @@ test_that("summaries work", {
   ica1 <- eeg_ica_show(data_fast_ICA, ICA1)
   ica2 <- eeg_ica_show(data_fast_ICA, ICA1, ICA2, ICA3)
 
-  expect_snapshot(eeg_ica_cor_tbl(data_fast_ICA, tidyselect::all_of(c("Fz", "Cz"))))
+  expect_snapshot(eeg_ica_cor_tbl(data_fast_ICA, all_of(c("Fz", "Cz"))))
   expect_snapshot(eeg_ica_var_tbl(data_fast_ICA))
   expect_equal(ncomponents(data_fast_ICA), 3)
   expect_equal(component_names(data_fast_ICA), c("ICA1", "ICA2", "ICA3"))
