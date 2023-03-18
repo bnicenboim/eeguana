@@ -15,7 +15,7 @@ data_sin <- eeg_lst(
       .id = 1L,
       .sample = sample_int(seq_len(N), .sampling_rate = 500)
     ),
-  segments_tbl = dplyr::tibble(.id = 1L, .recording = "recording1", segment = 1L)
+  segments_tbl = tidytable::tidytable(.id = 1L, .recording = "recording1", segment = 1L)
 )
 
 

@@ -38,6 +38,11 @@ as_signal_tbl <- function(.data, ...) {
   UseMethod("as_signal_tbl")
 }
 #' @noRd
+as_signal_tbl.tidytable <- function(.data) {
+  class(.data) <- class(.data)[class(.data)!="tidytable"]
+  as_signal_tbl.data.table(.data)
+}
+#' @noRd
 as_signal_tbl.data.table <- function(.data) {
     .data <- .data %>% mutate.(.id = as.integer(.id))
     class(.data) <- c("signal_tbl", class(.data))
