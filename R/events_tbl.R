@@ -54,6 +54,12 @@ as_events_tbl <- function(.data, ...) {
 }
 
 as_events_tbl.data.table <- function(.data, .sampling_rate = NULL) {
+  class(.data) <- class(.data)[class(.data)!="tidytable"]
+  as_events_tbl.data.table(.data)
+  }
+
+
+as_events_tbl.data.table <- function(.data, .sampling_rate = NULL) {
   .data <- data.table::copy(.data)
   .data[, .id := as.integer(.id)]
   if (!is.null(.sampling_rate)) {

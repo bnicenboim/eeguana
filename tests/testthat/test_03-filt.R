@@ -78,7 +78,7 @@ test_that("low pass iir and fir are not too different", {
 })
 
 test_that("low pass iir python implementation is not too different", {
-  skip_if_no_python_stuff 
+  skip_if_no_python_stuff()
   mne <- reticulate::import("mne")
   X3_iirmne <- mne$filter$filter_data(signal$X3, sfreq = 500, h_freq = 500 * 1.5 / (2 * pi), l_freq = NULL, method = "iir", iir_params = list(ftype = "butter", order = 6, output = "ba"))
 
