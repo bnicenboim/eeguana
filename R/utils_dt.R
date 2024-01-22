@@ -223,7 +223,7 @@ mutate. <- function(.df, ...,
   if (length(.by) > 0) {
     .df <- tidytable::mutate(
       .df = .df, ...,
-      .by = .by,
+      .by = any_of(.by),
       .keep = .keep
     )
   } else {
