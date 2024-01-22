@@ -51,7 +51,7 @@ channels_tbl(ft) <- channels_tbl(multiplexed_bin_bv2)
 
 
 test_that("can read unique eeglab files ", {
-  files = c(system.file("testdata", "EEG01.mat", package = "eeguana"),
+  files = c(file.path(other_testfiles, "EEG01.mat"),
            system.file("testdata", "eeglab_data.set", package = "eeguana"))
   skip_if_nofiles(files)
   # stefan frank data

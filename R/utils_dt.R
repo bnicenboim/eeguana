@@ -244,7 +244,7 @@ filter. <- function(.df, ...,
   oldclass <- class(.df)
   .df <- tidytable::filter(
     .df = .df, ...,
-    .by = .by
+    .by = any_of(.by)
   )
   class(.df) <- oldclass
   .df
@@ -253,7 +253,7 @@ filter. <- function(.df, ...,
 #' @noRd
 summarize. <- function(.df, ..., .by = NULL, .sort = FALSE) {
   oldclass <- class(.df)
-  .df <- tidytable::summarize(.df = .df, ..., .by = .by, .sort = .sort)
+  .df <- tidytable::summarize(.df = .df, ..., .by = any_of(.by), .sort = .sort)
   class(.df) <- oldclass
   .df
 }

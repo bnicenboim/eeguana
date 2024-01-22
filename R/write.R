@@ -40,7 +40,11 @@ write_vhdr <- function(x, file, overwrite = FALSE){
   # remove NAs
   x <- na_omit.eeg_lst(x)
   nr_diff <- nr - nrow(x$.signal)
-  if(nr_diff>0) warning(nr_diff, " samples were removed because they contained NA values.", call. = FALSE)
+  if(nr_diff>0) {
+    warning(nr_diff, 
+            " samples were removed because they contained NA values.", 
+            call. = FALSE)
+  }
  recs <- unique(x$.segments$.recording)
  names(recs) <- recs %>% make.names(unique = TRUE) %>% gsub("\\.","_",.)
  if(missing(file)) file <- names(recs)
