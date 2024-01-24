@@ -215,6 +215,8 @@ bind_cols. <- function(...){
   class(.df) <- oldclass
   .df
 }
+
+
 #' @noRd
 mutate. <- function(.df, ...,
                     .by = NULL,
@@ -273,18 +275,19 @@ semi_join. <- function(x, y, by = NULL) {
   .df
 }
 
+
 #' @noRd
-left_join. <- function(x, y, by = NULL) {
+full_join. <- function(x, y, by = NULL, suffix = c(".x", ".y"), ..., keep = FALSE) {
   oldclass <- class(x)
-  .df <- tidytable::left_join(x = x, y = y, by = by)
+  .df <- tidytable::full_join(x = x, y = y, by = by, suffix = suffix, ..., keep = keep)
   class(.df) <- oldclass
   .df
 }
 
 #' @noRd
-full_join. <- function(x, y, by = NULL) {
+left_join. <- function(x, y, by = NULL, suffix = c(".x", ".y"), ..., keep = FALSE) {
   oldclass <- class(x)
-  .df <- tidytable::full_join(x = x, y = y, by = by)
+  .df <- tidytable::left_join(x = x, y = y, by = by, suffix = suffix, ..., keep = keep)
   class(.df) <- oldclass
   .df
 }

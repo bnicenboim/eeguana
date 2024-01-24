@@ -36,7 +36,7 @@ test_mutates_sgl <- function(data, keep = TRUE, .by_ref = FALSE) {
   groups <- eeg_group_vars(data)
   signal_df <- as.data.frame(data$.signal) %>%
     dplyr::left_join(data$.segments, by = ".id") %>%
-    dplyr::group_by_at(dplyr::all_of(groups))
+    dplyr::group_by(across(dplyr::all_of(groups)))
   grouped <- length(eeg_group_vars(data)) > 0
   to_remove <- colnames(data$.segments)[-1]
   if (keep) {

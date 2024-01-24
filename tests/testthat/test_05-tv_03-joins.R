@@ -5,16 +5,17 @@ data <- eeguana:::data_sincos2id
 
 table0 <- dplyr::tibble(.id = 1L, condition = "BLUE")
 
-data_l <- dplyr::left_join(data, table0)
-data_s <- dplyr::semi_join(data, table0)
-data_a <- dplyr::anti_join(data, table0)
+data_l <- eeg_left_join(data, table0)
+data_s <- eeg_semi_join(data, table0)
+data_a <- eeg_anti_join(data, table0)
 
 test_that("joins work", {
-  expect_equal(data_l$.segments, dplyr::left_join(data$.segments, table0, by = ".id"))
-  expect_equal(data_l$.signal, data$.signal)
-  expect_equal(data_s$.segments, dplyr::semi_join(data$.segments, table0, by = ".id"))
-  expect_equal(data_s, dplyr::filter(data, .id == 1))
-  expect_equal(data_a, dplyr::filter(data, .id == 2))
+  expect_equal_plain_df(data_l$.segments, 
+               dplyr::left_join(data$.segments, table0, by = ".id"))
+  expect_equal_plain_df(data_l$.signal, data$.signal)
+  expect_equal_plain_df(data_s$.segments, dplyr::semi_join(data$.segments, table0, by = ".id"))
+  expect_equal_eeg_lst(data_s, eeg_filter(data, .id == 1))
+  expect_equal_eeg_lst(data_a, eeg_filter(data, .id == 2))
 })
 
 message("\n***")
