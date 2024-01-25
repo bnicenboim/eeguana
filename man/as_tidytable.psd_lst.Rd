@@ -4,7 +4,7 @@
 \alias{as_tidytable.psd_lst}
 \title{Convert an psd_lst to a long table in \code{\link[tidytable:tidytable]{tidytable}} format.}
 \usage{
-as_tidytable.psd_lst(x)
+as_tidytable.psd_lst(x, ...)
 }
 \arguments{
 \item{x}{A \code{psd_lst} object.}

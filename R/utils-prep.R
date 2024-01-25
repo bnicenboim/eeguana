@@ -5,7 +5,7 @@
 # General idea follows dt_squash found here: https://github.com/tidyverse/dtplyr/blob/master/R/tidyeval.R
 prep_exprs <- function(x, data, .by = NULL, j = FALSE) {
   x <- lapply(x, prep_expr, data, {{ .by }}, j = j)
-  tidytable:::list_flatten(x)
+  list_flatten(x)
 }
 
 prep_expr <- function(x, data, .by = NULL, j = FALSE) {

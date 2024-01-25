@@ -1,6 +1,5 @@
 library(eeguana)
 options(eeguana.verbose = FALSE)
-expect_gg <- eeguana:::expect_gg
 # create fake dataset
 data_1 <- eeg_lst(
   signal_tbl = dplyr::tibble(
@@ -54,7 +53,7 @@ lineplot_eeg <- smaller_data %>%
   ggplot2::geom_line(ggplot2::aes(group = .id, colour = condition), alpha = .5) +
   ggplot2::stat_summary(
     fun = "mean", geom = "line",
-    ggplot2::aes(colour = condition), alpha = 1, size = 1
+    ggplot2::aes(colour = condition), alpha = 1, linewidth = 1
   ) +
   # only .key works dynamically but only channel works with test()!
   ggplot2::facet_wrap(~.key) +
@@ -62,13 +61,13 @@ lineplot_eeg <- smaller_data %>%
 
 # create topo plot
 topoplot_eeg <- data_faces_ERPs %>%
-  dplyr::group_by(condition) %>%
-  dplyr::summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
-  plot_topo() +
+  eeg_group_by(condition) %>%
+  eeg_summarize(across_ch(mean, na.rm = TRUE)) %>%
+  plot_topo(contour = TRUE) +
   ggplot2::facet_grid(~condition) +
-  annotate_head() +
-  ggplot2::geom_contour() +
-  ggplot2::geom_text(colour = "black")
+  annotate_head() + 
+  annotate_electrodes(colour = "black")
+
 
 ica_plot <- data_faces_ERPs %>%
   dplyr::mutate(.recording = 1) %>%
@@ -98,3 +97,4 @@ test_that("plot functions create ggplot2::ggplots", {
   data_shorter <- dplyr::filter(data_faces_10_trials, between(as_time(.sample), 91, 93))
   expect_gg(plot(data_shorter) + annotate_events())
 })
+

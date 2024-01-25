@@ -23,10 +23,7 @@ skip_if_nofiles <- function(files) {
   # If there are any missing files
   if (length(missing_files) > 0) {
     # Inform the user about the missing files
-    message("The following file(s) do not exist: ", paste(missing_files, collapse = ", "))
-    
-    # Call the skip function (assuming it's defined elsewhere in your environment)
-    skip()
+    skip("The following file(s) do not exist: ", paste(missing_files, collapse = ", "))
   }
 }
 #' @noRd

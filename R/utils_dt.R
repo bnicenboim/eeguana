@@ -197,7 +197,7 @@ transmute. <- function(.df, ..., .by = NULL){
   if (length(.by) > 0) {
     .df <- tidytable::transmute(
       .df = .df, ...,
-      .by = .by)
+      .by = any_of(.by))
   } else {
     # much faster to remove the by=character(0) when not needed
     .df <- tidytable::transmute(
@@ -290,4 +290,24 @@ left_join. <- function(x, y, by = NULL, suffix = c(".x", ".y"), ..., keep = FALS
   .df <- tidytable::left_join(x = x, y = y, by = by, suffix = suffix, ..., keep = keep)
   class(.df) <- oldclass
   .df
+}
+
+# Flatten lists
+#' @noRd
+list_flatten <- function(x, recursive = FALSE) {
+  is_list <- tidytable::map_lgl(x, is.list)# obj_is_list)
+  any_list <- any(is_list)
+  if (any_list) {
+    is_not_list <- !is_list
+    x[is_not_list] <- lapply(x[is_not_list], list)
+    out <- list_unchop(x, ptype = list())
+  } else {
+    out <- x
+  }
+  
+  if (recursive && any_list) {
+    out <- list_flatten(out, recursive)
+  }
+  
+  out
 }

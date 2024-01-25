@@ -1,3 +1,14 @@
+#' Convert an eeg_lst to a long table in [`tidytable`][tidytable::tidytable] format.
+#'
+#' Convert the signal_tbl table from wide to long format.
+#'
+#' @inheritParams as.data.table.eeg_lst
+#' @return  A [`tidytable`][tidytable::tidytable].
+as_tidytable.eeg_lst <- function(x, .unit = "s", ...) {
+  data.table::as.data.table(x, .unit = .unit, ...) %>%
+    tidytable::as_tidytable(.name_repair = "unique")
+}
+
 #' Convert an eeg_lst to a long table in [`data.table`][data.table::data.table] format.
 #'
 #' Convert the signal_tbl table from wide to long format.
@@ -57,8 +68,8 @@ long_dt <- function(dt,.segments){
 #' @inheritParams as.data.table.eeg_lst
 #' @return A [`tibble`][tibble::tibble]
 #' @family tibble
-as_tibble.eeg_lst <- function(x, .unit = "second") {
-  data.table::as.data.table(x, .unit) %>%
+as_tibble.eeg_lst <- function(x, .unit = "s", ...) {
+  data.table::as.data.table(x, .unit = .unit, ...) %>%
     tibble::as_tibble(.name_repair = "unique")
 }
 
@@ -69,25 +80,12 @@ as_tibble.eeg_lst <- function(x, .unit = "second") {
 #' @inheritParams as.data.table.psd_lst
 #' @return A [`tibble`][tibble::tibble]
 #' @family tibble
-as_tibble.psd_lst <- function(x) {
-  data.table::as.data.table(x) %>%
+as_tibble.psd_lst <- function(x, ...) {
+  data.table::as.data.table(x, ...) %>%
     tibble::as_tibble(.name_repair = "unique")
 }
 
 
-#' Convert an eeg_lst to a long table in [`tidytable`][tidytable::tidytable] format.
-#'
-#' Convert the signal_tbl table from wide to long format.
-#'
-#' @inheritParams as.data.table.eeg_lst
-#' @return  A [`tidytable`][tidytable::tidytable].
-#'
-#'
-#'
-as_tidytable.eeg_lst <- function(x, .unit = "s") {
-  data.table::as.data.table(x, .unit) %>%
-    tidytable::as_tidytable(.name_repair = "unique")
-}
 
 
 #' Convert an psd_lst to a long table in [`tidytable`][tidytable::tidytable] format.
@@ -99,7 +97,7 @@ as_tidytable.eeg_lst <- function(x, .unit = "s") {
 #'
 #'
 #'
-as_tidytable.psd_lst <- function(x) {
+as_tidytable.psd_lst <- function(x, ...) {
   data.table::as.data.table(x) %>%
     tidytable::as_tidytable(.name_repair = "unique")
 }

@@ -120,8 +120,13 @@ We first cut a large segment that excludes data before and after the experiment 
 
 
 ```{r, fig.dim = c(10,15), out.width = "100%"}
-faces_ls <- eeg_segment(faces_filt, .description == "s111", .end = .description == "s121") %>%
-  eeg_artif_minmax(-HEOG, -VEOG, .threshold = 200, .window = 200, .unit = "ms")
+faces_ls <- eeg_segment(faces_filt, 
+                        .description == "s111", 
+                        .end = .description == "s121") %>%
+  eeg_artif_minmax(-HEOG, -VEOG, 
+                   .threshold = 200, 
+                   .window = 200, 
+                   .unit = "ms")
 ```
 
 `eeg_artif_minimax()` only adds the artifacts in the events table and doesn't modify the signal. We can have a look at the type of artifacts that were detected, by plotting the signal and the events with `annotate_events()`. It would be a good idea to just check a couple of seconds of the signal, for that we use the dplyr-like function `eeg_filter()`.
@@ -155,7 +160,11 @@ We'll look closer at the ICA that are more likely to be related to eye movements
 
 ```{r,  fig.dim = c(10,5)}
 faces_ica <- faces_ica %>%
-  eeg_artif_step(HEOG, VEOG, .threshold = 30, .window = 200, .unit = "ms", .freq = c(1, 10)) %>%
+  eeg_artif_step(HEOG, VEOG, 
+                 .threshold = 30, 
+                 .window = 200, 
+                 .unit = "ms", 
+                 .freq = c(1, 10)) %>%
   eeg_artif_peak(VEOG, .threshold = 100, .freq = c(1, 10))
 ```
 
@@ -299,7 +308,7 @@ faces_seg %>%
   plot_topo() +
   annotate_head() +
   geom_contour() +
-  geom_text(colour = "black") +
+  annotate_electrodes(colour = "black") +
   facet_grid(~condition)
 ```
 

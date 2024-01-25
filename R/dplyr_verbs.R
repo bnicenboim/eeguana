@@ -33,7 +33,7 @@
 #' @param .data An eeg_lst.
 #' @param x An eeg_lst.
 #' @param y A data frame, tibble, or data.table.
-#' @inheritParams tidytable::join
+#' @inheritParams tidytable::left_join
 #' @inheritParams dplyr::pull
 #' @inheritParams tidytable::rename_with
 #' @inheritParams tidytable::across

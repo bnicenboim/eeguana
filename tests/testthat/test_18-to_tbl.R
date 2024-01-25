@@ -12,9 +12,15 @@ test_that("can transform to tibble", {
   df3 <- dplyr::as_tibble(data, .unit = "ms")
   df2$.time <- df2$.time * 1000
   expect_equal(df2,df3)
+  df2 <- data.table::as.data.table(data, .unit = "s")
+  df3 <- data.table::as.data.table(data, .unit = "ms")
+  df2$.time <- df2$.time * 1000
+  expect_equal(df2,df3)
+  
   expect_equal_plain_df(as.data.frame(df), as.data.frame(data))
   expect_equal_plain_df(as.data.frame(data.table::as.data.table(data)), as.data.frame(data))
-  expect_equal_plain_df(as.data.frame(tidytable::as_tidytable(data)), as.data.frame(data))
+  expect_equal_plain_df(as.data.frame(tidytable::as_tidytable(data)), 
+                        as.data.frame(data))
   expect_equal_plain_df(as.data.frame(df), as.data.frame(data, .unit="s"))
   expect_equal_plain_df(as.data.frame(data.table::as.data.table(data, .unit="s")), as.data.frame(data))
   expect_equal_plain_df(as.data.frame(tidytable::as_tidytable(data, .unit="s")), as.data.frame(data))

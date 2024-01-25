@@ -4,10 +4,12 @@
 \alias{as_tibble.psd_lst}
 \title{Convert an psd_lst to a long table in \code{\link[tibble:tibble]{tibble}} format.}
 \usage{
-as_tibble.psd_lst(x)
+as_tibble.psd_lst(x, ...)
 }
 \arguments{
 \item{x}{A \code{psd_lst} object.}
+
+\item{...}{Additional arguments to be passed to or from other methods.}
 }
 \value{
 A \code{\link[tibble:tibble]{tibble}}

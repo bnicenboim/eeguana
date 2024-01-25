@@ -113,29 +113,26 @@ gg_default_layers <- function(lims){
 #' # Calculate mean amplitude between 100-200 ms and plot the topography
 #' data_faces_ERPs %>%
 #'   # select the time window of interest
-#'   filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
+#'   eeg_filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
 #'   # compute mean amplitude per condition
-#'   group_by(condition) %>%
-#'   summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
+#'   eeg_group_by(condition) %>%
+#'   eeg_summarize(across_ch(mean, na.rm = TRUE)) %>%
 #'   plot_topo() +
 #'   # add a head and nose shape
 #'   annotate_head() +
-#'   # add contour lines
-#'   geom_contour() +
 #'   # add electrode labels
-#'   geom_text(color = "black") +
+#'   annotate_electrodes(color = "black") +
 #'   facet_grid(~condition)
 #'
 #' # The same but with interpolation
 #' data_faces_ERPs %>%
-#'   filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
-#'   group_by(condition) %>%
-#'   summarize_at(channel_names(.), mean, na.rm = TRUE) %>%
+#'   eeg_filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
+#'   eeg_group_by(condition) %>%
+#'   eeg_summarize(across_ch(mean, na.rm = TRUE)) %>%
 #'   eeg_interpolate_tbl() %>%
 #'   plot_topo() +
 #'   annotate_head() +
-#'   geom_contour() +
-#'   geom_text(color = "black") +
+#'   annotate_electrodes(color = "black") +
 #'   facet_grid(~condition)
 #' @export
 plot_topo <- function(data, ...) {
@@ -180,10 +177,11 @@ plot_topo.tbl_df <- function(data, .value = .value, .label = .key, ...) {
   # see if geom_text can work with NA or something
   plot <-
     ggplot2::ggplot(d, ggplot2::aes(
-      x = .x, y = .y,
-      fill = !!.value, z = !!.value, label = dplyr::if_else(!is.na(!!.label), !!.label, "")
+      x = .x, y = .y, 
+      z = !!.value
     )) +
-    ggplot2::geom_raster(interpolate = TRUE, hjust = 0.5, vjust = 0.5) +
+    ggplot2::geom_raster(ggplot2::aes(fill = !!.value), 
+                         interpolate = TRUE, hjust = 0.5, vjust = 0.5) +
     # Non recommended "rainbow" Matlab palette from https://www.mattcraddock.com/blog/2017/02/25/erp-visualization-creating-topographical-scalp-maps-part-1/
     #    scale_fill_gradientn(colors = colorRampPalette(c("#00007F", "blue", "#007FFF", "cyan", "#7FFF7F", "yellow", "#FF7F00", "red", "#7F0000")),guide = "colourbar",oob = scales::squish)+
     # Not that bad scale:
@@ -227,7 +225,7 @@ plot_topo.eeg_lst <- function(data, .projection = "polar", ...) {
 #'   plot_components() +
 #'   annotate_head() +
 #'   geom_contour() +
-#'   geom_text(color = "black") +
+#'   annotate_electrodes(color = "black") +
 #'   theme(legend.position = "none")
 #' @export
 #'
@@ -315,7 +313,9 @@ plot_ica.eeg_ica_lst <- function(data,
   }
 
   message_verbose("Calculating the correlation of ICA components with filtered EOG channels...")
-  summ <- eeg_ica_summary_tbl(data %>% eeg_filt_band_pass(tidyselect::all_of(!!eog), .freq = c(.1, 30)))
+  summ <- data %>% 
+    eeg_filt_band_pass(tidyselect::all_of(!!eog) %>% 
+                         eeg_ica_summary_tbl(.freq = c(.1, 30)))
   data.table::setorderv(summ, .order, order = -1)
   ICAs <- unique(summ$.ICA)[components]
 
@@ -342,7 +342,7 @@ plot_ica.eeg_ica_lst <- function(data,
     plot_components() +
     annotate_head() +
     ggplot2::geom_contour() +
-    ggplot2::geom_text(color = "black") +
+    annotate_electrodes(color = "black") +
     ggplot2::theme(legend.position = "none")
 
   # TODO : tidy table
@@ -587,7 +587,8 @@ plot_in_layout.gg <- function(plot, .projection = "polar", .ratio = c(1, 1), ...
 #'   eeg_group_by(condition) %>%
 #'   eeg_summarize(across_ch(mean, na.rm = TRUE)) %>%
 #'   plot_topo() +
-#'   annotate_head(size = .9, color = "black", stroke = 1)
+#'   annotate_head(size = .9, color = "black", stroke = 1) +
+#'   annotate_electrodes()
 #' @export
 #'
 annotate_head <- function(size = 1.1, color = "black", stroke = 1) {
@@ -602,9 +603,38 @@ annotate_head <- function(size = 1.1, color = "black", stroke = 1) {
     y = c(size * cos(-pi / 18), 1.15 * size, size * cos(pi / 18))
   )
   list(
-    ggplot2::annotate("polygon", x = head$x, y = head$y, color = color, fill = NA, size = 1 * stroke),
-    ggplot2::annotate("line", x = nose$x, y = nose$y, color = color, size = 1 * stroke)
+    ggplot2::annotate("polygon", x = head$x, y = head$y, color = color, fill = NA, linewidth = 1 * stroke),
+    ggplot2::annotate("line", x = nose$x, y = nose$y, color = color, linewidth = 1 * stroke)
   )
+}
+
+
+#' Adds the electrode labels to a head shape
+#'
+#' Adds the electrode labels to a head shape
+#'
+#' @param .label Label name for the electrodes
+#' @param ... other arguments to control the text
+#' @family plotting functions
+#' @return A layer for a ggplot
+#'
+#' @examples
+#' library(ggplot2)
+#' data_faces_ERPs %>%
+#'   eeg_filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
+#'   eeg_group_by(condition) %>%
+#'   eeg_summarize(across_ch(mean, na.rm = TRUE)) %>%
+#'   plot_topo() +
+#'   annotate_head(size = .9, color = "black", stroke = 1) +
+#'   annotate_electrodes(color = "gray")
+#' @export
+annotate_electrodes <- function(.label = .key, ...) {
+  .label <- rlang::enquo(.label)
+  
+ ggplot2::geom_text(
+  ggplot2::aes(label = dplyr::if_else(!is.na(!!.label), !!.label, "")),
+          ...)
+
 }
 
 #' Adds a layer with the events on top of a plot of an eeg_lst.
@@ -701,7 +731,7 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
 #'   ggplot(aes(x = .time, y = .key)) +
 #'   # add a grand average wave
 #'   stat_summary(
-#'     fun.y = "mean", geom = "line", alpha = 1, size = 1.5,
+#'     fun.y = "mean", geom = "line", alpha = 1, linewidth = 1.5,
 #'     aes(color = condition)
 #'   ) +
 #'   # facet by channel
