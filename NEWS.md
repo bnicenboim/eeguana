@@ -1,5 +1,6 @@
 # eeguana 0.1.9.9001
 - fix installation of the dependency tidytable.
+- added `annotate_electrodes()` to add electrode labels to a topographic plot. (Previously this was done with `geom_text()`).
 # eeguana 0.1.8.9001
 - fix of minor bug affecting eeg_artif_step(), when the number of samples in `window` was odd.
 # eeguana 0.1.8.9000

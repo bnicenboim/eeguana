@@ -297,11 +297,11 @@ plot_ica.eeg_ica_lst <- function(data,
   warning("This is an experimental function, and it might change or disappear in the future. (Or it might be transformed into a shinyapp)")
   # first filter then this is applied:
   if (!is.null(.recording)) {
-    data <- dplyr::filter(data, .recording == .recording)
+    data <- eeg_filter(data, .recording == .recording)
   } else {
     .recording <- segments_tbl(data)$.recording[1]
     message_verbose("Using recording: ", .recording)
-    data <- dplyr::filter(data, .recording == .recording)
+    data <- eeg_filter(data, .recording == .recording)
   }
 
   if (length(eog) == 0) {
@@ -314,8 +314,8 @@ plot_ica.eeg_ica_lst <- function(data,
 
   message_verbose("Calculating the correlation of ICA components with filtered EOG channels...")
   summ <- data %>% 
-    eeg_filt_band_pass(tidyselect::all_of(!!eog) %>% 
-                         eeg_ica_summary_tbl(.freq = c(.1, 30)))
+    eeg_filt_band_pass(tidyselect::all_of(!!eog), .freq = c(.1, 30)) %>%
+    eeg_ica_summary_tbl()
   data.table::setorderv(summ, .order, order = -1)
   ICAs <- unique(summ$.ICA)[components]
 
