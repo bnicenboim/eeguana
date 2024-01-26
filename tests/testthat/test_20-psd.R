@@ -64,7 +64,7 @@ test_that("eeg_power_band based on https://raphaelvallat.com/bandpower.html ", {
 })
 
 test_that("eeg_psd returns output of pwelch ", {
-  eeguana:::expect_gg(plot(data_sleep_psd))
+  expect_gg(plot(data_sleep_psd))
 })
 
 
