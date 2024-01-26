@@ -14,8 +14,8 @@ public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostat
 ## Overview
 
 A package for flexible manipulation of EEG data. `eeguana` provides a
-`data.table` powered framework (through `tidytable`) for manipulating
-EEG data with *dplyr*-like functions (e.g., `eeg_mutate`, `eeg_filter`,
+`data.table` powered framework through `tidytable` for manipulating EEG
+data with *dplyr*-like functions (e.g., `eeg_mutate`, `eeg_filter`,
 `eeg_summarize`) extended to a new class `eeg_lst`, other
 EEG-specialized functions, and `ggplot` wrapper functions. The new class
 is inspired by tidyverse principles but it’s not really “tidy” (due to
@@ -35,9 +35,7 @@ See
 [Reference](https://bnicenboim.github.io/eeguana/reference/index.html)
 for more information about the functions of *eeguana*.
 
-**NOTE: `eeg_lst` objects created with previous versions of eeguana can
-be made compatible with the latest version by doing
-`as_eeg_lst(old_obj)`**
+**NOTE: Changes in dependencies that broke the package are now fixed!**
 
 ## Installation
 
