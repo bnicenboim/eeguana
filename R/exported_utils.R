@@ -22,14 +22,8 @@ NULL
 #'
 #' @examples
 #'
-#' library(dplyr)
 #' data_faces_ERPs %>%
 #'   eeg_filter(.sample %>% between(10, 100))
 #'
-#' # Compare with:
-#' \dontrun{
-#' data_faces_ERPs %>%
-#'   eeg_filter(.sample %>% dplyr::between(10, 100))
-#' }
 #' @export
 NULL

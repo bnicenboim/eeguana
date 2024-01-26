@@ -21,7 +21,7 @@ A vector
 This function computes the inverse of the one-dimensional n-point discrete Fourier
 transform computed by fft using a wrapper of \code{fft(z, inverse= TRUE)/length(z)} with
 an extra argument making it similar to   \href{https://docs.scipy.org/doc/numpy-1.17.0/reference/generated/numpy.fft.ifft.html#numpy.fft.ifft}{numpy.fft.ifft}.
-For a general description of the algorithm and definitions, see \href{stats::fft}{fft} and \href{https://docs.scipy.org/doc/numpy-1.17.0/reference/generated/numpy.fft.ifft.html#numpy.fft.ifft}{numpy.fft}.
+For a general description of the algorithm and definitions, see \link[stats:fft]{stats::fft} and \href{https://docs.scipy.org/doc/numpy-1.17.0/reference/generated/numpy.fft.ifft.html#numpy.fft.ifft}{numpy.fft}.
 }
 \details{
 The input should be ordered in the same way as is returned by fft, i.e.,

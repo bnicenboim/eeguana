@@ -178,9 +178,9 @@ eeg_ica_show.eeg_ica_lst <- function(.data, ...) {
   comp_sel <- tidyselect::vars_select(component_names(.data), !!!dots)
   signal_raw <- .data$.signal[, c(".id", channel_ica_names(.data)), with = FALSE] %>%
     .[data.table::as.data.table(.data$.segments)
-    [, .(.id, .recording)], ,
-    on = ".id", nomatch = 0
-    ]
+      [, .(.id, .recording)], ,
+      on = ".id", nomatch = 0
+      ]
   signal_raw[, ".id" := NULL]
 
   l_signal <- split(signal_raw, by = ".recording", keep.by = FALSE)
@@ -300,7 +300,7 @@ as_eeg_lst.eeg_lst <- function(.data, ...) {
   if (!data.table::is.data.table(.data$.segments)) {
     .data$.segments <- data.table::as.data.table(.data$.segments)
     data.table::setkey(.data$.segments, .id)
-    }
+  }
   # fix the classes from old versions
   .data <- .data %>% eeg_mutate(across_ch( ~  `class<-`(.x,  c("channel_dbl", "numeric") )))
   .data <- .data %>% eeg_mutate(.sample = `class<-`(.sample,c("sample_int", "integer")) )

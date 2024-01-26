@@ -93,6 +93,7 @@ as_tibble.psd_lst <- function(x, ...) {
 #' Convert the signal_tbl table from wide to long format.
 #'
 #' @param x A `psd_lst` object.
+#' @param ... unused
 #' @return  A [`tidytable`][tidytable::tidytable].
 #'
 #'

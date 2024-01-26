@@ -8,6 +8,8 @@ as_tidytable.psd_lst(x, ...)
 }
 \arguments{
 \item{x}{A \code{psd_lst} object.}
+
+\item{...}{unused}
 }
 \value{
 A \code{\link[tidytable:tidytable]{tidytable}}.
