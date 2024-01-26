@@ -40,7 +40,7 @@ data_1step <- eeg_lst(
 data_more <- eeg_lst(
   signal_tbl =
     signal %>%
-      tidytable::mutate.(
+      tidytable::mutate(
         .id = rep(1:4, each = N / 4),
         .sample = sample_int(rep(seq_len(N / 4), times = 4), .sampling_rate = 500)
       ),

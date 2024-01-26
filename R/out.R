@@ -196,7 +196,7 @@ eeg_ica_cor_tbl <- function(.data, ...) {
 
 #' @export
 eeg_ica_cor_tbl.eeg_ica_lst <- function(.data, ...) {
-  if (length(list(...)) == 0) {
+  if (length(rlang::enquos(...)) == 0) {
     eogs <- # sel_ch(.data, c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
       tidyselect::vars_select(channel_names(.data), c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
     message_verbose("EOG channels detected as: ", toString(eogs))

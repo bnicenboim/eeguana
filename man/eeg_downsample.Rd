@@ -54,6 +54,7 @@ Other preprocessing functions:
 \code{\link{filt}}
 
 Other plotting functions: 
+\code{\link{annotate_electrodes}()},
 \code{\link{annotate_events}()},
 \code{\link{annotate_head}()},
 \code{\link{ggplot.eeg_lst}()},

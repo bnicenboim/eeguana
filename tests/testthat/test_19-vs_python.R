@@ -6,8 +6,7 @@ suppress_python_output <- function(x) {
 }
 
 test_that("compare construct iir filter with python", {
-  eeguana:::skip_on_actions()
-  skip_on_ci()
+  skip_if_no_python_stuff()
   reticulate::conda_list()
 
   # reticulate::py_install("mne")
@@ -106,8 +105,7 @@ reticulate::py_run_string("iir_params_0 = dict(order=4, ftype='butter', output='
 })
 
 test_that("create filter", {
-  eeguana:::skip_on_actions()
-  skip_on_ci()
+  skip_if_no_python_stuff()
   reticulate::py_run_string("import mne")
 
   f <- eeguana:::create_filter(sampling_rate = 500, l_freq = 50)
@@ -177,8 +175,7 @@ if (0) {
 message("to test using python fast ica")
 if (0) {
   test_that("can use other (python) functions", {
-    skip_on_ci()
-    eeguana:::skip_on_actions()
+    skip_if_no_python_stuff()
     sk <- reticulate::import("sklearn.decomposition")
     py_fica <- function(x) {
       x <- as.matrix(x)
@@ -204,8 +201,7 @@ if (0) {
 test_that("raw brainvision read and converted from MNE match", {
   # it needs MNE installed
   ## skip_on_cran()
-  eeguana:::skip_on_actions()
-  skip_on_ci()
+  skip_if_no_python_stuff()
   ## reference
   bvfile <- system.file("testdata", "bv_export_bv_txt_bin_vector.vhdr", package = "eeguana")
   eeg_read <- read_vhdr(file = bvfile, .recording = "r1")

@@ -43,33 +43,31 @@ library(ggplot2)
 # Calculate mean amplitude between 100-200 ms and plot the topography
 data_faces_ERPs \%>\%
   # select the time window of interest
-  filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) \%>\%
+  eeg_filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) \%>\%
   # compute mean amplitude per condition
-  group_by(condition) \%>\%
-  summarize_at(channel_names(.), mean, na.rm = TRUE) \%>\%
+  eeg_group_by(condition) \%>\%
+  eeg_summarize(across_ch(mean, na.rm = TRUE)) \%>\%
   plot_topo() +
   # add a head and nose shape
   annotate_head() +
-  # add contour lines
-  geom_contour() +
   # add electrode labels
-  geom_text(color = "black") +
+  annotate_electrodes(color = "black") +
   facet_grid(~condition)
 
 # The same but with interpolation
 data_faces_ERPs \%>\%
-  filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) \%>\%
-  group_by(condition) \%>\%
-  summarize_at(channel_names(.), mean, na.rm = TRUE) \%>\%
+  eeg_filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) \%>\%
+  eeg_group_by(condition) \%>\%
+  eeg_summarize(across_ch(mean, na.rm = TRUE)) \%>\%
   eeg_interpolate_tbl() \%>\%
   plot_topo() +
   annotate_head() +
-  geom_contour() +
-  geom_text(color = "black") +
+  annotate_electrodes(color = "black") +
   facet_grid(~condition)
 }
 \seealso{
 Other plotting functions: 
+\code{\link{annotate_electrodes}()},
 \code{\link{annotate_events}()},
 \code{\link{annotate_head}()},
 \code{\link{eeg_downsample}()},

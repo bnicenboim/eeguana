@@ -4,12 +4,14 @@
 \alias{as_tidytable.eeg_lst}
 \title{Convert an eeg_lst to a long table in \code{\link[tidytable:tidytable]{tidytable}} format.}
 \usage{
-as_tidytable.eeg_lst(x, .unit = "s")
+as_tidytable.eeg_lst(x, .unit = "s", ...)
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
 
 \item{.unit}{Unit for the \code{.time} column of the transformed object: "s" (default), "ms", "samples".}
+
+\item{...}{Additional arguments to be passed to or from other methods.}
 }
 \value{
 A \code{\link[tidytable:tidytable]{tidytable}}.

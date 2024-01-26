@@ -250,7 +250,7 @@ eeg_unsegment.eeg_lst <- function(.data, .start = 1, .sep = c(.type = "New Segme
   N <- nsamples(.data)
   srate <- sampling_rate(.data)
   s1 <- .data$.signal$.sample[1]
-  new_segment <- filter.(.data$.signal, .sample == .sample[1], .by= ".id") %>%
+  new_segment <- filter.(.data$.signal, .sample == .sample[1], .by= any_of(".id")) %>%
     tidytable::pull(.sample)
   time_0 <- sample_int(rep(1, length(new_segment)), .sampling_rate = srate)
   init_sample <- cumsum(c(-s1 +.start, N[seq_len(length(N)-1)]))
@@ -281,7 +281,9 @@ eeg_unsegment.eeg_lst <- function(.data, .start = 1, .sep = c(.type = "New Segme
     mutate.(.id = 1L) %>%
     as_events_tbl.data.table()
   
-  .data$.segments <- .data$.segments %>% summarize.(.id =1, .recording = paste(unique(.recording), collapse =";"))
+  .data$.segments <- .data$.segments %>% 
+    summarize.(.id =1, 
+               .recording = paste(unique(.recording), collapse =";"))
   data.table::setkey(.data$.signal, .id, .sample)
   
     validate_eeg_lst(.data)

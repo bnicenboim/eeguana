@@ -154,7 +154,7 @@ faces_segs_some %>%
   plot_topo() +
   annotate_head() +
   geom_contour() +
-  geom_text(colour = "black") +
+  annotate_electrodes(colour = "black") +
   facet_grid(~condition)
 ```
 

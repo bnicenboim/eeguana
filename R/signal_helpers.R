@@ -12,7 +12,7 @@ sinc <- function(x) {
 #' This function computes the inverse of the one-dimensional n-point discrete Fourier
 #'  transform computed by fft using a wrapper of `fft(z, inverse= TRUE)/length(z)` with
 #'   an extra argument making it similar to   [numpy.fft.ifft](https://docs.scipy.org/doc/numpy-1.17.0/reference/generated/numpy.fft.ifft.html#numpy.fft.ifft).
-#'  For a general description of the algorithm and definitions, see [fft](stats::fft) and [numpy.fft](https://docs.scipy.org/doc/numpy-1.17.0/reference/generated/numpy.fft.ifft.html#numpy.fft.ifft).
+#'  For a general description of the algorithm and definitions, see [stats::fft] and [numpy.fft](https://docs.scipy.org/doc/numpy-1.17.0/reference/generated/numpy.fft.ifft.html#numpy.fft.ifft).
 #'
 #' The input should be ordered in the same way as is returned by fft, i.e.,
 #' (*if I converted the indexes from python correctly*)
@@ -56,7 +56,7 @@ sig_ifft <- function(x, n = NULL) {
 #'
 #' Computes the Discrete Fourier Transform (DFT) of an array
 #' with a fast algorithm, the “Fast Fourier Transform” (FFT). Wrapper
-#' of [fft](stats::fft) with an extra argument similar to python's [numpy.fft.fft](https://docs.scipy.org/doc/numpy/reference/generated/numpy.fft.fft.html#numpy.fft.fft).
+#' of [stats::fft] with an extra argument similar to python's [numpy.fft.fft](https://docs.scipy.org/doc/numpy/reference/generated/numpy.fft.fft.html#numpy.fft.fft).
 #'
 #' @param x A vector
 #' @param n Length of the transformed axis of the output. If `n` is smaller

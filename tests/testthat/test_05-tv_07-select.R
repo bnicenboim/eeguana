@@ -4,7 +4,7 @@ options(eeguana.verbose = FALSE)
 # create fake dataset
 data_1 <- eeguana:::data_sincos3id
 # just some different X and Y
-data_2 <- dplyr::mutate(data_1,
+data_2 <- eeg_mutate(data_1,
   .recording = "recording2",
   X = sin(X + 10),
   Y = cos(Y - 10),
@@ -23,25 +23,25 @@ test_that("internal (?) variables should show warnings", {
     expect_warning() %>%
     expect_warning()
 
-  expect_warning(dplyr::select(data, time = .sample)) %>%
+  expect_warning(eeg_select(data, time = .sample)) %>%
     expect_warning()
 
-  expect_warning(dplyr::select(data, participant = .recording))
+  expect_warning(eeg_select(data, participant = .recording))
   expect_warning(events_tbl(data) <- events_tbl(data) %>% dplyr::select(elec = .channel)) %>%
     expect_warning()
 })
 
 
 test_that("bad things throw errors", {
-  expect_error(dplyr::select(data, X = Y, X))
+  expect_error(eeg_select(data, X = Y, X))
 })
 
 test_that("selecting a regular eeg_lst", {
   # in signal table
-  selectd_eeg1 <- dplyr::select(data, ZZ = Y)
-  selectd_eeg2 <- dplyr::select(data, ZZ = Y, XX = X)
-  selectd_eeg3 <- dplyr::select(data, X = Y, Y = X)
-  selectd_eeg4 <- dplyr::select(data, X = Y)
+  selectd_eeg1 <- eeg_select(data, ZZ = Y)
+  selectd_eeg2 <- eeg_select(data, ZZ = Y, XX = X)
+  selectd_eeg3 <- eeg_select(data, X = Y, Y = X)
+  selectd_eeg4 <- eeg_select(data, X = Y)
   expect_equal(signal_tbl(selectd_eeg1), data$.signal[, .(.id, .sample, ZZ = Y)])
   expect_equal(signal_tbl(selectd_eeg2), data$.signal[, .(.id, .sample, ZZ = Y, XX = X)])
   expect_equal(signal_tbl(selectd_eeg3), data$.signal[, .(.id, .sample, X = Y, Y = X)])
@@ -79,7 +79,7 @@ test_that("selecting a regular eeg_lst", {
 })
 
 test_that("selecting in segments table doesn't change data", {
-  selectd_eeg5 <- dplyr::select(data, cond = condition)
+  selectd_eeg5 <- eeg_select(data, cond = condition)
   expect_equal(signal_tbl(selectd_eeg5), data$.signal)
   expect_equal(events_tbl(selectd_eeg5), data$.events)
   expect_equal(segments_tbl(selectd_eeg5), data$.segments[, c(".id", ".recording", "condition")] %>% data.table::copy() %>% data.table::setnames("condition", "cond"))

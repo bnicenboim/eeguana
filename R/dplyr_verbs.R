@@ -33,7 +33,7 @@
 #' @param .data An eeg_lst.
 #' @param x An eeg_lst.
 #' @param y A data frame, tibble, or data.table.
-#' @inheritParams dplyr::join
+#' @inheritParams tidytable::left_join
 #' @inheritParams dplyr::pull
 #' @inheritParams tidytable::rename_with
 #' @inheritParams tidytable::across
@@ -519,39 +519,17 @@ eeg_group_vars.psd_lst <- function(x) {
 group_vars.eeg_lst <- eeg_group_vars.eeg_lst
 group_vars.psd_lst <- eeg_group_vars.psd_lst
 
-#' @rdname dplyr_verbs
-#' @export
-eeg_anti_join <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
-  UseMethod("eeg_anti_join")
-}
-
-#' @export
-eeg_anti_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
-  if (!is.data.frame(y)) stop("y must be a data frame, a data table or tibble.")
-
-  x$.segments <- dplyr::anti_join(x$.segments, y, by = NULL, suffix = c(".x", ".y"), ...)
-
-  segments <- data.table::as.data.table(x$.segments)
-  x$.signal <- semi_join_dt(x$.signal, segments, by = ".id")
-  x$.events <- semi_join_dt(x$.events, segments, by = ".id")
-  x %>% validate_eeg_lst()
-}
-
-# dynamically exported in zzz.R
-anti_join.eeg_lst <- eeg_anti_join.eeg_lst
 
 #' @rdname dplyr_verbs
 #' @export
-eeg_left_join <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
+eeg_left_join <- function(x, y, by = NULL, suffix = c(".x", ".y"), ..., keep = FALSE) {
   UseMethod("eeg_left_join")
 }
 
 #' @export
-eeg_left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...) {
+eeg_left_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ..., keep = FALSE) {
   if (!is.data.frame(y)) stop("y must be a data frame, a data table or tibble.")
-
-  x$.segments <- dplyr::left_join(x$.segments, y = y, by = by, copy = copy, suffix = c(".x", ".y"), ...)
-
+  x$.segments <- left_join.(x$.segments, y = y, by = by, suffix = suffix, ..., keep = keep)
   validate_eeg_lst(x)
 }
 
@@ -560,24 +538,46 @@ left_join.eeg_lst <- eeg_left_join.eeg_lst
 
 #' @rdname dplyr_verbs
 #' @export
-eeg_semi_join <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
+eeg_semi_join <- function(x, y, by = NULL) {
   UseMethod("eeg_semi_join")
 }
 
 #' @export
-eeg_semi_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
+eeg_semi_join.eeg_lst <- function(x, y, by = NULL) {
   if (!is.data.frame(y)) stop("y must be a data frame, a data table or tibble.")
 
-  x$.segments <- dplyr::semi_join(x$.segments, y, by = NULL, suffix = c(".x", ".y"), ...)
-
-  segments <- data.table::as.data.table(x$.segments)
-  x$.signal <- semi_join_dt(x$.signal, segments, by = ".id")
-  x$.events <- semi_join_dt(x$.events, segments, by = ".id")
+  x$.segments <- semi_join.(x$.segments, y, by = by)
+  x$.signal <- semi_join.(x$.signal, x$.segments, by = ".id")
+  x$.events <- semi_join.(x$.events, x$.segments, by = ".id")
+  data.table::setkey(x$.signal, .id, .sample)
+  data.table::setkey(x$.segments, .id)
   x %>% validate_eeg_lst()
 }
 
 # dynamically exported in zzz.R
 semi_join.eeg_lst <- eeg_semi_join.eeg_lst
+
+
+#' @rdname dplyr_verbs
+#' @export
+eeg_anti_join <- function(x, y, by = NULL) {
+  UseMethod("eeg_anti_join")
+}
+
+#' @export
+eeg_anti_join.eeg_lst <- function(x, y, by = NULL) {
+  if (!is.data.frame(y)) stop("y must be a data frame, a data table or tibble.")
+  x$.segments <- anti_join.(x$.segments, y, by = by)
+  x$.signal <- semi_join.(x$.signal, x$.segments, by = ".id")
+  x$.events <- semi_join.(x$.events, x$.segments, by = ".id")
+  data.table::setkey(x$.signal, .id, .sample)
+  data.table::setkey(x$.segments, .id)
+  x %>% validate_eeg_lst()
+}
+
+# dynamically exported in zzz.R
+anti_join.eeg_lst <- eeg_anti_join.eeg_lst
+
 
 # dynamically exported in zzz.R
 eeg_vars <- function(x) {

@@ -45,6 +45,7 @@ plot(data_faces_ERPs) +
 }
 \seealso{
 Other plotting functions: 
+\code{\link{annotate_electrodes}()},
 \code{\link{annotate_events}()},
 \code{\link{annotate_head}()},
 \code{\link{eeg_downsample}()},

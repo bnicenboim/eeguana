@@ -156,8 +156,11 @@ validate_eeg_lst <- function(x, recursive = TRUE) {
       call. = FALSE
     )
   }
-  if (!all.equal(unique(x$.signal$.id), unique(x$.segments$.id))) {
+  idmatch <- all.equal(unique(x$.signal$.id), unique(x$.segments$.id))
+  if (idmatch != TRUE) {
     warning("The values of .id mismatch between tables.",
+            "Signal table contain: ", paste(unique(x$.signal$.id),collapse =", "),
+            ". Segments table contain: ", paste(unique(x$.segments$.id),collapse =", "),
       call. = FALSE
     )
   }

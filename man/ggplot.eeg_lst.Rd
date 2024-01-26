@@ -46,7 +46,7 @@ data_faces_ERPs \%>\%
   ggplot(aes(x = .time, y = .key)) +
   # add a grand average wave
   stat_summary(
-    fun.y = "mean", geom = "line", alpha = 1, size = 1.5,
+    fun.y = "mean", geom = "line", alpha = 1, linewidth = 1.5,
     aes(color = condition)
   ) +
   # facet by channel
@@ -56,6 +56,7 @@ data_faces_ERPs \%>\%
 }
 \seealso{
 Other plotting functions: 
+\code{\link{annotate_electrodes}()},
 \code{\link{annotate_events}()},
 \code{\link{annotate_head}()},
 \code{\link{eeg_downsample}()},

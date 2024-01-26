@@ -1,6 +1,5 @@
 library(eeguana)
 options(eeguana.verbose = FALSE)
-expect_equal_plain_df <- eeguana:::expect_equal_plain_df
 
 eeg_file <- read_vhdr(system.file("testdata", "bv_export_bv_txt_bin_multi.vhdr", package = "eeguana"))
 
