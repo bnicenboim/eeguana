@@ -114,20 +114,21 @@ eeg_power_band.psd_lst <- function(.data, .bands = list(
                                    .relative = FALSE,
                                    ...) {
   chs <- channel_names(.data)
+  funpower <- function(.ch, .freq) {
+    if (.relative) {
+      total <- int.simpson2(.freq, .ch)
+    } else {
+      total <- 1
+    }
+    tidytable::map_dbl(.bands, function(b) {
+      b_freq <- between(.freq, b[1], b[2])
+      int.simpson2(.freq[b_freq], .ch[b_freq]) / total
+    })
+  }
   .data$.psd <- .data$.psd %>%
-    summarize.(across.(
+    summarize.(across(
       tidyselect::all_of(!!chs),
-      function(.ch) {
-        if (.relative) {
-          total <- int.simpson2(.freq, .ch)
-        } else {
-          total <- 1
-        }
-        lapply(.bands, function(b) {
-          b_freq <- between(.freq, b[1], b[2])
-          int.simpson2(.freq[b_freq], .ch[b_freq]) / total
-        }) %>% unlist()
-      }
+      funpower, .freq 
     ), .freq = names(.bands), .by = ".id") %>%
     select.(obligatory_cols$.psd, tidyselect::everything())
   .data
