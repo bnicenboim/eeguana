@@ -40,6 +40,10 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
   dots <- rlang::enquos(...)
   .end <- rlang::enquo(.end)
 
+  # times0 <- filter.(.data$.events, !!!dots) %>%
+  #   select.(.id,.type,.description,.first_sample= .initial) %>%
+  #   distinct.()
+  # 
   times0 <- filter_dt(.data$.events, !!!dots)[, -c(".channel", ".final")] %>%
     unique()
   data.table::setnames(times0, ".initial", ".first_sample")
@@ -51,7 +55,9 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
   ##   dplyr::distinct()
 
   if (!rlang::quo_is_missing(.end)) {
-    times_end <-
+     times_end <- # filter.(.data$.events, !!.end) %>%  select.(.id, .type, .description, .first_sample = .initial) %>%
+    #   distinct.()
+    #   
       filter_dt(.data$.events, !!.end)[, -c(".channel", ".final")] %>%
       unique()
     data.table::setnames(times_end, ".initial", ".first_sample")
@@ -244,8 +250,8 @@ eeg_unsegment.eeg_lst <- function(.data, .start = 1, .sep = c(.type = "New Segme
   N <- nsamples(.data)
   srate <- sampling_rate(.data)
   s1 <- .data$.signal$.sample[1]
-  new_segment <- filter.(.data$.signal, .sample == .sample[1], .by= ".id") %>%
-    tidytable::pull.(.sample)
+  new_segment <- filter.(.data$.signal, .sample == .sample[1], .by= any_of(".id")) %>%
+    tidytable::pull(.sample)
   time_0 <- sample_int(rep(1, length(new_segment)), .sampling_rate = srate)
   init_sample <- cumsum(c(-s1 +.start, N[seq_len(length(N)-1)]))
   u_id <- unique(.data$.signal$.id)
@@ -268,14 +274,16 @@ eeg_unsegment.eeg_lst <- function(.data, .start = 1, .sep = c(.type = "New Segme
     unique()
   .data$.events <- .data$.events %>% 
     split(by = ".id") %>% 
-    tidytable::map2.(init_sample, 
+    tidytable::map2(init_sample, 
                      ~.x %>% mutate.(.initial = .initial +.y,
                                      .final = .final + .y)) %>%
     data.table::rbindlist() %>%
     mutate.(.id = 1L) %>%
     as_events_tbl.data.table()
   
-  .data$.segments <- .data$.segments %>% summarize.(.id =1, .recording = paste(unique(.recording), collapse =";"))
+  .data$.segments <- .data$.segments %>% 
+    summarize.(.id =1, 
+               .recording = paste(unique(.recording), collapse =";"))
   data.table::setkey(.data$.signal, .id, .sample)
   
     validate_eeg_lst(.data)

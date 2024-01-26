@@ -15,14 +15,14 @@ vec_index <- function (x) names(x) %||% seq_along(x)
 #' @noRd
 imap_chr <- function (.x, .f, ...) {
   .f <- rlang::as_function(.f)
-  tidytable::map2_chr.(.x, vec_index(.x), .f, ...)
+  tidytable::map2_chr(.x, vec_index(.x), .f, ...)
 }
 
 #' @noRd
 imap <- function (.x, .f, ...) 
 {
   .f <- rlang::as_function(.f, ...)
-  tidytable::map2.(.x, vec_index(.x), .f, ...)
+  tidytable::map2(.x, vec_index(.x), .f, ...)
 }
 
 #' @noRd
@@ -56,7 +56,7 @@ map2_dtr <- function(.x, .y, .f, ..., .id = NULL) {
 
 #' @noRd
 map2_dtc <- function(.x, .y, .f, ...) {
-    data.table::as.data.table(tidytable::map2_dfc.(.x=.x, .y = .y, .f =.f, ...) )
+    data.table::as.data.table(tidytable::map2_dfc(.x=.x, .y = .y, .f =.f, ...) )
 }
 
 #' @noRd
@@ -169,7 +169,7 @@ changed_objects <- function(obj) {
 #' @noRd
 distinct. <- function(.df, ..., .keep_all = FALSE) {
   oldclass <- class(.df)
-  .df <- tidytable::distinct.(.df = .df, ..., .keep_all = .keep_all)
+  .df <- tidytable::distinct(.df = .df, ..., .keep_all = .keep_all)
   class(.df) <- oldclass
   .df
 }
@@ -178,7 +178,7 @@ distinct. <- function(.df, ..., .keep_all = FALSE) {
 #' #' @noRd
 #' rename. <- function(.df, ...) {
 #'   oldclass <- class(.df)
-#'   .df <- tidytable::rename.(.df = .df, ...)
+#'   .df <- tidytable::rename(.df = .df, ...)
 #'   class(.df) <- oldclass
 #'   .df
 #' }
@@ -186,7 +186,7 @@ distinct. <- function(.df, ..., .keep_all = FALSE) {
 #' @noRd
 select. <- function(.df, ...) {
   oldclass <- class(.df)
-  .df <- tidytable::select.(.df = .df, ...)
+  .df <- tidytable::select(.df = .df, ...)
   class(.df) <- oldclass
   .df
 }
@@ -195,12 +195,12 @@ select. <- function(.df, ...) {
 transmute. <- function(.df, ..., .by = NULL){
   oldclass <- class(.df)
   if (length(.by) > 0) {
-    .df <- tidytable::transmute.(
+    .df <- tidytable::transmute(
       .df = .df, ...,
-      .by = .by)
+      .by = any_of(.by))
   } else {
     # much faster to remove the by=character(0) when not needed
-    .df <- tidytable::transmute.(
+    .df <- tidytable::transmute(
       .df = .df, ...)
   }
   
@@ -211,24 +211,26 @@ transmute. <- function(.df, ..., .by = NULL){
 #' @noRd
 bind_cols. <- function(...){
   oldclass <- class(list(...)[[1]])
-  .df <- tidytable::bind_cols.(...)
+  .df <- tidytable::bind_cols(...)
   class(.df) <- oldclass
   .df
 }
+
+
 #' @noRd
 mutate. <- function(.df, ...,
                     .by = NULL,
                     .keep = c("all", "used", "unused", "none")) {
   oldclass <- class(.df)
   if (length(.by) > 0) {
-    .df <- tidytable::mutate.(
+    .df <- tidytable::mutate(
       .df = .df, ...,
-      .by = .by,
+      .by = any_of(.by),
       .keep = .keep
     )
   } else {
     # much faster to remove the by=character(0) when not needed
-    .df <- tidytable::mutate.(
+    .df <- tidytable::mutate(
       .df = .df, ...,
       .keep = .keep
     )
@@ -242,9 +244,9 @@ mutate. <- function(.df, ...,
 filter. <- function(.df, ...,
                     .by = NULL) {
   oldclass <- class(.df)
-  .df <- tidytable::filter.(
+  .df <- tidytable::filter(
     .df = .df, ...,
-    .by = .by
+    .by = any_of(.by)
   )
   class(.df) <- oldclass
   .df
@@ -253,7 +255,7 @@ filter. <- function(.df, ...,
 #' @noRd
 summarize. <- function(.df, ..., .by = NULL, .sort = FALSE) {
   oldclass <- class(.df)
-  .df <- tidytable::summarize.(.df = .df, ..., .by = .by, .sort = .sort)
+  .df <- tidytable::summarize(.df = .df, ..., .by = any_of(.by), .sort = .sort)
   class(.df) <- oldclass
   .df
 }
@@ -261,30 +263,51 @@ summarize. <- function(.df, ..., .by = NULL, .sort = FALSE) {
 #' @noRd
 anti_join. <- function(x, y, by = NULL) {
   oldclass <- class(x)
-  .df <- tidytable::anti_join.(x = x, y = y, by = by)
+  .df <- tidytable::anti_join(x = x, y = y, by = by)
   class(.df) <- oldclass
   .df
 }
 #' @noRd
 semi_join. <- function(x, y, by = NULL) {
   oldclass <- class(x)
-  .df <- tidytable::semi_join.(x = x, y = y, by = by)
+  .df <- tidytable::semi_join(x = x, y = y, by = by)
+  class(.df) <- oldclass
+  .df
+}
+
+
+#' @noRd
+full_join. <- function(x, y, by = NULL, suffix = c(".x", ".y"), ..., keep = FALSE) {
+  oldclass <- class(x)
+  .df <- tidytable::full_join(x = x, y = y, by = by, suffix = suffix, ..., keep = keep)
   class(.df) <- oldclass
   .df
 }
 
 #' @noRd
-left_join. <- function(x, y, by = NULL) {
+left_join. <- function(x, y, by = NULL, suffix = c(".x", ".y"), ..., keep = FALSE) {
   oldclass <- class(x)
-  .df <- tidytable::left_join.(x = x, y = y, by = by)
+  .df <- tidytable::left_join(x = x, y = y, by = by, suffix = suffix, ..., keep = keep)
   class(.df) <- oldclass
   .df
 }
 
+# Flatten lists
 #' @noRd
-full_join. <- function(x, y, by = NULL) {
-  oldclass <- class(x)
-  .df <- tidytable::full_join.(x = x, y = y, by = by)
-  class(.df) <- oldclass
-  .df
+list_flatten <- function(x, recursive = FALSE) {
+  is_list <- tidytable::map_lgl(x, is.list)# obj_is_list)
+  any_list <- any(is_list)
+  if (any_list) {
+    is_not_list <- !is_list
+    x[is_not_list] <- lapply(x[is_not_list], list)
+    out <- list_unchop(x, ptype = list())
+  } else {
+    out <- x
+  }
+  
+  if (recursive && any_list) {
+    out <- list_flatten(out, recursive)
+  }
+  
+  out
 }

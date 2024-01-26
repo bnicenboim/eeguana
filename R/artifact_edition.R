@@ -309,7 +309,7 @@ eeg_events_to_NA.eeg_lst <-
     if (!is.null(.n_chs)) {
     ## this doesn't work
             # baddies <- baddies %>% mutate.(.channel = 
-            #                 tidytable::case_when.(n() > .n_chs ~ NA_character_,
+            #                 tidytable::case_when(n() > .n_chs ~ NA_character_,
             #                                       TRUE ~ .channel),
             #                                       .by = ".id")
       baddies[baddies[, .I[.N >= .n_chs], .id]$V1, .channel := NA_character_] 
@@ -324,7 +324,7 @@ eeg_events_to_NA.eeg_lst <-
     # For the replacement in parts of the segments
     b_chans <- filter.(baddies, !is.na(.channel)) %>%
       distinct.(.channel) %>%
-      tidytable::pull.()
+      tidytable::pull()
 
     for (ch in b_chans) {
       b <- filter.(baddies, .channel == ch, !is.na(.channel))

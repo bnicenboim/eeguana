@@ -709,7 +709,7 @@ test_that("grouped filter works", {
 })
 
 # data_NA$.signal %>% dplyr::filter(dplyr::across(channel_names(data_NA), ~ !is.na(.)))
-# data_NA$.signal %>% tidytable::filter.(across.(channel_names(data_NA), ~ !is.na(.)))
+# data_NA$.signal %>% tidytable::filter(across.(channel_names(data_NA), ~ !is.na(.)))
 # data_NA %>% eeg_filter(across_ch( ~ !is.na(.)))
 #
 # .eeg_lst <- data_NA

@@ -99,7 +99,10 @@ eeg_rereference.eeg_lst <- function(.data, ..., .ref = NULL, na.rm = FALSE) {
     attributes(x)$.reference <- paste0(colnames(ref_v), collapse = ", ")
     x
   }
-  .data$.signal <- .data$.signal %>% mutate.(across.(tidyselect::all_of(!!chs), reref, ref_value))
+  .data$.signal <- .data$.signal %>% 
+    mutate.(across.(tidyselect::all_of(!!chs), reref, ref_value))
+  data.table::setkey(.data$.signal, .id, .sample)
+  data.table::setkey(.data$.segments, .id)
   update_events_channels(.data) %>% validate_eeg_lst()
 }
 

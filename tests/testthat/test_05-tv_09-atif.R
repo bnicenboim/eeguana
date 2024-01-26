@@ -1,11 +1,11 @@
 library(eeguana)
 options(eeguana.verbose = FALSE)
-expect_equal_plain_df <- eeguana:::expect_equal_plain_df
-expect_equal_but_sgl <- eeguana:::expect_equal_but_sgl
-expect_equal_but_cnt_sgl <- eeguana:::expect_equal_but_cnt_sgl
-expect_equal_but_sgm <- eeguana:::expect_equal_but_sgm
-expect_equal_but_cnt_sgm <- eeguana:::expect_equal_but_cnt_sgm
-expect_equal_eeg_lst <- eeguana:::expect_equal_eeg_lst
+# expect_equal_plain_df <- eeguana:::expect_equal_plain_df
+# expect_equal_but_sgl <- eeguana:::expect_equal_but_sgl
+# expect_equal_but_cnt_sgl <- eeguana:::expect_equal_but_cnt_sgl
+# expect_equal_but_sgm <- eeguana:::expect_equal_but_sgm
+# expect_equal_but_cnt_sgm <- eeguana:::expect_equal_but_cnt_sgm
+# expect_equal_eeg_lst <- eeguana:::expect_equal_eeg_lst
 
 
 chr_remove <- eeguana:::chr_remove

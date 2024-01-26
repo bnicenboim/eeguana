@@ -54,7 +54,7 @@ eeg_downsample.eeg_lst <- function(.data, .q = 2, .max_sample = NULL,
   }
   # any signal or component in the signal table should be downampled
   channels_to_decimate <- colnames(.data$.signal[0,])[
-    tidytable::map_lgl.(.data$.signal, ~ is_channel_dbl(.x) || is_component_dbl(.x))] 
+    tidytable::map_lgl(.data$.signal, ~ is_channel_dbl(.x) || is_component_dbl(.x))] 
 
         ## add missing samples in case of a discontinuity
   .data$.signal <- add_missing_samples(.data$.signal)

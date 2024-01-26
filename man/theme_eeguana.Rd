@@ -17,6 +17,7 @@ These are complete light themes based on \code{\link[ggplot2:ggtheme]{ggplot2::t
 }
 \seealso{
 Other plotting functions: 
+\code{\link{annotate_electrodes}()},
 \code{\link{annotate_events}()},
 \code{\link{annotate_head}()},
 \code{\link{eeg_downsample}()},

@@ -562,7 +562,7 @@ create_filter <- function(data,
     message_verbose("Setting up high-pass filter at ", l_freq, " Hz")
   } else if (!is.null(h_freq)) {
     type <- "low" # pass
-    message("Setting up low-pass filter at ", h_freq, " Hz")
+    message_verbose("Setting up low-pass filter at ", h_freq, " Hz")
   } else {
     stop("Both freq can't be NULL")
   }
@@ -579,7 +579,7 @@ create_filter <- function(data,
       l_trans_bandwidth <- Inf
     } else if (is.null(config$l_trans_bandwidth) || config$l_trans_bandwidth == "auto") {
       l_trans_bandwidth <- min(max(l_freq * 0.25, 2), l_freq)
-      message("Width of the transition band at the low cut-off frequency is ",
+      message_verbose("Width of the transition band at the low cut-off frequency is ",
               l_trans_bandwidth, " Hz" )
     } else {
       l_trans_bandwidth <- config$l_trans_bandwidth
@@ -589,7 +589,7 @@ create_filter <- function(data,
       h_trans_bandwidth <- Inf
     } else if (is.null(config$h_trans_bandwidth) || config$h_trans_bandwidth == "auto") {
       h_trans_bandwidth <- min(max(0.25 * h_freq, 2.), srate / 2. - h_freq)
-      message("Width of the transition band at the high cut-off frequency is ",h_trans_bandwidth, " Hz" )
+      message_verbose("Width of the transition band at the high cut-off frequency is ",h_trans_bandwidth, " Hz" )
     } else {
       h_trans_bandwidth <- config$h_trans_bandwidth
     }

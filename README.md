@@ -369,6 +369,11 @@ faces_segs_some %>%
   geom_vline(xintercept = 0, linetype = "dashed") +
   geom_vline(xintercept = .17, linetype = "dotted") +
   theme(legend.position = "bottom")
+#> Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+#> ℹ Please use `linewidth` instead.
+#> This warning is displayed once every 8 hours.
+#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+#> generated.
 ```
 
 <img src="man/figures/README-plot-1.png" width="100%" />
@@ -386,7 +391,7 @@ faces_segs_some %>%
   plot_topo() +
   annotate_head() +
   geom_contour() +
-  geom_text(colour = "black") +
+  annotate_electrodes(colour = "black") +
   facet_grid(~condition)
 ```
 
@@ -396,14 +401,14 @@ faces_segs_some %>%
 
 Other R packages for EEG/ERP data:
 
-  - [permuco4brain](https://jaromilfrossard.github.io/permuco4brain/index.html)
-    provides functions to compute permutation test in brain imagery
-    data. It is specially designed for M-EEG/ERP data. This a
-    [vignette](https://jaromilfrossard.github.io/permuco4brain/articles/permuco4brain-with-eeguana.html)
-    explains how to use it together with `eeguana`.
-  - [eegUtils](https://github.com/craddm/eegUtils) some helper utilities
-    for plotting and processing EEG data in active development by Matt
-    Craddock.
-  - [erpR](https://cran.r-project.org/package=erpR) analysis of
-    event-related potentials (ERPs) by Giorgio Arcara, Anna Petrova. It
-    hasn’t been updated since 2014.
+- [permuco4brain](https://jaromilfrossard.github.io/permuco4brain/index.html)
+  provides functions to compute permutation test in brain imagery data.
+  It is specially designed for M-EEG/ERP data. This a
+  [vignette](https://jaromilfrossard.github.io/permuco4brain/articles/permuco4brain-with-eeguana.html)
+  explains how to use it together with `eeguana`.
+- [eegUtils](https://github.com/craddm/eegUtils) some helper utilities
+  for plotting and processing EEG data in active development by Matt
+  Craddock.
+- [erpR](https://cran.r-project.org/package=erpR) analysis of
+  event-related potentials (ERPs) by Giorgio Arcara, Anna Petrova. It
+  hasn’t been updated since 2014.

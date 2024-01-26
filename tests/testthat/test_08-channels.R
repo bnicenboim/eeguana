@@ -20,7 +20,7 @@ test_that("baseline works", {
   signal_with_baselines <- signal_with_baselines[, c(".id", ".sample", "X", "Y")]
   baselined <- eeg_baseline(data_sincos2id)
 
-  eeguana:::expect_equal_plain_df(signal_tbl(baselined), signal_with_baselines)
+  expect_equal_plain_df(signal_tbl(baselined), signal_with_baselines)
 })
 
 

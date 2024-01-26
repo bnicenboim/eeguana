@@ -104,7 +104,9 @@ mutate_lst <- function(.data, ..., keep_cols = TRUE, .by_reference = FALSE) {
   new_dots <- dots_by_tbl_quos(.data, dots)
   obligatory_cols_main <- obligatory_cols[[names(.data)[1]]]
   non_ch <- NULL # for msg at the end
-  if (length(new_dots[[1]]) > 0) {
+  
+  if (length(new_dots[[1]]) > 0) { # does it affect .signal
+    
     # is it mutate or transmute?
     cols_main <- colnames(.data[[1]])
     if (keep_cols) {

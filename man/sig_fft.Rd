@@ -17,7 +17,7 @@ the axis specified by axis is used.}
 \description{
 Computes the Discrete Fourier Transform (DFT) of an array
 with a fast algorithm, the “Fast Fourier Transform” (FFT). Wrapper
-of \href{stats::fft}{fft} with an extra argument similar to python's \href{https://docs.scipy.org/doc/numpy/reference/generated/numpy.fft.fft.html#numpy.fft.fft}{numpy.fft.fft}.
+of \link[stats:fft]{stats::fft} with an extra argument similar to python's \href{https://docs.scipy.org/doc/numpy/reference/generated/numpy.fft.fft.html#numpy.fft.fft}{numpy.fft.fft}.
 }
 \examples{
 a <- c(0, 4, 0, 0)

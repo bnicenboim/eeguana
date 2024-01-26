@@ -28,11 +28,12 @@ suppressWarnings(data_faces_10_trials \%>\%
   plot_components() +
   annotate_head() +
   geom_contour() +
-  geom_text(color = "black") +
+  annotate_electrodes(color = "black") +
   theme(legend.position = "none")
 }
 \seealso{
 Other plotting functions: 
+\code{\link{annotate_electrodes}()},
 \code{\link{annotate_events}()},
 \code{\link{annotate_head}()},
 \code{\link{eeg_downsample}()},

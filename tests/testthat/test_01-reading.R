@@ -51,12 +51,13 @@ channels_tbl(ft) <- channels_tbl(multiplexed_bin_bv2)
 
 
 test_that("can read unique eeglab files ", {
-  eeguana:::skip_on_actions()
-  skip_on_ci()
+  files = c(file.path(other_testfiles, "EEG01.mat"),
+           system.file("testdata", "eeglab_data.set", package = "eeguana"))
+  skip_if_nofiles(files)
   # stefan frank data
-  expect_s3_class(other1 <- read_set(file = system.file("testdata", "EEG01.mat", package = "eeguana"), .recording = "eeglab"), "eeg_lst")
+  expect_s3_class(other1 <- read_set(files[1], .recording = "eeglab"), "eeg_lst")
   gc()
-  expect_s3_class(other2 <- read_set(file = system.file("testdata", "eeglab_data.set", package = "eeguana"), .recording = "eeglab"), "eeg_lst")
+  expect_s3_class(other2 <- read_set(file = files[2], .recording = "eeglab"), "eeg_lst")
 })
 
 
@@ -71,12 +72,12 @@ test_that("can read eeglab from brainvision", {
   channels_tbl(set1) <- channels_tbl(set1) %>% dplyr::select(.channel, .x, .y, .z)
   channels_tbl(multiplexed_bin_bv2) <- channels_tbl(multiplexed_bin_bv2) %>% dplyr::select(.channel, .x, .y, .z)
   expect_equal(channels_tbl(set1), channels_tbl(multiplexed_bin_bv2))
-  eeguana:::expect_equal_plain_df(multiplexed_bin_bv2$.signal, set1$.signal)
-  eeguana:::expect_equal_plain_df(multiplexed_bin_bv2$.segments, set1$.segments)
+  expect_equal_plain_df(multiplexed_bin_bv2$.signal, set1$.signal)
+  expect_equal_plain_df(multiplexed_bin_bv2$.segments, set1$.segments)
 
   set1$.events[, `:=`(bvtime = NULL, bvmknum = NULL, urevent = NULL, event = NULL)]
   set1$.events[.description == "boundary", .description := ""]
-  eeguana:::expect_equal_plain_df(multiplexed_bin_bv2$.events, set1$.events)
+  expect_equal_plain_df(multiplexed_bin_bv2$.events, set1$.events)
 })
 
 
@@ -175,9 +176,9 @@ test_that("special vhdr file",{
   events <- eeguana:::read_vmrk(vmrk_eeglab)
   csv_eeglab <- system.file("testdata", "EMP01_events.csv", package = "eeguana")
   events_tbl <- data.table::fread(csv_eeglab) %>%
-    tidytable::transmute.(.description = trigger, .initial = ceiling(latency))
-  events_mrk <- events %>% tidytable::filter.(!is.na(.description)) %>%
-    tidytable::select.(.description, .initial)
+    tidytable::transmute(.description = trigger, .initial = ceiling(latency))
+  events_mrk <- events %>% tidytable::filter(!is.na(.description)) %>%
+    tidytable::select(.description, .initial)
   expect_equal(events_tbl, events_mrk)
 })
 
@@ -211,7 +212,7 @@ test_that("write vhdr",{
   
   write_vhdr(x = seg_ascii_bv2,file="test_seg", overwrite = TRUE)
   test_seg <- read_vhdr(file = "test_seg.vhdr", .recording = "bv2")
-  eeguana:::expect_equal_eeg_lst(seg_ascii_bv2,test_seg,tolerance = 0.0001 )
+  expect_equal_eeg_lst(seg_ascii_bv2,test_seg,tolerance = 0.0001 )
   # df <- data_faces_10_trials %>% eeg_segment(.description == "s130",.lim = c(-.5,.5))
   # write_vhdr(df, "df_test")
   # read_vhdr("df_test.vhdr")

@@ -1,12 +1,6 @@
 library(eeguana)
 options(eeguana.verbose = TRUE)
-# library(dplyr)
-expect_equal_plain_df <- eeguana:::expect_equal_plain_df
-expect_equal_but_sgl <- eeguana:::expect_equal_but_sgl
-expect_equal_but_cnt_sgl <- eeguana:::expect_equal_but_cnt_sgl
-expect_equal_but_sgm <- eeguana:::expect_equal_but_sgm
-expect_equal_but_cnt_sgm <- eeguana:::expect_equal_but_cnt_sgm
-expect_equal_eeg_lst <- eeguana:::expect_equal_eeg_lst
+
 
 # tests when factors are used should be done.
 data_1 <- eeguana:::data_sincos3id
@@ -31,7 +25,7 @@ test_mutates_sgm <- function(data, keep = TRUE, .by_ref = FALSE) {
   groups <- eeg_group_vars(data)
   signal_df <- as.data.frame(data$.signal) %>%
     dplyr::left_join(data$.segments, by = ".id") %>%
-    dplyr::group_by_at(dplyr::all_of(groups))
+    dplyr::group_by(across(dplyr::all_of(groups)))
   grouped <- length(eeg_group_vars(data)) > 0
   to_remove <- colnames(data$.signal)[-1]
   if (keep) {
@@ -261,3 +255,13 @@ if (0) {
     test_mutates_sgm(d_grouped2, keep = FALSE, .by_ref = TRUE)
   })
 }
+
+
+test_that("case_when works correctly with eeg_mutate",{
+   expect_equal_eeg_lst(
+     eeg_mutate(data, X = case_when(.recording == "recording2" ~ NA,
+                                    .default = X)),
+     eeg_mutate(data, X = ifelse(.recording == "recording2", NA, X))
+     )
+})
+

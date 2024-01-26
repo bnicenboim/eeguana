@@ -484,7 +484,7 @@ read_set <- function(file, .recording = file) {
   plot_topo() +
   annotate_head() +
   geom_contour() +
-  geom_text(colour = "black")
+  annotate_electrodes(colour = "black")
 ', call. = TRUE)
     }
   } else {

@@ -57,13 +57,13 @@ eeg_psd.eeg_lst <- function(.data,
     lapply(function(df) { # each segment:
       win <- if (is.function(.config$window)) .config$window(df) else .config$window
       nfft <- if (is.null(.config$nfft)) {
-        if (isScalar(win)) win else length(win)
-      }
+                if (isScalar(win)) win else length(win)
+              }
       mat_signal <- df[, chs, with = FALSE] %>% as.matrix()
       psd <- gsignal::pwelch(mat_signal,
-        window = win, overlap = .config$overlap,
-        nfft = nfft, detrend = .config$detrend, range = .config$.config$range, fs = srate
-      )
+                             window = win, overlap = .config$overlap,
+                             nfft = nfft, detrend = .config$detrend, range = .config$.config$range, fs = srate
+                             )
       data.table::data.table(.id = unique(df$.id), .freq = psd$freq, psd$spec)
     })
 
@@ -89,11 +89,11 @@ eeg_psd.eeg_lst <- function(.data,
 #'
 #' @export
 eeg_power_band <- function(.data, .bands = list(
-                             delta = c(0.5, 4),
-                             theta = c(4, 8),
-                             alpha = c(8, 13),
-                             beta = c(13, 30)
-                           ),
+                                    delta = c(0.5, 4),
+                                    theta = c(4, 8),
+                                    alpha = c(8, 13),
+                                    beta = c(13, 30)
+                                  ),
                            .relative = FALSE, ...) {
 
   # FREQ_BANDS = {"delta": [0.5, 4.5],
@@ -106,28 +106,29 @@ eeg_power_band <- function(.data, .bands = list(
 
 #' @export
 eeg_power_band.psd_lst <- function(.data, .bands = list(
-                                     delta = c(0.5, 4),
-                                     theta = c(4, 8),
-                                     alpha = c(8, 13),
-                                     beta = c(13, 30)
-                                   ),
+                                            delta = c(0.5, 4),
+                                            theta = c(4, 8),
+                                            alpha = c(8, 13),
+                                            beta = c(13, 30)
+                                          ),
                                    .relative = FALSE,
                                    ...) {
   chs <- channel_names(.data)
+  funpower <- function(.ch, .freq) {
+    if (.relative) {
+      total <- int.simpson2(.freq, .ch)
+    } else {
+      total <- 1
+    }
+    tidytable::map_dbl(.bands, function(b) {
+      b_freq <- between(.freq, b[1], b[2])
+      int.simpson2(.freq[b_freq], .ch[b_freq]) / total
+    })
+  }
   .data$.psd <- .data$.psd %>%
-    summarize.(across.(
+    summarize.(across(
       tidyselect::all_of(!!chs),
-      function(.ch) {
-        if (.relative) {
-          total <- int.simpson2(.freq, .ch)
-        } else {
-          total <- 1
-        }
-        lapply(.bands, function(b) {
-          b_freq <- between(.freq, b[1], b[2])
-          int.simpson2(.freq[b_freq], .ch[b_freq]) / total
-        }) %>% unlist()
-      }
+      funpower, .freq 
     ), .freq = names(.bands), .by = ".id") %>%
     select.(obligatory_cols$.psd, tidyselect::everything())
   .data
@@ -138,11 +139,11 @@ eeg_power_band.psd_lst <- function(.data, .bands = list(
 
 #' @export
 eeg_power_band.eeg_lst <- function(.data, .bands = list(
-                                     delta = c(0.5, 4),
-                                     theta = c(4, 8),
-                                     alpha = c(8, 13),
-                                     beta = c(13, 30)
-                                   ),
+                                            delta = c(0.5, 4),
+                                            theta = c(4, 8),
+                                            alpha = c(8, 13),
+                                            beta = c(13, 30)
+                                          ),
                                    .relative = FALSE, ...) {
   eeg_psd(.data, ...) %>%
     eeg_power_band(.bands = .bands, .relative = .relative)

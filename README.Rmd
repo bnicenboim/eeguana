@@ -21,13 +21,13 @@ knitr::opts_chunk$set(
 
 ## Overview
 
-A package for flexible manipulation of EEG data. `eeguana` provides a `data.table` powered framework (through `tidytable`) for manipulating EEG data with *dplyr*-like functions (e.g., `eeg_mutate`, `eeg_filter`, `eeg_summarize`) extended to a new class `eeg_lst`,  other EEG-specialized functions, and `ggplot` wrapper functions.  The new class is inspired by tidyverse principles but it's not really "tidy" (due to space considerations), it's a list of (i) a wide *data table* (`signal_tbl`) that contains the signal amplitudes at every sample point of the EEG,  (ii) an events *data table* with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant number (`.recording`), conditions, etc.  
+A package for flexible manipulation of EEG data. `eeguana` provides a `data.table` powered framework through `tidytable` for manipulating EEG data with *dplyr*-like functions (e.g., `eeg_mutate`, `eeg_filter`, `eeg_summarize`) extended to a new class `eeg_lst`,  other EEG-specialized functions, and `ggplot` wrapper functions.  The new class is inspired by tidyverse principles but it's not really "tidy" (due to space considerations), it's a list of (i) a wide *data table* (`signal_tbl`) that contains the signal amplitudes at every sample point of the EEG,  (ii) an events *data table* with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant number (`.recording`), conditions, etc.  
 
 *eeguana* can do only basic pre-processing for now, more complete packages exist for Matlab ([FieldTrip](http://www.fieldtriptoolbox.org/) and [EEGLAB](https://sccn.ucsd.edu/eeglab/index.php)) and python ([MNE](https://martinos.org/mne/stable/index.html)).
 
 See [Reference](https://bnicenboim.github.io/eeguana/reference/index.html) for more information about the functions of *eeguana*.
 
-**NOTE: `eeg_lst` objects created with previous versions of eeguana can be made compatible with the latest version by doing `as_eeg_lst(old_obj)`**
+**NOTE: Changes in dependencies that broke the package are now fixed!**
 
 ## Installation
 
@@ -154,7 +154,7 @@ faces_segs_some %>%
   plot_topo() +
   annotate_head() +
   geom_contour() +
-  geom_text(colour = "black") +
+  annotate_electrodes(colour = "black") +
   facet_grid(~condition)
 ```
 

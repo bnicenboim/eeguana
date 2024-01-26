@@ -1,4 +1,4 @@
-library(eeguana)
+# library(eeguana)
 options(eeguana.verbose = FALSE)
 
 data <- eeguana:::data_sincos2id
@@ -6,13 +6,13 @@ data <- eeguana:::data_sincos2id
 
 data0 <- eeg_lst(
   signal_tbl =
-    dplyr::tibble(
+    tidytable::tidytable(
       X = sin(1:20),
       Y = cos(1:20),
       .id = rep(c(1L, 1L), each = 10),
       .sample = sample_int(seq(1L, 20L), .sampling_rate = 500)
     ),
-  channels_tbl = dplyr::tibble(
+  channels_tbl = tidytable::tidytable(
     .channel = c("X", "Y"), .reference = NA, theta = NA, phi = NA,
     radius = NA, .x = NA_real_, .y = NA_real_, .z = NA_real_
   ),
@@ -26,7 +26,7 @@ data0 <- eeg_lst(
     1L, "Time 0", NA, 16L, 16L, NA,
     1L, "Bad", NA, 17L, 17L, "Y"
   ),
-  segments_tbl = dplyr::tibble(.id = 1L, .recording = "recording1", segment = 1)
+  segments_tbl = tidytable::tidytable(.id = 1L, .recording = "recording1", segment = 1)
 )
 
 ref_data <- data.table::copy(data)
@@ -136,7 +136,7 @@ test_that("duplicated triggers", {
 
 
 test_that("can add stuff from the events table", {
-  events_tbl(data) <- events_tbl(data) %>% mutate(cond = .type)
+  events_tbl(data) <- events_tbl(data) %>% tidytable::mutate(cond = .type)
   data_s <- eeg_segment(data, .type == "Time 0")
   expect_equal(data_s$.segments$cond, data_s$.segments$type)
 })
