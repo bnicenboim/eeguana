@@ -4,6 +4,9 @@
     <loc>/404.html</loc>
   </url>
   <url>
+    <loc>/CONTRIBUTING.html</loc>
+  </url>
+  <url>
     <loc>/ISSUE_TEMPLATE.html</loc>
   </url>
   <url>
@@ -32,6 +35,9 @@
   </url>
   <url>
     <loc>/news/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/annotate_electrodes.html</loc>
   </url>
   <url>
     <loc>/reference/annotate_events.html</loc>
@@ -251,6 +257,9 @@
   </url>
   <url>
     <loc>/reference/read_vhdr.html</loc>
+  </url>
+  <url>
+    <loc>/reference/reexports.html</loc>
   </url>
   <url>
     <loc>/reference/rpink.html</loc>

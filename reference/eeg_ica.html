@@ -3,7 +3,7 @@
 matrix of every recording. It is possible to visualize the topography
 of the components with plot_components(). In order to extract the amplitude of
 the components with respect to time use eeg_ica_show(), see examples section. To remove the
-unwanted components, use eeg_ica_keep()."><meta property="og:image" content="/logo.png"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
+unwanted components, use eeg_ica_keep()."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--><script>if(!sessionStorage.getItem("_swa")&&document.referrer.indexOf(location.protocol+"//"+location.host)!== 0){fetch("https://counter.dev/track?"+new URLSearchParams({referrer:document.referrer,screen:screen.width+"x"+screen.height,user:"bnicenboim",utcoffset:"1"}))};sessionStorage.setItem("_swa","1");</script></head><body><p>,<script data-goatcounter="https://bnicenboim.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script></p>
@@ -21,7 +21,7 @@ unwanted components, use eeg_ica_keep()."><meta property="og:image" content="/lo
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.8.9001</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.9.9001</span>
       </span>
     </div>
 
@@ -154,8 +154,8 @@ Some packages with other ICA methods or implementations: <code>steadyICA</code> 
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="va">data_faces_10_trials</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">eeg_ica</span><span class="op">(</span><span class="op">-</span><span class="va">EOGH</span>, <span class="op">-</span><span class="va">EOGV</span>, <span class="op">-</span><span class="va">M1</span>, <span class="op">-</span><span class="va">M2</span>, .method <span class="op">=</span> <span class="va">fast_ICA</span>, .config <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>maxit <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> # ICA is being done using fast_ICA...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> # ICA finished in 9 iterations. With a tolerance of 0.795503. (Maximum expected tolerance: 1e-06.)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> # ICA took 2.19 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> # ICA finished in 9 iterations. With a tolerance of 0.991338. (Maximum expected tolerance: 1e-06.)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> # ICA took 1.07 secs</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # EEG data:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Signal table:</span>
@@ -281,11 +281,11 @@ Some packages with other ICA methods or implementations: <code>steadyICA</code> 
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by <a href="http://www.ling.uni-potsdam.de/~nicenboim/" class="external-link">Bruno Nicenboim</a>.</p>
+  <p></p><p>Developed by <a href="https://bruno.nicenboim.me/" class="external-link">Bruno Nicenboim</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>
