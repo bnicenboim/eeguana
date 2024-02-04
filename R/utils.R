@@ -13,6 +13,12 @@
 #' @importFrom data.table :=
 NULL
 
+#' purrr alterative
+#' @noRd
+discard <- function(x, p) x[!sapply(x, p)]
+keep <- function(x, p) x[sapply(x, p)]
+
+
 #' Unique columns of signal and segments tables.
 #' @noRd
 col_names_main <- function(.eeg_lst) {

@@ -5,9 +5,9 @@ suppress_python_output <- function(x) {
   invisible(reticulate::py_capture_output(x))
 }
 
+#reticulate::use_condaenv("mne")
 test_that("compare construct iir filter with python", {
   skip_if_no_python_stuff()
-  reticulate::conda_list()
 
   # reticulate::py_install("mne")
   reticulate::py_run_string("import mne")
@@ -214,8 +214,8 @@ test_that("raw brainvision read and converted from MNE match", {
     misc = c("M1", "M2")
   ))
   eeg_mne <- as_eeg_lst(.data = eeg_mne_obj) %>%
-    dplyr::mutate(.recording = "r1")
+    eeg_mutate(.recording = "r1")
   channels_tbl(eeg_read) <- channels_tbl(eeg_read) %>%
-    dplyr::select(.channel, .x, .y, .z, unit, .reference)
+    eeg_select(.channel, .x, .y, .z, unit, .reference)
   expect_equal(eeg_read, eeg_mne)
 })

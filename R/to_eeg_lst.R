@@ -61,15 +61,16 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
   ## FIFF.FIFF_UNIT_AM_M2 = 203  # Am/m^2
   ## FIFF.FIFF_UNIT_AM_M3 = 204 # Am/m^3
 
-  rel_ch <- .data$info$chs %>% purrr::discard(~ .x$kind == 3)
+  rel_ch <- .data$info$chs %>%
+    discard(function(.x) .x$kind == 3)
   sti_ch_names <- .data$info$chs %>%
-    purrr::keep(~ .x$kind == 3) %>%
-    purrr::map_chr(~ .x$ch_name)
+    keep(function(.x) .x$kind == 3) %>%
+    tidytable::map_chr(~ .x$ch_name)
   if (length(sti_ch_names) > 0) {
     warning("Stimuli channels will be discarded. Use find_events from mne to add them.", call. = FALSE)
   }
 
-  scale_head <- purrr::map_dbl(rel_ch, ~ sqrt(sum((0 - .x$loc[1:3])^2))) %>%
+  scale_head <- tidytable::map_dbl(rel_ch, ~ sqrt(sum((0 - .x$loc[1:3])^2))) %>%
     .[. != 0] %>% # remove the ones that have all 0
     # 1 by default if there is no electrode info
     {
@@ -77,37 +78,44 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
     } %>%
     min(na.rm = TRUE)
 
-  ch_info <- rel_ch %>% purrr::map_dfr(function(ch) {
-    if (ch$kind == 502 | scale_head == 0) { # misc channel
-      location <- rep(NA_real_, 3)
-    } else {
-      location <- purrr::map(ch$loc[1:3], ~ round(. / scale_head, 2))
-    }
+  ch_info <- rel_ch %>%
+    tidytable::map_dfr(function(ch) {
+      message_verbose("Loading channel ", ch$ch_name,"...")
+      if (ch$kind == 502 | scale_head == 0) { # misc channel
+        location <- rep(NA_real_, 3)
+      } else {
+        location <- tidytable::map(ch$loc[1:3],
+                                   ~ round(. / scale_head, 2))
+      }
+      if(is.vector(ch$unit)) {
+        ch_unit <- ch$unit
+      } else {
+        ch_unit <- ch$unit$numerator
+      }
 
-    if (ch$unit$numerator %in% as.numeric(names(units_list))) {
-      ch_unit <- ch$unit$numerator
-    } else {
-      ch_unit <- 107 # default to Volts
-    }
-    pref_id <- round(log10(ch$range)) %>% as.character()
-    if (pref_id %in% names(prefix)) {
-      unit <- paste0(
-        prefix[[pref_id]],
-        units_list[[ch_unit %>% as.character()]]
-      )
-    } else {
-      warning("Unit cannot be identified", call. = FALSE)
-      unit <- NA
-    }
-    list(
-      .channel = ch$ch_name,
-      .x = location[[1]],
-      .y = location[[2]],
-      .z = location[[3]],
-      unit = unit,
-      .reference = NA_character_
-    )
-  })
+      if (!ch_unit %in% as.numeric(names(units_list))) {
+        ch_unit <- 107 # default to Volts
+      }
+
+      pref_id <- round(log10(ch$range)) %>% as.character()
+      if (pref_id %in% names(prefix)) {
+        unit <- paste0(
+          prefix[[pref_id]],
+          units_list[[ch_unit %>% as.character()]]
+        )
+      } else {
+        warning("Unit cannot be identified", call. = FALSE)
+        unit <- NA
+      }
+      tidytable::tidytable(
+                   .channel = ch$ch_name,
+                   .x = location[[1]],
+                   .y = location[[2]],
+                   .z = location[[3]],
+                   unit = unit,
+                   .reference = NA_character_
+                 )
+    })
 
   signal_m <- .data$to_data_frame()
   data.table::setDT(signal_m)
@@ -135,8 +143,8 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
     )
   } else {
     descriptions_dt <- tidyr::separate(data.table::data.table(annotation = ann$description),
-      col = "annotation", into = c(".type", ".description"), sep = "/", fill = "left"
-    )
+                                       col = "annotation", into = c(".type", ".description"), sep = "/", fill = "left"
+                                       )
     new_events <- new_events_tbl(
       .id = 1L,
       .type = descriptions_dt$.type,

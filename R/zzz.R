@@ -19,6 +19,12 @@ if (getRversion() >= "2.15.1") {
 .datatable.aware <- TRUE
 
 .onLoad <- function(libname, pkgname) {
+
+  if(requireNamespace("reticulate", quietly = TRUE)){
+    reticulate::use_condaenv("r-eeguana", required = FALSE)
+  }
+
+  #dplyr styff
   register_s3_method("dplyr", "group_by", "eeg_lst")
   register_s3_method("dplyr", "groups", "eeg_lst")
   register_s3_method("dplyr", "group_vars", "eeg_lst")
@@ -62,4 +68,12 @@ if (getRversion() >= "2.15.1") {
   if (any(toset)) options(op.eeguana[toset])
 
   invisible()
+}
+
+
+.onAttach <- function(libname, pkgname) {
+    packageStartupMessage(pkgname,
+    " version ",
+    utils::packageVersion(pkgname),
+    "\nAn introduction to the package can be found in https://bruno.nicenboim.me/eeguana/articles/intro.html\n")
 }
