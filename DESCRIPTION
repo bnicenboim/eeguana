@@ -12,7 +12,7 @@ Description: Flexible manipulation of EEG data in R. It provides a data.table
     and other exported information, and (iii) a long table with experimental
     information, such as participant number (.recording), conditions, etc.
     eeguana can do only basic pre-processing for now.
-Version: 0.1.9.9001
+Version: 0.1.10.9001
 Authors@R: c(
     person("Bruno", "Nicenboim", email = "bruno.nicenboim@tilburguniversity.edu", role = c("aut", "cre")),
     person("Kate", "Stone", email = "kate.stone@uni-potsdam.de", role = "ctb"),

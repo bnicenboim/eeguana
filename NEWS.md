@@ -1,3 +1,7 @@
+# eeguana 0.1.10.9001
+- `chs_mean` for psd_list objects
+- `read_fif()`
+- `install_py_eeguana()`
 # eeguana 0.1.9.9001
 - fix installation of the dependency tidytable.
 - added `annotate_electrodes()` to add electrode labels to a topographic plot. (Previously this was done with `geom_text()`).
