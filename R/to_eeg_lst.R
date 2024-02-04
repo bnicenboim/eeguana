@@ -70,7 +70,8 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
     warning("Stimuli channels will be discarded. Use find_events from mne to add them.", call. = FALSE)
   }
 
-  scale_head <- tidytable::map_dbl(rel_ch, ~ sqrt(sum((0 - .x$loc[1:3])^2))) %>%
+  scale_head <- tidytable::map_dbl(rel_ch,
+                                   ~ sqrt(sum((0 - .x$loc[1:3])^2))) %>%
     .[. != 0] %>% # remove the ones that have all 0
     # 1 by default if there is no electrode info
     {
@@ -104,7 +105,7 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
           units_list[[ch_unit %>% as.character()]]
         )
       } else {
-        warning("Unit cannot be identified", call. = FALSE)
+      #  warning("Unit cannot be identified", call. = FALSE)
         unit <- NA
       }
       tidytable::tidytable(
@@ -133,7 +134,7 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
   new_signal <- new_signal_tbl(.id = 1L, .sample = samples, signal_matrix = signal_m, channels_tbl = ch_info)
 
   # create events object
-  ann <- .data$annotations$`__dict__`
+  ann <- .data$annotations #$`__dict__`
   if (length(ann$onset) == 0) {
     new_events <- new_events_tbl(
       .initial =

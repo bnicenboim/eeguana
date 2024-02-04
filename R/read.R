@@ -583,3 +583,31 @@ read_set <- function(file, .recording = file) {
 
   built_eeg_lst(eeg_lst_, file)
 }
+
+
+
+#' Read a FIF file into R
+#'
+#' Creates an eeg_lst object from EEG/MEG data in FIF format. The function reads a .fif file using the `mne` Python package via `reticulate`.
+#' If you do not already have `mne` installed in your Python environment, ensure to install it prior to using this function using [install_py_eeguana].
+#' The .fif file is a standard format used by MNE and other neurophysiological data analysis software.
+#'
+#' @param file A .fif file containing EEG/MEG data.
+#' @param .recording Recording name, by default is the file name. This parameter is currently not used in the function but reserved for future use or metadata purposes.
+#' @return An `eeg_lst` object with signal_tbl and event information from a .fif file.
+#'
+#' @examples
+#' \dontrun{
+#' eeg_data <- read_fiff("./subject1_raw.fif")
+#' }
+#'
+#' @family reading and writing functions
+#'
+#' @export
+read_fif <- function(file, .recording = file) {
+  require_python()
+
+  mne <- reticulate::import("mne")
+  raw <- mne$io$read_raw_fif(file)
+  as_eeg_lst(raw)
+}

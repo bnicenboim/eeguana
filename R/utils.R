@@ -157,12 +157,24 @@ message_obj <- function(msg, obj) {
 is_wholenumber <- function(x, tol = .Machine$double.eps^0.5) {
   abs(x - round(x)) < tol | is.infinite(x) | is.na(x)
 }
+
 #' @noRd
 require_pkg <- function(pkg) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
     stop(paste0("Package '", pkg, "'  needed for this function to work. Please install it."),
       call. = FALSE
     )
+  }
+}
+
+#' @noRd
+require_python <- function(){
+  require_pkg("reticulate")
+  py_installed <- c(reticulate::py_module_available("pandas"),
+                  reticulate::py_module_available("mne"))
+  if(!all(py_installed)){
+    stop("Python packages pandas and mne are needed for this function to work. Install them with `install_py_eeguana()`",
+         call. = FALSE)
   }
 }
 
