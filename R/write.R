@@ -46,8 +46,8 @@ write_vhdr <- function(x, file, overwrite = FALSE){
             call. = FALSE)
   }
  recs <- unique(x$.segments$.recording)
- names(recs) <- recs %>% make.names(unique = TRUE) %>% gsub("\\.","_",.)
- if(missing(file)) file <- names(recs)
+ names(recs) <- recs %>% make_names()
+  if(missing(file)) file <- names(recs)
  if(length(file) ==1 & dir.exists(file)) {
    file <- file.path(file, names(recs))
  } else if(length(file) ==1 & length(recs)>1 & !dir.exists(file)) {

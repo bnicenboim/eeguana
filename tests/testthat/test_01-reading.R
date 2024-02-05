@@ -50,6 +50,14 @@ channels_tbl(ft) <- channels_tbl(multiplexed_bin_bv2)
 # })
 
 
+test_that("can read fif files ", {
+  fiffile <- system.file("testdata", "sample_audvis_raw_10s.fif", package = "eeguana")
+  #warnings are ok here (for now)
+  suppressWarnings(fif_mne <- read_fif(fiffile))
+ expect_snapshot(fif_mne)
+  })
+
+
 test_that("can read unique eeglab files ", {
   files = c(file.path(other_testfiles, "EEG01.mat"),
            system.file("testdata", "eeglab_data.set", package = "eeguana"))

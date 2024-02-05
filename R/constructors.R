@@ -285,6 +285,24 @@ is_channel_dbl <- function(x) {
   r
 }
 
+
+#' @export
+`[.sample_int` <- function(x, i, ...) {
+  attrs <- attributes(x)
+  class(x) <- NULL
+  r <- NextMethod("[")
+  mostattributes(r) <- attrs
+  r
+}
+
+#' @export
+`[[.sample_int` <- function(x, i, ...) {
+  attrs <- attributes(x)
+  r <- NextMethod("[[")
+  mostattributes(r) <- attrs
+  r
+}
+
 #' @export
 `[[.eeg_lst` <- function(x, i, ...) {
   if (is.character(i)) {

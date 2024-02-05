@@ -13,7 +13,7 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
 
 
   ## create channel info
-  ch_names <- .data$ch_names
+  ch_names <- make_names(.data$ch_names)
   ## Meaning of kind code: https://github.com/mne-tools/mne-python/blob/2a0a55c6a795f618cf0a1603e22a72ee8e879f62/mne/io/constants.py
   ## FIFF.FIFFV_BIO_CH       = 102
   ## FIFF.FIFFV_MEG_CH       =   1
@@ -63,13 +63,16 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
 
   rel_ch <- .data$info$chs %>%
     discard(function(.x) .x$kind == 3)
+
   sti_ch_names <- .data$info$chs %>%
     keep(function(.x) .x$kind == 3) %>%
     tidytable::map_chr(~ .x$ch_name)
+
   if (length(sti_ch_names) > 0) {
     warning("Stimuli channels will be discarded. Use find_events from mne to add them.", call. = FALSE)
   }
 
+  # Determines the scale of the head for plotting
   scale_head <- tidytable::map_dbl(rel_ch,
                                    ~ sqrt(sum((0 - .x$loc[1:3])^2))) %>%
     .[. != 0] %>% # remove the ones that have all 0
@@ -105,11 +108,11 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
           units_list[[ch_unit %>% as.character()]]
         )
       } else {
-      #  warning("Unit cannot be identified", call. = FALSE)
+        #  warning("Unit cannot be identified", call. = FALSE)
         unit <- NA
       }
       tidytable::tidytable(
-                   .channel = ch$ch_name,
+                   .channel = make_names(ch$ch_name),
                    .x = location[[1]],
                    .y = location[[2]],
                    .z = location[[3]],
@@ -123,7 +126,6 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
   if ("time" %in% colnames(signal_m)) {
     signal_m[, time := NULL]
   }
-
   if (length(sti_ch_names) > 0) {
     signal_m[, (sti_ch_names) := NULL]
   }
@@ -131,7 +133,10 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
   t_s <- .data$times
   samples <- as_sample_int(c(t_s), .sampling_rate = .data$info$sfreq, unit = "s")
 
-  new_signal <- new_signal_tbl(.id = 1L, .sample = samples, signal_matrix = signal_m, channels_tbl = ch_info)
+  new_signal <- new_signal_tbl(.id = 1L,
+                               .sample = samples,
+                               signal_matrix = signal_m,
+                               channels_tbl = ch_info)
 
   # create events object
   ann <- .data$annotations #$`__dict__`
@@ -146,7 +151,7 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
     descriptions_dt <- tidyr::separate(data.table::data.table(annotation = ann$description),
                                        col = "annotation", into = c(".type", ".description"), sep = "/", fill = "left"
                                        )
-    new_events <- new_events_tbl(
+    new_events <-    new_events_tbl(
       .id = 1L,
       .type = descriptions_dt$.type,
       .description = descriptions_dt$.description,
@@ -155,11 +160,31 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
       .final = as_sample_int(ann$onset + ann$duration, .sampling_rate = .data$info$sfreq, unit = "s") - 1L,
       .channel = NA_character_
     )
+
   }
+
+  if(length(.data$info$bad) > 0){
+    bad_channels <- .data$info$bad %>%
+      unlist() %>%
+      make_names()
+    bad_events <- new_events_tbl(.id = 1L,
+                                           .type = "artifact",
+                                           .description = "mne bad channel",
+                                           .initial = samples[1],
+                                           .final = samples[length(samples)],
+                                           .channel = bad_channels)
+
+
+
+    new_events <- rbind(new_events,bad_events)
+
+
+  }
+
   data_name <- toString(substitute(.data))
   eeg_lst(
     signal_tbl = new_signal,
     events_tbl = new_events,
-    segments_tbl = dplyr::tibble(.id = 1L, .recording = data_name, segment = 1L)
+    segments_tbl = tidytable::tidytable(.id = 1L, .recording = data_name, segment = 1L)
   )
 }

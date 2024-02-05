@@ -2,9 +2,11 @@
 
 S3method("[",channel_dbl)
 S3method("[",component_dbl)
+S3method("[",sample_int)
 S3method("[[",channel_dbl)
 S3method("[[",component_dbl)
 S3method("[[",eeg_lst)
+S3method("[[",sample_int)
 S3method("channels_tbl<-",data.frame)
 S3method("channels_tbl<-",data.table)
 S3method("channels_tbl<-",eeg_lst)

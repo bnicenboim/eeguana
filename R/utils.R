@@ -18,6 +18,17 @@ NULL
 discard <- function(x, p) x[!sapply(x, p)]
 keep <- function(x, p) x[sapply(x, p)]
 
+#' Nice consistent names
+#' @noRd
+make_names <- function(names, allow_init_dot = FALSE) {
+
+  new_names <- make.names(names = names, unique = TRUE)
+  if(allow_init_dot) {
+    gsub("(?<!^)\\.", "_", new_names, perl = TRUE)
+  } else {
+    gsub("\\.","_",new_names)
+  }
+}
 
 #' Unique columns of signal and segments tables.
 #' @noRd
@@ -60,11 +71,6 @@ factors <- function(N) {
 #' @noRd
 cat_line <- function(...) {
   cat(paste0(..., "\n"), sep = "")
-}
-
-#' @noRd
-make_names <- function(names) {
-  make.names(names) %>% make.unique()
 }
 
 #' @noRd
