@@ -169,3 +169,8 @@ transmute.events_tbl <- function(.data, ...) {
 summarise.events_tbl <- function(.data, ...) {
   as_events_tbl(NextMethod(), sampling_rate(.data))
 }
+
+
+#' @export
+add_events.eeg_lst <- function(.data, ..., .before = NULL, .after = NULL){
+     }
