@@ -36,7 +36,8 @@ new_events_tbl <- function(.id = integer(0),
     .initial = .initial,
     .final = .final,
     .channel = .channel
-  )
+  ) %>% #just to remove the tidytable class:
+    data.table::as.data.table()
 
   if (!is.null(.sampling_rate)) {
     events <- events %>%

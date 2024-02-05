@@ -70,12 +70,12 @@ test_that("both .eeg_lst and .channel_dbl give the same output for chs_mean", {
 })
 
 test_that("both chs_fun and chs_mean give the same output", {
-  data_M_f <- dplyr::transmute(data_sincos2id, mean = chs_fun(X, Y, .funs = mean))
+  data_M_f <- eeg_transmute(data_sincos2id, mean = chs_fun(X, Y, .funs = mean))
   data_M_fa <- chs_fun(data_sincos2id, "mean")
   data_M_fa2 <- chs_fun(data_sincos2id, mean)
   data_M_fa3 <- chs_fun(data_sincos2id, list(mean = ~ mean(.)))
   data_M_fa4 <- chs_fun(data_sincos2id, ~ mean(., na.rm = TRUE)) %>%
-    dplyr::rename(mean = X...mean....na.rm...TRUE.)
+    dplyr::rename(mean = X___mean____na_rm___TRUE_)
   data_sincos2id_NA <- data_sincos2id %>% eeg_mutate(X = ifelse(X > .98, NA, X))
   data_M_fa_NA1 <- chs_fun(data_sincos2id_NA, list(mean = ~ mean(., na.rm = TRUE)))
   data_M_fa_NA2 <- chs_fun(data_sincos2id_NA, mean, list(na.rm = TRUE))

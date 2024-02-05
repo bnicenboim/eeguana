@@ -9,7 +9,6 @@ suppress_python_output <- function(x) {
 test_that("compare construct iir filter with python", {
   skip_if_no_python_stuff()
 
-  # reticulate::py_install("mne")
   reticulate::py_run_string("import mne")
   reticulate::py_run_string("import numpy")
   reticulate::py_run_string("iir_params_0 = dict(order=4, ftype='butter', output='ba')")

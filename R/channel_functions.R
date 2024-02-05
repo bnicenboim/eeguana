@@ -59,7 +59,7 @@ chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
   x$.signal <- x$.signal %>%
    mutate.(mean = rowMeans_ch(select.(., channel_names(x)),  na.rm = na.rm)) %>%
    select.(-all_of(channel_names(x)))
-  data.table::setkey(.data$.signal, .id, .sample)
+  data.table::setkey(x$.signal, .id, .sample)
   update_events_channels(x) %>%
     validate_eeg_lst()
 }

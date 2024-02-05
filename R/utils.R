@@ -179,7 +179,7 @@ require_python <- function(){
   py_installed <- c(reticulate::py_module_available("pandas"),
                   reticulate::py_module_available("mne"))
   if(!all(py_installed)){
-    stop("Python packages pandas and mne are needed for this function to work. Install them with `install_py_eeguana()`",
+    stop("Python packages pandas and mne are needed for this function to work. Install them with `install_py_eeguana()`.\n If these python packages are already installed, it could be that the wrong python interpreter was selected by Rstudio. To solve this, go to Tools/Global Options/Python and either clear the python interpreter, or select the correct one (the default one will be in the tab Conda and it will say something with 'r-eeguana', e.g., '~/miniconda3/envs/r-eeguana/bin/python3.12').",
          call. = FALSE)
   }
 }
