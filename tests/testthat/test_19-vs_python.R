@@ -1,10 +1,6 @@
 library(eeguana)
 options(eeguana.verbose = FALSE)
 set.seed(123)
-suppress_python_output <- function(x) {
-  invisible(reticulate::py_capture_output(x))
-}
-
 #reticulate::use_condaenv("mne")
 test_that("compare construct iir filter with python", {
   skip_if_no_python_stuff()
@@ -215,6 +211,6 @@ test_that("raw brainvision read and converted from MNE match", {
   eeg_mne <- as_eeg_lst(.data = eeg_mne_obj) %>%
     eeg_mutate(.recording = "r1")
   channels_tbl(eeg_read) <- channels_tbl(eeg_read) %>%
-    eeg_select(.channel, .x, .y, .z, unit, .reference)
+    tidytable::select(.channel, .x, .y, .z, unit, .reference)
   expect_equal(eeg_read, eeg_mne)
 })

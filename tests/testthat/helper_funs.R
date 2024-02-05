@@ -1,6 +1,10 @@
 #sourced by devtools::load_all() 
 #(so they’re available interactively when developing your packages) and by 
 #test_check() and friends (so that they’re available no matter how your tests are executed).
+suppress_python_output <- function(x) {
+  invisible(reticulate::py_capture_output(x))
+}
+
 
 other_testfiles <- file.path(testthat::test_path(), "other_files")
 
