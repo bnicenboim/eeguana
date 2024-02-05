@@ -40,33 +40,41 @@ data_1step <- eeg_lst(
 data_more <- eeg_lst(
   signal_tbl =
     signal %>%
-      tidytable::mutate(
-        .id = rep(1:4, each = N / 4),
-        .sample = sample_int(rep(seq_len(N / 4), times = 4), .sampling_rate = 500)
-      ),
+    tidytable::mutate(
+                 .id = rep(1:4, each = N / 4),
+                 .sample = sample_int(rep(seq_len(N / 4), times = 4), .sampling_rate = 500)
+               ),
   segments = data.frame(.id = seq.int(4), .recording = paste0("recording", c(1, 1, 2, 2)), segment = seq.int(4))
 )
 
 ###### voltage steps ######################3
+test_that("artifacts can be added manually", {
+  data_art <- data_more %>%
+    eeg_artif_step(.threshold = .01, .window = 10 / 500, .unit = "second")
+  events_toadd <- as.data.frame(events_tbl(data_art))
+
+  events_tbl(data_more) <- dplyr::bind_rows(events_tbl(data_art)[1,], events_toadd[2:5,])
+  expect_equal(data_art, data_more)})
+
 
 test_that("window of 1 step", {
   art_eventsp1 <- suppressWarnings( # the .window is too small, but it's ok for the test
     data_1step %>%
-      eeg_artif_step(.threshold = .01, .window = 2 / 500, .lim = c(0 / 500, 1 / 500), .unit = "second")
+    eeg_artif_step(.threshold = .01, .window = 2 / 500, .lim = c(0 / 500, 1 / 500), .unit = "second")
   ) %>%
     events_tbl()
   expect_equal(art_eventsp1[.channel == "X", ]$.initial %>% as.numeric(), 4)
   expect_equal(art_eventsp1[.channel == "X", ]$.final %>% as.numeric(), 5)
   art_events0 <- suppressWarnings( # the .window is too small, but it's ok for the test
     data_1step %>%
-      eeg_artif_step(.threshold = .01, .window = 2 / 500, .lim = c(0 / 500, 0 / 500), .unit = "second")
+    eeg_artif_step(.threshold = .01, .window = 2 / 500, .lim = c(0 / 500, 0 / 500), .unit = "second")
   ) %>%
     events_tbl()
   expect_equal(art_events0[.channel == "X", ]$.initial %>% as.numeric(), 4)
   expect_equal(art_events0[.channel == "X", ]$.final %>% as.numeric(), 4)
   art_eventsm1 <- suppressWarnings( # the .window is too small, but it's ok for the test
     data_1step %>%
-      eeg_artif_step(.threshold = .01, .window = 2 / 500, .lim = c(-1 / 500, 0 / 500), .unit = "second")
+    eeg_artif_step(.threshold = .01, .window = 2 / 500, .lim = c(-1 / 500, 0 / 500), .unit = "second")
   ) %>%
     events_tbl()
   expect_equal(art_eventsm1[.channel == "X", ]$.initial %>% as.numeric(), 3)
@@ -87,7 +95,7 @@ Czf <- Cz_10[seq(2, by = 2, to = length(Cz_10))]
 test_that(".window of 1 element", {
   art_events <- suppressWarnings( # the .window is too small, but it's ok for the test
     data %>%
-      eeg_artif_step(.threshold = .01, .window = 2 / 500, .lim = c(-1 / 500, 0 / 500), .unit = "second")
+    eeg_artif_step(.threshold = .01, .window = 2 / 500, .lim = c(-1 / 500, 0 / 500), .unit = "second")
   ) %>%
     events_tbl()
 
@@ -188,7 +196,7 @@ test_that("freq works", {
 
   step_h10 <- data %>%
     eeg_artif_minmax(.threshold = 10, .lim = c(0 / 500, 4 / 500), .window = 2 / 500, .unit = "second", .freq = c(10, NA))
- 
+
   events_h100s <- data %>%
     eeg_filt_high_pass(.freq = 10) %>%
     eeg_artif_step(.threshold = 10, .lim = c(0 / 500, 4 / 500), .window = 2 / 500, .unit = "second") %>%
@@ -228,7 +236,7 @@ test_that("freq works", {
 test_that("minmax: .window of 1 step", {
   art_eventsp1 <- suppressWarnings( # the .window is too small, but it's ok for the test
     data_1step %>%
-      eeg_artif_minmax(.threshold = .01, .lim = c(0 / 500, 1 / 500), .window = 2 / 500, .unit = "second")
+    eeg_artif_minmax(.threshold = .01, .lim = c(0 / 500, 1 / 500), .window = 2 / 500, .unit = "second")
   ) %>%
     events_tbl()
   expect_equal(art_eventsp1[.channel == "X", ]$.initial %>% as.numeric(), 5)
@@ -236,14 +244,14 @@ test_that("minmax: .window of 1 step", {
 
   art_events0 <- suppressWarnings(
     data_1step %>%
-      eeg_artif_minmax(.threshold = .01, .lim = c(0 / 500, 0 / 500), .window = 2 / 500, .unit = "second")
+    eeg_artif_minmax(.threshold = .01, .lim = c(0 / 500, 0 / 500), .window = 2 / 500, .unit = "second")
   ) %>%
     events_tbl()
   expect_equal(art_events0[.channel == "X", ]$.initial %>% as.numeric(), 5)
   expect_equal(art_events0[.channel == "X", ]$.final %>% as.numeric(), 5)
   art_eventsm1 <- suppressWarnings(
     data_1step %>%
-      eeg_artif_minmax(.threshold = .01, .lim = c(-1 / 500, 0 / 500), .window = 2 / 500, .unit = "second")
+    eeg_artif_minmax(.threshold = .01, .lim = c(-1 / 500, 0 / 500), .window = 2 / 500, .unit = "second")
   ) %>%
     events_tbl()
   expect_equal(art_eventsm1[.channel == "X", ]$.initial %>% as.numeric(), 4)
@@ -251,7 +259,7 @@ test_that("minmax: .window of 1 step", {
 
   art_eventsl <- suppressWarnings(
     data_1step %>%
-      eeg_artif_minmax(.threshold = .01, .lim = c(-1000 / 500, 1000 / 500), .window = 2 / 500, .unit = "second")
+    eeg_artif_minmax(.threshold = .01, .lim = c(-1000 / 500, 1000 / 500), .window = 2 / 500, .unit = "second")
   ) %>%
     events_tbl()
   expect_equal(art_eventsl[.channel == "X", ]$.initial %>% as.numeric(), 1)
