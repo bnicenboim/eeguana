@@ -1,10 +1,11 @@
 ---
-title: "Artifacts"
+title: "Artifact detection and rejection"
 author: "Bruno Nicenboim"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
+bibliography: references.bib
 vignette: >
-  %\VignetteIndexEntry{Artifacts}
+  %\VignetteIndexEntry{Artifact detection and rejection}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,35 +18,43 @@ knitr::opts_chunk$set(
 options(width = 80)
 ```
 
+This vignette demonstrates how to detect artifacts in EEG data using the `eeguana` package. To illustrate the process effectively, we first simulate synthetic artifacts. Then, we explore the relevant functions provided by `eeguana` for artifact detection, offering insights into their differences and applications.
 
-```{r}
+## Setup
+
+Initial preparation involves loading necessary libraries and setting global options and ensuring consistent results across sessions:
+
+```{r, message = FALSE}
 library(eeguana)
-library(gsignal)
-library(tidytable)
+library(gsignal) # A new alternative to signal
+library(tidytable) # A new and fast alternative to dplyr/tidyr
 library(ggplot2)
-theme_set(theme_get() + theme(legend.position = "bottom"))
-
-```
-
-
-```{r}
+# Apply EEG-specific theme settings
+theme_set(theme_eeguana() + theme(legend.position = "bottom"))
 set.seed(123)
 ```
 
+## Simulating Synthetic Artifacts
 
-Eye blinks (from https://stackoverflow.com/questions/53071709/remove-eye-blinks-from-eeg-signal-with-ica)
+First, we simulate common EEG artifacts: eye blinks, horizontal eye movements, and signal drift, to demonstrate artifact detection techniques.
+
+
+
+### Eye Blinks
+
+Eye blink simulation, inspired by a solution on [Stack Overflow](https://stackoverflow.com/questions/53071709/remove-eye-blinks-from-eeg-signal-with-ica), demonstrates typical artifacts in EEG data.
+
 
 ```{r}
 N_samples <- 2000
-fs <- 200
-A <- 75
-blinks <- rep(0, N_samples)
-blinks[500] <- 1
-blinks[1200] <- 1
+fs <- 200  # Define the sampling frequency
 
+# Simulating blinks at specific samples
+blinks <- rep(0, N_samples)
+blinks[c(500, 1200)] <- 1
 blinks <- butter(2, c(1*2/fs, 10*2/fs), type='pass') |>
   gsignal::filter(blinks) * 2000
-# Define a custom median filter function
+# Applying a median filter for smoothing
 median_filter <- function(x, window_size) {
   sapply(1:length(x), function(i) {
     start <- max(1, i - (window_size %/% 2))
@@ -55,121 +64,129 @@ median_filter <- function(x, window_size) {
 }
 blinks <- median_filter(blinks, 20)
 
-ggplot(data.frame(y = c(blinks), x= 1:N_samples), aes(x, y)) +
-  geom_line() 
+# Visualizing simulated eye blinks
+ggplot(data.frame(x = 1:N_samples, y = blinks), aes(x, y)) +
+  geom_line() +
+  ggtitle("Simulated Eye Blinks")
 ```
 
-Horzontal eye movements can be just a step function:
+
+
+### Horizontal Eye Movements
+
+Simulating horizontal eye movements as step changes in the signal to represent another common artifact type.
 
 ```{r}
 eyemov <- rep(0, N_samples)
-eyemov[200:300] <- 30
+eyemov[200:300] <- 30  # Simulate a movement artifact
 ```
+### Signal Drift
 
-Create drift and blinks signals
+Simulating slow voltage changes over time (signal drift)
 
 ```{r}
-noise <- rpink(N_samples, 100)*.5
-drift <- sin(.1 * seq.int(N_samples) / fs)*30
-signal_with_blinks <-  blinks  + noise + drift
-signal_with_drift <-  noise + drift*3
-signal_with_eye_mov <- eyemov + noise
+drift <- sin(.1 * seq.int(N_samples) / fs) * 30
 ```
 
-Create an eeg_lst
+### Pink noise
+
+Simulating pink noise to simulate more complex signal characteristics.
+
+
 ```{r}
-data_with_blink <- eeg_lst(
-  signal_tbl = tidytable(
-    Fz = as_channel_dbl(signal_with_blinks),
-    .id = 1,
-    .sample = sample_int(seq.int(1,10*200), .sampling_rate = 200)
-  ))
-
-
-data_with_drift <- eeg_lst(
-  signal_tbl = tidytable(
-    Fz = as_channel_dbl(signal_with_drift),
-    .id = 1,
-    .sample = sample_int(seq.int(1,10*200), .sampling_rate = 200)
-  ))
-
-data_with_eye_movements <- eeg_lst(
-  signal_tbl = tidytable(
-    Fz = as_channel_dbl(signal_with_eye_mov),
-    .id = 1,
-    .sample = sample_int(seq.int(1,10*200), .sampling_rate = 200)
-  ))
-
-
+noise <- rpink(N_samples, 100) * 0.5
 ```
 
-From Steven Luck's book:
 
-When Javier Lopez-Calderon was developing the artifact detection tools in ERPLAB Toolbox,
-he came up with a simple but very effective algorithm for more reliably distinguishing between
-epochs with blinks and epochs without blinks. It’s called the moving window peak-to-peak
-amplitude method.2 With this method, you define a window width, such as 200 ms (see the gray
-regions in panels D and E of figure 6.1). The algorithm places this window at the beginning of
-the epoch and finds the peak-to-peak amplitude within this window (i.e., the difference in ampli-
-tude between the most positive and negative points in the window). The window is then shifted
-rightward by a user-defined amount (e.g., 50 ms), and the peak-to-peak amplitude is determined
-in this new window. This continues until the whole epoch has been tested (or whatever portion
-of the epoch the user wants to test). The largest of these peak-to-peak amplitudes is then com-
-pared with the threshold for rejection.
-Because this method uses the difference between the highest and lowest points in each small
-window, it is completely insensitive to the overall voltage offset of the epoch. It is also relatively
-insensitive to slow voltage drifts.
+## Creating `eeg_lst` Objects
+
+Constructing `eeg_lst` objects with simulated signals to mimic real EEG data with artifacts.
 
 ```{r}
-data_with_blink <- data_with_blink |>
+data_with_blinks <- eeg_lst(signal_tbl = tidytable(
+    Fz = as_channel_dbl(blinks + noise + drift),
+    .id = 1,
+    .sample = sample_int(seq.int(1, N_samples), .sampling_rate = fs)
+  ))
+```
+
+```{r}
+data_with_drift <- eeg_lst(signal_tbl = tidytable(
+    Fz = as_channel_dbl(noise + drift * 3),
+    .id = 1,
+    .sample = sample_int(seq.int(1, N_samples), .sampling_rate = fs)
+  ))
+```
+
+
+```{r}
+data_with_eye_movements <- eeg_lst(signal_tbl = tidytable(
+    Fz = as_channel_dbl(eyemov + noise),
+    .id = 1,
+    .sample = sample_int(seq.int(1, N_samples), .sampling_rate = fs)
+  ))
+```
+
+
+
+## Artifact Detection
+
+### Blinks
+
+Chapter 6 of @Luck2014 discusses a method  known as the moving window peak-to-peak amplitude method, which is effective for distinguishing epochs with and without blinks. This method is insensitive to the overall voltage offset and slow voltage drifts, making it ideal for EEG artifact detection. It is implemented in `eeguana` as
+`eeg_artif_minmax()`. 
+
+```{r}
+data_with_blinks <- data_with_blinks |>
   eeg_artif_minmax(.threshold = 75)
 ```
 
-regular plot:
-
+The artifacts get annotated in the events table:
 ```{r}
-plot(data_with_blink) +
-  coord_cartesian(ylim =c(-70,40))
+data_with_blinks
 ```
 
-regular plot including artifacts
-
-```{r}
-plot(data_with_blink) +
+Visualizing detected eye blinks:
+```
+plot(data_with_blinks) +
   annotate_events() +
-  coord_cartesian(ylim =c(-70,40))
+  coord_cartesian(ylim = c(-70, 40)) +
+  ggtitle("Detected Eye Blinks")
 ```
 
+### Drift
 
-data with only drift
+EEG data with only drift should not be marked as an artifact, demonstrating the method's sensitivity to genuine physiological artifacts versus normal signal variations.
+
 
 ```{r}
 data_with_drift <- data_with_drift |>
   eeg_artif_minmax(.threshold = 75)
-```
 
-artif minmax behaves as it should
-
-```{r}
+# Visualizing
 plot(data_with_drift) +
   annotate_events() +
     coord_cartesian(ylim =c(-70,100))
 ```
 
-artif peaks will not
+`eeg_artif_peak()` and `eeg_artif_amplitude()` are not recommended here. The first one will look at anything that looks like peak in a certain window and exceeds some absolute threshold and amplitud will detect anything that goes beyond a certain threshold. This functions can be useful once the signal is filtered for low frequencies and/or baselined, and when used with relatively large thresholds.
+
 ```{r}
 data_with_drift <- data_with_drift |>
-  eeg_artif_peak(.threshold = 75)
-```
+  eeg_artif_peak(.threshold = 75) |>
+  eeg_artif_amplitude(.threshold = c(-75,75))
 
-
-```{r}
+# Visualize
 plot(data_with_drift) +
   annotate_events() +
     coord_cartesian(ylim =c(-70,100))
 ```
 
 
+
+### Eye movements
+
+Chapter 6 of @Luck2014 also describes a method for detecting eye movements, emphasizing their dipole nature and the efficacy of a step function algorithm for artifact detection. This method computes the difference in mean amplitude between two halves of a window, effectively identifying changes in amplitude indicative of eye movements.
 
 ```{r}
 data_with_eye_movements <- data_with_eye_movements |>
@@ -180,3 +197,5 @@ plot(data_with_eye_movements) +
     coord_cartesian(ylim =c(-70,100))
 ```
 
+
+## References
