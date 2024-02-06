@@ -3,11 +3,14 @@
 \name{theme_eeguana}
 \alias{theme_eeguana}
 \alias{theme_eeguana2}
+\alias{default_theme}
 \title{Eeguana ggplot themes}
 \usage{
 theme_eeguana()
 
 theme_eeguana2()
+
+default_theme()
 }
 \value{
 A ggplot theme.

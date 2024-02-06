@@ -55,12 +55,15 @@ autoplot.eeg_lst <- function(x, .max_sample = 6400, ...) {
     gg_default_layers(lims) 
   plot
 }
+
+#' @rdname autoplot.eeg_lst
 #' @export
 plot.eeg_lst <- function(x, ...){
     print(ggplot2::autoplot(x, ...))
 }
 
 
+#' @rdname autoplot.eeg_lst
 #' @export
 autoplot.psd_lst <- function(x, ...) {
   rlang::check_dots_unnamed()
@@ -85,6 +88,7 @@ autoplot.psd_lst <- function(x, ...) {
   plot
 }
 
+#' @rdname autoplot.eeg_lst
 #' @export
 plot.psd_lst <- function(x, ...){
     print(ggplot2::autoplot(x, ...))
@@ -824,6 +828,7 @@ theme_eeguana2 <- function() {
     )
   )
 }
+#' @rdname theme_eeguana
 #' @export
 default_theme <- function() {
   theme_eeguana()
