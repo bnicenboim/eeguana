@@ -119,6 +119,7 @@ reference:
     - '`rpink`'
     -  has_concept("ica methods")
     - '`between`'
+    - '`install_py_eeguana`'
   - title: "Example data sets"
     desc: >
       Example data sets in eeg_lst format.
