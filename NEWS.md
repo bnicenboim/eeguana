@@ -1,8 +1,11 @@
 # eeguana 0.1.10.9001
-- `chs_mean` for psd_list objects
-- `read_fif()`
-- `install_py_eeguana()`
+New features
+- added `chs_mean` method for psd_list objects
+- added experimental `read_fif()` to read fif files created by mne python
+- `install_py_eeguana()` to install the necessary python packages to read fif files.
+- Bugs and improvements
 - `channel_dbl` and `sample_int` classes behave nicer.
+- `annotate_events()` allows the user to plot even if there are no events
 # eeguana 0.1.9.9001
 - fix installation of the dependency tidytable.
 - added `annotate_electrodes()` to add electrode labels to a topographic plot. (Previously this was done with `geom_text()`).

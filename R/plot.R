@@ -673,7 +673,8 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
     events_tbl <- object$layer$data
   }
   if (nrow(events_tbl) == 0) {
-    return(NULL)
+    message_verbose("No events found.")
+    return(plot)
   } # nothing to plot
   info_events <- c(".type", ".description")
   events_tbl <- data.table::as.data.table(events_tbl)
