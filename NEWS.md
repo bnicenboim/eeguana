@@ -2,6 +2,7 @@
 - `chs_mean` for psd_list objects
 - `read_fif()`
 - `install_py_eeguana()`
+- `channel_dbl` and `sample_int` classes behave nicer.
 # eeguana 0.1.9.9001
 - fix installation of the dependency tidytable.
 - added `annotate_electrodes()` to add electrode labels to a topographic plot. (Previously this was done with `geom_text()`).
