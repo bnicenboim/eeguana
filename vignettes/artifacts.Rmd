@@ -1,0 +1,182 @@
+---
+title: "Artifacts"
+author: "Bruno Nicenboim"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Artifacts}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+options(width = 80)
+```
+
+
+```{r}
+library(eeguana)
+library(gsignal)
+library(tidytable)
+library(ggplot2)
+theme_set(theme_get() + theme(legend.position = "bottom"))
+
+```
+
+
+```{r}
+set.seed(123)
+```
+
+
+Eye blinks (from https://stackoverflow.com/questions/53071709/remove-eye-blinks-from-eeg-signal-with-ica)
+
+```{r}
+N_samples <- 2000
+fs <- 200
+A <- 75
+blinks <- rep(0, N_samples)
+blinks[500] <- 1
+blinks[1200] <- 1
+
+blinks <- butter(2, c(1*2/fs, 10*2/fs), type='pass') |>
+  gsignal::filter(blinks) * 2000
+# Define a custom median filter function
+median_filter <- function(x, window_size) {
+  sapply(1:length(x), function(i) {
+    start <- max(1, i - (window_size %/% 2))
+    end <- min(length(x), i + (window_size %/% 2))
+    median(x[start:end])
+  })
+}
+blinks <- median_filter(blinks, 20)
+
+ggplot(data.frame(y = c(blinks), x= 1:N_samples), aes(x, y)) +
+  geom_line() 
+```
+
+Horzontal eye movements can be just a step function:
+
+```{r}
+eyemov <- rep(0, N_samples)
+eyemov[200:300] <- 30
+```
+
+Create drift and blinks signals
+
+```{r}
+noise <- rpink(N_samples, 100)*.5
+drift <- sin(.1 * seq.int(N_samples) / fs)*30
+signal_with_blinks <-  blinks  + noise + drift
+signal_with_drift <-  noise + drift*3
+signal_with_eye_mov <- eyemov + noise
+```
+
+Create an eeg_lst
+```{r}
+data_with_blink <- eeg_lst(
+  signal_tbl = tidytable(
+    Fz = as_channel_dbl(signal_with_blinks),
+    .id = 1,
+    .sample = sample_int(seq.int(1,10*200), .sampling_rate = 200)
+  ))
+
+
+data_with_drift <- eeg_lst(
+  signal_tbl = tidytable(
+    Fz = as_channel_dbl(signal_with_drift),
+    .id = 1,
+    .sample = sample_int(seq.int(1,10*200), .sampling_rate = 200)
+  ))
+
+data_with_eye_movements <- eeg_lst(
+  signal_tbl = tidytable(
+    Fz = as_channel_dbl(signal_with_eye_mov),
+    .id = 1,
+    .sample = sample_int(seq.int(1,10*200), .sampling_rate = 200)
+  ))
+
+
+```
+
+From Steven Luck's book:
+
+When Javier Lopez-Calderon was developing the artifact detection tools in ERPLAB Toolbox,
+he came up with a simple but very effective algorithm for more reliably distinguishing between
+epochs with blinks and epochs without blinks. It’s called the moving window peak-to-peak
+amplitude method.2 With this method, you define a window width, such as 200 ms (see the gray
+regions in panels D and E of figure 6.1). The algorithm places this window at the beginning of
+the epoch and finds the peak-to-peak amplitude within this window (i.e., the difference in ampli-
+tude between the most positive and negative points in the window). The window is then shifted
+rightward by a user-defined amount (e.g., 50 ms), and the peak-to-peak amplitude is determined
+in this new window. This continues until the whole epoch has been tested (or whatever portion
+of the epoch the user wants to test). The largest of these peak-to-peak amplitudes is then com-
+pared with the threshold for rejection.
+Because this method uses the difference between the highest and lowest points in each small
+window, it is completely insensitive to the overall voltage offset of the epoch. It is also relatively
+insensitive to slow voltage drifts.
+
+```{r}
+data_with_blink <- data_with_blink |>
+  eeg_artif_minmax(.threshold = 75)
+```
+
+regular plot:
+
+```{r}
+plot(data_with_blink) +
+  coord_cartesian(ylim =c(-70,40))
+```
+
+regular plot including artifacts
+
+```{r}
+plot(data_with_blink) +
+  annotate_events() +
+  coord_cartesian(ylim =c(-70,40))
+```
+
+
+data with only drift
+
+```{r}
+data_with_drift <- data_with_drift |>
+  eeg_artif_minmax(.threshold = 75)
+```
+
+artif minmax behaves as it should
+
+```{r}
+plot(data_with_drift) +
+  annotate_events() +
+    coord_cartesian(ylim =c(-70,100))
+```
+
+artif peaks will not
+```{r}
+data_with_drift <- data_with_drift |>
+  eeg_artif_peak(.threshold = 75)
+```
+
+
+```{r}
+plot(data_with_drift) +
+  annotate_events() +
+    coord_cartesian(ylim =c(-70,100))
+```
+
+
+
+```{r}
+data_with_eye_movements <- data_with_eye_movements |>
+  eeg_artif_step(.threshold = 20)
+
+plot(data_with_eye_movements) +
+  annotate_events() +
+    coord_cartesian(ylim =c(-70,100))
+```
+
