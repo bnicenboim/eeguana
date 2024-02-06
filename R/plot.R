@@ -23,7 +23,6 @@
 #' @family plotting functions
 #'
 #' @return A ggplot object
-#'
 #' @examples
 #' # Basic plot
 #' plot(data_faces_ERPs)
@@ -33,7 +32,7 @@
 #' plot(data_faces_ERPs) +
 #'   coord_cartesian(ylim = c(-500, 500))
 #' @export
-plot.eeg_lst <- function(x, .max_sample = 6400, ...) {
+autoplot.eeg_lst <- function(x, .max_sample = 6400, ...) {
   rlang::check_dots_unnamed()
   # pick the last channel as reference
   chs <- channel_names(x)
@@ -56,9 +55,14 @@ plot.eeg_lst <- function(x, .max_sample = 6400, ...) {
     gg_default_layers(lims) 
   plot
 }
+#' @export
+plot.eeg_lst <- function(x, ...){
+    print(ggplot2::autoplot(x, ...))
+}
+
 
 #' @export
-plot.psd_lst <- function(x, ...) {
+autoplot.psd_lst <- function(x, ...) {
   rlang::check_dots_unnamed()
   # pick the last channel as reference
   chs <- channel_names(x)
@@ -79,6 +83,11 @@ plot.psd_lst <- function(x, ...) {
     ggplot2::scale_x_continuous("Frequency (Hz)")+
     ggplot2::scale_y_continuous("PSD") 
   plot
+}
+
+#' @export
+plot.psd_lst <- function(x, ...){
+    print(ggplot2::autoplot(x, ...))
 }
 
 #' Default layers for plot()
@@ -814,4 +823,8 @@ theme_eeguana2 <- function() {
       axis.title = ggplot2::element_blank()
     )
   )
+}
+#' @export
+default_theme <- function() {
+  theme_eeguana()
 }
