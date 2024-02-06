@@ -62,7 +62,8 @@ Suggests:
     spelling (>= 2.0),
     covr (>= 3.2.1),
     httr,
-    cowplot
+    cowplot,
+    rstudioapi
 LazyData: true
 LazyDataCompression: xz
 VignetteBuilder: knitr

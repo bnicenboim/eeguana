@@ -1,60 +1,43 @@
 #' Install the Python packages needed for `eeguana`
 #'
 #' @description
-#' `install_py_eeguana` function facilitates the installation of Python packages needed for using `eeguana` within an R environment,
-#' utilizing the `reticulate` package for managing Python environments. It supports various installation methods,
-#' environment settings, and Python versions.
+#' `install_py_eeguana` facilitates the installation of Python packages required by `eeguana` within an R environment.
+#' It leverages the `reticulate` package to manage Python environments and supports various installation methods,
+#' environment configurations, and Python versions.
 #'
-#' @usage
-#' install_py_eeguana(method = c("auto", "virtualenv", "conda"),
-#'                      conda = "auto",
-#'                      version = "default",
-#'                      envname = "r-eeguana",
-#'                      restart_session = TRUE,
-#'                      conda_python_version = NULL,
-#'                      ...,
-#'                      pip_ignore_installed = FALSE,
-#'                      new_env = identical(envname, "r-eeguana"),
-#'                      python_version = NULL)
 #'
-#' @param method A character vector specifying the environment management method.
-#'               Options are 'auto', 'virtualenv', and 'conda'. Default is 'auto'.
-#' @param conda Specifies the conda binary to use. Default is 'auto'.
-#' @param version The Python version to use. Default is 'default', automatically selected.
-#' @param envname Name of the virtual environment. Default is 'r-eeguana'.
-#' @param restart_session Logical, whether to restart the R session after installation.
-#'                        Default is TRUE.
-#' @param conda_python_version Python version for conda environments.
+#' @param envname The name of the virtual environment to create or use. Default is 'r-eeguana'.
+#' @param restart_session Whether to restart the R session after installation. Default is TRUE.
+#' @param forge Whether to use conda-forge to install packages. Default is TRUE.
 #' @param ... Additional arguments passed to `reticulate::py_install`.
-#' @param pip_ignore_installed Logical, whether to ignore already installed packages.
-#'                             Default is FALSE.
-#' @param new_env Logical, whether to create a new environment if `envname` is 'r-eeguana'.
-#'               Default is the identity of `envname`.
-#' @param python_version Specifies the Python version for the environment.
+#' @param new_env Whether to create a new environment if `envname` is 'r-eeguana'. Default behavior is determined by the identity of `envname`.
+#' @inheritParams reticulate::py_install
 #'
 #' @details
-#' This function automatically selects the appropriate method for environment management and Python installation,
-#' with a focus on virtual and conda environments. It ensures flexibility in dependency management and Python version control.
-#' If a new environment is created, existing environments with the same name are removed.
+#' The function selects an appropriate method for environment management and Python installation, focusing on ease of use and flexibility.
+#' It supports creating new virtual or conda environments, installing necessary packages, and handling Python version requirements.
+#'
+#' The function is designed to be robust, handling various scenarios such as existing environments, and provides detailed feedback during the process.
 #'
 #' @return
-#' The function returns `NULL` invisibly, but outputs a message on successful installation.
+#' Returns `NULL` invisibly and prints a message upon successful installation. If `restart_session` is TRUE and the R session is running within RStudio, the session will restart automatically.
+#'
+#' @examples
+#' # Install Python dependencies in a new conda environment named 'r-eeguana'
+#' install_py_eeguana(envname = "r-eeguana", restart_session = FALSE)
+#'
 #' @export
 install_py_eeguana <- function(conda = "auto",
-                               version = "default",
                                envname = "r-eeguana",
                                restart_session = TRUE,
-                               conda_python_version = NULL,
                                forge = TRUE,
                                ...,
-                               pip_ignore_installed = FALSE,
                                new_env = identical(envname, "r-eeguana"),
                                python_version = NULL){
  method =  "conda"
  #c("auto","conda","virtualenv"),
 # method <- match.arg(method)
 
-  python_version <- python_version %||% conda_python_version
 
   # should I limit python version?
   ## if(method %in% c("auto", "virtualenv") &&
@@ -89,7 +72,7 @@ install_py_eeguana <- function(conda = "auto",
     conda          = conda,
     python_version = python_version,
     pip            = FALSE,
-    pip_ignore_installed = pip_ignore_installed,
+    pip_ignore_installed = FALSE,
     forge = forge,
     ...
   )

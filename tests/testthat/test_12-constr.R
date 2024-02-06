@@ -61,7 +61,6 @@ expect_equal(df0,df7)
 
 })
 
-context("Subsetting channel_dbl objects")
 test_that("Subsetting returns correct single element", {
   x <- channel_dbl(1:4)
   expect_equal(x[2], channel_dbl(2))

@@ -4,52 +4,50 @@
 \alias{install_py_eeguana}
 \title{Install the Python packages needed for \code{eeguana}}
 \usage{
-install_py_eeguana(method = c("auto", "virtualenv", "conda"),
-                     conda = "auto",
-                     version = "default",
-                     envname = "r-eeguana",
-                     restart_session = TRUE,
-                     conda_python_version = NULL,
-                     ...,
-                     pip_ignore_installed = FALSE,
-                     new_env = identical(envname, "r-eeguana"),
-                     python_version = NULL)
+install_py_eeguana(
+  conda = "auto",
+  envname = "r-eeguana",
+  restart_session = TRUE,
+  forge = TRUE,
+  ...,
+  new_env = identical(envname, "r-eeguana"),
+  python_version = NULL
+)
 }
 \arguments{
-\item{conda}{Specifies the conda binary to use. Default is 'auto'.}
+\item{conda}{The path to a \code{conda} executable. Use \code{"auto"} to allow
+\code{reticulate} to automatically find an appropriate \code{conda} binary.
+See \strong{Finding Conda} and \code{\link[reticulate:conda_binary]{conda_binary()}} for more details.}
 
-\item{version}{The Python version to use. Default is 'default', automatically selected.}
+\item{envname}{The name of the virtual environment to create or use. Default is 'r-eeguana'.}
 
-\item{envname}{Name of the virtual environment. Default is 'r-eeguana'.}
+\item{restart_session}{Whether to restart the R session after installation. Default is TRUE.}
 
-\item{restart_session}{Logical, whether to restart the R session after installation.
-Default is TRUE.}
-
-\item{conda_python_version}{Python version for conda environments.}
+\item{forge}{Whether to use conda-forge to install packages. Default is TRUE.}
 
 \item{...}{Additional arguments passed to \code{reticulate::py_install}.}
 
-\item{pip_ignore_installed}{Logical, whether to ignore already installed packages.
-Default is FALSE.}
+\item{new_env}{Whether to create a new environment if \code{envname} is 'r-eeguana'. Default behavior is determined by the identity of \code{envname}.}
 
-\item{new_env}{Logical, whether to create a new environment if \code{envname} is 'r-eeguana'.
-Default is the identity of \code{envname}.}
-
-\item{python_version}{Specifies the Python version for the environment.}
-
-\item{method}{A character vector specifying the environment management method.
-Options are 'auto', 'virtualenv', and 'conda'. Default is 'auto'.}
+\item{python_version}{The requested Python version. Ignored when attempting
+to install with a Python virtual environment.}
 }
 \value{
-The function returns \code{NULL} invisibly, but outputs a message on successful installation.
+Returns \code{NULL} invisibly and prints a message upon successful installation. If \code{restart_session} is TRUE and the R session is running within RStudio, the session will restart automatically.
 }
 \description{
-\code{install_py_eeguana} function facilitates the installation of Python packages needed for using \code{eeguana} within an R environment,
-utilizing the \code{reticulate} package for managing Python environments. It supports various installation methods,
-environment settings, and Python versions.
+\code{install_py_eeguana} facilitates the installation of Python packages required by \code{eeguana} within an R environment.
+It leverages the \code{reticulate} package to manage Python environments and supports various installation methods,
+environment configurations, and Python versions.
 }
 \details{
-This function automatically selects the appropriate method for environment management and Python installation,
-with a focus on virtual and conda environments. It ensures flexibility in dependency management and Python version control.
-If a new environment is created, existing environments with the same name are removed.
+The function selects an appropriate method for environment management and Python installation, focusing on ease of use and flexibility.
+It supports creating new virtual or conda environments, installing necessary packages, and handling Python version requirements.
+
+The function is designed to be robust, handling various scenarios such as existing environments, and provides detailed feedback during the process.
+}
+\examples{
+# Install Python dependencies in a new conda environment named 'r-eeguana'
+install_py_eeguana(envname = "r-eeguana", restart_session = FALSE)
+
 }
