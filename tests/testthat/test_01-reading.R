@@ -51,10 +51,11 @@ channels_tbl(ft) <- channels_tbl(multiplexed_bin_bv2)
 
 
 test_that("can read fif files ", {
+  skip_if_no_python_stuff()
   fiffile <- system.file("testdata", "sample_audvis_10s_raw.fif", package = "eeguana")
   #warnings are ok here (for now)
   suppressWarnings(fif_mne <- read_fif(fiffile))
- expect_snapshot(fif_mne)
+  expect_snapshot(fif_mne)
   })
 
 

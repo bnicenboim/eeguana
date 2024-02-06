@@ -4,7 +4,7 @@
 \alias{as_tidytable.eeg_lst}
 \title{Convert an eeg_lst to a long table in \code{\link[tidytable:tidytable]{tidytable}} format.}
 \usage{
-as_tidytable.eeg_lst(x, .unit = "s", ...)
+\method{as_tidytable}{eeg_lst}(x, .unit = "s", ...)
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}
