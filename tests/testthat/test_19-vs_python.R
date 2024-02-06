@@ -202,12 +202,14 @@ test_that("raw brainvision read and converted from MNE match", {
   eeg_read <- read_vhdr(file = bvfile, .recording = "r1")
   ## bvfile_pkl <- paste0(bvfile,".pkl")
 
-  mne_io <- reticulate::import("mne.io")
-  suppress_python_output(eeg_mne_obj <- mne_io$read_raw_brainvision(bvfile,
+  mne <- reticulate::import("mne")
+
+  suppress_python_output(eeg_mne_obj <- mne$io$read_raw_brainvision(bvfile,
     preload = TRUE,
     eog = c("VEOG", "HEOG"),
     misc = c("M1", "M2")
-  ))
+  )
+  )
   eeg_mne <- as_eeg_lst(.data = eeg_mne_obj) %>%
     eeg_mutate(.recording = "r1")
   channels_tbl(eeg_read) <- channels_tbl(eeg_read) %>%
