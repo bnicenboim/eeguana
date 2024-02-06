@@ -87,7 +87,6 @@ test_that("concatenation works", {
 })
 
 
-context("Subsetting sample_int objects")
 test_that("Subsetting returns correct single element", {
   x <- sample_int(1:4,500)
   expect_equal(x[2], sample_int(2,500))

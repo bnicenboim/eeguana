@@ -322,7 +322,7 @@ is_channel_dbl <- function(x) {
   dots <- list(...)
   attrs <- attributes(dots[[1]])
   lapply(dots[-1], function(d){
-    if(!identical(attrs, attributes(d)))
+    if(!identical(attrs, attributes(d)) && !is.null(attributes(d)))
       stop("Concatenating different sampling rates!")
   })
   r <- NextMethod("c")

@@ -38,6 +38,7 @@ plot.eeg_lst <- function(x, .max_sample = 6400, ...) {
   # pick the last channel as reference
   chs <- channel_names(x)
   breaks <- x$.signal[[chs[length(chs)]]] %>%
+    as.numeric() %>%
     stats::quantile(probs = c(.025, .975), na.rm = TRUE) %>%
     signif(2) %>%
     c(0)
@@ -62,6 +63,7 @@ plot.psd_lst <- function(x, ...) {
   # pick the last channel as reference
   chs <- channel_names(x)
   breaks <- x$.psd[[chs[length(chs)]]] %>%
+    as.numeric() %>%
     stats::quantile(probs = c(.01,.99), na.rm = TRUE) %>%
     signif(2) %>%
     c(0)
