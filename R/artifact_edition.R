@@ -4,7 +4,7 @@
 #'
 #' `eeg_artif_peak()` is wrapper around [pracma::findpeaks],  `.threshold` is the minimum (absolute) height a peak has to have to be recognized as such and `.window` is the minimum distance  peaks have to have to be counted.
 #'
-#' `eeg_artif_minmax()` is also refered as a peak-to-peak artifact detector.
+#' `eeg_artif_minmax()` is also refered as a peak-to-peak artifact detector. See chapter 6 of Luck (2014). It is less sensitive to drifts than `eeg_artif_peak()`.
 #'
 #' `eeg_artif_minmax()` and `eeg_artif_step()` can be used to detect blinks and horizontal eye movements in the electro-oculographic (V/HEOG) channels or large voltage jumps in other channels.
 #'
@@ -25,6 +25,8 @@
 #' @family events functions
 #'
 #' @name eeg_artif
+#' @references
+#' Luck, S. J. (2014). An introduction to the event-related potential technique. MIT press.
 #'
 #' @examples
 #' \dontrun{

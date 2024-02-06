@@ -1,18 +1,30 @@
 # eeguana 0.1.10.9001
-New features
-- added `chs_mean` method for psd_list objects
-- added experimental `read_fif()` to read fif files created by mne python
-- `install_py_eeguana()` to install the necessary python packages to read fif files.
-- Bugs and improvements
-- `channel_dbl` and `sample_int` classes behave nicer.
-- `annotate_events()` allows the user to plot even if there are no events
+
+## New Features
+
+- Added `chs_mean` method for `psd_list` objects.
+- Introduced experimental `read_fif()` function to read fif files created by MNE Python.
+- New `install_py_eeguana()` function to install the necessary Python packages for reading fif files.
+
+## Bugs and Improvements
+
+- Improved behavior of `channel_dbl` and `sample_int` classes.
+- Enhanced `annotate_events()` function to allow plotting even if there are no events.
+
 # eeguana 0.1.9.9001
+
 - fix installation of the dependency tidytable.
 - added `annotate_electrodes()` to add electrode labels to a topographic plot. (Previously this was done with `geom_text()`).
+
 # eeguana 0.1.8.9001
+
 - fix of minor bug affecting eeg_artif_step(), when the number of samples in `window` was odd.
+
 # eeguana 0.1.8.9000
-- `as_eeg_lst()` makes `eeg_lst` objects created with previous versions of eeguana compatible with the current version.
+
+- `as_eeg_lst()` makes `eeg_lst` objects created with 
+previous versions of eeguana compatible with the current version.
+
 # eeguana 0.1.7.9000
 - New features:
 - The argument `.ref` of `eeg_rereference()` now allows "tidyselect".

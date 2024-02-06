@@ -607,7 +607,6 @@ read_set <- function(file, .recording = file) {
 read_fif <- function(file, .recording = file) {
   message_verbose("Experimental function. Some properties of the fif files might be lost.")
   require_python()
-  mne <- reticulate::import("mne")
   raw <- mne$io$read_raw_fif(file)
   as_eeg_lst(raw)
 }
