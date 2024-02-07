@@ -17,13 +17,14 @@ if (getRversion() >= "2.15.1") {
 }
 ## data.table needs this
 .datatable.aware <- TRUE
+mne <- NULL
 
 .onLoad <- function(libname, pkgname) {
 
   if(requireNamespace("reticulate", quietly = TRUE)){
     reticulate::use_condaenv("r-eeguana", required = FALSE)
     mne <<- reticulate::import("mne", delay_load = TRUE)
-}
+  }
 
   #dplyr styff
   register_s3_method("dplyr", "group_by", "eeg_lst")

@@ -90,28 +90,28 @@ trigger "s70" was used for faces and "s71" for no faces. We'll segment the data
 using these two triggers.
 
 ```{r}
-faces_segs <- faces %>%
+faces_segs <- faces |>
   eeg_segment(.description %in% c("s70", "s71"),
     .lim = c(-.2, .25)
-  ) %>%
-  eeg_events_to_NA(.type == "Bad Interval") %>%
+  ) |>
+  eeg_events_to_NA(.type == "Bad Interval") |>
   eeg_baseline()
 ```
 
 
 We can also edit the segmentation information and add more descriptive labels. Once the `eeg_lst` is segmented, the segments table includes the relevant columns from the events table (but without the leading dots).
 
-*eeguana* has wrappers for many `dplyr` commands for the EEG data.  These commands always return an entire `eeg_lst` object so that they can be piped using `magrittr`'s pipe, `%>%`.
+*eeguana* has wrappers for many `dplyr` commands for the EEG data.  These commands always return an entire `eeg_lst` object so that they can be piped using `magrittr`'s pipe, `|>`.
 
 ```{r}
 ## To only see the segments table:
 segments_tbl(faces_segs)
 ## We modify the entire object:
-faces_segs_some <- faces_segs %>%
+faces_segs_some <- faces_segs |>
   eeg_mutate(
     condition =
       ifelse(description == "s70", "faces", "non-faces")
-  ) %>%
+  ) |>
   eeg_select(-type)
 
 faces_segs_some
@@ -121,8 +121,8 @@ With some "regular" `ggplot` skills, we can create customized plots. `ggplot()` 
 
 ```{r plot, fig.dim = c(10,15), out.width = "100%", results = "hide"}
 library(ggplot2)
-faces_segs_some %>%
-  eeg_select(O1, O2, P7, P8) %>%
+faces_segs_some |>
+  eeg_select(O1, O2, P7, P8) |>
   ggplot(aes(x = .time, y = .value)) +
   geom_line(alpha = .1, aes(group = .id, color = condition)) +
   stat_summary(
@@ -147,10 +147,10 @@ dev.off()
 ```
 
 ```{r topo, fig.dim = c(10,5), out.width = "100%", results = "hide"}
-faces_segs_some %>%
-  eeg_filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) %>%
-  eeg_group_by(condition) %>%
-  eeg_summarize(across_ch(mean, na.rm = TRUE)) %>%
+faces_segs_some |>
+  eeg_filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) |>
+  eeg_group_by(condition) |>
+  eeg_summarize(across_ch(mean, na.rm = TRUE)) |>
   plot_topo() +
   annotate_head() +
   geom_contour() +
