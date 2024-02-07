@@ -4,7 +4,8 @@ author: "Bruno Nicenboim"
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
-    toc: true
+    toc: 
+      depth: 3
 vignette: >
   %\VignetteIndexEntry{Introduction - Preprocessing and visualization of EEG data}
   %\VignetteEngine{knitr::rmarkdown}
@@ -325,8 +326,8 @@ For more specialized plots or analyses, it might be necessary to extract the dat
 ```{r}
 df <- faces_seg |>
   eeg_select(O1, O2, P7, P8) |>
-  as_tibble() |>
-  # We can use regular dplyr functions now
+  as_tidytable() |> #or alternatively as_tibble() if one uses dplyr
+  # We can use regular dplyr/tidytable functions now
   group_by(.key, .time) |>
   summarize(
     `t-value` = t.test(

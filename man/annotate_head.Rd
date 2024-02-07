@@ -33,9 +33,9 @@ data_faces_ERPs \%>\%
 Other plotting functions: 
 \code{\link{annotate_electrodes}()},
 \code{\link{annotate_events}()},
-\code{\link{autoplot.eeg_lst}()},
 \code{\link{eeg_downsample}()},
 \code{\link{ggplot.eeg_lst}()},
+\code{\link{plot.eeg_lst}()},
 \code{\link{plot_components}()},
 \code{\link{plot_in_layout}()},
 \code{\link{plot_topo}()},

@@ -45,8 +45,8 @@ A workaround is to use two mutates:
 
 ```{r,  error = TRUE}
 new_data <- data_faces_ERPs %>%
-  mutate(X = scale(C3)) %>%
-  mutate(Y = X * 2)
+  eeg_mutate(X = scale(C3)) %>%
+  eeg_mutate(Y = X * 2)
 ```
 
 

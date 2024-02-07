@@ -17,7 +17,7 @@ Authors@R: c(
     person("Bruno", "Nicenboim", email = "bruno.nicenboim@tilburguniversity.edu", role = c("aut", "cre")),
     person("Kate", "Stone", email = "kate.stone@uni-potsdam.de", role = "ctb"),
     person("Mark", "Fairbanks", email = "mark.t.fairbanks@gmail.com", role = "ctb"))
-URL: https://github.com/bnicenboim/eeguana
+URL: https://bruno.nicenboim.me/eeguana, https://github.com/bnicenboim/eeguana
 BugReports: https://github.com/bnicenboim/eeguana/issues
 License: MIT + file LICENSE 
 Encoding: UTF-8

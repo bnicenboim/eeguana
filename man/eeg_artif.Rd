@@ -80,9 +80,9 @@ These functions search for artifacts on the signal table based on a threshold an
 \details{
 \code{eeg_artif_peak()} is wrapper around \link[pracma:findpeaks]{pracma::findpeaks},  \code{.threshold} is the minimum (absolute) height a peak has to have to be recognized as such and \code{.window} is the minimum distance  peaks have to have to be counted.
 
-\code{eeg_artif_minmax()} is also refered as a peak-to-peak artifact detector. See chapter 6 of Luck (2014). It is less sensitive to drifts than \code{eeg_artif_peak()}.
+\code{eeg_artif_minmax()} is also refered as a peak-to-peak artifact detector.  It is less sensitive to drifts than \code{eeg_artif_peak()}.
 
-\code{eeg_artif_minmax()} and \code{eeg_artif_step()} can be used to detect blinks and horizontal eye movements in the electro-oculographic (V/HEOG) channels or large voltage jumps in other channels.
+\code{eeg_artif_minmax()} and \code{eeg_artif_step()} can be used to detect blinks and horizontal eye movements in the electro-oculographic (V/HEOG) channels or large voltage jumps in other channels. See chapter 6 of Luck (2014).
 
 For the EOG channels, a relatively low threshold (e.g., 30 µV) is recommended. For non EOG channels, a relatively high threshold (e.g., 100 µV) would be more appropriate.
 }

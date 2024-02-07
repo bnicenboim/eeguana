@@ -11,6 +11,7 @@ Flexible manipulation of EEG data in R. It provides a data.table powered framewo
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://bruno.nicenboim.me/eeguana}
   \item \url{https://github.com/bnicenboim/eeguana}
   \item Report bugs at \url{https://github.com/bnicenboim/eeguana/issues}
 }

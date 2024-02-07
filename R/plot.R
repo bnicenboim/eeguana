@@ -32,6 +32,11 @@
 #' plot(data_faces_ERPs) +
 #'   coord_cartesian(ylim = c(-500, 500))
 #' @export
+plot.eeg_lst <- function(x, ...){
+    print(ggplot2::autoplot(x, ...))
+}
+
+
 autoplot.eeg_lst <- function(x, .max_sample = 6400, ...) {
   rlang::check_dots_unnamed()
   # pick the last channel as reference
@@ -56,15 +61,8 @@ autoplot.eeg_lst <- function(x, .max_sample = 6400, ...) {
   plot
 }
 
-#' @rdname autoplot.eeg_lst
-#' @export
-plot.eeg_lst <- function(x, ...){
-    print(ggplot2::autoplot(x, ...))
-}
 
 
-#' @rdname autoplot.eeg_lst
-#' @export
 autoplot.psd_lst <- function(x, ...) {
   rlang::check_dots_unnamed()
   # pick the last channel as reference
@@ -88,7 +86,7 @@ autoplot.psd_lst <- function(x, ...) {
   plot
 }
 
-#' @rdname autoplot.eeg_lst
+#' @rdname plot.eeg_lst
 #' @export
 plot.psd_lst <- function(x, ...){
     print(ggplot2::autoplot(x, ...))
