@@ -26,7 +26,7 @@ new_signal_tbl <- function(.id = integer(0), .sample = integer(0), signal_matrix
   signal_tbl <- signal_matrix[, (update_channel_meta_data(.SD, channels_tbl)), .SDcols = colnames(signal_matrix)]
 
   signal_tbl[, .id := .id][, .sample := .sample]
-  data.table::setnames(signal_tbl, make_names(colnames(signal_tbl)))
+  data.table::setnames(signal_tbl, make_names(colnames(signal_tbl), allow_init_dot = TRUE))
   data.table::setcolorder(signal_tbl, c(".id", ".sample"))
   data.table::setattr(signal_tbl, "class", c("signal_tbl", class(signal_tbl)))
   data.table::setkey(signal_tbl, .id, .sample)

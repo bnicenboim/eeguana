@@ -17,8 +17,18 @@ if (getRversion() >= "2.15.1") {
 }
 ## data.table needs this
 .datatable.aware <- TRUE
+mne <- NULL
 
 .onLoad <- function(libname, pkgname) {
+
+  if(requireNamespace("reticulate", quietly = TRUE)){
+    reticulate::use_condaenv("r-eeguana", required = FALSE)
+    mne <<- reticulate::import("mne", delay_load = TRUE)
+  } else {
+    mne <<- NULL
+  }
+
+  #dplyr styff
   register_s3_method("dplyr", "group_by", "eeg_lst")
   register_s3_method("dplyr", "groups", "eeg_lst")
   register_s3_method("dplyr", "group_vars", "eeg_lst")
@@ -46,13 +56,18 @@ if (getRversion() >= "2.15.1") {
   register_s3_method("dplyr", "transmute", "events_tbl")
   register_s3_method("dplyr", "summarise", "events_tbl")
   register_s3_method("dplyr", "as_data_frame", "eeg_lst")
+  register_s3_method("dplyr", "bind_rows", "events_tbl")
+  register_s3_method("tidytable", "bind_rows", "events_tbl")
 
   register_s3_method("dplyr", "pull", "eeg_lst")
   # register_s3_method("stats", "na.omit", "eeg_lst")
 
+  register_s3_method("ggplot2", "autoplot", "eeg_lst")
+  register_s3_method("ggplot2", "autoplot", "psd_lst")
   register_s3_method("ggplot2", "ggplot", "eeg_lst")
   register_s3_method("ggplot2", "ggplot_add", "layer_events")
   register_s3_method("data.table", "as.data.table", "eeg_lst")
+  register_s3_method("tidytable", "as_tidytable", "eeg_lst")
 
   op <- options()
   op.eeguana <- list(
@@ -62,4 +77,12 @@ if (getRversion() >= "2.15.1") {
   if (any(toset)) options(op.eeguana[toset])
 
   invisible()
+}
+
+
+.onAttach <- function(libname, pkgname) {
+    packageStartupMessage(pkgname,
+    " version ",
+    utils::packageVersion(pkgname),
+    "\nAn introduction to the package can be found in https://bruno.nicenboim.me/eeguana/articles/intro.html\n")
 }

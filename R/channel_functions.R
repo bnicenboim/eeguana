@@ -54,12 +54,24 @@ chs_mean.data.frame <- function(..., na.rm = FALSE) {
 ## }
 #' @export
 chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
-  signal <- data.table:::shallow(x$.signal)
-  signal[, mean := rowMeans_ch(.SD, na.rm = na.rm), .SDcols = channel_names(x)][, `:=`(channel_names(x), NULL)]
-  x$.signal <- signal
+  ## signal <- data.table:::shallow(x$.signal)
+  ## signal[, mean := rowMeans_ch(.SD, na.rm = na.rm), .SDcols = channel_names(x)][, `:=`(channel_names(x), NULL)]
+  x$.signal <- x$.signal %>%
+   mutate.(mean = rowMeans_ch(select.(., channel_names(x)),  na.rm = na.rm)) %>%
+   select.(-all_of(channel_names(x)))
+  data.table::setkey(x$.signal, .id, .sample)
   update_events_channels(x) %>%
     validate_eeg_lst()
 }
+#' @export
+chs_mean.psd_lst <- function(x, ..., na.rm = FALSE) {
+
+  x$.psd <- x$.psd %>%
+   mutate.(mean = rowMeans_ch(select.(., channel_names(x)), na.rm = na.rm)) %>%
+   select.(-all_of(channel_names(x)))
+  x
+}
+
 
 #' Re-reference a channel or group of channels.
 #'

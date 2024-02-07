@@ -1,0 +1,12 @@
+pandoc: 3.1.1
+pkgdown: 2.0.7
+pkgdown_sha: ~
+articles:
+  gotchas: gotchas.html
+  intro: intro.html
+  preprocessing_erp: preprocessing_erp.html
+last_built: 2024-02-07T15:15Z
+urls:
+  reference: https://bruno.nicenboim.me/eeguana/reference
+  article: https://bruno.nicenboim.me/eeguana/articles
+

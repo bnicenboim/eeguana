@@ -82,8 +82,8 @@ test_that("low pass iir python implementation is not too different", {
   mne <- reticulate::import("mne")
   X3_iirmne <- mne$filter$filter_data(signal$X3, sfreq = 500, h_freq = 500 * 1.5 / (2 * pi), l_freq = NULL, method = "iir", iir_params = list(ftype = "butter", order = 6, output = "ba"))
 
-  expect_equal(data_sin_X1_iir$.signal$X3 %>% c(),
-    X3_iirmne %>% c(),
+  expect_equal(data_sin_X1_iir$.signal$X3 %>% as.numeric(),
+    X3_iirmne %>% as.numeric(),
     tolerance = .001
   )
   # ggplot(data = data.frame(y= c(X3_iirmne), x=seq_along(c(X3_iirmne))), aes(x=x,y=y)) + geom_line()
@@ -117,8 +117,8 @@ skip_if_no_python_stuff()
   mne <- reticulate::import("mne")
   X3_iirmne <- mne$filter$filter_data(signal$X3, sfreq = 500, l_freq = 500 * 3 / (2 * pi), h_freq = NULL, method = "iir", iir_params = list(ftype = "butter", order = 6, output = "ba"))
 
-  expect_equal(data_sin_X3_iir$.signal$X3 %>% c(),
-    X3_iirmne %>% c(),
+  expect_equal(data_sin_X3_iir$.signal$X3 %>% as.numeric(),
+    X3_iirmne %>% as.numeric(),
     tolerance = .01
   )
   # ggplot(data = data.frame(y= c(X3_iirmne), x=seq_along(c(X3_iirmne))), aes(x=x,y=y)) + geom_line()
@@ -149,8 +149,8 @@ skip_if_no_python_stuff()
   mne <- reticulate::import("mne")
   X2_iirmne <- mne$filter$filter_data(signal$X3, sfreq = 500, l_freq = 500 * 1.5 / (2 * pi), h_freq = 500 * 2.2 / (2 * pi), method = "iir", iir_params = list(ftype = "butter", order = 4, output = "ba"))
 
-  expect_equal(data_sin_X2_iir$.signal$X3 %>% c(),
-    X2_iirmne %>% c(),
+  expect_equal(data_sin_X2_iir$.signal$X3 %>% as.numeric(),
+    X2_iirmne %>% as.numeric(),
     tolerance = .01
   )
 })

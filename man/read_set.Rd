@@ -26,6 +26,7 @@ s1 <- read_ft("./subject1.set", .recording = 1)
 \seealso{
 Other reading and writing functions: 
 \code{\link{read_edf}()},
+\code{\link{read_fif}()},
 \code{\link{read_ft}()},
 \code{\link{read_vhdr}()}
 }

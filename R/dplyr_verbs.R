@@ -133,6 +133,15 @@ mutate.eeg_lst <- eeg_mutate.eeg_lst
 mutate.psd_lst <- eeg_mutate.psd_lst
 
 
+bind_rows.events_tbl <- function(..., .id = NULL){
+  .id <- NULL
+  dlist <- list(...)
+  # remove sampling
+  dlist <- lapply(dlist, as.data.frame)
+  data.table::rbindlist(dlist)
+
+}
+
 #' @rdname dplyr_verbs
 #' @export
 eeg_transmute <- function(.data, ...) {

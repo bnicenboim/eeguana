@@ -23,7 +23,6 @@
 #' @family plotting functions
 #'
 #' @return A ggplot object
-#'
 #' @examples
 #' # Basic plot
 #' plot(data_faces_ERPs)
@@ -33,11 +32,17 @@
 #' plot(data_faces_ERPs) +
 #'   coord_cartesian(ylim = c(-500, 500))
 #' @export
-plot.eeg_lst <- function(x, .max_sample = 6400, ...) {
+plot.eeg_lst <- function(x,  .max_sample = 6400,...){
+    print(ggplot2::autoplot(x, .max_sample = .max_sample, ...))
+}
+
+
+autoplot.eeg_lst <- function(x, .max_sample = 6400, ...) {
   rlang::check_dots_unnamed()
   # pick the last channel as reference
   chs <- channel_names(x)
   breaks <- x$.signal[[chs[length(chs)]]] %>%
+    as.numeric() %>%
     stats::quantile(probs = c(.025, .975), na.rm = TRUE) %>%
     signif(2) %>%
     c(0)
@@ -56,12 +61,14 @@ plot.eeg_lst <- function(x, .max_sample = 6400, ...) {
   plot
 }
 
-#' @export
-plot.psd_lst <- function(x, ...) {
+
+
+autoplot.psd_lst <- function(x, ...) {
   rlang::check_dots_unnamed()
   # pick the last channel as reference
   chs <- channel_names(x)
   breaks <- x$.psd[[chs[length(chs)]]] %>%
+    as.numeric() %>%
     stats::quantile(probs = c(.01,.99), na.rm = TRUE) %>%
     signif(2) %>%
     c(0)
@@ -77,6 +84,12 @@ plot.psd_lst <- function(x, ...) {
     ggplot2::scale_x_continuous("Frequency (Hz)")+
     ggplot2::scale_y_continuous("PSD") 
   plot
+}
+
+#' @rdname plot.eeg_lst
+#' @export
+plot.psd_lst <- function(x, ...){
+    print(ggplot2::autoplot(x, ...))
 }
 
 #' Default layers for plot()
@@ -671,7 +684,8 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
     events_tbl <- object$layer$data
   }
   if (nrow(events_tbl) == 0) {
-    return(NULL)
+    message_verbose("No events found.")
+    return(plot)
   } # nothing to plot
   info_events <- c(".type", ".description")
   events_tbl <- data.table::as.data.table(events_tbl)
@@ -811,4 +825,9 @@ theme_eeguana2 <- function() {
       axis.title = ggplot2::element_blank()
     )
   )
+}
+#' @rdname theme_eeguana
+#' @export
+default_theme <- function() {
+  theme_eeguana()
 }

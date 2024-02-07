@@ -2,9 +2,12 @@
 % Please edit documentation in R/plot.R
 \name{plot.eeg_lst}
 \alias{plot.eeg_lst}
+\alias{plot.psd_lst}
 \title{Create a basic signal plot}
 \usage{
 \method{plot}{eeg_lst}(x, .max_sample = 6400, ...)
+
+\method{plot}{psd_lst}(x, ...)
 }
 \arguments{
 \item{x}{An \code{eeg_lst} object.}

@@ -29,25 +29,25 @@ new_events_tbl <- function(.id = integer(0),
     if (length(.type) == 0) .type <- NA_character_
     if (length(.description) == 0) .type <- NA_character_
   }
-  events <- data.table::data.table(
+  events <- tidytable::tidytable(
     .id = .id,
     .type = .type,
     .description = .description,
     .initial = .initial,
     .final = .final,
     .channel = .channel
-  )
+  ) %>% #just to remove the tidytable class:
+    data.table::as.data.table()
 
   if (!is.null(.sampling_rate)) {
-    events[, .initial := sample_int(as.integer(.initial),
-      .sampling_rate = .sampling_rate
-    )]
-    events[, .final := sample_int(as.integer(.final),
-      .sampling_rate = .sampling_rate
-    )]
+    events <- events %>%
+      mutate.( .initial = sample_int(as.integer(.initial),
+                                     .sampling_rate = .sampling_rate),
+              .final := sample_int(as.integer(.final),
+      .sampling_rate = .sampling_rate))
   }
-  data.table::setattr(events, "class", c("events_tbl", class(events)))
-  events[]
+  class(events) <-  c("events_tbl", class(events))
+  events
 }
 as_events_tbl <- function(.data, ...) {
   UseMethod("as_events_tbl")

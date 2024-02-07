@@ -13,7 +13,7 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
 
 
   ## create channel info
-  ch_names <- .data$ch_names
+  ch_names <- make_names(.data$ch_names)
   ## Meaning of kind code: https://github.com/mne-tools/mne-python/blob/2a0a55c6a795f618cf0a1603e22a72ee8e879f62/mne/io/constants.py
   ## FIFF.FIFFV_BIO_CH       = 102
   ## FIFF.FIFFV_MEG_CH       =   1
@@ -61,15 +61,20 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
   ## FIFF.FIFF_UNIT_AM_M2 = 203  # Am/m^2
   ## FIFF.FIFF_UNIT_AM_M3 = 204 # Am/m^3
 
-  rel_ch <- .data$info$chs %>% purrr::discard(~ .x$kind == 3)
+  rel_ch <- .data$info$chs %>%
+    discard(function(.x) .x$kind == 3)
+
   sti_ch_names <- .data$info$chs %>%
-    purrr::keep(~ .x$kind == 3) %>%
-    purrr::map_chr(~ .x$ch_name)
+    keep(function(.x) .x$kind == 3) %>%
+    tidytable::map_chr(~ .x$ch_name)
+
   if (length(sti_ch_names) > 0) {
     warning("Stimuli channels will be discarded. Use find_events from mne to add them.", call. = FALSE)
   }
 
-  scale_head <- purrr::map_dbl(rel_ch, ~ sqrt(sum((0 - .x$loc[1:3])^2))) %>%
+  # Determines the scale of the head for plotting
+  scale_head <- tidytable::map_dbl(rel_ch,
+                                   ~ sqrt(sum((0 - .x$loc[1:3])^2))) %>%
     .[. != 0] %>% # remove the ones that have all 0
     # 1 by default if there is no electrode info
     {
@@ -77,44 +82,50 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
     } %>%
     min(na.rm = TRUE)
 
-  ch_info <- rel_ch %>% purrr::map_dfr(function(ch) {
-    if (ch$kind == 502 | scale_head == 0) { # misc channel
-      location <- rep(NA_real_, 3)
-    } else {
-      location <- purrr::map(ch$loc[1:3], ~ round(. / scale_head, 2))
-    }
+  ch_info <- rel_ch %>%
+    tidytable::map_dfr(function(ch) {
+      message_verbose("Loading channel ", ch$ch_name,"...")
+      if (ch$kind == 502 | scale_head == 0) { # misc channel
+        location <- rep(NA_real_, 3)
+      } else {
+        location <- tidytable::map(ch$loc[1:3],
+                                   ~ round(. / scale_head, 2))
+      }
+      if(is.vector(ch$unit)) {
+        ch_unit <- ch$unit
+      } else {
+        ch_unit <- ch$unit$numerator
+      }
 
-    if (ch$unit$numerator %in% as.numeric(names(units_list))) {
-      ch_unit <- ch$unit$numerator
-    } else {
-      ch_unit <- 107 # default to Volts
-    }
-    pref_id <- round(log10(ch$range)) %>% as.character()
-    if (pref_id %in% names(prefix)) {
-      unit <- paste0(
-        prefix[[pref_id]],
-        units_list[[ch_unit %>% as.character()]]
-      )
-    } else {
-      warning("Unit cannot be identified", call. = FALSE)
-      unit <- NA
-    }
-    list(
-      .channel = ch$ch_name,
-      .x = location[[1]],
-      .y = location[[2]],
-      .z = location[[3]],
-      unit = unit,
-      .reference = NA_character_
-    )
-  })
+      if (!ch_unit %in% as.numeric(names(units_list))) {
+        ch_unit <- 107 # default to Volts
+      }
+
+      pref_id <- round(log10(ch$range)) %>% as.character()
+      if (pref_id %in% names(prefix)) {
+        unit <- paste0(
+          prefix[[pref_id]],
+          units_list[[ch_unit %>% as.character()]]
+        )
+      } else {
+        #  warning("Unit cannot be identified", call. = FALSE)
+        unit <- NA
+      }
+      tidytable::tidytable(
+                   .channel = make_names(ch$ch_name),
+                   .x = location[[1]],
+                   .y = location[[2]],
+                   .z = location[[3]],
+                   unit = unit,
+                   .reference = NA_character_
+                 )
+    })
 
   signal_m <- .data$to_data_frame()
   data.table::setDT(signal_m)
   if ("time" %in% colnames(signal_m)) {
     signal_m[, time := NULL]
   }
-
   if (length(sti_ch_names) > 0) {
     signal_m[, (sti_ch_names) := NULL]
   }
@@ -122,10 +133,13 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
   t_s <- .data$times
   samples <- as_sample_int(c(t_s), .sampling_rate = .data$info$sfreq, unit = "s")
 
-  new_signal <- new_signal_tbl(.id = 1L, .sample = samples, signal_matrix = signal_m, channels_tbl = ch_info)
+  new_signal <- new_signal_tbl(.id = 1L,
+                               .sample = samples,
+                               signal_matrix = signal_m,
+                               channels_tbl = ch_info)
 
   # create events object
-  ann <- .data$annotations$`__dict__`
+  ann <- .data$annotations #$`__dict__`
   if (length(ann$onset) == 0) {
     new_events <- new_events_tbl(
       .initial =
@@ -135,9 +149,9 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
     )
   } else {
     descriptions_dt <- tidyr::separate(data.table::data.table(annotation = ann$description),
-      col = "annotation", into = c(".type", ".description"), sep = "/", fill = "left"
-    )
-    new_events <- new_events_tbl(
+                                       col = "annotation", into = c(".type", ".description"), sep = "/", fill = "left"
+                                       )
+    new_events <-    new_events_tbl(
       .id = 1L,
       .type = descriptions_dt$.type,
       .description = descriptions_dt$.description,
@@ -146,11 +160,31 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
       .final = as_sample_int(ann$onset + ann$duration, .sampling_rate = .data$info$sfreq, unit = "s") - 1L,
       .channel = NA_character_
     )
+
   }
+
+  if(length(.data$info$bad) > 0){
+    bad_channels <- .data$info$bad %>%
+      unlist() %>%
+      make_names()
+    bad_events <- new_events_tbl(.id = 1L,
+                                           .type = "artifact",
+                                           .description = "mne bad channel",
+                                           .initial = samples[1],
+                                           .final = samples[length(samples)],
+                                           .channel = bad_channels)
+
+
+
+    new_events <- rbind(new_events,bad_events)
+
+
+  }
+
   data_name <- toString(substitute(.data))
   eeg_lst(
     signal_tbl = new_signal,
     events_tbl = new_events,
-    segments_tbl = dplyr::tibble(.id = 1L, .recording = data_name, segment = 1L)
+    segments_tbl = tidytable::tidytable(.id = 1L, .recording = data_name, segment = 1L)
   )
 }

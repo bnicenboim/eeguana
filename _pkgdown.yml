@@ -2,6 +2,8 @@ authors:
   Bruno Nicenboim:
     href: "https://bruno.nicenboim.me/"
 
+url: https://bruno.nicenboim.me/eeguana
+
 template:
   includes:
     in_header: 
@@ -17,6 +19,7 @@ navbar:
     - articles
     - tutorials
     - news
+    - forum
     right: github
   components:
     home:
@@ -37,11 +40,15 @@ navbar:
     news:
       text: Changelog
       href: news/index.html
+    forum:
+      text: Forum
+      href: https://github.com/bnicenboim/eeguana/discussions
     github:
       icon: fa-github fa-lg
       href: https://github.com/bnicenboim/eeguana
 
-
+deploy:
+  install_metadata: true
 
 reference:
   - title: About
@@ -119,6 +126,7 @@ reference:
     - '`rpink`'
     -  has_concept("ica methods")
     - '`between`'
+    - '`install_py_eeguana`'
   - title: "Example data sets"
     desc: >
       Example data sets in eeg_lst format.

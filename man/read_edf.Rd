@@ -31,6 +31,7 @@ s1 <- read_edf("./faces.edf", .recording = 1)
 }
 \seealso{
 Other reading and writing functions: 
+\code{\link{read_fif}()},
 \code{\link{read_ft}()},
 \code{\link{read_set}()},
 \code{\link{read_vhdr}()}

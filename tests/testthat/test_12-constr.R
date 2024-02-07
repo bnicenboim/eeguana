@@ -29,6 +29,7 @@ test_that("[[ works", {
   expect_equal(new_obj[["channel"]], signal_tbl(new_obj)$channel)
 })
 
+
 test_that("eeg_lst", {
   
 N<- 1000
@@ -60,3 +61,50 @@ expect_equal(df0,df7)
 
 })
 
+test_that("Subsetting returns correct single element", {
+  x <- channel_dbl(1:4)
+  expect_equal(x[2], channel_dbl(2))
+  expect_s3_class(x[2], "channel_dbl")
+})
+
+test_that("Subsetting with recycling works correctly", {
+  x <- channel_dbl(1:4)
+  # Assuming your recycling logic is corrected
+  expect_equal(x[c(1,2)], channel_dbl(c(1,2)))
+  expect_length(x[c(1,2)], channel_dbl(2))
+})
+
+test_that("concatenation works", {
+  x <- channel_dbl(1:4)
+  y <- channel_dbl(4)
+  z <- channel_dbl(c(1,2,3,4,4))
+  y2 <- channel_dbl(4,.x=1)
+
+  expect_equal(c(x,y),z)
+  expect_warning(z2 <- c(x,y2))
+  expect_equal(z2,z)
+})
+
+
+test_that("Subsetting returns correct single element", {
+  x <- sample_int(1:4,500)
+  expect_equal(x[2], sample_int(2,500))
+  expect_s3_class(x[2], "sample_int")
+})
+
+test_that("Subsetting with recycling works correctly", {
+  x <- sample_int(1:4,500)
+  # Assuming your recycling logic is corrected
+  expect_equal(x[c(1,2)], sample_int(c(1,2),500))
+  expect_length(x[c(1,2)], sample_int(2, 500))
+})
+
+test_that("concatenation works", {
+  x <- sample_int(1:4,500)
+  y <- sample_int(4,500)
+  z <- sample_int(c(1,2,3,4,4),500)
+  y2 <- sample_int(4,600)
+
+  expect_equal(c(x,y),z)
+  expect_error(z2 <- c(x,y2))
+})

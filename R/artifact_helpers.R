@@ -74,7 +74,7 @@ detect_minmax <- function(x, args = list(window_samples = NULL, threshold = NULL
 #' @noRd
 detect_peak <- function(x, args = list(window_samples = NULL, threshold = NULL)) {
   ## TODO better version of findpeaks
-  peaks <- pracma::findpeaks(c(x),
+  peaks <- pracma::findpeaks(as.numeric(x),
     minpeakheight = args$threshold,
     minpeakdistance = args$window_samples,
     ## setting threshold for avoiding flat peaks

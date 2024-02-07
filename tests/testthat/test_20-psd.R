@@ -10,8 +10,8 @@ data_sleep_F3F2_psd <- eeg_psd(data_sleep_F3F2,.config = list(window = 400))
 
 data_sleep_psd_2 <- eeg_psd(data_sleep_F3_2,.config = list(window = 400))
 
-gsig_default <- gsignal::pwelch(c(data_sleep_F3[["F3"]]),fs = 100)
-gsig <- gsignal::pwelch(c(data_sleep_F3[["F3"]]), window = 400, fs= 100)
+gsig_default <- gsignal::pwelch(as.numeric(data_sleep_F3[["F3"]]),fs = 100)
+gsig <- gsignal::pwelch(as.numeric(data_sleep_F3[["F3"]]), window = 400, fs= 100)
 
 test_that("eeg_psd returns output of pwelch ", {
   expect_equal(gsig_default$freq, data_sleep_psd_default$.psd$.freq)

@@ -10,7 +10,7 @@ vectorized_ascii_bv2 <- read_vhdr(system.file("testdata", "bv_export_bv_txt_txt_
 
 test_that("basic tests of the events", {
   expect_equal(events_tbl(multiplexed_bin_bv1)$.initial, events_tbl(multiplexed_bin_bv1)$.final)
-  expect_equal(events_tbl(multiplexed_bin_bv1)$.initial[1], 1)
+  expect_equal(events_tbl(multiplexed_bin_bv1)$.initial[1], sample_int(1, 512))
 })
 
 # Integer encoding
@@ -37,7 +37,7 @@ multiplexed_bin_repeat <- read_vhdr(file = system.file("testdata", "asalab_expor
 
 
 test_that("repeated channels are not a problem", {
-  expect_equal(multiplexed_bin_bv1, dplyr::rename(multiplexed_bin_repeat, VEOG = HEOG.1))
+  expect_equal(multiplexed_bin_bv1, eeg_rename(multiplexed_bin_repeat, VEOG = HEOG_1))
 })
 
 
@@ -48,6 +48,16 @@ channels_tbl(ft) <- channels_tbl(multiplexed_bin_bv2)
 # test_that("can read fieldtrip files", {
 #   #  expect_equal(ft,)
 # })
+
+
+test_that("can read fif files ", {
+  skip_if_no_python_stuff()
+  fiffile <- system.file("testdata", "sample_audvis_10s_raw.fif", package = "eeguana")
+  #warnings are ok here (for now)
+  options(eeguana.verbose = FALSE)
+  suppress_python_output(suppressWarnings(fif_mne <- read_fif(fiffile)))
+  expect_s3_class(fif_mne, "eeg_lst")
+  })
 
 
 test_that("can read unique eeglab files ", {

@@ -271,7 +271,7 @@ is_channel_dbl <- function(x) {
 #' @export
 `[.channel_dbl` <- function(x, i, ...) {
   attrs <- attributes(x)
-  class(x) <- NULL
+  ## class(x) <- NULL
   r <- NextMethod("[")
   mostattributes(r) <- attrs
   r
@@ -284,6 +284,52 @@ is_channel_dbl <- function(x) {
   mostattributes(r) <- attrs
   r
 }
+
+
+#' @export
+`c.channel_dbl` <- function(...) {
+  dots <- list(...)
+  attrs <- attributes(dots[[1]])
+  lapply(dots[-1], function(d){
+    if(!identical(attrs, attributes(d)))
+      warning("Concatenating different channels!")
+  })
+  r <- NextMethod("c")
+  mostattributes(r) <- attrs
+  r
+}
+
+
+#' @export
+`[.sample_int` <- function(x, i, ...) {
+ attrs <- attributes(x)
+  ## class(x) <- NULL
+  r <- NextMethod("[")
+  mostattributes(r) <- attrs
+  r
+}
+
+#' @export
+`[[.sample_int` <- function(x, i, ...) {
+  attrs <- attributes(x)
+  r <- NextMethod("[[")
+  mostattributes(r) <- attrs
+  r
+}
+
+#' @export
+`c.sample_int` <- function(...) {
+  dots <- list(...)
+  attrs <- attributes(dots[[1]])
+  lapply(dots[-1], function(d){
+    if(!identical(attrs, attributes(d)) && !is.null(attributes(d)))
+      stop("Concatenating different sampling rates!")
+  })
+  r <- NextMethod("c")
+  mostattributes(r) <- attrs
+  r
+}
+
 
 #' @export
 `[[.eeg_lst` <- function(x, i, ...) {

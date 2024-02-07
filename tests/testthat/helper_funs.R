@@ -1,6 +1,10 @@
 #sourced by devtools::load_all() 
 #(so they’re available interactively when developing your packages) and by 
 #test_check() and friends (so that they’re available no matter how your tests are executed).
+suppress_python_output <- function(x) {
+  invisible(reticulate::py_capture_output(x))
+}
+
 
 other_testfiles <- file.path(testthat::test_path(), "other_files")
 
@@ -23,7 +27,7 @@ skip_if_nofiles <- function(files) {
   # If there are any missing files
   if (length(missing_files) > 0) {
     # Inform the user about the missing files
-    skip("The following file(s) do not exist: ", paste(missing_files, collapse = ", "))
+    skip(paste0("The following file(s) do not exist: ", paste(missing_files, collapse = ", ")))
   }
 }
 #' @noRd
