@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.9.9001</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.10.9001</span>
       </span>
     </div>
 
@@ -50,6 +50,9 @@
 <li>
   <a href="../news/index.html">Changelog</a>
 </li>
+<li>
+  <a href="https://github.com/bnicenboim/eeguana/discussions" class="external-link">Forum</a>
+</li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/bnicenboim/eeguana" class="external-link">
     <span class="fa fa-github fa-lg"></span>
@@ -70,13 +73,36 @@
     </div>
 
     <div class="section level2">
+<h2 class="page-header" data-toc-text="0.1.10.9001" id="eeguana-01109001">eeguana 0.1.10.9001<a class="anchor" aria-label="anchor" href="#eeguana-01109001"></a></h2>
+<div class="section level3">
+<h3 id="new-features-0-1-10-9001">New Features<a class="anchor" aria-label="anchor" href="#new-features-0-1-10-9001"></a></h3>
+<ul><li>Added <code>chs_mean</code> method for <code>psd_list</code> objects.</li>
+<li>Introduced experimental <code><a href="../reference/read_fif.html">read_fif()</a></code> function to read fif files created by MNE Python.</li>
+<li>New <code><a href="../reference/install_py_eeguana.html">install_py_eeguana()</a></code> function to install the necessary Python packages for reading fif files.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bugs-and-improvements-0-1-10-9001">Bugs and Improvements<a class="anchor" aria-label="anchor" href="#bugs-and-improvements-0-1-10-9001"></a></h3>
+<ul><li>Improved behavior of <code>channel_dbl</code> and <code>sample_int</code> classes.</li>
+<li>Enhanced <code><a href="../reference/annotate_events.html">annotate_events()</a></code> function to allow plotting even if there are no events.</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="page-header" data-toc-text="0.1.9.9001" id="eeguana-0199001">eeguana 0.1.9.9001<a class="anchor" aria-label="anchor" href="#eeguana-0199001"></a></h2>
 <ul><li>fix installation of the dependency tidytable.</li>
-<li>added <code><a href="../reference/annotate_electrodes.html">annotate_electrodes()</a></code> to add electrode labels to a topographic plot. (Previously this was done with <code><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text()</a></code>). # eeguana 0.1.8.9001</li>
-<li>fix of minor bug affecting eeg_artif_step(), when the number of samples in <code>window</code> was odd. # eeguana 0.1.8.9000</li>
-<li>
-<code><a href="../reference/as_eeg_lst.html">as_eeg_lst()</a></code> makes <code>eeg_lst</code> objects created with previous versions of eeguana compatible with the current version. # eeguana 0.1.7.9000</li>
-<li>New features:</li>
+<li>added <code><a href="../reference/annotate_electrodes.html">annotate_electrodes()</a></code> to add electrode labels to a topographic plot. (Previously this was done with <code><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text()</a></code>).</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="0.1.8.9001" id="eeguana-0189001">eeguana 0.1.8.9001<a class="anchor" aria-label="anchor" href="#eeguana-0189001"></a></h2>
+<ul><li>fix of minor bug affecting eeg_artif_step(), when the number of samples in <code>window</code> was odd.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="0.1.8.9000" id="eeguana-0189000">eeguana 0.1.8.9000<a class="anchor" aria-label="anchor" href="#eeguana-0189000"></a></h2>
+<ul><li>
+<code><a href="../reference/as_eeg_lst.html">as_eeg_lst()</a></code> makes <code>eeg_lst</code> objects created with previous versions of eeguana compatible with the current version.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="0.1.7.9000" id="eeguana-0179000">eeguana 0.1.7.9000<a class="anchor" aria-label="anchor" href="#eeguana-0179000"></a></h2>
+<ul><li>New features:</li>
 <li>The argument <code>.ref</code> of <code><a href="../reference/eeg_rereference.html">eeg_rereference()</a></code> now allows “tidyselect”.
 <ul><li>
 <code><a href="../reference/write_vhdr.html">write_vhdr()</a></code> writes BrainVision 2.0 files (experimental).</li>
@@ -87,7 +113,7 @@
 <li>
 <code><a href="../reference/na_omit.html">na_omit()</a></code> removes NA values from <code>eeg_lst</code> objects.</li>
 <li>
-<code>as_tidytable()</code> added.</li>
+<code><a href="https://markfairbanks.github.io/tidytable/reference/as_tidytable.html" class="external-link">as_tidytable()</a></code> added.</li>
 <li>
 <code><a href="../reference/summaries.html">sampling_rate()</a></code> shows the sampling rate of an object.</li>
 <li>

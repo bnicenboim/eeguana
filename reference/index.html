@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.9.9001</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.10.9001</span>
       </span>
     </div>
 
@@ -49,6 +49,9 @@
   </ul></li>
 <li>
   <a href="../news/index.html">Changelog</a>
+</li>
+<li>
+  <a href="https://github.com/bnicenboim/eeguana/discussions" class="external-link">Forum</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/bnicenboim/eeguana" class="external-link">
@@ -84,6 +87,10 @@
           <p><code><a href="read_edf.html">read_edf()</a></code> </p>
         </td>
         <td><p>Read an edf/edf+/bdf file into R</p></td>
+      </tr><tr><td>
+          <p><code><a href="read_fif.html">read_fif()</a></code> </p>
+        </td>
+        <td><p>Read a FIF file into R</p></td>
       </tr><tr><td>
           <p><code><a href="read_ft.html">read_ft()</a></code> </p>
         </td>
@@ -229,7 +236,7 @@
         </td>
         <td><p>Create an ERP plot</p></td>
       </tr><tr><td>
-          <p><code><a href="plot.eeg_lst.html">plot(<i>&lt;eeg_lst&gt;</i>)</a></code> </p>
+          <p><code><a href="plot.eeg_lst.html">plot(<i>&lt;eeg_lst&gt;</i>)</a></code> <code><a href="plot.eeg_lst.html">plot(<i>&lt;psd_lst&gt;</i>)</a></code> </p>
         </td>
         <td><p>Create a basic signal plot</p></td>
       </tr><tr><td>
@@ -257,7 +264,7 @@
         </td>
         <td><p>Add a head shape to a ggplot</p></td>
       </tr><tr><td>
-          <p><code><a href="theme_eeguana.html">theme_eeguana()</a></code> <code><a href="theme_eeguana.html">theme_eeguana2()</a></code> </p>
+          <p><code><a href="theme_eeguana.html">theme_eeguana()</a></code> <code><a href="theme_eeguana.html">theme_eeguana2()</a></code> <code><a href="theme_eeguana.html">default_theme()</a></code> </p>
         </td>
         <td><p>Eeguana ggplot themes</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
@@ -435,6 +442,10 @@ This function returns  TRUE for samples.</p></td>
           <p><code><a href="between.html">between</a></code> </p>
         </td>
         <td><p>Convenience function for range subsets</p></td>
+      </tr><tr><td>
+          <p><code><a href="install_py_eeguana.html">install_py_eeguana()</a></code> </p>
+        </td>
+        <td><p>Install the Python packages needed for <code>eeguana</code></p></td>
       </tr></tbody><tbody><tr><th colspan="2">
           <h2 id="example-data-sets">Example data sets <a href="#example-data-sets" class="anchor" aria-hidden="true"></a></h2>
           <p class="section-desc"></p><p>Example data sets in eeg_lst format.</p>

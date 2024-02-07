@@ -1,294 +1,300 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>/404.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/404.html</loc>
   </url>
   <url>
-    <loc>/CONTRIBUTING.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/CONTRIBUTING.html</loc>
   </url>
   <url>
-    <loc>/ISSUE_TEMPLATE.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/ISSUE_TEMPLATE.html</loc>
   </url>
   <url>
-    <loc>/LICENSE-text.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/LICENSE-text.html</loc>
   </url>
   <url>
-    <loc>/LICENSE.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/LICENSE.html</loc>
   </url>
   <url>
-    <loc>/articles/gotchas.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/articles/gotchas.html</loc>
   </url>
   <url>
-    <loc>/articles/index.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/articles/index.html</loc>
   </url>
   <url>
-    <loc>/articles/intro.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/articles/intro.html</loc>
   </url>
   <url>
-    <loc>/articles/preprocessing_erp.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/articles/preprocessing_erp.html</loc>
   </url>
   <url>
-    <loc>/authors.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/authors.html</loc>
   </url>
   <url>
-    <loc>/index.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/index.html</loc>
   </url>
   <url>
-    <loc>/news/index.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/news/index.html</loc>
   </url>
   <url>
-    <loc>/reference/annotate_electrodes.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/annotate_electrodes.html</loc>
   </url>
   <url>
-    <loc>/reference/annotate_events.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/annotate_events.html</loc>
   </url>
   <url>
-    <loc>/reference/annotate_head.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/annotate_head.html</loc>
   </url>
   <url>
-    <loc>/reference/as.data.frame.eeg_lst.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/as.data.frame.eeg_lst.html</loc>
   </url>
   <url>
-    <loc>/reference/as.data.frame.psd_lst.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/as.data.frame.psd_lst.html</loc>
   </url>
   <url>
-    <loc>/reference/as.data.table.eeg_lst.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/as.data.table.eeg_lst.html</loc>
   </url>
   <url>
-    <loc>/reference/as.data.table.psd_lst.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/as.data.table.psd_lst.html</loc>
   </url>
   <url>
-    <loc>/reference/as_channel_dbl.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/as_channel_dbl.html</loc>
   </url>
   <url>
-    <loc>/reference/as_eeg_lst.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/as_eeg_lst.html</loc>
   </url>
   <url>
-    <loc>/reference/as_sample_int.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/as_sample_int.html</loc>
   </url>
   <url>
-    <loc>/reference/as_tibble.eeg_lst.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/as_tibble.eeg_lst.html</loc>
   </url>
   <url>
-    <loc>/reference/as_tibble.psd_lst.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/as_tibble.psd_lst.html</loc>
   </url>
   <url>
-    <loc>/reference/as_tidytable.eeg_lst.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/as_tidytable.eeg_lst.html</loc>
   </url>
   <url>
-    <loc>/reference/as_tidytable.psd_lst.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/as_tidytable.psd_lst.html</loc>
   </url>
   <url>
-    <loc>/reference/as_time.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/as_time.html</loc>
   </url>
   <url>
-    <loc>/reference/between.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/between.html</loc>
   </url>
   <url>
-    <loc>/reference/change_coord.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/change_coord.html</loc>
   </url>
   <url>
-    <loc>/reference/channel_dbl.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/channel_dbl.html</loc>
   </url>
   <url>
-    <loc>/reference/channels_tbl.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/channels_tbl.html</loc>
   </url>
   <url>
-    <loc>/reference/chs_fun.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/chs_fun.html</loc>
   </url>
   <url>
-    <loc>/reference/chs_mean.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/chs_mean.html</loc>
   </url>
   <url>
-    <loc>/reference/component_dbl.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/component_dbl.html</loc>
   </url>
   <url>
-    <loc>/reference/count_complete_cases_tbl.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/count_complete_cases_tbl.html</loc>
   </url>
   <url>
-    <loc>/reference/data_faces_10_trials.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/data_faces_10_trials.html</loc>
   </url>
   <url>
-    <loc>/reference/data_faces_ERPs.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/data_faces_ERPs.html</loc>
   </url>
   <url>
-    <loc>/reference/defunct.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/defunct.html</loc>
   </url>
   <url>
-    <loc>/reference/dplyr_verbs.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/dplyr_verbs.html</loc>
   </url>
   <url>
-    <loc>/reference/drop_incomplete_segments.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/drop_incomplete_segments.html</loc>
   </url>
   <url>
-    <loc>/reference/eeg_artif.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/eeg_artif.html</loc>
   </url>
   <url>
-    <loc>/reference/eeg_baseline.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/eeg_baseline.html</loc>
   </url>
   <url>
-    <loc>/reference/eeg_bind.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/eeg_bind.html</loc>
   </url>
   <url>
-    <loc>/reference/eeg_downsample.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/eeg_downsample.html</loc>
   </url>
   <url>
-    <loc>/reference/eeg_events_to_NA.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/eeg_events_to_NA.html</loc>
   </url>
   <url>
-    <loc>/reference/eeg_ica.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/eeg_ica.html</loc>
   </url>
   <url>
-    <loc>/reference/eeg_ica_cor_tbl.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/eeg_ica_cor_tbl.html</loc>
   </url>
   <url>
-    <loc>/reference/eeg_ica_keep.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/eeg_ica_keep.html</loc>
   </url>
   <url>
-    <loc>/reference/eeg_ica_show.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/eeg_ica_show.html</loc>
   </url>
   <url>
-    <loc>/reference/eeg_ica_summary_tbl.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/eeg_ica_summary_tbl.html</loc>
   </url>
   <url>
-    <loc>/reference/eeg_ica_var_tbl.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/eeg_ica_var_tbl.html</loc>
   </url>
   <url>
-    <loc>/reference/eeg_interpolate_tbl.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/eeg_interpolate_tbl.html</loc>
   </url>
   <url>
-    <loc>/reference/eeg_lst.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/eeg_lst.html</loc>
   </url>
   <url>
-    <loc>/reference/eeg_power_band.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/eeg_power_band.html</loc>
   </url>
   <url>
-    <loc>/reference/eeg_psd.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/eeg_psd.html</loc>
   </url>
   <url>
-    <loc>/reference/eeg_rereference.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/eeg_rereference.html</loc>
   </url>
   <url>
-    <loc>/reference/eeg_segment.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/eeg_segment.html</loc>
   </url>
   <url>
-    <loc>/reference/eeg_slice_signal.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/eeg_slice_signal.html</loc>
   </url>
   <url>
-    <loc>/reference/eeguana-package.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/eeguana-package.html</loc>
   </url>
   <url>
-    <loc>/reference/events_tbl.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/events_tbl.html</loc>
   </url>
   <url>
-    <loc>/reference/fICA.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/fICA.html</loc>
   </url>
   <url>
-    <loc>/reference/fast_ICA.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/fast_ICA.html</loc>
   </url>
   <url>
-    <loc>/reference/filt.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/filt.html</loc>
   </url>
   <url>
-    <loc>/reference/ggplot.eeg_lst.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/ggplot.eeg_lst.html</loc>
   </url>
   <url>
-    <loc>/reference/ica_matrix_lst.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/ica_matrix_lst.html</loc>
   </url>
   <url>
-    <loc>/reference/index.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/index.html</loc>
   </url>
   <url>
-    <loc>/reference/is_channel_dbl.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/install_py_eeguana.html</loc>
   </url>
   <url>
-    <loc>/reference/is_component_dbl.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/is_channel_dbl.html</loc>
   </url>
   <url>
-    <loc>/reference/is_eeg_lst.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/is_component_dbl.html</loc>
   </url>
   <url>
-    <loc>/reference/is_events_tbl.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/is_eeg_lst.html</loc>
   </url>
   <url>
-    <loc>/reference/is_psd_lst.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/is_events_tbl.html</loc>
   </url>
   <url>
-    <loc>/reference/is_psd_tbl.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/is_psd_lst.html</loc>
   </url>
   <url>
-    <loc>/reference/is_sample_int.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/is_psd_tbl.html</loc>
   </url>
   <url>
-    <loc>/reference/is_signal_tbl.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/is_sample_int.html</loc>
   </url>
   <url>
-    <loc>/reference/layout_32_1020.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/is_signal_tbl.html</loc>
   </url>
   <url>
-    <loc>/reference/na_omit.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/layout_32_1020.html</loc>
   </url>
   <url>
-    <loc>/reference/pipe.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/na_omit.html</loc>
   </url>
   <url>
-    <loc>/reference/plot.eeg_lst.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/pipe.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_components.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/plot.eeg_lst.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_in_layout.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/plot_components.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_topo.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/plot_in_layout.html</loc>
   </url>
   <url>
-    <loc>/reference/psd_lst.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/plot_topo.html</loc>
   </url>
   <url>
-    <loc>/reference/read_edf.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/psd_lst.html</loc>
   </url>
   <url>
-    <loc>/reference/read_ft.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/read_edf.html</loc>
   </url>
   <url>
-    <loc>/reference/read_set.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/read_fif.html</loc>
   </url>
   <url>
-    <loc>/reference/read_vhdr.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/read_ft.html</loc>
   </url>
   <url>
-    <loc>/reference/reexports.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/read_set.html</loc>
   </url>
   <url>
-    <loc>/reference/rpink.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/read_vhdr.html</loc>
   </url>
   <url>
-    <loc>/reference/sample_int.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/reexports.html</loc>
   </url>
   <url>
-    <loc>/reference/segments_tbl.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/rpink.html</loc>
   </url>
   <url>
-    <loc>/reference/sig_fft.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/sample_int.html</loc>
   </url>
   <url>
-    <loc>/reference/sig_ifft.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/segments_tbl.html</loc>
   </url>
   <url>
-    <loc>/reference/signal_tbl.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/sig_fft.html</loc>
   </url>
   <url>
-    <loc>/reference/summaries.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/sig_ifft.html</loc>
   </url>
   <url>
-    <loc>/reference/summary.eeg_lst.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/signal_tbl.html</loc>
   </url>
   <url>
-    <loc>/reference/theme_eeguana.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/summaries.html</loc>
   </url>
   <url>
-    <loc>/reference/write_vhdr.html</loc>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/summary.eeg_lst.html</loc>
+  </url>
+  <url>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/theme_eeguana.html</loc>
+  </url>
+  <url>
+    <loc>https://bruno.nicenboim.me/eeguana/reference/write_vhdr.html</loc>
   </url>
 </urlset>

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.9.9001</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.10.9001</span>
       </span>
     </div>
 
@@ -49,6 +49,9 @@
   </ul></li>
 <li>
   <a href="../news/index.html">Changelog</a>
+</li>
+<li>
+  <a href="https://github.com/bnicenboim/eeguana/discussions" class="external-link">Forum</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/bnicenboim/eeguana" class="external-link">
@@ -167,9 +170,13 @@
     <div id="details">
     <h2>Details</h2>
     <p><code>eeg_artif_peak()</code> is wrapper around <a href="https://rdrr.io/pkg/pracma/man/findpeaks.html" class="external-link">pracma::findpeaks</a>,  <code>.threshold</code> is the minimum (absolute) height a peak has to have to be recognized as such and <code>.window</code> is the minimum distance  peaks have to have to be counted.</p>
-<p><code>eeg_artif_minmax()</code> is also refered as a peak-to-peak artifact detector.</p>
-<p><code>eeg_artif_minmax()</code> and <code>eeg_artif_step()</code> can be used to detect blinks and horizontal eye movements in the electro-oculographic (V/HEOG) channels or large voltage jumps in other channels.</p>
+<p><code>eeg_artif_minmax()</code> is also refered as a peak-to-peak artifact detector.  It is less sensitive to drifts than <code>eeg_artif_peak()</code>.</p>
+<p><code>eeg_artif_minmax()</code> and <code>eeg_artif_step()</code> can be used to detect blinks and horizontal eye movements in the electro-oculographic (V/HEOG) channels or large voltage jumps in other channels. See chapter 6 of Luck (2014).</p>
 <p>For the EOG channels, a relatively low threshold (e.g., 30 µV) is recommended. For non EOG channels, a relatively high threshold (e.g., 100 µV) would be more appropriate.</p>
+    </div>
+    <div id="references">
+    <h2>References</h2>
+    <p>Luck, S. J. (2014). An introduction to the event-related potential technique. MIT press.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>

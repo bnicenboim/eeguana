@@ -5,5 +5,8 @@ articles:
   gotchas: gotchas.html
   intro: intro.html
   preprocessing_erp: preprocessing_erp.html
-last_built: 2024-01-27T10:41Z
+last_built: 2024-02-07T16:03Z
+urls:
+  reference: https://bruno.nicenboim.me/eeguana/reference
+  article: https://bruno.nicenboim.me/eeguana/articles
 
