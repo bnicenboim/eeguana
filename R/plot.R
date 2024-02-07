@@ -32,8 +32,8 @@
 #' plot(data_faces_ERPs) +
 #'   coord_cartesian(ylim = c(-500, 500))
 #' @export
-plot.eeg_lst <- function(x, ...){
-    print(ggplot2::autoplot(x, ...))
+plot.eeg_lst <- function(x,  .max_sample = 6400,...){
+    print(ggplot2::autoplot(x, .max_sample = .max_sample, ...))
 }
 
 

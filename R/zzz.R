@@ -24,6 +24,8 @@ mne <- NULL
   if(requireNamespace("reticulate", quietly = TRUE)){
     reticulate::use_condaenv("r-eeguana", required = FALSE)
     mne <<- reticulate::import("mne", delay_load = TRUE)
+  } else {
+    mne <<- NULL
   }
 
   #dplyr styff
