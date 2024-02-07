@@ -68,7 +68,7 @@ set.seed(123) # ICA will always find the same components
 
 We first need to read the data:
 
-```{r}
+```{r read.faces}
 faces <- read_vhdr("s1_faces.vhdr")
 ```
 
@@ -104,7 +104,7 @@ Here the preprocessing is done with only one EEG dataset. If the EEG data of dif
 ### Rereferencing
 In this dataset, the signal from all electrodes is monopolar and referenced to the left mastoid (M1). We want the signal (excluding the EOG channels) to be referenced to linked (left and right) mastoids (M1 and M2).
 
-```{r}
+```{r reref}
 faces <- eeg_rereference(faces, -VEOG, -HEOG, .ref = c("M1", "M2"))
 ```
 
@@ -112,7 +112,7 @@ faces <- eeg_rereference(faces, -VEOG, -HEOG, .ref = c("M1", "M2"))
 
 We apply a band pass filter of 0.1 to 30 Hz to all the channels except the EOG channels. We don't segment yet, because discontinuities in the signal create artifacts on the edges.
 
-```{r}
+```{r band.pass}
 faces_filt <- eeg_filt_band_pass(faces, -HEOG, -VEOG, .freq = c(.1, 30)) 
 ```
 
@@ -124,7 +124,7 @@ We want to apply ICA to as much data as possible, but to "representative" data: 
 We first cut a large segment that excludes data before and after the experiment was ran using `eeg_segment()` (that is, only data from the marker "s111" to "s121"), and then we mark differences of 200 microvolts between peaks with `eeg_artif_minmax()`.
 
 
-```{r, fig.dim = c(10,15), out.width = "100%"}
+```{r segment, fig.dim = c(10,15), out.width = "100%"}
 faces_ls <- eeg_segment(faces_filt, 
                         .description == "s111", 
                         .end = .description == "s121") |>
@@ -226,8 +226,9 @@ summary(faces_seg)
 ```
 Finally, we can baseline the segments:
 
-```{r}
-faces_seg <- faces_seg |> eeg_baseline()
+```{r baseline}
+faces_seg <- faces_seg |> 
+  eeg_baseline()
 ```
 
 ## Visualization
