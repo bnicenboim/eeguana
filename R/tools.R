@@ -22,9 +22,6 @@
 #' @return
 #' Returns `NULL` invisibly and prints a message upon successful installation. If `restart_session` is TRUE and the R session is running within RStudio, the session will restart automatically.
 #'
-#' @examples
-#' # Install Python dependencies in a new conda environment named 'r-eeguana'
-#' install_py_eeguana(envname = "r-eeguana", restart_session = FALSE)
 #'
 #' @export
 install_py_eeguana <- function(conda = "auto",

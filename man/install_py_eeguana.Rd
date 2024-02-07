@@ -46,8 +46,3 @@ It supports creating new virtual or conda environments, installing necessary pac
 
 The function is designed to be robust, handling various scenarios such as existing environments, and provides detailed feedback during the process.
 }
-\examples{
-# Install Python dependencies in a new conda environment named 'r-eeguana'
-install_py_eeguana(envname = "r-eeguana", restart_session = FALSE)
-
-}
