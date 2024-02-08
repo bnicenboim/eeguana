@@ -469,9 +469,80 @@ faces_segs_some |>
 
 <img src="man/figures/README-topo-1.png" width="100%" />
 
-## See also
+## Articles and dissertations using `eeguana`
 
-Other R packages for EEG/ERP data:
+<div id="refs" class="references csl-bib-body hanging-indent">
+
+<div id="ref-aristei2023affect" class="csl-entry">
+
+Aristei, Sabrina, Christine A Knoop, Oliver Lubrich, Thomas Nehrlich,
+Alexander Enge, Kirsten Stark, Werner Sommer, and Rasha Abdel Rahman.
+2023. “Affect as Anaesthetic: How Emotional Contexts Modulate the
+Processing of Counterintuitive Concepts.” *Language, Cognition and
+Neuroscience* 38 (10): 1514–30.
+
+</div>
+
+<div id="ref-corput2020locked" class="csl-entry">
+
+Corput, Daniël van den. 2020. “Locked in Syndrome Machine Learning
+Classification Using Sentence Comprehension EEG Data.” *arXiv Preprint
+arXiv:2006.12336*.
+
+</div>
+
+<div id="ref-nicenboim2020words" class="csl-entry">
+
+Nicenboim, Bruno, Shravan Vasishth, and Frank Rösler. 2020. “Are Words
+Pre-Activated Probabilistically During Sentence Comprehension? Evidence
+from New Data and a Bayesian Random-Effects Meta-Analysis Using Publicly
+Available Data.” *Neuropsychologia* 142: 107427.
+
+</div>
+
+<div id="ref-stone2023n400" class="csl-entry">
+
+Stone, Kate, Naghmeh Khaleghi, and Milena Rabovsky. 2023. “The N400 Is
+Elicited by Meaning Changes but Not Synonym Substitutions: Evidence from
+Persian Phrasal Verbs.” *Cognitive Science* 47 (12): e13394.
+
+</div>
+
+<div id="ref-stone2023understanding" class="csl-entry">
+
+Stone, Kate, Bruno Nicenboim, Shravan Vasishth, and Frank Rösler. 2023.
+“Understanding the Effects of Constraint and Predictability in ERP.”
+*Neurobiology of Language* 4 (2): 221–56.
+
+</div>
+
+<div id="ref-stone2022does" class="csl-entry">
+
+Stone, Kate, Shravan Vasishth, and Titus von der Malsburg. 2022. “Does
+Entropy Modulate the Prediction of German Long-Distance Verb Particles?”
+*Plos One* 17 (8): e0267813.
+
+</div>
+
+<div id="ref-szewczyk2022context" class="csl-entry">
+
+Szewczyk, Jakub M, and Kara D Federmeier. 2022. “Context-Based
+Facilitation of Semantic Access Follows Both Logarithmic and Linear
+Functions of Stimulus Probability.” *Journal of Memory and Language*
+123: 104311.
+
+</div>
+
+<div id="ref-vik2021deteccion" class="csl-entry">
+
+Vik Espárrago, Erik Martı́n. 2021. “Detección de Perfiles Psicopáticos
+Mediante El análisis Automático de Señales de Encefalogramas.”
+
+</div>
+
+</div>
+
+## Other R packages for EEG/ERP data:
 
 - [permuco4brain](https://jaromilfrossard.github.io/permuco4brain/index.html)
   provides functions to compute permutation test in brain imagery data.
@@ -484,3 +555,5 @@ Other R packages for EEG/ERP data:
 - [erpR](https://cran.r-project.org/package=erpR) analysis of
   event-related potentials (ERPs) by Giorgio Arcara, Anna Petrova. It
   hasn’t been updated since 2014.
+- [mne-r](https://mne.tools/mne-r/index.html) provides fast acccess to
+  MNE-Python from within R.

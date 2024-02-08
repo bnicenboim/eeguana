@@ -1,4 +1,5 @@
 ---
+bibliography: papers.bib
 output: github_document
 ---
  [![R build status](https://github.com/bnicenboim/eeguana/workflows/R-CMD-check/badge.svg)](https://github.com/bnicenboim/eeguana/actions)
@@ -158,12 +159,19 @@ faces_segs_some |>
   facet_grid(~condition)
 ```
 
+## Articles and dissertations using `eeguana`
 
-## See also
+---
+nocite: '@*'
+---
+<div id="refs"></div>
 
-Other R packages for EEG/ERP data:
+
+## Other R packages for EEG/ERP data:
 
 -  [permuco4brain](https://jaromilfrossard.github.io/permuco4brain/index.html) provides functions to compute permutation test in brain imagery data. It is specially designed for M-EEG/ERP data. This a [vignette](https://jaromilfrossard.github.io/permuco4brain/articles/permuco4brain-with-eeguana.html) explains how to use it together with `eeguana`.
 - [eegUtils](https://github.com/craddm/eegUtils) some helper utilities for plotting and processing EEG data in active development by Matt Craddock.
--  [erpR](https://cran.r-project.org/package=erpR)  analysis of event-related potentials (ERPs) by Giorgio Arcara, Anna Petrova. It hasn't been updated since 2014.
+- [erpR](https://cran.r-project.org/package=erpR)  analysis of event-related potentials (ERPs) by Giorgio Arcara, Anna Petrova. It hasn't been updated since 2014.
+- [mne-r](https://mne.tools/mne-r/index.html) provides fast acccess to MNE-Python from within R.
+
 
