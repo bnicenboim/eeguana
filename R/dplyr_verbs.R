@@ -414,13 +414,21 @@ eeg_rename_with.eeg_lst <- function(.data, .fn, .cols = where(is_channel_dbl), .
   .cols <- rlang::enquo(.cols)
   .fn <- rlang::as_function(.fn)
 
-  vars_signal <- tidyselect::eval_select(
+  # enforces all_of here:
+  all_vars <- tidyselect::eval_select(
     expr = rlang::expr(!!.cols),
+    data = cbind(.data$.signal[0], .data$.segments[0]),
+    strict = FALSE
+  ) %>% names()
+  
+  vars_signal <- tidyselect::eval_select(
+    expr = tidyselect::any_of(all_vars),
     data = .data$.signal[0],
     strict = FALSE
   ) %>% names()
+  
   vars_segments <- tidyselect::eval_select(
-    expr = rlang::expr(!!.cols),
+    expr = tidyselect::any_of(all_vars),
     data = .data$.segments[0],
     strict = FALSE
   ) %>% names()
@@ -448,25 +456,31 @@ eeg_rename_with.eeg_lst <- function(.data, .fn, .cols = where(is_channel_dbl), .
   new_segments <- NULL
   new_signal <- NULL
   if (length(vars_signal) > 0) {
-    .data$.signal <- shallow(.data$.signal)
+    ## .data$.signal <- shallow(.data$.signal)
 
     new_signal <- .fn(vars_signal, ...)
     names(new_signal) <- vars_signal
-    data.table::setnames(.data$.signal, vars_signal, new_signal)
-
+    ## data.table::setnames(.data$.signal, vars_signal, new_signal)
+    # replaced now with:
+    .data$.signal <- rename_with.(.data$.signal, 
+                                  .fn, 
+                                  .cols = tidyselect::all_of(vars_signal), 
+                                  ...)
     # update channels in events
     .data$.events <- .data$.events %>%
-      mutate.(.channel = ifelse(.channel %in% vars_signal,
+      mutate.events_tbl(.channel = ifelse(.channel %in% vars_signal,
         new_signal[.channel],
         .channel
       ))
+
   }
   if (length(vars_segments) > 0) {
-    .data$.segments <- shallow(.data$.segments)
+    ## .data$.segments <- shallow(.data$.segments)
     new_segments <- .fn(vars_segments, ...)
     names(new_segments) <- vars_segments
+    ## data.table::setnames(.data$.segments, vars_segments, new_segments)
+    .data$.segments <- rename_with.(.data$.segments, .fn, .cols = tidyselect::all_of(vars_segments), ...)
 
-    data.table::setnames(.data$.segments, vars_segments, new_segments)
   }
 
   # Update groups

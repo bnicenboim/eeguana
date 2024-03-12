@@ -434,7 +434,7 @@ count_complete_cases_tbl.eeg_lst <- function(x, ...) {
   by <- tidytable::map_chr(dots, rlang::quo_text)
   chs <- channel_names(x)
   x$.signal %>%
-    summarize.(N = as.integer(!anyNA(c_across.(tidyselect::one_of(!!chs)))), .by =".id") %>%
+    summarize.(N = as.integer(!anyNA(c_across(tidyselect::one_of(!!chs)))), .by =".id") %>%
     tidytable::left_join(x$.segments) %>%
     summarize.(N = sum(N), .by = by) %>%
     data.table::as.data.table()

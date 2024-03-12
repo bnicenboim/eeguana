@@ -124,7 +124,7 @@ test_that("renaming a grouped eeg_lst", {
 #### rename with
 test_that("rename_with works", {
   expect_equal(
-    eeg_rename_with(data, .fn = tolower, .cols = "X"),
+    eeg_rename_with(data, .fn = tolower, .cols = tidyselect::all_of("X")),
     eeg_rename(data, x = X)
   )
   expect_equal(
@@ -167,3 +167,4 @@ test_that("renaming in grouped segments table doesn't change data", {
   expect_equal(segments_tbl(renamed_eeg4), setNames(data$.segments, c(".id", ".recording", "segment", "cond")))
   expect_equal(reference_data, data)
 })
+

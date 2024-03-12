@@ -158,14 +158,14 @@ validate_events_tbl <- function(events) {
 
 
 filter.events_tbl <- function(.data, ..., preserve = FALSE) {
-  as_events_tbl(NextMethod(), sampling_rate(.data))
+  as_events_tbl(tidytable:::filter.tidytable(.data, ...), sampling_rate(.data))
 }
 mutate.events_tbl <- function(.data, ...) {
-  as_events_tbl(NextMethod(), sampling_rate(.data))
+  as_events_tbl(tidytable:::mutate.tidytable(.data, ...), sampling_rate(.data))
 }
 transmute.events_tbl <- function(.data, ...) {
-  as_events_tbl(NextMethod(), sampling_rate(.data))
+  as_events_tbl(tidytable:::transmute.tidytable(.data, ...), sampling_rate(.data))
 }
 summarise.events_tbl <- function(.data, ...) {
-  as_events_tbl(NextMethod(), sampling_rate(.data))
+  as_events_tbl(tidytable:::summarize.tidytable(.data, ...), sampling_rate(.data))
 }

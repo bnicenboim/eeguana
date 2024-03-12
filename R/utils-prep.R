@@ -1,6 +1,6 @@
 # Adapted from: https://github.com/markfairbanks/tidytable/blob/main/R/utils-prep_exprs.R
 # "Prepare" quosures/expressions for use in a "[.data.table" call
-# Allows the use of functions like n() and across.()
+# Allows the use of functions like n() and across()
 # Replaces these functions with the necessary data.table translations
 # General idea follows dt_squash found here: https://github.com/tidyverse/dtplyr/blob/master/R/tidyeval.R
 prep_exprs <- function(x, data, .by = NULL, j = FALSE) {

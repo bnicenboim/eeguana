@@ -108,11 +108,11 @@ search_artifacts <- function(signal, ..., fun, args = list()) {
   ch_sel <- sel_ch(signal, ...)
     ## in case there are missing .samples
   add_missing_samples(signal) %>% 
-    transmute.(across.(tidyselect::all_of(ch_sel),  fun, args),
+    transmute.(across(tidyselect::all_of(ch_sel),  fun, args),
                .sample, 
                .by =".id") %>%
     #necessary because of https://github.com/markfairbanks/tidytable/issues/578
-    mutate.(across.(tidyselect::all_of(ch_sel),  as.logical))
+    mutate.(across(tidyselect::all_of(ch_sel),  as.logical))
 }
 
 #' @noRd
@@ -126,14 +126,16 @@ add_missing_samples <- function(signal) {
 #' add events from a table similar to signal, but with TRUE/FALSE depending if an artifact was detected.
 #' @noRd
 add_intervals_from_artifacts <- function(sampling_rate, artifacts_tbl, sample_range, .type) {
-  events_found <- artifacts_tbl %>%
-    split(., .$.id) %>%
-    map_dtr(function(.eeg) {
+ artifs <- artifacts_tbl %>%
+    split(., .$.id) 
+  events_found <-  artifs %>% 
+      map_dtr(function(.eeg) {
       .eeg %>%
         select.(-tidyselect::one_of(obligatory_cols[[".signal"]])) %>%
         imap_dtr(~ {
           if (all(.x[!is.na(.x)] == FALSE)) {
             new_events_tbl() %>%
+              data.table::as.data.table() %>% # need to remove the class to avoid warnings when I remove the .id
               ## I need to remove .id because it gets added by map
             mutate.(.id = NULL,
                     .initial = sample_int(integer(0),

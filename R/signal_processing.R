@@ -99,7 +99,7 @@ eeg_downsample.eeg_lst <- function(.data, .q = 2, .max_sample = NULL,
   # and the size is divided by two with a min of 1
   # .data$.events <- data.table::copy(.data$.events)[, .initial :=
   #   sample_int(ceiling(.initial / factor), new_sampling_rate)][, .final := sample_int(ceiling(.final / factor), new_sampling_rate)][]
-  .data$.events <- mutate.(.data$.events, 
+  .data$.events <- mutate.events_tbl(as_events_tbl.events_tbl(.data$.events, new_sampling_rate),
                            .initial = sample_int(ceiling(.initial / factor), new_sampling_rate), 
                            .final = sample_int(ceiling(.final / factor), new_sampling_rate))
   

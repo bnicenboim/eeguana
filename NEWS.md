@@ -1,3 +1,8 @@
+# eeguana 0.1.11.9001
+
+## Bug fixed
+- `could not find function "across."` error fixed (thanks @prattems)
+
 # eeguana 0.1.10.9001
 
 ## New Features
