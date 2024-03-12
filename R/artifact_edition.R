@@ -296,12 +296,13 @@ eeg_events_to_NA.eeg_lst <-
 
     # dots <- rlang::quos(.type == "Bad Interval")
     #dots <- rlang::quos(.type == "Bad")
+    #dots <- rlang::quos(.type == "artifact")
     
     signal <- data.table::copy(x$.signal)
      
     # Hack for match 2 columns with 2 columns, similar to semi_join but allowing
     # for assignment
-    baddies <- filter.(x$.events, !!!dots)
+    baddies <- filter.events_tbl(x$.events, !!!dots)
     if (!missing(".all_chs")){
       warning("The argument `.all_chs` is deprecated.\n",
               "Set `.n_chs = NULL` to reproduce the behavior of `.all_chs = FALSE`. ",
@@ -324,12 +325,12 @@ eeg_events_to_NA.eeg_lst <-
     }
 
     # For the replacement in parts of the segments
-    b_chans <- filter.(baddies, !is.na(.channel)) %>%
+    b_chans <- filter.events_tbl(baddies, !is.na(.channel)) %>%
       distinct.(.channel) %>%
       tidytable::pull()
 
     for (ch in b_chans) {
-      b <- filter.(baddies, .channel == ch, !is.na(.channel))
+      b <- filter.events_tbl(baddies, .channel == ch, !is.na(.channel))
       if (!.entire_seg) {
         for (i in seq(1, nrow(b))) {
           data.table::set(
@@ -355,7 +356,7 @@ eeg_events_to_NA.eeg_lst <-
     }
     # For the replacement in the complete of the segments
     b_all <-
-      filter.(baddies, is.na(.channel)) %>% distinct.()
+      filter.events_tbl(baddies, is.na(.channel)) %>% distinct.()
 
     if (!.entire_seg & nrow(b_all) != 0) {
       for (i in seq(1, nrow(b_all))) {
@@ -382,7 +383,7 @@ eeg_events_to_NA.eeg_lst <-
 
 
     if (.drop_events) {
-      x$.events <- anti_join.(x$.events, filter.(x$.events, !!!dots))
+      x$.events <- anti_join.(x$.events, filter.events_tbl(x$.events, !!!dots))
     }
     x$.signal <- signal
 

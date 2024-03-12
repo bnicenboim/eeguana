@@ -150,7 +150,7 @@ filt_eeg_lst <- function(.signal, ..., h, na.rm = FALSE, .by_ref = FALSE) {
   }
   # fir filter
   if(is.null(names(h))) {
-    .signal <- mutate.(.signal, across.(tidyselect::all_of(ch_sel),
+    .signal <- mutate.(.signal, across(tidyselect::all_of(ch_sel),
                                         overlap_add_filter, h),
                        .by = ".id")
   } else {

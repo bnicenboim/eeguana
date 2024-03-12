@@ -79,7 +79,7 @@ test_that("can clean whole segments in files", {
 data_sincos2id_1000 <- eeguana:::data_sincos2id_1000
 N <- 1000 # number of samples
 
-data_d <- eeg_downsample(data_sincos2id_1000, .q = 2)
+data_d <- eeg_downsample(.data = data_sincos2id_1000, .q = 2)
 
 ##  bind_rows( dplyr::tibble(x=seq_along(data_eeg$.signal$X),y= data_eeg$.signal$X %>% as.numeric, .type= "original"),
 ##                   dplyr::tibble(x=seq(from = 1, to = N, by= 2),y= data_d$.signal$X %>% as.numeric, .type= "downsampled")) %>%

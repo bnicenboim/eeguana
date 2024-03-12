@@ -296,7 +296,7 @@ read_vhdr_metadata <- function(file) {
         t() %>%
         data.table::as.data.table(.name_repair = "unique")) %>%
       stats::setNames(c("number", "radius", "theta", "phi")) %>%
-      mutate.(across.(tidyselect::all_of(c("radius", "theta", "phi")), as.numeric))
+      mutate.(across(tidyselect::all_of(c("radius", "theta", "phi")), as.numeric))
   }
 
   # this is in case it can't find DataPoints and DataType in the header file

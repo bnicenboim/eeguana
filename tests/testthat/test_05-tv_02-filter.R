@@ -109,7 +109,8 @@ filter1_sign_tbl <- dplyr::left_join(dplyr::as_tibble(data$.signal), dplyr::as_t
   dplyr::filter(.sample >= 0)
 filter1_events <- events_tbl(data) %>%
   dplyr::filter(.initial >= 0 | .final >= 0) %>%
-  dplyr::mutate(.final = ifelse(.initial < 0, 0, .final), .initial = ifelse(.initial < 0, 0, .initial))
+  dplyr::mutate(.final = ifelse(.initial < 0, 0, as.numeric(.final)),
+                .initial = ifelse(.initial < 0, 0, as.numeric(.initial)))
 
 filter2_sign_eeg <- eeg_filter(data, .id == 1 & .sample == 2)
 filter2_sign_tbl <- dplyr::left_join(dplyr::as_tibble(data$.signal), dplyr::as_tibble(data$.segments), by = ".id") %>%

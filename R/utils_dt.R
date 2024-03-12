@@ -311,3 +311,11 @@ list_flatten <- function(x, recursive = FALSE) {
   
   out
 }
+#' @noRd
+rename_with. <- function(.df, .fn = NULL, .cols = everything(), ...) {
+  oldclass <- class(.df)
+  .df <- tidytable::rename_with(.df = .df, .fn = .fn, 
+                                .cols = tidyselect::all_of(.cols), ...)
+  class(.df) <- oldclass
+  .df
+}
