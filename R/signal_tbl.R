@@ -39,13 +39,12 @@ as_signal_tbl <- function(.data, ...) {
 }
 #' @noRd
 as_signal_tbl.tidytable <- function(.data) {
-  class(.data) <- class(.data)[class(.data)!="tidytable"]
   as_signal_tbl.data.table(.data)
 }
 #' @noRd
 as_signal_tbl.data.table <- function(.data) {
     .data <- .data %>% mutate.(.id = as.integer(.id))
-    class(.data) <- c("signal_tbl", class(.data))
+    class(.data) <- c("signal_tbl","data.table", "data.frame")
     data.table::setkey(.data, .id, .sample)
     validate_signal_tbl(.data)
 }

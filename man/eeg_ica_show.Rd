@@ -27,11 +27,11 @@ suppressWarnings(data_faces_10_trials \%>\%
 }
 \seealso{
 Other ICA functions: 
+\code{\link{eeg_ica}()},
 \code{\link{eeg_ica_cor_tbl}()},
 \code{\link{eeg_ica_keep}()},
 \code{\link{eeg_ica_summary_tbl}()},
 \code{\link{eeg_ica_var_tbl}()},
-\code{\link{eeg_ica}()},
 \code{\link{plot_components}()}
 }
 \concept{ICA functions}

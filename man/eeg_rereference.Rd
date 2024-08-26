@@ -39,8 +39,8 @@ data_faces_ERPs_M1M2 <- data_faces_ERPs \%>\%
 Other preprocessing functions: 
 \code{\link{eeg_baseline}()},
 \code{\link{eeg_downsample}()},
-\code{\link{eeg_ica_keep}()},
 \code{\link{eeg_ica}()},
+\code{\link{eeg_ica_keep}()},
 \code{\link{eeg_segment}()},
 \code{\link{filt}}
 }

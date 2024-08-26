@@ -60,8 +60,8 @@ data_faces_10_trials \%>\% eeg_segment(startsWith(.description, "s"))
 Other preprocessing functions: 
 \code{\link{eeg_baseline}()},
 \code{\link{eeg_downsample}()},
-\code{\link{eeg_ica_keep}()},
 \code{\link{eeg_ica}()},
+\code{\link{eeg_ica_keep}()},
 \code{\link{eeg_rereference}()},
 \code{\link{filt}}
 }

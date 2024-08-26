@@ -24,11 +24,11 @@ If the dataset is large, this function can take very long to run. Setting a maxi
 }
 \seealso{
 Other ICA functions: 
+\code{\link{eeg_ica}()},
 \code{\link{eeg_ica_cor_tbl}()},
 \code{\link{eeg_ica_keep}()},
 \code{\link{eeg_ica_show}()},
 \code{\link{eeg_ica_summary_tbl}()},
-\code{\link{eeg_ica}()},
 \code{\link{plot_components}()}
 
 Other summary functions: 

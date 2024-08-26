@@ -44,12 +44,12 @@ Other plotting functions:
 \code{\link{theme_eeguana}()}
 
 Other ICA functions: 
+\code{\link{eeg_ica}()},
 \code{\link{eeg_ica_cor_tbl}()},
 \code{\link{eeg_ica_keep}()},
 \code{\link{eeg_ica_show}()},
 \code{\link{eeg_ica_summary_tbl}()},
-\code{\link{eeg_ica_var_tbl}()},
-\code{\link{eeg_ica}()}
+\code{\link{eeg_ica_var_tbl}()}
 
 Other topographic plots and layouts: 
 \code{\link{layout_32_1020}},

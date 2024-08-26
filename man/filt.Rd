@@ -77,8 +77,8 @@ data_ERPs_filtered \%>\%
 Other preprocessing functions: 
 \code{\link{eeg_baseline}()},
 \code{\link{eeg_downsample}()},
-\code{\link{eeg_ica_keep}()},
 \code{\link{eeg_ica}()},
+\code{\link{eeg_ica_keep}()},
 \code{\link{eeg_rereference}()},
 \code{\link{eeg_segment}()}
 }

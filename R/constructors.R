@@ -27,7 +27,7 @@ eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, c
     }
     if(!".id" %in% names(signal_tbl)) signal_tbl$.id <- 1L
     if(!".sample" %in% signal_tbl && is.numeric(.sampling_rate)){
-      signal_tbl$.sample <- sample_int(1:nrow(signal_tbl), 
+      signal_tbl$.sample <- sample_int(seq_len(nrow(signal_tbl)), 
                                        .sampling_rate = .sampling_rate)
     } 
     if(!".sample" %in% names(signal_tbl) && !is.null(.sampling_rate)){

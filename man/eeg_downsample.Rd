@@ -47,8 +47,8 @@ the downsampling can be done in steps. For example, instead of setting
 \seealso{
 Other preprocessing functions: 
 \code{\link{eeg_baseline}()},
-\code{\link{eeg_ica_keep}()},
 \code{\link{eeg_ica}()},
+\code{\link{eeg_ica_keep}()},
 \code{\link{eeg_rereference}()},
 \code{\link{eeg_segment}()},
 \code{\link{filt}}

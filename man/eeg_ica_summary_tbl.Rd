@@ -20,11 +20,11 @@ between ICA components and EOG channels. See more details in \link{eeg_ica_cor_t
 }
 \seealso{
 Other ICA functions: 
+\code{\link{eeg_ica}()},
 \code{\link{eeg_ica_cor_tbl}()},
 \code{\link{eeg_ica_keep}()},
 \code{\link{eeg_ica_show}()},
 \code{\link{eeg_ica_var_tbl}()},
-\code{\link{eeg_ica}()},
 \code{\link{plot_components}()}
 
 Other summary functions: 

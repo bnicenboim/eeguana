@@ -24,8 +24,8 @@ Subtract the average or baseline of the points in a defined interval from all po
 \seealso{
 Other preprocessing functions: 
 \code{\link{eeg_downsample}()},
-\code{\link{eeg_ica_keep}()},
 \code{\link{eeg_ica}()},
+\code{\link{eeg_ica_keep}()},
 \code{\link{eeg_rereference}()},
 \code{\link{eeg_segment}()},
 \code{\link{filt}}
