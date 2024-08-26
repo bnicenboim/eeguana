@@ -1,3 +1,7 @@
+# eeguana 0.1.12.9001
+- Updated documentation
+- Signal table format consistent
+
 # eeguana 0.1.11.9001
 
 ## Bug fixed
