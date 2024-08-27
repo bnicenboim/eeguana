@@ -67,19 +67,40 @@ detect_minmax <- function(x, args = list(window_samples = NULL, threshold = NULL
   } else if (args$direction %in% tolower(c("below", "<", "<="))) {
     abs(rmin - rmax) <= args$threshold
   } else {
-    stop("The argument `direction` can only include 'above' or 'below'", call. = FALSE)
+    stop("The argument `direction` can only include 'above' or 'below'.", call. = FALSE)
   }
 }
 
 #' @noRd
-detect_peak <- function(x, args = list(window_samples = NULL, threshold = NULL)) {
-  ## TODO better version of findpeaks
-  peaks <- pracma::findpeaks(as.numeric(x),
-    minpeakheight = args$threshold,
-    minpeakdistance = args$window_samples,
-    ## setting threshold for avoiding flat peaks
-    threshold = .0001
-  )[, 2]
+detect_peak <- function(x, args = list(window_samples = NULL, threshold = NULL, direction = NULL)) {
+  x <- as.numeric(x)
+  if(args$direction == "above") {
+    # all positive
+    above = x - min(x) + 1
+    data <- list(above = above)
+  } else if(args$direction == "below") {
+    # all negative upside down
+    below = -x - min(-x) + 1
+    data <- list(below = below)
+  } else if(args$direction == "any") {
+    above = x - min(x) + 1
+    below = -x - min(-x) + 1
+    data <- list(above = above, below = below)
+  } else {
+    stop("The argument `direction` can only include 'above', 'below', 'any'.", call. = FALSE)
+  }
+  peaks <- lapply(data, function(d) gsignal::findpeaks(d,
+                                                       MinPeakDistance = args$window_samples,
+                                                       ## setting threshold for avoiding flat peaks
+                                                       MinPeakHeight = .0001)$loc)
+
+
+  if(args$threshold < 0) {
+    warning("'.threshold' can only be positive, taking the absolute value.")
+  }
+  peaks <- c(peaks$above[x[peaks$above] > args$threshold],
+             peaks$below[x[peaks$below] < -args$threshold])
+
   x <- rep(FALSE, length(x))
   x[peaks] <- TRUE
   x

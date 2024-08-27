@@ -1,6 +1,7 @@
 # eeguana 0.1.12.9001
-- Updated documentation
-- Signal table format consistent
+- Updated documentation.
+- Signal table format to be consistent.
+- `eeg_artif_peaks()` get a .direction argument.
 
 # eeguana 0.1.11.9001
 

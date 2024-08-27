@@ -118,15 +118,16 @@ test_that("summarize across with extra args", {
   data_mean <- data_grouped_descr %>%
     eeg_summarize(across_ch(mean, na.rm = TRUE))
 
-  data_mean_var <- data_grouped_descr %>%
-    eeg_summarize(across_ch(list(~ mean(., na.rm = TRUE), ~ var(., na.rm = TRUE))))
-
+ 
   if (0) {
     # TODO: check why this doesn't work only in tests
     data_mean_var <- data_grouped_descr %>%
       eeg_summarize(across(channel_names(data_grouped_descr), list(~ mean(., na.rm = TRUE), ~ var(., na.rm = TRUE))))
   }
-
+  # this just stoped working:
+  data_mean_var <- data_grouped_descr %>%
+    eeg_summarize(across_ch(list(~ mean(., na.rm = TRUE), ~ var(., na.rm = TRUE))))
+  
   # throws warning, I think this is ok
   expect_warning(data_var <- data_grouped_descr %>%
     eeg_summarize(across_ch(var, na.rm = TRUE)))

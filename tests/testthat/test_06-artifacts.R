@@ -47,6 +47,11 @@ data_more <- eeg_lst(
   segments = data.frame(.id = seq.int(4), .recording = paste0("recording", c(1, 1, 2, 2)), segment = seq.int(4))
 )
 
+
+
+
+
+
 ###### voltage steps ######################3
 test_that("artifacts can be added manually", {
   data_art <- data_more %>%
@@ -309,6 +314,14 @@ test_that("low freq works", {
   expect_equal(events_l100, events_tbl(minmax_l100))
   expect_equal(data_1minmax, minmax_l100)
 })
+
+
+eeg_artif_peak(data_1minmax, .direction = "above", .window = 2/500,.threshold = 1, .unit ="second")
+eeg_artif_peak(data_1minmax, .direction = "below", .window = 2/500,.threshold = 1, .unit ="second")
+eeg_artif_peak(data_1minmax, .direction = "any", .window = 2/500,.threshold = 1, .unit ="second")
+
+
+
 
 
 message("test amplitude and peak, they are not too well tested")
