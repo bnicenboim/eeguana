@@ -89,7 +89,7 @@ detect_peak <- function(x, args = list(window_samples = NULL, threshold = NULL, 
   } else {
     stop("The argument `direction` can only include 'above', 'below', 'any'.", call. = FALSE)
   }
-  peaks <- lapply(data, function(d) gsignal::findpeaks(d,
+  peaks <- lapply(data, function(d) findpeaks(d,
                                                        MinPeakDistance = args$window_samples,
                                                        ## setting threshold for avoiding flat peaks
                                                        MinPeakHeight = .0001)$loc)
