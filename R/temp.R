@@ -1,4 +1,3 @@
-
 # temp findpeaks from https://github.com/gjmvanboxtel/gsignal/blob/4df5bad7a391b3ed55484aa767d52a150e29b22f/R/findpeaks.R#L119
 findpeaks <- function(data,
                       MinPeakHeight = .Machine$double.eps,
