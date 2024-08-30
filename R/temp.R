@@ -1,3 +1,4 @@
+
 # temp findpeaks from https://github.com/gjmvanboxtel/gsignal/blob/4df5bad7a391b3ed55484aa767d52a150e29b22f/R/findpeaks.R#L119
 findpeaks <- function(data,
                       MinPeakHeight = .Machine$double.eps,
@@ -15,7 +16,7 @@ findpeaks <- function(data,
   if (!is.logical(DoubleSided))
     stop("DoubleSided should a a logical value TRUE or FALSE")
 
-  wdata <- abs(detrend(data, 0))
+  wdata <- abs(gsignal::detrend(data, 0))
   if (DoubleSided) {
     tmp <- data
     data <- wdata

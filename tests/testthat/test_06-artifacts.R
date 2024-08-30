@@ -320,6 +320,8 @@ eeg_artif_peak(data_1minmax, .direction = "above", .window = 2/500,.threshold = 
 eeg_artif_peak(data_1minmax, .direction = "below", .window = 2/500,.threshold = 1, .unit ="second")
 eeg_artif_peak(data_1minmax, .direction = "any", .window = 2/500,.threshold = 1, .unit ="second")
 
+eeg_artif_peak(data_1minmax %>% eeg_mutate(X= X*0), .direction = "above", .window = 2/500,.threshold = 1, .unit ="second")
+
 
 
 

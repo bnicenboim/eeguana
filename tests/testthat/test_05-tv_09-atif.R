@@ -123,10 +123,23 @@ test_that("summarize across with extra args", {
     # TODO: check why this doesn't work only in tests
     data_mean_var <- data_grouped_descr %>%
       eeg_summarize(across(channel_names(data_grouped_descr), list(~ mean(., na.rm = TRUE), ~ var(., na.rm = TRUE))))
-  }
-  # this just stoped working:
-  data_mean_var <- data_grouped_descr %>%
-    eeg_summarize(across_ch(list(~ mean(., na.rm = TRUE), ~ var(., na.rm = TRUE))))
+    # this just stoped working:
+    data_mean_var <- data_grouped_descr %>%
+      eeg_summarize(across_ch(list(~ mean(., na.rm = TRUE), ~ var(., na.rm = TRUE))))
+    
+    mean_var <- list(mean = ~ mean(., na.rm = TRUE),
+                     var = ~ var(., na.rm = TRUE))
+    data_mean_var <- data_grouped_descr %>%
+      eeg_summarize(across_ch(mean_var))
+    
+    
+    expect_equal(data_mean, data_mean_var %>%
+                   eeg_select(dplyr::ends_with("_1")) %>%
+                   eeg_rename_with(~ chr_remove(., "_1")))
+    expect_warning(expect_warning(expect_equal(data_var, data_mean_var %>%
+                                                 eeg_select(dplyr::ends_with("_2")) %>%
+                                                 eeg_rename_with(~ chr_remove(., "_2"), dplyr::ends_with("_2")))))
+    }
   
   # throws warning, I think this is ok
   expect_warning(data_var <- data_grouped_descr %>%
@@ -147,12 +160,7 @@ test_that("summarize across with extra args", {
   expect_equal(data_mean, data_grouped_descr %>%
     eeg_summarize(across_ch(list(M = ~ mean(., na.rm = TRUE)))) %>%
     eeg_rename_with(~ chr_remove(., "_M")))
-  expect_equal(data_mean, data_mean_var %>%
-    eeg_select(dplyr::ends_with("_1")) %>%
-    eeg_rename_with(~ chr_remove(., "_1")))
-  expect_warning(expect_warning(expect_equal(data_var, data_mean_var %>%
-    eeg_select(dplyr::ends_with("_2")) %>%
-    eeg_rename_with(~ chr_remove(., "_2"), dplyr::ends_with("_2")))))
+ 
 })
 
 
