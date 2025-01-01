@@ -157,7 +157,7 @@ validate_events_tbl <- function(events) {
 }
 
 
-filter.events_tbl <- function(.data, ..., preserve = FALSE) {
+filter.events_tbl <- function(.data, ...) {
   as_events_tbl(tidytable:::filter.tidytable(.data, ...), sampling_rate(.data))
 }
 mutate.events_tbl <- function(.data, ...) {

@@ -322,6 +322,13 @@ eeg_artif_peak(data_1minmax, .direction = "any", .window = 2/500,.threshold = 1,
 
 eeg_artif_peak(data_1minmax %>% eeg_mutate(X= X*0), .direction = "above", .window = 2/500,.threshold = 1, .unit ="second")
 
+d_2 <- eeg_artif_peak(data_1minmax, .direction = "above", .window = 2/500,.threshold = 1, .unit ="second") %>%
+eeg_artif_peak(.direction = "any", .window = 2/500,.threshold = 1, .unit ="second")
+
+# d_2 |>  eeg_events_to_NA(.description == "peak_threshold=1_direction=any_lim_samples=-1, 3_window_samples=2",
+#                         .by = ".id",
+#                          .entire_seg = TRUE, 
+#                          .drop_events = TRUE)
 
 
 

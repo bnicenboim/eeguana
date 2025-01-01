@@ -48,7 +48,7 @@ Imports:
     fastICA,
     pracma,
     tidytable (>= 0.10.0),
-    gsignal
+    gsignal (>= 0.3-7)
 Suggests:
     akima (>= 0.6.2),
     tibble (>= 2.1.1),
@@ -70,5 +70,4 @@ VignetteBuilder: knitr
 Language: en-US
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3
-Remotes: 
-     gjmvanboxtel/gsignal
+
