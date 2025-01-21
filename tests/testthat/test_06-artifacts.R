@@ -3,6 +3,7 @@ options(eeguana.verbose = FALSE)
 set.seed(123)
 
 dpeak <- readRDS("./inst/testdata/dpeak.RDS")  
+dpeak2 <- readRDS("./inst/testdata/dpeak2.RDS")  
 
 
 N <- 1000
@@ -340,8 +341,15 @@ dpeak_artif <- dpeak |>  eeg_artif_peak(VEOG,
                               .unit = "ms",
                               .direction = "below")
 
-# problem <- readRDS("./inst/testdata/problem.RDS/problem.RDS")
-# gsignal::findpeaks(data = problem, MinPeakDistance = 100)
+dpeak_artif2 <- dpeak2 |>  eeg_artif_peak(VEOG,
+                                        .threshold = 100,
+                                        .window = 200,
+                                        .unit = "ms",
+                                        .direction = "below")
+
+# problem <- readRDS("./inst/testdata/problem.RDS")
+# gsignal::findpeaks(data, MinPeakDistance = 100)
+#eeguana:::findpeaks(data, MinPeakDistance = 100)
 })
 
 message("test amplitude and peak, they are not too well tested")

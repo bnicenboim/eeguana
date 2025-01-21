@@ -67,7 +67,7 @@ findpeaks <- function(data,
   # wrong concavity.
   # not high enough
   # data at peak is lower than parabola by 1%
-  idx.pruned <- idx
+  idx_pruned <- idx
   n  <- length(idx)
   for (i in 1:n) {
     ind <- round(max(idx[i] - MinPeakDistance / 2, 1)) :
@@ -98,7 +98,7 @@ findpeaks <- function(data,
       extra_baseline <- rbind(extra_baseline, mean(c(H, MinPeakHeight)))
     }
   }
-  idx <- idx.pruned
+  idx <- idx_pruned
   # check for double sided
   if (DoubleSided) {
     pks <- wdata[idx]
