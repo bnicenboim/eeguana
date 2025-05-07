@@ -2,8 +2,8 @@ library(eeguana)
 options(eeguana.verbose = FALSE)
 set.seed(123)
 
-dpeak <- readRDS("./inst/testdata/dpeak.RDS")  
-dpeak2 <- readRDS("./inst/testdata/dpeak2.RDS")  
+dpeak <- readRDS(system.file("testdata", "dpeak.RDS", package = "eeguana"))
+dpeak2 <- readRDS(system.file("testdata", "dpeak2.RDS", package = "eeguana"))
 
 
 N <- 1000
