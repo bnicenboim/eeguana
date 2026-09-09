@@ -29,4 +29,7 @@ experimental
 ^_pipeline.*
 ^_.*
 ^papers.bib
-
+^unused$
+^dev$
+^\.Rprofile$
+^internal_pipeline\.md$

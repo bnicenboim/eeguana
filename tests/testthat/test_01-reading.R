@@ -61,7 +61,8 @@ test_that("can read fif files ", {
 
 
 test_that("can read unique eeglab files ", {
-  files = c(file.path(other_testfiles, "EEG01.mat"),
+  skip_if_nofixture("EEG01.mat")
+  files = c(fixture_path("EEG01.mat"),
            system.file("testdata", "eeglab_data.set", package = "eeguana"))
   skip_if_nofiles(files)
   # stefan frank data
@@ -194,12 +195,18 @@ test_that("special vhdr file",{
 
 
 test_that("write vhdr",{
+  # Write inside a temporary directory: tests must not leave files in the
+  # package sources or in the user's home directory.
+  withr::local_dir(withr::local_tempdir())
   write_vhdr(x = multiplexed_bin_bv2,file = "test", overwrite = TRUE)
   expect_true(file.exists("test.vhdr"))
   write_vhdr(x = multiplexed_bin_bv2,file = "./", overwrite = TRUE)
   expect_true(file.exists("bv2.vhdr"))
   #multiplexed_bin_bv2 %>% eeg_mutate(.recording = "../dasa/bv")
-  write_vhdr(x = multiplexed_bin_bv2,file = "~/", overwrite = TRUE)
+  subdir <- file.path(getwd(), "sub")
+  dir.create(subdir)
+  write_vhdr(x = multiplexed_bin_bv2, file = paste0(subdir, "/"), overwrite = TRUE)
+  expect_true(file.exists(file.path(subdir, "bv2.vhdr")))
   multiplexed_bin_bv2_t <- read_vhdr("test.vhdr", .recording = "bv2")
   weird_rec <- read_vhdr(file = system.file("testdata", "asalab_export_bv.vhdr", package = "eeguana"))
   write_vhdr(x = weird_rec,file = "./", overwrite = TRUE)
