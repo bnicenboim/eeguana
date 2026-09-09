@@ -16,18 +16,18 @@ default_theme()
 A ggplot theme.
 }
 \description{
-These are complete light themes based on \code{\link[ggplot2:ggtheme]{ggplot2::theme_bw()}} which control all non-data display.
+These are complete light themes based on \code{\link[ggplot2:theme_bw]{ggplot2::theme_bw()}} which control all non-data display.
 }
 \seealso{
-Other plotting functions: 
-\code{\link{annotate_electrodes}()},
-\code{\link{annotate_events}()},
-\code{\link{annotate_head}()},
-\code{\link{eeg_downsample}()},
-\code{\link{ggplot.eeg_lst}()},
-\code{\link{plot.eeg_lst}()},
-\code{\link{plot_components}()},
-\code{\link{plot_in_layout}()},
-\code{\link{plot_topo}()}
+Other plotting functions:
+\code{\link[=annotate_electrodes]{annotate_electrodes()}},
+\code{\link[=annotate_events]{annotate_events()}},
+\code{\link[=annotate_head]{annotate_head()}},
+\code{\link[=eeg_downsample]{eeg_downsample()}},
+\code{\link[=ggplot.eeg_lst]{ggplot.eeg_lst()}},
+\code{\link[=plot.eeg_lst]{plot.eeg_lst()}},
+\code{\link[=plot_components]{plot_components()}},
+\code{\link[=plot_in_layout]{plot_in_layout()}},
+\code{\link[=plot_topo]{plot_topo()}}
 }
 \concept{plotting functions}

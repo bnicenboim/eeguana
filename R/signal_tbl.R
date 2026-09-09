@@ -38,11 +38,13 @@ as_signal_tbl <- function(.data, ...) {
   UseMethod("as_signal_tbl")
 }
 #' @noRd
-as_signal_tbl.tidytable <- function(.data) {
+#' @exportS3Method
+as_signal_tbl.tidytable <- function(.data, ...) {
   as_signal_tbl.data.table(.data)
 }
 #' @noRd
-as_signal_tbl.data.table <- function(.data) {
+#' @exportS3Method
+as_signal_tbl.data.table <- function(.data, ...) {
     .data <- .data %>% mutate.(.id = as.integer(.id))
     class(.data) <- c("signal_tbl","data.table", "data.frame")
     data.table::setkey(.data, .id, .sample)
@@ -57,17 +59,20 @@ as_signal_tbl.data.table <- function(.data) {
 # }
 
 #' @noRd
-as_signal_tbl.signal_tbl <- function(.data) {
+#' @exportS3Method
+as_signal_tbl.signal_tbl <- function(.data, ...) {
   validate_signal_tbl(.data)
 }
 #' @noRd
-as_signal_tbl.data.frame <- function(.data) {
+#' @exportS3Method
+as_signal_tbl.data.frame <- function(.data, ...) {
   .data <- data.table::as.data.table(.data)
   as_signal_tbl.data.table(.data)
 }
 
 #' @noRd
-as_signal_tbl.NULL <- function(.data) {
+#' @exportS3Method
+as_signal_tbl.NULL <- function(.data, ...) {
   .data <- data.table::data.table(.id = integer(0), .sample = sample_int(integer(0), integer(0)))
   as_signal_tbl(.data)
 }
@@ -91,9 +96,11 @@ is_signal_tbl <- function(x) {
 as_eeg_ica_lst <- function(.data, ...) {
   UseMethod("as_eeg_ica_lst")
 }
+#' @exportS3Method
 as_eeg_ica_lst.eeg_ica_lst <- function(.data, ...) {
   .data
 }
+#' @exportS3Method
 as_eeg_ica_lst.eeg_lst <- function(.data, ...) {
   class(.data) <- c("eeg_ica_lst", class(.data))
   .data

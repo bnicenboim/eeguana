@@ -37,7 +37,7 @@ The \code{events} table is organized into columns representing the \code{.type} 
 The \code{segments} tibble contains the subject ID under \code{recording}, which is the file name unless otherwise specified. If the data has been segmented in BrainVision, the segment number will be listed under \code{segment}. The data can also be segmented according to trigger labels in \code{eeguana}, see \code{segment}. \code{segment} will be place the segment number under \code{segment}, the trigger name under \code{.type.x}, and the trigger label under \code{.description.x}. Other information such as condition labels or response times can be added by the user by merging into the \code{segments} tibble using non-eeguana merge functions, e.g. the \code{dplyr} join series.
 }
 \seealso{
-Other eeg_lst: 
-\code{\link{is_eeg_lst}()}
+Other eeg_lst:
+\code{\link[=is_eeg_lst]{is_eeg_lst()}}
 }
 \concept{eeg_lst}

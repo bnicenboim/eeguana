@@ -66,8 +66,8 @@ return the estimated
 source components.
 }
 \seealso{
-Other ica methods: 
-\code{\link{fast_ICA}()},
-\code{\link{ica_matrix_lst}()}
+Other ica methods:
+\code{\link[=fast_ICA]{fast_ICA()}},
+\code{\link[=ica_matrix_lst]{ica_matrix_lst()}}
 }
 \concept{ica methods}

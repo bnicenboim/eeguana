@@ -16,8 +16,8 @@ A channel_dbl.
 Coerce a vector of real (double) numbers into a channel object
 }
 \seealso{
-Other channel: 
-\code{\link{channel_dbl}()},
-\code{\link{is_channel_dbl}()}
+Other channel:
+\code{\link[=channel_dbl]{channel_dbl()}},
+\code{\link[=is_channel_dbl]{is_channel_dbl()}}
 }
 \concept{channel}

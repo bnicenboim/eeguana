@@ -16,9 +16,9 @@ An eeg_lst object
 Drop segments with NAs from the eeg_lst.
 }
 \seealso{
-Other tidyverse-like functions: 
+Other tidyverse-like functions:
 \code{\link{dplyr_verbs}},
-\code{\link{eeg_bind}()},
-\code{\link{eeg_slice_signal}()}
+\code{\link[=eeg_bind]{eeg_bind()}},
+\code{\link[=eeg_slice_signal]{eeg_slice_signal()}}
 }
 \concept{tidyverse-like functions}

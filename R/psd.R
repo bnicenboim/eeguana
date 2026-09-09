@@ -27,7 +27,8 @@ as_psd_tbl <- function(.data, ...) {
   UseMethod("as_psd_tbl")
 }
 #' @noRd
-as_psd_tbl.data.table <- function(.data) {
+#' @exportS3Method
+as_psd_tbl.data.table <- function(.data, ...) {
   .data <- data.table::copy(.data)
   set_psd_tbl(.data)[]
 }
@@ -40,17 +41,20 @@ set_psd_tbl <- function(.data){
 }
 
 #' @noRd
-as_psd_tbl.psd_tbl <- function(.data) {
+#' @exportS3Method
+as_psd_tbl.psd_tbl <- function(.data, ...) {
   validate_psd_tbl(.data)
 }
 #' @noRd
-as_psd_tbl.data.frame <- function(.data) {
+#' @exportS3Method
+as_psd_tbl.data.frame <- function(.data, ...) {
   .data <- data.table::as.data.table(.data)
   set_psd_tbl(.data)[]
 }
 
 #' @noRd
-as_psd_tbl.NULL <- function(.data) {
+#' @exportS3Method
+as_psd_tbl.NULL <- function(.data, ...) {
   .data <- data.table::data.table(.id = integer(0), .freq = numeric(0))
   as_psd_tbl(.data)
 }

@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# eeguana <img src="man/figures/logo.png" align="right" style="width: 20vw; min-width: 25px;"/>
+# eeguana <img src="man/figures/logo.png" align="right" alt="eeguana package logo" style="width: 20vw; min-width: 25px;"/>
 
 ## Overview
 
@@ -120,7 +120,7 @@ faces_segs_some
 
 With some "regular" `ggplot` skills, we can create customized plots. `ggplot()` applied to an `eeg_lst` object will downsample the signals (when needed), and convert them to a long-format data frame that is feed into `ggplot`. This object can then be customized. 
 
-```{r plot, fig.dim = c(10,15), out.width = "100%", results = "hide"}
+```{r plot, fig.dim = c(10,15), out.width = "100%", results = "hide", fig.alt = "ERP waveforms for electrodes O1, O2, P7 and P8. Each panel shows one electrode, with faint lines for individual trials and a thick line for the condition mean, coloured by condition. Dashed and dotted vertical lines mark stimulus onset and 170 ms."}
 library(ggplot2)
 faces_segs_some |>
   eeg_select(O1, O2, P7, P8) |>
@@ -147,7 +147,7 @@ of the stimuli, creating a table with interpolated amplitudes and using the ggpl
 dev.off()
 ```
 
-```{r topo, fig.dim = c(10,5), out.width = "100%", results = "hide"}
+```{r topo, fig.dim = c(10,5), out.width = "100%", results = "hide", fig.alt = "Topographic scalp maps of mean amplitude 100 to 200 ms after stimulus onset, one head per condition, with contour lines and electrode labels."}
 faces_segs_some |>
   eeg_filter(between(as_time(.sample, .unit = "milliseconds"), 100, 200)) |>
   eeg_group_by(condition) |>

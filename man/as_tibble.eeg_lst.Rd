@@ -26,8 +26,8 @@ A \code{\link[tibble:tibble]{tibble}}
 Convert the signal_tbl table from wide to long format.
 }
 \seealso{
-Other tibble: 
-\code{\link{as.data.frame.psd_lst}()},
-\code{\link{as_tibble.psd_lst}()}
+Other tibble:
+\code{\link[=as.data.frame.psd_lst]{as.data.frame.psd_lst()}},
+\code{\link[=as_tibble.psd_lst]{as_tibble.psd_lst()}}
 }
 \concept{tibble}

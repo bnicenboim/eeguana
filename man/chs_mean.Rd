@@ -44,7 +44,7 @@ faces_segs_some \%>\%
 }
 }
 \seealso{
-Other channel functions: 
-\code{\link{chs_fun}()}
+Other channel functions:
+\code{\link[=chs_fun]{chs_fun()}}
 }
 \concept{channel functions}

@@ -24,10 +24,10 @@ s1 <- read_ft("./subject1.set", .recording = 1)
 
 }
 \seealso{
-Other reading and writing functions: 
-\code{\link{read_edf}()},
-\code{\link{read_fif}()},
-\code{\link{read_ft}()},
-\code{\link{read_vhdr}()}
+Other reading and writing functions:
+\code{\link[=read_edf]{read_edf()}},
+\code{\link[=read_fif]{read_fif()}},
+\code{\link[=read_ft]{read_ft()}},
+\code{\link[=read_vhdr]{read_vhdr()}}
 }
 \concept{reading and writing functions}

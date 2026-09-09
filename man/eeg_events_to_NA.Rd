@@ -47,7 +47,7 @@ faces_clean <- faces_seg_artif \%>\%
 
 }
 \seealso{
-Other events functions: 
+Other events functions:
 \code{\link{eeg_artif}}
 }
 \concept{events functions}

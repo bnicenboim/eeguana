@@ -66,20 +66,20 @@ data_ica_py <- eeg_ica(data_faces_10_trials, -EOGH, -EOGV, -M1, -M2, .method = p
 }
 }
 \seealso{
-Other ICA functions: 
-\code{\link{eeg_ica_cor_tbl}()},
-\code{\link{eeg_ica_keep}()},
-\code{\link{eeg_ica_show}()},
-\code{\link{eeg_ica_summary_tbl}()},
-\code{\link{eeg_ica_var_tbl}()},
-\code{\link{plot_components}()}
+Other ICA functions:
+\code{\link[=eeg_ica_cor_tbl]{eeg_ica_cor_tbl()}},
+\code{\link[=eeg_ica_keep]{eeg_ica_keep()}},
+\code{\link[=eeg_ica_show]{eeg_ica_show()}},
+\code{\link[=eeg_ica_summary_tbl]{eeg_ica_summary_tbl()}},
+\code{\link[=eeg_ica_var_tbl]{eeg_ica_var_tbl()}},
+\code{\link[=plot_components]{plot_components()}}
 
-Other preprocessing functions: 
-\code{\link{eeg_baseline}()},
-\code{\link{eeg_downsample}()},
-\code{\link{eeg_ica_keep}()},
-\code{\link{eeg_rereference}()},
-\code{\link{eeg_segment}()},
+Other preprocessing functions:
+\code{\link[=eeg_baseline]{eeg_baseline()}},
+\code{\link[=eeg_downsample]{eeg_downsample()}},
+\code{\link[=eeg_ica_keep]{eeg_ica_keep()}},
+\code{\link[=eeg_rereference]{eeg_rereference()}},
+\code{\link[=eeg_segment]{eeg_segment()}},
 \code{\link{filt}}
 }
 \concept{ICA functions}

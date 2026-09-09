@@ -20,6 +20,11 @@ Useful links:
 \author{
 \strong{Maintainer}: Bruno Nicenboim \email{bruno.nicenboim@tilburguniversity.edu}
 
+Authors:
+\itemize{
+  \item Bruno Nicenboim \email{bruno.nicenboim@tilburguniversity.edu}
+}
+
 Other contributors:
 \itemize{
   \item Kate Stone \email{kate.stone@uni-potsdam.de} [contributor]

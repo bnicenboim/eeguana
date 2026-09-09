@@ -70,7 +70,7 @@ c_across(.cols = everything())
 \arguments{
 \item{.data}{An eeg_lst.}
 
-\item{...}{Name-value pairs of expressions; see \link[dplyr:dplyr-package]{dplyr} for more help.}
+\item{...}{Name-value pairs of expressions; see \link[dplyr:dplyr]{dplyr} for more help.}
 
 \item{.preserve}{Not in use, for compatibility reasons.}
 
@@ -126,7 +126,7 @@ An eeg_lst object.
 Manipulate the signal table and the segments table of an eeg_lst with dplyr-like functions.
 }
 \details{
-Wrappers for \code{\link[dplyr:dplyr-package]{dplyr}}'s commands that act
+Wrappers for \code{\link[dplyr:dplyr]{dplyr}}'s commands that act
 \code{eeg_lst} objects. Functions that drop or rename columns won't remove columns starting with a dot. These functions are powered by \code{\link[data.table:data.table]{data.table}} through \code{\link[tidytable:tidytable]{tidytable}}.
 
 The following wrappers act in a special way for \code{eeg_lst} objects:
@@ -140,7 +140,7 @@ The following wrappers act in a special way for \code{eeg_lst} objects:
 In addition, \code{across()}, and \code{c_across()} work as well. Notice that  there are convienent wrappers \code{across_ch()} and \code{c_across_ch()} where the argument \code{.cols} is always set to \code{where(is_channel_dbl)}.
 \subsection{Gotchas}{
 
-These functions emulate \link{dplyr} functionality but they are actually powered by the wrapper of \link{data.table},  \link{tidytable} and some times they might be behave a bit differently than the dplyr counterpart.
+These functions emulate \link[dplyr:dplyr]{dplyr} functionality but they are actually powered by the wrapper of \link[data.table:data.table]{data.table},  \link[tidytable:tidytable]{tidytable} and some times they might be behave a bit differently than the dplyr counterpart.
 \itemize{
 \item The default values of the arguments might be different, and some arguments might not exist for the eeguana dplyr-like functions.
 \item Grouped mutations behave slightly different than ungrouped ones: Channel properties are removed if the data is ungrouped and one does \code{eeg_mutate(data, channel = 0)}, but not if the data is grouped.
@@ -199,9 +199,9 @@ data_faces_ERPs \%>\%
   eeg_rename(Predictor = condition)
 }
 \seealso{
-Other tidyverse-like functions: 
-\code{\link{drop_incomplete_segments}()},
-\code{\link{eeg_bind}()},
-\code{\link{eeg_slice_signal}()}
+Other tidyverse-like functions:
+\code{\link[=drop_incomplete_segments]{drop_incomplete_segments()}},
+\code{\link[=eeg_bind]{eeg_bind()}},
+\code{\link[=eeg_slice_signal]{eeg_slice_signal()}}
 }
 \concept{tidyverse-like functions}

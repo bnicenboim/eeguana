@@ -104,8 +104,8 @@ faces_clean <- faces_seg_artif \%>\%
 Luck, S. J. (2014). An introduction to the event-related potential technique. MIT press.
 }
 \seealso{
-Other events functions: 
-\code{\link{eeg_events_to_NA}()}
+Other events functions:
+\code{\link[=eeg_events_to_NA]{eeg_events_to_NA()}}
 }
 \concept{artifact detection functions}
 \concept{events functions}

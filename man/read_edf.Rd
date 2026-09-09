@@ -30,10 +30,10 @@ s1 <- read_edf("./faces.edf", .recording = 1)
 
 }
 \seealso{
-Other reading and writing functions: 
-\code{\link{read_fif}()},
-\code{\link{read_ft}()},
-\code{\link{read_set}()},
-\code{\link{read_vhdr}()}
+Other reading and writing functions:
+\code{\link[=read_fif]{read_fif()}},
+\code{\link[=read_ft]{read_ft()}},
+\code{\link[=read_set]{read_set()}},
+\code{\link[=read_vhdr]{read_vhdr()}}
 }
 \concept{reading and writing functions}

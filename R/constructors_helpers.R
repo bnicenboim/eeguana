@@ -26,9 +26,7 @@ new_psd_lst <- function(.psd = NULL, .segments = NULL) {
 }
 
 
-#' @param values
 #'
-#' @param .sampling_rate
 #'
 #' @noRd
 new_sample_int <- function(values, .sampling_rate) {
@@ -46,7 +44,6 @@ new_sample_int <- function(values, .sampling_rate) {
   )
 }
 
-#' @param .sample
 #'
 #' @noRd
 validate_sample_int <- function(.sample) {
@@ -78,7 +75,6 @@ new_channel_dbl <- function(values, channel_info = list()) {
   values
 }
 
-#' @param channel
 #'
 #' @noRd
 validate_channel_dbl <- function(channel) {
@@ -102,9 +98,7 @@ validate_channel_dbl <- function(channel) {
 }
 
 
-#' @param channels
 #'
-#' @param channels_tbl
 #'
 #' @noRd
 update_channel_meta_data <- function(channels, channels_tbl) {
@@ -216,7 +210,6 @@ validate_psd_lst <- function(x, recursive = TRUE) {
 }
 
 
-#' @param segments
 #'
 #' @noRd
 validate_segments <- function(segments) {
@@ -242,7 +235,6 @@ validate_segments <- function(segments) {
   segments
 }
 
-#' @param values
 #'
 #' @noRd
 new_component_dbl <- function(values) {
@@ -252,7 +244,6 @@ new_component_dbl <- function(values) {
 }
 
 
-#' @param component
 #'
 #' @noRd
 validate_component_dbl <- function(component) {

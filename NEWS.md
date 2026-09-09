@@ -1,3 +1,37 @@
+# eeguana 0.1.12.9002
+
+## Bugs fixed
+
+- Fixed silent corruption in `eeg_summarize()`. When the resulting signal
+  table had 64 or more columns, the `.segments` table came back with `.id`
+  and `.recording` holding data taken from unrelated columns. This was
+  reachable with `across_ch()` and two or more functions (34 channels times
+  two already exceeds the threshold), and with any montage of 64 or more
+  channels. Grouping by a character column surfaced it as an error from
+  `round()`; grouping by numeric columns returned wrong values silently.
+  The cause is a `data.table::setcolorder()` bug, present in data.table
+  1.18.4 and 1.18.6.1, that moves column names without moving their data
+  once a table has 64+ columns and no over-allocated slots. A minimal
+  reproduction is in `dev/datatable-setcolorder-bug.R`.
+- `read_fif()` and `as_eeg_lst()` on an MNE raw object no longer fail with
+  `KeyError: 'bad'`. The MNE info key is `bads`, so every import through
+  this path had been failing.
+- `annotate_events()` no longer emits a deprecation warning: ggplot2's
+  `%+%`, an alias for `+`, was deprecated in ggplot2 4.0.0.
+
+## Internal
+
+- S3 methods are now registered in `NAMESPACE` via `@exportS3Method`, and
+  their signatures accept the arguments of their generics. The public API is
+  unchanged: no new exports.
+- Documentation regenerated with roxygen2 8.0.0.
+- Large test files are no longer kept in the package sources. They are
+  listed in `inst/fixtures.csv` and cached under
+  `tools::R_user_dir("eeguana", "cache")`, so they survive reinstalling the
+  package. See `dev/README.md`.
+- Tests write to a temporary directory instead of the package sources and
+  the user's home directory.
+
 # eeguana 0.1.12.9001
 - Updated documentation
 - Signal table format consistent

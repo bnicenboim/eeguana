@@ -214,5 +214,18 @@ test_that("raw brainvision read and converted from MNE match", {
     eeg_mutate(.recording = "r1")
   channels_tbl(eeg_read) <- channels_tbl(eeg_read) %>%
     tidytable::select(.channel, .x, .y, .z, unit, .reference)
-  expect_equal(eeg_read, eeg_mne)
+
+  # MNE deliberately consumes the first "New Segment" marker to populate
+  # info["meas_date"] and then drops the annotation (see the comment at
+  # mne/io/brainvision/brainvision.py, "skip the first 'New Segment' marker").
+  # read_vhdr() keeps it, which is what the .vmrk file actually contains
+  # (Mk1=New Segment,,1,1,0,20181106153757758000), so the two event tables can
+  # never match on that row. Compare everything else.
+  expect_true("New Segment" %in% eeg_read$.events$.type)
+  expect_false("New Segment" %in% eeg_mne$.events$.type)
+  eeg_read_cmp <- eeg_read
+  eeg_read_cmp$.events <- eeg_read_cmp$.events %>%
+    tidytable::filter(.type != "New Segment")
+
+  expect_equal(eeg_read_cmp, eeg_mne)
 })

@@ -53,13 +53,19 @@ as_events_tbl <- function(.data, ...) {
   UseMethod("as_events_tbl")
 }
 
-as_events_tbl.data.table <- function(.data, .sampling_rate = NULL) {
-  class(.data) <- class(.data)[class(.data)!="tidytable"]
-  as_events_tbl.data.table(.data)
-  }
+## FIXME: dead code. This is misnamed: the body strips the "tidytable" class,
+## so it was meant to be as_events_tbl.tidytable() (compare
+## as_signal_tbl.tidytable()). As written it recurses into itself and is
+## immediately overwritten by the real as_events_tbl.data.table() below, so it
+## never runs. Renaming it would activate it, which is a behaviour change.
+# as_events_tbl.data.table <- function(.data, .sampling_rate = NULL) {
+#   class(.data) <- class(.data)[class(.data)!="tidytable"]
+#   as_events_tbl.data.table(.data)
+#   }
 
 
-as_events_tbl.data.table <- function(.data, .sampling_rate = NULL) {
+#' @exportS3Method
+as_events_tbl.data.table <- function(.data, .sampling_rate = NULL, ...) {
   .data <- data.table::copy(.data)
   .data[, .id := as.integer(.id)]
   if (!is.null(.sampling_rate)) {
@@ -78,7 +84,8 @@ as_events_tbl.data.table <- function(.data, .sampling_rate = NULL) {
   validate_events_tbl(.data)
 }
 
-as_events_tbl.events_tbl <- function(.data, .sampling_rate = NULL) {
+#' @exportS3Method
+as_events_tbl.events_tbl <- function(.data, .sampling_rate = NULL, ...) {
   if (!is.null(.sampling_rate)) {
     .data <- data.table::copy(.data)
     .data[, .initial := sample_int(as.integer(.initial),
@@ -92,13 +99,15 @@ as_events_tbl.events_tbl <- function(.data, .sampling_rate = NULL) {
 }
 
 
-as_events_tbl.data.frame <- function(.data, .sampling_rate = NULL) {
+#' @exportS3Method
+as_events_tbl.data.frame <- function(.data, .sampling_rate = NULL, ...) {
   .data <- data.table::as.data.table(.data)
   as_events_tbl(.data, .sampling_rate = .sampling_rate)
 }
 
 #' @noRd
-as_events_tbl.NULL <- function(.data, .sampling_rate = NULL) {
+#' @exportS3Method
+as_events_tbl.NULL <- function(.data, .sampling_rate = NULL, ...) {
   new_events_tbl(.sampling_rate = .sampling_rate)
 }
 
@@ -114,9 +123,7 @@ is_events_tbl <- function(x) {
   "events_tbl" %in% class(x)
 }
 
-#' @param events
 #'
-#' @param channels
 #'
 #' @noRd
 validate_events_tbl <- function(events) {
@@ -160,12 +167,15 @@ validate_events_tbl <- function(events) {
 filter.events_tbl <- function(.data, ..., preserve = FALSE) {
   as_events_tbl(tidytable:::filter.tidytable(.data, ...), sampling_rate(.data))
 }
+#' @exportS3Method dplyr::mutate
 mutate.events_tbl <- function(.data, ...) {
   as_events_tbl(tidytable:::mutate.tidytable(.data, ...), sampling_rate(.data))
 }
+#' @exportS3Method dplyr::transmute
 transmute.events_tbl <- function(.data, ...) {
   as_events_tbl(tidytable:::transmute.tidytable(.data, ...), sampling_rate(.data))
 }
+#' @exportS3Method dplyr::summarise
 summarise.events_tbl <- function(.data, ...) {
   as_events_tbl(tidytable:::summarize.tidytable(.data, ...), sampling_rate(.data))
 }

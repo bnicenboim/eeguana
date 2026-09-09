@@ -29,8 +29,8 @@ A data.frame.
 Convert a psd_lst to a (base) data frame.
 }
 \seealso{
-Other tibble: 
-\code{\link{as_tibble.eeg_lst}()},
-\code{\link{as_tibble.psd_lst}()}
+Other tibble:
+\code{\link[=as_tibble.eeg_lst]{as_tibble.eeg_lst()}},
+\code{\link[=as_tibble.psd_lst]{as_tibble.psd_lst()}}
 }
 \concept{tibble}

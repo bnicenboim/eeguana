@@ -26,10 +26,10 @@ eeg_data <- read_fiff("./subject1_raw.fif")
 
 }
 \seealso{
-Other reading and writing functions: 
-\code{\link{read_edf}()},
-\code{\link{read_ft}()},
-\code{\link{read_set}()},
-\code{\link{read_vhdr}()}
+Other reading and writing functions:
+\code{\link[=read_edf]{read_edf()}},
+\code{\link[=read_ft]{read_ft()}},
+\code{\link[=read_set]{read_set()}},
+\code{\link[=read_vhdr]{read_vhdr()}}
 }
 \concept{reading and writing functions}

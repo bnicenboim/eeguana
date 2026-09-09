@@ -249,6 +249,12 @@ eeg_summarize.eeg_lst <- function(.data, ..., .groups = "keep") {
   if (!".id" %in% colnames(extended_signal_dt)) {
     extended_signal_dt <- mutate.(extended_signal_dt, .id = seq_len(.N), .by = ".sample")
   }
+  # tidytable returns a data.table whose over-allocation and self-reference are
+  # gone (truelength 0). setcolorder() on such an object permutes the column
+  # *names* without moving the data, which silently put channel values into
+  # .id and .recording. alloc.col() restores the self-reference in place and
+  # keeps the signal_tbl class.
+  data.table::alloc.col(extended_signal_dt)
   data.table::setkey(extended_signal_dt, .id, .sample)
   data.table::setcolorder(extended_signal_dt, c(".id", ".sample"))
   .data$.signal <- extended_signal_dt
@@ -279,6 +285,12 @@ eeg_summarize.psd_lst <- function(.data, ..., .groups = "keep") {
     extended_psd_dt <- extended_psd_dt %>%
       mutate.(.id = seq_len(.N), .by = ".freq")
   }
+  # tidytable returns a data.table whose over-allocation and self-reference are
+  # gone (truelength 0). setcolorder() on such an object permutes the column
+  # *names* without moving the data, which silently put channel values into
+  # .id and .recording. alloc.col() restores the self-reference in place and
+  # keeps the signal_tbl class.
+  data.table::alloc.col(extended_psd_dt)
   data.table::setkey(extended_psd_dt, .id, .freq)
   data.table::setcolorder(extended_psd_dt, c(".id", ".freq"))
   .data$.psd <- extended_psd_dt

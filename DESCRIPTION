@@ -12,7 +12,7 @@ Description: Flexible manipulation of EEG data in R. It provides a data.table
     and other exported information, and (iii) a long table with experimental
     information, such as participant number (.recording), conditions, etc.
     eeguana can do only basic pre-processing for now.
-Version: 0.1.12.9001
+Version: 0.1.12.9002
 Authors@R: c(
     person("Bruno", "Nicenboim", email = "bruno.nicenboim@tilburguniversity.edu", role = c("aut", "cre")),
     person("Kate", "Stone", email = "kate.stone@uni-potsdam.de", role = "ctb"),
@@ -21,7 +21,6 @@ URL: https://bruno.nicenboim.me/eeguana, https://github.com/bnicenboim/eeguana
 BugReports: https://github.com/bnicenboim/eeguana/issues
 License: MIT + file LICENSE 
 Encoding: UTF-8
-RoxygenNote: 7.3.1
 Depends:
     R (>= 3.1.0),
     stats
@@ -48,6 +47,7 @@ Imports:
     fastICA,
     pracma,
     tidytable (>= 0.10.0),
+    utils,
     gsignal
 Suggests:
     akima (>= 0.6.2),
@@ -63,7 +63,9 @@ Suggests:
     covr (>= 3.2.1),
     httr,
     cowplot,
-    rstudioapi
+    rstudioapi,
+    digest,
+    withr
 LazyData: true
 LazyDataCompression: xz
 VignetteBuilder: knitr
@@ -72,3 +74,4 @@ Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3
 Remotes: 
      gjmvanboxtel/gsignal
+Config/roxygen2/version: 8.0.0

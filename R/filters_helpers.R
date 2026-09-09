@@ -461,7 +461,7 @@ construct_fir_filter <- function(sampling_rate, freq, gain, filter_length, phase
 #'     * int: specified length in samples. For fir_design="firwin",
 #'       this should not be used.
 #' @param l_trans_bandwidth Width of the transition band at the low cut-off frequency in Hz (high pass or cutoff 1 in bandpass). Can be "auto" (default) to use a multiple of `l_freq`, min(max(l_freq * 0.25, 2), l_freq). Only used for `method="fir"`.
-#' @param h_trans_bandwidth Width of the transition band at the high cut-off frequency in Hz (low pass or cutoff 2 in bandpass). Can be "auto" (default in 0.14) to use a multiple of `h_freq`,  min(max(h_freq * 0.25, 2.), info["sampling_rate"] / 2. - h_freq) Only used for `method="fir"`.
+#' @param h_trans_bandwidth Width of the transition band at the high cut-off frequency in Hz (low pass or cutoff 2 in bandpass). Can be "auto" (default in 0.14) to use a multiple of `h_freq`,  `min(max(h_freq * 0.25, 2.), info["sampling_rate"] / 2. - h_freq)` Only used for `method="fir"`.
 #' @param method "fir" will use overlap-add FIR filtering, "iir" will use IIR forward-backward filtering (via filtfilt).
 #' @param iir_params Dictionary of parameters to use for IIR filtering. See mne.filter.construct_iir_filter for details. If iir_params is None and method="iir", 4th order Butterworth will be used.
 #' @param phase Phase of the filter, only used if ``method="fir"``. By default, a symmetric linear-phase FIR filter is constructed. If ``phase="zero"`` (default), the delay of this filter is compensated for. If ``phase=="zero-double"``, then this filter is applied twice, once forward, and once backward. If "minimum", then a minimum-phase, causal filter will be used.

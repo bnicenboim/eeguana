@@ -57,12 +57,12 @@ data_faces_10_trials \%>\% eeg_segment(.description \%in\% c("s70", "s71"),
 data_faces_10_trials \%>\% eeg_segment(startsWith(.description, "s"))
 }
 \seealso{
-Other preprocessing functions: 
-\code{\link{eeg_baseline}()},
-\code{\link{eeg_downsample}()},
-\code{\link{eeg_ica}()},
-\code{\link{eeg_ica_keep}()},
-\code{\link{eeg_rereference}()},
+Other preprocessing functions:
+\code{\link[=eeg_baseline]{eeg_baseline()}},
+\code{\link[=eeg_downsample]{eeg_downsample()}},
+\code{\link[=eeg_ica]{eeg_ica()}},
+\code{\link[=eeg_ica_keep]{eeg_ica_keep()}},
+\code{\link[=eeg_rereference]{eeg_rereference()}},
 \code{\link{filt}}
 }
 \concept{preprocessing functions}

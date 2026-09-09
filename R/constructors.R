@@ -115,7 +115,6 @@ psd_lst <- function(psd_tbl = NULL, segments_tbl = NULL, channels_tbl = NULL) {
 
 #'  Adds the channel info to a signal tbl or psd tbl
 #' @param df signal or psd tbl
-#' @param channels_tbl 
 #'
 #' @noRd
 add_channel_info <- function(df, channels_tbl){

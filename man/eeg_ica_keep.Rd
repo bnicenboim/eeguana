@@ -9,7 +9,7 @@ eeg_ica_keep(.data, ...)
 \arguments{
 \item{.data}{An eeg_ica_lst object}
 
-\item{...}{Components to keep from the mixing matrix of the ICA transformation. See \link[dplyr:select]{dplyr::select} and \link[tidyselect:language]{tidyselect::select_helpers} for details.}
+\item{...}{Components to keep from the mixing matrix of the ICA transformation. See \link[dplyr:select]{dplyr::select} and \link[tidyselect:select_helpers]{tidyselect::select_helpers} for details.}
 }
 \description{
 This function will transform the channels according to the independent components that are kept or removed.
@@ -22,21 +22,21 @@ suppressWarnings(data_faces_10_trials \%>\%
   eeg_ica_keep(-ICA1)
 }
 \seealso{
-Other preprocessing functions: 
-\code{\link{eeg_baseline}()},
-\code{\link{eeg_downsample}()},
-\code{\link{eeg_ica}()},
-\code{\link{eeg_rereference}()},
-\code{\link{eeg_segment}()},
+Other preprocessing functions:
+\code{\link[=eeg_baseline]{eeg_baseline()}},
+\code{\link[=eeg_downsample]{eeg_downsample()}},
+\code{\link[=eeg_ica]{eeg_ica()}},
+\code{\link[=eeg_rereference]{eeg_rereference()}},
+\code{\link[=eeg_segment]{eeg_segment()}},
 \code{\link{filt}}
 
-Other ICA functions: 
-\code{\link{eeg_ica}()},
-\code{\link{eeg_ica_cor_tbl}()},
-\code{\link{eeg_ica_show}()},
-\code{\link{eeg_ica_summary_tbl}()},
-\code{\link{eeg_ica_var_tbl}()},
-\code{\link{plot_components}()}
+Other ICA functions:
+\code{\link[=eeg_ica]{eeg_ica()}},
+\code{\link[=eeg_ica_cor_tbl]{eeg_ica_cor_tbl()}},
+\code{\link[=eeg_ica_show]{eeg_ica_show()}},
+\code{\link[=eeg_ica_summary_tbl]{eeg_ica_summary_tbl()}},
+\code{\link[=eeg_ica_var_tbl]{eeg_ica_var_tbl()}},
+\code{\link[=plot_components]{plot_components()}}
 }
 \concept{ICA functions}
 \concept{preprocessing functions}

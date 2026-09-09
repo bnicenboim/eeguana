@@ -26,7 +26,7 @@ data(data_faces_10_trials)
 A dataset containing 10 trials where  one subject either saw faces or a non-faces objects with preprocessing done in BrainVision 2.0. See also the vignette \href{https://bnicenboim.github.io/eeguana/articles/brainvision_files.html}{Introduction - Manipulating a clean EEG file exported from BrainVision 2.0}.
 }
 \seealso{
-Other EEG datasets: 
+Other EEG datasets:
 \code{\link{data_faces_ERPs}}
 }
 \concept{EEG datasets}

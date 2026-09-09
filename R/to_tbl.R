@@ -146,12 +146,14 @@ as.data.frame.psd_lst <- function(x,  row.names = NULL, optional = FALSE, ...) {
 
 
 #' @rdname as_tibble.eeg_lst
+#' @exportS3Method
 as_long_tbl.eeg_lst <- as_tibble.eeg_lst
 
 as_long_tbl <- function(x, ...) {
   UseMethod("as_long_tbl")
 }
 
+#' @exportS3Method
 as_long_tbl.mixing_tbl <- function(x, add_channels_info = TRUE, ...) {
   x %>%
     .[, lapply(.SD, `attributes<-`, NULL)] %>%

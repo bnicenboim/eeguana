@@ -19,11 +19,11 @@ It's also possible to extract the elements by accessing it as a list.
 summary(data_faces_ERPs)
 }
 \seealso{
-Other summary functions: 
-\code{\link{count_complete_cases_tbl}()},
-\code{\link{eeg_ica_cor_tbl}()},
-\code{\link{eeg_ica_summary_tbl}()},
-\code{\link{eeg_ica_var_tbl}()},
+Other summary functions:
+\code{\link[=count_complete_cases_tbl]{count_complete_cases_tbl()}},
+\code{\link[=eeg_ica_cor_tbl]{eeg_ica_cor_tbl()}},
+\code{\link[=eeg_ica_summary_tbl]{eeg_ica_summary_tbl()}},
+\code{\link[=eeg_ica_var_tbl]{eeg_ica_var_tbl()}},
 \code{\link{summaries}}
 }
 \concept{summary functions}
