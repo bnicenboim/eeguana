@@ -33,3 +33,4 @@ experimental
 ^dev$
 ^\.Rprofile$
 ^internal_pipeline\.md$
+^playground$

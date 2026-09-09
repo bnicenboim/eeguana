@@ -43,3 +43,5 @@ tests/testthat/Rplots.pdf
 # knitted preview of the maintainer notes
 /internal_pipeline.html
 /internal_pipeline_files/
+# scratch space for throwaway experiments (see playground/README.md)
+playground/
