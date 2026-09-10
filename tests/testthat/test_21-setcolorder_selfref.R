@@ -117,3 +117,117 @@ test_that("validate_psd_tbl is still vulnerable to a wide tidytable input", {
   expect_equal(x$.id, c(1L, 2L))
   expect_equal(names(x)[1:2], c(".id", ".freq"))
 })
+
+# ---------------------------------------------------------------- 64 channels --
+
+## A montage wide enough to cross the 64-column threshold, built so that any
+## mislabelling is unmissable: channel k is the constant k, so the mean of
+## channel k must come back as exactly k. If setcolorder() ever moves the
+## names without the data again, every one of these assertions fails.
+##
+## The failure was only ever reproducible under devtools::load_all(), which is
+## how the suite runs during development, so these tests are the tripwire for
+## exactly that situation.
+
+wide_eeg <- function(nch = 64L, nsamp = 2L, nseg = 4L, group_numeric = TRUE) {
+  chn <- sprintf("E%02d", seq_len(nch))
+  n <- nsamp * nseg
+  sig <- data.table::data.table(
+    .id = rep(seq_len(nseg), each = nsamp),
+    .sample = rep(seq_len(nsamp), times = nseg)
+  )
+  for (j in seq_along(chn)) {
+    data.table::set(sig, j = chn[j], value = channel_dbl(rep(as.numeric(j), n)))
+  }
+  seg <- data.table::data.table(
+    .id = seq_len(nseg),
+    .recording = rep(c("r1", "r2"), length.out = nseg),
+    condition = if (group_numeric) {
+      rep(c(1L, 2L), length.out = nseg)
+    } else {
+      rep(c("a", "b"), length.out = nseg)
+    }
+  )
+  eeg_lst(signal_tbl = sig, segments_tbl = seg, .sampling_rate = 500)
+}
+
+# every channel must still report its own constant
+expect_channels_intact <- function(x, nch) {
+  chn <- sprintf("E%02d", seq_len(nch))
+  got <- vapply(chn, function(c) {
+    v <- x$.signal[[c]]
+    if (is.null(v)) NA_real_ else as.numeric(v[1])
+  }, numeric(1))
+  testthat::expect_equal(unname(got), as.numeric(seq_len(nch)))
+}
+
+test_that("a 64-channel summarize keeps every channel on its own data", {
+  d <- wide_eeg(64L)
+  # 64 channels + .sample + .id is already over the threshold ungrouped
+  ungrouped <- eeg_summarize(d, across_ch(mean, na.rm = TRUE))
+  expect_gte(ncol(ungrouped$.signal), 64L)
+  expect_channels_intact(ungrouped, 64L)
+
+  grouped <- d %>%
+    eeg_group_by(condition) %>%
+    eeg_summarize(across_ch(mean, na.rm = TRUE))
+  expect_channels_intact(grouped, 64L)
+})
+
+test_that("a 64-channel summarize keeps .segments intact", {
+  # group by .recording too, so it is carried through and its contents can be
+  # checked; grouping by condition alone sets .recording to NA by design.
+  grouped <- wide_eeg(64L) %>%
+    eeg_group_by(condition, .recording) %>%
+    eeg_summarize(across_ch(mean, na.rm = TRUE))
+
+  # .id used to come back holding a grouping label, and .recording a channel
+  # variance, when the names moved but the data did not
+  expect_true(is.integer(grouped$.segments$.id))
+  expect_equal(sort(grouped$.segments$.id), seq_along(grouped$.segments$.id))
+  expect_true(is.character(grouped$.segments$.recording))
+  expect_setequal(unique(grouped$.segments$.recording), c("r1", "r2"))
+  expect_true(is.numeric(grouped$.segments$condition))
+  expect_setequal(unique(grouped$.segments$condition), c(1, 2))
+  expect_channels_intact(grouped, 64L)
+})
+
+test_that("the grouping column type does not change the outcome", {
+  # numeric grouping used to fail silently, character grouping used to raise
+  # a confusing error from round(); both must simply work
+  for (num in c(TRUE, FALSE)) {
+    r <- wide_eeg(64L, group_numeric = num) %>%
+      eeg_group_by(condition) %>%
+      eeg_summarize(across_ch(mean, na.rm = TRUE))
+    expect_channels_intact(r, 64L)
+    expect_true(is.integer(r$.segments$.id))
+  }
+})
+
+test_that("across_ch with several functions stays correct past the threshold", {
+  # 64 channels * 2 functions doubles the width again
+  r <- wide_eeg(64L) %>%
+    eeg_group_by(condition) %>%
+    eeg_summarize(across_ch(list(~ mean(.x, na.rm = TRUE), ~ min(.x, na.rm = TRUE))))
+
+  expect_gte(ncol(r$.signal), 64L)
+  expect_true(is.integer(r$.segments$.id))
+  # both summaries of a constant channel are that constant
+  for (k in c(1L, 2L, 32L, 63L, 64L)) {
+    for (suffix in c("_1", "_2")) {
+      col <- paste0(sprintf("E%02d", k), suffix)
+      expect_equal(as.numeric(r$.signal[[col]][1]), as.numeric(k),
+        info = paste("column", col)
+      )
+    }
+  }
+})
+
+test_that("narrower montages, which were never at risk, still work", {
+  for (nch in c(8L, 32L, 60L)) {
+    r <- wide_eeg(nch) %>%
+      eeg_group_by(condition) %>%
+      eeg_summarize(across_ch(mean, na.rm = TRUE))
+    expect_channels_intact(r, nch)
+  }
+})

@@ -2,17 +2,25 @@
 
 ## Bugs fixed
 
-- Fixed silent corruption in `eeg_summarize()`. When the resulting signal
-  table had 64 or more columns, the `.segments` table came back with `.id`
-  and `.recording` holding data taken from unrelated columns. This was
-  reachable with `across_ch()` and two or more functions (34 channels times
-  two already exceeds the threshold), and with any montage of 64 or more
-  channels. Grouping by a character column surfaced it as an error from
-  `round()`; grouping by numeric columns returned wrong values silently.
-  The cause is a `data.table::setcolorder()` bug, present in data.table
-  1.18.4 and 1.18.6.1, that moves column names without moving their data
-  once a table has 64+ columns and no over-allocated slots. A minimal
-  reproduction is in `dev/datatable-setcolorder-bug.R`.
+- Guarded `eeg_summarize()` against a `data.table::setcolorder()` bug that
+  moves column names without moving their data once a table has 64 or more
+  columns and has lost its over-allocation. When it struck, the `.segments`
+  table came back with `.id` and `.recording` holding data from unrelated
+  columns and every channel label sat on another channel's data.
+
+  Scope: this was only ever reproducible when the package was loaded with
+  `devtools::load_all()`, which is how the test suite runs during
+  development; the failing case was `across_ch()` with two functions on the
+  34-channel `data_faces_10_trials` (72 columns). The **installed** package
+  was not affected in any configuration tested, including 64- and 70-channel
+  montages, grouped and ungrouped, with numeric and character grouping
+  variables. Analyses run against an installed eeguana are not in question.
+
+  Present in data.table 1.18.4 and 1.18.6.1, so upgrading does not help. A
+  reproduction with no eeguana involved is in
+  `dev/datatable-setcolorder-bug.R`, and the regression tests are in
+  `tests/testthat/test_21-setcolorder_selfref.R`.
+
 - `read_fif()` and `as_eeg_lst()` on an MNE raw object no longer fail with
   `KeyError: 'bad'`. The MNE info key is `bads`, so every import through
   this path had been failing.
