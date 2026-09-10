@@ -325,7 +325,32 @@ eeg_group_by <- function(.data, ..., .add = FALSE, .drop = FALSE) {
 #' @rdname dplyr_verbs
 #' @export
 eeg_ungroup <- function(.data, ...) {
+  # dplyr's ungroup() generic calls its first argument `x`, while the eeguana
+  # verbs call theirs `.data`. Accept either, so ungroup(x = d) and
+  # eeg_ungroup(.data = d) both work and neither name is a trap.
+  # resolving here only settles which class UseMethod dispatches on: the
+  # method is still handed the arguments of the original call, so it resolves
+  # them again.
+  .data <- first_arg_either(.data, ..., .other = "x")
   UseMethod("eeg_ungroup")
+}
+
+#' Resolve a first argument that may arrive under a second name
+#'
+#' Returns `.data` when it was supplied, otherwise the `.other` element of
+#' `...`. Used where an eeguana verb backs a dplyr generic whose first
+#' argument has a different name.
+#' @noRd
+first_arg_either <- function(.data, ..., .other) {
+  if (!missing(.data)) {
+    return(.data)
+  }
+  dots <- list(...)
+  if (.other %in% names(dots)) {
+    return(dots[[.other]])
+  }
+  stop("supply the data as the first argument, as `.data` or as `",
+    .other, "`", call. = FALSE)
 }
 
 #' @export
@@ -348,6 +373,7 @@ eeg_group_by.psd_lst <- function(.data, ..., .add = FALSE, .drop = FALSE) {
 
 #' @export
 eeg_ungroup.eeg_lst <- function(.data, ...) {
+  .data <- first_arg_either(.data, ..., .other = "x")
   attributes(.data)$vars <- character(0)
   .data
   #  validate_eeg_lst(.data)
@@ -355,6 +381,7 @@ eeg_ungroup.eeg_lst <- function(.data, ...) {
 
 #' @export
 eeg_ungroup.psd_lst <- function(.data, ...) {
+  .data <- first_arg_either(.data, ..., .other = "x")
   attributes(.data)$vars <- character(0)
   .data
 }
@@ -362,7 +389,12 @@ eeg_ungroup.psd_lst <- function(.data, ...) {
 # dynamically exported in zzz.R
 group_by.eeg_lst <- eeg_group_by.eeg_lst
 # dynamically exported in zzz.R
-ungroup.eeg_lst <- eeg_ungroup.eeg_lst
+# Not a plain alias of eeg_ungroup.eeg_lst: dplyr's generic is ungroup(x, ...),
+# so a method whose first argument is called .data leaves it empty when the
+# caller writes ungroup(x = d). Name it x here and accept .data too.
+ungroup.eeg_lst <- function(x, ...) {
+  eeg_ungroup(first_arg_either(x, ..., .other = ".data"))
+}
 
 #' @rdname dplyr_verbs
 #' @export
