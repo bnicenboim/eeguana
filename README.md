@@ -1,6 +1,6 @@
 
 [![R build
-status](https://github.com/bnicenboim/eeguana/workflows/R-CMD-check/badge.svg)](https://github.com/bnicenboim/eeguana/actions)
+status](https://github.com/bnicenboim/eeguana/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bnicenboim/eeguana/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/bnicenboim/eeguana/branch/master/graph/badge.svg)](https://codecov.io/gh/bnicenboim/eeguana?branch=master)
 [![DOI](https://zenodo.org/badge/153299577.svg)](https://zenodo.org/badge/latestdoi/153299577)
