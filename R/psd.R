@@ -110,5 +110,19 @@ validate_psd_tbl <- function(psd_tbl) {
   ## Validates channels
   psd_tbl[, lapply(.SD, validate_channel_dbl), .SDcols = sapply(psd_tbl, is_channel_dbl)]
   ## reorders
-  data.table::setcolorder(psd_tbl, obligatory_cols[[".psd"]])
+  ## setcolorder() moves the column *names* without the data on a table with
+  ## 64 or more columns whose over-allocation is gone, which is what every
+  ## tidytable verb returns; data.table 1.18.4 and 1.18.6.1 are both affected.
+  ## copy() restores the over-allocation, so copy first when a reorder is
+  ## actually needed. The common case, where the columns are already in
+  ## order, costs nothing. Returns the table: this no longer works purely by
+  ## reference, so callers must assign the result.
+  cols <- obligatory_cols[[".psd"]]
+  if (!identical(names(psd_tbl)[seq_along(cols)], cols)) {
+    if (data.table::truelength(psd_tbl) < ncol(psd_tbl)) {
+      psd_tbl <- data.table::copy(psd_tbl)
+    }
+    data.table::setcolorder(psd_tbl, cols)
+  }
+  psd_tbl
 }

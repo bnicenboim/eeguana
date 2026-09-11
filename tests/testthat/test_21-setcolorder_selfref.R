@@ -93,20 +93,73 @@ test_that("new_signal_tbl over-allocates, so wide montages are safe", {
   expect_equal(names(s)[1:2], c(".id", ".sample"))
 })
 
-test_that("validate_signal_tbl keeps names on their own data at 64+ columns", {
-  x <- wide_tt(70)
-  data.table::setattr(x, "class", c("signal_tbl", class(x)))
-  eeguana:::validate_signal_tbl(x)
-  expect_equal(x$.id, c(1L, 2L))
-  expect_equal(names(x)[1:2], c(".id", ".sample"))
+# A real recording widened past 64 columns by duplicating channels, then put
+# into the state that actually arises inside the package: the obligatory
+# columns last, and the over-allocation gone because a tidytable verb returned
+# it. A freshly read eeg_lst is not in this state, its signal table is
+# over-allocated and already ordered, so it is never at risk.
+wide_real_signal <- function(nch = 70L) {
+  chs <- channel_names(data_faces_10_trials)
+  need <- nch - length(chs)
+  src <- rep(chs, length.out = need)
+  d <- eeg_mutate(
+    data_faces_10_trials,
+    !!!rlang::set_names(rlang::syms(src), paste0("X", seq_len(need), "_", src))
+  )
+  s <- data.table::copy(d$.signal)
+  # reorder while still over-allocated, which is safe, then drop the
+  # allocation the way a tidytable verb does
+  data.table::setcolorder(s, c(setdiff(names(s), c(".id", ".sample")), ".id", ".sample"))
+  eeguana:::select.(eeguana:::mutate.(s, .tmp = 1), -".tmp")
+}
+
+test_that("validate_signal_tbl keeps real channel data on its own name", {
+  s <- wide_real_signal(70L)
+  expect_gte(ncol(s), 64L)
+  expect_equal(data.table::truelength(s), 0)
+
+  # capture before validating: the non-copying path works by reference
+  want <- vapply(c("Fp1", "Cz", "Oz"), function(cn) as.numeric(s[[cn]][1]), numeric(1))
+  want_id <- s$.id[1]
+
+  out <- eeguana:::validate_signal_tbl(s)
+
+  expect_equal(names(out)[1:2], c(".id", ".sample"))
+  expect_equal(out$.id[1], want_id)
+  for (cn in names(want)) {
+    expect_equal(as.numeric(out[[cn]][1]), want[[cn]], info = cn)
+    expect_true(is_channel_dbl(out[[cn]]), info = cn)
+  }
 })
 
-test_that("validate_psd_tbl keeps names on their own data at 64+ columns", {
-  x <- wide_tt(70, second_col = ".freq")
-  data.table::setattr(x, "class", c("psd_tbl", class(x)))
-  eeguana:::validate_psd_tbl(x)
-  expect_equal(x$.id, c(1L, 2L))
-  expect_equal(names(x)[1:2], c(".id", ".freq"))
+test_that("validate_psd_tbl keeps real channel data on its own name", {
+  s <- wide_real_signal(70L)
+  data.table::setnames(s, ".sample", ".freq")
+  s[, .freq := as.numeric(.freq)]
+  data.table::setattr(s, "class", c("psd_tbl", setdiff(class(s), "signal_tbl")))
+
+  want <- as.numeric(s$Fp1[1])
+  want_id <- s$.id[1]
+
+  out <- suppressWarnings(eeguana:::validate_psd_tbl(s))
+
+  expect_equal(names(out)[1:2], c(".id", ".freq"))
+  expect_equal(out$.id[1], want_id)
+  expect_equal(as.numeric(out$Fp1[1]), want)
+})
+
+test_that("an ordinary eeg_lst needs no reorder, so it is never at risk", {
+  # What protects a normal signal table is that .id and .sample are already
+  # first, so validate_signal_tbl() skips the reorder entirely. Note it is not
+  # over-allocation: a lazy-loaded dataset has truelength 0, because
+  # over-allocation does not survive serialisation.
+  s <- data_faces_10_trials$.signal
+  expect_equal(names(s)[1:2], c(".id", ".sample"))
+
+  want <- as.numeric(s$Fp1[1])
+  out <- eeguana:::validate_signal_tbl(s)
+  expect_equal(names(out)[1:2], c(".id", ".sample"))
+  expect_equal(as.numeric(out$Fp1[1]), want)
 })
 
 # ---------------------------------------------------------------- 64 channels --
