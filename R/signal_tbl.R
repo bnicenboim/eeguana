@@ -153,6 +153,34 @@ validate_signal_tbl <- function(signal_tbl) {
   ## Validates channels
   signal_tbl[, lapply(.SD, validate_channel_dbl), .SDcols = sapply(signal_tbl, is_channel_dbl)]
   ## reorders
-  data.table::setcolorder(signal_tbl, obligatory_cols[[".signal"]])
+  ##
+  ## DEFENSIVE, for a bug that is close to unreachable from the public API.
+  ## setcolorder() moves the column *names* without the data on a table with
+  ## 64 or more columns whose over-allocation is gone, which is what every
+  ## tidytable verb returns; data.table 1.18.4 and 1.18.6.1 are both affected.
+  ## Tracing a 70-channel pipeline (filter, mutate, segment, baseline,
+  ## downsample, events_to_NA, grouped summarize, bind) found 0 of 10 calls
+  ## in that state: the obligatory columns are already first every time, so
+  ## the reorder is skipped. The one path that does reach it, eeg_lst() built
+  ## from a user table with .id/.sample last, still produced correct output
+  ## without this guard, because as_signal_tbl() rebuilds the table first.
+  ## No user-visible symptom was ever reproduced.
+  ##
+  ## It is kept because the corruption is silent where it does occur, this
+  ## function is reachable from eight call sites including ones that take
+  ## externally supplied tables, and the guard costs one identical() on two
+  ## strings when nothing needs reordering. It never copies unless a reorder
+  ## is genuinely required.
+  ##
+  ## Returns the table: this no longer works purely by reference, so callers
+  ## must assign the result.
+  cols <- obligatory_cols[[".signal"]]
+  if (!identical(names(signal_tbl)[seq_along(cols)], cols)) {
+    if (data.table::truelength(signal_tbl) < ncol(signal_tbl)) {
+      signal_tbl <- data.table::copy(signal_tbl)
+    }
+    data.table::setcolorder(signal_tbl, cols)
+  }
+  signal_tbl
 }
 

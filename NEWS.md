@@ -2,60 +2,32 @@
 
 ## Bugs fixed
 
-- Update on `read_fif()` and `as_eeg_lst()` on an MNE raw object to no longer fail with
-  `KeyError: 'bad'`. 
-- `annotate_events()` no longer emits a deprecation warning: ggplot2's
-  `%+%`, an alias for `+`, was deprecated in ggplot2 4.0.0.
-
-- The join verbs and `eeg_ungroup()` now match dplyr's generics argument for
-  argument, so a call written the way `?dplyr::left_join` documents no longer
-  fails or lands on the wrong parameter.
-
-  `eeg_left_join()`, `eeg_semi_join()` and `eeg_anti_join()` gain `copy`, in
-  dplyr's position as the fourth argument, and the two `*_semi_*` and
-  `*_anti_*` verbs gain `...`. Previously `copy = FALSE`, which is dplyr's
-  own default, was an error for `semi_join()` and `anti_join()`, and a
-  positional fourth argument to `left_join()` silently became `suffix`.
-  Neither `copy` nor extra arguments can be honoured for an `eeg_lst`, so
-  they are accepted and ignored with a warning. This makes `left_join()`
-  stricter: it used to forward `...` and so accept anything silently,
-  including typos.
-
-  `keep = NULL`, dplyr's default, used to fail with `invalid argument type`;
-  it now behaves as `keep = FALSE`, which is what it means for the equality
-  joins eeguana performs. `keep = TRUE` used to fail with `non-numeric
-  argument to mathematical function`; it now warns and proceeds as `FALSE`.
-  It cannot be supported: it would replace `.id` with `.id.x` and `.id.y`,
-  and `.id` is the key tying the signal, events and segments tables together.
-
-  `ungroup()` accepts the data under dplyr's argument name. The method's
-  first argument was called `.data` while the generic calls it `x`, so
-  `ungroup(x = d)` failed with `cannot set an attribute on a 'symbol'`.
-  Both names now work, for `eeg_ungroup()` too.
-
 - `read_ft()` and `read_set()` failed with `invalid substring arguments` on
-  files containing an empty text field, such as an unset `comments` or `ref`.
-  The cause is a regression in R.matlab 3.8.0: its new `miUTF8` branch splits
-  a character array with `substring(str, seq_len(n), seq_len(n))`, and for
-  empty text `n` is 0, so `seq_len(n)` is `integer(0)`, which `substring()`
-  rejects. 3.7.0 reads the same files. Until the fix is on CRAN, `Remotes:`
-  points at a patched fork, so installing eeguana from GitHub pulls a working
-  R.matlab.
+  files with an empty text field. The cause is a regression in R.matlab
+  3.8.0; `Remotes:` points at a patched fork until the fix reaches CRAN.
+- `read_fif()` and `as_eeg_lst()` on an MNE object no longer fail with
+  `KeyError: 'bad'`.
+- The join verbs now take `copy` in dplyr's position, so
+  `left_join(x, y, by, copy)` no longer lands on `suffix`, and
+  `semi_join()`/`anti_join()` no longer reject `copy`. `copy` and extra
+  arguments are ignored with a warning.
+- `keep = NULL`, dplyr's default for the joins, no longer errors.
+  `keep = TRUE` warns and is ignored: it would split `.id`, which ties the
+  signal, events and segments tables together.
+- `ungroup(x = data)` works. The method took its first argument as `.data`
+  while dplyr's generic calls it `x`.
+- `annotate_events()` no longer warns about ggplot2's deprecated `%+%`.
 
 ## Internal
 
-- S3 methods are now registered in `NAMESPACE` via `@exportS3Method`, and
-  their signatures accept the arguments of their generics. The public API is
-  unchanged: no new exports.
+- Guards in `eeg_summarize()` and the `validate_*_tbl()` functions against a
+  `data.table::setcolorder()` bug affecting tables with 64 or more columns.
+  The validators now return their table instead of working by reference.
+- S3 methods registered in `NAMESPACE`; no change to the public API.
 - Documentation regenerated with roxygen2 8.0.0.
-- Large test files are no longer kept in the package sources. They are
-  listed in `inst/fixtures.csv` and cached under
-  `tools::R_user_dir("eeguana", "cache")`, so they survive reinstalling the
-  package. See `dev/README.md`.
-- Tests write to a temporary directory instead of the package sources and
-  the user's home directory.
-- Internal changes to `eeg_summarize()` to guard against what looks like a `data.table::setcolorder()` bug.
-
+- Large test files moved out of the package sources into a per-user cache;
+  see `dev/README.md`.
+- Tests no longer write to the package sources or the user's home directory.
 
 # eeguana 0.1.12.9001
 - Updated documentation
