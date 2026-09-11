@@ -82,9 +82,13 @@ dev_r_deps <- function(upgrade = "never", quiet = FALSE) {
 #' Asks CRAN what is available and compares against what is installed. Checked
 #' at most once per session, because it needs a network round trip.
 #'
-#' @param ask Offer to upgrade what is behind. FALSE only reports.
+#' @param upgrade TRUE updates everything that is behind, FALSE only
+#'   reports, NA (the default) asks when the session is interactive and
+#'   reports otherwise.
+#' @param ask Offer to upgrade what is behind. Ignored when `upgrade` is
+#'   TRUE or FALSE.
 #' @param reset Check again even if this session already did.
-dev_check_updates <- function(ask = interactive(), reset = FALSE) {
+dev_check_updates <- function(upgrade = NA, ask = interactive(), reset = FALSE) {
   if (reset) .dev_env$updates_checked <- NULL
   if (isTRUE(.dev_env$updates_checked)) {
     return(invisible(NULL))
@@ -127,8 +131,14 @@ dev_check_updates <- function(ask = interactive(), reset = FALSE) {
     }
   }
 
-  if (!ask) {
-    message("  run dev_r_deps(upgrade = \"always\") to update")
+  if (isTRUE(upgrade)) {
+    message("  updating")
+    dev_r_deps(upgrade = "always")
+    return(invisible(behind))
+  }
+  if (isFALSE(upgrade) || !ask) {
+    message("  run dev_r_deps(upgrade = \"always\") to update, or ",
+            "dev_check_updates(upgrade = TRUE)")
     return(invisible(behind))
   }
 
@@ -582,8 +592,24 @@ dev_test <- function(filter = NULL,
 }
 
 #' Everything dev_test() does, then a full R CMD check
-dev_check <- function(...) {
-  dev_r_deps()
+#' @param upgrade Passed to `dev_check_updates()`. TRUE, the default,
+#'   brings dependencies up to date first, because CI installs them fresh
+#'   and a check against stale local versions does not reproduce it. Pass
+#'   NA to be asked, or FALSE to check against what you have.
+dev_check <- function(..., upgrade = TRUE) {
+  # One call, not dev_r_deps() followed by this: dev_check_updates(upgrade =
+  # TRUE) installs what is missing and upgrades what is behind, Remotes
+  # included. Calling dev_r_deps() first resolved the tree twice and, with its
+  # "never" default, printed "R dependencies" while leaving a stale version in
+  # place. R.matlab 3.8.0 broke read_ft() that way while the check looked
+  # green.
+  dev_check_updates(upgrade = upgrade, reset = TRUE)
+  if (!isTRUE(upgrade)) {
+    message(
+      "  NOTE: checking against the versions you have installed, which may ",
+      "not be what CI installs"
+    )
+  }
   dev_python(install = TRUE)
   dev_fixtures_ensure()
   devtools::check(pkg = dev_pkg_root(), ...)

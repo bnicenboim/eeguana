@@ -73,5 +73,6 @@ Language: en-US
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3
 Remotes: 
-     gjmvanboxtel/gsignal
+     gjmvanboxtel/gsignal,
+     bnicenboim/R.matlab@patch-1
 Config/roxygen2/version: 8.0.0

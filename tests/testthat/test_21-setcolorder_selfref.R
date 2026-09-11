@@ -93,14 +93,7 @@ test_that("new_signal_tbl over-allocates, so wide montages are safe", {
   expect_equal(names(s)[1:2], c(".id", ".sample"))
 })
 
-test_that("validate_signal_tbl is still vulnerable to a wide tidytable input", {
-  skip("Known limitation, not yet fixed. validate_signal_tbl() reorders by
-reference, and for a truelength-0 table with 64+ columns setcolorder() either
-moves the names without the data (corrupt) or, if the over-allocation is
-restored first, silently stops reordering the caller's table. Fixing it means
-changing validate_signal_tbl() to return the table and updating its callers.
-Remove this skip when that is done.")
-
+test_that("validate_signal_tbl keeps names on their own data at 64+ columns", {
   x <- wide_tt(70)
   data.table::setattr(x, "class", c("signal_tbl", class(x)))
   eeguana:::validate_signal_tbl(x)
@@ -108,9 +101,7 @@ Remove this skip when that is done.")
   expect_equal(names(x)[1:2], c(".id", ".sample"))
 })
 
-test_that("validate_psd_tbl is still vulnerable to a wide tidytable input", {
-  skip("Same known limitation as validate_signal_tbl(); see that test.")
-
+test_that("validate_psd_tbl keeps names on their own data at 64+ columns", {
   x <- wide_tt(70, second_col = ".freq")
   data.table::setattr(x, "class", c("psd_tbl", class(x)))
   eeguana:::validate_psd_tbl(x)

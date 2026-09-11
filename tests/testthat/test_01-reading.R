@@ -42,12 +42,13 @@ test_that("repeated channels are not a problem", {
 
 
 
-ft <- read_ft(file = system.file("testdata", "fieldtrip_matrix.mat", package = "eeguana"), .recording = "bv2")
-channels_tbl(ft) <- channels_tbl(multiplexed_bin_bv2)
-
-# test_that("can read fieldtrip files", {
-#   #  expect_equal(ft,)
-# })
+test_that("can read fieldtrip files", {
+  fieldtrip <- system.file("testdata", "fieldtrip_matrix.mat", package = "eeguana")
+  ft <- read_ft(file = fieldtrip, .recording = "bv2")
+  expect_s3_class(ft, "eeg_lst")
+  channels_tbl(ft) <- channels_tbl(multiplexed_bin_bv2)
+  expect_equal(channel_names(ft), channel_names(multiplexed_bin_bv2))
+})
 
 
 test_that("can read fif files ", {

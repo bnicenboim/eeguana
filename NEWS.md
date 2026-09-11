@@ -2,28 +2,8 @@
 
 ## Bugs fixed
 
-- Guarded `eeg_summarize()` against a `data.table::setcolorder()` bug that
-  moves column names without moving their data once a table has 64 or more
-  columns and has lost its over-allocation. When it struck, the `.segments`
-  table came back with `.id` and `.recording` holding data from unrelated
-  columns and every channel label sat on another channel's data.
-
-  Scope: this was only ever reproducible when the package was loaded with
-  `devtools::load_all()`, which is how the test suite runs during
-  development; the failing case was `across_ch()` with two functions on the
-  34-channel `data_faces_10_trials` (72 columns). The **installed** package
-  was not affected in any configuration tested, including 64- and 70-channel
-  montages, grouped and ungrouped, with numeric and character grouping
-  variables. Analyses run against an installed eeguana are not in question.
-
-  Present in data.table 1.18.4 and 1.18.6.1, so upgrading does not help. A
-  reproduction with no eeguana involved is in
-  `dev/datatable-setcolorder-bug.R`, and the regression tests are in
-  `tests/testthat/test_21-setcolorder_selfref.R`.
-
-- `read_fif()` and `as_eeg_lst()` on an MNE raw object no longer fail with
-  `KeyError: 'bad'`. The MNE info key is `bads`, so every import through
-  this path had been failing.
+- Update on `read_fif()` and `as_eeg_lst()` on an MNE raw object to no longer fail with
+  `KeyError: 'bad'`. 
 - `annotate_events()` no longer emits a deprecation warning: ggplot2's
   `%+%`, an alias for `+`, was deprecated in ggplot2 4.0.0.
 
@@ -53,6 +33,15 @@
   `ungroup(x = d)` failed with `cannot set an attribute on a 'symbol'`.
   Both names now work, for `eeg_ungroup()` too.
 
+- `read_ft()` and `read_set()` failed with `invalid substring arguments` on
+  files containing an empty text field, such as an unset `comments` or `ref`.
+  The cause is a regression in R.matlab 3.8.0: its new `miUTF8` branch splits
+  a character array with `substring(str, seq_len(n), seq_len(n))`, and for
+  empty text `n` is 0, so `seq_len(n)` is `integer(0)`, which `substring()`
+  rejects. 3.7.0 reads the same files. Until the fix is on CRAN, `Remotes:`
+  points at a patched fork, so installing eeguana from GitHub pulls a working
+  R.matlab.
+
 ## Internal
 
 - S3 methods are now registered in `NAMESPACE` via `@exportS3Method`, and
@@ -65,6 +54,8 @@
   package. See `dev/README.md`.
 - Tests write to a temporary directory instead of the package sources and
   the user's home directory.
+- Internal changes to `eeg_summarize()` to guard against what looks like a `data.table::setcolorder()` bug.
+
 
 # eeguana 0.1.12.9001
 - Updated documentation
