@@ -93,6 +93,12 @@ test_that("new_signal_tbl over-allocates, so wide montages are safe", {
   expect_equal(names(s)[1:2], c(".id", ".sample"))
 })
 
+# The two validate_* tests below construct the vulnerable state deliberately.
+# They are a regression guard for a bug that is close to unreachable from the
+# public API: tracing a realistic 70-channel pipeline found 0 of 10 calls to
+# validate_signal_tbl() in that state, and the one path that does reach it
+# produced correct output even without the guard. See R/signal_tbl.R.
+
 # A real recording widened past 64 columns by duplicating channels, then put
 # into the state that actually arises inside the package: the obligatory
 # columns last, and the over-allocation gone because a tidytable verb returned
