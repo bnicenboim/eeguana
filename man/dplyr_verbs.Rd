@@ -51,11 +51,19 @@ eeg_groups(x)
 
 eeg_group_vars(x)
 
-eeg_left_join(x, y, by = NULL, suffix = c(".x", ".y"), ..., keep = FALSE)
+eeg_left_join(
+  x,
+  y,
+  by = NULL,
+  copy = FALSE,
+  suffix = c(".x", ".y"),
+  ...,
+  keep = FALSE
+)
 
-eeg_semi_join(x, y, by = NULL)
+eeg_semi_join(x, y, by = NULL, copy = FALSE, ...)
 
-eeg_anti_join(x, y, by = NULL)
+eeg_anti_join(x, y, by = NULL, copy = FALSE, ...)
 
 eeg_pull(.data, var = -1, name = NULL, ...)
 
@@ -89,6 +97,12 @@ c_across(.cols = everything())
 \item{y}{A data frame, tibble, or data.table.}
 
 \item{by}{A character vector of variables to join by. If NULL, the default, the join will do a natural join, using all variables with common names across the two tables.}
+
+\item{copy}{Accepted so that the join verbs match dplyr's generics
+argument for argument. An \code{eeg_lst} and \code{y} are always in the same
+place, so there is nothing to copy: anything other than \code{FALSE} is
+ignored with a warning. (Not inherited from tidytable, which has no
+\code{copy} argument.)}
 
 \item{suffix}{Append created for duplicated column names when using \code{full_join()}}
 

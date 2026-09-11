@@ -27,6 +27,32 @@
 - `annotate_events()` no longer emits a deprecation warning: ggplot2's
   `%+%`, an alias for `+`, was deprecated in ggplot2 4.0.0.
 
+- The join verbs and `eeg_ungroup()` now match dplyr's generics argument for
+  argument, so a call written the way `?dplyr::left_join` documents no longer
+  fails or lands on the wrong parameter.
+
+  `eeg_left_join()`, `eeg_semi_join()` and `eeg_anti_join()` gain `copy`, in
+  dplyr's position as the fourth argument, and the two `*_semi_*` and
+  `*_anti_*` verbs gain `...`. Previously `copy = FALSE`, which is dplyr's
+  own default, was an error for `semi_join()` and `anti_join()`, and a
+  positional fourth argument to `left_join()` silently became `suffix`.
+  Neither `copy` nor extra arguments can be honoured for an `eeg_lst`, so
+  they are accepted and ignored with a warning. This makes `left_join()`
+  stricter: it used to forward `...` and so accept anything silently,
+  including typos.
+
+  `keep = NULL`, dplyr's default, used to fail with `invalid argument type`;
+  it now behaves as `keep = FALSE`, which is what it means for the equality
+  joins eeguana performs. `keep = TRUE` used to fail with `non-numeric
+  argument to mathematical function`; it now warns and proceeds as `FALSE`.
+  It cannot be supported: it would replace `.id` with `.id.x` and `.id.y`,
+  and `.id` is the key tying the signal, events and segments tables together.
+
+  `ungroup()` accepts the data under dplyr's argument name. The method's
+  first argument was called `.data` while the generic calls it `x`, so
+  `ungroup(x = d)` failed with `cannot set an attribute on a 'symbol'`.
+  Both names now work, for `eeg_ungroup()` too.
+
 ## Internal
 
 - S3 methods are now registered in `NAMESPACE` via `@exportS3Method`, and
