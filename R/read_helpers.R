@@ -1,3 +1,55 @@
+#' Stop early when a binary .dat does not match its header
+#'
+#' `n_points` may be absent from the header, in which case only whole-channel
+#' divisibility can be checked.
+#' @noRd
+check_dat_size <- function(file, n_chan, n_points = NULL, bytes) {
+  size <- file.size(file)
+  if (is.na(size) || !is.finite(bytes) || bytes <= 0 || n_chan <= 0) {
+    return(invisible(NULL))
+  }
+  n_values <- size / bytes
+
+  fmt <- function(x) format(x, big.mark = ",", scientific = FALSE, trim = TRUE)
+
+  if (!is.null(n_points) && is.finite(n_points) && n_points > 0) {
+    expected <- n_chan * n_points * bytes
+    mismatch <- paste0(
+      basename(file), " does not match its header: the file is ", fmt(size),
+      " bytes but the header describes ", n_chan, " channels x ",
+      fmt(n_points), " data points x ", bytes, " bytes, which is ",
+      fmt(expected), " bytes"
+    )
+    if (size < expected) {
+      ## Too little data is fatal. With DataOrientation=VECTORIZED the file is
+      ## stored channel by channel, so a short file is not a shorter recording,
+      ## it is the first few channels and then nothing.
+      stop(mismatch, " (", round(100 * size / expected, 1),
+        "% of it, so the file looks truncated).",
+        call. = FALSE
+      )
+    }
+    if (size > expected) {
+      ## Too much is survivable, so warn rather than stop. Note the extra data
+      ## is read, not discarded: readBin() takes the whole file, so the result
+      ## has more samples than the header declares.
+      warning(mismatch,
+        ". The extra data is read too, so the result has ",
+        fmt(round(n_values / n_chan)), " samples per channel rather than the ",
+        fmt(n_points), " the header declares.",
+        call. = FALSE
+      )
+    }
+  } else if (n_values %% n_chan != 0) {
+    stop(basename(file), " does not match its header: it holds ",
+      fmt(n_values), " values, which is not a whole number of ", n_chan,
+      " channels. The file may be truncated.",
+      call. = FALSE
+    )
+  }
+  invisible(NULL)
+}
+
 #' Helper function to read the dat files directly,
 #' samples doesn't do anything for now
 #' @noRd
@@ -30,6 +82,12 @@ read_dat <- function(file, header_info = NULL, events_dt = NULL,
     }
 
     bytes <- as.numeric(chr_extract(common_info$bits, "\\d*$")) / 8
+
+    ## The header says how much data there should be. Check the file before
+    ## reading it: a truncated .dat otherwise fails much later, inside
+    ## data.table, with a message about recycling lengths that says nothing
+    ## about the real problem.
+    check_dat_size(file, n_chan = n_chan, n_points = common_info$data_points, bytes = bytes)
 
     raw_signal <- read_bin_signal(file, type = type, bytes = bytes, n_chan = n_chan, sample_x_channels = multiplexed)
   } else if (common_info$format == "ASCII") {

@@ -1,10 +1,29 @@
+# eeguana 0.1.12.9003
+
+## Bugs fixed
+
+- `read_vhdr()` now checks the `.dat` against its header before reading it. A
+  file that is too short, usually an incomplete copy or download, stops with
+  both sizes named instead of failing inside data.table with
+  `Supplied 38410 items to be assigned to 38409 items of column '.id'`. A file
+  that is too long warns and is read in full.
+
 # eeguana 0.1.12.9002
+
+## New features
+
+- `read_edf()` gains `.trigger_channel`, for EDF files that record triggers as
+  an ordinary channel rather than as annotations. Name the channel, or use
+  `"last"` for the last one. Its values become events and it is dropped from
+  the signal table. When the argument is left out and the last channel looks
+  like triggers, a message says so.
 
 ## Bugs fixed
 
 - `read_ft()` and `read_set()` failed with `invalid substring arguments` on
   files with an empty text field. The cause is a regression in R.matlab
-  3.8.0; `Remotes:` points at a patched fork until the fix reaches CRAN.
+  3.8.0; `Remotes:` points at R.matlab's development version until the fix
+  reaches CRAN.
 - `read_fif()` and `as_eeg_lst()` on an MNE object no longer fail with
   `KeyError: 'bad'`.
 - The join verbs now take `copy` in dplyr's position, so
