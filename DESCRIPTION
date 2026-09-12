@@ -74,5 +74,5 @@ Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3
 Remotes: 
      gjmvanboxtel/gsignal,
-     bnicenboim/R.matlab@patch-1
+     HenrikBengtsson/R.matlab@develop
 Config/roxygen2/version: 8.1.0
