@@ -247,7 +247,7 @@ dev_fixture_dir <- function() {
 #' What is in the fixture cache and what is missing
 dev_fixture_status <- function(verify = FALSE) {
   dev_load()
-  m <- eeguana:::eeg_fixture_manifest()
+  m <- dev_fixture_manifest_source()
   if (is.null(m) || !nrow(m)) {
     message("No inst/fixtures.csv found.")
     return(invisible(NULL))
@@ -268,12 +268,25 @@ dev_fixture_status <- function(verify = FALSE) {
   invisible(out)
 }
 
+#' The manifest as it is in the source tree
+#'
+#' `eeguana:::eeg_fixture_manifest()` reads the installed copy, which is what
+#' the tests need. These dev helpers work on the checkout, where a row added
+#' by `dev_fixture_adopt()` appears immediately.
+dev_fixture_manifest_source <- function() {
+  csv <- file.path(dev_pkg_root(), "inst", "fixtures.csv")
+  if (!file.exists(csv)) {
+    return(NULL)
+  }
+  utils::read.csv(csv, stringsAsFactors = FALSE)
+}
+
 #' Which fixtures are missing from the cache
 #'
 #' Cheap check: existence and size only, no checksums.
 dev_fixtures_missing <- function() {
   dev_load()
-  m <- eeguana:::eeg_fixture_manifest()
+  m <- dev_fixture_manifest_source()
   if (is.null(m) || !nrow(m)) return(character())
   m$name[!vapply(m$name, function(n) isTRUE(eeguana:::eeg_fixture_ok(n, verify = FALSE)),
                  logical(1))]
@@ -328,7 +341,7 @@ dev_fixtures_ensure <- function(ask = interactive(), reset = FALSE) {
 #' @param refresh Re-download even files that are already valid.
 dev_fixtures <- function(names = NULL, refresh = FALSE, quiet = FALSE) {
   dev_load()
-  m <- eeguana:::eeg_fixture_manifest()
+  m <- dev_fixture_manifest_source()
   if (is.null(m) || !nrow(m)) {
     message("* Fixtures: no inst/fixtures.csv, nothing to do")
     return(invisible(NULL))
@@ -476,12 +489,24 @@ dev_gh_upload_asset <- function(path, release, repo = "bnicenboim/eeguana") {
 #'   to actually create the release and upload, which publishes the files
 #'   publicly if the repo is public. Check the licensing of each file first;
 #'   `inst/fixtures.csv` records it in the notes column.
-dev_fixtures_publish <- function(tag = "testdata",
-                                 repo = "bnicenboim/eeguana",
-                                 names = NULL,
-                                 dry_run = TRUE) {
+dev_fixtures_publish <- function(names = NULL,
+                                 dry_run = TRUE,
+                                 tag = "testdata",
+                                 repo = "bnicenboim/eeguana") {
+  # `names` comes first because the obvious thing to type is a fixture name.
+  # When `tag` was first, dev_fixtures_publish("truscan.edf") silently made
+  # the *tag* a filename and rewrote every url in the manifest to point at a
+  # release that does not exist.
+  if (!grepl("^[A-Za-z0-9._-]+$", tag) || tag %in% c(names, basename(names))) {
+    stop("`tag` looks like a file name, not a release tag: ", tag,
+      "\n  to publish one fixture use dev_fixtures_publish(names = \"", tag, "\")",
+      call. = FALSE
+    )
+  }
   dev_load()
-  m <- eeguana:::eeg_fixture_manifest()
+  # the source manifest, not the installed one: a row added by
+  # dev_fixture_adopt() is in inst/fixtures.csv long before the next install
+  m <- dev_fixture_manifest_source()
   if (is.null(m) || !nrow(m)) stop("no inst/fixtures.csv", call. = FALSE)
 
   names <- names %||% m$name
@@ -540,7 +565,8 @@ dev_fixtures_publish <- function(tag = "testdata",
     "https://github.com/%s/releases/download/%s/%s",
     repo, tag, man$file[hit]
   )
-  utils::write.csv(man, csv, row.names = FALSE, quote = FALSE)
+  # quote: notes and urls can contain commas
+  utils::write.csv(man, csv, row.names = FALSE)
   message("\n  updated ", csv)
   invisible(rows)
 }

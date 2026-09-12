@@ -291,8 +291,34 @@ read_ft <- function(file, .layout = NULL, .recording = file) {
 #'
 #' @family reading and writing functions
 #'
+#' @param .trigger_channel Name of a channel carrying triggers, or `"last"`
+#'   for the last channel that is not an annotation or status channel. `NULL`,
+#'   the default, leaves it alone.
+#'
+#'   Some recording systems write triggers as an ordinary analog channel with
+#'   a label of their own, rather than as EDF+ annotations, and nothing in the
+#'   header marks it as such. When `.trigger_channel` is given, that channel
+#'   is turned into events and removed from the signal table: one event at the
+#'   first sample and one wherever the value changes, with `.type` `"Trigger"`
+#'   and `.description` holding the **digital code**. EDF stores a trigger as
+#'   an integer and scales it into the channel's physical unit, so code 3072
+#'   may arrive as 767.4961 uV; the code is what identifies the trigger.
+#'
+#'   Reading the same file in EEGLAB gives the same latencies but different
+#'   values. `pop_biosig()` falls back to the last channel whenever the
+#'   annotations are empty, reports the scaled physical value rather than the
+#'   code, and passes it through `mod(x, 65536)`, so a baseline of -0.375
+#'   appears as 65535.625.
+#'
+#'   A warning is issued when more than half the channel's samples hold distinct
+#'   values, which is what continuous data looks like: real EEG has almost as
+#'   many distinct values as samples, while a trigger channel repeats a
+#'   handful of codes however many it uses. The channel is still read. The
+#'   check does not separate triggers from a flat or disconnected electrode,
+#'   because nothing in the file does, so name the channel deliberately rather
+#'   than relying on it.
 #' @export
-read_edf <- function(file, .recording = file) {
+read_edf <- function(file, .recording = file, .trigger_channel = NULL) {
 
   # samples Whether to subset the reading; by default starting from sample 1  until the end of the recording.
   # less samples doesn't speed up reading data, for now I'm hiding it:
@@ -325,11 +351,57 @@ read_edf <- function(file, .recording = file) {
     tolower(.x$label) %in% c("status", "trigger") |
     tolower(.x$name) %in% c("status", "trigger"))
 
+  ## A channel named by the user carries the triggers. Some systems write them
+  ## as an ordinary analog channel with a label of their own, so there is
+  ## nothing in the header to recognise them by.
+  trigger_pos <- NULL
+  if (!is.null(.trigger_channel)) {
+    labels <- purrr::map_chr(signal_edf, ~ .x$label %||% NA_character_)
+    if (identical(.trigger_channel, "last")) {
+      candidates <- which(!non_signal)
+      if (!length(candidates)) stop("No channel left to use as `.trigger_channel`.", call. = FALSE)
+      trigger_pos <- candidates[length(candidates)]
+    } else {
+      trigger_pos <- which(labels == .trigger_channel & !non_signal)
+      if (length(trigger_pos) != 1) {
+        stop("`.trigger_channel` ", encodeString(.trigger_channel, quote = "\""),
+          " is not one of the channels: ",
+          paste(labels[!non_signal], collapse = ", "),
+          call. = FALSE
+        )
+      }
+    }
+    ## Continuous EEG has almost as many distinct values as samples, a ratio
+    ## near 1; a trigger channel repeats a handful of codes, so its ratio is
+    ## tiny however many codes it uses. Counting distinct values instead would
+    ## reject a legitimate 8-bit trigger line, which carries up to 256 of them.
+    ## This does not separate triggers from a flat or disconnected electrode:
+    ## nothing in the file does, so naming the channel is the caller's job.
+    trig <- signal_edf[[trigger_pos]]$signal
+    distinct_ratio <- length(unique(trig)) / max(length(trig), 1L)
+    if (distinct_ratio > 0.5) {
+      warning("Channel ", encodeString(labels[trigger_pos], quote = "\""),
+        " has ", length(unique(trig)), " distinct values across ",
+        length(trig), " samples, so it looks like continuous data rather ",
+        "than triggers. Reading it as triggers anyway.",
+        call. = FALSE
+      )
+    }
+  }
+
   if (sum(non_signal) >= 2) {
     warning("eeguana cannot deal with more than one annotation or status. It will use the first one.\n If you have a file like that, please open an issue in ", url_issues, " with a link to the offending file")
   }
+  if (!is.null(trigger_pos)) non_signal[trigger_pos] <- TRUE
+
   event_channel <- signal_edf[non_signal]
   channel_names <- header_edf$sHeaders$label[!non_signal]
+  trigger_edf <- if (is.null(trigger_pos)) NULL else signal_edf[[trigger_pos]]
+  trigger_hdr <- if (is.null(trigger_pos)) {
+    NULL
+  } else {
+    header_edf$sHeaders[trigger_pos, , drop = FALSE]
+  }
 
   signal_edf[non_signal] <- NULL
 
@@ -342,6 +414,33 @@ read_edf <- function(file, .recording = file) {
     stop("Non continuous edf/bdf files are not supported yet.")
   }
 
+  ## Nothing in an EDF header marks a channel as triggers, so a system that
+  ## writes them as an ordinary analog channel looks like any other. Say so
+  ## when that is the likely situation, rather than returning an empty events
+  ## table with no explanation. Only when no events were found, otherwise a
+  ## quiet electrode at the end of a normal recording would nag on every read.
+  hint_trigger_channel <- function(signal_edf, n_events) {
+    if (n_events > 0 || !length(signal_edf)) {
+      return(invisible(NULL))
+    }
+    last <- signal_edf[[length(signal_edf)]]
+    label <- last$label %||% names(signal_edf)[length(signal_edf)] %||% "the last channel"
+    v <- last$signal
+    n_distinct <- length(unique(v))
+    ## a handful of repeated codes across many samples; more than one, because
+    ## a constant channel is dead rather than triggers
+    if (n_distinct > 1 && n_distinct / max(length(v), 1L) < 0.01) {
+      message_verbose(
+        "No events found, but the last channel (",
+        encodeString(label, quote = "\""), ") holds only ",
+        n_distinct, " distinct values across ", length(v),
+        " samples, so it may be a trigger channel.\n",
+        "  Use read_edf(..., .trigger_channel = \"last\") to read it as events."
+      )
+    }
+    invisible(NULL)
+  }
+
   channel_info <- dplyr::tibble(
     .channel = channel_names,
     .x = NA_real_, .y = NA_real_, .z = NA_real_,
@@ -352,7 +451,37 @@ read_edf <- function(file, .recording = file) {
     .sample = sample_id,
     channels_tbl = channel_info
   )
-  if (length(event_channel) == 0) {
+  if (!is.null(trigger_edf)) {
+    ## Report the digital codes, not the physical values.
+    ##
+    ## EDF stores every sample as a 16 bit integer, the "digital" value, and
+    ## the header gives each channel a linear map from that integer to a
+    ## physical unit: physicalMin..physicalMax corresponds to
+    ## digitalMin..digitalMax. edfReader precomputes the two constants of that
+    ## map, so physical = gain * digital + offset, and returns the physical
+    ## values.
+    ##
+    ## That map exists for amplitudes, where "-8191 to 8190 uV" is meaningful.
+    ## A trigger channel abuses it: the recording system writes the trigger
+    ## code itself as the digital value, and the map then scales it into
+    ## whatever unit the channel claims. Here the codes 0, 3072 and 4096 come
+    ## back as -0.375, 767.4961 and 1023.4531 uV, which are not microvolts of
+    ## anything, just the codes multiplied by 0.2499.
+    ##
+    ## Inverting the map recovers the code, which is what identifies the
+    ## trigger and what you would match on when segmenting.
+    codes <- round((trigger_edf$signal - trigger_hdr$offset) / trigger_hdr$gain)
+    init_events <- c(1L, which(diff(codes) != 0) + 1L) %>%
+      sample_int(.sampling_rate = sampling_rate)
+    events <- new_events_tbl(
+      .id = 1L,
+      .initial = init_events,
+      .description = as.character(codes[as.integer(init_events)]),
+      .type = "Trigger",
+      .final = init_events,
+      .channel = NA_character_
+    )
+  } else if (length(event_channel) == 0) {
     events <- new_events_tbl(.sampling_rate = sampling_rate)
   } else if (event_channel[[1]]$isAnnotation) {
     edf_events <- event_channel[[1]]$annotations
@@ -362,13 +491,20 @@ read_edf <- function(file, .recording = file) {
       .initial = init_events,
       .type = NA_character_,
       .description = edf_events[["annotation"]],
-      .final = (dplyr::case_when(
-        !is.na(edf_events$duration) ~
-        round(edf_events$duration * sampling_rate),
-        !is.na(edf_events$end) ~
-        round((edf_events$end - edf_events$onset + 1) * sampling_rate),
-        TRUE ~ 0
-      ) %>% as.integer()) + init_events,
+      ## sample_int + integer keeps the class, but not when both are empty:
+      ## an EDF+ file whose annotation channel holds only timekeeping TALs has
+      ## no annotations, and `integer(0) + sample_int(integer(0))` comes back
+      ## a plain integer, which then fails validation. Re-apply the class.
+      .final = sample_int(
+        (dplyr::case_when(
+          !is.na(edf_events$duration) ~
+            round(edf_events$duration * sampling_rate),
+          !is.na(edf_events$end) ~
+            round((edf_events$end - edf_events$onset + 1) * sampling_rate),
+          TRUE ~ 0
+        ) %>% as.integer()) + as.integer(init_events),
+        .sampling_rate = sampling_rate
+      ),
       .channel = NA_character_
     )
   } else {
@@ -398,6 +534,10 @@ read_edf <- function(file, .recording = file) {
     .id = seq_len(max(s_id)),
     .recording = .recording
   )
+
+  if (is.null(.trigger_channel)) {
+    hint_trigger_channel(signal_edf, nrow(events))
+  }
 
   eeg_lst <- eeg_lst(
     signal = signal, events = events, segments = segments
