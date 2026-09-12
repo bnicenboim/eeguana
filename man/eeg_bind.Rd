@@ -30,9 +30,9 @@ faces <- eeg_bind(faces_list)
 
 }
 \seealso{
-Other tidyverse-like functions: 
+Other tidyverse-like functions:
 \code{\link{dplyr_verbs}},
-\code{\link{drop_incomplete_segments}()},
-\code{\link{eeg_slice_signal}()}
+\code{\link[=drop_incomplete_segments]{drop_incomplete_segments()}},
+\code{\link[=eeg_slice_signal]{eeg_slice_signal()}}
 }
 \concept{tidyverse-like functions}

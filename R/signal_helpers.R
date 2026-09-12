@@ -593,8 +593,8 @@ iirfilter <- function(n, Wn, rp, rs, btype, type = c("butter", "cheby1", "cheby2
 #'     where 1 is the Nyquist frequency. For example:
 #'         - Lowpass:   wp = 0.2,          ws = 0.3
 #'         - Highpass:  wp = 0.3,          ws = 0.2
-#'         - Bandpass:  wp = [0.2, 0.5],   ws = [0.1, 0.6]
-#'         - Bandstop:  wp = [0.1, 0.6],   ws = [0.2, 0.5]
+#'         - Bandpass:  `wp = [0.2, 0.5]`,   `ws = [0.1, 0.6]`
+#'         - Bandstop:  `wp = [0.1, 0.6]`,   `ws = [0.2, 0.5]`
 #'     For analog filters, `wp` and `ws` are angular frequencies (e.g., rad/s).
 #'     Note, that for bandpass and bandstop filters passband must lie strictly
 #'     inside stopband or vice versa.

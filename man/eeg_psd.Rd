@@ -32,7 +32,7 @@ psd_faces \%>\%
   plot()
 }
 \seealso{
-Other frequency-based functions: 
-\code{\link{eeg_power_band}()}
+Other frequency-based functions:
+\code{\link[=eeg_power_band]{eeg_power_band()}}
 }
 \concept{frequency-based functions}

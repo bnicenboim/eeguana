@@ -37,8 +37,8 @@ Builds a channel from a vector of numbers.
 Cz <- channel_dbl(runif(100, -5, 5))
 }
 \seealso{
-Other channel: 
-\code{\link{as_channel_dbl}()},
-\code{\link{is_channel_dbl}()}
+Other channel:
+\code{\link[=as_channel_dbl]{as_channel_dbl()}},
+\code{\link[=is_channel_dbl]{is_channel_dbl()}}
 }
 \concept{channel}

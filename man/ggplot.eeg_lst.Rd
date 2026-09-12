@@ -27,7 +27,7 @@ its input data. Layers can then be added in the same way as for a
 \details{
 If necessary, t will first downsample the \code{eeg_lst} object so that there is a
 maximum of 6400 samples. The \code{eeg_lst} object is then converted to a long-format
-tibble via \link{as_tibble}. In this tibble, the \code{.key} variable is the
+tibble via \link[tibble:as_tibble]{as_tibble}. In this tibble, the \code{.key} variable is the
 channel/component name and \code{.value} its respective amplitude. The sample
 number (\code{.sample} in the \code{eeg_lst} object) is automatically converted to milliseconds
 to create the variable \code{.time}. By default, time is plotted on the
@@ -55,15 +55,15 @@ data_faces_ERPs \%>\%
   
 }
 \seealso{
-Other plotting functions: 
-\code{\link{annotate_electrodes}()},
-\code{\link{annotate_events}()},
-\code{\link{annotate_head}()},
-\code{\link{eeg_downsample}()},
-\code{\link{plot.eeg_lst}()},
-\code{\link{plot_components}()},
-\code{\link{plot_in_layout}()},
-\code{\link{plot_topo}()},
-\code{\link{theme_eeguana}()}
+Other plotting functions:
+\code{\link[=annotate_electrodes]{annotate_electrodes()}},
+\code{\link[=annotate_events]{annotate_events()}},
+\code{\link[=annotate_head]{annotate_head()}},
+\code{\link[=eeg_downsample]{eeg_downsample()}},
+\code{\link[=plot.eeg_lst]{plot.eeg_lst()}},
+\code{\link[=plot_components]{plot_components()}},
+\code{\link[=plot_in_layout]{plot_in_layout()}},
+\code{\link[=plot_topo]{plot_topo()}},
+\code{\link[=theme_eeguana]{theme_eeguana()}}
 }
 \concept{plotting functions}

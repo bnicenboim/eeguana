@@ -30,10 +30,10 @@ s1 <- read_ft("./subject1.mat", layout = "easycapM25.mat", .recording = 1)
 
 }
 \seealso{
-Other reading and writing functions: 
-\code{\link{read_edf}()},
-\code{\link{read_fif}()},
-\code{\link{read_set}()},
-\code{\link{read_vhdr}()}
+Other reading and writing functions:
+\code{\link[=read_edf]{read_edf()}},
+\code{\link[=read_fif]{read_fif()}},
+\code{\link[=read_set]{read_set()}},
+\code{\link[=read_vhdr]{read_vhdr()}}
 }
 \concept{reading and writing functions}

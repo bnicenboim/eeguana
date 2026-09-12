@@ -282,6 +282,7 @@ plot_ica <- function(data, ...) {
   UseMethod("plot_ica")
 }
 #' @inheritParams plot_topo
+#' @exportS3Method
 plot_ica.eeg_ica_lst <- function(data,
                                  samples = 1:4000,
                                  components = 1:16,
@@ -291,7 +292,8 @@ plot_ica.eeg_ica_lst <- function(data,
                                  .order = c("var", "cor"),
                                  .max_sample = 2400,
                                  topo_config = list(.projection = "polar", .standardize = TRUE),
-                                 interp_config = list()) {
+                                 interp_config = list(),
+                                 ...) {
   # to avoid no visible binding for global variable
   cor <- NULL
   var <- NULL
@@ -706,7 +708,8 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
   events_tbl[, .key := factor(.key, levels = levels(plot$data$.key))]
 
   object$layer$data <- events_tbl
-  ggplot2::`%+%`(plot, object$layer)
+  # ggplot2's %+% was an alias for + and is deprecated since ggplot2 4.0.0
+  plot + object$layer
 }
 
 
@@ -752,6 +755,7 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
 #'   facet_wrap(~.key) +
 #'   theme(legend.position = "bottom")
 #'   
+#' @exportS3Method ggplot2::ggplot
 ggplot.eeg_lst <- function(data = NULL,
                            mapping = ggplot2::aes(),
                            ...,
@@ -774,6 +778,7 @@ ggplot.eeg_lst <- function(data = NULL,
 }
 
 #'   
+#' @exportS3Method
 ggplot.psd_lst <- function(data = NULL,
                            mapping = ggplot2::aes(),
                            ...) {

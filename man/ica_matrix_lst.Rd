@@ -18,15 +18,15 @@ A list.
 Function to get the list of mixing and unmixing matrices of an eeg_ica_lst object.
 }
 \seealso{
-Other functions to expose internal parts of eeg_(ica_)_lst: 
-\code{\link{channels_tbl}()},
-\code{\link{events_tbl}()},
-\code{\link{segments_tbl}()},
-\code{\link{signal_tbl}()}
+Other functions to expose internal parts of eeg_(ica_)_lst:
+\code{\link[=channels_tbl]{channels_tbl()}},
+\code{\link[=events_tbl]{events_tbl()}},
+\code{\link[=segments_tbl]{segments_tbl()}},
+\code{\link[=signal_tbl]{signal_tbl()}}
 
-Other ica methods: 
+Other ica methods:
 \code{\link{fICA}},
-\code{\link{fast_ICA}()}
+\code{\link[=fast_ICA]{fast_ICA()}}
 }
 \concept{functions to expose internal parts of eeg_(ica_)_lst}
 \concept{ica methods}

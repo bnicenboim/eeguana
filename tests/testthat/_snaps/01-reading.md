@@ -79,6 +79,7 @@
       71:   Ch71     VEOG       <NA>         NA microvolts     NA    NA    NA    NA
       72:   Ch72     HEOG       <NA>         NA microvolts     NA    NA    NA    NA
           number .channel .reference resolution       unit radius theta   phi    .x
+          <char>   <char>     <char>      <num>     <char>  <num> <num> <num> <num>
              .y    .z
           <num> <num>
        1:    NA    NA
@@ -154,6 +155,7 @@
       71:    NA    NA
       72:    NA    NA
              .y    .z
+          <num> <num>
       
       $common_info
          data_points orientation format     domain sampling_rate data_file  vmrk_file

@@ -8,9 +8,11 @@ annotate_events(data = NULL, alpha = 0.2)
 }
 \arguments{
 \item{data}{The data to be displayed in this layer. There are three options:
-* If NULL, the default, the events table is inherited from the plot data as specified
+\itemize{
+\item If NULL, the default, the events table is inherited from the plot data as specified
 in the call to ggplot().
-* An events table will override the plot events table data.}
+\item An events table will override the plot events table data.
+}}
 
 \item{alpha}{new alpha level in 0,1.}
 }
@@ -21,15 +23,15 @@ A \code{\link[ggplot2:ggplot]{ggplot}} layer.
 Adds a layer with the events on top of a plot of an eeg_lst.
 }
 \seealso{
-Other plotting functions: 
-\code{\link{annotate_electrodes}()},
-\code{\link{annotate_head}()},
-\code{\link{eeg_downsample}()},
-\code{\link{ggplot.eeg_lst}()},
-\code{\link{plot.eeg_lst}()},
-\code{\link{plot_components}()},
-\code{\link{plot_in_layout}()},
-\code{\link{plot_topo}()},
-\code{\link{theme_eeguana}()}
+Other plotting functions:
+\code{\link[=annotate_electrodes]{annotate_electrodes()}},
+\code{\link[=annotate_head]{annotate_head()}},
+\code{\link[=eeg_downsample]{eeg_downsample()}},
+\code{\link[=ggplot.eeg_lst]{ggplot.eeg_lst()}},
+\code{\link[=plot.eeg_lst]{plot.eeg_lst()}},
+\code{\link[=plot_components]{plot_components()}},
+\code{\link[=plot_in_layout]{plot_in_layout()}},
+\code{\link[=plot_topo]{plot_topo()}},
+\code{\link[=theme_eeguana]{theme_eeguana()}}
 }
 \concept{plotting functions}

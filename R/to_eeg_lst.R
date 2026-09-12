@@ -163,8 +163,8 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
 
   }
 
-  if(length(.data$info$bad) > 0){
-    bad_channels <- .data$info$bad %>%
+  if(length(.data$info$bads) > 0){
+    bad_channels <- .data$info$bads %>%
       unlist() %>%
       make_names()
     bad_events <- new_events_tbl(.id = 1L,

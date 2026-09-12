@@ -113,22 +113,22 @@ row_fun_ch <- function(x, .f, pars = list()) {
   channel_dbl(y)
 }
 
-#' #' @noRd
-#' repeated_group_col <- function(.eeg_lst) {
-#'   group_cols <- dplyr::group_vars(.eeg_lst)
-#'   segments <- .eeg_lst$.segments %>%
-#'     {
-#'       .[names(.) %in% c(obligatory_cols$.segments, group_cols)]
-#'     } %>%
-#'     data.table::data.table()
-#'   data.table::setkey(segments, .id)
-#'   dt <- .eeg_lst$.signal[segments, group_cols, with = FALSE]
-#'   if (nrow(dt) == 0) {
-#'     return(dt)
-#'   } else {
-#'     return(dt[, .group := do.call(paste0, .SD)][, (group_cols) := NULL][])
-#'   }
-#' }
+# #' @noRd
+# repeated_group_col <- function(.eeg_lst) {
+#   group_cols <- dplyr::group_vars(.eeg_lst)
+#   segments <- .eeg_lst$.segments %>%
+#     {
+#       .[names(.) %in% c(obligatory_cols$.segments, group_cols)]
+#     } %>%
+#     data.table::data.table()
+#   data.table::setkey(segments, .id)
+#   dt <- .eeg_lst$.signal[segments, group_cols, with = FALSE]
+#   if (nrow(dt) == 0) {
+#     return(dt)
+#   } else {
+#     return(dt[, .group := do.call(paste0, .SD)][, (group_cols) := NULL][])
+#   }
+# }
 
 #' @noRd
 try_to_downsample <- function(.data, max_sample) {
@@ -195,6 +195,7 @@ require_python <- function(){
 
 
 #' @noRd
+#' @exportS3Method
 rep.channel_dbl <- function(x, ...) {
   y <- NextMethod()
   attributes(y) <- attributes(x)
@@ -202,6 +203,7 @@ rep.channel_dbl <- function(x, ...) {
 }
 
 #' @noRd
+#' @exportS3Method
 rep.sample_int <- function(x, ...) {
   y <- NextMethod()
   structure(y, class = class(x), sampling_rate = sampling_rate(x))

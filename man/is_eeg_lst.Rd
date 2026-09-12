@@ -16,7 +16,7 @@ is_eeg_lst(x)
 This function returns  TRUE for eeg_lsts.
 }
 \seealso{
-Other eeg_lst: 
-\code{\link{eeg_lst}()}
+Other eeg_lst:
+\code{\link[=eeg_lst]{eeg_lst()}}
 }
 \concept{eeg_lst}

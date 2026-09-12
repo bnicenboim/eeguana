@@ -1,6 +1,0 @@
-#update the metadata:
-codemetar::write_codemeta(".")
-spelling::spell_check_package()
-goodpractice::gp()
-#all the new versions before test
-remotes::install_deps(upgrade = "always")

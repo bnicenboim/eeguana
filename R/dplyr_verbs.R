@@ -33,6 +33,11 @@
 #' @param .data An eeg_lst.
 #' @param x An eeg_lst.
 #' @param y A data frame, tibble, or data.table.
+#' @param copy Accepted so that the join verbs match dplyr's generics
+#'   argument for argument. An `eeg_lst` and `y` are always in the same
+#'   place, so there is nothing to copy: anything other than `FALSE` is
+#'   ignored with a warning. (Not inherited from tidytable, which has no
+#'   `copy` argument.)
 #' @inheritParams tidytable::left_join
 #' @inheritParams dplyr::pull
 #' @inheritParams tidytable::rename_with
@@ -249,6 +254,12 @@ eeg_summarize.eeg_lst <- function(.data, ..., .groups = "keep") {
   if (!".id" %in% colnames(extended_signal_dt)) {
     extended_signal_dt <- mutate.(extended_signal_dt, .id = seq_len(.N), .by = ".sample")
   }
+  # tidytable returns a data.table whose over-allocation and self-reference are
+  # gone (truelength 0). setcolorder() on such an object permutes the column
+  # *names* without moving the data, which silently put channel values into
+  # .id and .recording. alloc.col() restores the self-reference in place and
+  # keeps the signal_tbl class.
+  data.table::alloc.col(extended_signal_dt)
   data.table::setkey(extended_signal_dt, .id, .sample)
   data.table::setcolorder(extended_signal_dt, c(".id", ".sample"))
   .data$.signal <- extended_signal_dt
@@ -279,6 +290,12 @@ eeg_summarize.psd_lst <- function(.data, ..., .groups = "keep") {
     extended_psd_dt <- extended_psd_dt %>%
       mutate.(.id = seq_len(.N), .by = ".freq")
   }
+  # tidytable returns a data.table whose over-allocation and self-reference are
+  # gone (truelength 0). setcolorder() on such an object permutes the column
+  # *names* without moving the data, which silently put channel values into
+  # .id and .recording. alloc.col() restores the self-reference in place and
+  # keeps the signal_tbl class.
+  data.table::alloc.col(extended_psd_dt)
   data.table::setkey(extended_psd_dt, .id, .freq)
   data.table::setcolorder(extended_psd_dt, c(".id", ".freq"))
   .data$.psd <- extended_psd_dt
@@ -313,7 +330,32 @@ eeg_group_by <- function(.data, ..., .add = FALSE, .drop = FALSE) {
 #' @rdname dplyr_verbs
 #' @export
 eeg_ungroup <- function(.data, ...) {
+  # dplyr's ungroup() generic calls its first argument `x`, while the eeguana
+  # verbs call theirs `.data`. Accept either, so ungroup(x = d) and
+  # eeg_ungroup(.data = d) both work and neither name is a trap.
+  # resolving here only settles which class UseMethod dispatches on: the
+  # method is still handed the arguments of the original call, so it resolves
+  # them again.
+  .data <- first_arg_either(.data, ..., .other = "x")
   UseMethod("eeg_ungroup")
+}
+
+#' Resolve a first argument that may arrive under a second name
+#'
+#' Returns `.data` when it was supplied, otherwise the `.other` element of
+#' `...`. Used where an eeguana verb backs a dplyr generic whose first
+#' argument has a different name.
+#' @noRd
+first_arg_either <- function(.data, ..., .other) {
+  if (!missing(.data)) {
+    return(.data)
+  }
+  dots <- list(...)
+  if (.other %in% names(dots)) {
+    return(dots[[.other]])
+  }
+  stop("supply the data as the first argument, as `.data` or as `",
+    .other, "`", call. = FALSE)
 }
 
 #' @export
@@ -336,6 +378,7 @@ eeg_group_by.psd_lst <- function(.data, ..., .add = FALSE, .drop = FALSE) {
 
 #' @export
 eeg_ungroup.eeg_lst <- function(.data, ...) {
+  .data <- first_arg_either(.data, ..., .other = "x")
   attributes(.data)$vars <- character(0)
   .data
   #  validate_eeg_lst(.data)
@@ -343,14 +386,20 @@ eeg_ungroup.eeg_lst <- function(.data, ...) {
 
 #' @export
 eeg_ungroup.psd_lst <- function(.data, ...) {
+  .data <- first_arg_either(.data, ..., .other = "x")
   attributes(.data)$vars <- character(0)
   .data
 }
 
 # dynamically exported in zzz.R
 group_by.eeg_lst <- eeg_group_by.eeg_lst
-# dynamically exported in zzz.R
-ungroup.eeg_lst <- eeg_ungroup.eeg_lst
+# Not a plain alias of eeg_ungroup.eeg_lst: dplyr's generic is ungroup(x, ...),
+# so a method whose first argument is called .data leaves it empty when the
+# caller writes ungroup(x = d). Name it x here and accept .data too.
+#' @exportS3Method dplyr::ungroup
+ungroup.eeg_lst <- function(x, ...) {
+  eeg_ungroup(first_arg_either(x, ..., .other = ".data"))
+}
 
 #' @rdname dplyr_verbs
 #' @export
@@ -545,14 +594,73 @@ group_vars.psd_lst <- eeg_group_vars.psd_lst
 
 #' @rdname dplyr_verbs
 #' @export
-eeg_left_join <- function(x, y, by = NULL, suffix = c(".x", ".y"), ..., keep = FALSE) {
+eeg_left_join <- function(x, y, by = NULL, copy = FALSE,
+                          suffix = c(".x", ".y"), ..., keep = FALSE) {
   UseMethod("eeg_left_join")
 }
 
+#' Warn about join arguments an eeg_lst cannot honour
+#'
+#' `copy` and anything in `...` exist on these methods so that they match
+#' dplyr's join generics position for position. Neither can be acted on, so
+#' they are accepted and ignored with a warning rather than silently dropped
+#' (which hid typos) or rejected as an unused argument.
+#' @noRd
+warn_unsupported_join_args <- function(copy, dots) {
+  if (!identical(copy, FALSE)) {
+    warning("`copy` is not supported for an eeg_lst and is ignored.",
+      call. = FALSE
+    )
+  }
+  if (length(dots)) {
+    nms <- names(dots) %||% rep("", length(dots))
+    named <- nms[nzchar(nms)]
+    n_unnamed <- sum(!nzchar(nms))
+    what <- c(
+      sprintf("`%s`", named),
+      if (n_unnamed) {
+        sprintf("%d unnamed argument%s", n_unnamed, if (n_unnamed > 1) "s" else "")
+      }
+    )
+    warning("Not supported for an eeg_lst, ignored: ",
+      paste(what, collapse = ", "), ".",
+      call. = FALSE
+    )
+  }
+  invisible(NULL)
+}
+
+#' Resolve dplyr's `keep` for an eeg_lst
+#'
+#' `keep` decides whether the join keys of both inputs survive. dplyr defaults
+#' to NULL, meaning "both for an inequality join, only `x`'s otherwise";
+#' eeguana only ever joins on equality, so NULL and FALSE mean the same thing
+#' here and NULL is accepted quietly. TRUE cannot be honoured: it would turn
+#' `.id` into `.id.x` and `.id.y`, and `.id` is the key tying the signal,
+#' events and segments tables together.
+#' @noRd
+resolve_join_keep <- function(keep) {
+  if (is.null(keep)) {
+    return(FALSE)
+  }
+  if (isTRUE(keep)) {
+    warning("`keep = TRUE` is not supported for an eeg_lst: it would replace ",
+      "`.id` with `.id.x` and `.id.y`, and `.id` links the signal, events ",
+      "and segments tables. Joining with `keep = FALSE`.",
+      call. = FALSE
+    )
+    return(FALSE)
+  }
+  keep
+}
+
 #' @export
-eeg_left_join.eeg_lst <- function(x, y, by = NULL, suffix = c(".x", ".y"), ..., keep = FALSE) {
+eeg_left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE,
+                                  suffix = c(".x", ".y"), ..., keep = FALSE) {
   if (!is.data.frame(y)) stop("y must be a data frame, a data table or tibble.")
-  x$.segments <- left_join.(x$.segments, y = y, by = by, suffix = suffix, ..., keep = keep)
+  warn_unsupported_join_args(copy, list(...))
+  keep <- resolve_join_keep(keep)
+  x$.segments <- left_join.(x$.segments, y = y, by = by, suffix = suffix, keep = keep)
   validate_eeg_lst(x)
 }
 
@@ -561,13 +669,14 @@ left_join.eeg_lst <- eeg_left_join.eeg_lst
 
 #' @rdname dplyr_verbs
 #' @export
-eeg_semi_join <- function(x, y, by = NULL) {
+eeg_semi_join <- function(x, y, by = NULL, copy = FALSE, ...) {
   UseMethod("eeg_semi_join")
 }
 
 #' @export
-eeg_semi_join.eeg_lst <- function(x, y, by = NULL) {
+eeg_semi_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, ...) {
   if (!is.data.frame(y)) stop("y must be a data frame, a data table or tibble.")
+  warn_unsupported_join_args(copy, list(...))
 
   x$.segments <- semi_join.(x$.segments, y, by = by)
   x$.signal <- semi_join.(x$.signal, x$.segments, by = ".id")
@@ -583,13 +692,14 @@ semi_join.eeg_lst <- eeg_semi_join.eeg_lst
 
 #' @rdname dplyr_verbs
 #' @export
-eeg_anti_join <- function(x, y, by = NULL) {
+eeg_anti_join <- function(x, y, by = NULL, copy = FALSE, ...) {
   UseMethod("eeg_anti_join")
 }
 
 #' @export
-eeg_anti_join.eeg_lst <- function(x, y, by = NULL) {
+eeg_anti_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, ...) {
   if (!is.data.frame(y)) stop("y must be a data frame, a data table or tibble.")
+  warn_unsupported_join_args(copy, list(...))
   x$.segments <- anti_join.(x$.segments, y, by = by)
   x$.signal <- semi_join.(x$.signal, x$.segments, by = ".id")
   x$.events <- semi_join.(x$.events, x$.segments, by = ".id")

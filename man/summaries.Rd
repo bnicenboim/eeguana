@@ -40,11 +40,11 @@ nsamples(x, ...)
 Components are only available after running \code{\link[=eeg_ica]{eeg_ica()}}. \code{channel_ica_names()} refers to channels used in the ICA.
 }
 \seealso{
-Other summary functions: 
-\code{\link{count_complete_cases_tbl}()},
-\code{\link{eeg_ica_cor_tbl}()},
-\code{\link{eeg_ica_summary_tbl}()},
-\code{\link{eeg_ica_var_tbl}()},
-\code{\link{summary.eeg_lst}()}
+Other summary functions:
+\code{\link[=count_complete_cases_tbl]{count_complete_cases_tbl()}},
+\code{\link[=eeg_ica_cor_tbl]{eeg_ica_cor_tbl()}},
+\code{\link[=eeg_ica_summary_tbl]{eeg_ica_summary_tbl()}},
+\code{\link[=eeg_ica_var_tbl]{eeg_ica_var_tbl()}},
+\code{\link[=summary.eeg_lst]{summary.eeg_lst()}}
 }
 \concept{summary functions}

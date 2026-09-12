@@ -1,3 +1,38 @@
+# eeguana 0.1.12.9002
+
+## Bugs fixed
+
+- `read_ft()` and `read_set()` failed with `invalid substring arguments` on
+  files with an empty text field. The cause is a regression in R.matlab
+  3.8.0; `Remotes:` points at a patched fork until the fix reaches CRAN.
+- `read_fif()` and `as_eeg_lst()` on an MNE object no longer fail with
+  `KeyError: 'bad'`.
+- The join verbs now take `copy` in dplyr's position, so
+  `left_join(x, y, by, copy)` no longer lands on `suffix`, and
+  `semi_join()`/`anti_join()` no longer reject `copy`. `copy` and extra
+  arguments are ignored with a warning.
+- `keep = NULL`, dplyr's default for the joins, no longer errors.
+  `keep = TRUE` warns and is ignored: it would split `.id`, which ties the
+  signal, events and segments tables together.
+- `ungroup(x = data)` works. The method took its first argument as `.data`
+  while dplyr's generic calls it `x`.
+- `annotate_events()` no longer warns about ggplot2's deprecated `%+%`.
+
+## Internal
+
+- Guards in `eeg_summarize()` and the `validate_*_tbl()` functions against a
+  `data.table::setcolorder()` bug affecting tables with 64 or more columns.
+  The validators now return their table instead of working by reference.
+- S3 methods registered in `NAMESPACE`; no change to the public API.
+- Documentation regenerated with roxygen2 8.0.0.
+- Large test files moved out of the package sources into a per-user cache;
+  see `dev/README.md`.
+- Tests no longer write to the package sources or the user's home directory.
+
+# eeguana 0.1.12.9001
+- Updated documentation
+- Signal table format consistent
+
 # eeguana 0.1.11.9001
 
 ## Bug fixed

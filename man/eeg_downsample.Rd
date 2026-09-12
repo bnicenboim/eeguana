@@ -45,24 +45,24 @@ the downsampling can be done in steps. For example, instead of setting
 \code{q = 20}, it is possible to set \code{q = c(2,10)}.
 }
 \seealso{
-Other preprocessing functions: 
-\code{\link{eeg_baseline}()},
-\code{\link{eeg_ica_keep}()},
-\code{\link{eeg_ica}()},
-\code{\link{eeg_rereference}()},
-\code{\link{eeg_segment}()},
+Other preprocessing functions:
+\code{\link[=eeg_baseline]{eeg_baseline()}},
+\code{\link[=eeg_ica]{eeg_ica()}},
+\code{\link[=eeg_ica_keep]{eeg_ica_keep()}},
+\code{\link[=eeg_rereference]{eeg_rereference()}},
+\code{\link[=eeg_segment]{eeg_segment()}},
 \code{\link{filt}}
 
-Other plotting functions: 
-\code{\link{annotate_electrodes}()},
-\code{\link{annotate_events}()},
-\code{\link{annotate_head}()},
-\code{\link{ggplot.eeg_lst}()},
-\code{\link{plot.eeg_lst}()},
-\code{\link{plot_components}()},
-\code{\link{plot_in_layout}()},
-\code{\link{plot_topo}()},
-\code{\link{theme_eeguana}()}
+Other plotting functions:
+\code{\link[=annotate_electrodes]{annotate_electrodes()}},
+\code{\link[=annotate_events]{annotate_events()}},
+\code{\link[=annotate_head]{annotate_head()}},
+\code{\link[=ggplot.eeg_lst]{ggplot.eeg_lst()}},
+\code{\link[=plot.eeg_lst]{plot.eeg_lst()}},
+\code{\link[=plot_components]{plot_components()}},
+\code{\link[=plot_in_layout]{plot_in_layout()}},
+\code{\link[=plot_topo]{plot_topo()}},
+\code{\link[=theme_eeguana]{theme_eeguana()}}
 }
 \concept{plotting functions}
 \concept{preprocessing functions}

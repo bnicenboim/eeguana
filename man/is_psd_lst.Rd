@@ -16,7 +16,7 @@ is_psd_lst(x)
 This function returns  TRUE for psd_lsts.
 }
 \seealso{
-Other psd_lst: 
-\code{\link{psd_lst}()}
+Other psd_lst:
+\code{\link[=psd_lst]{psd_lst()}}
 }
 \concept{psd_lst}

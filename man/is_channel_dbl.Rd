@@ -19,8 +19,8 @@ is_channel_dbl(x)
 }
 }
 \seealso{
-Other channel: 
-\code{\link{as_channel_dbl}()},
-\code{\link{channel_dbl}()}
+Other channel:
+\code{\link[=as_channel_dbl]{as_channel_dbl()}},
+\code{\link[=channel_dbl]{channel_dbl()}}
 }
 \concept{channel}

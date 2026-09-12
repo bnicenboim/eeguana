@@ -27,7 +27,8 @@ as_psd_tbl <- function(.data, ...) {
   UseMethod("as_psd_tbl")
 }
 #' @noRd
-as_psd_tbl.data.table <- function(.data) {
+#' @exportS3Method
+as_psd_tbl.data.table <- function(.data, ...) {
   .data <- data.table::copy(.data)
   set_psd_tbl(.data)[]
 }
@@ -40,17 +41,20 @@ set_psd_tbl <- function(.data){
 }
 
 #' @noRd
-as_psd_tbl.psd_tbl <- function(.data) {
+#' @exportS3Method
+as_psd_tbl.psd_tbl <- function(.data, ...) {
   validate_psd_tbl(.data)
 }
 #' @noRd
-as_psd_tbl.data.frame <- function(.data) {
+#' @exportS3Method
+as_psd_tbl.data.frame <- function(.data, ...) {
   .data <- data.table::as.data.table(.data)
   set_psd_tbl(.data)[]
 }
 
 #' @noRd
-as_psd_tbl.NULL <- function(.data) {
+#' @exportS3Method
+as_psd_tbl.NULL <- function(.data, ...) {
   .data <- data.table::data.table(.id = integer(0), .freq = numeric(0))
   as_psd_tbl(.data)
 }
@@ -106,5 +110,33 @@ validate_psd_tbl <- function(psd_tbl) {
   ## Validates channels
   psd_tbl[, lapply(.SD, validate_channel_dbl), .SDcols = sapply(psd_tbl, is_channel_dbl)]
   ## reorders
-  data.table::setcolorder(psd_tbl, obligatory_cols[[".psd"]])
+  ##
+  ## DEFENSIVE, for a bug that is close to unreachable from the public API.
+  ## setcolorder() moves the column *names* without the data on a table with
+  ## 64 or more columns whose over-allocation is gone, which is what every
+  ## tidytable verb returns; data.table 1.18.4 and 1.18.6.1 are both affected.
+  ## Tracing a 70-channel pipeline (filter, mutate, segment, baseline,
+  ## downsample, events_to_NA, grouped summarize, bind) found 0 of 10 calls
+  ## in that state: the obligatory columns are already first every time, so
+  ## the reorder is skipped. The one path that does reach it, eeg_lst() built
+  ## from a user table with .id/.sample last, still produced correct output
+  ## without this guard, because as_signal_tbl() rebuilds the table first.
+  ## No user-visible symptom was ever reproduced.
+  ##
+  ## It is kept because the corruption is silent where it does occur, this
+  ## function is reachable from eight call sites including ones that take
+  ## externally supplied tables, and the guard costs one identical() on two
+  ## strings when nothing needs reordering. It never copies unless a reorder
+  ## is genuinely required.
+  ##
+  ## Returns the table: this no longer works purely by reference, so callers
+  ## must assign the result.
+  cols <- obligatory_cols[[".psd"]]
+  if (!identical(names(psd_tbl)[seq_along(cols)], cols)) {
+    if (data.table::truelength(psd_tbl) < ncol(psd_tbl)) {
+      psd_tbl <- data.table::copy(psd_tbl)
+    }
+    data.table::setcolorder(psd_tbl, cols)
+  }
+  psd_tbl
 }

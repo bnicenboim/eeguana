@@ -20,7 +20,7 @@ A valid psd_lst.
 Creates a \code{psd_lst}.
 }
 \seealso{
-Other psd_lst: 
-\code{\link{is_psd_lst}()}
+Other psd_lst:
+\code{\link[=is_psd_lst]{is_psd_lst()}}
 }
 \concept{psd_lst}

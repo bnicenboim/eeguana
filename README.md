@@ -1,15 +1,15 @@
 
 [![R build
-status](https://github.com/bnicenboim/eeguana/workflows/R-CMD-check/badge.svg)](https://github.com/bnicenboim/eeguana/actions)
+status](https://github.com/bnicenboim/eeguana/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bnicenboim/eeguana/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/bnicenboim/eeguana/branch/master/graph/badge.svg)](https://codecov.io/gh/bnicenboim/eeguana?branch=master)
-[![DOI](https://zenodo.org/badge/153299577.svg)](https://zenodo.org/badge/latestdoi/153299577)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2533138.svg)](https://doi.org/10.5281/zenodo.2533138)
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![Project Status: WIP – Initial development is in progress, but there
 has not yet been a stable, usable release suitable for the
 public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 
-# eeguana <img src="man/figures/logo.png" align="right" style="width: 20vw; min-width: 25px;"/>
+# eeguana <img src="man/figures/logo.png" align="right" alt="eeguana package logo" style="width: 20vw; min-width: 25px;"/>
 
 ## Overview
 
@@ -448,7 +448,7 @@ faces_segs_some |>
 #> generated.
 ```
 
-<img src="man/figures/README-plot-1.png" width="100%" />
+<img src="man/figures/README-plot-1.png" alt="ERP waveforms for electrodes O1, O2, P7 and P8. Each panel shows one electrode, with faint lines for individual trials and a thick line for the condition mean, coloured by condition. Dashed and dotted vertical lines mark stimulus onset and 170 ms." width="100%" />
 
 Another possibility is to create a topographic plot of the two
 conditions, by first making segments that include only the interval
@@ -467,7 +467,7 @@ faces_segs_some |>
   facet_grid(~condition)
 ```
 
-<img src="man/figures/README-topo-1.png" width="100%" />
+<img src="man/figures/README-topo-1.png" alt="Topographic scalp maps of mean amplitude 100 to 200 ms after stimulus onset, one head per condition, with contour lines and electrode labels." width="100%" />
 
 ## Articles and dissertations using `eeguana`
 

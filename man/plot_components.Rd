@@ -32,29 +32,29 @@ suppressWarnings(data_faces_10_trials \%>\%
   theme(legend.position = "none")
 }
 \seealso{
-Other plotting functions: 
-\code{\link{annotate_electrodes}()},
-\code{\link{annotate_events}()},
-\code{\link{annotate_head}()},
-\code{\link{eeg_downsample}()},
-\code{\link{ggplot.eeg_lst}()},
-\code{\link{plot.eeg_lst}()},
-\code{\link{plot_in_layout}()},
-\code{\link{plot_topo}()},
-\code{\link{theme_eeguana}()}
+Other plotting functions:
+\code{\link[=annotate_electrodes]{annotate_electrodes()}},
+\code{\link[=annotate_events]{annotate_events()}},
+\code{\link[=annotate_head]{annotate_head()}},
+\code{\link[=eeg_downsample]{eeg_downsample()}},
+\code{\link[=ggplot.eeg_lst]{ggplot.eeg_lst()}},
+\code{\link[=plot.eeg_lst]{plot.eeg_lst()}},
+\code{\link[=plot_in_layout]{plot_in_layout()}},
+\code{\link[=plot_topo]{plot_topo()}},
+\code{\link[=theme_eeguana]{theme_eeguana()}}
 
-Other ICA functions: 
-\code{\link{eeg_ica_cor_tbl}()},
-\code{\link{eeg_ica_keep}()},
-\code{\link{eeg_ica_show}()},
-\code{\link{eeg_ica_summary_tbl}()},
-\code{\link{eeg_ica_var_tbl}()},
-\code{\link{eeg_ica}()}
+Other ICA functions:
+\code{\link[=eeg_ica]{eeg_ica()}},
+\code{\link[=eeg_ica_cor_tbl]{eeg_ica_cor_tbl()}},
+\code{\link[=eeg_ica_keep]{eeg_ica_keep()}},
+\code{\link[=eeg_ica_show]{eeg_ica_show()}},
+\code{\link[=eeg_ica_summary_tbl]{eeg_ica_summary_tbl()}},
+\code{\link[=eeg_ica_var_tbl]{eeg_ica_var_tbl()}}
 
-Other topographic plots and layouts: 
+Other topographic plots and layouts:
 \code{\link{layout_32_1020}},
-\code{\link{plot_in_layout}()},
-\code{\link{plot_topo}()}
+\code{\link[=plot_in_layout]{plot_in_layout()}},
+\code{\link[=plot_topo]{plot_topo()}}
 }
 \concept{ICA functions}
 \concept{plotting functions}

@@ -17,7 +17,7 @@ Builds a component.
 Cz <- component_dbl(runif(100, -5))
 }
 \seealso{
-Other component: 
-\code{\link{is_component_dbl}()}
+Other component:
+\code{\link[=is_component_dbl]{is_component_dbl()}}
 }
 \concept{component}

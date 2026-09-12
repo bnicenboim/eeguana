@@ -4,12 +4,39 @@
 \alias{read_edf}
 \title{Read an edf/edf+/bdf file into R}
 \usage{
-read_edf(file, .recording = file)
+read_edf(file, .recording = file, .trigger_channel = NULL)
 }
 \arguments{
 \item{file}{A edf/bdf file}
 
 \item{.recording}{Recording name (file name, by default). If set to NULL or NA, the patient name will be used.}
+
+\item{.trigger_channel}{Name of a channel carrying triggers, or \code{"last"}
+for the last channel that is not an annotation or status channel. \code{NULL},
+the default, leaves it alone.
+
+Some recording systems write triggers as an ordinary analog channel with
+a label of their own, rather than as EDF+ annotations, and nothing in the
+header marks it as such. When \code{.trigger_channel} is given, that channel
+is turned into events and removed from the signal table: one event at the
+first sample and one wherever the value changes, with \code{.type} \code{"Trigger"}
+and \code{.description} holding the \strong{digital code}. EDF stores a trigger as
+an integer and scales it into the channel's physical unit, so code 3072
+may arrive as 767.4961 uV; the code is what identifies the trigger.
+
+Reading the same file in EEGLAB gives the same latencies but different
+values. \code{pop_biosig()} falls back to the last channel whenever the
+annotations are empty, reports the scaled physical value rather than the
+code, and passes it through \code{mod(x, 65536)}, so a baseline of -0.375
+appears as 65535.625.
+
+A warning is issued when more than half the channel's samples hold distinct
+values, which is what continuous data looks like: real EEG has almost as
+many distinct values as samples, while a trigger channel repeats a
+handful of codes however many it uses. The channel is still read. The
+check does not separate triggers from a flat or disconnected electrode,
+because nothing in the file does, so name the channel deliberately rather
+than relying on it.}
 }
 \value{
 An \code{eeg_lst} object.
@@ -30,10 +57,10 @@ s1 <- read_edf("./faces.edf", .recording = 1)
 
 }
 \seealso{
-Other reading and writing functions: 
-\code{\link{read_fif}()},
-\code{\link{read_ft}()},
-\code{\link{read_set}()},
-\code{\link{read_vhdr}()}
+Other reading and writing functions:
+\code{\link[=read_fif]{read_fif()}},
+\code{\link[=read_ft]{read_ft()}},
+\code{\link[=read_set]{read_set()}},
+\code{\link[=read_vhdr]{read_vhdr()}}
 }
 \concept{reading and writing functions}

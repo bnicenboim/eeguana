@@ -10,7 +10,7 @@
 #'
 #' @seealso \code{\link{write.ini}}
 #'
-#' @return List with length equivalent to number of [sections], each section is
+#' @return List with length equivalent to number of `sections`, each section is
 #' a new list
 #'
 #' @examples

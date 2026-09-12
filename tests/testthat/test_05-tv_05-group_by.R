@@ -63,3 +63,15 @@ test_that("grouping works", {
   expect_equal(data_g_recording_segment, data_g_recording_segment2)
   expect_equal(dplyr::group_vars(data), character(0))
 })
+
+test_that("ungrouping works", {
+ seg <- data_faces_10_trials |>
+  eeg_segment(.description == "s70", .lim = c(-.1, .1)) |>
+  eeg_group_by(.recording)
+expect_equal(dplyr::ungroup(seg), dplyr::ungroup(.data=seg))
+expect_equal(dplyr::ungroup(x = seg), dplyr::ungroup(.data=seg))
+expect_equal(eeg_ungroup(seg), dplyr::ungroup(seg))
+expect_equal(eeg_ungroup(seg), eeg_ungroup(.data=seg))
+expect_equal(eeg_ungroup(x = seg), eeg_ungroup(.data=seg))
+
+})

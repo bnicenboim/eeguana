@@ -36,10 +36,10 @@ channels_tbl(faces_seg) <- mutate(channels_tbl(faces_seg),
 
 }
 \seealso{
-Other functions to expose internal parts of eeg_(ica_)_lst: 
-\code{\link{events_tbl}()},
-\code{\link{ica_matrix_lst}()},
-\code{\link{segments_tbl}()},
-\code{\link{signal_tbl}()}
+Other functions to expose internal parts of eeg_(ica_)_lst:
+\code{\link[=events_tbl]{events_tbl()}},
+\code{\link[=ica_matrix_lst]{ica_matrix_lst()}},
+\code{\link[=segments_tbl]{segments_tbl()}},
+\code{\link[=signal_tbl]{signal_tbl()}}
 }
 \concept{functions to expose internal parts of eeg_(ica_)_lst}

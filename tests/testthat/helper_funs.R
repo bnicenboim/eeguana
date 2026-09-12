@@ -6,19 +6,24 @@ suppress_python_output <- function(x) {
 }
 
 
-other_testfiles <- file.path(testthat::test_path(), "other_files")
-
 skip_if_no_python_stuff <- function() {
-  have_mne  <- reticulate::py_module_available("mne")
-  have_scipy  <- reticulate::py_module_available("scipy")
-  
-  if (!have_mne) {
-    skip("mne not available for testing")
+  if (!requireNamespace("reticulate", quietly = TRUE)) {
+    skip("reticulate not installed")
   }
-  if (!have_scipy) {
-    skip("scipy not available for testing")
+  for (mod in c("mne", "scipy")) {
+    if (!reticulate::py_module_available(mod)) {
+      skip(paste0(mod, " not available for testing; run dev_python() from dev/dev.R"))
+    }
   }
 }
+
+#' Path to a cached large test file, by its name in inst/fixtures.csv.
+#' @noRd
+fixture_path <- function(name) eeguana:::eeg_fixture_path(name)
+
+#' Skip unless every named fixture is in the local cache.
+#' @noRd
+skip_if_nofixture <- function(...) eeguana:::eeg_skip_if_no_fixture(...)
 
 skip_if_nofiles <- function(files) {
   # Check if each file exists

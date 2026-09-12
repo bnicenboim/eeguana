@@ -18,8 +18,8 @@ A \code{\link[tibble:tibble]{tibble}}
 Convert the signal_tbl table from wide to long format.
 }
 \seealso{
-Other tibble: 
-\code{\link{as.data.frame.psd_lst}()},
-\code{\link{as_tibble.eeg_lst}()}
+Other tibble:
+\code{\link[=as.data.frame.psd_lst]{as.data.frame.psd_lst()}},
+\code{\link[=as_tibble.eeg_lst]{as_tibble.eeg_lst()}}
 }
 \concept{tibble}

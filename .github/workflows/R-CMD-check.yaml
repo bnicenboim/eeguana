@@ -29,7 +29,7 @@ jobs:
       R_KEEP_PKG_SOURCE: yes
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -41,28 +41,39 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck
+          extra-packages: any::rcmdcheck, any::reticulate
           needs: check
-      # - uses: actions/setup-python@v4
-      #   with:
-      #     python-version: "3.9.x"
-      # 
-      # - name: setup r-reticulate venv
-      #   shell: Rscript {0}
-      #   run: |
-      #     python_packages <-
-      #       c("numpy", "torch", "transformers")
-      # 
-      #     library(reticulate)
-      #     virtualenv_create("r-reticulate", Sys.which("python"))
-      #     virtualenv_install("r-reticulate", python_packages)
-      # 
-      #     path_to_python <- virtualenv_python("r-reticulate")
-      #     writeLines(sprintf("RETICULATE_PYTHON=%s", path_to_python),
-      #                Sys.getenv("GITHUB_ENV"))
-      # 
+      # Python for the MNE comparison tests. Without this they call
+      # skip_if_no_python_stuff() and skip, so the suite stays green but the
+      # read_fif / as_eeg_lst / filter-vs-MNE paths go untested.
+      #
+      # A virtualenv plus RETICULATE_PYTHON is used rather than the conda env
+      # that install_py_eeguana() builds locally: pip wheels are much faster in
+      # CI, and RETICULATE_PYTHON takes precedence over the
+      # use_condaenv("r-eeguana", required = FALSE) hint in .onLoad().
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
+      - name: Set up r-reticulate venv with mne
+        shell: Rscript {0}
+        run: |
+          library(reticulate)
+          virtualenv_create("r-reticulate", Sys.which("python"))
+          virtualenv_install("r-reticulate", c("mne", "pandas", "scipy", "numpy"))
+          writeLines(
+            sprintf("RETICULATE_PYTHON=%s", virtualenv_python("r-reticulate")),
+            Sys.getenv("GITHUB_ENV")
+          )
 
+      - name: Report what Python the tests will see
+        shell: Rscript {0}
+        run: |
+          library(reticulate)
+          print(py_config())
+          for (m in c("mne", "pandas", "scipy", "numpy")) {
+            cat(m, ":", py_module_available(m), "\n")
+          }
 
       - uses: r-lib/actions/check-r-package@v2
         with:
