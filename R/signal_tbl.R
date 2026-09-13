@@ -105,6 +105,14 @@ as_eeg_ica_lst.eeg_lst <- function(.data, ...) {
   class(.data) <- c("eeg_ica_lst", class(.data))
   .data
 }
+#' @noRd
+## TRUE when the obligatory columns are not already the first ones. The vectors
+## in obligatory_cols are named, and identical() compares names too, so they
+## have to be dropped before the comparison can ever match.
+needs_reorder <- function(tbl, cols) {
+  !identical(names(tbl)[seq_along(cols)], unname(cols))
+}
+
 validate_signal_tbl <- function(signal_tbl) {
   ## if(is.null(signal_tbl)) {
   ##     signal_tbl <- data.table::data.table(.id= integer(0),.sample= integer(0))
@@ -152,30 +160,21 @@ validate_signal_tbl <- function(signal_tbl) {
   
   ## Validates channels
   signal_tbl[, lapply(.SD, validate_channel_dbl), .SDcols = sapply(signal_tbl, is_channel_dbl)]
-  ## reorders
+  ## Put the obligatory columns first when they are not already. setcolorder()
+  ## moves the column names without the data on a table with 64 or more columns
+  ## whose over-allocation is gone, which is the state tidytable verbs return,
+  ## so such a table is copied before it is reordered.
   ##
-  ## DEFENSIVE, for a bug that is close to unreachable from the public API.
-  ## setcolorder() moves the column *names* without the data on a table with
-  ## 64 or more columns whose over-allocation is gone, which is what every
-  ## tidytable verb returns; data.table 1.18.4 and 1.18.6.1 are both affected.
-  ## Tracing a 70-channel pipeline (filter, mutate, segment, baseline,
-  ## downsample, events_to_NA, grouped summarize, bind) found 0 of 10 calls
-  ## in that state: the obligatory columns are already first every time, so
-  ## the reorder is skipped. The one path that does reach it, eeg_lst() built
-  ## from a user table with .id/.sample last, still produced correct output
-  ## without this guard, because as_signal_tbl() rebuilds the table first.
-  ## No user-visible symptom was ever reproduced.
+  ## Until 2026-09-13 this compared the names against the *named* vector in
+  ## obligatory_cols, so identical() never matched. Every call counted as out of
+  ## order and copied the whole table whenever it had lost its over-allocation:
+  ## for the signal table, one full extra copy on each eeg_mutate() and
+  ## eeg_select(). An earlier note here said the reorder was skipped in
+  ## practice; that rested on the same broken comparison.
   ##
-  ## It is kept because the corruption is silent where it does occur, this
-  ## function is reachable from eight call sites including ones that take
-  ## externally supplied tables, and the guard costs one identical() on two
-  ## strings when nothing needs reordering. It never copies unless a reorder
-  ## is genuinely required.
-  ##
-  ## Returns the table: this no longer works purely by reference, so callers
-  ## must assign the result.
+  ## Returns the table, so callers must assign the result.
   cols <- obligatory_cols[[".signal"]]
-  if (!identical(names(signal_tbl)[seq_along(cols)], cols)) {
+  if (needs_reorder(signal_tbl, cols)) {
     if (data.table::truelength(signal_tbl) < ncol(signal_tbl)) {
       signal_tbl <- data.table::copy(signal_tbl)
     }

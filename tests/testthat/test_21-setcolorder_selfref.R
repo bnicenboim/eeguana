@@ -161,6 +161,9 @@ test_that("an ordinary eeg_lst needs no reorder, so it is never at risk", {
   # over-allocation does not survive serialisation.
   s <- data_faces_10_trials$.signal
   expect_equal(names(s)[1:2], c(".id", ".sample"))
+  # check the decision itself: this test passed for a long time while the
+  # comparison behind it was broken and every call reordered and copied
+  expect_false(eeguana:::needs_reorder(s, eeguana:::obligatory_cols[[".signal"]]))
 
   want <- as.numeric(s$Fp1[1])
   out <- eeguana:::validate_signal_tbl(s)
