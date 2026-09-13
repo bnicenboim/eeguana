@@ -26,7 +26,7 @@ wide_tt <- function(nch, second_col = ".sample") {
   x <- do.call(tidytable::tidytable, cols)
   # a round trip through a tidytable verb is what drops the over-allocation
   # the package's own tidytable shims: the path that drops the over-allocation
-  x <- eeguana:::select.(eeguana:::mutate.(x, .tmp = 1), -".tmp")
+  x <- eeguana:::tt_select(eeguana:::tt_mutate(x, .tmp = 1), -".tmp")
   x
 }
 
@@ -116,7 +116,7 @@ wide_real_signal <- function(nch = 70L) {
   # reorder while still over-allocated, which is safe, then drop the
   # allocation the way a tidytable verb does
   data.table::setcolorder(s, c(setdiff(names(s), c(".id", ".sample")), ".id", ".sample"))
-  eeguana:::select.(eeguana:::mutate.(s, .tmp = 1), -".tmp")
+  eeguana:::tt_select(eeguana:::tt_mutate(s, .tmp = 1), -".tmp")
 }
 
 test_that("validate_signal_tbl keeps real channel data on its own name", {

@@ -88,11 +88,11 @@ eeg_ica.eeg_lst <- function(.data,
     signal_raw <- .data$.signal
   }
   signal_raw <- signal_raw %>%
-    select.(.id, tidyselect::all_of(channel_names(.data)))
+    tt_select(.id, tidyselect::all_of(channel_names(.data)))
   ## remove more if dots are used BUT keep id!!
   if (!rlang::is_empty(dots)) {
     chs <- sel_ch(signal_raw, !!!dots)
-    signal_raw <- select.(signal_raw, tidyselect::all_of(c(".id", chs)))
+    signal_raw <- tt_select(signal_raw, tidyselect::all_of(c(".id", chs)))
   }
 
   ## creates a DT with length length(signal_tbl) where the grouping var is repeated,

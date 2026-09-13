@@ -199,7 +199,7 @@ changed_objects <- function(obj) {
 }
 
 #' @noRd
-distinct. <- function(.df, ..., .keep_all = FALSE) {
+tt_distinct <- function(.df, ..., .keep_all = FALSE) {
   oldclass <- class(.df)
   .df <- tidytable::distinct(.df = .df, ..., .keep_all = .keep_all)
   class(.df) <- oldclass
@@ -216,7 +216,7 @@ distinct. <- function(.df, ..., .keep_all = FALSE) {
 #' }
 
 #' @noRd
-select. <- function(.df, ...) {
+tt_select <- function(.df, ...) {
   oldclass <- class(.df)
   .df <- tidytable::select(.df = .df, ...)
   class(.df) <- oldclass
@@ -224,7 +224,7 @@ select. <- function(.df, ...) {
 }
 
 #' @noRd
-transmute. <- function(.df, ..., .by = NULL){
+tt_transmute <- function(.df, ..., .by = NULL){
   oldclass <- class(.df)
   if (length(.by) > 0) {
     .df <- tidytable::transmute(
@@ -241,7 +241,7 @@ transmute. <- function(.df, ..., .by = NULL){
 }
 
 #' @noRd
-bind_cols. <- function(...){
+tt_bind_cols <- function(...){
   oldclass <- class(list(...)[[1]])
   .df <- tidytable::bind_cols(...)
   class(.df) <- oldclass
@@ -250,7 +250,7 @@ bind_cols. <- function(...){
 
 
 #' @noRd
-mutate. <- function(.df, ...,
+tt_mutate <- function(.df, ...,
                     .by = NULL,
                     .keep = c("all", "used", "unused", "none")) {
   oldclass <- class(.df)
@@ -273,7 +273,7 @@ mutate. <- function(.df, ...,
 }
 
 #' @noRd
-filter. <- function(.df, ...,
+tt_filter <- function(.df, ...,
                     .by = NULL) {
   oldclass <- class(.df)
   .df <- tidytable::filter(
@@ -285,7 +285,7 @@ filter. <- function(.df, ...,
 }
 
 #' @noRd
-summarize. <- function(.df, ..., .by = NULL, .sort = FALSE) {
+tt_summarize <- function(.df, ..., .by = NULL, .sort = FALSE) {
   oldclass <- class(.df)
   .df <- tidytable::summarize(.df = .df, ..., .by = any_of(.by), .sort = .sort)
   class(.df) <- oldclass
@@ -293,14 +293,14 @@ summarize. <- function(.df, ..., .by = NULL, .sort = FALSE) {
 }
 
 #' @noRd
-anti_join. <- function(x, y, by = NULL) {
+tt_anti_join <- function(x, y, by = NULL) {
   oldclass <- class(x)
   .df <- tidytable::anti_join(x = x, y = y, by = by)
   class(.df) <- oldclass
   .df
 }
 #' @noRd
-semi_join. <- function(x, y, by = NULL) {
+tt_semi_join <- function(x, y, by = NULL) {
   oldclass <- class(x)
   .df <- tidytable::semi_join(x = x, y = y, by = by)
   class(.df) <- oldclass
@@ -309,7 +309,7 @@ semi_join. <- function(x, y, by = NULL) {
 
 
 #' @noRd
-full_join. <- function(x, y, by = NULL, suffix = c(".x", ".y"), ..., keep = FALSE) {
+tt_full_join <- function(x, y, by = NULL, suffix = c(".x", ".y"), ..., keep = FALSE) {
   oldclass <- class(x)
   .df <- tidytable::full_join(x = x, y = y, by = by, suffix = suffix, ..., keep = keep)
   class(.df) <- oldclass
@@ -317,7 +317,7 @@ full_join. <- function(x, y, by = NULL, suffix = c(".x", ".y"), ..., keep = FALS
 }
 
 #' @noRd
-left_join. <- function(x, y, by = NULL, suffix = c(".x", ".y"), ..., keep = FALSE) {
+tt_left_join <- function(x, y, by = NULL, suffix = c(".x", ".y"), ..., keep = FALSE) {
   oldclass <- class(x)
   .df <- tidytable::left_join(x = x, y = y, by = by, suffix = suffix, ..., keep = keep)
   class(.df) <- oldclass
@@ -344,7 +344,7 @@ list_flatten <- function(x, recursive = FALSE) {
   out
 }
 #' @noRd
-rename_with. <- function(.df, .fn = NULL, .cols = everything(), ...) {
+tt_rename_with <- function(.df, .fn = NULL, .cols = everything(), ...) {
   oldclass <- class(.df)
   .df <- tidytable::rename_with(.df = .df, .fn = .fn, 
                                 .cols = tidyselect::all_of(.cols), ...)

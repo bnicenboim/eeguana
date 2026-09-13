@@ -108,11 +108,11 @@ search_artifacts <- function(signal, ..., fun, args = list()) {
   ch_sel <- sel_ch(signal, ...)
     ## in case there are missing .samples
   add_missing_samples(signal) %>% 
-    transmute.(across(tidyselect::all_of(ch_sel),  fun, args),
+    tt_transmute(across(tidyselect::all_of(ch_sel),  fun, args),
                .sample, 
                .by =".id") %>%
     #necessary because of https://github.com/markfairbanks/tidytable/issues/578
-    mutate.(across(tidyselect::all_of(ch_sel),  as.logical))
+    tt_mutate(across(tidyselect::all_of(ch_sel),  as.logical))
 }
 
 #' @noRd
@@ -120,7 +120,7 @@ add_missing_samples <- function(signal) {
   signal[, list(.sample = sample_int(seq.int(min(.sample), max(.sample)),
     .sampling_rate = sampling_rate(signal)
   )), by = .id] %>%
-    left_join.(signal, by = c(".id", ".sample"))
+    tt_left_join(signal, by = c(".id", ".sample"))
 }
 
 #' add events from a table similar to signal, but with TRUE/FALSE depending if an artifact was detected.
@@ -131,13 +131,13 @@ add_intervals_from_artifacts <- function(sampling_rate, artifacts_tbl, sample_ra
   events_found <-  artifs %>% 
       map_dtr(function(.eeg) {
       .eeg %>%
-        select.(-tidyselect::one_of(obligatory_cols[[".signal"]])) %>%
+        tt_select(-tidyselect::one_of(obligatory_cols[[".signal"]])) %>%
         imap_dtr(~ {
           if (all(.x[!is.na(.x)] == FALSE)) {
             new_events_tbl() %>%
               data.table::as.data.table() %>% # need to remove the class to avoid warnings when I remove the .id
               ## I need to remove .id because it gets added by map
-            mutate.(.id = NULL,
+            tt_mutate(.id = NULL,
                     .initial = sample_int(integer(0),
                                           .sampling_rate = sampling_rate),
                     .final = sample_int(integer(0),

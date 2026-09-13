@@ -70,10 +70,10 @@ channels_tbl.psd_lst <- function(.data, ...) {
 
 #' @export
 channels_tbl.data.frame <- function(.data, ...) {
-  channels <- select.(.data, where(is_channel_dbl)) %>% colnames()
+  channels <- tt_select(.data, where(is_channel_dbl)) %>% colnames()
   ## first row is enough and it makes it faster
   tbl <- .data[1, ] %>%
-    select.(tidyselect::all_of(channels)) %>%
+    tt_select(tidyselect::all_of(channels)) %>%
     ## map_dtr() rather than purrr::map_dfr(): purrr binds those rows with dplyr, so
     ## it fails at run time on a machine without dplyr installed
     map_dtr(~ {

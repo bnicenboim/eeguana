@@ -19,10 +19,10 @@ as_tidytable.eeg_lst <- function(x, .unit = "s", ...) {
 #' @return  A [`data.table`][data.table::data.table].
 as.data.table.eeg_lst <- function(x, .unit = "s", ... ) {
   long_table <- long_dt(x$.signal, x$.segments) %>%
-  mutate.(.time := as_time(.sample, .unit = .unit), .sample = NULL)    
+  tt_mutate(.time := as_time(.sample, .unit = .unit), .sample = NULL)    
   # long_table[, .time := as_time(.sample, .unit = .unit)]
   # long_table[, .sample := NULL]
-  long_table %>% select.(.time, tidyselect::everything())
+  long_table %>% tt_select(.time, tidyselect::everything())
 }
 
 
@@ -35,13 +35,13 @@ as.data.table.eeg_lst <- function(x, .unit = "s", ... ) {
 #' @return  A [`data.table`][data.table::data.table].
 as.data.table.psd_lst <- function(x, ...) {
   long_table <- long_dt(x$.psd, x$.segments)
-  long_table %>% select.(.freq, tidyselect::everything())
+  long_table %>% tt_select(.freq, tidyselect::everything())
 }
 
 
 long_dt <- function(dt,.segments){
   keys <-dt %>%
-    select.(where(~ is_channel_dbl(.) || is_component_dbl(.))) %>%
+    tt_select(where(~ is_channel_dbl(.) || is_component_dbl(.))) %>%
     colnames()
   if (length(keys) == 0) {
     stop("No channels found.", call. = TRUE)
@@ -56,7 +56,7 @@ long_dt <- function(dt,.segments){
     , .value := `attributes<-`(.value, NULL)
   ]
   long_dt %>%
-    left_join.(., data.table::as.data.table(.segments), by = ".id")
+    tt_left_join(., data.table::as.data.table(.segments), by = ".id")
 }
 
 

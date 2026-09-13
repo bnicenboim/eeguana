@@ -45,7 +45,7 @@ as_signal_tbl.tidytable <- function(.data, ...) {
 #' @noRd
 #' @exportS3Method
 as_signal_tbl.data.table <- function(.data, ...) {
-    .data <- .data %>% mutate.(.id = as.integer(.id))
+    .data <- .data %>% tt_mutate(.id = as.integer(.id))
     class(.data) <- c("signal_tbl","data.table", "data.frame")
     data.table::setkey(.data, .id, .sample)
     validate_signal_tbl(.data)

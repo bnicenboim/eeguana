@@ -9,15 +9,15 @@ summarize_ext <- function(.data, dots, .groups) {
     .by = !!by,
     j = TRUE
   )
-  summarize.(extended_signal_dt, !!!dots_main, .by = by)
+  tt_summarize(extended_signal_dt, !!!dots_main, .by = by)
 }
 
 rebuild_segment_dt <- function(.data) {
   # rebuild the segment table
   if (length(group_vars_only_segments(.data)) > 0) {
-    segment_dt <- distinct.(.data[[1]], ".id", group_vars_only_segments(.data))
+    segment_dt <- tt_distinct(.data[[1]], ".id", group_vars_only_segments(.data))
     if (!".recording" %in% eeg_group_vars(.data)) {
-      segment_dt <- mutate.(segment_dt, .recording = NA_character_)
+      segment_dt <- tt_mutate(segment_dt, .recording = NA_character_)
     }
     data.table::setcolorder(segment_dt, obligatory_cols$.segments)
     
@@ -69,25 +69,25 @@ filter_lst <- function(.data, ...) {
     by <- as.character(eeg_group_vars(.data))
     cols_main <- colnames(.data[[1]])
     dots_main <- prep_dots(dots = new_dots[[1]], data = extended_signal_dt, .by = !!by, j = TRUE)
-    .data[[1]] <- filter.(extended_signal_dt, !!!dots_main, .by = by) %>%
+    .data[[1]] <- tt_filter(extended_signal_dt, !!!dots_main, .by = by) %>%
       .[, ..cols_main]
 
     if (!is.null(.data$.events) && nrow(.data$.events) > 0) {
       range_s <- .data$.signal[, .(.lower = min(.sample), .upper = max(.sample)), by = .id]
       .data$.events <- update_events(.data$.events, range_s)
     }
-    .data$.segments <- semi_join.(.data$.segments, .data[[1]], by = ".id")
+    .data$.segments <- tt_semi_join(.data$.segments, .data[[1]], by = ".id")
   }
   # filter the segments and update the signal_tbl/psd
   if (length(new_dots$.segments) > 0) {
     grouping <- eeg_group_vars(.data)[eeg_group_vars(.data) %in% colnames(.data$.segments)]
     dots_segments <- prep_dots(dots = new_dots$.segments, data = extended_signal_dt, .by = !!by, j = TRUE)
-    .data$.segments <- filter.(.data$.segments, !!!dots_segments, .by = grouping)
-    .data[[1]] <- semi_join.(.data[[1]], .data$.segments, by = ".id")
+    .data$.segments <- tt_filter(.data$.segments, !!!dots_segments, .by = grouping)
+    .data[[1]] <- tt_semi_join(.data[[1]], .data$.segments, by = ".id")
   }
 
   if (!is.null(.data$.events)) {
-    .data$.events <- semi_join.(.data$.events, data.table::as.data.table(.data$.segments), by = ".id")
+    .data$.events <- tt_semi_join(.data$.events, data.table::as.data.table(.data$.segments), by = ".id")
     .data <- .data %>% update_events_channels()
   }
   # Fix the indices in case some of them drop out
@@ -127,7 +127,7 @@ mutate_lst <- function(.data, ..., keep_cols = TRUE, .by_reference = FALSE) {
     # added cols
     aux_cols <- setdiff(colnames(extended_main_dt), cols_main)
 
-    extended_main_dt <- mutate.(extended_main_dt,
+    extended_main_dt <- tt_mutate(extended_main_dt,
       !!!dots_main,
       !!!(rlang::parse_exprs(obligatory_cols_main)),
       .by = by,
@@ -160,7 +160,7 @@ mutate_lst <- function(.data, ..., keep_cols = TRUE, .by_reference = FALSE) {
     by <- intersect(eeg_group_vars(.data), colnames(.data$.segments))
 
     dots_segments <- prep_dots(new_dots$.segments, .data$.segments, !!by, j = TRUE)
-    .data$.segments <- mutate.(
+    .data$.segments <- tt_mutate(
       .data$.segments, !!!dots_segments,
       .by = by
     )
@@ -242,7 +242,7 @@ select_rename <- function(.data, select = TRUE, ...) {
 
     if (length(vars_dfs) > 0) {
       .data[[dfs]] <- .data[[dfs]] %>%
-        select.(tidyselect::all_of(vars_dfs))
+        tt_select(tidyselect::all_of(vars_dfs))
     }
 
     if (dfs == ".signal") { # if the signal tbl was modified, the events need to be updated:
@@ -343,10 +343,10 @@ extended_signal <- function(.eeg_lst, cond_cols = NULL, events_cols = NULL) {
   extended_signal_dt<- .eeg_lst[[1]]
   relevant_cols <- c(".id", eeg_group_vars(.eeg_lst), cond_cols)
   if (any(relevant_cols != ".id")) { # more than just .id
-    extended_signal_dt <- left_join.(extended_signal_dt, select.(.eeg_lst$.segments, tidyselect::any_of(relevant_cols)) , by = c(".id"))
+    extended_signal_dt <- tt_left_join(extended_signal_dt, tt_select(.eeg_lst$.segments, tidyselect::any_of(relevant_cols)) , by = c(".id"))
   }
   if (length(events_cols) > 0) {
-    extended_signal_dt <- left_join.(extended_signal_dt, select.(events_tbl(.eeg_lst), tidyselect::all_of(events_col)) , by = c(".id"))
+    extended_signal_dt <- tt_left_join(extended_signal_dt, tt_select(events_tbl(.eeg_lst), tidyselect::all_of(events_col)) , by = c(".id"))
   }
   data.table::setkeyv(extended_signal_dt, cols = c(".id", colnames(extended_signal_dt)[2]))
   extended_signal_dt

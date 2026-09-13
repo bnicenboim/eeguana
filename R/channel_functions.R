@@ -57,8 +57,8 @@ chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
   ## signal <- data.table:::shallow(x$.signal)
   ## signal[, mean := rowMeans_ch(.SD, na.rm = na.rm), .SDcols = channel_names(x)][, `:=`(channel_names(x), NULL)]
   x$.signal <- x$.signal %>%
-   mutate.(mean = rowMeans_ch(select.(., channel_names(x)),  na.rm = na.rm)) %>%
-   select.(-all_of(channel_names(x)))
+   tt_mutate(mean = rowMeans_ch(tt_select(., channel_names(x)),  na.rm = na.rm)) %>%
+   tt_select(-all_of(channel_names(x)))
   data.table::setkey(x$.signal, .id, .sample)
   update_events_channels(x) %>%
     validate_eeg_lst()
@@ -67,8 +67,8 @@ chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
 chs_mean.psd_lst <- function(x, ..., na.rm = FALSE) {
 
   x$.psd <- x$.psd %>%
-   mutate.(mean = rowMeans_ch(select.(., channel_names(x)), na.rm = na.rm)) %>%
-   select.(-all_of(channel_names(x)))
+   tt_mutate(mean = rowMeans_ch(tt_select(., channel_names(x)), na.rm = na.rm)) %>%
+   tt_select(-all_of(channel_names(x)))
   x
 }
 
@@ -104,7 +104,7 @@ eeg_rereference <- function(.data, ..., .ref = NULL, na.rm = FALSE) {
 eeg_rereference.eeg_lst <- function(.data, ..., .ref = NULL, na.rm = FALSE) {
   chs <- sel_ch(.data, ...)
   .ref <- rlang::enquo(.ref)
-  ref_v <- .data$.signal %>% select.(tidyselect::all_of(channel_names(.data))) %>% select.( !!.ref)
+  ref_v <- .data$.signal %>% tt_select(tidyselect::all_of(channel_names(.data))) %>% tt_select( !!.ref)
   ref_value <- rowMeans(ref_v)
   reref <- function(x, ref_value) {
     x <- x - ref_value
@@ -112,7 +112,7 @@ eeg_rereference.eeg_lst <- function(.data, ..., .ref = NULL, na.rm = FALSE) {
     x
   }
   .data$.signal <- .data$.signal %>% 
-    mutate.(across(tidyselect::all_of(!!chs), reref, ref_value))
+    tt_mutate(across(tidyselect::all_of(!!chs), reref, ref_value))
   data.table::setkey(.data$.signal, .id, .sample)
   data.table::setkey(.data$.segments, .id)
   update_events_channels(.data) %>% validate_eeg_lst()

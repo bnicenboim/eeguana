@@ -59,7 +59,7 @@ eeg_downsample.eeg_lst <- function(.data, .q = 2, .max_sample = NULL,
         ## add missing samples in case of a discontinuity
   .data$.signal <- add_missing_samples(.data$.signal)
   discontinuity <- .data$.signal %>%
-    select.(tidyselect::all_of(channels_to_decimate)) %>%
+    tt_select(tidyselect::all_of(channels_to_decimate)) %>%
     anyNA()
   if (discontinuity) {
     warning("Some parts of the signal won't be filtered before the downsampling due to NA values or discontinuities")
@@ -88,7 +88,7 @@ eeg_downsample.eeg_lst <- function(.data, .q = 2, .max_sample = NULL,
                       from = ceiling(min(.x$.sample) / factor),
                       length.out = nrow(.x) / factor
                     ), .sampling_rate = new_sampling_rate),
-                    decimate_chs(.x %>% select.(all_of(channels_to_decimate)),q = .q, n = .n, ftype = .ftype))) 
+                    decimate_chs(.x %>% tt_select(all_of(channels_to_decimate)),q = .q, n = .n, ftype = .ftype))) 
  
   .data$.signal <-as_signal_tbl.data.table(.data$.signal)
   

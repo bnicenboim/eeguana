@@ -311,7 +311,7 @@ eeg_events_to_NA.eeg_lst <-
     }
     if (!is.null(.n_chs)) {
     ## this doesn't work
-            # baddies <- baddies %>% mutate.(.channel = 
+            # baddies <- baddies %>% tt_mutate(.channel = 
             #                 tidytable::case_when(n() > .n_chs ~ NA_character_,
             #                                       TRUE ~ .channel),
             #                                       .by = ".id")
@@ -319,14 +319,14 @@ eeg_events_to_NA.eeg_lst <-
       # it doesn't work:
       # baddies[, if(.N >= .n_chs) .channel := NA_character_, by =.id] 
       
-      # baddies <- mutate.(baddies, 
+      # baddies <- tt_mutate(baddies, 
       #                    .channel = ifelse (.N >= .n_chs, NA_character_, .channel),
       #                    .by = ".id")
     }
 
     # For the replacement in parts of the segments
     b_chans <- filter.events_tbl(baddies, !is.na(.channel)) %>%
-      distinct.(.channel) %>%
+      tt_distinct(.channel) %>%
       tidytable::pull()
 
     for (ch in b_chans) {
@@ -356,7 +356,7 @@ eeg_events_to_NA.eeg_lst <-
     }
     # For the replacement in the complete of the segments
     b_all <-
-      filter.events_tbl(baddies, is.na(.channel)) %>% distinct.()
+      filter.events_tbl(baddies, is.na(.channel)) %>% tt_distinct()
 
     if (!.entire_seg & nrow(b_all) != 0) {
       for (i in seq(1, nrow(b_all))) {
@@ -383,7 +383,7 @@ eeg_events_to_NA.eeg_lst <-
 
 
     if (.drop_events) {
-      x$.events <- anti_join.(x$.events, filter.events_tbl(x$.events, !!!dots))
+      x$.events <- tt_anti_join(x$.events, filter.events_tbl(x$.events, !!!dots))
     }
     x$.signal <- signal
 

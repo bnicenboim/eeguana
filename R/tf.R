@@ -126,11 +126,11 @@ eeg_power_band.psd_lst <- function(.data, .bands = list(
     })
   }
   .data$.psd <- .data$.psd %>%
-    summarize.(across(
+    tt_summarize(across(
       tidyselect::all_of(!!chs),
       funpower, .freq 
     ), .freq = names(.bands), .by = ".id") %>%
-    select.(obligatory_cols$.psd, tidyselect::everything())
+    tt_select(obligatory_cols$.psd, tidyselect::everything())
   .data
 }
 

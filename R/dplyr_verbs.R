@@ -241,13 +241,13 @@ eeg_summarize.eeg_lst <- function(.data, ..., .groups = "keep") {
   attr_sample_id <- attributes(.data$.signal$.sample)
   extended_signal_dt <- summarize_ext(.data, dots, .groups = "keep")
   if (!".sample" %in% colnames(extended_signal_dt)) {
-    extended_signal_dt <- mutate.(extended_signal_dt, .sample = sample_int(NA_integer_, attr_sample_id$sampling_rate))
+    extended_signal_dt <- tt_mutate(extended_signal_dt, .sample = sample_int(NA_integer_, attr_sample_id$sampling_rate))
   } else {
     attributes(extended_signal_dt$.sample) <- attr_sample_id
   }
   # Add .id in case it was removed by a summary
   if (!".id" %in% colnames(extended_signal_dt)) {
-    extended_signal_dt <- mutate.(extended_signal_dt, .id = seq_len(.N), .by = ".sample")
+    extended_signal_dt <- tt_mutate(extended_signal_dt, .id = seq_len(.N), .by = ".sample")
   }
   # tidytable returns a data.table whose over-allocation and self-reference are
   # gone (truelength 0). setcolorder() on such an object permutes the column
@@ -278,12 +278,12 @@ eeg_summarize.psd_lst <- function(.data, ..., .groups = "keep") {
   }
   extended_psd_dt <- summarize_ext(.data, dots, .groups = "keep")
   if (!".freq" %in% colnames(extended_psd_dt)) {
-    extended_psd_dt <- extended_psd_dt %>% mutate.(.freq := NA)
+    extended_psd_dt <- extended_psd_dt %>% tt_mutate(.freq := NA)
 }
   # Add .id in case it was removed by a summary
   if (!".id" %in% colnames(extended_psd_dt)) {
     extended_psd_dt <- extended_psd_dt %>%
-      mutate.(.id = seq_len(.N), .by = ".freq")
+      tt_mutate(.id = seq_len(.N), .by = ".freq")
   }
   # tidytable returns a data.table whose over-allocation and self-reference are
   # gone (truelength 0). setcolorder() on such an object permutes the column
@@ -506,7 +506,7 @@ eeg_rename_with.eeg_lst <- function(.data, .fn, .cols = where(is_channel_dbl), .
     names(new_signal) <- vars_signal
     ## data.table::setnames(.data$.signal, vars_signal, new_signal)
     # replaced now with:
-    .data$.signal <- rename_with.(.data$.signal, 
+    .data$.signal <- tt_rename_with(.data$.signal, 
                                   .fn, 
                                   .cols = tidyselect::all_of(vars_signal), 
                                   ...)
@@ -523,7 +523,7 @@ eeg_rename_with.eeg_lst <- function(.data, .fn, .cols = where(is_channel_dbl), .
     new_segments <- .fn(vars_segments, ...)
     names(new_segments) <- vars_segments
     ## data.table::setnames(.data$.segments, vars_segments, new_segments)
-    .data$.segments <- rename_with.(.data$.segments, .fn, .cols = tidyselect::all_of(vars_segments), ...)
+    .data$.segments <- tt_rename_with(.data$.segments, .fn, .cols = tidyselect::all_of(vars_segments), ...)
 
   }
 
@@ -655,7 +655,7 @@ eeg_left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE,
   if (!is.data.frame(y)) stop("y must be a data frame, a data table or tibble.")
   warn_unsupported_join_args(copy, list(...))
   keep <- resolve_join_keep(keep)
-  x$.segments <- left_join.(x$.segments, y = y, by = by, suffix = suffix, keep = keep)
+  x$.segments <- tt_left_join(x$.segments, y = y, by = by, suffix = suffix, keep = keep)
   validate_eeg_lst(x)
 }
 
@@ -673,9 +673,9 @@ eeg_semi_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, ...) {
   if (!is.data.frame(y)) stop("y must be a data frame, a data table or tibble.")
   warn_unsupported_join_args(copy, list(...))
 
-  x$.segments <- semi_join.(x$.segments, y, by = by)
-  x$.signal <- semi_join.(x$.signal, x$.segments, by = ".id")
-  x$.events <- semi_join.(x$.events, x$.segments, by = ".id")
+  x$.segments <- tt_semi_join(x$.segments, y, by = by)
+  x$.signal <- tt_semi_join(x$.signal, x$.segments, by = ".id")
+  x$.events <- tt_semi_join(x$.events, x$.segments, by = ".id")
   data.table::setkey(x$.signal, .id, .sample)
   data.table::setkey(x$.segments, .id)
   x %>% validate_eeg_lst()
@@ -695,9 +695,9 @@ eeg_anti_join <- function(x, y, by = NULL, copy = FALSE, ...) {
 eeg_anti_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, ...) {
   if (!is.data.frame(y)) stop("y must be a data frame, a data table or tibble.")
   warn_unsupported_join_args(copy, list(...))
-  x$.segments <- anti_join.(x$.segments, y, by = by)
-  x$.signal <- semi_join.(x$.signal, x$.segments, by = ".id")
-  x$.events <- semi_join.(x$.events, x$.segments, by = ".id")
+  x$.segments <- tt_anti_join(x$.segments, y, by = by)
+  x$.signal <- tt_semi_join(x$.signal, x$.segments, by = ".id")
+  x$.events <- tt_semi_join(x$.events, x$.segments, by = ".id")
   data.table::setkey(x$.signal, .id, .sample)
   data.table::setkey(x$.segments, .id)
   x %>% validate_eeg_lst()

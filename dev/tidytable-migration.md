@@ -1,7 +1,7 @@
 # Replacing dplyr with tidytable
 
-Notes for the `nodplyr` branch. Survey done 2026-09-12. **Stages 1 and 3 are
-done** (3 on 2026-09-13); Stage 2 is not started.
+Notes for the `nodplyr` branch. Survey done 2026-09-12. **All three stages are
+done**, Stages 2 and 3 on 2026-09-13.
 
 ## The short version
 
@@ -85,12 +85,15 @@ returns a tidytable rather than a tibble, so `plot_topo.tbl_df` was widened to
 been broken outright, erroring with `could not find function "na.omit"` on
 every call, which is why nothing called it and nothing tested it.
 
-**Stage 2, retire the dot-suffixed shims.** The 12 wrappers in `R/utils_dt.R`
-(`mutate.`, `select.`, `left_join.` ...) exist to restore classes that
-tidytable strips. Re-check which still strip: `relocate()` did not, when it was
-tested for `validate_signal_tbl()`. Removing them also clears the `R CMD check`
-NOTE about apparent S3 methods not registered, which is a false positive caused
-by the trailing dot in their names.
+**Stage 2, retire the dot-suffixed shims. DONE, by renaming.** The 12 wrappers
+in `R/utils_dt.R` are now `tt_select()`, `tt_mutate()`, `tt_left_join()`, and so
+on. They could not be removed. With their class restoration stripped, 47 of 144
+tests failed across 22 test files, because nearly every caller relies on getting
+eeguana's class back from a tidytable verb. The rename was checked by comparing
+every object in the installed namespace before and after: all 528 comparable
+objects are identical once the new names are mapped back. The `R CMD check` NOTE
+this stage was meant to clear had already gone with Stage 3, because it compared
+the wrappers against dplyr's imported generics.
 
 **Stage 3, move dplyr to Suggests. DONE.** This was the goal, and the plan
 below turned out to be necessary but not sufficient; see "What Stage 3 actually

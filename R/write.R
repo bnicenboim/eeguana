@@ -17,7 +17,7 @@ na_omit.eeg_lst <- function(object, ...){
     range_s <- object$.signal[, .(.lower = min(.sample), .upper = max(.sample)), by = .id]
     object$.events <- update_events(object$.events, range_s)
   }
-  object$.segments <- semi_join.(object$.segments, object[[1]], by = ".id")
+  object$.segments <- tt_semi_join(object$.segments, object[[1]], by = ".id")
   object
 }
 
@@ -84,7 +84,7 @@ write_dat <- function(x, file, overwrite= FALSE){
   on.exit(close(dat))
   #by default IEEE_FLOAT_32
   bytes <- 32 / 8
-  mat_sig <- x$.signal %>% select.(where(is_channel_dbl)) %>% as.matrix()
+  mat_sig <- x$.signal %>% tt_select(where(is_channel_dbl)) %>% as.matrix()
   apply(mat_sig, MARGIN = 1, writeBin, dat ,size = bytes,useBytes= FALSE)
 }
 

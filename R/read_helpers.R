@@ -336,14 +336,14 @@ read_vhdr_metadata <- function(file) {
 
   channel_info <- channel_info %>%
     stats::setNames(ch_cols) %>%
-    mutate.(
+    tt_mutate(
       resolution = as.double(resolution),
       unit = ifelse(unit %in% c("\u00b5V", "\u03bcV", "microvolt"), "microvolt", "?"),
       .reference = ifelse(.reference == "", NA_character_, .reference)
     )
   if (!is.null(unit_found) & all(channel_info$unit == "?")) {
     channel_info <- channel_info %>%
-      mutate.(unit = unit_found)
+      tt_mutate(unit = unit_found)
   }
 
   if (is.null(vhdr$Coordinates)) {
@@ -354,7 +354,7 @@ read_vhdr_metadata <- function(file) {
         t() %>%
         data.table::as.data.table(.name_repair = "unique")) %>%
       stats::setNames(c("number", "radius", "theta", "phi")) %>%
-      mutate.(across(tidyselect::all_of(c("radius", "theta", "phi")), as.numeric))
+      tt_mutate(across(tidyselect::all_of(c("radius", "theta", "phi")), as.numeric))
   }
 
   # this is in case it can't find DataPoints and DataType in the header file
@@ -363,7 +363,7 @@ read_vhdr_metadata <- function(file) {
 
   common_info <- vhdr[["Common Infos"]] %>%
     data.table::as.data.table() %>%
-    transmute.(
+    tt_transmute(
       data_points = as.numeric(DataPoints),
       # seg_data_points = as.numeric(SegmentDataPoints),
       orientation = DataOrientation,
@@ -377,14 +377,14 @@ read_vhdr_metadata <- function(file) {
 
   if (common_info$format == "ASCII") {
     common_info <- common_info %>%
-      mutate.(
+      tt_mutate(
         DecimalSymbol = vhdr[["ASCII Infos"]][["DecimalSymbol"]],
         SkipColumns = vhdr[["ASCII Infos"]][["SkipColumns"]] %>% as.integer(),
         SkipLines = vhdr[["ASCII Infos"]][["SkipLines"]] %>% as.integer()
       )
   } else if (common_info$format == "BINARY") {
     common_info <- common_info %>%
-      mutate.(bits = vhdr[["Binary Infos"]][["BinaryFormat"]])
+      tt_mutate(bits = vhdr[["Binary Infos"]][["BinaryFormat"]])
   }
 
   if (substr(common_info$domain, start = 1, stop = nchar("time")) %>%
@@ -393,7 +393,7 @@ read_vhdr_metadata <- function(file) {
   }
 
   # TODO use the _dt version as in read_set
-  chan_info <- full_join.(channel_info, coordinates, by = "number") %>%
+  chan_info <- tt_full_join(channel_info, coordinates, by = "number") %>%
     cbind(spherical_to_xyz_dt(coordinates$radius, coordinates$theta, coordinates$phi))
 
   out <- list()

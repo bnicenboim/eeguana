@@ -41,7 +41,7 @@ new_events_tbl <- function(.id = integer(0),
 
   if (!is.null(.sampling_rate)) {
     events <- events %>%
-      mutate.( .initial = sample_int(as.integer(.initial),
+      tt_mutate( .initial = sample_int(as.integer(.initial),
                                      .sampling_rate = .sampling_rate),
               .final := sample_int(as.integer(.final),
       .sampling_rate = .sampling_rate))

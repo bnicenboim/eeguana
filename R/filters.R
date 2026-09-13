@@ -149,16 +149,16 @@ filt_eeg_lst <- function(.signal, ..., h, na.rm = FALSE, .by_ref = FALSE) {
   }
   # fir filter
   if(is.null(names(h))) {
-    .signal <- mutate.(.signal, across(tidyselect::all_of(ch_sel),
+    .signal <- tt_mutate(.signal, across(tidyselect::all_of(ch_sel),
                                         overlap_add_filter, h),
                        .by = ".id")
   } else {
     ## IIR filter
     attrs <- lapply(.signal, attributes)
-    signal_non_sel <- select.(.signal, -tidyselect::all_of(ch_sel))
-    signal_sel <- select.(.signal, tidyselect::all_of(ch_sel))
+    signal_non_sel <- tt_select(.signal, -tidyselect::all_of(ch_sel))
+    signal_sel <- tt_select(.signal, tidyselect::all_of(ch_sel))
     if ("sos" %in% names(h)) {
-      .signal <-  bind_cols.(signal_non_sel,
+      .signal <-  tt_bind_cols(signal_non_sel,
                              split(signal_sel,f =  .signal$.id)  %>%
                                map_dtr( function(ss){
                                  sig_sosfiltfilt(x = as.matrix(ss),
@@ -171,11 +171,11 @@ filt_eeg_lst <- function(.signal, ..., h, na.rm = FALSE, .by_ref = FALSE) {
     if (all(c("b", "a") %in% names(h))) {
       # ba output
       #apply one by one
-      # .signal <- mutate.(.signal, across(tidyselect::all_of(ch_sel),
+      # .signal <- tt_mutate(.signal, across(tidyselect::all_of(ch_sel),
       #                              sig_filtfilt,
       #                              b = h[["b"]], a = h[["a"]],
       #                           padlen = min(h[["padlen"]],n()-1)), .by = ".id")
-      .signal <-  bind_cols.(signal_non_sel,
+      .signal <-  tt_bind_cols(signal_non_sel,
                        split(signal_sel,f =  .signal$.id)  %>%
                          map_dtr( function(ss){
                            sig_filtfilt(x = as.matrix(ss),
