@@ -100,7 +100,7 @@ slice_signal <- eeg_slice_signal
 
 slice_signal_eeg_lst <- function(.eeg_lst, ...) {
   extended_signal <- extended_signal(.eeg_lst)
-  by <- as.character(dplyr::group_vars(.eeg_lst))
+  by <- as.character(eeg_group_vars(.eeg_lst))
   if (length(by) != 0) {
     cols_signal <- colnames(.eeg_lst$.signal)
     .eeg_lst$.signal <- extended_signal[extended_signal[, .I[...], by = by]$V1] %>%
@@ -113,7 +113,8 @@ slice_signal_eeg_lst <- function(.eeg_lst, ...) {
     range_s <- .eeg_lst$.signal[, .(.lower = min(.sample), .upper = max(.sample)), by = .id]
     .eeg_lst$.events <- update_events(.eeg_lst$.events, range_s)
   }
-  .eeg_lst$.segments <- dplyr::semi_join(.eeg_lst$.segments, .eeg_lst$.signal, by = ".id")
+  .eeg_lst$.segments <- tidytable::semi_join(.eeg_lst$.segments, .eeg_lst$.signal, by = ".id") %>%
+    keep_dt_attrs(.eeg_lst$.segments)
   validate_eeg_lst(.eeg_lst)
 }
 

@@ -2,11 +2,32 @@
 
 ## Bugs fixed
 
+- `drop_incomplete_segments()` errored with `could not find function "na.omit"`
+  on every call. It now drops the segments holding missing values, as
+  documented.
+- `transmute()` on an events table errored with
+  `object 'transmute.tidytable' not found`, because the tidytable method it
+  called was removed upstream.
+- `plot_topo()` accepts any data frame. It previously had a method only for
+  tibbles, so a plain `data.frame` had none.
 - `read_vhdr()` now checks the `.dat` against its header before reading it. A
   file that is too short, usually an incomplete copy or download, stops with
   both sizes named instead of failing inside data.table with
   `Supplied 38410 items to be assigned to 38409 items of column '.id'`. A file
   that is too long warns and is read in full.
+
+## Breaking
+
+- `eeg_interpolate_tbl()` returns a tidytable rather than a tibble. It is still
+  a data frame, so it keeps working wherever one is expected, but a test such as
+  `inherits(x, "tbl_df")` on the result is now `FALSE`.
+
+## Internal
+
+- dplyr is no longer called inside the package. All 111 internal calls now go
+  through tidytable, and the calls that act on an `eeg_lst` go through
+  eeguana's own `eeg_*` generics. dplyr stays in `Imports` for its S3 generics,
+  so `dplyr::filter(eeg)` and friends are unaffected.
 
 # eeguana 0.1.12.9002
 

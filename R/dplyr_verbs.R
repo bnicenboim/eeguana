@@ -719,7 +719,7 @@ eeg_vars <- function(x) {
 
 #' @export
 eeg_vars.eeg_lst <- function(x) {
-  setdiff(dplyr::tbl_vars(x$.signal), c(dplyr::tbl_vars(x$.segments), c(".id", ".sample")))
+  setdiff(colnames(x$.signal), c(colnames(x$.segments), c(".id", ".sample")))
 }
 
 # dynamically exported in zzz.R
@@ -753,6 +753,8 @@ pull.eeg_lst <- eeg_pull.eeg_lst
 across <- function(.cols = everything(), .fns = NULL, ..., .names = NULL) {
   if ("dplyr" %in% (.packages())) {
     dplyr::across(.cols = .cols, .fns = .fns, ..., .names = .names)
+  } else if ("tidytable" %in% (.packages())) {
+    tidytable::across(.cols = .cols, .fns = .fns, ..., .names = .names)
   } else {
     stop("`across()` must only be used inside dplyr-like verbs. Tip: Maybe you forgot to specify the data before across()?")
   }
@@ -776,6 +778,8 @@ c_across_ch <- function() {
 c_across <- function(.cols = everything()) {
   if ("dplyr" %in% (.packages())) {
     dplyr::c_across(.cols = .cols)
+  } else if ("tidytable" %in% (.packages())) {
+    tidytable::c_across(.cols = .cols)
   } else {
     stop("`c_across()` must only be used inside dplyr-like verbs.")
   }

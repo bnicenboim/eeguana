@@ -120,7 +120,7 @@ update_channel_meta_data <- function(channels, channels_tbl) {
   } else {
     channels <- purrr::map2(
       channels %>% stats::setNames(make_names(channels_tbl$.channel)),
-      purrr::transpose(dplyr::select(channels_tbl, -.channel)),
+      purrr::transpose(tidytable::select(channels_tbl, -.channel)),
       function(sig, chan_info) {
         .channel <- new_channel_dbl(values = sig, as.list(chan_info))
       }
@@ -159,7 +159,7 @@ validate_eeg_lst <- function(x, recursive = TRUE) {
     )
   }
 
-  if (any(!dplyr::group_vars(x) %in% c(colnames(x$.signal), colnames(x$.segments)))) {
+  if (any(!eeg_group_vars(x) %in% c(colnames(x$.signal), colnames(x$.segments)))) {
     warning("Grouping variables are missing.",
       call. = FALSE
     )
@@ -200,7 +200,7 @@ validate_psd_lst <- function(x, recursive = TRUE) {
     )
   }
   
-  if (any(!dplyr::group_vars(x) %in% c(colnames(x$.psd), colnames(x$.segments)))) {
+  if (any(!eeg_group_vars(x) %in% c(colnames(x$.psd), colnames(x$.segments)))) {
     warning("Grouping variables are missing.",
             call. = FALSE
     )
@@ -214,7 +214,7 @@ validate_psd_lst <- function(x, recursive = TRUE) {
 #' @noRd
 validate_segments <- function(segments) {
   if (is.null(segments)) {
-    segments <- dplyr::tibble(.id = integer(0), .recording = character(0))
+    segments <- tidytable::tidytable(.id = integer(0), .recording = character(0))
   }
   if (nrow(segments) > 0) {
     if (!is.integer(segments$.id) & all(is_wholenumber(segments$.id))) {

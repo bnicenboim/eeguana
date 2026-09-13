@@ -144,10 +144,12 @@ channels_tbl.data.frame <- function(.data, ...) {
 
 #' @export
 `channels_tbl<-.data.frame` <- function(.data, value) {
+  ## base R here, as in the data.table method below, so that the method
+  ## returns a plain data.frame rather than whatever a verb would hand back
   orig_names <- channel_names(.data)
-  channels <- dplyr::select(.data, orig_names)
-  nochannels <- dplyr::select(.data, -tidyselect::all_of(orig_names))
-  dplyr::bind_cols(nochannels, update_channel_meta_data(channels, value))
+  channels <- .data[, orig_names, drop = FALSE]
+  nochannels <- .data[, setdiff(colnames(.data), orig_names), drop = FALSE]
+  cbind(nochannels, update_channel_meta_data(channels, value))
 }
 
 #' @export

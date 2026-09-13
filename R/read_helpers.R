@@ -120,26 +120,26 @@ read_dat <- function(file, header_info = NULL, events_dt = NULL,
   max_sample <- nrow(raw_signal)
   sample_id <- seq_len(max_sample)
 
-  if (nrow(events_dt %>% dplyr::filter(!!sep)) == 0) {
+  if (nrow(events_dt %>% tidytable::filter(!!sep)) == 0) {
     stop("Segment separation marker ", rlang::quo_text(sep), " not found in the events table.")
   }
 
   # the first event can't be the end of the segment
   # and the last segment ends at the end of the file
   .upper <- events_dt %>%
-    dplyr::filter(!!sep) %>%
-    dplyr::slice(-1) %>%
+    tidytable::filter(!!sep) %>%
+    tidytable::slice(-1) %>%
     {
       .$.initial - 1
     } %>%
     c(., max_sample)
 
   .lower <- events_dt %>%
-    dplyr::filter(!!sep) %>%
+    tidytable::filter(!!sep) %>%
     .$.initial
 
   .first_sample <- events_dt %>%
-    dplyr::filter(!!zero) %>%
+    tidytable::filter(!!zero) %>%
     .$.initial
 
   # In case the time zero is not defined

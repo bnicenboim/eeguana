@@ -153,7 +153,7 @@ plot_topo <- function(data, ...) {
 }
 #' @rdname plot_topo
 #' @export
-plot_topo.tbl_df <- function(data, .value = .value, .label = .key, ...) {
+plot_topo.data.frame <- function(data, .value = .value, .label = .key, ...) {
   if (all(is.na(data$.x)) && all(is.na(data$.y))) {
     stop("X and Y coordinates missing. You probably need to add a layout to the data.", call. = FALSE)
   }
@@ -165,25 +165,28 @@ plot_topo.tbl_df <- function(data, .value = .value, .label = .key, ...) {
   }
   .value <- rlang::enquo(.value)
   .label <- rlang::enquo(.label)
-  data <- data %>% dplyr::ungroup()
+  data <- tbl_ungroup(data)
   # Labels positions mess up with geom_raster, they need to be excluded
   # and then add the labels to the data that was interpolated
-  d <- dplyr::filter(data, !is.na(.x), !is.na(.y), is.na(!!.label)) %>%
-    dplyr::select(-!!.label)
-  label_pos <- dplyr::filter(data, !is.na(.x), !is.na(.y), !is.na(!!.label)) %>%
-    dplyr::distinct(.x, .y, !!.label)
+  d <- tidytable::filter(data, !is.na(.x), !is.na(.y), is.na(!!.label)) %>%
+    tidytable::select(-!!.label)
+  label_pos <- tidytable::filter(data, !is.na(.x), !is.na(.y), !is.na(!!.label)) %>%
+    tidytable::distinct(.x, .y, !!.label)
   label_corrected_pos <- purrr::map_df(label_pos %>%
-    dplyr::select(.x, .y, !!.label) %>%
+    tidytable::select(.x, .y, !!.label) %>%
     purrr::transpose(), function(l) {
     d %>%
-      dplyr::select(-!!.value) %>%
-      dplyr::filter((.x - l$.x)^2 + (.y - l$.y)^2 == min((.x - l$.x)^2 + (.y - l$.y)^2)) %>%
-      # does the original grouping so that I add a .label to each group
-      dplyr::group_by_at(dplyr::vars(colnames(.)[!colnames(.) %in% c(".x", ".y")])) %>%
-      dplyr::slice(1) %>%
-      dplyr::mutate(!!.label := l[[".key"]])
+      tidytable::select(-!!.value) %>%
+      tidytable::filter((.x - l$.x)^2 + (.y - l$.y)^2 == min((.x - l$.x)^2 + (.y - l$.y)^2)) %>%
+      # keeps one row per original group, so that each group gets a .label
+      {
+        tidytable::slice(., 1, .by = tidyselect::all_of(
+          setdiff(colnames(.), c(".x", ".y"))
+        ))
+      } %>%
+      tidytable::mutate(!!.label := l[[".key"]])
   })
-  d <- suppressMessages(dplyr::left_join(d, label_corrected_pos))
+  d <- suppressMessages(tidytable::left_join(d, label_corrected_pos))
 
 
   # remove all the AES from the geoms, to remove later the geoms
@@ -264,13 +267,13 @@ plot_components.eeg_ica_lst <- function(data, ..., .projection = "polar", .stand
   long_table[, .key := as.character(.key)]
 
   long_table <- left_join_dt(long_table, data.table::as.data.table(channels_tbl(data)), by = c(".key" = ".channel")) %>%
-    dplyr::group_by(.recording, .ICA)
+    tidytable::group_by(.recording, .ICA)
 
   long_table %>%
     eeg_interpolate_tbl(...) %>%
-    dplyr::group_by(.recording, .ICA) %>%
-    dplyr::mutate(.value = c(scale(.value, center = .standardize, scale = .standardize))) %>%
-    dplyr::ungroup() %>%
+    tidytable::mutate(.value = c(scale(.value, center = .standardize, scale = .standardize)),
+      .by = c(.recording, .ICA)
+    ) %>%
     plot_topo() +
     ggplot2::facet_wrap(~ .recording + .ICA)
 }
@@ -362,14 +365,13 @@ plot_ica.eeg_ica_lst <- function(data,
 
   # TODO : tidy table
   c_text <- summ %>%
-    dplyr::mutate(cor_t = as.character(round(cor, 2)), pvar_t = as.character(round(var * 100))) %>%
-    dplyr::group_by(.recording, .ICA) %>%
-    dplyr::summarize(text = paste0(chr_extract(EOG, "^."), ": ", cor_t, collapse = "\n") %>%
+    tidytable::mutate(cor_t = as.character(round(cor, 2)), pvar_t = as.character(round(var * 100))) %>%
+    tidytable::summarize(text = paste0(chr_extract(EOG, "^."), ": ", cor_t, collapse = "\n") %>%
       paste0("\n", unique(pvar_t), "%")) %>%
-    dplyr::mutate(x = 1, y = 1, .value = NA, .key = NA) %>%
-    dplyr::left_join(dplyr::distinct(topo$data, .recording, .ICA) %>%
-      dplyr::mutate(.ICA = as.character(.ICA)), ., by = c(".recording", ".ICA")) %>%
-    dplyr::mutate(.ICA = factor(.ICA, levels = .$.ICA))
+    tidytable::mutate(x = 1, y = 1, .value = NA, .key = NA) %>%
+    tidytable::left_join(tidytable::distinct(topo$data, .recording, .ICA) %>%
+      tidytable::mutate(.ICA = as.character(.ICA)), ., by = c(".recording", ".ICA")) %>%
+    tidytable::mutate(.ICA = factor(.ICA, levels = .$.ICA))
 
   topo <- topo +
     ggplot2::geom_text(data = c_text, ggplot2::aes(label = text, x = x, y = y), inherit.aes = FALSE) +
@@ -485,20 +487,20 @@ plot_in_layout.gg <- function(plot, .projection = "polar", .ratio = c(1, 1), ...
   rowsize <- full_facet_grob$heights[3] # bottom
   colsize <- full_facet_grob$widths[1] # left
 
-  # needed for passing checks:
-  b <- NULL
-  l <- NULL
   # THESE ARE NOT IN ORDER!!!
-  panels <- subset(plot_grob$layout, grepl("panel", plot_grob$layout$name)) %>%
-    dplyr::arrange(b, l)
-  strips <- subset(plot_grob$layout, grepl("strip", plot_grob$layout$name)) %>%
-    dplyr::arrange(b, l)
+  ## base R, so that these stay plain data frames: they are indexed below by
+  ## ch_pos$PANEL, which is a factor, and a data.frame selects rows by its
+  ## level codes while a data.table would try to join on it instead
+  panels <- subset(plot_grob$layout, grepl("panel", plot_grob$layout$name))
+  panels <- panels[order(panels$b, panels$l), ]
+  strips <- subset(plot_grob$layout, grepl("strip", plot_grob$layout$name))
+  strips <- strips[order(strips$b, strips$l), ]
 
   # won't work for free scales, need to add an if-else inside
 
   channel_grobs <- purrr::map(layout$.key, function(ch) {
     ## pos <- which(facet_names==ch, arr.ind =  TRUE)
-    ch_pos <- layout %>% dplyr::filter(.key == ch)
+    ch_pos <- layout %>% tidytable::filter(.key == ch)
     # panel_txt <- paste0("panel-", ch_pos$ROW, "-", ch_pos$COL)
     # strip_txt <- paste0("strip-t-", ch_pos$COL, "-", ch_pos$ROW)
     # axisl_txt <- paste0("axis-l-", ch_pos$ROW, "-", ch_pos$COL)
@@ -566,8 +568,8 @@ plot_in_layout.gg <- function(plot, .projection = "polar", .ratio = c(1, 1), ...
 
   for (i in seq_len(length(channel_grobs))) {
     new_coord <- ch_location %>%
-      dplyr::filter(.channel == names(channel_grobs)[[i]]) %>%
-      dplyr::distinct(.x, .y)
+      tidytable::filter(.channel == names(channel_grobs)[[i]]) %>%
+      tidytable::distinct(.x, .y)
     if (is.na(new_coord$.x) && is.na(new_coord$.y)) {
       new_plot
     } else if (is.na(new_coord$.x) | is.na(new_coord$.y)) {
@@ -607,13 +609,16 @@ plot_in_layout.gg <- function(plot, .projection = "polar", .ratio = c(1, 1), ...
 #' @export
 #'
 annotate_head <- function(size = 1.1, color = "black", stroke = 1) {
-  angle <- NULL # to avoid a note in the checks afterwards:
-  head <- dplyr::tibble(
-    angle = seq(-pi, pi, length = 50),
+  ## tibble() evaluated its arguments in order, so x = sin(angle) could refer
+  ## to the angle column being built in the same call. tidytable() evaluates
+  ## them in the calling frame instead, so angle has to exist first.
+  angle <- seq(-pi, pi, length = 50)
+  head <- tidytable::tidytable(
+    angle = angle,
     x = sin(angle) * size,
     y = cos(angle) * size
   )
-  nose <- dplyr::tibble(
+  nose <- tidytable::tidytable(
     x = c(size * sin(-pi / 18), 0, size * sin(pi / 18)),
     y = c(size * cos(-pi / 18), 1.15 * size, size * cos(pi / 18))
   )
@@ -647,7 +652,7 @@ annotate_electrodes <- function(.label = .key, ...) {
   .label <- rlang::enquo(.label)
   
  ggplot2::geom_text(
-  ggplot2::aes(label = dplyr::if_else(!is.na(!!.label), !!.label, "")),
+  ggplot2::aes(label = tidytable::if_else(!is.na(!!.label), !!.label, "")),
           ...)
 
 }
@@ -696,8 +701,8 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
   events_tbl[, Event := (do.call(paste, c(.SD, sep = "."))), .SDcols = c(info_events)]
   # single events
   segs <- plot$data %>%
-    dplyr::select(-.time, -.key, -.value) %>%
-    dplyr::distinct()
+    tidytable::select(-.time, -.key, -.value) %>%
+    tidytable::distinct()
 
   events_tbl <- left_join_dt(events_tbl, data.table::as.data.table(segs), by = ".id")
   chs <- list(unique(as.character(plot$data$.key)))

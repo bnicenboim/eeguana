@@ -76,10 +76,10 @@ as_events_tbl.data.table <- function(.data, .sampling_rate = NULL, ...) {
       .sampling_rate = .sampling_rate
     )]
   }
-  .data <- .data %>% dplyr::select(
+  .data <- .data %>% tidytable::select(
     .id, setdiff(colnames(.data), obligatory_cols[[".events"]]),
     obligatory_cols[[".events"]][-1]
-  )
+  ) %>% keep_dt_attrs(.data)
   data.table::setattr(.data, "class", c("events_tbl", class(.data)))
   validate_events_tbl(.data)
 }
@@ -173,7 +173,14 @@ mutate.events_tbl <- function(.data, ...) {
 }
 #' @exportS3Method dplyr::transmute
 transmute.events_tbl <- function(.data, ...) {
-  as_events_tbl(tidytable:::transmute.tidytable(.data, ...), sampling_rate(.data))
+  ## tidytable no longer has a transmute.tidytable method, so the ::: call this
+  ## used to make errored with `object 'transmute.tidytable' not found` on
+  ## every transmute() of an events table. tidytable::transmute() is not a
+  ## generic, so calling it here cannot dispatch back into this method.
+  as_events_tbl(
+    keep_dt_attrs(tidytable::transmute(.data, ...), .data),
+    sampling_rate(.data)
+  )
 }
 #' @exportS3Method dplyr::summarise
 summarise.events_tbl <- function(.data, ...) {

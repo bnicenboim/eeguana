@@ -108,7 +108,7 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
     if (nrow(unmatched_initial) > 0) {
       warning("Unmatched initial segments:\n\n", paste0(
         utils::capture.output(unmatched_initial %>%
-          dplyr::rename(.initial = .first_sample)),
+          tidytable::rename(.initial = .first_sample)),
         collapse = "\n"
       ))
       times_end <- rbind(times_end, unmatched_initial, fill = TRUE)
@@ -124,7 +124,7 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
     if (nrow(unmatched_final) > 0) {
       warning("Unmatched final segments:\n\n", paste0(
         utils::capture.output(unmatched_final %>%
-          dplyr::rename(.initial = .first_sample)),
+          tidytable::rename(.initial = .first_sample)),
         collapse = "\n"
       ))
       times0 <- rbind(times0, unmatched_final[, .type := "incorrect segment"], fill = TRUE)

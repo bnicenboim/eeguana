@@ -158,10 +158,10 @@ as_long_tbl.mixing_tbl <- function(x, add_channels_info = TRUE, ...) {
   x %>%
     .[, lapply(.SD, `attributes<-`, NULL)] %>%
     tidyr::gather(key = ".key", value = ".value", channel_names(x)) %>%
-    dplyr::mutate(.type = ".channel") %>%
+    tidytable::mutate(.type = ".channel") %>%
     {
       if (add_channels_info) {
-        dplyr::left_join(., channels_tbl(x), by = c(".key" = ".channel"))
+        tidytable::left_join(., channels_tbl(x), by = c(".key" = ".channel"))
       } else {
         .
       }

@@ -15,10 +15,10 @@ eeg_interpolate_tbl <- function(.data, ...) {
 #' @param .diam_points Density of the interpolation (number of points that are interpolated in the diameter of the scalp).
 #' @export
 eeg_interpolate_tbl.eeg_lst <- function(.data, .radius = 1.2, .diam_points = 100, .method = "MBA", ...) {
-  grouping <- dplyr::group_vars(.data)
-  .data <- dplyr::as_tibble(.data) %>%
-    dplyr::left_join(channels_tbl(.data), by = c(".key" = ".channel")) %>%
-    dplyr::group_by_at(dplyr::vars(tidyselect::all_of(grouping)))
+  grouping <- eeg_group_vars(.data)
+  .data <- as_tibble.eeg_lst(.data) %>%
+    tidytable::left_join(channels_tbl(.data), by = c(".key" = ".channel")) %>%
+    tidytable::group_by(tidyselect::all_of(grouping))
   dots <- rlang::enquos(...)
   # NextMethod()
   eeg_interpolate_tbl(.data,
@@ -56,27 +56,27 @@ eeg_interpolate_tbl.data.frame <- function(.data,
   .value <- rlang::enquo(.value)
   .label <- rlang::enquo(.label)
 
-  outside <- .data %>%
-    dplyr::ungroup() %>%
-    dplyr::distinct(!!.label, !!.x, !!.y) %>%
-    dplyr::filter(sqrt((!!.x)^2 + (!!.y)^2) >= 1 * .radius)
+  outside <- tbl_ungroup(.data) %>%
+    tidytable::distinct(!!.label, !!.x, !!.y) %>%
+    tidytable::filter(sqrt((!!.x)^2 + (!!.y)^2) >= 1 * .radius)
 
   if (nrow(outside) > 0) {
     warning(message_obj(paste0("Some points were outside the .radius, '", .radius, "', of interpolation:"), outside), call. = FALSE)
   }
 
-  .data <- dplyr::select(.data, dplyr::one_of(dplyr::group_vars(.data)), !!.x, !!.y, !!.value, !!.label)
-  group_vars <- dplyr::group_vars(.data)
+  group_vars <- tbl_group_vars(.data)
+  .data <- tbl_ungroup(.data) %>%
+    tidytable::select(tidyselect::any_of(group_vars), !!.x, !!.y, !!.value, !!.label)
   group_vars <- group_vars[!group_vars %in%
     c(rlang::quo_text(.x), rlang::quo_text(.y), rlang::quo_text(.value), rlang::quo_text(.label))]
 
   ## add columns that are constant=>
   is_grouped <- .data %>%
-    dplyr::group_by_at(group_vars) %>%
-    dplyr::group_by(!!.label, .add = TRUE) %>%
-    dplyr::summarize(L = dplyr::n()) %>%
-    # dplyr::filter(!is.na(!!.x) |!is.na(!!.y)) %>%
-    dplyr::pull(L) %>%
+    tidytable::summarize(
+      L = tidytable::n(),
+      .by = c(tidyselect::any_of(group_vars), !!.label)
+    ) %>%
+    tidytable::pull(L) %>%
     all(. == 1)
   if (!is_grouped) {
     stop("Data need to grouped or summarized so that each .label appears once per group.\n",
@@ -86,9 +86,7 @@ eeg_interpolate_tbl.data.frame <- function(.data,
   }
 
 
-  l <- .data %>%
-    dplyr::ungroup() %>%
-    dplyr::select(dplyr::one_of(group_vars)) # %>%
+  l <- tidytable::select(.data, tidyselect::any_of(group_vars))
 
   if (!identical(stats::na.omit(l), l)) {
     stop("Data cannot be grouped by a column that contains NAs.")
@@ -114,7 +112,7 @@ eeg_interpolate_tbl.data.frame <- function(.data,
         ...
       )
 
-      dplyr::tibble(
+      tidytable::tidytable(
         !!rlang::quo_name(.x) := rep(results$xyz$x, times = results$no.Y),
         # eq to mba_interp$xyz.est@coords[,1] with sp = TRUE, which requires an extra package
         !!rlang::quo_name(.y) := rep(results$xyz$y, each = results$no.X),
@@ -136,7 +134,7 @@ eeg_interpolate_tbl.data.frame <- function(.data,
         duplicate = "error",
         ...
       )
-      dplyr::tibble(
+      tidytable::tidytable(
         !!rlang::quo_name(.x) := rep(results$x, times = .diam_points),
         # eq to mba_interp$xyz.est@coords[,1] with sp = TRUE, which requires an extra package
         !!rlang::quo_name(.y) := rep(results$y, each = .diam_points),
@@ -155,15 +153,16 @@ eeg_interpolate_tbl.data.frame <- function(.data,
       if (ncol(l) == 0) {
         list(.data)
       } else {
-        base::split(.data, l)
+        ## split.data.frame() by name: .data is a data.table underneath, and
+        ## data.table's own split method takes a different second argument
+        split.data.frame(.data, l)
       }
     } %>%
     purrr::discard(~ nrow(.x) == 0) %>%
     purrr::map_dfr(function(.d) {
-      common <- .d %>%
-        dplyr::ungroup() %>%
-        dplyr::select(-!!.label, -!!.x, -!!.y, -!!.value) %>%
-        dplyr::distinct()
+      common <- tbl_ungroup(.d) %>%
+        tidytable::select(-!!.label, -!!.x, -!!.y, -!!.value) %>%
+        tidytable::distinct()
 
       if (nrow(common) > 1
       # when there is no common columns, distintict returns anyway a number of columns, distinct bug?? TODO: report
@@ -171,22 +170,21 @@ eeg_interpolate_tbl.data.frame <- function(.data,
         stop("Bad grouping.")
       }
 
-      interpolate_from <- .d %>%
-        dplyr::ungroup() %>%
-        dplyr::select(!!.x, !!.y, !!.value) %>%
-        dplyr::filter(!is.na(!!.x) | !is.na(!!.y))
+      interpolate_from <- tbl_ungroup(.d) %>%
+        tidytable::select(!!.x, !!.y, !!.value) %>%
+        tidytable::filter(!is.na(!!.x) | !is.na(!!.y))
 
       if (nrow(interpolate_from) == 1) stop("Interpolation is not possible from only one point.")
 
       interpolation_alg(interpolate_from) %>%
         # eq to mba_interp$xyz.est@data$z
-        dplyr::filter(sqrt((!!.x)^2 + (!!.y)^2) <= 1 * .radius) %>%
+        tidytable::filter(sqrt((!!.x)^2 + (!!.y)^2) <= 1 * .radius) %>%
         {
-          dplyr::bind_cols(dplyr::slice(common, rep(1, each = nrow(.))), .)
+          tidytable::bind_cols(tidytable::slice(common, rep(1, each = nrow(.))), .)
         }
     })
 
-  dplyr::bind_rows(grid, .data)
+  tidytable::bind_rows(grid, .data)
 }
 
 #' Looks for grobs matching a pattern. Almost identical to gtable::gtable_filter

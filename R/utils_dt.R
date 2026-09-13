@@ -1,4 +1,44 @@
 #' @noRd
+## dplyr and tidytable each carry their own grouping and neither reads the
+## other's. tidytable::group_vars() on a dplyr grouped_df does not error, it
+## silently returns the contents of dplyr's .groups attribute instead of the
+## group names. The public data.frame methods take whatever the user grouped,
+## so go by the class rather than trusting either one.
+tbl_group_vars <- function(x) {
+  if (inherits(x, "grouped_df")) {
+    ## only reachable when the caller built a grouped_df, so dplyr is present
+    dplyr::group_vars(x)
+  } else if (inherits(x, "grouped_tt")) {
+    tidytable::group_vars(x)
+  } else {
+    character(0)
+  }
+}
+
+#' @noRd
+tbl_ungroup <- function(x) {
+  if (inherits(x, "grouped_df")) {
+    dplyr::ungroup(x)
+  } else if (inherits(x, "grouped_tt")) {
+    tidytable::ungroup(x)
+  } else {
+    x
+  }
+}
+
+#' @noRd
+## tidytable verbs hand back a plain, unkeyed tidytable, dropping both the
+## class they were given and the data.table key. Where the result goes straight
+## back into an eeg_lst, both have to be put back or it stops matching what the
+## dplyr path produced.
+keep_dt_attrs <- function(new, old) {
+  class(new) <- class(old)
+  k <- data.table::key(old)
+  if (!is.null(k) && all(k %in% names(new))) data.table::setkeyv(new, k)
+  new
+}
+
+#' @noRd
 shallow <- function(x) {
   x[TRUE]
 }

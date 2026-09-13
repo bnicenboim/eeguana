@@ -333,7 +333,7 @@ hd_add_column <- function(.data, ..., .before = NULL, .after = NULL) {
 signal_from_parent_frame <- function(env = parent.frame()) {
   # This is the environment where I can find the columns of signal_tbl
   signal_env <- rlang::env_get(env = env, ".top_env", inherit = TRUE)
-  signal_tbl <- dplyr::as_tibble(rlang::env_get_list(signal_env, rlang::env_names(signal_env)))
+  signal_tbl <- tidytable::as_tidytable(rlang::env_get_list(signal_env, rlang::env_names(signal_env)))
 }
 
 #' @noRd
@@ -354,7 +354,7 @@ extended_signal <- function(.eeg_lst, cond_cols = NULL, events_cols = NULL) {
 
 #' @noRd
 group_vars_segments <- function(.eeg_lst) {
-  intersect(dplyr::group_vars(.eeg_lst), colnames(.eeg_lst$.segments))
+  intersect(eeg_group_vars(.eeg_lst), colnames(.eeg_lst$.segments))
 }
 
 #' @noRd
