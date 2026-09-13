@@ -368,8 +368,10 @@ plot_ica.eeg_ica_lst <- function(data,
   # TODO : tidy table
   c_text <- summ %>%
     tidytable::mutate(cor_t = as.character(round(cor, 2)), pvar_t = as.character(round(var * 100))) %>%
+    ## one label per component: the dplyr version grouped by .recording and
+    ## .ICA first, and the join below needs both columns
     tidytable::summarize(text = paste0(chr_extract(EOG, "^."), ": ", cor_t, collapse = "\n") %>%
-      paste0("\n", unique(pvar_t), "%")) %>%
+      paste0("\n", unique(pvar_t), "%"), .by = c(.recording, .ICA)) %>%
     tidytable::mutate(x = 1, y = 1, .value = NA, .key = NA) %>%
     tidytable::left_join(tidytable::distinct(topo$data, .recording, .ICA) %>%
       tidytable::mutate(.ICA = as.character(.ICA)), ., by = c(".recording", ".ICA")) %>%
