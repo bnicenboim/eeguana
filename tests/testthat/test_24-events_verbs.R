@@ -42,6 +42,19 @@ test_that("no verb leaves tidytable's classes on an events table", {
   expect_equal(class(dplyr::filter(ev, .initial > 0)), class(ev))
 })
 
+test_that("summarise() on an events table keeps it an events table", {
+  # summarise() had no test at all; it went through the same unexported
+  # tidytable method that broke transmute()
+  ev <- events()
+  out <- dplyr::summarise(ev,
+    .initial = min(.initial), .final = max(.final),
+    .by = c(.id, .type, .description, .channel)
+  )
+  expect_equal(class(out), class(ev))
+  expect_true(is_sample_int(out$.initial))
+  expect_lte(nrow(out), nrow(ev))
+})
+
 test_that("transmute() keeps .initial and .final as samples", {
   # a plain integer here would fail validation downstream
   out <- keep_obligatory(events())

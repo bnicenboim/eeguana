@@ -164,25 +164,33 @@ validate_events_tbl <- function(events) {
 }
 
 
+#' Apply a tidytable verb to an events table
+#'
+#' These methods used to call tidytable's unexported `<verb>.tidytable`
+#' methods with `:::`. tidytable is free to remove those, and it already
+#' removed `transmute.tidytable`, which broke `transmute()` on every events
+#' table. The public verbs are used instead. The table is handed over as a
+#' plain tidytable, so the verb cannot dispatch back into these methods if
+#' they are ever registered on tidytable's generics as well. Its class and key
+#' are put back afterwards.
+#' @noRd
+events_verb <- function(verb, .data, ...) {
+  keep_dt_attrs(verb(tidytable::as_tidytable(.data), ...), .data)
+}
+
+# registered in zzz.R
 filter.events_tbl <- function(.data, ..., preserve = FALSE) {
-  as_events_tbl(tidytable:::filter.tidytable(.data, ...), sampling_rate(.data))
+  as_events_tbl(events_verb(tidytable::filter, .data, ...), sampling_rate(.data))
 }
 # registered in zzz.R
 mutate.events_tbl <- function(.data, ...) {
-  as_events_tbl(tidytable:::mutate.tidytable(.data, ...), sampling_rate(.data))
+  as_events_tbl(events_verb(tidytable::mutate, .data, ...), sampling_rate(.data))
 }
 # registered in zzz.R
 transmute.events_tbl <- function(.data, ...) {
-  ## tidytable no longer has a transmute.tidytable method, so the ::: call this
-  ## used to make errored with `object 'transmute.tidytable' not found` on
-  ## every transmute() of an events table. tidytable::transmute() is not a
-  ## generic, so calling it here cannot dispatch back into this method.
-  as_events_tbl(
-    keep_dt_attrs(tidytable::transmute(.data, ...), .data),
-    sampling_rate(.data)
-  )
+  as_events_tbl(events_verb(tidytable::transmute, .data, ...), sampling_rate(.data))
 }
 # registered in zzz.R
 summarise.events_tbl <- function(.data, ...) {
-  as_events_tbl(tidytable:::summarize.tidytable(.data, ...), sampling_rate(.data))
+  as_events_tbl(events_verb(tidytable::summarize, .data, ...), sampling_rate(.data))
 }

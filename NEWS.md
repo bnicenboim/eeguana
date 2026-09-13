@@ -36,6 +36,9 @@
   `eeg_*` generics.
 - `dev/check_without_dplyr.R` runs the package on a library where dplyr, tidyr,
   and tibble are not installed.
+- No unexported function of another package is called with `:::` any more, and
+  a test fails if one comes back. One such call had already broken
+  `transmute()` on events tables when tidytable removed the function.
 
 # eeguana 0.1.12.9002
 

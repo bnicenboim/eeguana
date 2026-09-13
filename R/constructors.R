@@ -53,7 +53,9 @@ eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, c
     segments_tbl <- data.table::data.table(.id = unique(signal_tbl$.id))[, .recording := NA_character_]
   } else {
     if (!".recording" %in% colnames(segments_tbl)) {
-      segments_tbl <- data.table:::shallow(segments_tbl[, .recording := NA])
+      ## data.table::copy() in place of data.table's unexported shallow(): either way
+      ## the table that comes back is independent of the caller's
+      segments_tbl <- data.table::copy(segments_tbl[, .recording := NA])
     }
   }
   segments_tbl <- data.table::as.data.table(segments_tbl)
@@ -97,7 +99,9 @@ psd_lst <- function(psd_tbl = NULL, segments_tbl = NULL, channels_tbl = NULL) {
     segments_tbl <- data.table::data.table(.id = unique(psd_tbl$.id))[, .recording := NA_character_]
   } else {
     if (!".recording" %in% colnames(segments_tbl)) {
-      segments_tbl <- data.table:::shallow(segments_tbl[, .recording := NA])
+      ## data.table::copy() in place of data.table's unexported shallow(): either way
+      ## the table that comes back is independent of the caller's
+      segments_tbl <- data.table::copy(segments_tbl[, .recording := NA])
     }
   }
   segments_tbl <- data.table::as.data.table(segments_tbl)

@@ -221,7 +221,9 @@ update_segments_tbl <- function(old_segments, new_events) {
 #' * .new_id: new id for the event, current one if left empty
 #' @noRd
 update_events <- function(events_dt, segmentation) {
-  segmentation <- data.table:::shallow(segmentation)
+  ## a copy, so that the := below never reach the caller's table. It is
+  ## data.table::copy() because data.table's shallow() is not exported.
+  segmentation <- data.table::copy(segmentation)
   # needs to remove the class quickly:
   data.table::setDT(segmentation)
   segmentation[, .new_id := if (!".new_id" %in% colnames(segmentation)) .id else .new_id]

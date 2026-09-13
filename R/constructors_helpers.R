@@ -218,7 +218,9 @@ validate_segments <- function(segments) {
   }
   if (nrow(segments) > 0) {
     if (!is.integer(segments$.id) & all(is_wholenumber(segments$.id))) {
-      segments <- data.table:::shallow(segments[, .id := as.integer(.id)])
+      ## data.table::copy() in place of data.table's unexported shallow(): either way
+      ## the table that comes back is independent of the caller's
+      segments <- data.table::copy(segments[, .id := as.integer(.id)])
     } else if (!is.integer(segments$.id)) {
       warning("Column .id of segments table is not an integer.")
     }
