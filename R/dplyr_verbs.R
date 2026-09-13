@@ -47,10 +47,6 @@
 #' @param .add When FALSE, the default, group_by() will override existing groups. To add to the existing groups, use .add = TRUE.
 #' @param .drop Only .drop = FALSE is available, empty groups are never dropped.
 #' @param .groups Only .groups = "keep" is available.  Same grouping structure as .data.
-#' @importFrom dplyr  select mutate transmute summarise rename
-#' @importFrom dplyr group_by ungroup group_vars
-#' @importFrom dplyr groups
-#' @importFrom dplyr anti_join left_join right_join full_join semi_join inner_join
 #'
 #' @return An eeg_lst object.
 #'
@@ -396,7 +392,7 @@ group_by.eeg_lst <- eeg_group_by.eeg_lst
 # Not a plain alias of eeg_ungroup.eeg_lst: dplyr's generic is ungroup(x, ...),
 # so a method whose first argument is called .data leaves it empty when the
 # caller writes ungroup(x = d). Name it x here and accept .data too.
-#' @exportS3Method dplyr::ungroup
+# registered in zzz.R, so that dplyr can stay in Suggests
 ungroup.eeg_lst <- function(x, ...) {
   eeg_ungroup(first_arg_either(x, ..., .other = ".data"))
 }

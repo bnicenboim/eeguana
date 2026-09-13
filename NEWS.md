@@ -1,5 +1,12 @@
 # eeguana 0.1.12.9003
 
+## Dependencies
+
+- dplyr and tidyr move from `Imports` to `Suggests`, so installing eeguana no
+  longer installs them. The dplyr verbs still work on eeguana objects whenever
+  dplyr is installed, because their methods are registered as soon as dplyr
+  loads, whichever of the two packages loads first.
+
 ## Bugs fixed
 
 - `drop_incomplete_segments()` errored with `could not find function "na.omit"`
@@ -24,10 +31,11 @@
 
 ## Internal
 
-- dplyr is no longer called inside the package. All 111 internal calls now go
-  through tidytable, and the calls that act on an `eeg_lst` go through
-  eeguana's own `eeg_*` generics. dplyr stays in `Imports` for its S3 generics,
-  so `dplyr::filter(eeg)` and friends are unaffected.
+- dplyr is no longer called inside the package. The internal calls go through
+  tidytable, and the calls that act on an `eeg_lst` go through eeguana's own
+  `eeg_*` generics.
+- `dev/check_without_dplyr.R` runs the package on a library where dplyr, tidyr,
+  and tibble are not installed.
 
 # eeguana 0.1.12.9002
 

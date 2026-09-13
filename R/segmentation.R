@@ -266,8 +266,7 @@ eeg_unsegment.eeg_lst <- function(.data, .start = 1, .sep = c(.type = "New Segme
     new_events <- rbind(new_events,data.table::data.table(t(.zero), .initial = time_0,
                                                           .id = u_id))
   }
-  new_events <- new_events %>%
-    mutate(.final = .initial)
+  new_events[, .final := .initial]
   
   .data$.events <- .data$.events %>% rbind( new_events, fill = TRUE) %>% 
     .[order(., .id,.initial),] %>%

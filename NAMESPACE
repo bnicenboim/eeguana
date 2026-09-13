@@ -59,10 +59,6 @@ S3method(chs_mean,psd_lst)
 S3method(component_names,default)
 S3method(component_names,eeg_ica_lst)
 S3method(count_complete_cases_tbl,eeg_lst)
-S3method(dplyr::mutate,events_tbl)
-S3method(dplyr::summarise,events_tbl)
-S3method(dplyr::transmute,events_tbl)
-S3method(dplyr::ungroup,eeg_lst)
 S3method(drop_incomplete_segments,eeg_lst)
 S3method(eeg_anti_join,eeg_lst)
 S3method(eeg_artif_amplitude,eeg_lst)
@@ -291,23 +287,6 @@ export(write_vhdr)
 importFrom(data.table,
   ":=",
   between
-)
-importFrom(dplyr,
-  anti_join,
-  full_join,
-  group_by,
-  group_vars,
-  groups,
-  inner_join,
-  left_join,
-  mutate,
-  rename,
-  right_join,
-  select,
-  semi_join,
-  summarise,
-  transmute,
-  ungroup
 )
 importFrom(ggplot2,ggplot)
 importFrom(magrittr,"%>%")

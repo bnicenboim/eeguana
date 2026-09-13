@@ -74,7 +74,9 @@ channels_tbl.data.frame <- function(.data, ...) {
   ## first row is enough and it makes it faster
   tbl <- .data[1, ] %>%
     select.(tidyselect::all_of(channels)) %>%
-    purrr::map_dfr(~ {
+    ## map_dtr() rather than purrr::map_dfr(): purrr binds those rows with dplyr, so
+    ## it fails at run time on a machine without dplyr installed
+    map_dtr(~ {
       attrs <- attributes(.x)
       attrs[names(attrs) != "class"]
     }) %>%

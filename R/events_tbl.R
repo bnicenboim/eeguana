@@ -167,11 +167,11 @@ validate_events_tbl <- function(events) {
 filter.events_tbl <- function(.data, ..., preserve = FALSE) {
   as_events_tbl(tidytable:::filter.tidytable(.data, ...), sampling_rate(.data))
 }
-#' @exportS3Method dplyr::mutate
+# registered in zzz.R
 mutate.events_tbl <- function(.data, ...) {
   as_events_tbl(tidytable:::mutate.tidytable(.data, ...), sampling_rate(.data))
 }
-#' @exportS3Method dplyr::transmute
+# registered in zzz.R
 transmute.events_tbl <- function(.data, ...) {
   ## tidytable no longer has a transmute.tidytable method, so the ::: call this
   ## used to make errored with `object 'transmute.tidytable' not found` on
@@ -182,7 +182,7 @@ transmute.events_tbl <- function(.data, ...) {
     sampling_rate(.data)
   )
 }
-#' @exportS3Method dplyr::summarise
+# registered in zzz.R
 summarise.events_tbl <- function(.data, ...) {
   as_events_tbl(tidytable:::summarize.tidytable(.data, ...), sampling_rate(.data))
 }

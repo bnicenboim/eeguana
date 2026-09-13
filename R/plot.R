@@ -172,7 +172,9 @@ plot_topo.data.frame <- function(data, .value = .value, .label = .key, ...) {
     tidytable::select(-!!.label)
   label_pos <- tidytable::filter(data, !is.na(.x), !is.na(.y), !is.na(!!.label)) %>%
     tidytable::distinct(.x, .y, !!.label)
-  label_corrected_pos <- purrr::map_df(label_pos %>%
+  ## map_dtr() rather than purrr::map_dfr(): purrr binds those rows with dplyr, so
+  ## it fails at run time on a machine without dplyr installed
+  label_corrected_pos <- map_dtr(label_pos %>%
     tidytable::select(.x, .y, !!.label) %>%
     purrr::transpose(), function(l) {
     d %>%

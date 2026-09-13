@@ -16,7 +16,7 @@ eeg_interpolate_tbl <- function(.data, ...) {
 #' @export
 eeg_interpolate_tbl.eeg_lst <- function(.data, .radius = 1.2, .diam_points = 100, .method = "MBA", ...) {
   grouping <- eeg_group_vars(.data)
-  .data <- as_tibble.eeg_lst(.data) %>%
+  .data <- data.table::as.data.table(.data) %>%
     tidytable::left_join(channels_tbl(.data), by = c(".key" = ".channel")) %>%
     tidytable::group_by(tidyselect::all_of(grouping))
   dots <- rlang::enquos(...)
@@ -159,7 +159,9 @@ eeg_interpolate_tbl.data.frame <- function(.data,
       }
     } %>%
     purrr::discard(~ nrow(.x) == 0) %>%
-    purrr::map_dfr(function(.d) {
+    ## map_dtr() rather than purrr::map_dfr(): purrr binds those rows with dplyr, so
+    ## it fails at run time on a machine without dplyr installed
+    map_dtr(function(.d) {
       common <- tbl_ungroup(.d) %>%
         tidytable::select(-!!.label, -!!.x, -!!.y, -!!.value) %>%
         tidytable::distinct()

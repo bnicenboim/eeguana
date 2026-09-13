@@ -26,8 +26,6 @@ Depends:
     stats
 Imports:
     ggplot2 (>= 3.1.0),
-    dplyr (>= 1.0.0),
-    tidyr (>= 0.8.2),
     purrr (>= 0.2.5),
     tidyselect (>= 0.2.5),
     tools,
@@ -51,6 +49,8 @@ Imports:
     gsignal
 Suggests:
     akima (>= 0.6.2),
+    dplyr (>= 1.0.0),
+    tidyr (>= 0.8.2),
     tibble (>= 2.1.1),
     plotly (>= 4.8.0),
     R.matlab (>= 3.6.2),

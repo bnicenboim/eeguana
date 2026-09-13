@@ -157,7 +157,10 @@ as_long_tbl <- function(x, ...) {
 as_long_tbl.mixing_tbl <- function(x, add_channels_info = TRUE, ...) {
   x %>%
     .[, lapply(.SD, `attributes<-`, NULL)] %>%
-    tidyr::gather(key = ".key", value = ".value", channel_names(x)) %>%
+    tidytable::pivot_longer(
+      cols = tidyselect::all_of(channel_names(x)),
+      names_to = ".key", values_to = ".value"
+    ) %>%
     tidytable::mutate(.type = ".channel") %>%
     {
       if (add_channels_info) {

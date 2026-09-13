@@ -1,7 +1,7 @@
 # Replacing dplyr with tidytable
 
-Notes for the `nodplyr` branch. Survey done 2026-09-12. **Stage 1 is done**;
-Stages 2 and 3 are not started.
+Notes for the `nodplyr` branch. Survey done 2026-09-12. **Stages 1 and 3 are
+done** (3 on 2026-09-13); Stage 2 is not started.
 
 ## The short version
 
@@ -92,7 +92,9 @@ tested for `validate_signal_tbl()`. Removing them also clears the `R CMD check`
 NOTE about apparent S3 methods not registered, which is a false positive caused
 by the trailing dot in their names.
 
-**Stage 3, move dplyr to Suggests.** This is the goal: dplyr out of `Imports`,
+**Stage 3, move dplyr to Suggests. DONE.** This was the goal, and the plan
+below turned out to be necessary but not sufficient; see "What Stage 3 actually
+took" further down. The original plan: dplyr out of `Imports`,
 with `dplyr::filter(eeg)` still working. It does work, because a user can only
 type `dplyr::` if dplyr is installed and loaded, and eeguana's hook attaches
 the method at that moment. eeguana itself never loads dplyr.
@@ -140,6 +142,48 @@ the goal.
   as `S3method()` and reinstate the hard dependency.
 - Verify the result with `loadedNamespaces()` after `library(eeguana)` in a
   fresh session: dplyr must not appear.
+
+## What Stage 3 actually took
+
+The four planned edits (lazy `asNamespace()`, no `importFrom(dplyr)`, no hard
+`S3method(dplyr::...)`, and dplyr to Suggests) left `NAMESPACE` free of dplyr. They
+were still not enough, and two acceptance tests that looked right were wrong.
+
+**"dplyr is not loaded after `library(eeguana)`" is the wrong test.** ggplot2
+loads dplyr during its own load whenever dplyr is installed (one of its load
+hooks registers `fortify.grouped_df`). On any machine with dplyr installed it
+gets loaded, whatever eeguana does. The right test is that eeguana works where
+dplyr is **not installed at all**, which is what `dev/check_without_dplyr.R`
+checks: it links every installed package except dplyr, tidyr, and tibble into a
+temporary library and runs 22 checks in an R that can see nothing else.
+
+**That test found plotting broken.** purrr's `map_df()`, `map_dfr()`,
+`map_dfc()`, and 11 relatives bind rows with dplyr at run time. Three calls, in
+`plot.R`, `tbl.R`, and `plot_helpers.R`, took down `ggplot(eeg_lst)`,
+`plot_topo()`, `eeg_interpolate_tbl()`, `plot_in_layout()`, `channels_tbl<-`,
+`eeg_ica_keep()`, `eeg_ica_var_tbl()`, and `plot_components()`. They now use
+eeguana's `map_dtr()`, which binds with `data.table::rbindlist()`. Nine outputs
+of those paths were compared before and after on the same saved inputs and are
+equal in value and class.
+
+**tidyr had to go too**, because it imports dplyr. It was used twice.
+`gather()` became `tidytable::pivot_longer()`, checked to give the same
+columns, row order, values, and types. `separate(fill = "left")` could not
+become `tidytable::separate()`: that has no `fill` argument, swallows it in
+`...`, and so moves a slash-less MNE description such as `"boundary"` into the
+type column without a warning. It became `split_type_description()`, tested
+against tidyr on awkward inputs. The first version still leaked a `dim`
+attribute from the 1-d array reticulate returns, which `test_19` caught.
+
+**tibble stays in Suggests.** `as_tibble()` and `as_data_frame()` are tibble's
+generics, so their methods are now registered on tibble rather than dplyr; they
+are only reachable with tibble loaded. `plot_topo()` no longer goes through
+`as_tibble.eeg_lst()`. The remaining `tibble::` calls sit in `hd_add_column()`,
+which nothing calls.
+
+**Still open:** examples and vignettes call `library(dplyr)` unconditionally.
+That passes `R CMD check` wherever Suggests are installed, but a check without
+Suggests would flag it.
 
 ## The thing that actually blocks "no data.table"
 

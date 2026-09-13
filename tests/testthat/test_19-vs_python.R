@@ -1,4 +1,7 @@
 library(eeguana)
+# dplyr is only in eeguana's Suggests, so its verbs are no longer visible here
+# through eeguana's imports and have to be attached
+library(dplyr)
 options(eeguana.verbose = FALSE)
 set.seed(123)
 #reticulate::use_condaenv("mne")
@@ -158,7 +161,7 @@ if (0) {
     facet_grid(. ~ .key) +
     geom_line(alpha = .5)
 
-  X1s <- tibble(X1_firmne, X1_iirmne, X1_iir = c(data_sin_X1_iir$.signal$X1), X1_fir = c(data_sin_X1$.signal$X1), t = 1:1000) %>% tidyr::pivot_longer(cols = -t)
+  X1s <- tibble::tibble(X1_firmne, X1_iirmne, X1_iir = c(data_sin_X1_iir$.signal$X1), X1_fir = c(data_sin_X1$.signal$X1), t = 1:1000) %>% tidyr::pivot_longer(cols = -t)
   ggplot(X1s %>% filter(name %in% c("X1_iirmne", "X1_firmne")), aes(x = t, y = value, color = name)) +
     geom_line(alpha = .5)
   ggplot(X1s %>% filter(name %in% c("X1_iirmne", "X1_iir")), aes(x = t, y = value, color = name)) +

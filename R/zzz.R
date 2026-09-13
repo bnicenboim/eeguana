@@ -49,13 +49,13 @@ mne <- NULL
   register_s3_method("dplyr", "left_join", "eeg_lst")
   register_s3_method("dplyr", "semi_join", "eeg_lst")
   register_s3_method("dplyr", "anti_join", "eeg_lst")
-  register_s3_method("dplyr", "as_tibble", "eeg_lst")
+  register_s3_method("tibble", "as_tibble", "eeg_lst")
 
   register_s3_method("dplyr", "filter", "events_tbl")
   register_s3_method("dplyr", "mutate", "events_tbl")
   register_s3_method("dplyr", "transmute", "events_tbl")
   register_s3_method("dplyr", "summarise", "events_tbl")
-  register_s3_method("dplyr", "as_data_frame", "eeg_lst")
+  register_s3_method("tibble", "as_data_frame", "eeg_lst")
   register_s3_method("dplyr", "bind_rows", "events_tbl")
   register_s3_method("tidytable", "bind_rows", "events_tbl")
 
