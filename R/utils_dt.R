@@ -73,14 +73,6 @@ map_dtr <- function(.x, .f, ..., .id = NULL) {
 }
 
 #' @noRd
-map2_dtr <- function(.x, .f, ..., .id = NULL) {
-  .f <- purrr::as_mapper(.f, ...)
-  res <- purrr::map2(.x, .y, .f, ...)
-  data.table::rbindlist(res, fill = TRUE, idcol = .id)
-}
-
-
-#' @noRd
 imap_dtr <- function(.x, .f, ..., .id = NULL) {
   .f <- purrr::as_mapper(.f, ...)
   map2_dtr(.x, names(.x), .f, ..., .id = .id)
