@@ -121,7 +121,6 @@ gg_default_layers <- function(lims){
 #' @return A ggplot object
 #'
 #' @examples
-#' library(dplyr)
 #' library(ggplot2)
 #' # Calculate mean amplitude between 100-200 ms and plot the topography
 #' data_faces_ERPs %>%
@@ -749,11 +748,10 @@ ggplot_add.layer_events <- function(object, plot, object_name) {
 #'
 #' @examples
 #' library(ggplot2)
-#' library(dplyr)
 #' # Plot grand averages for selected channels
 #' data_faces_ERPs %>%
 #'   # select the desired electrodes
-#'   select(O1, O2, P7, P8) %>%
+#'   eeg_select(O1, O2, P7, P8) %>%
 #'   ggplot(aes(x = .time, y = .key)) +
 #'   # add a grand average wave
 #'   stat_summary(

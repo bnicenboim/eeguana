@@ -31,7 +31,6 @@
 #' @family preprocessing functions
 #'
 #' @examples
-#' library(dplyr)
 #' library(ggplot2)
 #' data("data_faces_ERPs")
 #' data_ERPs_filtered <- data_faces_ERPs %>%

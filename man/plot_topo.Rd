@@ -38,7 +38,6 @@ To add additional components to the plot such as titles and annotations, simply
 use the \code{+} symbol and add layers exactly as you would for \link[ggplot2:ggplot]{ggplot2::ggplot}.
 }
 \examples{
-library(dplyr)
 library(ggplot2)
 # Calculate mean amplitude between 100-200 ms and plot the topography
 data_faces_ERPs \%>\%

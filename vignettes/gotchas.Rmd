@@ -20,7 +20,7 @@ I address some potential sources of confusion here. To run this examples, we fir
 
 ```{r, message = FALSE}
 library(eeguana)
-library(dplyr)
+library(tidytable) # faster alternative to dplyr
 ```
 
 ## Tidyverse dplyr-like functions

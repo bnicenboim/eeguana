@@ -55,7 +55,6 @@
 #' @name dplyr_verbs
 #'
 #' @examples
-#' library(dplyr)
 #' # Create new channel in the signal table
 #' data_faces_ERPs %>%
 #'   eeg_mutate(tmp = Fz - Cz)

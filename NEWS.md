@@ -6,6 +6,7 @@
   longer installs them. The dplyr verbs still work on eeguana objects whenever
   dplyr is installed, because their methods are registered as soon as dplyr
   loads, whichever of the two packages loads first.
+- Examples and vignettes load tidytable, a faster alternative to dplyr.
 
 ## Bugs fixed
 
