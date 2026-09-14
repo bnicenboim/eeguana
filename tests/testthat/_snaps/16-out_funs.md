@@ -6,7 +6,6 @@
       # EEG data:
       
       # Signal table:
-      Key: <.id, .sample>
                .id      .sample           Fp1           Fpz           Fp2
              <int> <sample_int> <channel_dbl> <channel_dbl> <channel_dbl>
           1:     1        15000     -75.03562     -28.57522    -28.165712
@@ -128,7 +127,6 @@
       544:     1     Stimulus         s130        58328        58328     <NA>
       
       # Segments table:
-      Key: <.id>
            .id .recording segment
          <int>     <char>   <int>
       1:     1 faces.vhdr       1
@@ -141,7 +139,6 @@
       # EEG data:
       
       # Signal table:
-      Key: <.id, .sample>
                .id      .sample           Fp1           Fpz           Fp2
              <int> <sample_int> <channel_dbl> <channel_dbl> <channel_dbl>
           1:     1        15000     -75.03562     -28.57522    -28.165712
@@ -263,7 +260,6 @@
       544:     1     Stimulus         s130        58328        58328     <NA>
       
       # Segments table:
-      Key: <.id>
            .id .recording segment
          <int>     <char>   <int>
       1:     1 faces.vhdr       1

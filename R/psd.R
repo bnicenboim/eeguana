@@ -18,7 +18,6 @@ new_psd_tbl <- function(.id = integer(0), .freq = numeric(0), psd_matrix = NULL,
   data.table::setnames(psd_tbl, make_names(colnames(psd_tbl)))
   data.table::setcolorder(psd_tbl, c(".id", ".freq"))
   data.table::setattr(psd_tbl, "class", c("psd_tbl", class(psd_tbl)))
-  data.table::setkey(psd_tbl, .id, .freq)
   psd_tbl[]
 }
 
@@ -36,7 +35,6 @@ as_psd_tbl.data.table <- function(.data, ...) {
 set_psd_tbl <- function(.data){
   .data[, .id := as.integer(.id)]
   data.table::setattr(.data, "class", c("psd_tbl", class(.data)))
-  data.table::setkey(.data, .id, .freq)
   validate_psd_tbl(.data)
 }
 
@@ -86,11 +84,6 @@ validate_psd_tbl <- function(psd_tbl) {
   }
   if (!is.integer(psd_tbl$.id)) {
     warning(".id should be an integer.",
-            call. = FALSE
-    )
-  }
-  if (!identical(data.table::key(psd_tbl), c(".id", ".freq"))) {
-    warning("`keys` of psd table are missing.",
             call. = FALSE
     )
   }

@@ -175,7 +175,6 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
     c(".sample", channel_names(new_signal)), NA
   )
   attributes(new_signal$.sample) <- attributes(.data$.signal$.sample)
-  data.table::setkey(new_signal, .id, .sample)
 
   .data$.signal <- new_signal
 
@@ -193,7 +192,6 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
   .data$.segments <- update_segments_tbl(.data$.segments, times0)
 
   message_verbose(paste0(say_size(.data), " after segmentation."))
-  data.table::setkey(.data$.segments, .id)
   validate_eeg_lst(.data)
 }
 
@@ -285,7 +283,6 @@ eeg_unsegment.eeg_lst <- function(.data, .start = 1, .sep = c(.type = "New Segme
   .data$.segments <- .data$.segments %>% 
     tt_summarize(.id =1, 
                .recording = paste(unique(.recording), collapse =";"))
-  data.table::setkey(.data$.signal, .id, .sample)
   
     validate_eeg_lst(.data)
 }

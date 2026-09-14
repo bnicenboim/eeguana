@@ -30,7 +30,6 @@ rebuild_segment_dt <- function(.data) {
     }
     segment_dt <- data.table::data.table(.id = seq_len(last_id), .recording = NA_character_)
   }
-  data.table::setkey(segment_dt, .id)
   segment_dt
 }
 
@@ -91,7 +90,6 @@ filter_lst <- function(.data, ...) {
     .data <- .data %>% update_events_channels()
   }
   # Fix the indices in case some of them drop out
-  data.table::setkey(.data$.segments, .id)
 
   .data
 }
@@ -265,7 +263,6 @@ select_rename <- function(.data, select = TRUE, ...) {
       }
     }
   }
-  data.table::setkey(.data$.segments, .id)
   .data %>%
     eeg_group_by(!!!new_groups)
 }
@@ -348,7 +345,6 @@ extended_signal <- function(.eeg_lst, cond_cols = NULL, events_cols = NULL) {
   if (length(events_cols) > 0) {
     extended_signal_dt <- tt_left_join(extended_signal_dt, tt_select(events_tbl(.eeg_lst), tidyselect::all_of(events_col)) , by = c(".id"))
   }
-  data.table::setkeyv(extended_signal_dt, cols = c(".id", colnames(extended_signal_dt)[2]))
   extended_signal_dt
 }
 

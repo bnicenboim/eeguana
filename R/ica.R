@@ -298,7 +298,6 @@ as_eeg_lst.eeg_ica_lst <- function(.data, ...) {
 as_eeg_lst.eeg_lst <- function(.data, ...) {
   if (!data.table::is.data.table(.data$.segments)) {
     .data$.segments <- data.table::as.data.table(.data$.segments)
-    data.table::setkey(.data$.segments, .id)
   }
   # fix the classes from old versions
   .data <- .data %>% eeg_mutate(across_ch( ~  `class<-`(.x,  c("channel_dbl", "numeric") )))

@@ -27,14 +27,12 @@ tbl_ungroup <- function(x) {
 }
 
 #' @noRd
-## tidytable verbs hand back a plain, unkeyed tidytable, dropping both the
-## class they were given and the data.table key. Where the result goes straight
-## back into an eeg_lst, both have to be put back or it stops matching what the
-## dplyr path produced.
+## tidytable verbs hand back a plain tidytable, dropping the class they were
+## given. Where the result goes straight back into an eeg_lst, the class has to
+## be put back. eeguana no longer sets data.table keys, so there is no key to
+## restore.
 keep_dt_attrs <- function(new, old) {
   class(new) <- class(old)
-  k <- data.table::key(old)
-  if (!is.null(k) && all(k %in% names(new))) data.table::setkeyv(new, k)
   new
 }
 

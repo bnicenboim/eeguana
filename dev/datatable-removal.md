@@ -177,3 +177,40 @@ stands, and data.table stays wherever it is faster.
 but used more memory, 18 Mb against 14 Mb. A range join switches to base R only
 if measuring the real function shows it is neither slower nor heavier on memory.
 Otherwise it stays on data.table.
+
+## Stage A results
+
+**Code.** 43 standalone `setkey()` calls removed, both "keys are missing"
+warnings removed, and `keep_dt_attrs()` now restores only the class: 60 lines
+removed, 4 added. Regenerating the documentation changed nothing.
+
+**Stored data.** The key was stripped from 26 tables in 13 objects, in
+`R/sysdata.rda` and both faces datasets. Every object is identical to the
+original apart from `sorted`, checked before writing and again after
+reloading, and saved with the same `xz` compression and format version 2.
+`layout_32_1020.rda` had no keys and is untouched.
+
+**Tests.** Two failures before accepting the new print snapshot, which differed
+from the old one in exactly four lines, all `Key:` lines. After accepting it,
+`R CMD check` gives 0 errors, 0 warnings, and the same 3 notes as before.
+
+**Speed.** All 16 benchmark cases, 8 rounds per build in alternating order,
+with twice the usual iterations, against `ba58adc`. A case counts as slower only
+if its whole 95% interval is above 1.02. Result: 14 show no difference, one is
+faster (`as.data.table()` on a large object, 0.79, interval 0.71 to 0.85), and
+one was flagged slower (`read_vhdr()` on the 34-channel file, 1.11, interval
+1.03 to 1.54). No case uses more memory. Grouped `eeg_summarize()`, which a
+shorter run had flagged, shows no difference (1.03, interval 0.87 to 1.49).
+
+The flagged read was noise. The first two Stage A rounds ran during a period
+when both reading cases were about 50% slower for either build. A focused
+recheck of that case alone, 10 alternating rounds of 8 reads per build, gives a
+ratio of 0.989 with an interval of 0.962 to 1.006, and a profile of 20 reads
+sampled 28.65 s before against 28.40 s on Stage A.
+
+This machine's timings vary a lot between rounds, so many intervals are wide:
+"no difference" means no difference larger than roughly the interval.
+
+**Aside.** The profile shows `read_vhdr()` spending about 22% of its time in
+`copy()` and 16% in `matrix()`. That is unrelated to keys, but it is a candidate
+for speeding reading up later.

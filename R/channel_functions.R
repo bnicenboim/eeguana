@@ -59,7 +59,6 @@ chs_mean.eeg_lst <- function(x, ..., na.rm = FALSE) {
   x$.signal <- x$.signal %>%
    tt_mutate(mean = rowMeans_ch(tt_select(., channel_names(x)),  na.rm = na.rm)) %>%
    tt_select(-all_of(channel_names(x)))
-  data.table::setkey(x$.signal, .id, .sample)
   update_events_channels(x) %>%
     validate_eeg_lst()
 }
@@ -113,8 +112,6 @@ eeg_rereference.eeg_lst <- function(.data, ..., .ref = NULL, na.rm = FALSE) {
   }
   .data$.signal <- .data$.signal %>% 
     tt_mutate(across(tidyselect::all_of(!!chs), reref, ref_value))
-  data.table::setkey(.data$.signal, .id, .sample)
-  data.table::setkey(.data$.segments, .id)
   update_events_channels(.data) %>% validate_eeg_lst()
 }
 

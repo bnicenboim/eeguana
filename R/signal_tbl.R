@@ -29,7 +29,6 @@ new_signal_tbl <- function(.id = integer(0), .sample = integer(0), signal_matrix
   data.table::setnames(signal_tbl, make_names(colnames(signal_tbl), allow_init_dot = TRUE))
   data.table::setcolorder(signal_tbl, c(".id", ".sample"))
   data.table::setattr(signal_tbl, "class", c("signal_tbl", class(signal_tbl)))
-  data.table::setkey(signal_tbl, .id, .sample)
   signal_tbl[]
 }
 
@@ -47,7 +46,6 @@ as_signal_tbl.tidytable <- function(.data, ...) {
 as_signal_tbl.data.table <- function(.data, ...) {
     .data <- .data %>% tt_mutate(.id = as.integer(.id))
     class(.data) <- c("signal_tbl","data.table", "data.frame")
-    data.table::setkey(.data, .id, .sample)
     validate_signal_tbl(.data)
 }
 # 
@@ -136,11 +134,6 @@ validate_signal_tbl <- function(signal_tbl) {
     )
   }
   
-  if (!identical(data.table::key(signal_tbl), c(".id", ".sample"))) {
-    warning("`keys` of signal table are missing.",
-            call. = FALSE
-    )
-  }
   
   ## Validates .sample
   if (!is_sample_int(signal_tbl$.sample)) {

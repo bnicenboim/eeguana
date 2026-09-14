@@ -191,7 +191,6 @@ filt_eeg_lst <- function(.signal, ..., h, na.rm = FALSE, .by_ref = FALSE) {
     .signal <- map2_dtc(.signal,attrs, function(c,a) {mostattributes(c)<-a
     c}) %>% as_signal_tbl()
   } 
-  data.table::setkey(.signal, .id, .sample)
   .signal 
   
 }

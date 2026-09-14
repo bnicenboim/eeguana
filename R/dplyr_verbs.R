@@ -112,8 +112,6 @@ eeg_mutate.eeg_lst <- function(.data, ...) {
   # updates the events and the channels
   .data <- .data %>%
     update_events_channels()
-  data.table::setkey(.data$.signal, .id, .sample)
-  data.table::setkey(.data$.segments, .id)
     .data %>%
     validate_eeg_lst()
 }
@@ -122,8 +120,6 @@ eeg_mutate.eeg_lst <- function(.data, ...) {
 eeg_mutate.psd_lst <- function(.data, ...) {
   .data <- mutate_lst(.data, ..., keep_cols = TRUE)
   # updates the events and the channels
-  data.table::setkey(.data$.psd, .id, .freq)
-  data.table::setkey(.data$.segments, .id)
   .data %>%
     validate_psd_lst()
 }
@@ -156,8 +152,6 @@ eeg_transmute.eeg_lst <- function(.data, ...) {
   # updates the events and the channels
   .data <- .data %>%
     update_events_channels()
-  data.table::setkey(.data$.signal, .id, .sample)
-  data.table::setkey(.data$.segments, .id)
   .data %>%
     validate_eeg_lst()
 }
@@ -167,8 +161,6 @@ eeg_transmute.eeg_lst <- function(.data, ...) {
 eeg_transmute.psd_lst <- function(.data, ...) {
   .data <- mutate_lst(.data, ..., keep_cols = FALSE)
   # updates the events and the channels
-  data.table::setkey(.data$.psd, .id, .freq)
-  data.table::setkey(.data$.segments, .id)
   .data %>%
     validate_psd_lst()
 }
@@ -190,7 +182,6 @@ eeg_filter.eeg_lst <- function(.data, ..., .preserve = FALSE) {
   }
   .data <- update_eeg_lst(.data)
   .data <- filter_lst(.data, ...)
-  data.table::setkey(.data$.signal, .id, .sample)
   .data %>% validate_eeg_lst()
 }
 
@@ -200,14 +191,12 @@ eeg_filter.psd_lst <- function(.data, ..., .preserve = FALSE) {
     warning("Ignoring `.preserve` argument.")
   }
   .data <- filter_lst(.data, ...)
-  data.table::setkey(.data$.psd, .id, .freq)
   .data %>% validate_psd_lst()
 }
 
 #' @export
 eeg_filter.eeg_ica_lst <- function(.data, ..., .preserve = FALSE) {
   out <- NextMethod()
-  data.table::setkey(out$.signal, .id, .sample)
   out <- out %>% validate_eeg_lst()
   recordings <- unique(out$.segments$.recording)
   out$.ica <- out$.ica[recordings]
@@ -255,7 +244,6 @@ eeg_summarize.eeg_lst <- function(.data, ..., .groups = "keep") {
   # .id and .recording. alloc.col() restores the self-reference in place and
   # keeps the signal_tbl class.
   data.table::alloc.col(extended_signal_dt)
-  data.table::setkey(extended_signal_dt, .id, .sample)
   data.table::setcolorder(extended_signal_dt, c(".id", ".sample"))
   .data$.signal <- extended_signal_dt
   .data$.segments <- rebuild_segment_dt(.data)
@@ -291,7 +279,6 @@ eeg_summarize.psd_lst <- function(.data, ..., .groups = "keep") {
   # .id and .recording. alloc.col() restores the self-reference in place and
   # keeps the signal_tbl class.
   data.table::alloc.col(extended_psd_dt)
-  data.table::setkey(extended_psd_dt, .id, .freq)
   data.table::setcolorder(extended_psd_dt, c(".id", ".freq"))
   .data$.psd <- extended_psd_dt
   .data$.segments <- rebuild_segment_dt(.data)
@@ -406,14 +393,12 @@ eeg_select <- function(.data, ...) {
 eeg_select.eeg_lst <- function(.data, ...) {
   .data <- update_eeg_lst(.data) # TO remove at some point
   .data <- select_rename(.data, select = TRUE, ...)
-  data.table::setkey(.data$.signal, .id, .sample)
   validate_eeg_lst(.data)
 }
 
 #' @export
 eeg_select.psd_lst <- function(.data, ...) {
   .data <- select_rename(.data, select = TRUE, ...)
-  data.table::setkey(.data$.psd, .id, .freq)
   validate_psd_lst(.data)
 }
 
@@ -434,14 +419,12 @@ eeg_rename.eeg_lst <- function(.data, ...) {
   .data <- update_eeg_lst(.data)
   # TODO: simplify and use parts of eeg_rename_with
   .data <- select_rename(.data, select = FALSE, ...)
-  data.table::setkey(.data$.signal, .id, .sample)
   validate_eeg_lst(.data)
 }
 
 #' @export
 eeg_rename.psd_lst <- function(.data, ...) {
   .data <- select_rename(.data, select = FALSE, ...)
-  data.table::setkey(.data$.psd, .id, .freq)
   validate_psd_lst(.data)
 }
 
@@ -539,8 +522,6 @@ eeg_rename_with.eeg_lst <- function(.data, .fn, .cols = where(is_channel_dbl), .
     attributes(.data)$vars <- g_vars
   }
 
-  data.table::setkey(.data$.signal, .id, .sample)
-  data.table::setkey(.data$.segments, .id)
 
   .data %>%
     validate_eeg_lst()
@@ -676,8 +657,6 @@ eeg_semi_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, ...) {
   x$.segments <- tt_semi_join(x$.segments, y, by = by)
   x$.signal <- tt_semi_join(x$.signal, x$.segments, by = ".id")
   x$.events <- tt_semi_join(x$.events, x$.segments, by = ".id")
-  data.table::setkey(x$.signal, .id, .sample)
-  data.table::setkey(x$.segments, .id)
   x %>% validate_eeg_lst()
 }
 
@@ -698,8 +677,6 @@ eeg_anti_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, ...) {
   x$.segments <- tt_anti_join(x$.segments, y, by = by)
   x$.signal <- tt_semi_join(x$.signal, x$.segments, by = ".id")
   x$.events <- tt_semi_join(x$.events, x$.segments, by = ".id")
-  data.table::setkey(x$.signal, .id, .sample)
-  data.table::setkey(x$.segments, .id)
   x %>% validate_eeg_lst()
 }
 

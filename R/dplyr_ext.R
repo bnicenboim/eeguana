@@ -49,7 +49,6 @@ eeg_bind <- function(...) {
 
   signal <- purrr::map(eeg_lsts, ~ .x$.signal) %>% data.table::rbindlist(idcol = ".sid", fill = TRUE)
   signal[, .id := .GRP, by = .(.sid, .id)][, .sid := NULL]
-  data.table::setkey(signal, .id, .sample)
 
   data.table::setattr(signal, "class", c("signal_tbl", class(signal)))
   events <- purrr::map(eeg_lsts, ~ .x$.events) %>% data.table::rbindlist(idcol = ".sid", fill = TRUE)
@@ -58,7 +57,6 @@ eeg_bind <- function(...) {
 
   segments <- purrr::map(eeg_lsts, ~ data.table::data.table(.x$.segments)) %>% data.table::rbindlist(idcol = ".sid", fill = TRUE)
   segments[, .id := .GRP, by = .(.sid, .id)][, .sid := NULL]
-  data.table::setkey(segments, .id)
   new_eeg_lst <- new_eeg_lst(
     .signal = signal, .events = events, .segments = segments
   ) %>%

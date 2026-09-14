@@ -59,7 +59,6 @@ eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, c
     }
   }
   segments_tbl <- data.table::as.data.table(segments_tbl)
-  data.table::setkey(segments_tbl, .id)
   segments_tbl <- validate_segments(segments_tbl)
 
   validate_eeg_lst(
@@ -105,7 +104,6 @@ psd_lst <- function(psd_tbl = NULL, segments_tbl = NULL, channels_tbl = NULL) {
     }
   }
   segments_tbl <- data.table::as.data.table(segments_tbl)
-  data.table::setkey(segments_tbl, .id)
   segments_tbl <- validate_segments(segments_tbl)
   
   validate_psd_lst(

@@ -34,6 +34,7 @@
 
 ## Internal
 
+- eeguana no longer sets data.table keys. Printed tables lose their `Key:` line.
 - dplyr is no longer called inside the package. The internal calls go through
   tidytable, and the calls that act on an `eeg_lst` go through eeguana's own
   `eeg_*` generics.
