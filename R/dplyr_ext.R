@@ -102,7 +102,7 @@ slice_signal_eeg_lst <- function(.eeg_lst, ...) {
   if (length(by) != 0) {
     cols_signal <- colnames(.eeg_lst$.signal)
     .eeg_lst$.signal <- extended_signal[extended_signal[, .I[...], by = by]$V1] %>%
-      .[, ..cols_signal]
+      tt_select(tidyselect::all_of(cols_signal))
   } else {
     .eeg_lst$.signal <- .eeg_lst$.signal[list(...)[[1]], ]
   }

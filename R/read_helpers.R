@@ -232,7 +232,7 @@ segment_events <- function(events, .lower, .initial, .upper) {
   # x..lower is the original .lower of segmentation
   new_events[, .initial := pmax(i..initial, x..lower), by = .id]
   new_events[, .final := pmin(i..final, x..upper), by = .id]
-  out_events <- new_events[, ..cols_events]
+  out_events <- tt_select(new_events, tidyselect::all_of(cols_events))
   ## data.table::setattr(out_events, "class", c("events_tbl",class(out_events)))
   out_events
 }

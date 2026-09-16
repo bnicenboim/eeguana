@@ -214,3 +214,39 @@ This machine's timings vary a lot between rounds, so many intervals are wide:
 **Aside.** The profile shows `read_vhdr()` spending about 22% of its time in
 `copy()` and 16% in `matrix()`. That is unrelated to keys, but it is a candidate
 for speeding reading up later.
+
+## Stage B results
+
+Every candidate was measured before anything was changed, and most fail the rule
+that nothing may get slower. data.table modifies tables in place, while
+tidytable returns a new one, so the in-place functions win whenever the code
+already owns the table.
+
+| operation | outcome | measurement |
+|---|---|---|
+| `[, ..cols]` selection | swapped to `tt_select()` | 0.30 on the signal table, so 3x faster |
+| `setnames()`, `setcolorder()`, `setattr()`, `set()`, `setDT()`, `setorder()` | kept | in place; `rename()` was 17x slower than `setnames()` on the events table |
+| `rbindlist()` | kept | `bind_rows()` is 1.15 on 200 small pieces, which is how `map_dtr()` uses it |
+| `melt()` | kept | `pivot_longer()` gives an identical result, at 2.83 and more memory |
+| `data.table()` for stored tables | kept | tidytable's constructor adds its own class, which changes printing |
+| `as.data.table()` | kept | it copies, and the surrounding code relies on that. `as_tidytable()` shares columns until modified and returns a different class |
+
+**Batch 1** swapped the six plain selections in `dplyr_ext.R`,
+`dplyr_verbs_helpers.R` (two), `tbl.R` (two), `read_helpers.R`, and
+`segmentation.R`.
+
+Verified against the Stage A commit: outputs identical for filtering, grouped
+summarize, `channels_tbl<-`, reading a segmented file, and segmenting; the test
+suite unchanged at 1469 passes; speed with a median ratio of 0.984, including
+`eeg_mutate()` at 0.80 and `eeg_filter()` at 0.84. Three cases that looked
+slower in a two-round run (the 64-channel read, grouped summarize, and
+`eeg_segment()`) were rechecked over six alternating rounds per build and show
+no difference.
+
+**Found on the way:** grouped `slice_signal()` fails on every build, master
+included, with `'...' used in an incorrect context`. It passes `...` into a
+data.table expression. Only the ungrouped path is tested. One of the six
+selections sits in that broken branch.
+
+**Still to measure:** the three `as.data.table()` calls whose result goes
+straight into a join, where `as_tidytable()` would skip a copy.

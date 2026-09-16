@@ -69,7 +69,7 @@ filter_lst <- function(.data, ...) {
     cols_main <- colnames(.data[[1]])
     dots_main <- prep_dots(dots = new_dots[[1]], data = extended_signal_dt, .by = !!by, j = TRUE)
     .data[[1]] <- tt_filter(extended_signal_dt, !!!dots_main, .by = by) %>%
-      .[, ..cols_main]
+      tt_select(tidyselect::all_of(cols_main))
 
     if (!is.null(.data$.events) && nrow(.data$.events) > 0) {
       range_s <- .data$.signal[, .(.lower = min(.sample), .upper = max(.sample)), by = .id]
@@ -174,7 +174,7 @@ mutate_lst <- function(.data, ..., keep_cols = TRUE, .by_reference = FALSE) {
         colnames(.data$.segments)
       )
       if (!.by_reference) {
-        .data$.segments <- .data$.segments[, ..cols_to_keep]
+        .data$.segments <- tt_select(.data$.segments, tidyselect::all_of(cols_to_keep))
       } else {
         remove_cols <- setdiff(colnames(.data$.segments), cols_to_keep)
         .data$.segments[, c(remove_cols) := NULL][]

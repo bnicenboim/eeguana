@@ -157,8 +157,8 @@ channels_tbl.data.frame <- function(.data, ...) {
 #' @export
 `channels_tbl<-.data.table` <- function(.data, value) {
   orig_names <- channel_names(.data)
-  channels <- .data[, ..orig_names]
-  nochannels <- .data[, -..orig_names]
+  channels <- tt_select(.data, tidyselect::all_of(orig_names))
+  nochannels <- tt_select(.data, -tidyselect::all_of(orig_names))
   update <- data.table::setDT(update_channel_meta_data(channels, value))
   cbind(nochannels, update)
 }

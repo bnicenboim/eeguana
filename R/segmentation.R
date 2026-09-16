@@ -235,7 +235,8 @@ update_events <- function(events_dt, segmentation) {
   ]
   new_events[, .initial := pmax(i..initial, .lower) - .first_sample + 1L]
   new_events[, .final := pmin(.final, .upper) - .first_sample + 1L]
-  new_events[, .id := .new_id][, ..cols_events] %>%
+  new_events[, .id := .new_id]
+  tt_select(new_events, tidyselect::all_of(cols_events)) %>%
     as_events_tbl(., .sampling_rate = sampling_rate(events_dt))
 }
 
