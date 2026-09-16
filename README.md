@@ -103,7 +103,6 @@ faces
 #> # EEG data:
 #> 
 #> # Signal table:
-#> Key: <.id, .sample>
 #>           .id      .sample           Fp1           Fpz           Fp2
 #>         <int> <sample_int> <channel_dbl> <channel_dbl> <channel_dbl>
 #>      1:     1            1     -4.270188    -12.496757     -8.512611
@@ -225,7 +224,6 @@ faces
 #> 4276:     1 Bad Interval  Bad Min-Max       525073       525207       O2
 #> 
 #> # Segments table:
-#> Key: <.id>
 #>      .id .recording segment
 #>    <int>     <char>   <int>
 #> 1:     1 faces.vhdr       1
@@ -258,7 +256,6 @@ piped using `magrittr`’s pipe, `|>`.
 ``` r
 ## To only see the segments table:
 segments_tbl(faces_segs)
-#> Key: <.id>
 #>        .id .recording segment     type description
 #>      <int>     <char>   <int>   <char>      <char>
 #>   1:     1 faces.vhdr       1 Stimulus         s70
@@ -284,7 +281,6 @@ faces_segs_some
 #> # EEG data:
 #> 
 #> # Signal table:
-#> Key: <.id, .sample>
 #>          .id      .sample           Fp1           Fpz           Fp2
 #>        <int> <sample_int> <channel_dbl> <channel_dbl> <channel_dbl>
 #>     1:     1          -99      3.000602      3.822540      1.676837
@@ -406,7 +402,6 @@ faces_segs_some
 #> 200:   200 Stimulus          s70            1            1     <NA>
 #> 
 #> # Segments table:
-#> Key: <.id>
 #>        .id .recording segment description condition
 #>      <int>     <char>   <int>      <char>    <char>
 #>   1:     1 faces.vhdr       1         s70     faces
@@ -434,18 +429,13 @@ faces_segs_some |>
   ggplot(aes(x = .time, y = .value)) +
   geom_line(alpha = .1, aes(group = .id, color = condition)) +
   stat_summary(
-    fun = "mean", geom = "line", alpha = 1, size = 1.5,
+    fun = "mean", geom = "line", alpha = 1, linewidth = 1.5,
     aes(color = condition)
   ) +
   facet_wrap(~.key) +
   geom_vline(xintercept = 0, linetype = "dashed") +
   geom_vline(xintercept = .17, linetype = "dotted") +
   theme(legend.position = "bottom")
-#> Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-#> ℹ Please use `linewidth` instead.
-#> This warning is displayed once every 8 hours.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-#> generated.
 ```
 
 <img src="man/figures/README-plot-1.png" alt="ERP waveforms for electrodes O1, O2, P7 and P8. Each panel shows one electrode, with faint lines for individual trials and a thick line for the condition mean, coloured by condition. Dashed and dotted vertical lines mark stimulus onset and 170 ms." width="100%" />
