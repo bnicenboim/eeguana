@@ -248,5 +248,46 @@ included, with `'...' used in an incorrect context`. It passes `...` into a
 data.table expression. Only the ungrouped path is tested. One of the six
 selections sits in that broken branch.
 
-**Still to measure:** the three `as.data.table()` calls whose result goes
-straight into a join, where `as_tidytable()` would skip a copy.
+**Batch 2 was measured and rejected.** The three `as.data.table()` calls whose
+result goes straight into a join (`plot.R:270`, `plot.R:710`, and `to_tbl.R:59`)
+convert small tables: 34 rows of channels and a few hundred segments.
+`as_tidytable()` saves about 25 microseconds on each, inside functions that take
+0.55 s to build a `plot_topo()` and 1.59 s to run `as.data.table()` on a large
+`eeg_lst`, so the saving is a few thousandths of a percent. The join returns
+identical values either way, but the class travels with it: the result comes
+back as `tidytable/tbl/data.table/data.frame` instead of `data.table`, and that
+class reaches what `as.data.table.eeg_lst()` returns and what the events layer
+stores in the plot. A documented return type is worth more than 25 microseconds,
+so all three stay.
+
+**Stage B is finished.** One batch of six selections was swapped, everything
+else was measured and kept.
+
+## Stage C results
+
+Two of the three non-equi joins cannot become `findInterval()` at all.
+`eeg_segment()` (`segmentation.R:155`) allows overlapping windows, so one sample
+can land in several segments, and the events join (`read_helpers.R:226`) matches
+any event that touches a segment, which is many-to-many. Only the sample-to-
+segment mapping when reading a segmented file (`read_helpers.R:153`) has sorted,
+contiguous windows.
+
+Measured there, on 424k samples over 200 segments, 1.1M over 400, and 60k over
+40, both routes give identical `.id` and `.sample`. `findInterval()` runs at
+0.33, 0.48, and 0.31 of the join's time and allocates 1.27, 1.28, and 1.22 times
+its memory.
+
+**Not switched.** The saving is 40 to 60 ms inside a `read_vhdr()` that takes
+0.9 s to 4.5 s, so about 1% of a read, and it costs memory in the heaviest
+function in the package. The join also states its own condition, while the index
+version needs a comment explaining why contiguous windows make it valid.
+
+## Speed of the branch against master
+
+Sixteen cases, two rounds per build, median ratio 0.95. Faster:
+`eeg_select()` 0.39, `plot_topo()` 0.51, `channels_tbl()` 0.67,
+`eeg_interpolate_tbl()` 0.74, `eeg_filter()` 0.88, `as.data.table()` 0.90.
+Nothing measurably slower: grouped summarize came out between 1.03 and 1.09
+depending on the run, and a five-build comparison (master, pre-migration, the
+nodplyr tip, stage A, and HEAD) found no step to attribute it to, with rounds
+inside one build spanning 0.749 to 0.844 s.
