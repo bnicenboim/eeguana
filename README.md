@@ -490,6 +490,36 @@ Available Data.” *Neuropsychologia* 142: 107427.
 
 </div>
 
+<div id="ref-oestergaard_lichtenberg_boon_nicenboim_2025"
+class="csl-entry">
+
+Østergaard, Sara M, Lenneke Lichtenberg, Laura Boon, and Bruno
+Nicenboim. 2026. “A Corpus of Joint EEG and Self-Paced Reading of
+Natural Dutch Texts.” In *Language Resources and Evaluation Conference
+(LREC)*. PsyArXiv. <https://doi.org/10.31234/osf.io/g32rp_v2>.
+
+</div>
+
+<div id="ref-10.3389/fnhum.2025.1632844" class="csl-entry">
+
+Shalu, S., R. Muralikrishnan, and Kamal Kumar Choudhary. 2025. “Similar
+Does Not Mean the Same: ERP Correlates of Mental and Physical
+Experiencer Verb Processing in Malayalam Complex Constructions.”
+*Frontiers in Human Neuroscience* Volume 19 - 2025.
+<https://doi.org/10.3389/fnhum.2025.1632844>.
+
+</div>
+
+<div id="ref-10.3389/flang.2025.1599924" class="csl-entry">
+
+Shalu, S., R. Muralikrishnan, Anna Merin Mathew, and Kamal Kumar
+Choudhary. 2026. “Similar but Different: ERP Evidence on the Processing
+of Mental and Physical Experiencer Verbs in Malayalam.” *Frontiers in
+Language Sciences* Volume 4 - 2025.
+<https://doi.org/10.3389/flang.2025.1599924>.
+
+</div>
+
 <div id="ref-stone2023n400" class="csl-entry">
 
 Stone, Kate, Naghmeh Khaleghi, and Milena Rabovsky. 2023. “The N400 Is
