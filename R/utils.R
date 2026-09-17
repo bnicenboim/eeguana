@@ -11,12 +11,19 @@
 #' @noRd
 #' @keywords internal
 #' @importFrom data.table :=
+#' @importFrom tidytable map map_lgl map_chr map_dbl map2 walk
 NULL
 
 #' purrr alterative
 #' @noRd
-discard <- function(x, p) x[!sapply(x, p)]
-keep <- function(x, p) x[sapply(x, p)]
+discard <- function(x, p) {
+  p <- rlang::as_function(p)
+  x[!vapply(x, p, logical(1))]
+}
+keep <- function(x, p) {
+  p <- rlang::as_function(p)
+  x[vapply(x, p, logical(1))]
+}
 
 #' Nice consistent names
 #' @noRd
@@ -146,9 +153,7 @@ try_to_downsample <- function(.data, max_sample) {
 
 #' @noRd
 map_matr <- function(.x, .f, ..., .id = NULL) {
-  .f <- purrr::as_mapper(.f, ...)
-  res <- purrr::map(.x, .f, ...)
-  do.call("rbind", res)
+  do.call("rbind", map(.x, .f, ...))
 }
 
 #' Cat a message and then a printable object

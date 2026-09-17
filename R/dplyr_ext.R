@@ -9,9 +9,8 @@
 #' @examples
 #' \dontrun{
 #'
-#' # Load multiple subjects using purrr::map, extracting subject IDs from file names.
-#' faces_list <- purrr::map(list.files("./", "vhdr"), ~
-#' read_vhdr(.x))
+#' # Load multiple subjects, extracting subject IDs from file names.
+#' faces_list <- lapply(list.files("./", "vhdr"), read_vhdr)
 #' # Bind all the eeg_lsts into a large one:
 #' faces <- eeg_bind(faces_list)
 #' }
@@ -25,7 +24,7 @@ eeg_bind <- function(...) {
   }
 
   # Checks:
-  purrr::iwalk(
+  iwalk(
     eeg_lsts[seq(2, length(eeg_lsts))],
     ~ if (!identical(channels_tbl(eeg_lsts[[1]]), channels_tbl(.x))) {
       warning("Objects with different channels information, see below\n\n", "File ",
@@ -47,15 +46,15 @@ eeg_bind <- function(...) {
   # Binding
   # .id of the new eggbles needs to be adapted
 
-  signal <- purrr::map(eeg_lsts, ~ .x$.signal) %>% data.table::rbindlist(idcol = ".sid", fill = TRUE)
+  signal <- map(eeg_lsts, ~ .x$.signal) %>% data.table::rbindlist(idcol = ".sid", fill = TRUE)
   signal[, .id := .GRP, by = .(.sid, .id)][, .sid := NULL]
 
   data.table::setattr(signal, "class", c("signal_tbl", class(signal)))
-  events <- purrr::map(eeg_lsts, ~ .x$.events) %>% data.table::rbindlist(idcol = ".sid", fill = TRUE)
+  events <- map(eeg_lsts, ~ .x$.events) %>% data.table::rbindlist(idcol = ".sid", fill = TRUE)
   events[, .id := .GRP, by = .(.sid, .id)][, .sid := NULL]
   events <- as_events_tbl(events)
 
-  segments <- purrr::map(eeg_lsts, ~ data.table::data.table(.x$.segments)) %>% data.table::rbindlist(idcol = ".sid", fill = TRUE)
+  segments <- map(eeg_lsts, ~ data.table::data.table(.x$.segments)) %>% data.table::rbindlist(idcol = ".sid", fill = TRUE)
   segments[, .id := .GRP, by = .(.sid, .id)][, .sid := NULL]
   new_eeg_lst <- new_eeg_lst(
     .signal = signal, .events = events, .segments = segments

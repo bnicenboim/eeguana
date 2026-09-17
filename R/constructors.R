@@ -237,7 +237,7 @@ print.sample_int <- function(x,...){
 #' @export
 print.channel_dbl <- function(x, ...) {
   attrs <- attributes(x)[names(attributes(x)) != "class"] %>%
-    purrr::imap_chr(~ paste0(.y, ": ", .x)) %>%
+    imap_chr(~ paste0(.y, ": ", .x)) %>%
     paste0(collapse = "; ")
 
   channel_name <- names(x)

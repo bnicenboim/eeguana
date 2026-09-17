@@ -38,7 +38,7 @@ rebuild_segment_dt <- function(.data) {
 #' @noRd
 group_by_lst <- function(.data, dots, .add = FALSE) {
   if (length(dots) != 0) {
-    new_groups <- purrr::map_chr(dots, rlang::quo_text)
+    new_groups <- map_chr(dots, rlang::quo_text)
   } else {
     new_groups <- character(0)
   }
@@ -140,8 +140,8 @@ mutate_lst <- function(.data, ..., keep_cols = TRUE, .by_reference = FALSE) {
   
     non_obl <- extended_main_dt[0, -obligatory_cols_main, with = FALSE]
     # Remove below:
-    non_ch <- names(non_obl)[!purrr::map_lgl(non_obl, is_channel_dbl)]
-    non_comp <- names(non_ch)[!purrr::map_lgl(non_ch, is_component_dbl)]
+    non_ch <- names(non_obl)[!map_lgl(non_obl, is_channel_dbl)]
+    non_comp <- names(non_ch)[!map_lgl(non_ch, is_component_dbl)]
     non_ch <- unique(c(non_ch, non_comp))
     if (length(non_ch) > 0 & options()$eeguana.verbose) {
       message_verbose(
@@ -201,7 +201,7 @@ select_rename <- function(.data, select = TRUE, ...) {
   )), !!!dots)
 
   new_groups <- eeg_group_vars(.data) %>%
-    purrr::map_if(~ .x %in% all_vars, ~ all_vars[all_vars == .x] %>% names()) %>%
+    map_if(~ .x %in% all_vars, ~ all_vars[all_vars == .x] %>% names()) %>%
     rlang::syms()
 
   # TODO in a more elegant way:
@@ -316,23 +316,6 @@ names_other_col <- function(.eeg_lst, dots, tbl = NULL) {
 }
 
 
-#' Add a column to (an empty) table
-#' Taken from https://community.rstudio.com/t/cannot-add-column-to-empty-tibble/1903/11
-#' @noRd
-hd_add_column <- function(.data, ..., .before = NULL, .after = NULL) {
-  if (nrow(.data) == 0L) {
-    return(tibble::tibble(...))
-  }
-  return(tibble::add_column(.data, ..., .before = .before, .after = .after))
-}
-
-#' @noRd
-signal_from_parent_frame <- function(env = parent.frame()) {
-  # This is the environment where I can find the columns of signal_tbl
-  signal_env <- rlang::env_get(env = env, ".top_env", inherit = TRUE)
-  signal_tbl <- tidytable::as_tidytable(rlang::env_get_list(signal_env, rlang::env_names(signal_env)))
-}
-
 #' @noRd
 extended_signal <- function(.eeg_lst, cond_cols = NULL, events_cols = NULL) {
   ## For NOTES:
@@ -386,7 +369,7 @@ update_events_channels <- function(x, .by_reference = FALSE) {
 # https://stackoverflow.com/questions/50563895/using-rlang-find-the-data-pronoun-in-a-set-of-quosures
 #' @noRd
 getAST <- function(ee) {
-  as.list(ee) %>% purrr::map_if(is.call, getAST)
+  as.list(ee) %>% map_if(is.call, getAST)
 }
 
 #' @noRd
@@ -396,7 +379,7 @@ dots_by_tbl_quos <- function(.data, dots) {
     paste0("`", channel_names(.data), "`") # In case channel name is used with ` in the function call, NOT sure if needed anymore
   )
 
-  main_dots <- purrr::imap_lgl(dots, function(dot, name) {
+  main_dots <- imap_lgl(dots, function(dot, name) {
     if (name %in% main_cols) {
       TRUE
     } else {
@@ -404,7 +387,7 @@ dots_by_tbl_quos <- function(.data, dots) {
       getAST(dot)[-1] %>%
         unlist(.) %>%
         # make it a vector of strings
-        purrr::map_lgl(function(element) { # check for every element if it's a channel or if it's a channel function
+        map_lgl(function(element) { # check for every element if it's a channel or if it's a channel function
           if (is.numeric(element)) {
             return(FALSE)
           }
@@ -451,25 +434,3 @@ dots_by_tbl_quos <- function(.data, dots) {
   out
 }
 
-
-#' @noRd
-rename_sel_comp <- function(mixing, sel) {
-  mixing <- mixing[.ICA %in% c("mean", sel), ]
-  mixing[, .ICA := purrr::map_chr(.ICA, function(r) {
-    new_name <- names(sel[sel == r])
-    if (length(new_name) != 0) {
-      return(new_name)
-    } else {
-      return(r)
-    }
-  })][]
-}
-sel_comp <- function(data, ...) {
-  dots <- rlang::enquos(...)
-  if (rlang::is_empty(dots)) {
-    ch_sel <- component_names(data)
-  } else {
-    ch_sel <- tidyselect::vars_select(component_names(data), !!!dots)
-  }
-  ch_sel
-}

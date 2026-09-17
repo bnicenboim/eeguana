@@ -20,9 +20,8 @@
 #' # load a single subject
 #' s1 <- read_vhdr("./faces.vhdr", .recording = "1")
 #'
-#' # load multiple subjects using purrr::map, extracting subject IDs from file names
-#' faces_list <- purrr::map(list.files("./", "vhdr"), ~
-#' read_vhdr(.x))
+#' # load multiple subjects, extracting subject IDs from file names
+#' faces_list <- lapply(list.files("./", "vhdr"), read_vhdr)
 #' faces <- bind(faces_list)
 #' }
 #'
@@ -347,7 +346,7 @@ read_edf <- function(file, .recording = file, .trigger_channel = NULL) {
 
   signal_edf <- edfReader::readEdfSignals(header_edf, from = times[1], till = times[2], simplify = FALSE)
 
-  non_signal <- purrr::map_lgl(signal_edf, ~ .x$isAnnotation |
+  non_signal <- map_lgl(signal_edf, ~ .x$isAnnotation |
     tolower(.x$label) %in% c("status", "trigger") |
     tolower(.x$name) %in% c("status", "trigger"))
 
@@ -356,7 +355,7 @@ read_edf <- function(file, .recording = file, .trigger_channel = NULL) {
   ## nothing in the header to recognise them by.
   trigger_pos <- NULL
   if (!is.null(.trigger_channel)) {
-    labels <- purrr::map_chr(signal_edf, ~ .x$label %||% NA_character_)
+    labels <- map_chr(signal_edf, ~ .x$label %||% NA_character_)
     if (identical(.trigger_channel, "last")) {
       candidates <- which(!non_signal)
       if (!length(candidates)) stop("No channel left to use as `.trigger_channel`.", call. = FALSE)
@@ -407,7 +406,7 @@ read_edf <- function(file, .recording = file, .trigger_channel = NULL) {
 
   signal_dt <- lapply_dtc(signal_edf, function(x) x$signal)
 
-  if (header_edf$isContinuous && all(purrr::map_lgl(signal_edf, ~ .x$isContinuous))) {
+  if (header_edf$isContinuous && all(map_lgl(signal_edf, ~ .x$isContinuous))) {
     s_id <- rep(1L, nrow(signal_dt))
     sample_id <- sample_int(seq_len(nrow(signal_dt)), .sampling_rate = sampling_rate)
   } else {

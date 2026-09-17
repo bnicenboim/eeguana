@@ -107,7 +107,7 @@ read_dat <- function(file, header_info = NULL, events_dt = NULL,
 
   # if there is a resolution use it. (This seems to be relevant only if the encoding is integer)
   if (!all(is.na(header_info$chan_info$resolution))) {
-    raw_signal <- raw_signal[, purrr::map2(.SD, header_info$chan_info$resolution, ~ .x * .y)]
+    raw_signal <- raw_signal[, map2(.SD, header_info$chan_info$resolution, ~ .x * .y)]
   }
 
   # TODO maybe convert to data.table directly
@@ -211,33 +211,6 @@ add_event_channel <- function(events, labels) {
   events[, .channel := labels[.channel]]
 }
 
-segment_events <- function(events, .lower, .initial, .upper) {
-  segmentation <- data.table::data.table(.lower, .initial, .upper)
-  segmentation[, .id := seq_len(.N)]
-
-  cols_events_temp <- unique(c(colnames(events), colnames(segmentation), "i..initial", "i..final", "x..lower"))
-  cols_events <- c(".id", colnames(events))
-  new_events <- data.table::as.data.table(events)
-  new_events[, lowerb := .final]
-
-  # We want to capture events that span after the .lower bound ,that is .final over .lower
-  # and events and that start before the .upper bound:
-  new_events <- segmentation[new_events,
-    on = .(.lower <= lowerb, .upper >= .initial),
-    ..cols_events_temp, allow.cartesian = TRUE
-  ][!is.na(.id)]
-
-  # i..initial are the original.initial from the events file
-  # .initial is the first sample of each segment
-  # x..lower is the original .lower of segmentation
-  new_events[, .initial := pmax(i..initial, x..lower), by = .id]
-  new_events[, .final := pmin(i..final, x..upper), by = .id]
-  out_events <- tt_select(new_events, tidyselect::all_of(cols_events))
-  ## data.table::setattr(out_events, "class", c("events_tbl",class(out_events)))
-  out_events
-}
-
-
 built_eeg_lst <- function(eeg_lst, file) {
   message_verbose(paste0(
     "# Data from ", file,
@@ -275,7 +248,7 @@ read_vmrk <- function(file) {
   )
   # splits Mk<Marker number>=<Type>, removes the Mk.., and <Date>
   events[, .type := strsplit(.type, "=") %>%
-    purrr::map_chr(~ .x[[2]])][, date := NULL]
+    map_chr(~ .x[[2]])][, date := NULL]
 
   # punctual events shouldn't have a .final < .initial
   events[, .final := .initial + ifelse(.final - 1L == -1, .final, .final - 1L)]

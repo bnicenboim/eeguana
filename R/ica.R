@@ -230,7 +230,7 @@ eeg_ica_keep.eeg_ica_lst <- function(.data, ...) {
       tidyselect::vars_select(component_names(.data), !!dot)
     })
     # names and order
-    comp_sel <- purrr::imap(.data$.ica, ~ {
+    comp_sel <- imap(.data$.ica, ~ {
       if (.y %in% names(comp_sel)) {
         comp_sel[[.y]]
       } else {
@@ -241,12 +241,12 @@ eeg_ica_keep.eeg_ica_lst <- function(.data, ...) {
       }
     })
   } else {
-    comp_sel <- purrr::imap(.data$.ica, ~ {
+    comp_sel <- imap(.data$.ica, ~ {
       tidyselect::vars_select(component_names(.data), !!!dots)
     })
   }
 
-  .data$.ica <- purrr::map2(comp_sel, .data$.ica, function(sel, ica) {
+  .data$.ica <- map2(comp_sel, .data$.ica, function(sel, ica) {
     list(
       unmixing_matrix = ica$unmixing_matrix[, sel, drop = FALSE],
       mixing_matrix = ica$mixing_matrix[sel, , drop = FALSE]

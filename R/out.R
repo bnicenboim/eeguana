@@ -24,7 +24,7 @@ channel_names.signal_tbl <- function(x, ...) {
 }
 #' @export
 channel_names.data.table <- function(x, ...) {
-  colnames(x)[x[, purrr::map_lgl(.SD, is_channel_dbl)]]
+  colnames(x)[x[, map_lgl(.SD, is_channel_dbl)]]
 }
 #' @export
 channel_names.eeg_lst <- function(x, ...) {
@@ -41,7 +41,7 @@ channel_ica_names <- function(x, ...) {
 }
 #' @export
 channel_ica_names.eeg_ica_lst <- function(x, ...) {
-  purrr::map(x$.ica, function(recording) {
+  map(x$.ica, function(recording) {
     recording$unmixing_matrix %>%
       rownames()
   }) %>%
@@ -69,7 +69,7 @@ component_names <- function(x, ...) {
 }
 #' @export
 component_names.eeg_ica_lst <- function(x, ...) {
-  purrr::map(x$.ica, function(recording) {
+  map(x$.ica, function(recording) {
     recording$unmixing_matrix %>%
       colnames()
   }) %>%
@@ -278,7 +278,7 @@ eeg_ica_var_tbl.eeg_ica_lst <- function(.data, ..., .max_sample = 100000) {
       extended_signal(".recording") %>%
       .[, c(
         list(.recording = .recording),
-        purrr::imap(.SD, ~ .x - signal_tbl(.data)[[.y]])
+        imap(.SD, ~ .x - signal_tbl(.data)[[.y]])
       ),
       .SDcols = channel_ica_names(.data)
       ] %>%

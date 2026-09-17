@@ -9,7 +9,7 @@
 - Examples and vignettes no longer load dplyr. The vignettes, and the one
   example that uses a verb from outside eeguana, load tidytable instead, a
   faster alternative.
-
+- purrr is no longer a dependency. 
 ## Bugs fixed
 
 - `drop_incomplete_segments()` errored with `could not find function "na.omit"`

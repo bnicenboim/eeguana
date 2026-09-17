@@ -74,8 +74,7 @@ channels_tbl.data.frame <- function(.data, ...) {
   ## first row is enough and it makes it faster
   tbl <- .data[1, ] %>%
     tt_select(tidyselect::all_of(channels)) %>%
-    ## map_dtr() rather than purrr::map_dfr(): purrr binds those rows with dplyr, so
-    ## it fails at run time on a machine without dplyr installed
+    ## map_dtr() binds the rows with data.table, so it does not need dplyr
     map_dtr(~ {
       attrs <- attributes(.x)
       attrs[names(attrs) != "class"]
@@ -100,17 +99,17 @@ channels_tbl.data.frame <- function(.data, ...) {
 `channels_tbl<-.eeg_lst` <- function(.data, value) {
   .data$.signal <- data.table::copy(.data$.signal)
   data.table::setnames(.data$.signal, channel_names(.data$.signal), value$.channel)
-  purrr::iwalk(.data$.signal, function(col, name) {
+  iwalk(.data$.signal, function(col, name) {
     if (is_channel_dbl(col)) {
       # remove attributes first (except class)
       remove_attr <- names(attributes(col))[-1]
-      purrr::walk(remove_attr, function(attr_n) {
+      walk(remove_attr, function(attr_n) {
         data.table::setattr(col, attr_n, NULL)
       })
       # list of attributes for each channel without .channel
       attr_list <- c(data.table::as.data.table(value)[.channel == name, ])[-1]
       # check unnessary attributes besides class (the first one)
-      purrr::iwalk(attr_list, function(attr_v, attr_n) {
+      iwalk(attr_list, function(attr_v, attr_n) {
         data.table::setattr(col, attr_n, attr_v)
       })
     }
