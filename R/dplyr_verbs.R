@@ -350,13 +350,7 @@ eeg_group_by.eeg_lst <- function(.data, ..., .add = FALSE, .drop = FALSE) {
 }
 
 #' @export
-eeg_group_by.psd_lst <- function(.data, ..., .add = FALSE, .drop = FALSE) {
-  dots <- rlang::quos(...)
-  if (.drop == TRUE) {
-    warning("Ignoring .drop argument. It can only be set to FALSE.")
-  }
-  group_by_lst(.data, dots, .add = .add)
-}
+eeg_group_by.psd_lst <- eeg_group_by.eeg_lst
 
 #' @export
 eeg_ungroup.eeg_lst <- function(.data, ...) {
@@ -367,11 +361,7 @@ eeg_ungroup.eeg_lst <- function(.data, ...) {
 }
 
 #' @export
-eeg_ungroup.psd_lst <- function(.data, ...) {
-  .data <- first_arg_either(.data, ..., .other = "x")
-  attributes(.data)$vars <- character(0)
-  .data
-}
+eeg_ungroup.psd_lst <- eeg_ungroup.eeg_lst
 
 # dynamically exported in zzz.R
 group_by.eeg_lst <- eeg_group_by.eeg_lst
@@ -559,9 +549,7 @@ eeg_group_vars.eeg_lst <- function(x) {
   attributes(x)$vars
 }
 #' @export
-eeg_group_vars.psd_lst <- function(x) {
-  attributes(x)$vars
-}
+eeg_group_vars.psd_lst <- eeg_group_vars.eeg_lst
 
 # dynamically exported in zzz.R
 group_vars.eeg_lst <- eeg_group_vars.eeg_lst

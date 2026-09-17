@@ -40,7 +40,6 @@ Imports:
     methods,
     MASS,
     RcppRoll (>= 0.3.0),
-    ellipsis (>= 0.1.0),
     fastICA,
     pracma,
     tidytable (>= 0.10.0),
