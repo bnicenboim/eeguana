@@ -21,7 +21,7 @@ unwanted components, use eeg_ica_keep()."><meta property="og:image" content="htt
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.12.9002</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.12.9003</span>
       </span>
     </div>
 
@@ -157,12 +157,11 @@ Some packages with other ICA methods or implementations: <code>steadyICA</code> 
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="va">data_faces_10_trials</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">eeg_ica</span><span class="op">(</span><span class="op">-</span><span class="va">EOGH</span>, <span class="op">-</span><span class="va">EOGV</span>, <span class="op">-</span><span class="va">M1</span>, <span class="op">-</span><span class="va">M2</span>, .method <span class="op">=</span> <span class="va">fast_ICA</span>, .config <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>maxit <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> # ICA is being done using fast_ICA...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> # ICA finished in 9 iterations. With a tolerance of 0.971137. (Maximum expected tolerance: 1e-06.)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> # ICA took 1.15 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> # ICA finished in 9 iterations. With a tolerance of 0.913101. (Maximum expected tolerance: 1e-06.)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> # ICA took 1.05 secs</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # EEG data:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Signal table:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;.id, .sample&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          .id      .sample           Fp1           Fpz           Fp2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        &lt;int&gt; &lt;sample_int&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     1:     1        15000     -75.03562     -28.57522    -28.165712</span>
@@ -269,7 +268,6 @@ Some packages with other ICA methods or implementations: <code>steadyICA</code> 
 <span class="r-out co"><span class="r-pr">#&gt;</span> 43329:      8.829977</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ## Events table:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Index: &lt;.type&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        .id        .type .description     .initial       .final .channel</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      &lt;int&gt;       &lt;char&gt;       &lt;char&gt; &lt;sample_int&gt; &lt;sample_int&gt;   &lt;char&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   1:     1 Bad Interval  Bad Min-Max        15000        15128      FC6</span>
@@ -289,7 +287,6 @@ Some packages with other ICA methods or implementations: <code>steadyICA</code> 
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Channels_used: Fp1, Fpz, Fp2, F7, F3, Fz, F4, F8, FC5, FC1, FC2, FC6, T7, C3, Cz, C4, T8, CP5, CP1, CP2, CP6, P7, P3, Pz, P4, P8, POz, O1, Oz, O2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Segments table:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;.id&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      .id .recording segment</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;int&gt;     &lt;char&gt;   &lt;int&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1:     1 faces.vhdr       1</span>

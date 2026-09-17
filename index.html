@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.12.9002</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.12.9003</span>
       </span>
     </div>
 
@@ -155,7 +155,6 @@
 <span><span class="co">#&gt; # EEG data:</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; # Signal table:</span></span>
-<span><span class="co">#&gt; Key: &lt;.id, .sample&gt;</span></span>
 <span><span class="co">#&gt;           .id      .sample           Fp1           Fpz           Fp2</span></span>
 <span><span class="co">#&gt;         &lt;int&gt; &lt;sample_int&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt;</span></span>
 <span><span class="co">#&gt;      1:     1            1     -4.270188    -12.496757     -8.512611</span></span>
@@ -277,7 +276,6 @@
 <span><span class="co">#&gt; 4276:     1 Bad Interval  Bad Min-Max       525073       525207       O2</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; # Segments table:</span></span>
-<span><span class="co">#&gt; Key: &lt;.id&gt;</span></span>
 <span><span class="co">#&gt;      .id .recording segment</span></span>
 <span><span class="co">#&gt;    &lt;int&gt;     &lt;char&gt;   &lt;int&gt;</span></span>
 <span><span class="co">#&gt; 1:     1 faces.vhdr       1</span></span></code></pre></div>
@@ -296,7 +294,6 @@
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## To only see the segments table:</span></span>
 <span><span class="fu"><a href="reference/segments_tbl.html">segments_tbl</a></span><span class="op">(</span><span class="va">faces_segs</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Key: &lt;.id&gt;</span></span>
 <span><span class="co">#&gt;        .id .recording segment     type description</span></span>
 <span><span class="co">#&gt;      &lt;int&gt;     &lt;char&gt;   &lt;int&gt;   &lt;char&gt;      &lt;char&gt;</span></span>
 <span><span class="co">#&gt;   1:     1 faces.vhdr       1 Stimulus         s70</span></span>
@@ -322,7 +319,6 @@
 <span><span class="co">#&gt; # EEG data:</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; # Signal table:</span></span>
-<span><span class="co">#&gt; Key: &lt;.id, .sample&gt;</span></span>
 <span><span class="co">#&gt;          .id      .sample           Fp1           Fpz           Fp2</span></span>
 <span><span class="co">#&gt;        &lt;int&gt; &lt;sample_int&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt;</span></span>
 <span><span class="co">#&gt;     1:     1          -99      3.000602      3.822540      1.676837</span></span>
@@ -444,7 +440,6 @@
 <span><span class="co">#&gt; 200:   200 Stimulus          s70            1            1     &lt;NA&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; # Segments table:</span></span>
-<span><span class="co">#&gt; Key: &lt;.id&gt;</span></span>
 <span><span class="co">#&gt;        .id .recording segment description condition</span></span>
 <span><span class="co">#&gt;      &lt;int&gt;     &lt;char&gt;   &lt;int&gt;      &lt;char&gt;    &lt;char&gt;</span></span>
 <span><span class="co">#&gt;   1:     1 faces.vhdr       1         s70     faces</span></span>
@@ -466,18 +461,13 @@
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.time</span>, y <span class="op">=</span> <span class="va">.value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">.1</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>group <span class="op">=</span> <span class="va">.id</span>, color <span class="op">=</span> <span class="va">condition</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/stat_summary.html" class="external-link">stat_summary</a></span><span class="op">(</span></span>
-<span>    fun <span class="op">=</span> <span class="st">"mean"</span>, geom <span class="op">=</span> <span class="st">"line"</span>, alpha <span class="op">=</span> <span class="fl">1</span>, size <span class="op">=</span> <span class="fl">1.5</span>,</span>
+<span>    fun <span class="op">=</span> <span class="st">"mean"</span>, geom <span class="op">=</span> <span class="st">"line"</span>, alpha <span class="op">=</span> <span class="fl">1</span>, linewidth <span class="op">=</span> <span class="fl">1.5</span>,</span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>color <span class="op">=</span> <span class="va">condition</span><span class="op">)</span></span>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">.key</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">0</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">.17</span>, linetype <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.</span></span>
-<span><span class="co">#&gt; ℹ Please use `linewidth` instead.</span></span>
-<span><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
-<span><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
-<span><span class="co">#&gt; generated.</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-plot-1.png" alt="ERP waveforms for electrodes O1, O2, P7 and P8. Each panel shows one electrode, with faint lines for individual trials and a thick line for the condition mean, coloured by condition. Dashed and dotted vertical lines mark stimulus onset and 170 ms." width="100%"></p>
 <p>Another possibility is to create a topographic plot of the two conditions, by first making segments that include only the interval .1-.2 <em>s</em> after the onset of the stimuli, creating a table with interpolated amplitudes and using the ggplot wrapper <code>plot_topo</code>.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.12.9002</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.12.9003</span>
       </span>
     </div>
 
@@ -73,14 +73,45 @@
     </div>
 
     <div class="section level2">
+<h2 class="page-header" data-toc-text="0.1.12.9003" id="eeguana-01129003">eeguana 0.1.12.9003<a class="anchor" aria-label="anchor" href="#eeguana-01129003"></a></h2>
+<div class="section level3">
+<h3 id="dependencies-0-1-12-9003">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies-0-1-12-9003"></a></h3>
+<ul><li><p>dplyr and tidyr move from <code>Imports</code> to <code>Suggests</code>, so installing eeguana no longer installs them. The dplyr verbs still work on eeguana objects whenever dplyr is installed, because their methods are registered as soon as dplyr loads, whichever of the two packages loads first.</p></li>
+<li><p>Examples and vignettes no longer load dplyr. The vignettes, and the one example that uses a verb from outside eeguana, load tidytable instead, a faster alternative.</p></li>
+<li><p>purrr is no longer a dependency. ## Bugs fixed</p></li>
+<li><p><code><a href="../reference/drop_incomplete_segments.html">drop_incomplete_segments()</a></code> errored with <code>could not find function "na.omit"</code> on every call. It now drops the segments holding missing values, as documented.</p></li>
+<li><p><code><a href="https://markfairbanks.github.io/tidytable/reference/transmute.html" class="external-link">transmute()</a></code> on an events table errored with <code>object 'transmute.tidytable' not found</code>, because the tidytable method it called was removed upstream.</p></li>
+<li><p><code><a href="../reference/plot_topo.html">plot_topo()</a></code> accepts any data frame. It previously had a method only for tibbles, so a plain <code>data.frame</code> had none.</p></li>
+<li><p><code><a href="../reference/read_vhdr.html">read_vhdr()</a></code> now checks the <code>.dat</code> against its header before reading it. A file that is too short, usually an incomplete copy or download, stops with both sizes named instead of failing inside data.table with <code>Supplied 38410 items to be assigned to 38409 items of column '.id'</code>. A file that is too long warns and is read in full.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="breaking-0-1-12-9003">Breaking<a class="anchor" aria-label="anchor" href="#breaking-0-1-12-9003"></a></h3>
+<ul><li>
+<code><a href="../reference/eeg_interpolate_tbl.html">eeg_interpolate_tbl()</a></code> returns a tidytable rather than a tibble. It is still a data frame, so it keeps working wherever one is expected, but a test such as <code>inherits(x, "tbl_df")</code> on the result is now <code>FALSE</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="internal-0-1-12-9003">Internal<a class="anchor" aria-label="anchor" href="#internal-0-1-12-9003"></a></h3>
+<ul><li>eeguana no longer sets data.table keys. Printed tables lose their <code>Key:</code> line.</li>
+<li>dplyr is no longer called inside the package. The internal calls go through tidytable, and the calls that act on an <code>eeg_lst</code> go through eeguana’s own <code>eeg_*</code> generics.</li>
+<li>
+<code>dev/check_without_dplyr.R</code> runs the package on a library where dplyr, tidyr, and tibble are not installed.</li>
+<li>No unexported function of another package is called with <code>:::</code> any more. One such call had already broken <code><a href="https://markfairbanks.github.io/tidytable/reference/transmute.html" class="external-link">transmute()</a></code> on events tables when tidytable removed the function.</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="page-header" data-toc-text="0.1.12.9002" id="eeguana-01129002">eeguana 0.1.12.9002<a class="anchor" aria-label="anchor" href="#eeguana-01129002"></a></h2>
+<div class="section level3">
+<h3 id="new-features-0-1-12-9002">New features<a class="anchor" aria-label="anchor" href="#new-features-0-1-12-9002"></a></h3>
+<ul><li>
+<code><a href="../reference/read_edf.html">read_edf()</a></code> gains <code>.trigger_channel</code>, for EDF files that record triggers as an ordinary channel rather than as annotations. Name the channel, or use <code>"last"</code> for the last one. Its values become events and it is dropped from the signal table. When the argument is left out and the last channel looks like triggers, a message says so.</li>
+</ul></div>
 <div class="section level3">
 <h3 id="bugs-fixed-0-1-12-9002">Bugs fixed<a class="anchor" aria-label="anchor" href="#bugs-fixed-0-1-12-9002"></a></h3>
 <ul><li>
-<code><a href="../reference/read_ft.html">read_ft()</a></code> and <code><a href="../reference/read_set.html">read_set()</a></code> failed with <code>invalid substring arguments</code> on files with an empty text field. The cause is a regression in R.matlab 3.8.0; <code>Remotes:</code> points at a patched fork until the fix reaches CRAN.</li>
+<code><a href="../reference/read_ft.html">read_ft()</a></code> and <code><a href="../reference/read_set.html">read_set()</a></code> failed with <code>invalid substring arguments</code> on files with an empty text field. The cause is a regression in R.matlab 3.8.0; <code>Remotes:</code> points at R.matlab’s development version until the fix reaches CRAN.</li>
 <li>
 <code><a href="../reference/read_fif.html">read_fif()</a></code> and <code><a href="../reference/as_eeg_lst.html">as_eeg_lst()</a></code> on an MNE object no longer fail with <code>KeyError: 'bad'</code>.</li>
-<li>The join verbs now take <code>copy</code> in dplyr’s position, so <code>left_join(x, y, by, copy)</code> no longer lands on <code>suffix</code>, and <code><a href="https://dplyr.tidyverse.org/reference/filter-joins.html" class="external-link">semi_join()</a></code>/<code><a href="https://dplyr.tidyverse.org/reference/filter-joins.html" class="external-link">anti_join()</a></code> no longer reject <code>copy</code>. <code>copy</code> and extra arguments are ignored with a warning.</li>
+<li>The join verbs now take <code>copy</code> in dplyr’s position, so <code>left_join(x, y, by, copy)</code> no longer lands on <code>suffix</code>, and <code><a href="https://markfairbanks.github.io/tidytable/reference/left_join.html" class="external-link">semi_join()</a></code>/<code><a href="https://markfairbanks.github.io/tidytable/reference/left_join.html" class="external-link">anti_join()</a></code> no longer reject <code>copy</code>. <code>copy</code> and extra arguments are ignored with a warning.</li>
 <li>
 <code>keep = NULL</code>, dplyr’s default for the joins, no longer errors. <code>keep = TRUE</code> warns and is ignored: it would split <code>.id</code>, which ties the signal, events and segments tables together.</li>
 <li>
@@ -268,7 +299,7 @@
 <li>Better documentation (mostly <a href="https://github.com/auskate" class="external-link">Kate Stone</a>).</li>
 <li>Easy access to the information of the different tables with <code><a href="../reference/signal_tbl.html">signal_tbl()</a></code>, <code><a href="../reference/events_tbl.html">events_tbl()</a></code>, and <code><a href="../reference/segments_tbl.html">segments_tbl()</a></code>.</li>
 <li>Changes in the creation of <code>eeg_lst</code> objects.</li>
-<li>Faster <code><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble()</a></code>.</li>
+<li>Faster <code>as_tibble()</code>.</li>
 <li>
 <code>as.data.table()</code> was added.</li>
 <li>Renamed functions:

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.12.9002</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.12.9003</span>
       </span>
     </div>
 
@@ -187,7 +187,7 @@ ignored with a warning. (Not inherited from tidytable, which has no
 
 
 <dt id="arg-suffix">suffix<a class="anchor" aria-label="anchor" href="#arg-suffix"></a></dt>
-<dd><p>Append created for duplicated column names when using <code><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">full_join()</a></code></p></dd>
+<dd><p>Append created for duplicated column names when using <code><a href="https://markfairbanks.github.io/tidytable/reference/left_join.html" class="external-link">full_join()</a></code></p></dd>
 
 
 <dt id="arg-keep">keep<a class="anchor" aria-label="anchor" href="#arg-keep"></a></dt>
@@ -263,25 +263,12 @@ when a list is used for <code>.fns</code>.</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching package: ‘dplyr’</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from ‘package:eeguana’:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     across, between, c_across</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from ‘package:stats’:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     filter, lag</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from ‘package:base’:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     intersect, setdiff, setequal, union</span>
-<span class="r-in"><span><span class="co"># Create new channel in the signal table</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Create new channel in the signal table</span></span></span>
 <span class="r-in"><span><span class="va">data_faces_ERPs</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">eeg_mutate</span><span class="op">(</span>tmp <span class="op">=</span> <span class="va">Fz</span> <span class="op">-</span> <span class="va">Cz</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # EEG data:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Signal table:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;.id, .sample&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        .id      .sample           Fp1           Fpz           Fp2            F7</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      &lt;int&gt; &lt;sample_int&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   1:     1          -99    0.22353428     0.6683971   -0.03621027     0.8601528</span>
@@ -391,7 +378,6 @@ when a list is used for <code>.fns</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> No events.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Segments table:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;.id&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      .id .recording condition</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;int&gt;     &lt;char&gt;    &lt;char&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1:     1 faces.vhdr     faces</span>
@@ -403,7 +389,6 @@ when a list is used for <code>.fns</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # EEG data:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Signal table:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;.id, .sample&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        .id      .sample           Fp1           Fpz           Fp2            F7</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      &lt;int&gt; &lt;sample_int&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   1:     1          -99    0.22353428     0.6683971   -0.03621027     0.8601528</span>
@@ -500,7 +485,6 @@ when a list is used for <code>.fns</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> No events.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Segments table:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;.id&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      .id .recording condition  code</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;int&gt;     &lt;char&gt;    &lt;char&gt; &lt;num&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1:     1 faces.vhdr     faces     1</span>
@@ -514,7 +498,6 @@ when a list is used for <code>.fns</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # EEG data:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Signal table:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;.id, .sample&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        .id      .sample     Occipital</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      &lt;int&gt; &lt;sample_int&gt; &lt;channel_dbl&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   1:     1          -99     0.7805137</span>
@@ -533,7 +516,6 @@ when a list is used for <code>.fns</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> No events.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Segments table:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;.id&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      .id .recording condition</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;int&gt;     &lt;char&gt;    &lt;char&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1:     1 faces.vhdr     faces</span>
@@ -545,7 +527,6 @@ when a list is used for <code>.fns</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # EEG data:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Signal table:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;.id, .sample&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        .id      .sample           Fp1           Fpz           Fp2            F7</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      &lt;int&gt; &lt;sample_int&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   1:     1          -99    0.22353428     0.6683971   -0.03621027     0.8601528</span>
@@ -642,7 +623,6 @@ when a list is used for <code>.fns</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> No events.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Segments table:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;.id&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      .id .recording condition</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;int&gt;     &lt;char&gt;    &lt;char&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1:     1 faces.vhdr     faces</span>
@@ -661,7 +641,6 @@ when a list is used for <code>.fns</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Grouped by: condition, </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Signal table:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;.id, .sample&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      .id      .sample mean.amplitude</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;int&gt; &lt;sample_int&gt;  &lt;channel_dbl&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1:     1           NA      -1.123384</span>
@@ -671,7 +650,6 @@ when a list is used for <code>.fns</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> No events.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Segments table:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;.id&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      .id .recording condition</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;int&gt;     &lt;char&gt;    &lt;char&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1:     1       &lt;NA&gt;     faces</span>
@@ -683,7 +661,6 @@ when a list is used for <code>.fns</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # EEG data:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Signal table:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;.id, .sample&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      .id      .sample           Fp1           Fpz           Fp2            F7</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;int&gt; &lt;sample_int&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1:     1           NA     -1.332362     -1.567974     -1.821664     -1.064499</span>
@@ -710,7 +687,6 @@ when a list is used for <code>.fns</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> No events.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Segments table:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;.id&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      .id .recording</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;int&gt;     &lt;char&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1:     1       &lt;NA&gt;</span>
@@ -721,7 +697,6 @@ when a list is used for <code>.fns</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # EEG data:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Signal table:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;.id, .sample&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        .id      .sample            O1            O2            P7            P8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      &lt;int&gt; &lt;sample_int&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   1:     1          -99     0.8084641     0.9080361      1.054939     0.4936695</span>
@@ -740,7 +715,6 @@ when a list is used for <code>.fns</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> No events.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Segments table:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;.id&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      .id .recording condition</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;int&gt;     &lt;char&gt;    &lt;char&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1:     1 faces.vhdr     faces</span>
@@ -752,7 +726,6 @@ when a list is used for <code>.fns</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # EEG data:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Signal table:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;.id, .sample&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        .id      .sample           Fp1           Fpz           Fp2            F7</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      &lt;int&gt; &lt;sample_int&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt; &lt;channel_dbl&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   1:     1          -99    0.22353428     0.6683971   -0.03621027     0.8601528</span>
@@ -849,7 +822,6 @@ when a list is used for <code>.fns</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> No events.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Segments table:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;.id&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      .id .recording Predictor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;int&gt;     &lt;char&gt;    &lt;char&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1:     1 faces.vhdr     faces</span>
