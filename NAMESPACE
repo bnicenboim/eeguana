@@ -304,5 +304,11 @@ importFrom(tidyselect,
 )
 importFrom(tidytable,
   case_when,
-  if_else
+  if_else,
+  map,
+  map2,
+  map_chr,
+  map_dbl,
+  map_lgl,
+  walk
 )

@@ -107,7 +107,7 @@ read_dat <- function(file, header_info = NULL, events_dt = NULL,
 
   # if there is a resolution use it. (This seems to be relevant only if the encoding is integer)
   if (!all(is.na(header_info$chan_info$resolution))) {
-    raw_signal <- raw_signal[, purrr::map2(.SD, header_info$chan_info$resolution, ~ .x * .y)]
+    raw_signal <- raw_signal[, map2(.SD, header_info$chan_info$resolution, ~ .x * .y)]
   }
 
   # TODO maybe convert to data.table directly
@@ -275,7 +275,7 @@ read_vmrk <- function(file) {
   )
   # splits Mk<Marker number>=<Type>, removes the Mk.., and <Date>
   events[, .type := strsplit(.type, "=") %>%
-    purrr::map_chr(~ .x[[2]])][, date := NULL]
+    map_chr(~ .x[[2]])][, date := NULL]
 
   # punctual events shouldn't have a .final < .initial
   events[, .final := .initial + ifelse(.final - 1L == -1, .final, .final - 1L)]

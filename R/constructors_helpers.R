@@ -83,7 +83,7 @@ validate_channel_dbl <- function(channel) {
       call. = FALSE
     )
   }
-  purrr::walk(c(".x", ".y", ".z"), ~
+  walk(c(".x", ".y", ".z"), ~
   if (!is.numeric(attr(channel, .))) {
     warning(sprintf("Attribute %s should be a number.", .),
       call. = FALSE
@@ -103,7 +103,7 @@ validate_channel_dbl <- function(channel) {
 #' @noRd
 update_channel_meta_data <- function(channels, channels_tbl) {
   if (nrow(channels_tbl) == 0 || is.null(channels_tbl)) {
-    channels <- purrr::map(
+    channels <- map(
       channels,
       function(sig) {
         .channel <- new_channel_dbl(
@@ -118,9 +118,9 @@ update_channel_meta_data <- function(channels, channels_tbl) {
       }
     )
   } else {
-    channels <- purrr::map2(
+    channels <- map2(
       channels %>% stats::setNames(make_names(channels_tbl$.channel)),
-      purrr::transpose(tidytable::select(channels_tbl, -.channel)),
+      rows_as_list(tidytable::select(channels_tbl, -.channel)),
       function(sig, chan_info) {
         .channel <- new_channel_dbl(values = sig, as.list(chan_info))
       }

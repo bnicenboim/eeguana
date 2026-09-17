@@ -142,7 +142,7 @@ filt_eeg_lst <- function(.signal, ..., h, na.rm = FALSE, .by_ref = FALSE) {
   ch_sel <- sel_ch(.signal, ...)
 
   if (na.rm == FALSE) {
-    NA_channels <- ch_sel[.signal[, purrr::map_lgl(.SD, anyNA), .SDcols = (ch_sel)]]
+    NA_channels <- ch_sel[.signal[, map_lgl(.SD, anyNA), .SDcols = (ch_sel)]]
     if (length(NA_channels) > 0) {
       stop("Missing values in the following channels: ", paste(NA_channels, sep = ","), "; use na.rm =TRUE, to proceed setting to NA the entire segment that contains an NA", call. = FALSE)
     }

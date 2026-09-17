@@ -171,11 +171,10 @@ plot_topo.data.frame <- function(data, .value = .value, .label = .key, ...) {
     tidytable::select(-!!.label)
   label_pos <- tidytable::filter(data, !is.na(.x), !is.na(.y), !is.na(!!.label)) %>%
     tidytable::distinct(.x, .y, !!.label)
-  ## map_dtr() rather than purrr::map_dfr(): purrr binds those rows with dplyr, so
-  ## it fails at run time on a machine without dplyr installed
+  ## map_dtr() binds the rows with data.table, so it does not need dplyr
   label_corrected_pos <- map_dtr(label_pos %>%
     tidytable::select(.x, .y, !!.label) %>%
-    purrr::transpose(), function(l) {
+    rows_as_list(), function(l) {
     d %>%
       tidytable::select(-!!.value) %>%
       tidytable::filter((.x - l$.x)^2 + (.y - l$.y)^2 == min((.x - l$.x)^2 + (.y - l$.y)^2)) %>%
@@ -501,7 +500,7 @@ plot_in_layout.gg <- function(plot, .projection = "polar", .ratio = c(1, 1), ...
 
   # won't work for free scales, need to add an if-else inside
 
-  channel_grobs <- purrr::map(layout$.key, function(ch) {
+  channel_grobs <- map(layout$.key, function(ch) {
     ## pos <- which(facet_names==ch, arr.ind =  TRUE)
     ch_pos <- layout %>% tidytable::filter(.key == ch)
     # panel_txt <- paste0("panel-", ch_pos$ROW, "-", ch_pos$COL)

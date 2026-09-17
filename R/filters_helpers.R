@@ -392,7 +392,7 @@ construct_fir_filter <- function(sampling_rate, freq, gain, filter_length, phase
   ## """
   if (freq[1] != 0) stop("Error in freq argument, first element must be 0")
   if (fir_design == "firwin") {
-    fir_fun <- purrr::partial(firwin_design, sampling_rate = sampling_rate)
+    fir_fun <- function(...) firwin_design(..., sampling_rate = sampling_rate)
   } else {
     stop("Unsupported filter_design", call. = FALSE)
   }

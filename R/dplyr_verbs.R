@@ -542,7 +542,7 @@ eeg_groups <- function(x) {
 #' @rdname dplyr_verbs
 #' @export
 eeg_groups.eeg_lst <- function(x) {
-  attributes(x)$vars %>% purrr::map(as.name)
+  attributes(x)$vars %>% map(as.name)
 }
 
 # dynamically exported in zzz.R

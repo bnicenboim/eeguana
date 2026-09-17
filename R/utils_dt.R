@@ -64,23 +64,57 @@ imap <- function (.x, .f, ...)
 }
 
 #' @noRd
+imap_lgl <- function(.x, .f, ...) {
+  .f <- rlang::as_function(.f)
+  tidytable::map2_lgl(.x, vec_index(.x), .f, ...)
+}
+
+#' @noRd
+iwalk <- function(.x, .f, ...) {
+  imap(.x, .f, ...)
+  invisible(.x)
+}
+
+#' Apply .f only to the elements where .p holds, leaving the rest alone
+#' @noRd
+map_if <- function(.x, .p, .f, ...) {
+  .p <- rlang::as_function(.p)
+  .f <- rlang::as_function(.f)
+  sel <- vapply(.x, .p, logical(1))
+  ## a fresh list, so that the attributes of a quosure do not travel with it
+  out <- vector("list", length(.x))
+  out[sel] <- lapply(.x[sel], .f, ...)
+  out[!sel] <- .x[!sel]
+  names(out) <- names(.x)
+  out
+}
+
+#' The rows of a table as a list, one named list per row
+#'
+#' What purrr::transpose() did to a table: take the columns apart and put
+#' them back together row by row.
+#' @noRd
+rows_as_list <- function(tbl) {
+  lapply(seq_len(nrow(tbl)), function(i) as.list(tbl[i, ]))
+}
+
+#' @noRd
 map_dtr <- function(.x, .f, ..., .id = NULL) {
-  .f <- purrr::as_mapper(.f, ...)
-  res <- purrr::map(.x, .f, ...)
+  res <- tidytable::map(.x, .f, ...)
   data.table::rbindlist(res, fill = TRUE, idcol = .id)
 }
 
 #' @noRd
 imap_dtr <- function(.x, .f, ..., .id = NULL) {
-  .f <- purrr::as_mapper(.f, ...)
   map2_dtr(.x, names(.x), .f, ..., .id = .id)
 }
 
 
 #' @noRd
 map2_dtr <- function(.x, .y, .f, ..., .id = NULL) {
-  .f <- purrr::as_mapper(.f, ...)
-  res <- purrr::map2(.x, .y, .f, ...)
+  res <- tidytable::map2(.x, .y, .f, ...)
+  ## rbindlist() turns these names into the .id column
+  names(res) <- names(.x)
   data.table::rbindlist(res, fill = TRUE, idcol = .id)
 }
 

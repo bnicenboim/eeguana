@@ -158,9 +158,8 @@ eeg_interpolate_tbl.data.frame <- function(.data,
         split.data.frame(.data, l)
       }
     } %>%
-    purrr::discard(~ nrow(.x) == 0) %>%
-    ## map_dtr() rather than purrr::map_dfr(): purrr binds those rows with dplyr, so
-    ## it fails at run time on a machine without dplyr installed
+    discard(~ nrow(.x) == 0) %>%
+    ## map_dtr() binds the rows with data.table, so it does not need dplyr
     map_dtr(function(.d) {
       common <- tbl_ungroup(.d) %>%
         tidytable::select(-!!.label, -!!.x, -!!.y, -!!.value) %>%
