@@ -34,3 +34,4 @@ experimental
 ^\.Rprofile$
 ^internal_pipeline\.md$
 ^playground$
+^bugs.md$
