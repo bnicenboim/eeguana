@@ -316,23 +316,6 @@ names_other_col <- function(.eeg_lst, dots, tbl = NULL) {
 }
 
 
-#' Add a column to (an empty) table
-#' Taken from https://community.rstudio.com/t/cannot-add-column-to-empty-tibble/1903/11
-#' @noRd
-hd_add_column <- function(.data, ..., .before = NULL, .after = NULL) {
-  if (nrow(.data) == 0L) {
-    return(tibble::tibble(...))
-  }
-  return(tibble::add_column(.data, ..., .before = .before, .after = .after))
-}
-
-#' @noRd
-signal_from_parent_frame <- function(env = parent.frame()) {
-  # This is the environment where I can find the columns of signal_tbl
-  signal_env <- rlang::env_get(env = env, ".top_env", inherit = TRUE)
-  signal_tbl <- tidytable::as_tidytable(rlang::env_get_list(signal_env, rlang::env_names(signal_env)))
-}
-
 #' @noRd
 extended_signal <- function(.eeg_lst, cond_cols = NULL, events_cols = NULL) {
   ## For NOTES:
@@ -451,25 +434,3 @@ dots_by_tbl_quos <- function(.data, dots) {
   out
 }
 
-
-#' @noRd
-rename_sel_comp <- function(mixing, sel) {
-  mixing <- mixing[.ICA %in% c("mean", sel), ]
-  mixing[, .ICA := map_chr(.ICA, function(r) {
-    new_name <- names(sel[sel == r])
-    if (length(new_name) != 0) {
-      return(new_name)
-    } else {
-      return(r)
-    }
-  })][]
-}
-sel_comp <- function(data, ...) {
-  dots <- rlang::enquos(...)
-  if (rlang::is_empty(dots)) {
-    ch_sel <- component_names(data)
-  } else {
-    ch_sel <- tidyselect::vars_select(component_names(data), !!!dots)
-  }
-  ch_sel
-}

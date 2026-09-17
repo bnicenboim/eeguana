@@ -37,11 +37,6 @@ keep_dt_attrs <- function(new, old) {
 }
 
 #' @noRd
-shallow <- function(x) {
-  x[TRUE]
-}
-
-#' @noRd
 lapply_dtc <- function(X, FUN, ...) {
   lapply(X, FUN, ...) %>%
     data.table::setDT()
@@ -124,16 +119,6 @@ map2_dtc <- function(.x, .y, .f, ...) {
 }
 
 #' @noRd
-## https://github.com/mllg/batchtools/blob/master/R/Joins.R
-semi_join_dt <- function(x, y, by = NULL) {
-  if (is.null(by)) {
-    by <- intersect(colnames(x), colnames(y))
-  }
-  w <- unique(x[y, on = by, nomatch = 0L, which = TRUE, allow.cartesian = TRUE])
-  x[w]
-}
-
-#' @noRd
 left_join_dt <- function(x, y, by = NULL) {
   if (is.null(by)) {
     by <- intersect(colnames(x), colnames(y))
@@ -152,14 +137,6 @@ left_join_dt <- function(x, y, by = NULL) {
 
   # should I set allow.cartesian = TRUE?
   data.table::setnames(out, names(by), by)[]
-}
-
-anti_join_dt <- function(x, y, by = NULL) {
-  if (is.null(by)) {
-    by <- intersect(colnames(x), colnames(y))
-  }
-
-  x[!y, on = by]
 }
 
 #' @noRd
@@ -212,21 +189,6 @@ struct_to_dt <- function(struct, .id = NULL) {
       }
     )
     map_dtr(list_str, data.table::setDT, .id = .id)
-  }
-}
-
-#' @noRd
-changed_objects <- function(obj) {
-  ## name <- rlang::eval_tidy(rlang::as_name(rlang::enquo(obj)))
-  oo <- ls(envir = .GlobalEnv)
-  mem <- data.table::data.table(mem = lapply(oo, function(x) do.call(data.table::address, list(rlang::sym(x)))) %>% unlist(), names = oo)
-
-  loc <- data.table::address(force(obj))
-  changed <- mem[mem == loc, ]$names
-  if (length(changed) > 1) {
-    message_verbose("The following objects have been changed in place: ", paste0(changed, sep = ", "))
-  } else {
-    message_verbose(changed, " has been changed in place.")
   }
 }
 
