@@ -75,6 +75,9 @@ iwalk <- function(.x, .f, ...) {
 map_if <- function(.x, .p, .f, ...) {
   .p <- rlang::as_function(.p)
   .f <- rlang::as_function(.f)
+  ## as.list() keeps a quosure's class, and subsetting a quosure with `[` is
+  ## deprecated in rlang, so work on a plain list
+  .x <- as.list(unclass(.x))
   sel <- vapply(.x, .p, logical(1))
   ## a fresh list, so that the attributes of a quosure do not travel with it
   out <- vector("list", length(.x))
