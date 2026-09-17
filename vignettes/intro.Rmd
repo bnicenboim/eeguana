@@ -57,7 +57,7 @@ and `s1_faces.eeg` contains the signals at every sample for every channel record
 We load the relevant packages first. Here, I use `tidytable` which is a faster alternative to `dplyr` with a very similar interface.
 
 ```{r libs, message = FALSE}
-library(tidytable) #or library(dplyr)
+library(tidytable) # faster alternative to dplyr
 library(ggplot2)
 library(stringr)
 library(eeguana)

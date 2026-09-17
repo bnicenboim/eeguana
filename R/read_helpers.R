@@ -1,3 +1,55 @@
+#' Stop early when a binary .dat does not match its header
+#'
+#' `n_points` may be absent from the header, in which case only whole-channel
+#' divisibility can be checked.
+#' @noRd
+check_dat_size <- function(file, n_chan, n_points = NULL, bytes) {
+  size <- file.size(file)
+  if (is.na(size) || !is.finite(bytes) || bytes <= 0 || n_chan <= 0) {
+    return(invisible(NULL))
+  }
+  n_values <- size / bytes
+
+  fmt <- function(x) format(x, big.mark = ",", scientific = FALSE, trim = TRUE)
+
+  if (!is.null(n_points) && is.finite(n_points) && n_points > 0) {
+    expected <- n_chan * n_points * bytes
+    mismatch <- paste0(
+      basename(file), " does not match its header: the file is ", fmt(size),
+      " bytes but the header describes ", n_chan, " channels x ",
+      fmt(n_points), " data points x ", bytes, " bytes, which is ",
+      fmt(expected), " bytes"
+    )
+    if (size < expected) {
+      ## Too little data is fatal. With DataOrientation=VECTORIZED the file is
+      ## stored channel by channel, so a short file is not a shorter recording,
+      ## it is the first few channels and then nothing.
+      stop(mismatch, " (", round(100 * size / expected, 1),
+        "% of it, so the file looks truncated).",
+        call. = FALSE
+      )
+    }
+    if (size > expected) {
+      ## Too much is survivable, so warn rather than stop. Note the extra data
+      ## is read, not discarded: readBin() takes the whole file, so the result
+      ## has more samples than the header declares.
+      warning(mismatch,
+        ". The extra data is read too, so the result has ",
+        fmt(round(n_values / n_chan)), " samples per channel rather than the ",
+        fmt(n_points), " the header declares.",
+        call. = FALSE
+      )
+    }
+  } else if (n_values %% n_chan != 0) {
+    stop(basename(file), " does not match its header: it holds ",
+      fmt(n_values), " values, which is not a whole number of ", n_chan,
+      " channels. The file may be truncated.",
+      call. = FALSE
+    )
+  }
+  invisible(NULL)
+}
+
 #' Helper function to read the dat files directly,
 #' samples doesn't do anything for now
 #' @noRd
@@ -31,6 +83,12 @@ read_dat <- function(file, header_info = NULL, events_dt = NULL,
 
     bytes <- as.numeric(chr_extract(common_info$bits, "\\d*$")) / 8
 
+    ## The header says how much data there should be. Check the file before
+    ## reading it: a truncated .dat otherwise fails much later, inside
+    ## data.table, with a message about recycling lengths that says nothing
+    ## about the real problem.
+    check_dat_size(file, n_chan = n_chan, n_points = common_info$data_points, bytes = bytes)
+
     raw_signal <- read_bin_signal(file, type = type, bytes = bytes, n_chan = n_chan, sample_x_channels = multiplexed)
   } else if (common_info$format == "ASCII") {
     raw_signal <- data.table::fread(file,
@@ -49,7 +107,7 @@ read_dat <- function(file, header_info = NULL, events_dt = NULL,
 
   # if there is a resolution use it. (This seems to be relevant only if the encoding is integer)
   if (!all(is.na(header_info$chan_info$resolution))) {
-    raw_signal <- raw_signal[, purrr::map2(.SD, header_info$chan_info$resolution, ~ .x * .y)]
+    raw_signal <- raw_signal[, map2(.SD, header_info$chan_info$resolution, ~ .x * .y)]
   }
 
   # TODO maybe convert to data.table directly
@@ -62,26 +120,26 @@ read_dat <- function(file, header_info = NULL, events_dt = NULL,
   max_sample <- nrow(raw_signal)
   sample_id <- seq_len(max_sample)
 
-  if (nrow(events_dt %>% dplyr::filter(!!sep)) == 0) {
+  if (nrow(events_dt %>% tidytable::filter(!!sep)) == 0) {
     stop("Segment separation marker ", rlang::quo_text(sep), " not found in the events table.")
   }
 
   # the first event can't be the end of the segment
   # and the last segment ends at the end of the file
   .upper <- events_dt %>%
-    dplyr::filter(!!sep) %>%
-    dplyr::slice(-1) %>%
+    tidytable::filter(!!sep) %>%
+    tidytable::slice(-1) %>%
     {
       .$.initial - 1
     } %>%
     c(., max_sample)
 
   .lower <- events_dt %>%
-    dplyr::filter(!!sep) %>%
+    tidytable::filter(!!sep) %>%
     .$.initial
 
   .first_sample <- events_dt %>%
-    dplyr::filter(!!zero) %>%
+    tidytable::filter(!!zero) %>%
     .$.initial
 
   # In case the time zero is not defined
@@ -153,33 +211,6 @@ add_event_channel <- function(events, labels) {
   events[, .channel := labels[.channel]]
 }
 
-segment_events <- function(events, .lower, .initial, .upper) {
-  segmentation <- data.table::data.table(.lower, .initial, .upper)
-  segmentation[, .id := seq_len(.N)]
-
-  cols_events_temp <- unique(c(colnames(events), colnames(segmentation), "i..initial", "i..final", "x..lower"))
-  cols_events <- c(".id", colnames(events))
-  new_events <- data.table::as.data.table(events)
-  new_events[, lowerb := .final]
-
-  # We want to capture events that span after the .lower bound ,that is .final over .lower
-  # and events and that start before the .upper bound:
-  new_events <- segmentation[new_events,
-    on = .(.lower <= lowerb, .upper >= .initial),
-    ..cols_events_temp, allow.cartesian = TRUE
-  ][!is.na(.id)]
-
-  # i..initial are the original.initial from the events file
-  # .initial is the first sample of each segment
-  # x..lower is the original .lower of segmentation
-  new_events[, .initial := pmax(i..initial, x..lower), by = .id]
-  new_events[, .final := pmin(i..final, x..upper), by = .id]
-  out_events <- new_events[, ..cols_events]
-  ## data.table::setattr(out_events, "class", c("events_tbl",class(out_events)))
-  out_events
-}
-
-
 built_eeg_lst <- function(eeg_lst, file) {
   message_verbose(paste0(
     "# Data from ", file,
@@ -217,7 +248,7 @@ read_vmrk <- function(file) {
   )
   # splits Mk<Marker number>=<Type>, removes the Mk.., and <Date>
   events[, .type := strsplit(.type, "=") %>%
-    purrr::map_chr(~ .x[[2]])][, date := NULL]
+    map_chr(~ .x[[2]])][, date := NULL]
 
   # punctual events shouldn't have a .final < .initial
   events[, .final := .initial + ifelse(.final - 1L == -1, .final, .final - 1L)]
@@ -278,14 +309,14 @@ read_vhdr_metadata <- function(file) {
 
   channel_info <- channel_info %>%
     stats::setNames(ch_cols) %>%
-    mutate.(
+    tt_mutate(
       resolution = as.double(resolution),
       unit = ifelse(unit %in% c("\u00b5V", "\u03bcV", "microvolt"), "microvolt", "?"),
       .reference = ifelse(.reference == "", NA_character_, .reference)
     )
   if (!is.null(unit_found) & all(channel_info$unit == "?")) {
     channel_info <- channel_info %>%
-      mutate.(unit = unit_found)
+      tt_mutate(unit = unit_found)
   }
 
   if (is.null(vhdr$Coordinates)) {
@@ -296,7 +327,7 @@ read_vhdr_metadata <- function(file) {
         t() %>%
         data.table::as.data.table(.name_repair = "unique")) %>%
       stats::setNames(c("number", "radius", "theta", "phi")) %>%
-      mutate.(across(tidyselect::all_of(c("radius", "theta", "phi")), as.numeric))
+      tt_mutate(across(tidyselect::all_of(c("radius", "theta", "phi")), as.numeric))
   }
 
   # this is in case it can't find DataPoints and DataType in the header file
@@ -305,7 +336,7 @@ read_vhdr_metadata <- function(file) {
 
   common_info <- vhdr[["Common Infos"]] %>%
     data.table::as.data.table() %>%
-    transmute.(
+    tt_transmute(
       data_points = as.numeric(DataPoints),
       # seg_data_points = as.numeric(SegmentDataPoints),
       orientation = DataOrientation,
@@ -319,14 +350,14 @@ read_vhdr_metadata <- function(file) {
 
   if (common_info$format == "ASCII") {
     common_info <- common_info %>%
-      mutate.(
+      tt_mutate(
         DecimalSymbol = vhdr[["ASCII Infos"]][["DecimalSymbol"]],
         SkipColumns = vhdr[["ASCII Infos"]][["SkipColumns"]] %>% as.integer(),
         SkipLines = vhdr[["ASCII Infos"]][["SkipLines"]] %>% as.integer()
       )
   } else if (common_info$format == "BINARY") {
     common_info <- common_info %>%
-      mutate.(bits = vhdr[["Binary Infos"]][["BinaryFormat"]])
+      tt_mutate(bits = vhdr[["Binary Infos"]][["BinaryFormat"]])
   }
 
   if (substr(common_info$domain, start = 1, stop = nchar("time")) %>%
@@ -335,7 +366,7 @@ read_vhdr_metadata <- function(file) {
   }
 
   # TODO use the _dt version as in read_set
-  chan_info <- full_join.(channel_info, coordinates, by = "number") %>%
+  chan_info <- tt_full_join(channel_info, coordinates, by = "number") %>%
     cbind(spherical_to_xyz_dt(coordinates$radius, coordinates$theta, coordinates$phi))
 
   out <- list()

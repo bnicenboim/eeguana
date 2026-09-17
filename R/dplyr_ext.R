@@ -9,9 +9,8 @@
 #' @examples
 #' \dontrun{
 #'
-#' # Load multiple subjects using purrr::map, extracting subject IDs from file names.
-#' faces_list <- purrr::map(list.files("./", "vhdr"), ~
-#' read_vhdr(.x))
+#' # Load multiple subjects, extracting subject IDs from file names.
+#' faces_list <- lapply(list.files("./", "vhdr"), read_vhdr)
 #' # Bind all the eeg_lsts into a large one:
 #' faces <- eeg_bind(faces_list)
 #' }
@@ -25,7 +24,7 @@ eeg_bind <- function(...) {
   }
 
   # Checks:
-  purrr::iwalk(
+  iwalk(
     eeg_lsts[seq(2, length(eeg_lsts))],
     ~ if (!identical(channels_tbl(eeg_lsts[[1]]), channels_tbl(.x))) {
       warning("Objects with different channels information, see below\n\n", "File ",
@@ -47,18 +46,16 @@ eeg_bind <- function(...) {
   # Binding
   # .id of the new eggbles needs to be adapted
 
-  signal <- purrr::map(eeg_lsts, ~ .x$.signal) %>% data.table::rbindlist(idcol = ".sid", fill = TRUE)
+  signal <- map(eeg_lsts, ~ .x$.signal) %>% data.table::rbindlist(idcol = ".sid", fill = TRUE)
   signal[, .id := .GRP, by = .(.sid, .id)][, .sid := NULL]
-  data.table::setkey(signal, .id, .sample)
 
   data.table::setattr(signal, "class", c("signal_tbl", class(signal)))
-  events <- purrr::map(eeg_lsts, ~ .x$.events) %>% data.table::rbindlist(idcol = ".sid", fill = TRUE)
+  events <- map(eeg_lsts, ~ .x$.events) %>% data.table::rbindlist(idcol = ".sid", fill = TRUE)
   events[, .id := .GRP, by = .(.sid, .id)][, .sid := NULL]
   events <- as_events_tbl(events)
 
-  segments <- purrr::map(eeg_lsts, ~ data.table::data.table(.x$.segments)) %>% data.table::rbindlist(idcol = ".sid", fill = TRUE)
+  segments <- map(eeg_lsts, ~ data.table::data.table(.x$.segments)) %>% data.table::rbindlist(idcol = ".sid", fill = TRUE)
   segments[, .id := .GRP, by = .(.sid, .id)][, .sid := NULL]
-  data.table::setkey(segments, .id)
   new_eeg_lst <- new_eeg_lst(
     .signal = signal, .events = events, .segments = segments
   ) %>%
@@ -100,11 +97,11 @@ slice_signal <- eeg_slice_signal
 
 slice_signal_eeg_lst <- function(.eeg_lst, ...) {
   extended_signal <- extended_signal(.eeg_lst)
-  by <- as.character(dplyr::group_vars(.eeg_lst))
+  by <- as.character(eeg_group_vars(.eeg_lst))
   if (length(by) != 0) {
     cols_signal <- colnames(.eeg_lst$.signal)
     .eeg_lst$.signal <- extended_signal[extended_signal[, .I[...], by = by]$V1] %>%
-      .[, ..cols_signal]
+      tt_select(tidyselect::all_of(cols_signal))
   } else {
     .eeg_lst$.signal <- .eeg_lst$.signal[list(...)[[1]], ]
   }
@@ -113,7 +110,8 @@ slice_signal_eeg_lst <- function(.eeg_lst, ...) {
     range_s <- .eeg_lst$.signal[, .(.lower = min(.sample), .upper = max(.sample)), by = .id]
     .eeg_lst$.events <- update_events(.eeg_lst$.events, range_s)
   }
-  .eeg_lst$.segments <- dplyr::semi_join(.eeg_lst$.segments, .eeg_lst$.signal, by = ".id")
+  .eeg_lst$.segments <- tidytable::semi_join(.eeg_lst$.segments, .eeg_lst$.signal, by = ".id") %>%
+    keep_dt_attrs(.eeg_lst$.segments)
   validate_eeg_lst(.eeg_lst)
 }
 

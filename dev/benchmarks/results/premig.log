@@ -1,0 +1,19 @@
+
+=== premig (eeguana 0.1.12.9003) ===
+  read_vhdr_64ch         ok       4.4854 s
+  read_vhdr_34ch         ok       0.9107 s
+  read_edf               ok       0.0533 s
+  eeg_select             ok       0.0336 s
+  eeg_filter             ok       0.1152 s
+  eeg_mutate             ok       0.0967 s
+  eeg_summarize_ch       ok       0.1610 s
+  eeg_group_summarize    ok       0.7931 s
+  eeg_segment            ok       0.0998 s
+  eeg_downsample         ok       7.9826 s
+  as_data_table          ok       0.8913 s
+  summary_eeg_lst        ok       0.1439 s
+  channels_tbl           ok       0.0069 s
+  events_mutate          ok       0.0028 s
+  interpolate_tbl        ok       0.0789 s
+  plot_topo              ok       0.7571 s
+written: /home/bruno/dev/eeguana/dev/benchmarks/results/premig.csv 

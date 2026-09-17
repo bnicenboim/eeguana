@@ -1,10 +1,65 @@
+# eeguana 0.1.12.9003
+
+## Dependencies
+
+- dplyr and tidyr move from `Imports` to `Suggests`, so installing eeguana no
+  longer installs them. The dplyr verbs still work on eeguana objects whenever
+  dplyr is installed, because their methods are registered as soon as dplyr
+  loads, whichever of the two packages loads first.
+- Examples and vignettes no longer load dplyr. The vignettes, and the one
+  example that uses a verb from outside eeguana, load tidytable instead, a
+  faster alternative.
+- purrr is no longer a dependency. 
+## Bugs fixed
+
+- `drop_incomplete_segments()` errored with `could not find function "na.omit"`
+  on every call. It now drops the segments holding missing values, as
+  documented.
+- `transmute()` on an events table errored with
+  `object 'transmute.tidytable' not found`, because the tidytable method it
+  called was removed upstream.
+- `plot_topo()` accepts any data frame. It previously had a method only for
+  tibbles, so a plain `data.frame` had none.
+- `read_vhdr()` now checks the `.dat` against its header before reading it. A
+  file that is too short, usually an incomplete copy or download, stops with
+  both sizes named instead of failing inside data.table with
+  `Supplied 38410 items to be assigned to 38409 items of column '.id'`. A file
+  that is too long warns and is read in full.
+
+## Breaking
+
+- `eeg_interpolate_tbl()` returns a tidytable rather than a tibble. It is still
+  a data frame, so it keeps working wherever one is expected, but a test such as
+  `inherits(x, "tbl_df")` on the result is now `FALSE`.
+
+## Internal
+
+- eeguana no longer sets data.table keys. Printed tables lose their `Key:` line.
+- dplyr is no longer called inside the package. The internal calls go through
+  tidytable, and the calls that act on an `eeg_lst` go through eeguana's own
+  `eeg_*` generics.
+- `dev/check_without_dplyr.R` runs the package on a library where dplyr, tidyr,
+  and tibble are not installed.
+- No unexported function of another package is called with `:::` any more.
+  One such call had already broken `transmute()` on events tables when
+  tidytable removed the function.
+
 # eeguana 0.1.12.9002
+
+## New features
+
+- `read_edf()` gains `.trigger_channel`, for EDF files that record triggers as
+  an ordinary channel rather than as annotations. Name the channel, or use
+  `"last"` for the last one. Its values become events and it is dropped from
+  the signal table. When the argument is left out and the last channel looks
+  like triggers, a message says so.
 
 ## Bugs fixed
 
 - `read_ft()` and `read_set()` failed with `invalid substring arguments` on
   files with an empty text field. The cause is a regression in R.matlab
-  3.8.0; `Remotes:` points at a patched fork until the fix reaches CRAN.
+  3.8.0; `Remotes:` points at R.matlab's development version until the fix
+  reaches CRAN.
 - `read_fif()` and `as_eeg_lst()` on an MNE object no longer fail with
   `KeyError: 'bad'`.
 - The join verbs now take `copy` in dplyr's position, so

@@ -59,10 +59,6 @@ S3method(chs_mean,psd_lst)
 S3method(component_names,default)
 S3method(component_names,eeg_ica_lst)
 S3method(count_complete_cases_tbl,eeg_lst)
-S3method(dplyr::mutate,events_tbl)
-S3method(dplyr::summarise,events_tbl)
-S3method(dplyr::transmute,events_tbl)
-S3method(dplyr::ungroup,eeg_lst)
 S3method(drop_incomplete_segments,eeg_lst)
 S3method(eeg_anti_join,eeg_lst)
 S3method(eeg_artif_amplitude,eeg_lst)
@@ -133,8 +129,8 @@ S3method(plot,psd_lst)
 S3method(plot_components,eeg_ica_lst)
 S3method(plot_ica,eeg_ica_lst)
 S3method(plot_in_layout,gg)
+S3method(plot_topo,data.frame)
 S3method(plot_topo,eeg_lst)
-S3method(plot_topo,tbl_df)
 S3method(print,channel_dbl)
 S3method(print,eeg_ica_lst)
 S3method(print,eeg_lst)
@@ -292,23 +288,6 @@ importFrom(data.table,
   ":=",
   between
 )
-importFrom(dplyr,
-  anti_join,
-  full_join,
-  group_by,
-  group_vars,
-  groups,
-  inner_join,
-  left_join,
-  mutate,
-  rename,
-  right_join,
-  select,
-  semi_join,
-  summarise,
-  transmute,
-  ungroup
-)
 importFrom(ggplot2,ggplot)
 importFrom(magrittr,"%>%")
 importFrom(tidyselect,
@@ -325,5 +304,11 @@ importFrom(tidyselect,
 )
 importFrom(tidytable,
   case_when,
-  if_else
+  if_else,
+  map,
+  map2,
+  map_chr,
+  map_dbl,
+  map_lgl,
+  walk
 )

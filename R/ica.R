@@ -88,11 +88,11 @@ eeg_ica.eeg_lst <- function(.data,
     signal_raw <- .data$.signal
   }
   signal_raw <- signal_raw %>%
-    select.(.id, tidyselect::all_of(channel_names(.data)))
+    tt_select(.id, tidyselect::all_of(channel_names(.data)))
   ## remove more if dots are used BUT keep id!!
   if (!rlang::is_empty(dots)) {
     chs <- sel_ch(signal_raw, !!!dots)
-    signal_raw <- select.(signal_raw, tidyselect::all_of(c(".id", chs)))
+    signal_raw <- tt_select(signal_raw, tidyselect::all_of(c(".id", chs)))
   }
 
   ## creates a DT with length length(signal_tbl) where the grouping var is repeated,
@@ -161,7 +161,6 @@ eeg_ica.eeg_lst <- function(.data,
 #'
 #' # For demonstration only, since ICA won't converge
 #' library(ggplot2)
-#' library(dplyr)
 #' # Suppressing an important warning:
 #' suppressWarnings(data_faces_10_trials %>%
 #'   eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))) %>%
@@ -231,7 +230,7 @@ eeg_ica_keep.eeg_ica_lst <- function(.data, ...) {
       tidyselect::vars_select(component_names(.data), !!dot)
     })
     # names and order
-    comp_sel <- purrr::imap(.data$.ica, ~ {
+    comp_sel <- imap(.data$.ica, ~ {
       if (.y %in% names(comp_sel)) {
         comp_sel[[.y]]
       } else {
@@ -242,12 +241,12 @@ eeg_ica_keep.eeg_ica_lst <- function(.data, ...) {
       }
     })
   } else {
-    comp_sel <- purrr::imap(.data$.ica, ~ {
+    comp_sel <- imap(.data$.ica, ~ {
       tidyselect::vars_select(component_names(.data), !!!dots)
     })
   }
 
-  .data$.ica <- purrr::map2(comp_sel, .data$.ica, function(sel, ica) {
+  .data$.ica <- map2(comp_sel, .data$.ica, function(sel, ica) {
     list(
       unmixing_matrix = ica$unmixing_matrix[, sel, drop = FALSE],
       mixing_matrix = ica$mixing_matrix[sel, , drop = FALSE]
@@ -299,7 +298,6 @@ as_eeg_lst.eeg_ica_lst <- function(.data, ...) {
 as_eeg_lst.eeg_lst <- function(.data, ...) {
   if (!data.table::is.data.table(.data$.segments)) {
     .data$.segments <- data.table::as.data.table(.data$.segments)
-    data.table::setkey(.data$.segments, .id)
   }
   # fix the classes from old versions
   .data <- .data %>% eeg_mutate(across_ch( ~  `class<-`(.x,  c("channel_dbl", "numeric") )))

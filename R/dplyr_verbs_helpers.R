@@ -9,15 +9,15 @@ summarize_ext <- function(.data, dots, .groups) {
     .by = !!by,
     j = TRUE
   )
-  summarize.(extended_signal_dt, !!!dots_main, .by = by)
+  tt_summarize(extended_signal_dt, !!!dots_main, .by = by)
 }
 
 rebuild_segment_dt <- function(.data) {
   # rebuild the segment table
   if (length(group_vars_only_segments(.data)) > 0) {
-    segment_dt <- distinct.(.data[[1]], ".id", group_vars_only_segments(.data))
+    segment_dt <- tt_distinct(.data[[1]], ".id", group_vars_only_segments(.data))
     if (!".recording" %in% eeg_group_vars(.data)) {
-      segment_dt <- mutate.(segment_dt, .recording = NA_character_)
+      segment_dt <- tt_mutate(segment_dt, .recording = NA_character_)
     }
     data.table::setcolorder(segment_dt, obligatory_cols$.segments)
     
@@ -30,7 +30,6 @@ rebuild_segment_dt <- function(.data) {
     }
     segment_dt <- data.table::data.table(.id = seq_len(last_id), .recording = NA_character_)
   }
-  data.table::setkey(segment_dt, .id)
   segment_dt
 }
 
@@ -39,7 +38,7 @@ rebuild_segment_dt <- function(.data) {
 #' @noRd
 group_by_lst <- function(.data, dots, .add = FALSE) {
   if (length(dots) != 0) {
-    new_groups <- purrr::map_chr(dots, rlang::quo_text)
+    new_groups <- map_chr(dots, rlang::quo_text)
   } else {
     new_groups <- character(0)
   }
@@ -69,29 +68,28 @@ filter_lst <- function(.data, ...) {
     by <- as.character(eeg_group_vars(.data))
     cols_main <- colnames(.data[[1]])
     dots_main <- prep_dots(dots = new_dots[[1]], data = extended_signal_dt, .by = !!by, j = TRUE)
-    .data[[1]] <- filter.(extended_signal_dt, !!!dots_main, .by = by) %>%
-      .[, ..cols_main]
+    .data[[1]] <- tt_filter(extended_signal_dt, !!!dots_main, .by = by) %>%
+      tt_select(tidyselect::all_of(cols_main))
 
     if (!is.null(.data$.events) && nrow(.data$.events) > 0) {
       range_s <- .data$.signal[, .(.lower = min(.sample), .upper = max(.sample)), by = .id]
       .data$.events <- update_events(.data$.events, range_s)
     }
-    .data$.segments <- semi_join.(.data$.segments, .data[[1]], by = ".id")
+    .data$.segments <- tt_semi_join(.data$.segments, .data[[1]], by = ".id")
   }
   # filter the segments and update the signal_tbl/psd
   if (length(new_dots$.segments) > 0) {
     grouping <- eeg_group_vars(.data)[eeg_group_vars(.data) %in% colnames(.data$.segments)]
     dots_segments <- prep_dots(dots = new_dots$.segments, data = extended_signal_dt, .by = !!by, j = TRUE)
-    .data$.segments <- filter.(.data$.segments, !!!dots_segments, .by = grouping)
-    .data[[1]] <- semi_join.(.data[[1]], .data$.segments, by = ".id")
+    .data$.segments <- tt_filter(.data$.segments, !!!dots_segments, .by = grouping)
+    .data[[1]] <- tt_semi_join(.data[[1]], .data$.segments, by = ".id")
   }
 
   if (!is.null(.data$.events)) {
-    .data$.events <- semi_join.(.data$.events, data.table::as.data.table(.data$.segments), by = ".id")
+    .data$.events <- tt_semi_join(.data$.events, data.table::as.data.table(.data$.segments), by = ".id")
     .data <- .data %>% update_events_channels()
   }
   # Fix the indices in case some of them drop out
-  data.table::setkey(.data$.segments, .id)
 
   .data
 }
@@ -127,7 +125,7 @@ mutate_lst <- function(.data, ..., keep_cols = TRUE, .by_reference = FALSE) {
     # added cols
     aux_cols <- setdiff(colnames(extended_main_dt), cols_main)
 
-    extended_main_dt <- mutate.(extended_main_dt,
+    extended_main_dt <- tt_mutate(extended_main_dt,
       !!!dots_main,
       !!!(rlang::parse_exprs(obligatory_cols_main)),
       .by = by,
@@ -142,8 +140,8 @@ mutate_lst <- function(.data, ..., keep_cols = TRUE, .by_reference = FALSE) {
   
     non_obl <- extended_main_dt[0, -obligatory_cols_main, with = FALSE]
     # Remove below:
-    non_ch <- names(non_obl)[!purrr::map_lgl(non_obl, is_channel_dbl)]
-    non_comp <- names(non_ch)[!purrr::map_lgl(non_ch, is_component_dbl)]
+    non_ch <- names(non_obl)[!map_lgl(non_obl, is_channel_dbl)]
+    non_comp <- names(non_ch)[!map_lgl(non_ch, is_component_dbl)]
     non_ch <- unique(c(non_ch, non_comp))
     if (length(non_ch) > 0 & options()$eeguana.verbose) {
       message_verbose(
@@ -160,7 +158,7 @@ mutate_lst <- function(.data, ..., keep_cols = TRUE, .by_reference = FALSE) {
     by <- intersect(eeg_group_vars(.data), colnames(.data$.segments))
 
     dots_segments <- prep_dots(new_dots$.segments, .data$.segments, !!by, j = TRUE)
-    .data$.segments <- mutate.(
+    .data$.segments <- tt_mutate(
       .data$.segments, !!!dots_segments,
       .by = by
     )
@@ -176,7 +174,7 @@ mutate_lst <- function(.data, ..., keep_cols = TRUE, .by_reference = FALSE) {
         colnames(.data$.segments)
       )
       if (!.by_reference) {
-        .data$.segments <- .data$.segments[, ..cols_to_keep]
+        .data$.segments <- tt_select(.data$.segments, tidyselect::all_of(cols_to_keep))
       } else {
         remove_cols <- setdiff(colnames(.data$.segments), cols_to_keep)
         .data$.segments[, c(remove_cols) := NULL][]
@@ -203,7 +201,7 @@ select_rename <- function(.data, select = TRUE, ...) {
   )), !!!dots)
 
   new_groups <- eeg_group_vars(.data) %>%
-    purrr::map_if(~ .x %in% all_vars, ~ all_vars[all_vars == .x] %>% names()) %>%
+    map_if(~ .x %in% all_vars, ~ all_vars[all_vars == .x] %>% names()) %>%
     rlang::syms()
 
   # TODO in a more elegant way:
@@ -242,7 +240,7 @@ select_rename <- function(.data, select = TRUE, ...) {
 
     if (length(vars_dfs) > 0) {
       .data[[dfs]] <- .data[[dfs]] %>%
-        select.(tidyselect::all_of(vars_dfs))
+        tt_select(tidyselect::all_of(vars_dfs))
     }
 
     if (dfs == ".signal") { # if the signal tbl was modified, the events need to be updated:
@@ -265,7 +263,6 @@ select_rename <- function(.data, select = TRUE, ...) {
       }
     }
   }
-  data.table::setkey(.data$.segments, .id)
   .data %>%
     eeg_group_by(!!!new_groups)
 }
@@ -319,23 +316,6 @@ names_other_col <- function(.eeg_lst, dots, tbl = NULL) {
 }
 
 
-#' Add a column to (an empty) table
-#' Taken from https://community.rstudio.com/t/cannot-add-column-to-empty-tibble/1903/11
-#' @noRd
-hd_add_column <- function(.data, ..., .before = NULL, .after = NULL) {
-  if (nrow(.data) == 0L) {
-    return(tibble::tibble(...))
-  }
-  return(tibble::add_column(.data, ..., .before = .before, .after = .after))
-}
-
-#' @noRd
-signal_from_parent_frame <- function(env = parent.frame()) {
-  # This is the environment where I can find the columns of signal_tbl
-  signal_env <- rlang::env_get(env = env, ".top_env", inherit = TRUE)
-  signal_tbl <- dplyr::as_tibble(rlang::env_get_list(signal_env, rlang::env_names(signal_env)))
-}
-
 #' @noRd
 extended_signal <- function(.eeg_lst, cond_cols = NULL, events_cols = NULL) {
   ## For NOTES:
@@ -343,18 +323,17 @@ extended_signal <- function(.eeg_lst, cond_cols = NULL, events_cols = NULL) {
   extended_signal_dt<- .eeg_lst[[1]]
   relevant_cols <- c(".id", eeg_group_vars(.eeg_lst), cond_cols)
   if (any(relevant_cols != ".id")) { # more than just .id
-    extended_signal_dt <- left_join.(extended_signal_dt, select.(.eeg_lst$.segments, tidyselect::any_of(relevant_cols)) , by = c(".id"))
+    extended_signal_dt <- tt_left_join(extended_signal_dt, tt_select(.eeg_lst$.segments, tidyselect::any_of(relevant_cols)) , by = c(".id"))
   }
   if (length(events_cols) > 0) {
-    extended_signal_dt <- left_join.(extended_signal_dt, select.(events_tbl(.eeg_lst), tidyselect::all_of(events_col)) , by = c(".id"))
+    extended_signal_dt <- tt_left_join(extended_signal_dt, tt_select(events_tbl(.eeg_lst), tidyselect::all_of(events_col)) , by = c(".id"))
   }
-  data.table::setkeyv(extended_signal_dt, cols = c(".id", colnames(extended_signal_dt)[2]))
   extended_signal_dt
 }
 
 #' @noRd
 group_vars_segments <- function(.eeg_lst) {
-  intersect(dplyr::group_vars(.eeg_lst), colnames(.eeg_lst$.segments))
+  intersect(eeg_group_vars(.eeg_lst), colnames(.eeg_lst$.segments))
 }
 
 #' @noRd
@@ -390,7 +369,7 @@ update_events_channels <- function(x, .by_reference = FALSE) {
 # https://stackoverflow.com/questions/50563895/using-rlang-find-the-data-pronoun-in-a-set-of-quosures
 #' @noRd
 getAST <- function(ee) {
-  as.list(ee) %>% purrr::map_if(is.call, getAST)
+  as.list(ee) %>% map_if(is.call, getAST)
 }
 
 #' @noRd
@@ -400,7 +379,7 @@ dots_by_tbl_quos <- function(.data, dots) {
     paste0("`", channel_names(.data), "`") # In case channel name is used with ` in the function call, NOT sure if needed anymore
   )
 
-  main_dots <- purrr::imap_lgl(dots, function(dot, name) {
+  main_dots <- imap_lgl(dots, function(dot, name) {
     if (name %in% main_cols) {
       TRUE
     } else {
@@ -408,7 +387,7 @@ dots_by_tbl_quos <- function(.data, dots) {
       getAST(dot)[-1] %>%
         unlist(.) %>%
         # make it a vector of strings
-        purrr::map_lgl(function(element) { # check for every element if it's a channel or if it's a channel function
+        map_lgl(function(element) { # check for every element if it's a channel or if it's a channel function
           if (is.numeric(element)) {
             return(FALSE)
           }
@@ -455,25 +434,3 @@ dots_by_tbl_quos <- function(.data, dots) {
   out
 }
 
-
-#' @noRd
-rename_sel_comp <- function(mixing, sel) {
-  mixing <- mixing[.ICA %in% c("mean", sel), ]
-  mixing[, .ICA := purrr::map_chr(.ICA, function(r) {
-    new_name <- names(sel[sel == r])
-    if (length(new_name) != 0) {
-      return(new_name)
-    } else {
-      return(r)
-    }
-  })][]
-}
-sel_comp <- function(data, ...) {
-  dots <- rlang::enquos(...)
-  if (rlang::is_empty(dots)) {
-    ch_sel <- component_names(data)
-  } else {
-    ch_sel <- tidyselect::vars_select(component_names(data), !!!dots)
-  }
-  ch_sel
-}

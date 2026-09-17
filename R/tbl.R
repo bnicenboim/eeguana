@@ -42,10 +42,10 @@ events_tbl.eeg_lst <- function(.data, ...) {
 #'
 #' @examples
 #' \dontrun{
-#' library(dplyr)
+#' library(tidytable) # faster alternative to dplyr
 #' # Get channel information:
 #' channels_tbl(faces_seg)
-#' # Set channel information using dplyr's mutate and replace
+#' # Set channel information using tidytable's mutate and replace
 #' channels_tbl(faces_seg) <- mutate(channels_tbl(faces_seg),
 #'   .channel = replace(.channel, .channel == "HEOG", "EOGH"),
 #'   .channel = replace(.channel, .channel == "VEOG", "EOGV")
@@ -70,11 +70,12 @@ channels_tbl.psd_lst <- function(.data, ...) {
 
 #' @export
 channels_tbl.data.frame <- function(.data, ...) {
-  channels <- select.(.data, where(is_channel_dbl)) %>% colnames()
+  channels <- tt_select(.data, where(is_channel_dbl)) %>% colnames()
   ## first row is enough and it makes it faster
   tbl <- .data[1, ] %>%
-    select.(tidyselect::all_of(channels)) %>%
-    purrr::map_dfr(~ {
+    tt_select(tidyselect::all_of(channels)) %>%
+    ## map_dtr() binds the rows with data.table, so it does not need dplyr
+    map_dtr(~ {
       attrs <- attributes(.x)
       attrs[names(attrs) != "class"]
     }) %>%
@@ -98,17 +99,17 @@ channels_tbl.data.frame <- function(.data, ...) {
 `channels_tbl<-.eeg_lst` <- function(.data, value) {
   .data$.signal <- data.table::copy(.data$.signal)
   data.table::setnames(.data$.signal, channel_names(.data$.signal), value$.channel)
-  purrr::iwalk(.data$.signal, function(col, name) {
+  iwalk(.data$.signal, function(col, name) {
     if (is_channel_dbl(col)) {
       # remove attributes first (except class)
       remove_attr <- names(attributes(col))[-1]
-      purrr::walk(remove_attr, function(attr_n) {
+      walk(remove_attr, function(attr_n) {
         data.table::setattr(col, attr_n, NULL)
       })
       # list of attributes for each channel without .channel
       attr_list <- c(data.table::as.data.table(value)[.channel == name, ])[-1]
       # check unnessary attributes besides class (the first one)
-      purrr::iwalk(attr_list, function(attr_v, attr_n) {
+      iwalk(attr_list, function(attr_v, attr_n) {
         data.table::setattr(col, attr_n, attr_v)
       })
     }
@@ -144,17 +145,19 @@ channels_tbl.data.frame <- function(.data, ...) {
 
 #' @export
 `channels_tbl<-.data.frame` <- function(.data, value) {
+  ## base R here, as in the data.table method below, so that the method
+  ## returns a plain data.frame rather than whatever a verb would hand back
   orig_names <- channel_names(.data)
-  channels <- dplyr::select(.data, orig_names)
-  nochannels <- dplyr::select(.data, -tidyselect::all_of(orig_names))
-  dplyr::bind_cols(nochannels, update_channel_meta_data(channels, value))
+  channels <- .data[, orig_names, drop = FALSE]
+  nochannels <- .data[, setdiff(colnames(.data), orig_names), drop = FALSE]
+  cbind(nochannels, update_channel_meta_data(channels, value))
 }
 
 #' @export
 `channels_tbl<-.data.table` <- function(.data, value) {
   orig_names <- channel_names(.data)
-  channels <- .data[, ..orig_names]
-  nochannels <- .data[, -..orig_names]
+  channels <- tt_select(.data, tidyselect::all_of(orig_names))
+  nochannels <- tt_select(.data, -tidyselect::all_of(orig_names))
   update <- data.table::setDT(update_channel_meta_data(channels, value))
   cbind(nochannels, update)
 }

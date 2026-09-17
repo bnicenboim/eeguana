@@ -38,11 +38,10 @@ use the \code{+} symbol and add layers exactly as you would for \link[ggplot2:gg
 }
 \examples{
 library(ggplot2)
-library(dplyr)
 # Plot grand averages for selected channels
 data_faces_ERPs \%>\%
   # select the desired electrodes
-  select(O1, O2, P7, P8) \%>\%
+  eeg_select(O1, O2, P7, P8) \%>\%
   ggplot(aes(x = .time, y = .key)) +
   # add a grand average wave
   stat_summary(

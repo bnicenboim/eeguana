@@ -35,9 +35,8 @@ files must be in the same directory.
 # load a single subject
 s1 <- read_vhdr("./faces.vhdr", .recording = "1")
 
-# load multiple subjects using purrr::map, extracting subject IDs from file names
-faces_list <- purrr::map(list.files("./", "vhdr"), ~
-read_vhdr(.x))
+# load multiple subjects, extracting subject IDs from file names
+faces_list <- lapply(list.files("./", "vhdr"), read_vhdr)
 faces <- bind(faces_list)
 }
 

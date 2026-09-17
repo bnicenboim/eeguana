@@ -48,7 +48,7 @@ segments information, and incorporates in its attributes generic EEG information
 
 ```{r libs, message = FALSE}
 library(ggplot2)
-library(dplyr)
+library(tidytable) # faster alternative to dplyr
 library(eeguana)
 library(plotly)
 ```

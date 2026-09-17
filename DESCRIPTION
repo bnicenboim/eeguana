@@ -12,7 +12,7 @@ Description: Flexible manipulation of EEG data in R. It provides a data.table
     and other exported information, and (iii) a long table with experimental
     information, such as participant number (.recording), conditions, etc.
     eeguana can do only basic pre-processing for now.
-Version: 0.1.12.9002
+Version: 0.1.12.9003
 Authors@R: c(
     person("Bruno", "Nicenboim", email = "bruno.nicenboim@tilburguniversity.edu", role = c("aut", "cre")),
     person("Kate", "Stone", email = "kate.stone@uni-potsdam.de", role = "ctb"),
@@ -26,9 +26,6 @@ Depends:
     stats
 Imports:
     ggplot2 (>= 3.1.0),
-    dplyr (>= 1.0.0),
-    tidyr (>= 0.8.2),
-    purrr (>= 0.2.5),
     tidyselect (>= 0.2.5),
     tools,
     magrittr (>= 1.5),
@@ -43,7 +40,6 @@ Imports:
     methods,
     MASS,
     RcppRoll (>= 0.3.0),
-    ellipsis (>= 0.1.0),
     fastICA,
     pracma,
     tidytable (>= 0.10.0),
@@ -51,6 +47,8 @@ Imports:
     gsignal
 Suggests:
     akima (>= 0.6.2),
+    dplyr (>= 1.0.0),
+    tidyr (>= 0.8.2),
     tibble (>= 2.1.1),
     plotly (>= 4.8.0),
     R.matlab (>= 3.6.2),

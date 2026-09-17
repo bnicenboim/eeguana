@@ -38,7 +38,7 @@ firwin_design <- function(N, freq, gain, window = "hamming", sampling_rate) {
   prev_gain <- gain[length(gain)]
   if (prev_gain == 1) h[(N %/% 2) + 1] <- 1 # start with "all up"
   if (!prev_gain %in% c(0, 1)) stop("Gain should end in 1 or 0")
-  length_factors <- dplyr::case_when(
+  length_factors <- tidytable::case_when(
     window == "hann" ~ 3.1,
     window == "hamming" ~ 3.3,
     window == "blackman" ~ 5.0
@@ -392,7 +392,7 @@ construct_fir_filter <- function(sampling_rate, freq, gain, filter_length, phase
   ## """
   if (freq[1] != 0) stop("Error in freq argument, first element must be 0")
   if (fir_design == "firwin") {
-    fir_fun <- purrr::partial(firwin_design, sampling_rate = sampling_rate)
+    fir_fun <- function(...) firwin_design(..., sampling_rate = sampling_rate)
   } else {
     stop("Unsupported filter_design", call. = FALSE)
   }

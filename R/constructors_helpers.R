@@ -83,7 +83,7 @@ validate_channel_dbl <- function(channel) {
       call. = FALSE
     )
   }
-  purrr::walk(c(".x", ".y", ".z"), ~
+  walk(c(".x", ".y", ".z"), ~
   if (!is.numeric(attr(channel, .))) {
     warning(sprintf("Attribute %s should be a number.", .),
       call. = FALSE
@@ -103,7 +103,7 @@ validate_channel_dbl <- function(channel) {
 #' @noRd
 update_channel_meta_data <- function(channels, channels_tbl) {
   if (nrow(channels_tbl) == 0 || is.null(channels_tbl)) {
-    channels <- purrr::map(
+    channels <- map(
       channels,
       function(sig) {
         .channel <- new_channel_dbl(
@@ -118,9 +118,9 @@ update_channel_meta_data <- function(channels, channels_tbl) {
       }
     )
   } else {
-    channels <- purrr::map2(
+    channels <- map2(
       channels %>% stats::setNames(make_names(channels_tbl$.channel)),
-      purrr::transpose(dplyr::select(channels_tbl, -.channel)),
+      rows_as_list(tidytable::select(channels_tbl, -.channel)),
       function(sig, chan_info) {
         .channel <- new_channel_dbl(values = sig, as.list(chan_info))
       }
@@ -159,7 +159,7 @@ validate_eeg_lst <- function(x, recursive = TRUE) {
     )
   }
 
-  if (any(!dplyr::group_vars(x) %in% c(colnames(x$.signal), colnames(x$.segments)))) {
+  if (any(!eeg_group_vars(x) %in% c(colnames(x$.signal), colnames(x$.segments)))) {
     warning("Grouping variables are missing.",
       call. = FALSE
     )
@@ -200,7 +200,7 @@ validate_psd_lst <- function(x, recursive = TRUE) {
     )
   }
   
-  if (any(!dplyr::group_vars(x) %in% c(colnames(x$.psd), colnames(x$.segments)))) {
+  if (any(!eeg_group_vars(x) %in% c(colnames(x$.psd), colnames(x$.segments)))) {
     warning("Grouping variables are missing.",
             call. = FALSE
     )
@@ -214,11 +214,13 @@ validate_psd_lst <- function(x, recursive = TRUE) {
 #' @noRd
 validate_segments <- function(segments) {
   if (is.null(segments)) {
-    segments <- dplyr::tibble(.id = integer(0), .recording = character(0))
+    segments <- tidytable::tidytable(.id = integer(0), .recording = character(0))
   }
   if (nrow(segments) > 0) {
     if (!is.integer(segments$.id) & all(is_wholenumber(segments$.id))) {
-      segments <- data.table:::shallow(segments[, .id := as.integer(.id)])
+      ## data.table::copy() in place of data.table's unexported shallow(): either way
+      ## the table that comes back is independent of the caller's
+      segments <- data.table::copy(segments[, .id := as.integer(.id)])
     } else if (!is.integer(segments$.id)) {
       warning("Column .id of segments table is not an integer.")
     }

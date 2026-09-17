@@ -24,7 +24,7 @@ channel_names.signal_tbl <- function(x, ...) {
 }
 #' @export
 channel_names.data.table <- function(x, ...) {
-  colnames(x)[x[, purrr::map_lgl(.SD, is_channel_dbl)]]
+  colnames(x)[x[, map_lgl(.SD, is_channel_dbl)]]
 }
 #' @export
 channel_names.eeg_lst <- function(x, ...) {
@@ -41,7 +41,7 @@ channel_ica_names <- function(x, ...) {
 }
 #' @export
 channel_ica_names.eeg_ica_lst <- function(x, ...) {
-  purrr::map(x$.ica, function(recording) {
+  map(x$.ica, function(recording) {
     recording$unmixing_matrix %>%
       rownames()
   }) %>%
@@ -69,7 +69,7 @@ component_names <- function(x, ...) {
 }
 #' @export
 component_names.eeg_ica_lst <- function(x, ...) {
-  purrr::map(x$.ica, function(recording) {
+  map(x$.ica, function(recording) {
     recording$unmixing_matrix %>%
       colnames()
   }) %>%
@@ -115,9 +115,10 @@ sampling_rate.sample_int <- function(x,...) {
 
 duration <- function(x) {
   x$.signal %>%
-    dplyr::group_by(.id) %>%
-    dplyr::summarize(duration = (max(.sample) - min(.sample) + 1) /
-      sampling_rate(x)) %>%
+    tidytable::summarize(
+      duration = (max(.sample) - min(.sample) + 1) / sampling_rate(x),
+      .by = .id, .sort = TRUE
+    ) %>%
     .$duration
 }
 #' @rdname summaries
@@ -147,23 +148,32 @@ summary.eeg_lst <- function(object, ...) {
 
   segments_with_incomp_col <- object %>%
     signal_tbl() %>%
-    dplyr::select(-.sample) %>%
+    tidytable::select(-.sample) %>%
     split(by = ".id", keep.by = FALSE) %>%
     lapply(anyNA) %>%
     unlist() %>%
-    dplyr::tibble(".id" = as.integer(names(.)), "incomplete" = .) %>%
-    dplyr::left_join(object$.segments, by = ".id")
+    tidytable::tidytable(".id" = as.integer(names(.)), "incomplete" = .) %>%
+    tidytable::left_join(object$.segments, by = ".id")
 
+
+  ## everything in .events except the four columns that vary within an event
+  event_by_cols <- setdiff(
+    colnames(object$.events), c(".final", ".channel", ".initial", ".id")
+  )
 
   summ <- list(
     sampling_rate = sampling_rate(object),
     segments = segments_with_incomp_col %>%
-      dplyr::group_by(.recording) %>%
-      dplyr::summarize(n_segments = dplyr::n(), n_incomplete = sum(incomplete)) %>%
+      tidytable::summarize(
+        n_segments = tidytable::n(), n_incomplete = sum(incomplete),
+        .by = .recording, .sort = TRUE
+      ) %>%
       data.table::data.table(),
     events = object$.events %>%
-      dplyr::group_by_at(dplyr::vars(-.final, -.channel, -.initial, -.id)) %>%
-      dplyr::count() %>%
+      tidytable::summarize(
+        n = tidytable::n(),
+        .by = tidyselect::all_of(event_by_cols), .sort = TRUE
+      ) %>%
       data.table::data.table(),
     size = utils::capture.output(print(utils::object.size(object), units = "auto")),
     duration = format(.POSIXct(nrow(object$.signal) / sampling_rate(object), tz = "GMT"), "%H:%M:%S")
@@ -207,7 +217,7 @@ eeg_ica_cor_tbl.eeg_ica_lst <- function(.data, ...) {
   names(eogs) <- eogs
   comps <- .data %>%
     eeg_ica_show(component_names(.data)) %>%
-    dplyr::select(tidyselect::all_of(eogs), component_names(.data))
+    eeg_select(tidyselect::all_of(eogs), component_names(.data))
   signal <- extended_signal(comps, ".recording")
 
   # new cols:
@@ -255,7 +265,7 @@ eeg_ica_var_tbl.eeg_ica_lst <- function(.data, ..., .max_sample = 100000) {
   cor <- NULL
 
   .data <- try_to_downsample(.data, max_sample = .max_sample)
-  m_v <- dplyr::group_by(.data, .recording) %>%
+  m_v <- eeg_group_by(.data, .recording) %>%
     extended_signal() %>%
     split(by = ".recording", keep.by = FALSE) %>%
     lapply(function(dt) mean(stats::var(dt[, channel_ica_names(.data), with = FALSE])))
@@ -268,7 +278,7 @@ eeg_ica_var_tbl.eeg_ica_lst <- function(.data, ..., .max_sample = 100000) {
       extended_signal(".recording") %>%
       .[, c(
         list(.recording = .recording),
-        purrr::imap(.SD, ~ .x - signal_tbl(.data)[[.y]])
+        imap(.SD, ~ .x - signal_tbl(.data)[[.y]])
       ),
       .SDcols = channel_ica_names(.data)
       ] %>%
@@ -344,8 +354,8 @@ print.eeg_summary <- function(x, ...) {
 #' @export
 print.eeg_lst <- function(x, ...) {
   cat_line("# EEG data:")
-  if (length(dplyr::group_vars(x)) > 0) {
-    cat_line("# Grouped by: ", paste0(dplyr::group_vars(x), sep = ", "))
+  if (length(eeg_group_vars(x)) > 0) {
+    cat_line("# Grouped by: ", paste0(eeg_group_vars(x), sep = ", "))
   }
   cat_line("")
   cat_line("# Signal table:")
@@ -369,8 +379,8 @@ print.eeg_lst <- function(x, ...) {
 #' @export
 print.psd_lst <- function(x, ...) {
   cat_line("# PSD data:")
-  if (length(dplyr::group_vars(x)) > 0) {
-    cat_line("# Grouped by: ", paste0(dplyr::group_vars(x), sep = ", "))
+  if (length(eeg_group_vars(x)) > 0) {
+    cat_line("# Grouped by: ", paste0(eeg_group_vars(x), sep = ", "))
   }
   cat_line("")
   cat_line("# PSD table:")
@@ -384,8 +394,8 @@ print.psd_lst <- function(x, ...) {
 #' @export
 print.eeg_ica_lst <- function(x, ...) {
   cat_line("# EEG data:")
-  if (length(dplyr::group_vars(x)) > 0) {
-    cat_line("# Grouped by: ", paste0(dplyr::group_vars(x), sep = ", "))
+  if (length(eeg_group_vars(x)) > 0) {
+    cat_line("# Grouped by: ", paste0(eeg_group_vars(x), sep = ", "))
   }
   cat_line("")
   cat_line("# Signal table:")
@@ -434,9 +444,9 @@ count_complete_cases_tbl.eeg_lst <- function(x, ...) {
   by <- tidytable::map_chr(dots, rlang::quo_text)
   chs <- channel_names(x)
   x$.signal %>%
-    summarize.(N = as.integer(!anyNA(c_across(tidyselect::one_of(!!chs)))), .by =".id") %>%
+    tt_summarize(N = as.integer(!anyNA(c_across(tidyselect::one_of(!!chs)))), .by =".id") %>%
     tidytable::left_join(x$.segments) %>%
-    summarize.(N = sum(N), .by = by) %>%
+    tt_summarize(N = sum(N), .by = by) %>%
     data.table::as.data.table()
 
 }
@@ -455,10 +465,11 @@ drop_incomplete_segments <- function(x) {
 
 #' @export
 drop_incomplete_segments.eeg_lst <- function(x) {
-  x %>%
-    dplyr::group_by(.id) %>%
-    dplyr::filter_at(
-      channel_names(.),
-      dplyr::all_vars(all(!is.na(.)))
-    )
+  ## keep the segments in which every channel is free of NAs. filter_at() with
+  ## all_vars() is superseded, and the predicate is constant within a segment,
+  ## so it reads better as a per-.id test than as a grouped row filter.
+  chs <- channel_names(x)
+  complete <- x$.signal[, all(!is.na(unlist(.SD))), by = .id, .SDcols = chs]
+  keep <- complete[[".id"]][complete[["V1"]]]
+  eeg_filter(x, .id %in% !!keep)
 }

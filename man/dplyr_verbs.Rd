@@ -170,7 +170,6 @@ These functions not only edit the eeg_lst objects but they also do book-keeping:
 }
 }
 \examples{
-library(dplyr)
 # Create new channel in the signal table
 data_faces_ERPs \%>\%
   eeg_mutate(tmp = Fz - Cz)

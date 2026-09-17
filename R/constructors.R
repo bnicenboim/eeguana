@@ -53,11 +53,12 @@ eeg_lst <- function(signal_tbl = NULL, events_tbl = NULL, segments_tbl = NULL, c
     segments_tbl <- data.table::data.table(.id = unique(signal_tbl$.id))[, .recording := NA_character_]
   } else {
     if (!".recording" %in% colnames(segments_tbl)) {
-      segments_tbl <- data.table:::shallow(segments_tbl[, .recording := NA])
+      ## data.table::copy() in place of data.table's unexported shallow(): either way
+      ## the table that comes back is independent of the caller's
+      segments_tbl <- data.table::copy(segments_tbl[, .recording := NA])
     }
   }
   segments_tbl <- data.table::as.data.table(segments_tbl)
-  data.table::setkey(segments_tbl, .id)
   segments_tbl <- validate_segments(segments_tbl)
 
   validate_eeg_lst(
@@ -97,11 +98,12 @@ psd_lst <- function(psd_tbl = NULL, segments_tbl = NULL, channels_tbl = NULL) {
     segments_tbl <- data.table::data.table(.id = unique(psd_tbl$.id))[, .recording := NA_character_]
   } else {
     if (!".recording" %in% colnames(segments_tbl)) {
-      segments_tbl <- data.table:::shallow(segments_tbl[, .recording := NA])
+      ## data.table::copy() in place of data.table's unexported shallow(): either way
+      ## the table that comes back is independent of the caller's
+      segments_tbl <- data.table::copy(segments_tbl[, .recording := NA])
     }
   }
   segments_tbl <- data.table::as.data.table(segments_tbl)
-  data.table::setkey(segments_tbl, .id)
   segments_tbl <- validate_segments(segments_tbl)
   
   validate_psd_lst(
@@ -235,7 +237,7 @@ print.sample_int <- function(x,...){
 #' @export
 print.channel_dbl <- function(x, ...) {
   attrs <- attributes(x)[names(attributes(x)) != "class"] %>%
-    purrr::imap_chr(~ paste0(.y, ": ", .x)) %>%
+    imap_chr(~ paste0(.y, ": ", .x)) %>%
     paste0(collapse = "; ")
 
   channel_name <- names(x)

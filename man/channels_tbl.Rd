@@ -24,10 +24,10 @@ Functions to get or set the channel information of an eeg_lst object.
 }
 \examples{
 \dontrun{
-library(dplyr)
+library(tidytable) # faster alternative to dplyr
 # Get channel information:
 channels_tbl(faces_seg)
-# Set channel information using dplyr's mutate and replace
+# Set channel information using tidytable's mutate and replace
 channels_tbl(faces_seg) <- mutate(channels_tbl(faces_seg),
   .channel = replace(.channel, .channel == "HEOG", "EOGH"),
   .channel = replace(.channel, .channel == "VEOG", "EOGV")

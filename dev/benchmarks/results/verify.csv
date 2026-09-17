@@ -1,0 +1,7 @@
+version,id,iterations,median_s,iqr_s
+master,events_mutate,300,0.003309,0.001020
+master,plot_topo,60,0.803942,0.051042
+premig,events_mutate,300,0.002840,0.000610
+premig,plot_topo,60,0.813240,0.055451
+nodplyr,events_mutate,300,0.002905,0.000643
+nodplyr,plot_topo,60,0.424144,0.101898

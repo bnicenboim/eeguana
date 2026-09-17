@@ -1,0 +1,55 @@
+=== master  22:50:51 ===
+  exit=0  finished 22:53:56
+  read_vhdr_64ch         ok       4.0662 s
+  read_vhdr_34ch         ok       0.8175 s
+  read_edf               ok       0.0509 s
+  eeg_select             ok       0.0276 s
+  eeg_filter             ok       0.1162 s
+  eeg_mutate             ok       0.0667 s
+  eeg_summarize_ch       ok       0.1672 s
+  eeg_group_summarize    ok       0.6334 s
+  eeg_segment            ok       0.0990 s
+  eeg_downsample         ok       8.0980 s
+  as_data_table          ok       1.1135 s
+  summary_eeg_lst        ok       0.1408 s
+  channels_tbl           ok       0.0061 s
+  events_mutate          ok       0.0027 s
+  interpolate_tbl        ok       0.0794 s
+  plot_topo              ok       0.7562 s
+=== premig  22:53:56 ===
+  exit=0  finished 22:57:00
+  read_vhdr_64ch         ok       4.4854 s
+  read_vhdr_34ch         ok       0.9107 s
+  read_edf               ok       0.0533 s
+  eeg_select             ok       0.0336 s
+  eeg_filter             ok       0.1152 s
+  eeg_mutate             ok       0.0967 s
+  eeg_summarize_ch       ok       0.1610 s
+  eeg_group_summarize    ok       0.7931 s
+  eeg_segment            ok       0.0998 s
+  eeg_downsample         ok       7.9826 s
+  as_data_table          ok       0.8913 s
+  summary_eeg_lst        ok       0.1439 s
+  channels_tbl           ok       0.0069 s
+  events_mutate          ok       0.0028 s
+  interpolate_tbl        ok       0.0789 s
+  plot_topo              ok       0.7571 s
+=== nodplyr  22:57:00 ===
+  exit=0  finished 22:59:58
+  read_vhdr_64ch         ok       4.1569 s
+  read_vhdr_34ch         ok       0.8251 s
+  read_edf               ok       0.0508 s
+  eeg_select             ok       0.0318 s
+  eeg_filter             ok       0.1117 s
+  eeg_mutate             ok       0.0889 s
+  eeg_summarize_ch       ok       0.1632 s
+  eeg_group_summarize    ok       0.7181 s
+  eeg_segment            ok       0.0959 s
+  eeg_downsample         ok       8.0734 s
+  as_data_table          ok       0.9856 s
+  summary_eeg_lst        ok       0.1436 s
+  channels_tbl           ok       0.0059 s
+  events_mutate          ok       0.0035 s
+  interpolate_tbl        ok       0.0696 s
+  plot_topo              ok       0.3883 s
+=== all done 22:59:58 ===

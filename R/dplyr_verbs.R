@@ -47,10 +47,6 @@
 #' @param .add When FALSE, the default, group_by() will override existing groups. To add to the existing groups, use .add = TRUE.
 #' @param .drop Only .drop = FALSE is available, empty groups are never dropped.
 #' @param .groups Only .groups = "keep" is available.  Same grouping structure as .data.
-#' @importFrom dplyr  select mutate transmute summarise rename
-#' @importFrom dplyr group_by ungroup group_vars
-#' @importFrom dplyr groups
-#' @importFrom dplyr anti_join left_join right_join full_join semi_join inner_join
 #'
 #' @return An eeg_lst object.
 #'
@@ -59,7 +55,6 @@
 #' @name dplyr_verbs
 #'
 #' @examples
-#' library(dplyr)
 #' # Create new channel in the signal table
 #' data_faces_ERPs %>%
 #'   eeg_mutate(tmp = Fz - Cz)
@@ -117,8 +112,6 @@ eeg_mutate.eeg_lst <- function(.data, ...) {
   # updates the events and the channels
   .data <- .data %>%
     update_events_channels()
-  data.table::setkey(.data$.signal, .id, .sample)
-  data.table::setkey(.data$.segments, .id)
     .data %>%
     validate_eeg_lst()
 }
@@ -127,8 +120,6 @@ eeg_mutate.eeg_lst <- function(.data, ...) {
 eeg_mutate.psd_lst <- function(.data, ...) {
   .data <- mutate_lst(.data, ..., keep_cols = TRUE)
   # updates the events and the channels
-  data.table::setkey(.data$.psd, .id, .freq)
-  data.table::setkey(.data$.segments, .id)
   .data %>%
     validate_psd_lst()
 }
@@ -161,8 +152,6 @@ eeg_transmute.eeg_lst <- function(.data, ...) {
   # updates the events and the channels
   .data <- .data %>%
     update_events_channels()
-  data.table::setkey(.data$.signal, .id, .sample)
-  data.table::setkey(.data$.segments, .id)
   .data %>%
     validate_eeg_lst()
 }
@@ -172,8 +161,6 @@ eeg_transmute.eeg_lst <- function(.data, ...) {
 eeg_transmute.psd_lst <- function(.data, ...) {
   .data <- mutate_lst(.data, ..., keep_cols = FALSE)
   # updates the events and the channels
-  data.table::setkey(.data$.psd, .id, .freq)
-  data.table::setkey(.data$.segments, .id)
   .data %>%
     validate_psd_lst()
 }
@@ -195,7 +182,6 @@ eeg_filter.eeg_lst <- function(.data, ..., .preserve = FALSE) {
   }
   .data <- update_eeg_lst(.data)
   .data <- filter_lst(.data, ...)
-  data.table::setkey(.data$.signal, .id, .sample)
   .data %>% validate_eeg_lst()
 }
 
@@ -205,14 +191,12 @@ eeg_filter.psd_lst <- function(.data, ..., .preserve = FALSE) {
     warning("Ignoring `.preserve` argument.")
   }
   .data <- filter_lst(.data, ...)
-  data.table::setkey(.data$.psd, .id, .freq)
   .data %>% validate_psd_lst()
 }
 
 #' @export
 eeg_filter.eeg_ica_lst <- function(.data, ..., .preserve = FALSE) {
   out <- NextMethod()
-  data.table::setkey(out$.signal, .id, .sample)
   out <- out %>% validate_eeg_lst()
   recordings <- unique(out$.segments$.recording)
   out$.ica <- out$.ica[recordings]
@@ -246,13 +230,13 @@ eeg_summarize.eeg_lst <- function(.data, ..., .groups = "keep") {
   attr_sample_id <- attributes(.data$.signal$.sample)
   extended_signal_dt <- summarize_ext(.data, dots, .groups = "keep")
   if (!".sample" %in% colnames(extended_signal_dt)) {
-    extended_signal_dt <- mutate.(extended_signal_dt, .sample = sample_int(NA_integer_, attr_sample_id$sampling_rate))
+    extended_signal_dt <- tt_mutate(extended_signal_dt, .sample = sample_int(NA_integer_, attr_sample_id$sampling_rate))
   } else {
     attributes(extended_signal_dt$.sample) <- attr_sample_id
   }
   # Add .id in case it was removed by a summary
   if (!".id" %in% colnames(extended_signal_dt)) {
-    extended_signal_dt <- mutate.(extended_signal_dt, .id = seq_len(.N), .by = ".sample")
+    extended_signal_dt <- tt_mutate(extended_signal_dt, .id = seq_len(.N), .by = ".sample")
   }
   # tidytable returns a data.table whose over-allocation and self-reference are
   # gone (truelength 0). setcolorder() on such an object permutes the column
@@ -260,7 +244,6 @@ eeg_summarize.eeg_lst <- function(.data, ..., .groups = "keep") {
   # .id and .recording. alloc.col() restores the self-reference in place and
   # keeps the signal_tbl class.
   data.table::alloc.col(extended_signal_dt)
-  data.table::setkey(extended_signal_dt, .id, .sample)
   data.table::setcolorder(extended_signal_dt, c(".id", ".sample"))
   .data$.signal <- extended_signal_dt
   .data$.segments <- rebuild_segment_dt(.data)
@@ -283,12 +266,12 @@ eeg_summarize.psd_lst <- function(.data, ..., .groups = "keep") {
   }
   extended_psd_dt <- summarize_ext(.data, dots, .groups = "keep")
   if (!".freq" %in% colnames(extended_psd_dt)) {
-    extended_psd_dt <- extended_psd_dt %>% mutate.(.freq := NA)
+    extended_psd_dt <- extended_psd_dt %>% tt_mutate(.freq := NA)
 }
   # Add .id in case it was removed by a summary
   if (!".id" %in% colnames(extended_psd_dt)) {
     extended_psd_dt <- extended_psd_dt %>%
-      mutate.(.id = seq_len(.N), .by = ".freq")
+      tt_mutate(.id = seq_len(.N), .by = ".freq")
   }
   # tidytable returns a data.table whose over-allocation and self-reference are
   # gone (truelength 0). setcolorder() on such an object permutes the column
@@ -296,7 +279,6 @@ eeg_summarize.psd_lst <- function(.data, ..., .groups = "keep") {
   # .id and .recording. alloc.col() restores the self-reference in place and
   # keeps the signal_tbl class.
   data.table::alloc.col(extended_psd_dt)
-  data.table::setkey(extended_psd_dt, .id, .freq)
   data.table::setcolorder(extended_psd_dt, c(".id", ".freq"))
   .data$.psd <- extended_psd_dt
   .data$.segments <- rebuild_segment_dt(.data)
@@ -368,13 +350,7 @@ eeg_group_by.eeg_lst <- function(.data, ..., .add = FALSE, .drop = FALSE) {
 }
 
 #' @export
-eeg_group_by.psd_lst <- function(.data, ..., .add = FALSE, .drop = FALSE) {
-  dots <- rlang::quos(...)
-  if (.drop == TRUE) {
-    warning("Ignoring .drop argument. It can only be set to FALSE.")
-  }
-  group_by_lst(.data, dots, .add = .add)
-}
+eeg_group_by.psd_lst <- eeg_group_by.eeg_lst
 
 #' @export
 eeg_ungroup.eeg_lst <- function(.data, ...) {
@@ -385,18 +361,14 @@ eeg_ungroup.eeg_lst <- function(.data, ...) {
 }
 
 #' @export
-eeg_ungroup.psd_lst <- function(.data, ...) {
-  .data <- first_arg_either(.data, ..., .other = "x")
-  attributes(.data)$vars <- character(0)
-  .data
-}
+eeg_ungroup.psd_lst <- eeg_ungroup.eeg_lst
 
 # dynamically exported in zzz.R
 group_by.eeg_lst <- eeg_group_by.eeg_lst
 # Not a plain alias of eeg_ungroup.eeg_lst: dplyr's generic is ungroup(x, ...),
 # so a method whose first argument is called .data leaves it empty when the
 # caller writes ungroup(x = d). Name it x here and accept .data too.
-#' @exportS3Method dplyr::ungroup
+# registered in zzz.R, so that dplyr can stay in Suggests
 ungroup.eeg_lst <- function(x, ...) {
   eeg_ungroup(first_arg_either(x, ..., .other = ".data"))
 }
@@ -411,14 +383,12 @@ eeg_select <- function(.data, ...) {
 eeg_select.eeg_lst <- function(.data, ...) {
   .data <- update_eeg_lst(.data) # TO remove at some point
   .data <- select_rename(.data, select = TRUE, ...)
-  data.table::setkey(.data$.signal, .id, .sample)
   validate_eeg_lst(.data)
 }
 
 #' @export
 eeg_select.psd_lst <- function(.data, ...) {
   .data <- select_rename(.data, select = TRUE, ...)
-  data.table::setkey(.data$.psd, .id, .freq)
   validate_psd_lst(.data)
 }
 
@@ -439,14 +409,12 @@ eeg_rename.eeg_lst <- function(.data, ...) {
   .data <- update_eeg_lst(.data)
   # TODO: simplify and use parts of eeg_rename_with
   .data <- select_rename(.data, select = FALSE, ...)
-  data.table::setkey(.data$.signal, .id, .sample)
   validate_eeg_lst(.data)
 }
 
 #' @export
 eeg_rename.psd_lst <- function(.data, ...) {
   .data <- select_rename(.data, select = FALSE, ...)
-  data.table::setkey(.data$.psd, .id, .freq)
   validate_psd_lst(.data)
 }
 
@@ -511,7 +479,7 @@ eeg_rename_with.eeg_lst <- function(.data, .fn, .cols = where(is_channel_dbl), .
     names(new_signal) <- vars_signal
     ## data.table::setnames(.data$.signal, vars_signal, new_signal)
     # replaced now with:
-    .data$.signal <- rename_with.(.data$.signal, 
+    .data$.signal <- tt_rename_with(.data$.signal, 
                                   .fn, 
                                   .cols = tidyselect::all_of(vars_signal), 
                                   ...)
@@ -528,7 +496,7 @@ eeg_rename_with.eeg_lst <- function(.data, .fn, .cols = where(is_channel_dbl), .
     new_segments <- .fn(vars_segments, ...)
     names(new_segments) <- vars_segments
     ## data.table::setnames(.data$.segments, vars_segments, new_segments)
-    .data$.segments <- rename_with.(.data$.segments, .fn, .cols = tidyselect::all_of(vars_segments), ...)
+    .data$.segments <- tt_rename_with(.data$.segments, .fn, .cols = tidyselect::all_of(vars_segments), ...)
 
   }
 
@@ -544,8 +512,6 @@ eeg_rename_with.eeg_lst <- function(.data, .fn, .cols = where(is_channel_dbl), .
     attributes(.data)$vars <- g_vars
   }
 
-  data.table::setkey(.data$.signal, .id, .sample)
-  data.table::setkey(.data$.segments, .id)
 
   .data %>%
     validate_eeg_lst()
@@ -566,7 +532,7 @@ eeg_groups <- function(x) {
 #' @rdname dplyr_verbs
 #' @export
 eeg_groups.eeg_lst <- function(x) {
-  attributes(x)$vars %>% purrr::map(as.name)
+  attributes(x)$vars %>% map(as.name)
 }
 
 # dynamically exported in zzz.R
@@ -583,9 +549,7 @@ eeg_group_vars.eeg_lst <- function(x) {
   attributes(x)$vars
 }
 #' @export
-eeg_group_vars.psd_lst <- function(x) {
-  attributes(x)$vars
-}
+eeg_group_vars.psd_lst <- eeg_group_vars.eeg_lst
 
 # dynamically exported in zzz.R
 group_vars.eeg_lst <- eeg_group_vars.eeg_lst
@@ -660,7 +624,7 @@ eeg_left_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE,
   if (!is.data.frame(y)) stop("y must be a data frame, a data table or tibble.")
   warn_unsupported_join_args(copy, list(...))
   keep <- resolve_join_keep(keep)
-  x$.segments <- left_join.(x$.segments, y = y, by = by, suffix = suffix, keep = keep)
+  x$.segments <- tt_left_join(x$.segments, y = y, by = by, suffix = suffix, keep = keep)
   validate_eeg_lst(x)
 }
 
@@ -678,11 +642,9 @@ eeg_semi_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, ...) {
   if (!is.data.frame(y)) stop("y must be a data frame, a data table or tibble.")
   warn_unsupported_join_args(copy, list(...))
 
-  x$.segments <- semi_join.(x$.segments, y, by = by)
-  x$.signal <- semi_join.(x$.signal, x$.segments, by = ".id")
-  x$.events <- semi_join.(x$.events, x$.segments, by = ".id")
-  data.table::setkey(x$.signal, .id, .sample)
-  data.table::setkey(x$.segments, .id)
+  x$.segments <- tt_semi_join(x$.segments, y, by = by)
+  x$.signal <- tt_semi_join(x$.signal, x$.segments, by = ".id")
+  x$.events <- tt_semi_join(x$.events, x$.segments, by = ".id")
   x %>% validate_eeg_lst()
 }
 
@@ -700,11 +662,9 @@ eeg_anti_join <- function(x, y, by = NULL, copy = FALSE, ...) {
 eeg_anti_join.eeg_lst <- function(x, y, by = NULL, copy = FALSE, ...) {
   if (!is.data.frame(y)) stop("y must be a data frame, a data table or tibble.")
   warn_unsupported_join_args(copy, list(...))
-  x$.segments <- anti_join.(x$.segments, y, by = by)
-  x$.signal <- semi_join.(x$.signal, x$.segments, by = ".id")
-  x$.events <- semi_join.(x$.events, x$.segments, by = ".id")
-  data.table::setkey(x$.signal, .id, .sample)
-  data.table::setkey(x$.segments, .id)
+  x$.segments <- tt_anti_join(x$.segments, y, by = by)
+  x$.signal <- tt_semi_join(x$.signal, x$.segments, by = ".id")
+  x$.events <- tt_semi_join(x$.events, x$.segments, by = ".id")
   x %>% validate_eeg_lst()
 }
 
@@ -719,7 +679,7 @@ eeg_vars <- function(x) {
 
 #' @export
 eeg_vars.eeg_lst <- function(x) {
-  setdiff(dplyr::tbl_vars(x$.signal), c(dplyr::tbl_vars(x$.segments), c(".id", ".sample")))
+  setdiff(colnames(x$.signal), c(colnames(x$.segments), c(".id", ".sample")))
 }
 
 # dynamically exported in zzz.R
@@ -753,6 +713,8 @@ pull.eeg_lst <- eeg_pull.eeg_lst
 across <- function(.cols = everything(), .fns = NULL, ..., .names = NULL) {
   if ("dplyr" %in% (.packages())) {
     dplyr::across(.cols = .cols, .fns = .fns, ..., .names = .names)
+  } else if ("tidytable" %in% (.packages())) {
+    tidytable::across(.cols = .cols, .fns = .fns, ..., .names = .names)
   } else {
     stop("`across()` must only be used inside dplyr-like verbs. Tip: Maybe you forgot to specify the data before across()?")
   }
@@ -776,6 +738,8 @@ c_across_ch <- function() {
 c_across <- function(.cols = everything()) {
   if ("dplyr" %in% (.packages())) {
     dplyr::c_across(.cols = .cols)
+  } else if ("tidytable" %in% (.packages())) {
+    tidytable::c_across(.cols = .cols)
   } else {
     stop("`c_across()` must only be used inside dplyr-like verbs.")
   }

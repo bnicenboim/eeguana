@@ -1,0 +1,259 @@
+---
+title: "Did the tidytable migration cost anything?"
+output:
+  github_document:
+    toc: true
+    df_print: kable
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE,
+                      fig.path = "figures/", fig.width = 9, dpi = 120)
+library(ggplot2)
+```
+
+## What this measures
+
+Stage 1 of the tidytable migration replaced all 111 internal `dplyr::` calls in
+`R/` with tidytable, and rerouted the calls acting on an `eeg_lst` through
+eeguana's own `eeg_*` generics. The question here is whether that made anything
+slower.
+
+Three versions are compared, each installed into its own library and
+benchmarked in its own R session, since two versions of a package cannot be
+loaded at once:
+
+| version | commit | what it is |
+|---|---|---|
+| `master` | `d140fea` | what is on GitHub master, eeguana 0.1.11.9001 |
+| `premig` | `942cc0b` | the commit immediately before the migration |
+| `nodplyr` | working tree | after the migration |
+
+**`premig` is the control that answers the question.** It differs from
+`nodplyr` only by the migration. `master` is 21 commits behind and carries 636
+other changed lines in `R/`, so a `master` to `nodplyr` difference mixes the
+migration together with everything else that landed in between. It is included
+because it is what users actually have.
+
+## The data
+
+Benchmarks run against the real fixture recordings rather than synthetic data:
+
+| file | channels | samples | in memory |
+|---|---|---|---|
+| `s04.eeg` | 64 | 1,115,420 | 553 Mb |
+| `s1_faces.eeg` | 34 | 424,488 | 113 Mb |
+
+64 channels matters: that is the range where the `data.table::setcolorder()`
+problem lived, so `eeg_summarize()` carries a guard there.
+
+## The cases
+
+Each case is here because its code was migrated, or because it leans on
+data.table and so is a baseline for the next stage of work.
+
+```{r cases}
+source("bench_cases.R")
+knitr::kable(do.call(rbind, lapply(bench_cases, function(x)
+  data.frame(Case = x$id, Group = x$group, What = x$label,
+             `Why it is here` = x$why, Iterations = x$iterations,
+             check.names = FALSE))))
+```
+
+```{r load}
+## the three version files by name: results/ also holds verify.csv, which has
+## a different shape
+files <- file.path("results", paste0(c("master", "premig", "nodplyr"), ".csv"))
+res <- do.call(rbind, lapply(files, read.csv, stringsAsFactors = FALSE))
+res$version <- factor(res$version, levels = c("master", "premig", "nodplyr"))
+
+ok <- subset(res, status == "ok")
+wide <- reshape(ok[, c("id", "group", "label", "version", "median_s")],
+                idvar = c("id", "group", "label"), timevar = "version",
+                direction = "wide")
+names(wide) <- sub("^median_s\\.", "", names(wide))
+wide$`nodplyr/premig` <- round(wide$nodplyr / wide$premig, 3)
+wide$`nodplyr/master` <- round(wide$nodplyr / wide$master, 3)
+```
+
+## Headline
+
+```{r headline, results = "asis"}
+r <- wide$`nodplyr/premig`
+r <- r[is.finite(r)]
+cat(sprintf(
+"Against the pre-migration commit, the median ratio across %d cases is **%.3f**
+(1.000 would be identical). The slowest case is **%.2fx** and the fastest is
+**%.2fx**. Anything within roughly 0.95--1.05 is noise on a machine that is
+doing other things.\n\n", length(r), stats::median(r), max(r), min(r)))
+```
+
+```{r plot-ratio, fig.height = 5}
+d <- wide[is.finite(wide$`nodplyr/premig`), ]
+d <- d[order(d$`nodplyr/premig`), ]
+d$label <- factor(d$label, levels = d$label)
+ggplot(d, aes(x = `nodplyr/premig`, y = label, fill = `nodplyr/premig` > 1)) +
+  geom_col(width = .65) +
+  geom_vline(xintercept = 1, linetype = 2) +
+  scale_fill_manual(values = c("TRUE" = "#c0392b", "FALSE" = "#27ae60"), guide = "none") +
+  labs(x = "time after migration / time before (1 = unchanged)", y = NULL,
+       title = "Effect of the tidytable migration",
+       subtitle = "Left of the dashed line is faster after the migration") +
+  theme_minimal(base_size = 12)
+```
+
+## The verdict
+
+**The migration cost nothing.** Against `premig`, which differs only by the
+migration, nothing got slower and memory allocation is unchanged. The heavy
+cases are flat: reading 64 channels x 1.1M samples, and `eeg_downsample()`.
+
+**`plot_topo()` got about twice as fast**, confirmed separately at 60
+iterations: 0.813 s to 0.424 s. Rewriting `eeg_interpolate_tbl()` to carry its
+grouping as a character vector rather than as state on the object removed real
+work, not just dplyr.
+
+**There is a slowdown against master, and the migration did not cause it.**
+Three verbs are slower than `master`, and in each one `premig` is already
+slower while `nodplyr` is slightly faster than `premig`. The cost came from the
+21 commits in between:
+
+```{r regression}
+## cases under 10 ms are excluded: at these iteration counts their ratios are
+## noise, as the next section demonstrates
+reg <- wide[wide$`nodplyr/master` > 1.1 & wide$master > 0.01,
+            c("label", "master", "premig", "nodplyr",
+              "nodplyr/master", "nodplyr/premig")]
+knitr::kable(reg, row.names = FALSE, digits = 4,
+             col.names = c("Case", "master (s)", "premig (s)", "nodplyr (s)",
+                           "vs master", "vs premig"))
+```
+
+The memory figures point the same way: `eeg_mutate()` allocates 240.8 Mb on
+master against 357.4 Mb on both `premig` and `nodplyr`, and `eeg_select()`
+59.5 Mb against 88.7 Mb. Whatever changed, it changed before the migration and
+is worth its own investigation.
+
+## Checking the two notable cases properly
+
+At the iteration counts used above, a sub-millisecond case cannot be measured
+reliably. `mutate()` on an events table looked 1.27x slower, so both notable
+cases were re-measured at many more iterations:
+
+```{r verify}
+v <- read.csv("results/verify.csv")
+vw <- reshape(v[, c("id", "iterations", "version", "median_s")],
+              idvar = c("id", "iterations"), timevar = "version", direction = "wide")
+names(vw) <- sub("^median_s\\.", "", names(vw))
+vw$`nodplyr/premig` <- round(vw$nodplyr / vw$premig, 3)
+knitr::kable(vw, row.names = FALSE, digits = 5)
+```
+
+`mutate()` on an events table comes out at **1.02x**, inside an IQR of 0.0006 s.
+`plot_topo()` holds at **0.52x**.
+
+Running the events case twice per version, interleaved, at 2000 iterations
+shows why the original number could not be trusted:
+
+| run | premig | nodplyr |
+|---|---|---|
+| first | 0.00259 s | 0.00365 s |
+| second | 0.00342 s | 0.00341 s |
+
+`premig` differs from *itself* by 1.32x between its own two runs, which is
+larger than the difference being claimed, and the second pair is identical.
+
+The mechanism rules it out as well. The only code the migration added to that
+path is `keep_dt_attrs()`, and measured directly it takes **3.4 microseconds**,
+**0.127%** of the 2.6 ms call. It cannot produce a 30% change.
+
+**The lesson for reading the table below: ignore any ratio on a case whose
+absolute time is a few milliseconds.** Those rows are marked.
+
+## Every case, in seconds
+
+Rows marked `*` run in under 10 ms. Their ratios are dominated by machine
+noise, so read the absolute numbers and ignore the ratio.
+
+```{r table-all}
+tab <- wide[order(wide$group, wide$label), ]
+## a ratio on a case this fast says more about the machine than about the code
+tab$Case <- ifelse(tab$nodplyr < 0.01, paste0(tab$label, " *"), tab$label)
+tab$master <- signif(tab$master, 3); tab$premig <- signif(tab$premig, 3)
+tab$nodplyr <- signif(tab$nodplyr, 3)
+knitr::kable(tab[, c("group", "Case", "master", "premig", "nodplyr",
+                     "nodplyr/premig", "nodplyr/master")],
+             col.names = c("Group", "Case", "master (s)", "premig (s)",
+                           "nodplyr (s)", "vs premig", "vs master"),
+             row.names = FALSE)
+```
+
+```{r plot-abs, fig.height = 6}
+ggplot(ok, aes(x = median_s, y = reorder(label, median_s), fill = version)) +
+  geom_col(position = position_dodge(width = .8), width = .75) +
+  scale_x_log10() +
+  scale_fill_manual(values = c(master = "#95a5a6", premig = "#2980b9", nodplyr = "#27ae60")) +
+  labs(x = "median time, seconds (log scale)", y = NULL, fill = NULL,
+       title = "Absolute timings") +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "top")
+```
+
+## Memory
+
+tidytable verbs copy where dplyr did, so allocation is worth watching as well
+as time.
+
+```{r mem}
+m <- reshape(ok[, c("id", "label", "version", "mem_alloc")],
+             idvar = c("id", "label"), timevar = "version", direction = "wide")
+names(m) <- sub("^mem_alloc\\.", "", names(m))
+fmt <- function(x) ifelse(is.na(x), NA, paste0(round(x / 1024^2, 1), " Mb"))
+m$ratio <- round(m$nodplyr / m$premig, 3)
+knitr::kable(data.frame(Case = m$label, master = fmt(m$master),
+                        premig = fmt(m$premig), nodplyr = fmt(m$nodplyr),
+                        `vs premig` = m$ratio, check.names = FALSE),
+             row.names = FALSE)
+```
+
+## Cases that did not run
+
+A case can fail on a version because the function was broken there, which is
+itself a result.
+
+```{r failures, results = "asis"}
+bad <- subset(res, status != "ok")
+if (nrow(bad) == 0) {
+  cat("Every case ran on every version.\n")
+} else {
+  knitr::kable(bad[, c("version", "label", "status")], row.names = FALSE) |>
+    print()
+}
+```
+
+## How to reproduce
+
+Each version is installed into its own library, because two versions of one
+package cannot be loaded in a single session:
+
+```sh
+# one worktree and one library per version
+git worktree add --detach $BENCH_DIR/src_master  d140fea
+git worktree add --detach $BENCH_DIR/src_premig  942cc0b
+R CMD INSTALL -l $BENCH_DIR/libs/master  $BENCH_DIR/src_master
+R CMD INSTALL -l $BENCH_DIR/libs/premig  $BENCH_DIR/src_premig
+R CMD INSTALL -l $BENCH_DIR/libs/nodplyr .          # the working tree
+
+cd dev/benchmarks
+BENCH_DIR=... ./run_all.sh        # all three, in sequence, never overlapping
+Rscript verify_outliers.R nodplyr $BENCH_DIR/libs/nodplyr results/verify.csv
+Rscript -e 'rmarkdown::render("benchmarks.Rmd")'
+```
+
+`run_all.sh` runs the versions one at a time on purpose. Two R sessions
+competing for CPU would make every number meaningless.
+
+```{r session, results = "asis"}
+cat("Run on", format(Sys.Date()), "with eeguana versions:",
+    paste(unique(paste0(res$version, " ", res$eeguana_version)), collapse = ", "), "\n")
+```

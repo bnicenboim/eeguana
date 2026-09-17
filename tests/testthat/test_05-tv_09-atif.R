@@ -34,7 +34,6 @@ segment_summ <- data.table::data.table(data_grouped_descr$.segments) %>%
   dplyr::bind_cols(dplyr::tibble(.id = c(1L, 2L)), .) %>%
   dplyr::select(eeguana:::obligatory_cols[[".segments"]], dplyr::everything()) %>%
   data.table::as.data.table()
-data.table::setkey(segment_summ, .id)
 
 
 test_that("eeg_summarize across works correctly on ungrouped data", {

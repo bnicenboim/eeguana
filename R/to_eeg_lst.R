@@ -148,9 +148,7 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
         sample_int(integer(0), .sampling_rate = .data$info$sfreq)
     )
   } else {
-    descriptions_dt <- tidyr::separate(data.table::data.table(annotation = ann$description),
-                                       col = "annotation", into = c(".type", ".description"), sep = "/", fill = "left"
-                                       )
+    descriptions_dt <- split_type_description(ann$description)
     new_events <-    new_events_tbl(
       .id = 1L,
       .type = descriptions_dt$.type,
@@ -186,5 +184,28 @@ as_eeg_lst.mne.io.base.BaseRaw <- function(.data, ...) {
     signal_tbl = new_signal,
     events_tbl = new_events,
     segments_tbl = tidytable::tidytable(.id = 1L, .recording = data_name, segment = 1L)
+  )
+}
+
+
+#' Split MNE annotation descriptions into event type and description
+#'
+#' "Stimulus/s70" becomes type "Stimulus" and description "s70"; a description
+#' with no "/" has no type. Anything past a second "/" is dropped.
+#'
+#' This replaces tidyr::separate(sep = "/", fill = "left") and matches it
+#' exactly, including on "", NA, "a/", "/b", and "a/b/c". It is not
+#' tidytable::separate(): that has no `fill` argument, silently ignores one,
+#' and so puts a slash-less description such as "boundary" into the type column.
+#' @noRd
+split_type_description <- function(x) {
+  ## reticulate hands MNE's descriptions over as a 1-d array. Without this the
+  ## dim attribute rides through is.na() and ifelse() onto both results.
+  x <- as.vector(x)
+  has_sep <- !is.na(x) & grepl("/", x, fixed = TRUE)
+  rest <- ifelse(has_sep, sub("^[^/]*/", "", x), x)
+  list(
+    .type = ifelse(has_sep, sub("/.*$", "", x), NA_character_),
+    .description = sub("/.*$", "", rest)
   )
 }

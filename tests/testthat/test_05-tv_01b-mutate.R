@@ -29,10 +29,10 @@ test_mutates_sgm <- function(data, keep = TRUE, .by_ref = FALSE) {
   grouped <- length(eeg_group_vars(data)) > 0
   to_remove <- colnames(data$.signal)[-1]
   if (keep) {
-    fun <- purrr::partial(eeg_mutate, .by_reference = .by_ref)
+    fun <- function(...) eeg_mutate(..., .by_reference = .by_ref)
     dfun <- dplyr::mutate
   } else {
-    fun <- purrr::partial(eeg_transmute, .by_reference = .by_ref)
+    fun <- function(...) eeg_transmute(..., .by_reference = .by_ref)
     dfun <- dplyr::transmute
   }
 

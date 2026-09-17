@@ -20,9 +20,8 @@
 #' # load a single subject
 #' s1 <- read_vhdr("./faces.vhdr", .recording = "1")
 #'
-#' # load multiple subjects using purrr::map, extracting subject IDs from file names
-#' faces_list <- purrr::map(list.files("./", "vhdr"), ~
-#' read_vhdr(.x))
+#' # load multiple subjects, extracting subject IDs from file names
+#' faces_list <- lapply(list.files("./", "vhdr"), read_vhdr)
 #' faces <- bind(faces_list)
 #' }
 #'
@@ -159,18 +158,18 @@ read_ft <- function(file, .layout = NULL, .recording = file) {
 
 
   # channel info:
-  channels <- dplyr::tibble(
+  channels <- tidytable::tidytable(
     .channel = make_names(channel_names_)
   )
 
   if (!is.null(.layout)) {
     chan_layout <- R.matlab::readMat(.layout) %>%
       {
-        dplyr::mutate(.$lay[, , 1]$pos %>% as.data.frame(),
+        tidytable::mutate(.$lay[, , 1]$pos %>% as.data.frame(),
           .channel = unlist(.$lay[, , 1]$label)
         )
       } %>%
-      dplyr::rename(.x = V1, .y = V2)
+      tidytable::rename(.x = V1, .y = V2)
     not_layout <- setdiff(chan_layout$channel, channels$.channel)
     not_channel <- setdiff(channels$channel, chan_layout$.channel)
     warning(paste0(
@@ -181,11 +180,11 @@ read_ft <- function(file, .layout = NULL, .recording = file) {
       "The following channels are not in the data: ",
       paste(not_channel, collapse = ", "), "."
     ))
-    channels <- dplyr::left_join(channels, dplyr::as_tibble(chan_layout), by = ".channel") %>%
-      dplyr::mutate(.z = NA_real_, .reference = NA)
+    channels <- tidytable::left_join(channels, tidytable::as_tidytable(chan_layout), by = ".channel") %>%
+      tidytable::mutate(.z = NA_real_, .reference = NA)
   } else {
     channels <- channels %>%
-      dplyr::mutate(.x = NA_real_, .y = NA_real_, .z = NA_real_, .reference = NA)
+      tidytable::mutate(.x = NA_real_, .y = NA_real_, .z = NA_real_, .reference = NA)
   }
 
 
@@ -193,7 +192,7 @@ read_ft <- function(file, .layout = NULL, .recording = file) {
   # signal_tbl <- dplyr::mutate(signal_tbl, .sample = sample, .id = as.integer(.id)) %>%
   #   dplyr::select(.id, .sample, dplyr::everything())
   signal_tbl <- new_signal_tbl(
-    signal_matrix = dplyr::select(signal_raw, -.id),
+    signal_matrix = tidytable::select(signal_raw, -.id),
     .id = signal_raw$.id, .sample = sample, channels_tbl = channels
   )
 
@@ -257,7 +256,7 @@ read_ft <- function(file, .layout = NULL, .recording = file) {
 
 
   if (!is.null(mat$trialinfo)) {
-    segments <- segments %>% dplyr::bind_cols(dplyr::as_tibble(mat$trialinfo))
+    segments <- segments %>% tidytable::bind_cols(tidytable::as_tidytable(mat$trialinfo))
   }
 
   eeg_lst <- eeg_lst(
@@ -347,7 +346,7 @@ read_edf <- function(file, .recording = file, .trigger_channel = NULL) {
 
   signal_edf <- edfReader::readEdfSignals(header_edf, from = times[1], till = times[2], simplify = FALSE)
 
-  non_signal <- purrr::map_lgl(signal_edf, ~ .x$isAnnotation |
+  non_signal <- map_lgl(signal_edf, ~ .x$isAnnotation |
     tolower(.x$label) %in% c("status", "trigger") |
     tolower(.x$name) %in% c("status", "trigger"))
 
@@ -356,7 +355,7 @@ read_edf <- function(file, .recording = file, .trigger_channel = NULL) {
   ## nothing in the header to recognise them by.
   trigger_pos <- NULL
   if (!is.null(.trigger_channel)) {
-    labels <- purrr::map_chr(signal_edf, ~ .x$label %||% NA_character_)
+    labels <- map_chr(signal_edf, ~ .x$label %||% NA_character_)
     if (identical(.trigger_channel, "last")) {
       candidates <- which(!non_signal)
       if (!length(candidates)) stop("No channel left to use as `.trigger_channel`.", call. = FALSE)
@@ -407,7 +406,7 @@ read_edf <- function(file, .recording = file, .trigger_channel = NULL) {
 
   signal_dt <- lapply_dtc(signal_edf, function(x) x$signal)
 
-  if (header_edf$isContinuous && all(purrr::map_lgl(signal_edf, ~ .x$isContinuous))) {
+  if (header_edf$isContinuous && all(map_lgl(signal_edf, ~ .x$isContinuous))) {
     s_id <- rep(1L, nrow(signal_dt))
     sample_id <- sample_int(seq_len(nrow(signal_dt)), .sampling_rate = sampling_rate)
   } else {
@@ -441,7 +440,7 @@ read_edf <- function(file, .recording = file, .trigger_channel = NULL) {
     invisible(NULL)
   }
 
-  channel_info <- dplyr::tibble(
+  channel_info <- tidytable::tidytable(
     .channel = channel_names,
     .x = NA_real_, .y = NA_real_, .z = NA_real_,
     .reference = NA_character_
@@ -496,7 +495,7 @@ read_edf <- function(file, .recording = file, .trigger_channel = NULL) {
       ## no annotations, and `integer(0) + sample_int(integer(0))` comes back
       ## a plain integer, which then fails validation. Re-apply the class.
       .final = sample_int(
-        (dplyr::case_when(
+        (tidytable::case_when(
           !is.na(edf_events$duration) ~
             round(edf_events$duration * sampling_rate),
           !is.na(edf_events$end) ~

@@ -40,9 +40,9 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
   dots <- rlang::enquos(...)
   .end <- rlang::enquo(.end)
 
-  # times0 <- filter.(.data$.events, !!!dots) %>%
-  #   select.(.id,.type,.description,.first_sample= .initial) %>%
-  #   distinct.()
+  # times0 <- tt_filter(.data$.events, !!!dots) %>%
+  #   tt_select(.id,.type,.description,.first_sample= .initial) %>%
+  #   tt_distinct()
   # 
   times0 <- filter_dt(.data$.events, !!!dots)[, -c(".channel", ".final")] %>%
     unique()
@@ -55,8 +55,8 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
   ##   dplyr::distinct()
 
   if (!rlang::quo_is_missing(.end)) {
-     times_end <- # filter.(.data$.events, !!.end) %>%  select.(.id, .type, .description, .first_sample = .initial) %>%
-    #   distinct.()
+     times_end <- # tt_filter(.data$.events, !!.end) %>%  tt_select(.id, .type, .description, .first_sample = .initial) %>%
+    #   tt_distinct()
     #   
       filter_dt(.data$.events, !!.end)[, -c(".channel", ".final")] %>%
       unique()
@@ -108,7 +108,7 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
     if (nrow(unmatched_initial) > 0) {
       warning("Unmatched initial segments:\n\n", paste0(
         utils::capture.output(unmatched_initial %>%
-          dplyr::rename(.initial = .first_sample)),
+          tidytable::rename(.initial = .first_sample)),
         collapse = "\n"
       ))
       times_end <- rbind(times_end, unmatched_initial, fill = TRUE)
@@ -124,7 +124,7 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
     if (nrow(unmatched_final) > 0) {
       warning("Unmatched final segments:\n\n", paste0(
         utils::capture.output(unmatched_final %>%
-          dplyr::rename(.initial = .first_sample)),
+          tidytable::rename(.initial = .first_sample)),
         collapse = "\n"
       ))
       times0 <- rbind(times0, unmatched_final[, .type := "incorrect segment"], fill = TRUE)
@@ -175,7 +175,6 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
     c(".sample", channel_names(new_signal)), NA
   )
   attributes(new_signal$.sample) <- attributes(.data$.signal$.sample)
-  data.table::setkey(new_signal, .id, .sample)
 
   .data$.signal <- new_signal
 
@@ -193,7 +192,6 @@ eeg_segment.eeg_lst <- function(.data, ..., .lim = c(-.5, .5), .end, .unit = "s"
   .data$.segments <- update_segments_tbl(.data$.segments, times0)
 
   message_verbose(paste0(say_size(.data), " after segmentation."))
-  data.table::setkey(.data$.segments, .id)
   validate_eeg_lst(.data)
 }
 
@@ -221,7 +219,9 @@ update_segments_tbl <- function(old_segments, new_events) {
 #' * .new_id: new id for the event, current one if left empty
 #' @noRd
 update_events <- function(events_dt, segmentation) {
-  segmentation <- data.table:::shallow(segmentation)
+  ## a copy, so that the := below never reach the caller's table. It is
+  ## data.table::copy() because data.table's shallow() is not exported.
+  segmentation <- data.table::copy(segmentation)
   # needs to remove the class quickly:
   data.table::setDT(segmentation)
   segmentation[, .new_id := if (!".new_id" %in% colnames(segmentation)) .id else .new_id]
@@ -235,7 +235,8 @@ update_events <- function(events_dt, segmentation) {
   ]
   new_events[, .initial := pmax(i..initial, .lower) - .first_sample + 1L]
   new_events[, .final := pmin(.final, .upper) - .first_sample + 1L]
-  new_events[, .id := .new_id][, ..cols_events] %>%
+  new_events[, .id := .new_id]
+  tt_select(new_events, tidyselect::all_of(cols_events)) %>%
     as_events_tbl(., .sampling_rate = sampling_rate(events_dt))
 }
 
@@ -250,14 +251,14 @@ eeg_unsegment.eeg_lst <- function(.data, .start = 1, .sep = c(.type = "New Segme
   N <- nsamples(.data)
   srate <- sampling_rate(.data)
   s1 <- .data$.signal$.sample[1]
-  new_segment <- filter.(.data$.signal, .sample == .sample[1], .by= any_of(".id")) %>%
+  new_segment <- tt_filter(.data$.signal, .sample == .sample[1], .by= any_of(".id")) %>%
     tidytable::pull(.sample)
   time_0 <- sample_int(rep(1, length(new_segment)), .sampling_rate = srate)
   init_sample <- cumsum(c(-s1 +.start, N[seq_len(length(N)-1)]))
   u_id <- unique(.data$.signal$.id)
   
   .data$.signal <-  .data$.signal %>%
-              mutate.(.id = 1L, 
+              tt_mutate(.id = 1L, 
               .sample =sample_int(values = seq.int(from = .start, length.out = sum(N)),
                       .sampling_rate = srate) )
 
@@ -266,8 +267,7 @@ eeg_unsegment.eeg_lst <- function(.data, .start = 1, .sep = c(.type = "New Segme
     new_events <- rbind(new_events,data.table::data.table(t(.zero), .initial = time_0,
                                                           .id = u_id))
   }
-  new_events <- new_events %>%
-    mutate(.final = .initial)
+  new_events[, .final := .initial]
   
   .data$.events <- .data$.events %>% rbind( new_events, fill = TRUE) %>% 
     .[order(., .id,.initial),] %>%
@@ -275,16 +275,15 @@ eeg_unsegment.eeg_lst <- function(.data, .start = 1, .sep = c(.type = "New Segme
   .data$.events <- .data$.events %>% 
     split(by = ".id") %>% 
     tidytable::map2(init_sample, 
-                     ~.x %>% mutate.(.initial = .initial +.y,
+                     ~.x %>% tt_mutate(.initial = .initial +.y,
                                      .final = .final + .y)) %>%
     data.table::rbindlist() %>%
-    mutate.(.id = 1L) %>%
+    tt_mutate(.id = 1L) %>%
     as_events_tbl.data.table()
   
   .data$.segments <- .data$.segments %>% 
-    summarize.(.id =1, 
+    tt_summarize(.id =1, 
                .recording = paste(unique(.recording), collapse =";"))
-  data.table::setkey(.data$.signal, .id, .sample)
   
     validate_eeg_lst(.data)
 }

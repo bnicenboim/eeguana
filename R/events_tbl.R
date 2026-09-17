@@ -41,7 +41,7 @@ new_events_tbl <- function(.id = integer(0),
 
   if (!is.null(.sampling_rate)) {
     events <- events %>%
-      mutate.( .initial = sample_int(as.integer(.initial),
+      tt_mutate( .initial = sample_int(as.integer(.initial),
                                      .sampling_rate = .sampling_rate),
               .final := sample_int(as.integer(.final),
       .sampling_rate = .sampling_rate))
@@ -76,10 +76,10 @@ as_events_tbl.data.table <- function(.data, .sampling_rate = NULL, ...) {
       .sampling_rate = .sampling_rate
     )]
   }
-  .data <- .data %>% dplyr::select(
+  .data <- .data %>% tidytable::select(
     .id, setdiff(colnames(.data), obligatory_cols[[".events"]]),
     obligatory_cols[[".events"]][-1]
-  )
+  ) %>% keep_dt_attrs(.data)
   data.table::setattr(.data, "class", c("events_tbl", class(.data)))
   validate_events_tbl(.data)
 }
@@ -164,18 +164,33 @@ validate_events_tbl <- function(events) {
 }
 
 
+#' Apply a tidytable verb to an events table
+#'
+#' These methods used to call tidytable's unexported `<verb>.tidytable`
+#' methods with `:::`. tidytable is free to remove those, and it already
+#' removed `transmute.tidytable`, which broke `transmute()` on every events
+#' table. The public verbs are used instead. The table is handed over as a
+#' plain tidytable, so the verb cannot dispatch back into these methods if
+#' they are ever registered on tidytable's generics as well. Its class and key
+#' are put back afterwards.
+#' @noRd
+events_verb <- function(verb, .data, ...) {
+  keep_dt_attrs(verb(tidytable::as_tidytable(.data), ...), .data)
+}
+
+# registered in zzz.R
 filter.events_tbl <- function(.data, ..., preserve = FALSE) {
-  as_events_tbl(tidytable:::filter.tidytable(.data, ...), sampling_rate(.data))
+  as_events_tbl(events_verb(tidytable::filter, .data, ...), sampling_rate(.data))
 }
-#' @exportS3Method dplyr::mutate
+# registered in zzz.R
 mutate.events_tbl <- function(.data, ...) {
-  as_events_tbl(tidytable:::mutate.tidytable(.data, ...), sampling_rate(.data))
+  as_events_tbl(events_verb(tidytable::mutate, .data, ...), sampling_rate(.data))
 }
-#' @exportS3Method dplyr::transmute
+# registered in zzz.R
 transmute.events_tbl <- function(.data, ...) {
-  as_events_tbl(tidytable:::transmute.tidytable(.data, ...), sampling_rate(.data))
+  as_events_tbl(events_verb(tidytable::transmute, .data, ...), sampling_rate(.data))
 }
-#' @exportS3Method dplyr::summarise
+# registered in zzz.R
 summarise.events_tbl <- function(.data, ...) {
-  as_events_tbl(tidytable:::summarize.tidytable(.data, ...), sampling_rate(.data))
+  as_events_tbl(events_verb(tidytable::summarize, .data, ...), sampling_rate(.data))
 }
