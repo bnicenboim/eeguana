@@ -4,6 +4,7 @@
 #'
 #' @inheritParams as.data.table.eeg_lst
 #' @return  A [`tidytable`][tidytable::tidytable].
+#' @exportS3Method NULL
 as_tidytable.eeg_lst <- function(x, .unit = "s", ...) {
   data.table::as.data.table(x, .unit = .unit, ...) %>%
     tidytable::as_tidytable(.name_repair = "unique")
@@ -98,6 +99,7 @@ as_tibble.psd_lst <- function(x, ...) {
 #'
 #'
 #'
+#' @exportS3Method NULL
 as_tidytable.psd_lst <- function(x, ...) {
   data.table::as.data.table(x) %>%
     tidytable::as_tidytable(.name_repair = "unique")

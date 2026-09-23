@@ -42,6 +42,9 @@
   The variance of several channels is now the mean of their variances, as in
   EEGLAB's `eeg_pvaf()`. The values change: in the intro vignette, the
   horizontal eye movement component goes from 1% to 5%.
+- `tidytable::as_tidytable()` on a `psd_lst` failed with "rownames incorrect
+  length", because the method for `psd_lst` was never registered, unlike the
+  one for `eeg_lst`.
 - `plot_ica()` (experimental and not exported) failed with "incompatible
   dimensions" on data with more than one recording, because it filtered with
   `.recording == .recording`, which kept every recording.

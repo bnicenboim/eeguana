@@ -179,10 +179,12 @@ events_verb <- function(verb, .data, ...) {
 }
 
 # registered in zzz.R
+#' @exportS3Method NULL
 filter.events_tbl <- function(.data, ..., preserve = FALSE) {
   as_events_tbl(events_verb(tidytable::filter, .data, ...), sampling_rate(.data))
 }
 # registered in zzz.R
+#' @exportS3Method NULL
 mutate.events_tbl <- function(.data, ...) {
   as_events_tbl(events_verb(tidytable::mutate, .data, ...), sampling_rate(.data))
 }
@@ -191,6 +193,7 @@ transmute.events_tbl <- function(.data, ...) {
   as_events_tbl(events_verb(tidytable::transmute, .data, ...), sampling_rate(.data))
 }
 # registered in zzz.R
+#' @exportS3Method NULL
 summarise.events_tbl <- function(.data, ...) {
   as_events_tbl(events_verb(tidytable::summarize, .data, ...), sampling_rate(.data))
 }

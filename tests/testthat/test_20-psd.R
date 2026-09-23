@@ -78,3 +78,14 @@ test_that("basic test tidyverse works with psd_lst ", {
   data_sleep_psd_2 %>% eeg_transmute(F3 =F3 * 100)
   data_sleep_psd_2 %>% data.table::as.data.table()
 })
+
+## as_tidytable.psd_lst() was never registered, unlike as_tidytable.eeg_lst(),
+## so tidytable::as_tidytable() called from outside eeguana skipped it and
+## failed with "rownames incorrect length".
+test_that("tidytable::as_tidytable() turns a psd_lst into a long table", {
+  tbl <- tidytable::as_tidytable(data_sleep_F3F2_psd)
+  expect_s3_class(tbl, "tidytable")
+  expect_true(all(c(".freq", ".id", ".key", ".value") %in% colnames(tbl)))
+  expect_setequal(unique(tbl$.key), c("F3", "F2"))
+  expect_equal(nrow(tbl), 2 * nrow(data_sleep_F3F2_psd$.psd))
+})

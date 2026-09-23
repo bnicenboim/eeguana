@@ -37,6 +37,7 @@ plot.eeg_lst <- function(x,  .max_sample = 6400,...){
 }
 
 
+#' @exportS3Method NULL
 autoplot.eeg_lst <- function(x, .max_sample = 6400, ...) {
   rlang::check_dots_unnamed()
   # pick the last channel as reference
@@ -63,6 +64,7 @@ autoplot.eeg_lst <- function(x, .max_sample = 6400, ...) {
 
 
 
+#' @exportS3Method NULL
 autoplot.psd_lst <- function(x, ...) {
   rlang::check_dots_unnamed()
   # pick the last channel as reference
@@ -697,6 +699,7 @@ annotate_events <- function(data = NULL, alpha = .2) {
   structure(list(layer = layer), class = "layer_events")
 }
 
+#' @exportS3Method NULL
 ggplot_add.layer_events <- function(object, plot, object_name) {
   if (length(object$layer$data) == 0) {
     events_tbl <- plot$data_events
