@@ -33,6 +33,7 @@ data_faces_ERPs \%>\%
 Other plotting functions:
 \code{\link[=annotate_electrodes]{annotate_electrodes()}},
 \code{\link[=annotate_events]{annotate_events()}},
+\code{\link[=browse_ica]{browse_ica()}},
 \code{\link[=eeg_downsample]{eeg_downsample()}},
 \code{\link[=ggplot.eeg_lst]{ggplot.eeg_lst()}},
 \code{\link[=plot.eeg_lst]{plot.eeg_lst()}},

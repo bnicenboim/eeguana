@@ -67,6 +67,7 @@ data_ica_py <- eeg_ica(data_faces_10_trials, -EOGH, -EOGV, -M1, -M2, .method = p
 }
 \seealso{
 Other ICA functions:
+\code{\link[=browse_ica]{browse_ica()}},
 \code{\link[=eeg_ica_cor_tbl]{eeg_ica_cor_tbl()}},
 \code{\link[=eeg_ica_keep]{eeg_ica_keep()}},
 \code{\link[=eeg_ica_show]{eeg_ica_show()}},

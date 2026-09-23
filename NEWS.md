@@ -1,5 +1,26 @@
 # eeguana 0.1.12.9003
 
+## New features
+
+- `browse_ica()` opens a Shiny app to choose the ICA components to remove. It
+  shows the activations of the components next to the EOG channels, or any
+  other channels, and their topographies, labeled with the variance they
+  explain and their correlation with the EOG channels. The window can be set in
+  samples, milliseconds, or seconds, and moved through the recording or from
+  one event to the next, with buttons, sliders, or the left and right arrow
+  keys; the up and down arrow keys zoom the amplitudes, which are scaled by
+  their typical standard deviation so that the scale is the same in every
+  window. The events are chosen by
+  their type or description: the ones equal to some values, starting with,
+  ending with, or containing some text, or matching a regular expression (for
+  example, the descriptions starting with "peak" are the blinks found by
+  `eeg_artif_peak()`). The EOG channels are band-pass filtered from 0.1 to 30 Hz
+  before the correlations, as in `plot_ica()`; `.eog_freq` changes the filter,
+  or turns it off, and so does a field in the app. Clicking a topography marks
+  its component, and the app returns the marked components and prints the call
+  to `eeg_ica_keep()` that removes them. shiny and bslib are suggested, not
+  imported.
+
 ## Dependencies
 
 - dplyr and tidyr move from `Imports` to `Suggests`, so installing eeguana no

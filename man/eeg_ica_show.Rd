@@ -26,6 +26,7 @@ suppressWarnings(data_faces_10_trials \%>\%
 }
 \seealso{
 Other ICA functions:
+\code{\link[=browse_ica]{browse_ica()}},
 \code{\link[=eeg_ica]{eeg_ica()}},
 \code{\link[=eeg_ica_cor_tbl]{eeg_ica_cor_tbl()}},
 \code{\link[=eeg_ica_keep]{eeg_ica_keep()}},

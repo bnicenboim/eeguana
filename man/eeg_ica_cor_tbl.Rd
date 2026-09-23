@@ -19,6 +19,7 @@ Show correlations between ICA sources and eye (EOG) electrodes.
 }
 \seealso{
 Other ICA functions:
+\code{\link[=browse_ica]{browse_ica()}},
 \code{\link[=eeg_ica]{eeg_ica()}},
 \code{\link[=eeg_ica_keep]{eeg_ica_keep()}},
 \code{\link[=eeg_ica_show]{eeg_ica_show()}},

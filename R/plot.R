@@ -250,6 +250,17 @@ plot_components <- function(data, ..., .projection = "polar", .standardize = TRU
 }
 #' @export
 plot_components.eeg_ica_lst <- function(data, ..., .projection = "polar", .standardize = TRUE) {
+  components_topo_tbl(data, ..., .projection = .projection, .standardize = .standardize) %>%
+    plot_topo() +
+    ggplot2::facet_wrap(~ .recording + .ICA)
+}
+
+#' Interpolated topographies of the components of an eeg_ica_lst
+#'
+#' A table with the interpolated mixing weights of every component of every
+#' recording, as used by [plot_components()] and [browse_ica()].
+#' @noRd
+components_topo_tbl <- function(data, ..., .projection = "polar", .standardize = TRUE) {
   channels_tbl(data) <- change_coord(channels_tbl(data), .projection)
   ## TODO: move to data.table, ignore group, just do it by .recording
   long_table <- map_dtr(data$.ica, ~ {
@@ -273,9 +284,7 @@ plot_components.eeg_ica_lst <- function(data, ..., .projection = "polar", .stand
     eeg_interpolate_tbl(...) %>%
     tidytable::mutate(.value = c(scale(.value, center = .standardize, scale = .standardize)),
       .by = c(.recording, .ICA)
-    ) %>%
-    plot_topo() +
-    ggplot2::facet_wrap(~ .recording + .ICA)
+    )
 }
 
 

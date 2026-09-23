@@ -31,6 +31,7 @@ Other preprocessing functions:
 \code{\link{filt}}
 
 Other ICA functions:
+\code{\link[=browse_ica]{browse_ica()}},
 \code{\link[=eeg_ica]{eeg_ica()}},
 \code{\link[=eeg_ica_cor_tbl]{eeg_ica_cor_tbl()}},
 \code{\link[=eeg_ica_show]{eeg_ica_show()}},
