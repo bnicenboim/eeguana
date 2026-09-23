@@ -314,13 +314,15 @@ plot_ica.eeg_ica_lst <- function(data,
 
   warning("This is an experimental function, and it might change or disappear in the future. (Or it might be transformed into a shinyapp)")
   # first filter then this is applied:
-  if (!is.null(.recording)) {
-    data <- eeg_filter(data, .recording == .recording)
-  } else {
+  if (is.null(.recording)) {
     .recording <- segments_tbl(data)$.recording[1]
     message_verbose("Using recording: ", .recording)
-    data <- eeg_filter(data, .recording == .recording)
+  } else if (!.recording %in% names(data$.ica)) {
+    stop("Recording '", .recording, "' is not in the data.", call. = FALSE)
   }
+  ## !! is needed: inside eeg_filter(), `.recording` alone is the column, and
+  ## `.recording == .recording` kept every recording
+  data <- eeg_filter(data, .recording == !!.recording)
 
   if (length(eog) == 0) {
     eog <- sel_ch(data, c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))

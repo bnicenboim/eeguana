@@ -4,23 +4,30 @@
 \alias{eeg_ica_var_tbl}
 \title{Show the variance explained for each ICA sources.}
 \usage{
-eeg_ica_var_tbl(.data, ..., .max_sample = 1e+05)
+eeg_ica_var_tbl(.data, ..., .max_sample = NULL)
 }
 \arguments{
 \item{.data}{An \code{eeg_ica_lst} object}
 
 \item{...}{Not in use.}
 
-\item{.max_sample}{The maximum number of samples to use for calculating the variance explained.}
+\item{.max_sample}{The maximum number of samples to use for calculating the
+variance explained. \code{NULL}, the default, uses all of them; a number
+downsamples the data to about that many samples first.}
 }
 \value{
 A table with the variance explained by each component in each recording.
 }
 \description{
-This function shows the variance explained by each ICA component following the approach of the matlab function ....
+This function shows the proportion of the variance of the channels that each
+ICA component explains, as the function \code{eeg_pvaf()} of EEGLAB does: one minus
+the variance left in the channels after removing everything but that
+component, divided by the variance of the channels, where the variance of
+several channels is the mean of their variances.
 }
 \details{
-If the dataset is large, this function can take very long to run. Setting a maximum number of samples (\code{max_sample}) will speed up the calculations by downsampling the data.
+If the components are uncorrelated, as the ones found with fastICA in the
+data they were fitted to, the proportions of each recording add up to one.
 }
 \seealso{
 Other ICA functions:

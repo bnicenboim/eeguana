@@ -5,9 +5,9 @@
     Output
          .recording    EOG   .ICA        cor        var
              <char> <char> <char>      <num>      <num>
-      1: recording1     Fz   ICA2 -0.5629150 0.59371175
-      2: recording1     Fz   ICA3 -0.8018246 0.33288750
-      3: recording1     Fz   ICA1  0.2005095 0.07340075
+      1: recording1     Fz   ICA2 -0.5629150 0.50612604
+      2: recording1     Fz   ICA3 -0.8018246 0.43121100
+      3: recording1     Fz   ICA1  0.2005095 0.06266296
 
 ---
 
@@ -16,9 +16,9 @@
     Output
          .recording    EOG   .ICA         cor        var
              <char> <char> <char>       <num>      <num>
-      1: recording1   XEOG   ICA2  0.01487848 0.59371175
-      2: recording1   XEOG   ICA3 -0.02058590 0.33288750
-      3: recording1   XEOG   ICA1  0.03040823 0.07340075
+      1: recording1   XEOG   ICA2  0.01487848 0.50612604
+      2: recording1   XEOG   ICA3 -0.02058590 0.43121100
+      3: recording1   XEOG   ICA1  0.03040823 0.06266296
 
 # summaries work
 
@@ -41,7 +41,7 @@
     Output
          .recording   .ICA        var
              <char> <char>      <num>
-      1: recording1   ICA2 0.59371175
-      2: recording1   ICA3 0.33288750
-      3: recording1   ICA1 0.07340075
+      1: recording1   ICA2 0.50612604
+      2: recording1   ICA3 0.43121100
+      3: recording1   ICA1 0.06266296
 
