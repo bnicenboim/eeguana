@@ -1,4 +1,3 @@
-# eeguana 0.1.12.9003
 
 ## New features
 
@@ -20,6 +19,8 @@
   its component, and the app returns the marked components and prints the call
   to `eeg_ica_keep()` that removes them. shiny and bslib are suggested, not
   imported.
+
+# eeguana 0.1.12.9003
 
 ## Dependencies
 
