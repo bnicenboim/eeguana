@@ -1,3 +1,25 @@
+
+## New features
+
+- `browse_ica()` opens a Shiny app to choose the ICA components to remove. It
+  shows the activations of the components next to the EOG channels, or any
+  other channels, and their topographies, labeled with the variance they
+  explain and their correlation with the EOG channels. The window can be set in
+  samples, milliseconds, or seconds, and moved through the recording or from
+  one event to the next, with buttons, sliders, or the left and right arrow
+  keys; the up and down arrow keys zoom the amplitudes, which are scaled by
+  their typical standard deviation so that the scale is the same in every
+  window. The events are chosen by
+  their type or description: the ones equal to some values, starting with,
+  ending with, or containing some text, or matching a regular expression (for
+  example, the descriptions starting with "peak" are the blinks found by
+  `eeg_artif_peak()`). The EOG channels are band-pass filtered from 0.1 to 30 Hz
+  before the correlations, as in `plot_ica()`; `.eog_freq` changes the filter,
+  or turns it off, and so does a field in the app. Clicking a topography marks
+  its component, and the app returns the marked components and prints the call
+  to `eeg_ica_keep()` that removes them. shiny and bslib are suggested, not
+  imported.
+
 # eeguana 0.1.12.9003
 
 ## Dependencies
@@ -12,6 +34,21 @@
 - purrr is no longer a dependency. 
 ## Bugs fixed
 
+- `eeg_ica_var_tbl()`, and so `eeg_ica_summary_tbl()`, took the variance of
+  several channels as the mean of all the entries of their covariance matrix,
+  that is, the variance of their average. A component then counted only as
+  much as its weights added up, so components whose topography is positive on
+  one side and negative on the other, such as horizontal eye movements, were
+  underestimated, and with an average reference the values were meaningless.
+  The variance of several channels is now the mean of their variances, as in
+  EEGLAB's `eeg_pvaf()`. The values change: in the intro vignette, the
+  horizontal eye movement component goes from 1% to 5%.
+- `tidytable::as_tidytable()` on a `psd_lst` failed with "rownames incorrect
+  length", because the method for `psd_lst` was never registered, unlike the
+  one for `eeg_lst`.
+- `plot_ica()` (experimental and not exported) failed with "incompatible
+  dimensions" on data with more than one recording, because it filtered with
+  `.recording == .recording`, which kept every recording.
 - `drop_incomplete_segments()` errored with `could not find function "na.omit"`
   on every call. It now drops the segments holding missing values, as
   documented.
@@ -28,11 +65,21 @@
 
 ## Breaking
 
+- `eeg_ica_var_tbl()` and `eeg_ica_summary_tbl()` report different
+  variances, see above.
+
 - `eeg_interpolate_tbl()` returns a tidytable rather than a tibble. It is still
   a data frame, so it keeps working wherever one is expected, but a test such as
   `inherits(x, "tbl_df")` on the result is now `FALSE`.
 
 ## Internal
+
+- `eeg_ica_var_tbl()` computes the variance explained from the activations of
+  the components instead of rebuilding the signal once per component. On the
+  intro vignette it takes 1 s instead of 35 s, so it no longer downsamples by
+  default: `.max_sample` is `NULL`, and a number still downsamples first. It
+  does not go through the covariance matrix of the channels, which loses
+  digits when the channels are rank-deficient, as average-referenced ones are.
 
 - eeguana no longer sets data.table keys. Printed tables lose their `Key:` line.
 - dplyr is no longer called inside the package. The internal calls go through

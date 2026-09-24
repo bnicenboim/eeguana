@@ -63,7 +63,9 @@ Suggests:
     cowplot,
     rstudioapi,
     digest,
-    withr
+    withr,
+    shiny (>= 1.7.0),
+    bslib (>= 0.5.0)
 LazyData: true
 LazyDataCompression: xz
 VignetteBuilder: knitr

@@ -20,6 +20,7 @@ between ICA components and EOG channels. See more details in \link{eeg_ica_cor_t
 }
 \seealso{
 Other ICA functions:
+\code{\link[=browse_ica]{browse_ica()}},
 \code{\link[=eeg_ica]{eeg_ica()}},
 \code{\link[=eeg_ica_cor_tbl]{eeg_ica_cor_tbl()}},
 \code{\link[=eeg_ica_keep]{eeg_ica_keep()}},

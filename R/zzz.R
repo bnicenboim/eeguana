@@ -68,6 +68,7 @@ mne <- NULL
   register_s3_method("ggplot2", "ggplot_add", "layer_events")
   register_s3_method("data.table", "as.data.table", "eeg_lst")
   register_s3_method("tidytable", "as_tidytable", "eeg_lst")
+  register_s3_method("tidytable", "as_tidytable", "psd_lst")
 
   op <- options()
   op.eeguana <- list(

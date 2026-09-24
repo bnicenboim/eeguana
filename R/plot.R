@@ -37,6 +37,7 @@ plot.eeg_lst <- function(x,  .max_sample = 6400,...){
 }
 
 
+#' @exportS3Method NULL
 autoplot.eeg_lst <- function(x, .max_sample = 6400, ...) {
   rlang::check_dots_unnamed()
   # pick the last channel as reference
@@ -63,6 +64,7 @@ autoplot.eeg_lst <- function(x, .max_sample = 6400, ...) {
 
 
 
+#' @exportS3Method NULL
 autoplot.psd_lst <- function(x, ...) {
   rlang::check_dots_unnamed()
   # pick the last channel as reference
@@ -250,6 +252,17 @@ plot_components <- function(data, ..., .projection = "polar", .standardize = TRU
 }
 #' @export
 plot_components.eeg_ica_lst <- function(data, ..., .projection = "polar", .standardize = TRUE) {
+  components_topo_tbl(data, ..., .projection = .projection, .standardize = .standardize) %>%
+    plot_topo() +
+    ggplot2::facet_wrap(~ .recording + .ICA)
+}
+
+#' Interpolated topographies of the components of an eeg_ica_lst
+#'
+#' A table with the interpolated mixing weights of every component of every
+#' recording, as used by [plot_components()] and [browse_ica()].
+#' @noRd
+components_topo_tbl <- function(data, ..., .projection = "polar", .standardize = TRUE) {
   channels_tbl(data) <- change_coord(channels_tbl(data), .projection)
   ## TODO: move to data.table, ignore group, just do it by .recording
   long_table <- map_dtr(data$.ica, ~ {
@@ -273,9 +286,7 @@ plot_components.eeg_ica_lst <- function(data, ..., .projection = "polar", .stand
     eeg_interpolate_tbl(...) %>%
     tidytable::mutate(.value = c(scale(.value, center = .standardize, scale = .standardize)),
       .by = c(.recording, .ICA)
-    ) %>%
-    plot_topo() +
-    ggplot2::facet_wrap(~ .recording + .ICA)
+    )
 }
 
 
@@ -314,13 +325,15 @@ plot_ica.eeg_ica_lst <- function(data,
 
   warning("This is an experimental function, and it might change or disappear in the future. (Or it might be transformed into a shinyapp)")
   # first filter then this is applied:
-  if (!is.null(.recording)) {
-    data <- eeg_filter(data, .recording == .recording)
-  } else {
+  if (is.null(.recording)) {
     .recording <- segments_tbl(data)$.recording[1]
     message_verbose("Using recording: ", .recording)
-    data <- eeg_filter(data, .recording == .recording)
+  } else if (!.recording %in% names(data$.ica)) {
+    stop("Recording '", .recording, "' is not in the data.", call. = FALSE)
   }
+  ## !! is needed: inside eeg_filter(), `.recording` alone is the column, and
+  ## `.recording == .recording` kept every recording
+  data <- eeg_filter(data, .recording == !!.recording)
 
   if (length(eog) == 0) {
     eog <- sel_ch(data, c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
@@ -686,6 +699,7 @@ annotate_events <- function(data = NULL, alpha = .2) {
   structure(list(layer = layer), class = "layer_events")
 }
 
+#' @exportS3Method NULL
 ggplot_add.layer_events <- function(object, plot, object_name) {
   if (length(object$layer$data) == 0) {
     events_tbl <- plot$data_events

@@ -172,7 +172,13 @@ faces_ica <- faces_ica |>
 ```
 
 
-In order to investigate the ICA, we are using an experimental function not yet exported (that's why we use the :::). This function will probably converted into a shiny app. It's possible to get the same plots by using a combination of `plot_topo`, `eeg_ica_show`, `eeg_ica_summary_tbl`, and some `ggplot` and `cowplot` functions.
+The easiest way to investigate the ICA is interactively, with `browse_ica()`. It opens a Shiny app that shows the activations of the components next to the EOG channels, and their topographies, labeled with the variance they explain and their correlation with the EOG channels. The window can be placed around events, such as the blinks we just marked, and moved from one blink to the next, or moved through the recording. Clicking a topography marks the component for removal, and when we are done, the app returns the marked components:
+
+```{r, eval = FALSE}
+removed <- browse_ica(faces_ica)
+```
+
+To show one such window in this document, we use an experimental function that is not exported (that's why we use the :::). It's possible to get the same plots by using a combination of `plot_topo`, `eeg_ica_show`, `eeg_ica_summary_tbl`, and some `ggplot` and `cowplot` functions.
 
 We'll see how the components explaining the most variance and most correlated to the EOG channels behave:
 

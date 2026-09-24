@@ -36,6 +36,7 @@ Other plotting functions:
 \code{\link[=annotate_electrodes]{annotate_electrodes()}},
 \code{\link[=annotate_events]{annotate_events()}},
 \code{\link[=annotate_head]{annotate_head()}},
+\code{\link[=browse_ica]{browse_ica()}},
 \code{\link[=eeg_downsample]{eeg_downsample()}},
 \code{\link[=ggplot.eeg_lst]{ggplot.eeg_lst()}},
 \code{\link[=plot.eeg_lst]{plot.eeg_lst()}},
@@ -44,6 +45,7 @@ Other plotting functions:
 \code{\link[=theme_eeguana]{theme_eeguana()}}
 
 Other ICA functions:
+\code{\link[=browse_ica]{browse_ica()}},
 \code{\link[=eeg_ica]{eeg_ica()}},
 \code{\link[=eeg_ica_cor_tbl]{eeg_ica_cor_tbl()}},
 \code{\link[=eeg_ica_keep]{eeg_ica_keep()}},
