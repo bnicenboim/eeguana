@@ -65,7 +65,8 @@ Suggests:
     digest,
     withr,
     shiny (>= 1.7.0),
-    bslib (>= 0.5.0)
+    bslib (>= 0.5.0),
+    ragg
 LazyData: true
 LazyDataCompression: xz
 VignetteBuilder: knitr
