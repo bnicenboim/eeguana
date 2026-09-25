@@ -260,7 +260,7 @@ plot_components.eeg_ica_lst <- function(data, ..., .projection = "polar", .stand
 #' Interpolated topographies of the components of an eeg_ica_lst
 #'
 #' A table with the interpolated mixing weights of every component of every
-#' recording, as used by [plot_components()] and [browse_ica()].
+#' recording, as used by [plot_components()] and [eeg_browse()].
 #' @noRd
 components_topo_tbl <- function(data, ..., .projection = "polar", .standardize = TRUE) {
   channels_tbl(data) <- change_coord(channels_tbl(data), .projection)

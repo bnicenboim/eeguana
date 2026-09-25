@@ -67,6 +67,7 @@ Suggests:
     shiny (>= 1.7.0),
     bslib (>= 0.5.0),
     ragg
+Config/Needs/website: shinytest2, chromote, callr
 LazyData: true
 LazyDataCompression: xz
 VignetteBuilder: knitr

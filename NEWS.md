@@ -7,11 +7,15 @@
   before zero, or lie after it. The interval includes its start but not its
   end. A single value, such as the default `-Inf`, is still the start of an
   interval that ends at time zero, so existing calls give the same results.
-- `browse_ica()` opens a Shiny app to choose the ICA components to remove. It
-  shows the activations of the components next to the EOG channels, or any
-  other channels, and their topographies, labeled with the variance they
-  explain and their correlation with the EOG channels. In order for it to work,
-  shiny and bslib need to be manually installed.
+- `eeg_browse()` opens a Shiny app to look through the data and mark what to
+  remove. For an `eeg_lst`, it shows the signal of the channels, and the
+  segments can be marked by clicking the signal, pressing M, or a button; it
+  returns their `.id`. For an `eeg_ica_lst`, it shows the activations of the
+  components next to the EOG channels, or any other channels, and their
+  topographies, labeled with the variance they explain and their correlation
+  with the EOG channels; clicking a topography marks the component, and it
+  returns the marked components. In order for it to work, shiny and bslib
+  need to be manually installed.
 
 # eeguana 0.1.12.9003
 

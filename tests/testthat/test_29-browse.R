@@ -1,7 +1,7 @@
 library(eeguana)
 options(eeguana.verbose = FALSE)
 
-## browse_ica() is a Shiny app. Its server is tested with shiny::testServer(),
+## eeg_browse() is a Shiny app. Its server is tested with shiny::testServer(),
 ## which runs it without a browser: inputs are set by the test, and the
 ## update*() calls that would change them in the browser have no effect, so
 ## the helpers they rely on are tested on their own. shiny and bslib are only
@@ -9,7 +9,7 @@ options(eeguana.verbose = FALSE)
 
 skip_if_not(
   requireNamespace("shiny", quietly = TRUE) && requireNamespace("bslib", quietly = TRUE),
-  "browse_ica() needs shiny and bslib, which are only suggested"
+  "eeg_browse() needs shiny and bslib, which are only suggested"
 )
 
 seg <- eeg_segment(data_faces_10_trials, .description %in% c("s70", "s71"), .lim = c(-.2, .5))
@@ -116,19 +116,19 @@ test_that("the code printed at the end removes the marked components", {
   expect_match(two, "eeg_ica_keep(x, `a` = -c(ICA1), `c` = -c(ICA2, ICA4))", fixed = TRUE)
 })
 
-test_that("browse_ica() checks its arguments", {
-  expect_error(eeguana:::browse_ica_app(seg), "must be an eeg_ica_lst")
-  expect_error(eeguana:::browse_ica_app(ica_seg, .eog = "VEOG"), "Channels not found: VEOG")
+test_that("eeg_browse() checks its arguments", {
+  expect_error(eeguana:::browse_app(seg, .kind = "ica"), "must be an eeg_ica_lst")
+  expect_error(eeguana:::browse_app(ica_seg, .kind = "ica", .eog = "VEOG"), "Channels not found: VEOG")
   for (freq in list(1, c(1, 2, 3), c("a", "b"))) {
-    expect_error(eeguana:::browse_ica_app(ica_seg, .eog_freq = freq), "must be NULL or two cutoff")
+    expect_error(eeguana:::browse_app(ica_seg, .kind = "ica", .eog_freq = freq), "must be NULL or two cutoff")
   }
   for (freq in list(NULL, c(NA, 30), c(1, NA), c(NA, NA))) {
-    expect_s3_class(eeguana:::browse_ica_app(ica_seg, .eog_freq = freq), "shiny.appobj")
+    expect_s3_class(eeguana:::browse_app(ica_seg, .kind = "ica", .eog_freq = freq), "shiny.appobj")
   }
 })
 
 test_that("the app shows windows around events and through the recording", {
-  shiny::testServer(eeguana:::browse_ica_app(ica_seg), {
+  shiny::testServer(eeguana:::browse_app(ica_seg, .kind = "ica"), {
     session$setInputs(
       unit = "ms", mode = "events", event_field = ".description", event_match = "exact",
       event_values = "s71", event_pattern = "", from = -100, to = 300,
@@ -172,7 +172,7 @@ test_that("the app shows windows around events and through the recording", {
 })
 
 test_that("the window through the recording stays inside the data", {
-  shiny::testServer(eeguana:::browse_ica_app(ica_seg), {
+  shiny::testServer(eeguana:::browse_app(ica_seg, .kind = "ica"), {
     session$setInputs(mode = "continuous", unit_continuous = "ms", segment = "2", start = 0, length = 200)
     ## a window longer than the segment is shortened to it
     session$setInputs(length = 10000)
@@ -203,7 +203,7 @@ test_that("the window through the recording stays inside the data", {
 })
 
 test_that("the arrow keys and buttons zoom the amplitudes", {
-  shiny::testServer(eeguana:::browse_ica_app(ica_seg), {
+  shiny::testServer(eeguana:::browse_app(ica_seg, .kind = "ica"), {
     session$setInputs(components = "ICA1", channels = "EOGV", scale = "shared")
     session$elapse(1100)
     expect_match(output$scale_text, "^Rows span \u00b1[0-9.]+ for the channels and \u00b14 typical SDs for the components$")
@@ -254,7 +254,7 @@ test_that("amplitudes are scaled by their typical standard deviation", {
 })
 
 test_that("clicking a topography marks and unmarks the component", {
-  shiny::testServer(eeguana:::browse_ica_app(ica_seg), {
+  shiny::testServer(eeguana:::browse_app(ica_seg, .kind = "ica"), {
     session$setInputs(components = c("ICA1", "ICA2"), marked = NULL, electrodes = TRUE)
     session$elapse(1100)
     session$setInputs(topo_click = list(panelvar1 = "ICA2"))
@@ -275,7 +275,7 @@ test_that("each recording keeps its own marks", {
   ica_two <- suppressWarnings(
     eeg_ica(two, -EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))
   )
-  shiny::testServer(eeguana:::browse_ica_app(ica_two), {
+  shiny::testServer(eeguana:::browse_app(ica_two, .kind = "ica"), {
     session$setInputs(recording = rec, components = "ICA1", marked = NULL)
     session$setInputs(topo_click = list(panelvar1 = "ICA1"))
     session$setInputs(recording = "second")
@@ -335,7 +335,7 @@ test_that("the labels show the correlations with the filtered EOG channels", {
 })
 
 test_that("the app matches events with a regular expression, and says when it is invalid", {
-  shiny::testServer(eeguana:::browse_ica_app(ica_seg), {
+  shiny::testServer(eeguana:::browse_app(ica_seg, .kind = "ica"), {
     session$setInputs(
       mode = "events", event_field = ".description", event_match = "regex",
       event_pattern = "^s7[01]$", event_values = NULL, from = -.1, to = .1, event_i = 1
@@ -352,7 +352,7 @@ test_that("the app matches events with a regular expression, and says when it is
 })
 
 test_that("changing the filter of the EOG channels changes the correlations", {
-  shiny::testServer(eeguana:::browse_ica_app(ica_seg), {
+  shiny::testServer(eeguana:::browse_app(ica_seg, .kind = "ica"), {
     session$setInputs(eog_filter = TRUE, eog_low = .1, eog_high = 30)
     band <- summaries()$cor
     session$setInputs(eog_filter = FALSE)
@@ -361,4 +361,87 @@ test_that("changing the filter of the EOG channels changes the correlations", {
     expect_false(isTRUE(all.equal(band$cor, none$cor)))
     expect_equal(none, eeg_ica_cor_tbl(ica_seg, EOGV, EOGH))
   })
+})
+
+#### eeg_browse() on an eeg_lst
+
+test_that("the signal of the channels is shown, without components", {
+  shiny::testServer(eeguana:::browse_app(seg), {
+    session$setInputs(mode = "continuous", unit_continuous = "ms", segment = "2", start = 0, length = 200)
+    session$setInputs(channels = c("Fz", "Cz", "EOGV"), scale = "shared")
+    session$elapse(1100)
+    expect_equal(components(), character(0))
+    expect_equal(window()$id, 2L)
+    expect_match(output$activations$src, "^data:image/png")
+    expect_match(output$scale_text, "^Rows span ±[0-9.,]+ for the channels$")
+    ## the typical SDs are the ones of the channels
+    expect_equal(prep()$sd[["EOGV"]], prep_seg$sd[["EOGV"]])
+  })
+  tbl <- eeguana:::window_tbl(eeguana:::browse_eeg_prep(seg, rec), list(id = 4L, first = -20L, last = 80L), character(0), "Fz")
+  fz <- as.numeric(eeg_filter(seg, .id == 4L, .sample >= -20L, .sample <= 80L)$.signal$Fz)
+  expect_equal(tbl$.value, fz - mean(fz))
+  expect_equal(as.character(unique(tbl$.key)), "Fz")
+})
+
+test_that("segments are marked and unmarked, and returned", {
+  shiny::testServer(eeguana:::browse_app(seg), {
+    ## a window longer than the segment shows all of it
+    session$setInputs(mode = "continuous", unit_continuous = "ms", segment = "1", start = -200, length = 1000)
+    session$setInputs(channels = "Fz", scale = "shared")
+    expect_equal(window()$id, 1L)
+    ## the button marks the segment shown
+    session$setInputs(mark_segment = 1)
+    expect_equal(segment_marks(), 1L)
+    expect_match(output$where, "marked for removal$")
+    ## a click on the signal marks the next one
+    session$setInputs(`next` = 1)
+    expect_equal(window()$id, 2L)
+    expect_no_match(output$where, "marked for removal")
+    session$setInputs(trace_click = list(x = 0.1, y = 0))
+    expect_equal(segment_marks(), c(1L, 2L))
+    ## and M unmarks it
+    session$setInputs(arrow_key = list(key = "m"))
+    expect_equal(segment_marks(), 1L)
+    ## the field in the sidebar replaces the marks
+    session$setInputs(marked_segments = c("5", "3"))
+    expect_equal(segment_marks(), c(3L, 5L))
+    expect_equal(result(), c(3L, 5L))
+  })
+})
+
+test_that("a recording that is one segment can be browsed but not marked", {
+  shiny::testServer(eeguana:::browse_app(data_faces_10_trials), {
+    session$setInputs(mode = "continuous", unit_continuous = "s", segment = "1", start = 10, length = 4)
+    session$setInputs(channels = "Fz", scale = "shared")
+    expect_equal(window()$id, 1L)
+    session$setInputs(arrow_key = list(key = "m"))
+    expect_equal(segment_marks(), integer(0))
+    expect_equal(result(), integer(0))
+  })
+})
+
+test_that("the code printed at the end removes the marked segments", {
+  code <- eeguana:::filter_segments_code("seg", c(2L, 5L))
+  expect_match(code, "eeg_filter(seg, !.id %in% c(2, 5))", fixed = TRUE)
+  cleaned <- eval(parse(text = sub("^.*\n", "", code)))
+  expect_equal(unique(cleaned$.segments$.id), setdiff(seg$.segments$.id, c(2L, 5L)))
+  expect_equal(eeguana:::filter_segments_code("seg", integer(0)), "No segments were marked for removal.")
+})
+
+test_that("eeg_browse() returns the marks of the app and prints how to use them", {
+  ## the viewer, which would open the app in a browser, closes it right away
+  ## with some marks, as clicking "Done" would
+  closing_with <- function(marks) function(url) later::later(function() shiny::stopApp(marks), 0)
+  expect_message(
+    to_remove <- eeg_browse(seg, .viewer = closing_with(c(2L, 5L))),
+    "eeg_filter(seg, !.id %in% c(2, 5))",
+    fixed = TRUE
+  )
+  expect_equal(to_remove, c(2L, 5L))
+  expect_message(
+    to_remove <- eeg_browse(ica_seg, .viewer = closing_with(stats::setNames(list("ICA1"), rec))),
+    "eeg_ica_keep(ica_seg, -c(ICA1))",
+    fixed = TRUE
+  )
+  expect_equal(to_remove[[1]], "ICA1")
 })

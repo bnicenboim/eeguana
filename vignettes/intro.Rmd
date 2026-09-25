@@ -59,7 +59,6 @@ We load the relevant packages first. Here, I use `tidytable` which is a faster a
 ```{r libs, message = FALSE}
 library(tidytable) # faster alternative to dplyr
 library(ggplot2)
-library(stringr)
 library(eeguana)
 set.seed(123) # ICA will always find the same components
 ```
@@ -97,7 +96,7 @@ plot(faces) +
 
 ## Pre-processing
 
-Here the preprocessing is done with only one EEG dataset. If the EEG data of different participants is available, one can repeat a similar preprocessing pipeline for each dataset and bind the EEG datasets with `bind()`.
+Here the preprocessing is done with only one EEG dataset. The last section, [More than one participant](#more-than-one-participant), shows how to repeat it for the data of several participants and bind them together.
 
 ### Rereferencing
 In this dataset, the signal from all electrodes is monopolar and referenced to the left mastoid (M1). We want the signal (excluding the EOG channels) to be referenced to linked (left and right) mastoids (M1 and M2).
@@ -172,28 +171,31 @@ faces_ica <- faces_ica |>
 ```
 
 
-The easiest way to investigate the ICA is interactively, with `browse_ica()`. It opens a Shiny app that shows the activations of the components next to the EOG channels, and their topographies, labeled with the variance they explain and their correlation with the EOG channels. The window can be placed around events, such as the blinks we just marked, and moved from one blink to the next, or moved through the recording. Clicking a topography marks the component for removal, and when we are done, the app returns the marked components:
+The easiest way to investigate the ICA is interactively, with `eeg_browse()`. For an ICA, it opens a Shiny app that shows the activations of the components next to the EOG channels, and their topographies, labeled with the variance they explain and their correlation with the EOG channels. The window can be placed around events, such as the blinks we just marked, and moved from one blink to the next, or moved through the recording. Clicking a topography marks the component for removal, and when we are done, the app returns the marked components, one vector of names for each recording:
 
 ```{r, eval = FALSE}
-removed <- browse_ica(faces_ica)
+to_remove <- eeg_browse(faces_ica)
 ```
 
-To show one such window in this document, we use an experimental function that is not exported (that's why we use the :::). It's possible to get the same plots by using a combination of `plot_topo`, `eeg_ica_show`, `eeg_ica_summary_tbl`, and some `ggplot` and `cowplot` functions.
+This is how the app looks around the first blink, after clicking the topography of ICA5 to mark it for removal:
 
-We'll see how the components explaining the most variance and most correlated to the EOG channels behave:
-
-```{r, fig.dim = c(10,9), out.width = "90%"}
-#samples with blinks
-s_peaks <- filter(events_tbl(faces_ica),  str_starts(.description, "peak")) |>
-  pull(.initial)
-eeguana:::plot_ica.eeg_ica_lst(faces_ica, samples = seq(s_peaks[1]-2000,s_peaks[1]+2000))
+```{r browse-ica, echo = FALSE, out.width = "100%", fig.alt = "The eeg_browse() app: the settings of the window on the left, the activations of the components and the EOG channels around a blink in the middle, and the topographies of the components on the right, with ICA5 marked for removal."}
+## The screenshot is taken each time this document is built, so it shows the
+## current app: eeg_browse() runs in headless Chrome, which marks ICA5, saves
+## the screenshot, and clicks "Done" (see browse_screenshot.R).
+source("browse_screenshot.R")
+screenshot <- knitr::fig_path(".png")
+dir.create(dirname(screenshot), recursive = TRUE, showWarnings = FALSE)
+to_remove <- browse_screenshot(faces_ica, screenshot, inputs = list(marked = "ICA5"))
+knitr::include_graphics(screenshot)
 ```
 
-The clearest ones is ICA5, and so we'll just remove that one.
+ICA5 is the clearest one: it explains a third of the variance and correlates 0.91 with the VEOG channel. So it's the only one we marked, and the only one we remove:
 
 ```{r}
+to_remove
 faces_icaed <- faces_ica |>
-  eeg_ica_keep(-ICA5) |>
+  eeg_ica_keep(-all_of(to_remove[[1]])) |>
   as_eeg_lst()
 ```
 
@@ -222,7 +224,19 @@ faces_seg_artif |>
   plot() +
   annotate_events() +
   theme(legend.position = "bottom")
+```
 
+The segments can also be inspected interactively with `eeg_browse()`. For an `eeg_lst`, it shows the signal of the channels around events, such as the artifacts, or through the segments, one at a time. Clicking the signal, or pressing M, marks the segment shown for removal, and when we are done, the app returns the `.id` of the marked segments, which we can then remove with `eeg_filter()`:
+
+```{r, eval = FALSE}
+to_remove <- eeg_browse(faces_seg_artif, -VEOG, -HEOG)
+faces_seg_artif <- faces_seg_artif |>
+  eeg_filter(!.id %in% to_remove)
+```
+
+Here, we remove all the segments with artifacts, by converting their samples to `NA`:
+
+```{r}
 faces_seg <- faces_seg_artif |>
   eeg_events_to_NA(.type == "artifact", .entire_seg = TRUE, .drop_events = TRUE)
 
@@ -369,4 +383,85 @@ faces_seg_t |>
   theme(legend.position = "bottom")
 ```
 
+## More than one participant
 
+The continuous recording of a single participant is already large (the file of this one is 113 MB), so keeping the recordings of all the participants in memory at the same time quickly becomes impossible. A better strategy is to preprocess each participant on their own, keep only what the analysis needs (usually the segments around the relevant events, and maybe fewer channels or a lower sampling rate), save that small object, and bind the objects of all the participants at the end.
+
+Since choosing the ICA components to remove needs someone to look at them, the preprocessing goes over the files three times. First, we run everything up to the ICA for every file, and save the result, because the ICA takes a while:
+
+```{r, eval = FALSE}
+files <- list.files(pattern = "\\.vhdr$") # "s1_faces.vhdr", "s2_faces.vhdr", ...
+rds_name <- function(dir, file) file.path(dir, sub("\\.vhdr$", ".rds", file))
+
+prepare_ica <- function(file) {
+  eeg <- read_vhdr(file)
+  channels_tbl(eeg) <- select(channels_tbl(eeg), .channel) |>
+    left_join(layout_32_1020)
+  eeg |>
+    eeg_rereference(-VEOG, -HEOG, .ref = c("M1", "M2")) |>
+    eeg_filt_band_pass(-HEOG, -VEOG, .freq = c(.1, 30)) |>
+    eeg_segment(.description == "s111", .end = .description == "s121") |>
+    eeg_artif_minmax(-HEOG, -VEOG, .threshold = 200, .window = 200, .unit = "ms") |>
+    eeg_ica(-HEOG, -VEOG, -M1, -M2, .method = adapt_fast_ICA, .ignore = .type == "artifact") |>
+    eeg_artif_step(HEOG, VEOG, .threshold = 30, .window = 200, .unit = "ms", .freq = c(1, 10)) |>
+    eeg_artif_peak(VEOG, .threshold = 100, .freq = c(1, 10))
+}
+
+dir.create("ica")
+for (file in files) {
+  saveRDS(prepare_ica(file), rds_name("ica", file))
+}
+```
+
+Second, we look at the components of each participant with `eeg_browse()`, and keep the ones marked for removal. Saving them also documents the decisions:
+
+```{r, eval = FALSE}
+to_remove <- list()
+for (file in files) {
+  to_remove[[file]] <- eeg_browse(readRDS(rds_name("ica", file)))[[1]]
+}
+saveRDS(to_remove, "to_remove.rds")
+```
+
+Third, we remove the components, segment the data, reject the segments with artifacts, and baseline them, as we did above for one participant, and save only the segments:
+
+```{r, eval = FALSE}
+segment_clean <- function(file, to_remove) {
+  eeg <- readRDS(rds_name("ica", file)) |>
+    eeg_ica_keep(-all_of(to_remove)) |>
+    as_eeg_lst()
+  events_tbl(eeg) <- events_tbl(eeg) |>
+    filter(!.type %in% "artifact")
+  eeg |>
+    eeg_select(-description, -type) |>
+    eeg_segment(.description %in% c("s70", "s71"), .lim = c(-.1, .5)) |>
+    eeg_artif_minmax(-HEOG, -VEOG, .threshold = 100, .window = 150, .unit = "ms") |>
+    eeg_artif_step(-HEOG, -VEOG, .threshold = 50, .window = 200, .unit = "ms") |>
+    eeg_events_to_NA(.type == "artifact", .entire_seg = TRUE, .drop_events = TRUE) |>
+    eeg_baseline() |>
+    eeg_mutate(condition = ifelse(description == "s70", "faces", "non-faces")) |>
+    eeg_select(-type)
+  ## To make the objects even smaller, one could also keep only some channels
+  ## with eeg_select(), or halve the sampling rate with eeg_downsample(.q = 2).
+}
+
+dir.create("segments")
+for (file in files) {
+  saveRDS(segment_clean(file, to_remove[[file]]), rds_name("segments", file))
+}
+```
+
+Finally, we read the segments of all the participants and bind them into one `eeg_lst` with `eeg_bind()`. All the objects need to have the same channels, otherwise `eeg_bind()` warns about the differences:
+
+```{r, eval = FALSE}
+faces_all <- lapply(rds_name("segments", files), readRDS) |>
+  eeg_bind()
+```
+
+The column `.recording` of the segments table tells the participants apart, so, for example, the ERPs of each participant are:
+
+```{r, eval = FALSE}
+ERP_all <- faces_all |>
+  eeg_group_by(.recording, .sample, condition) |>
+  eeg_summarize(across_ch(mean, na.rm = TRUE))
+```

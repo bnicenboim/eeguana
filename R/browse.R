@@ -1,11 +1,13 @@
-#' Browse the components of an ICA interactively
+#' Browse the signal or the ICA components interactively
 #'
-#' `browse_ica()` opens a Shiny app to decide which independent components to
-#' remove. It shows the activations of the components over a window of the
-#' recording, together with the EOG channels or any other channels, and the
-#' topography of each component, labeled with the proportion of the variance
-#' of the channels it explains (see [eeg_ica_var_tbl()]) and its correlation
-#' with the EOG channels (see [eeg_ica_cor_tbl()]).
+#' `eeg_browse()` opens a Shiny app to look through the data. For an
+#' `eeg_lst`, it shows the signal of the channels, and the segments can be
+#' marked for removal. For an `eeg_ica_lst`, created with [eeg_ica()], it shows
+#' the activations of the components, together with the EOG channels or any
+#' other channels, and the topography of each component, labeled with the
+#' proportion of the variance of the channels it explains (see
+#' [eeg_ica_var_tbl()]) and its correlation with the EOG channels (see
+#' [eeg_ica_cor_tbl()]), and the components can be marked for removal.
 #'
 #' The window can be placed around events and moved from one event to the
 #' next, or it can be moved through the recording. The events are chosen by
@@ -20,10 +22,22 @@
 #' The amplitudes are shown in units of their typical standard deviation, the
 #' median of their standard deviations in stretches of one second of the whole
 #' recording, so a window with a blink and one without are drawn at the same
-#' scale, and slow drifts do not flatten the traces. By default, all the components share one scale, and all the
-#' channels another, so their sizes can be compared; each trace can also be
-#' drawn at its own scale, which makes the small ones visible.
+#' scale, and slow drifts do not flatten the traces. By default, all the
+#' channels share one scale, and all the components another, so their sizes
+#' can be compared; each trace can also be drawn at its own scale, which makes
+#' the small ones visible.
 #'
+#' The app needs the packages shiny and bslib.
+#'
+#' @section Marking segments of an `eeg_lst`:
+#' Clicking the signal, pressing M, or the "Mark" button marks the segment
+#' shown for removal, and doing it again unmarks it. A marked segment is
+#' tinted red. "Done" closes the app and returns the `.id` of the marked
+#' segments; closing the window returns them as well. Only segmented data can
+#' be marked: when each recording is a single segment, as before
+#' [eeg_segment()], the app is only for browsing.
+#'
+#' @section Marking ICA components:
 #' Clicking a topography marks the component for removal, and clicking it
 #' again unmarks it. "Done" closes the app and returns the marked components;
 #' closing the window returns them as well.
@@ -34,9 +48,9 @@
 #' 0.31 with the unfiltered VEOG and 0.91 with the filtered one. The filter
 #' only affects the correlations: the channels are shown unfiltered.
 #'
-#' The app needs the packages shiny and bslib.
-#'
-#' @param data An `eeg_ica_lst` object, created with [eeg_ica()].
+#' @param .data An `eeg_lst`, or an `eeg_ica_lst` created with [eeg_ica()].
+#' @param ... For an `eeg_lst`, the channels shown when the app opens, all of
+#'   them by default. Not used for an `eeg_ica_lst`.
 #' @param .eog Names of the EOG channels, used for the correlations and shown
 #'   under the components when the app opens. By default, the channels whose
 #'   names start or end with "eog", ignoring case.
@@ -52,44 +66,90 @@
 #' @family ICA functions
 #' @family plotting functions
 #'
-#' @return Invisibly, a list with one element per recording, holding the names
-#'   of the components marked for removal. A message shows the call to
-#'   [eeg_ica_keep()] that removes them.
+#' @return For an `eeg_lst`, invisibly, the `.id` of the segments marked for
+#'   removal. A message shows the call to [eeg_filter()] that removes them.
+#'
+#'   For an `eeg_ica_lst`, invisibly, a list with one element per recording,
+#'   holding the names of the components marked for removal. A message shows
+#'   the call to [eeg_ica_keep()] that removes them.
 #' @examples
 #' if (interactive()) {
+#'   ## mark the segments to remove
+#'   to_remove <- eeg_browse(data_faces_10_trials)
+#'   clean <- eeg_filter(data_faces_10_trials, !.id %in% to_remove)
+#'
+#'   ## mark the components to remove
 #'   ica <- eeg_ica(data_faces_10_trials, -EOGH, -EOGV, -M1, -M2,
 #'     .method = fast_ICA
 #'   )
-#'   removed <- browse_ica(ica)
-#'   clean <- eeg_ica_keep(ica, -tidyselect::all_of(removed[[1]]))
+#'   to_remove <- eeg_browse(ica)
+#'   clean <- eeg_ica_keep(ica, -tidyselect::all_of(to_remove[[1]]))
 #' }
 #' @export
-browse_ica <- function(data, .eog = NULL, .eog_freq = c(.1, 30), .n_components = 16, .viewer = NULL) {
-  rlang::check_installed(c("shiny", "bslib"), reason = "to use `browse_ica()`.")
-  name <- rlang::as_label(rlang::enexpr(data))
-  app <- browse_ica_app(data, .eog = .eog, .eog_freq = .eog_freq, .n_components = .n_components)
-  if (is.null(.viewer)) .viewer <- shiny::browserViewer()
-  removed <- shiny::runGadget(app, viewer = .viewer, stopOnCancel = FALSE)
-  message(ica_keep_code(name, removed))
-  invisible(removed)
+eeg_browse <- function(.data, ...) {
+  UseMethod("eeg_browse")
 }
 
-#' The Shiny app behind browse_ica(), separate so that it can be tested
+#' @rdname eeg_browse
+#' @export
+eeg_browse.eeg_lst <- function(.data, ..., .viewer = NULL) {
+  ## the value of .data is already evaluated by UseMethod(), its expression is not
+  name <- rlang::as_label(substitute(.data))
+  app <- browse_app(.data, .kind = "eeg", .channels = unname(sel_ch(.data, ...)))
+  to_remove <- run_browse_app(app, .viewer)
+  message(filter_segments_code(name, to_remove))
+  invisible(to_remove)
+}
+
+#' @rdname eeg_browse
+#' @export
+eeg_browse.eeg_ica_lst <- function(.data, ..., .eog = NULL, .eog_freq = c(.1, 30),
+                                   .n_components = 16, .viewer = NULL) {
+  ## the value of .data is already evaluated by UseMethod(), its expression is not
+  name <- rlang::as_label(substitute(.data))
+  app <- browse_app(.data,
+    .kind = "ica", .eog = .eog, .eog_freq = .eog_freq, .n_components = .n_components
+  )
+  to_remove <- run_browse_app(app, .viewer)
+  message(ica_keep_code(name, to_remove))
+  invisible(to_remove)
+}
+
+#' Runs the app until "Done" is clicked or the window is closed
 #' @noRd
-browse_ica_app <- function(data, .eog = NULL, .eog_freq = c(.1, 30), .n_components = 16) {
-  if (!inherits(data, "eeg_ica_lst")) {
+run_browse_app <- function(app, viewer) {
+  rlang::check_installed(c("shiny", "bslib"), reason = "to use `eeg_browse()`.")
+  if (is.null(viewer)) viewer <- shiny::browserViewer()
+  shiny::runGadget(app, viewer = viewer, stopOnCancel = FALSE)
+}
+
+#' The Shiny app behind eeg_browse(), separate so that it can be tested. With
+#' `.kind = "eeg"` it shows `.channels` and marks segments; with `.kind =
+#' "ica"`, it shows the components and marks them
+#' @noRd
+browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = NULL,
+                       .eog_freq = c(.1, 30), .n_components = 16) {
+  .kind <- match.arg(.kind)
+  is_ica <- .kind == "ica"
+  if (is_ica && !inherits(data, "eeg_ica_lst")) {
     stop("`data` must be an eeg_ica_lst, created with `eeg_ica()`.", call. = FALSE)
+  }
+  if (!inherits(data, "eeg_lst")) {
+    stop("`data` must be an eeg_lst.", call. = FALSE)
   }
   if (!is.null(.eog_freq) &&
     (length(.eog_freq) != 2 || !(is.numeric(.eog_freq) || all(is.na(.eog_freq))))) {
     stop("`.eog_freq` must be NULL or two cutoff frequencies, one of them can be NA.", call. = FALSE)
   }
-  recs <- names(data$.ica)
+  recs <- if (is_ica) names(data$.ica) else unique(data$.segments$.recording)
   if (is.null(.eog)) {
     .eog <- grep("(^eog)|(eog$)", channel_names(data), ignore.case = TRUE, value = TRUE)
   } else if (!all(.eog %in% channel_names(data))) {
     stop("Channels not found: ", toString(setdiff(.eog, channel_names(data))), call. = FALSE)
   }
+  if (is.null(.channels)) .channels <- if (is_ica) .eog else channel_names(data)
+  ## segments can be marked only when there is more than one per recording
+  can_mark_segments <- !is_ica && nrow(data$.segments) > length(recs)
   srate <- sampling_rate(data)
   units <- c("s" = "s", "ms" = "ms", "samples" = "samples")
   matches <- c(
@@ -97,160 +157,192 @@ browse_ica_app <- function(data, .eog = NULL, .eog_freq = c(.1, 30), .n_componen
     "contains" = "contains", "matches the regex" = "regex"
   )
   ## the inputs of a row share its width, unless they say otherwise
-  row <- function(...) shiny::div(class = "d-flex gap-2 browse-ica-row", ...)
+  row <- function(...) shiny::div(class = "d-flex gap-2 browse-row", ...)
   wide <- function(...) shiny::div(style = "flex: 3 1 0;", ...)
   ## the window starts as 2 s on each side of the events, or the first 4 s
   default_from <- -2 * srate
   default_to <- 2 * srate
   default_length <- 4 * srate
 
-  ui <- bslib::page_sidebar(
-    title = shiny::div(
-      class = "d-flex w-100 align-items-center gap-3",
-      shiny::span("ICA components"),
-      shiny::span(class = "text-muted small text-truncate", shiny::textOutput("where", inline = TRUE)),
-      shiny::actionButton("done", "Done", class = "btn-primary ms-auto")
+  window_panel <- bslib::accordion_panel(
+    "Window",
+    shiny::radioButtons("mode", NULL,
+      c("Around events" = "events", "Through the recording" = "continuous"),
+      inline = TRUE
     ),
-    shiny::tags$script(shiny::HTML(browse_ica_keys_js)),
-    shiny::tags$style(shiny::HTML(browse_ica_css)),
-    sidebar = bslib::sidebar(
-      width = 360,
-      if (length(recs) > 1) shiny::selectInput("recording", "Recording", recs),
-      bslib::accordion(
-        multiple = TRUE,
-        bslib::accordion_panel(
-          "Window",
-          shiny::radioButtons("mode", NULL,
-            c("Around events" = "events", "Through the recording" = "continuous"),
-            inline = TRUE
-          ),
-          shiny::conditionalPanel(
-            "input.mode == 'events'",
-            row(
-              shiny::selectInput("event_field", "Events whose",
-                c("description" = ".description", "type" = ".type")
-              ),
-              shiny::selectInput("event_match", "", matches)
-            ),
-            shiny::conditionalPanel(
-              "input.event_match == 'exact'",
-              shiny::selectizeInput("event_values", NULL, NULL, multiple = TRUE)
-            ),
-            shiny::conditionalPanel(
-              "input.event_match != 'exact'",
-              shiny::textInput("event_pattern", NULL, placeholder = "text to match")
-            ),
-            shiny::div(class = "small text-muted mb-2 browse-ica-wrap", shiny::textOutput("n_events")),
-            row(
-              shiny::numericInput("from", "From", -2),
-              shiny::numericInput("to", "To", 2),
-              shiny::selectInput("unit", "Unit", units)
-            ),
-            row(
-              wide(shiny::sliderInput("event_slider", "Event", min = 1, max = 1, value = 1, step = 1, ticks = FALSE)),
-              shiny::numericInput("event_i", "Number", 1, min = 1, max = 1, step = 1)
-            )
-          ),
-          shiny::conditionalPanel(
-            "input.mode == 'continuous'",
-            shiny::selectInput("segment", "Segment (.id)", NULL),
-            row(
-              shiny::numericInput("start", "Start", 0),
-              shiny::numericInput("length", "Length", 4, min = 0),
-              shiny::selectInput("unit_continuous", "Unit", units)
-            ),
-            shiny::sliderInput("start_slider", "Start", min = 0, max = 1, value = 0, ticks = FALSE)
-          ),
-          row(
-            shiny::actionButton("prev", "\u2190 Previous"),
-            shiny::actionButton("next", "Next \u2192")
-          ),
-          shiny::div(
-            class = "d-flex gap-2 align-items-center mt-2",
-            shiny::span("Amplitude"),
-            shiny::actionButton("zoom_out", "\u2212", class = "btn-sm"),
-            shiny::actionButton("zoom_in", "+", class = "btn-sm"),
-            shiny::span("\u00d7"),
-            shiny::div(
-              class = "browse-ica-zoom",
-              shiny::numericInput("zoom", NULL, 1, min = 1 / 64, max = 64, step = .1, width = "90px")
-            )
-          ),
-          shiny::div(
-            class = "small text-muted mt-2",
-            "Keys: \u2190 \u2192 previous and next window; \u2191 \u2193 zoom the amplitudes in and out."
-          )
+    shiny::conditionalPanel(
+      "input.mode == 'events'",
+      row(
+        shiny::selectInput("event_field", "Events whose",
+          c("description" = ".description", "type" = ".type")
         ),
-        bslib::accordion_panel(
-          "Components",
-          shiny::radioButtons("order", "Order by",
-            c("Variance explained" = "var", "Correlation with EOG" = "cor"),
-            inline = TRUE
-          ),
-          shiny::numericInput("n_components", "Show the first", .n_components, min = 1, step = 1),
-          shiny::selectizeInput("components", "Components shown", NULL, multiple = TRUE),
-          shiny::selectizeInput("marked", "Marked for removal", NULL, multiple = TRUE)
-        ),
-        bslib::accordion_panel(
-          "EOG correlations",
-          shiny::checkboxInput("eog_filter", "Filter the EOG channels before correlating them",
-            !is.null(.eog_freq)
-          ),
-          shiny::conditionalPanel(
-            "input.eog_filter",
-            row(
-              shiny::numericInput("eog_low", "High-pass (Hz)", if (!is.null(.eog_freq)) .eog_freq[1] else NA, min = 0),
-              shiny::numericInput("eog_high", "Low-pass (Hz)", if (!is.null(.eog_freq)) .eog_freq[2] else NA, min = 0)
-            ),
-            shiny::div(class = "small text-muted", "Leave one empty to filter only on the other side.")
-          )
-        ),
-        bslib::accordion_panel(
-          "Display",
-          shiny::selectizeInput("channels", "Channels shown", channel_names(data),
-            selected = .eog, multiple = TRUE
-          ),
-          shiny::radioButtons("scale", "Amplitude scale",
-            c(
-              "Shared: one for the components, one for the channels" = "shared",
-              "Separate: each trace fills its row" = "each"
-            )
-          ),
-          shiny::div(
-            class = "small text-muted mb-3",
-            "Shared: a larger component looks larger, so the components can be compared
-            with each other, and so can the channels. Separate: each trace is scaled to
-            its own typical size, so even small ones are visible. The typical size of a
-            trace is its typical SD, the median of its standard deviations in stretches
-            of 1 s of the whole recording, so the scale is the same in every window."
-          ),
-          shiny::checkboxInput("electrodes", "Electrode labels on the topographies", FALSE)
-        )
+        shiny::selectInput("event_match", "", matches)
+      ),
+      shiny::conditionalPanel(
+        "input.event_match == 'exact'",
+        shiny::selectizeInput("event_values", NULL, NULL, multiple = TRUE)
+      ),
+      shiny::conditionalPanel(
+        "input.event_match != 'exact'",
+        shiny::textInput("event_pattern", NULL, placeholder = "text to match")
+      ),
+      shiny::div(class = "small text-muted mb-2 browse-wrap", shiny::textOutput("n_events")),
+      row(
+        shiny::numericInput("from", "From", -2),
+        shiny::numericInput("to", "To", 2),
+        shiny::selectInput("unit", "Unit", units)
+      ),
+      row(
+        wide(shiny::sliderInput("event_slider", "Event", min = 1, max = 1, value = 1, step = 1, ticks = FALSE)),
+        shiny::numericInput("event_i", "Number", 1, min = 1, max = 1, step = 1)
       )
     ),
+    shiny::conditionalPanel(
+      "input.mode == 'continuous'",
+      shiny::selectInput("segment", "Segment (.id)", NULL),
+      row(
+        shiny::numericInput("start", "Start", 0),
+        shiny::numericInput("length", "Length", 4, min = 0),
+        shiny::selectInput("unit_continuous", "Unit", units)
+      ),
+      shiny::sliderInput("start_slider", "Start", min = 0, max = 1, value = 0, ticks = FALSE)
+    ),
+    row(
+      shiny::actionButton("prev", "\u2190 Previous"),
+      shiny::actionButton("next", "Next \u2192")
+    ),
+    shiny::div(
+      class = "d-flex gap-2 align-items-center mt-2",
+      shiny::span("Amplitude"),
+      shiny::actionButton("zoom_out", "\u2212", class = "btn-sm"),
+      shiny::actionButton("zoom_in", "+", class = "btn-sm"),
+      shiny::span("\u00d7"),
+      shiny::div(
+        class = "browse-zoom",
+        shiny::numericInput("zoom", NULL, 1, min = 1 / 64, max = 64, step = .1, width = "90px")
+      )
+    ),
+    shiny::div(
+      class = "small text-muted mt-2",
+      paste0(
+        "Keys: \u2190 \u2192 previous and next window; \u2191 \u2193 zoom the amplitudes in and out",
+        if (can_mark_segments) "; M marks or unmarks the segment shown",
+        "."
+      )
+    )
+  )
+  segments_panel <- if (can_mark_segments) {
+    bslib::accordion_panel(
+      "Segments",
+      shiny::actionButton("mark_segment", "Mark the segment shown", class = "btn-sm mb-2"),
+      shiny::selectizeInput("marked_segments", "Marked for removal (.id)", NULL, multiple = TRUE),
+      shiny::div(class = "small text-muted", "Click the signal, or press M, to mark or unmark the segment shown.")
+    )
+  }
+  components_panel <- if (is_ica) {
+    bslib::accordion_panel(
+      "Components",
+      shiny::radioButtons("order", "Order by",
+        c("Variance explained" = "var", "Correlation with EOG" = "cor"),
+        inline = TRUE
+      ),
+      shiny::numericInput("n_components", "Show the first", .n_components, min = 1, step = 1),
+      shiny::selectizeInput("components", "Components shown", NULL, multiple = TRUE),
+      shiny::selectizeInput("marked", "Marked for removal", NULL, multiple = TRUE)
+    )
+  }
+  eog_panel <- if (is_ica) {
+    bslib::accordion_panel(
+      "EOG correlations",
+      shiny::checkboxInput("eog_filter", "Filter the EOG channels before correlating them",
+        !is.null(.eog_freq)
+      ),
+      shiny::conditionalPanel(
+        "input.eog_filter",
+        row(
+          shiny::numericInput("eog_low", "High-pass (Hz)", if (!is.null(.eog_freq)) .eog_freq[1] else NA, min = 0),
+          shiny::numericInput("eog_high", "Low-pass (Hz)", if (!is.null(.eog_freq)) .eog_freq[2] else NA, min = 0)
+        ),
+        shiny::div(class = "small text-muted", "Leave one empty to filter only on the other side.")
+      )
+    )
+  }
+  display_panel <- bslib::accordion_panel(
+    "Display",
+    shiny::selectizeInput("channels", "Channels shown", channel_names(data),
+      selected = .channels, multiple = TRUE
+    ),
+    shiny::radioButtons("scale", "Amplitude scale",
+      if (is_ica) {
+        c(
+          "Shared: one for the components, one for the channels" = "shared",
+          "Separate: each trace fills its row" = "each"
+        )
+      } else {
+        c("Shared by all the channels" = "shared", "Separate: each trace fills its row" = "each")
+      }
+    ),
+    shiny::div(
+      class = "small text-muted mb-3",
+      if (is_ica) {
+        "Shared: a larger component looks larger, so the components can be compared
+        with each other, and so can the channels."
+      } else {
+        "Shared: a larger signal looks larger, so the channels can be compared."
+      },
+      "Separate: each trace is scaled to its own typical size, so even small ones are
+      visible. The typical size of a trace is its typical SD, the median of its
+      standard deviations in stretches of 1 s of the whole recording, so the scale
+      is the same in every window."
+    ),
+    if (is_ica) shiny::checkboxInput("electrodes", "Electrode labels on the topographies", FALSE)
+  )
+  panels <- Filter(Negate(is.null), list(window_panel, segments_panel, components_panel, eog_panel, display_panel))
+
+  traces_card <- bslib::card(
+    full_screen = TRUE,
+    bslib::card_header(
+      class = "d-flex justify-content-between gap-2",
+      if (is_ica) "Activations" else "Signal",
+      shiny::span(class = "small text-muted", shiny::textOutput("scale_text", inline = TRUE))
+    ),
+    bslib::card_body(
+      class = "browse-scroll",
+      shiny::plotOutput("activations", height = "100%", click = if (can_mark_segments) "trace_click")
+    )
+  )
+  cards <- if (is_ica) {
     bslib::layout_columns(
       col_widths = c(7, 5),
-      bslib::card(
-        full_screen = TRUE,
-        bslib::card_header(
-          class = "d-flex justify-content-between gap-2",
-          "Activations",
-          shiny::span(class = "small text-muted", shiny::textOutput("scale_text", inline = TRUE))
-        ),
-        bslib::card_body(
-          class = "browse-ica-scroll",
-          shiny::plotOutput("activations", height = "100%")
-        )
-      ),
+      traces_card,
       bslib::card(
         full_screen = TRUE,
         bslib::card_header("Topographies: click one to mark it for removal"),
         bslib::card_body(
-          class = "browse-ica-scroll",
+          class = "browse-scroll",
           shiny::plotOutput("topographies", height = "100%", click = "topo_click")
         )
       )
     )
+  } else {
+    traces_card
+  }
+
+  ui <- bslib::page_sidebar(
+    title = shiny::div(
+      class = "d-flex w-100 align-items-center gap-3",
+      shiny::span(if (is_ica) "ICA components" else "EEG signal"),
+      shiny::span(class = "text-muted small text-truncate", shiny::textOutput("where", inline = TRUE)),
+      shiny::actionButton("done", "Done", class = "btn-primary ms-auto")
+    ),
+    shiny::tags$script(shiny::HTML(browse_keys_js)),
+    shiny::tags$style(shiny::HTML(browse_css)),
+    sidebar = bslib::sidebar(
+      width = 360,
+      if (length(recs) > 1) shiny::selectInput("recording", "Recording", recs),
+      do.call(bslib::accordion, c(list(multiple = TRUE), panels))
+    ),
+    cards
   )
 
   server <- function(input, output, session) {
@@ -263,7 +355,7 @@ browse_ica_app <- function(data, .eog = NULL, .eog_freq = c(.1, 30), .n_componen
       if (is.null(cache[[rec]])) {
         shiny::withProgress(
           message = paste0("Preparing ", rec, "..."),
-          cache[[rec]] <- browse_ica_prep(data, rec)
+          cache[[rec]] <- if (is_ica) browse_ica_prep(data, rec) else browse_eeg_prep(data, rec)
         )
       }
       cache[[rec]]
@@ -289,9 +381,15 @@ browse_ica_app <- function(data, .eog = NULL, .eog_freq = c(.1, 30), .n_componen
       cache[[key]]
     })
     ## redrawing waits until the components or channels stop changing
-    components <- shiny::debounce(shiny::reactive(input$components), 1000)
+    components <- if (is_ica) {
+      shiny::debounce(shiny::reactive(input$components), 1000)
+    } else {
+      shiny::reactive(character(0))
+    }
     channels <- shiny::debounce(shiny::reactive(input$channels), 1000)
+    ## the components marked in each recording, or the .id of the marked segments
     marks <- shiny::reactiveVal(stats::setNames(rep(list(character(0)), length(recs)), recs))
+    segment_marks <- shiny::reactiveVal(integer(0))
 
     ## The window is kept here, in samples, and the fields show it in the
     ## chosen unit. The fields change it, and when it had to be corrected, for
@@ -322,10 +420,18 @@ browse_ica_app <- function(data, .eog = NULL, .eog_freq = c(.1, 30), .n_componen
       shiny::updateRadioButtons(session, "mode",
         selected = if (nrow(p$events) > 0) "events" else "continuous"
       )
-      shiny::updateSelectizeInput(session, "marked",
-        choices = p$order_var,
-        selected = marks()[[p$recording]]
-      )
+      if (is_ica) {
+        shiny::updateSelectizeInput(session, "marked",
+          choices = p$order_var,
+          selected = marks()[[p$recording]]
+        )
+      }
+      if (can_mark_segments) {
+        shiny::updateSelectizeInput(session, "marked_segments",
+          choices = data$.segments$.id,
+          selected = shiny::isolate(segment_marks())
+        )
+      }
       continuous(clamp_continuous(p$bounds, p$bounds$.id[1], p$bounds$first[1], default_length))
     })
     shiny::observeEvent(list(prep(), input$event_field), {
@@ -342,7 +448,7 @@ browse_ica_app <- function(data, .eog = NULL, .eog_freq = c(.1, 30), .n_componen
     shiny::observeEvent(
       list(prep(), input$order, input$n_components, if (identical(input$order, "cor")) summaries()),
       {
-        shiny::req(input$order)
+        shiny::req(is_ica, input$order)
         ord <- summaries()$order[[input$order]]
         n <- if (is.na(input$n_components)) .n_components else input$n_components
         shiny::updateSelectizeInput(session, "components",
@@ -553,7 +659,8 @@ browse_ica_app <- function(data, .eog = NULL, .eog_freq = c(.1, 30), .n_componen
         ArrowLeft = move(-1),
         ArrowRight = move(1),
         ArrowUp = step_zoom(1),
-        ArrowDown = step_zoom(-1)
+        ArrowDown = step_zoom(-1),
+        m = if (can_mark_segments) toggle_segment()
       )
     })
     shiny::observe({
@@ -566,7 +673,10 @@ browse_ica_app <- function(data, .eog = NULL, .eog_freq = c(.1, 30), .n_componen
 
     output$where <- shiny::renderText({
       w <- window()
-      paste0(if (length(recs) > 1) paste0(prep()$recording, " \u00b7 "), w$label)
+      paste0(
+        if (length(recs) > 1) paste0(prep()$recording, " \u00b7 "), w$label,
+        if (can_mark_segments && w$id %in% segment_marks()) " \u00b7 marked for removal"
+      )
     })
 
     scale <- shiny::reactive({
@@ -579,11 +689,14 @@ browse_ica_app <- function(data, .eog = NULL, .eog_freq = c(.1, 30), .n_componen
       {
         p <- prep()
         w <- window()
-        shiny::validate(shiny::need(n_traces() > 0, "Choose components or channels to show."))
+        shiny::validate(shiny::need(
+          n_traces() > 0,
+          if (is_ica) "Choose components or channels to show." else "Choose channels to show."
+        ))
         activations_plot(p, w,
           components = components(), channels = channels(),
           marked = marks()[[p$recording]], unit = unit(), srate = srate,
-          scale = scale()
+          scale = scale(), window_marked = w$id %in% segment_marks()
         )
       },
       ## the traces fill the card, and it scrolls when there are too many
@@ -592,84 +705,110 @@ browse_ica_app <- function(data, .eog = NULL, .eog_freq = c(.1, 30), .n_componen
       }
     )
 
-    topo_size <- shiny::reactive({
-      n <- max(1, length(components()))
-      ncol <- min(4, n)
-      width <- session$clientData$output_topographies_width %||% 500
-      panel <- min(floor(width / ncol), 300)
-      list(ncol = ncol, width = ncol * panel, height = ceiling(n / ncol) * (panel + 40))
-    })
-    output$topographies <- shiny::renderPlot(
-      {
-        p <- prep()
-        shiny::validate(shiny::need(length(components()) > 0, "Choose components to show."))
-        topographies_plot(p, summaries()$labels, components(),
-          marked = marks()[[p$recording]], electrodes = isTRUE(input$electrodes),
-          ncol = topo_size()$ncol
+    if (is_ica) {
+      topo_size <- shiny::reactive({
+        n <- max(1, length(components()))
+        ncol <- min(4, n)
+        width <- session$clientData$output_topographies_width %||% 500
+        panel <- min(floor(width / ncol), 300)
+        list(ncol = ncol, width = ncol * panel, height = ceiling(n / ncol) * (panel + 40))
+      })
+      output$topographies <- shiny::renderPlot(
+        {
+          p <- prep()
+          shiny::validate(shiny::need(length(components()) > 0, "Choose components to show."))
+          topographies_plot(p, summaries()$labels, components(),
+            marked = marks()[[p$recording]], electrodes = isTRUE(input$electrodes),
+            ncol = topo_size()$ncol
+          )
+        },
+        width = function() topo_size()$width,
+        height = function() topo_size()$height
+      )
+
+      ## the marks of each recording are kept while another one is shown
+      shiny::observeEvent(input$marked, ignoreNULL = FALSE, ignoreInit = TRUE, {
+        m <- marks()
+        m[[prep()$recording]] <- as.character(input$marked)
+        marks(m)
+      })
+      shiny::observeEvent(input$topo_click, {
+        comp <- input$topo_click$panelvar1
+        shiny::req(comp)
+        m <- marks()
+        rec <- prep()$recording
+        m[[rec]] <- if (comp %in% m[[rec]]) setdiff(m[[rec]], comp) else c(m[[rec]], comp)
+        marks(m)
+        shiny::updateSelectizeInput(session, "marked", selected = m[[rec]])
+      })
+    }
+
+    ## a click on the signal, the M key, and the button mark the segment shown,
+    ## or unmark it; the field lists the marked segments and can edit them
+    toggle_segment <- function() {
+      id <- window()$id
+      m <- segment_marks()
+      segment_marks(if (id %in% m) setdiff(m, id) else sort(c(m, id)))
+    }
+    if (can_mark_segments) {
+      shiny::observeEvent(input$mark_segment, toggle_segment())
+      shiny::observeEvent(input$trace_click, toggle_segment())
+      shiny::observeEvent(input$marked_segments, ignoreNULL = FALSE, ignoreInit = TRUE, {
+        segment_marks(sort(as.integer(input$marked_segments)))
+      })
+      shiny::observe({
+        m <- segment_marks()
+        if (!setequal(as.integer(shiny::isolate(input$marked_segments)), m)) {
+          shiny::updateSelectizeInput(session, "marked_segments", selected = m)
+        }
+      })
+      shiny::observe({
+        shiny::updateActionButton(session, "mark_segment",
+          label = if (window()$id %in% segment_marks()) "Unmark the segment shown" else "Mark the segment shown"
         )
-      },
-      width = function() topo_size()$width,
-      height = function() topo_size()$height
-    )
+      })
+    }
 
-    ## the marks of each recording are kept while another one is shown
-    shiny::observeEvent(input$marked, ignoreNULL = FALSE, ignoreInit = TRUE, {
-      m <- marks()
-      m[[prep()$recording]] <- as.character(input$marked)
-      marks(m)
-    })
-    shiny::observeEvent(input$topo_click, {
-      comp <- input$topo_click$panelvar1
-      shiny::req(comp)
-      m <- marks()
-      rec <- prep()$recording
-      m[[rec]] <- if (comp %in% m[[rec]]) setdiff(m[[rec]], comp) else c(m[[rec]], comp)
-      marks(m)
-      shiny::updateSelectizeInput(session, "marked", selected = m[[rec]])
-    })
-
-    shiny::observeEvent(input$done, shiny::stopApp(marks()))
-    session$onSessionEnded(function() shiny::stopApp(shiny::isolate(marks())))
+    ## what the app returns: the marked components, or the marked segments
+    result <- function() if (is_ica) marks() else segment_marks()
+    shiny::observeEvent(input$done, shiny::stopApp(result()))
+    session$onSessionEnded(function() shiny::stopApp(shiny::isolate(result())))
   }
 
   shiny::shinyApp(ui, server)
 }
 
-## Sends the arrow keys to the server, unless the focus is in a field, where
-## they move the cursor or change the number
-browse_ica_keys_js <- "
+## Sends the arrow keys and M to the server, unless the focus is in a field,
+## where they move the cursor, change the number, or are typed
+browse_keys_js <- "
 document.addEventListener('keydown', function(e) {
-  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].indexOf(e.key) < 0) return;
+  var key = e.key === 'M' ? 'm' : e.key;
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'm'].indexOf(key) < 0) return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
   if (e.target.closest('input, textarea, select, [contenteditable], .irs')) return;
   e.preventDefault();
-  Shiny.setInputValue('arrow_key', {key: e.key}, {priority: 'event'});
+  Shiny.setInputValue('arrow_key', {key: key}, {priority: 'event'});
 });
 "
 
-browse_ica_css <- "
-.browse-ica-row > * { flex: 1 1 0; min-width: 0; }
-.browse-ica-scroll { overflow-y: auto; }
-.browse-ica-wrap { overflow-wrap: anywhere; }
-.browse-ica-zoom .form-group { margin-bottom: 0; }
+browse_css <- "
+.browse-row > * { flex: 1 1 0; min-width: 0; }
+.browse-scroll { overflow-y: auto; }
+.browse-wrap { overflow-wrap: anywhere; }
+.browse-zoom .form-group { margin-bottom: 0; }
 "
 
-#' Everything browse_ica() needs from one recording that depends neither on
-#' the window nor on the filter of the EOG channels
+#' Everything eeg_browse() needs from the signal of one recording, which does
+#' not depend on the window: `extra` are more traces, such as the activations
+#' of the components, whose typical standard deviations are also needed
 #' @noRd
-browse_ica_prep <- function(data, rec) {
+browse_eeg_prep <- function(data, rec, extra = NULL) {
   one <- eeg_filter(data, .recording == !!rec)
-  ica <- one$.ica[[rec]]
-  var_tbl <- eeg_ica_var_tbl(one)
   signal <- one$.signal
   chs <- channel_names(one)
-  ica_chs <- rownames(ica$unmixing_matrix)
-  activations <- scale(as.matrix(signal[, ica_chs, with = FALSE]), scale = FALSE) %*%
-    ica$unmixing_matrix
   list(
     recording = rec,
     data = one,
-    ica = ica,
-    ica_channels = ica_chs,
     signal = signal,
     ids = signal$.id,
     samples = as.integer(signal$.sample),
@@ -679,14 +818,31 @@ browse_ica_prep <- function(data, rec) {
     events = data.table::copy(data.table::as.data.table(one$.events))[
       , `:=`(.initial = as.integer(.initial), .final = as.integer(.final))
     ][order(.id, .initial)],
+    sd = typical_sd(
+      cbind(extra, as.matrix(signal[, chs, with = FALSE])),
+      ids = signal$.id, chunk = round(sampling_rate(one))
+    )
+  )
+}
+
+#' Everything eeg_browse() needs from one recording of an ICA that depends
+#' neither on the window nor on the filter of the EOG channels
+#' @noRd
+browse_ica_prep <- function(data, rec) {
+  ica <- data$.ica[[rec]]
+  ica_chs <- rownames(ica$unmixing_matrix)
+  signal <- data$.signal[.id %in% data$.segments$.id[data$.segments$.recording == rec]]
+  activations <- scale(as.matrix(signal[, ica_chs, with = FALSE]), scale = FALSE) %*%
+    ica$unmixing_matrix
+  p <- browse_eeg_prep(data, rec, extra = activations)
+  var_tbl <- eeg_ica_var_tbl(p$data)
+  c(p, list(
+    ica = ica,
+    ica_channels = ica_chs,
     var = var_tbl,
     order_var = var_tbl$.ICA,
-    sd = typical_sd(
-      cbind(activations, as.matrix(signal[, chs, with = FALSE])),
-      ids = signal$.id, chunk = round(sampling_rate(one))
-    ),
-    topo = data.table::as.data.table(components_topo_tbl(one))
-  )
+    topo = data.table::as.data.table(components_topo_tbl(p$data))
+  ))
 }
 
 #' The labels of the topographies and the order of the components by their
@@ -825,8 +981,12 @@ next_window <- function(bounds, id, first, length, step) {
 window_tbl <- function(p, w, components, channels) {
   rows <- which(p$ids == w$id & p$samples >= w$first & p$samples <= w$last)
   center <- function(m) sweep(m, 2, colMeans(m, na.rm = TRUE))
-  X <- center(as.matrix(p$signal[rows, p$ica_channels, with = FALSE]))
-  S <- X %*% p$ica$unmixing_matrix[, components, drop = FALSE]
+  S <- if (length(components) > 0) {
+    X <- center(as.matrix(p$signal[rows, p$ica_channels, with = FALSE]))
+    X %*% p$ica$unmixing_matrix[, components, drop = FALSE]
+  } else {
+    matrix(numeric(0), nrow = length(rows), ncol = 0)
+  }
   Y <- center(as.matrix(p$signal[rows, channels, with = FALSE]))
   values <- cbind(S, Y)
   data.table::data.table(
@@ -888,7 +1048,8 @@ amplitude_scale <- function(p, components, channels, scale, zoom) {
   list(ref = ref, half = half, text = text)
 }
 
-activations_plot <- function(p, w, components, channels, marked, unit, srate, scale) {
+activations_plot <- function(p, w, components, channels, marked, unit, srate, scale,
+                             window_marked = FALSE) {
   .x <- .y <- .value <- .key <- .kind <- .marked <- xmin <- xmax <- label <- NULL
   tbl <- window_tbl(p, w, components, channels)
   tbl[, .x := sample_to_position(.sample, unit, srate)]
@@ -896,8 +1057,14 @@ activations_plot <- function(p, w, components, channels, marked, unit, srate, sc
   tbl[, .marked := .key %in% marked]
   keys <- levels(tbl$.key)
 
-  plot <- ggplot2::ggplot(tbl, ggplot2::aes(x = .x, y = .y)) +
-    ggplot2::geom_hline(yintercept = 0, color = "gray85")
+  plot <- ggplot2::ggplot(tbl, ggplot2::aes(x = .x, y = .y))
+  ## a segment marked for removal is tinted red
+  if (window_marked) {
+    plot <- plot + ggplot2::annotate("rect",
+      xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, fill = "#c0392b", alpha = .08
+    )
+  }
+  plot <- plot + ggplot2::geom_hline(yintercept = 0, color = "gray85")
   ev <- p$events[.id == w$id & .final >= w$first & .initial <= w$last]
   ## events on one channel are drawn on that channel only, and dropped when
   ## the channel is not shown
@@ -1059,19 +1226,31 @@ eog_abbreviation <- function(x) {
   ifelse(nchar(short) == 0, x, short)
 }
 
+#' The call to eeg_filter() that removes the marked segments
+#' @noRd
+filter_segments_code <- function(name, to_remove) {
+  if (length(to_remove) == 0) {
+    return("No segments were marked for removal.")
+  }
+  paste0(
+    "To remove the marked segments:\neeg_filter(", name, ", !.id %in% c(",
+    paste(to_remove, collapse = ", "), "))"
+  )
+}
+
 #' The call to eeg_ica_keep() that removes the marked components
 #' @noRd
-ica_keep_code <- function(name, removed) {
-  one_recording <- length(removed) == 1
-  removed <- removed[lengths(removed) > 0]
-  if (length(removed) == 0) {
+ica_keep_code <- function(name, to_remove) {
+  one_recording <- length(to_remove) == 1
+  to_remove <- to_remove[lengths(to_remove) > 0]
+  if (length(to_remove) == 0) {
     return("No components were marked for removal.")
   }
-  sel <- vapply(removed, function(x) paste0("-c(", paste(x, collapse = ", "), ")"), character(1))
+  sel <- vapply(to_remove, function(x) paste0("-c(", paste(x, collapse = ", "), ")"), character(1))
   args <- if (one_recording) {
     sel
   } else {
-    paste0("`", names(removed), "` = ", sel, collapse = ", ")
+    paste0("`", names(to_remove), "` = ", sel, collapse = ", ")
   }
   paste0("To remove the marked components:\neeg_ica_keep(", name, ", ", args, ")")
 }

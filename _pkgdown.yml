@@ -91,7 +91,7 @@ reference:
     - starts_with("plot")
     - starts_with("annotate")
     - starts_with("theme")
-    - '`browse_ica`'
+    - '`eeg_browse`'
   - title: "'base'-inspired functions"
     desc: >
       Functions for getting specific information about the objects that compose an `eeg_lst`.
