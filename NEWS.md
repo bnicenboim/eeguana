@@ -1,24 +1,17 @@
+# eeguana 0.1.12.9004
 
 ## New features
 
+- `eeg_baseline()` takes the end of the baseline too: `.lim` accepts two
+  values, the start and the end of the interval, so that the baseline can end
+  before zero, or lie after it. The interval includes its start but not its
+  end. A single value, such as the default `-Inf`, is still the start of an
+  interval that ends at time zero, so existing calls give the same results.
 - `browse_ica()` opens a Shiny app to choose the ICA components to remove. It
   shows the activations of the components next to the EOG channels, or any
   other channels, and their topographies, labeled with the variance they
-  explain and their correlation with the EOG channels. The window can be set in
-  samples, milliseconds, or seconds, and moved through the recording or from
-  one event to the next, with buttons, sliders, or the left and right arrow
-  keys; the up and down arrow keys zoom the amplitudes, which are scaled by
-  their typical standard deviation so that the scale is the same in every
-  window. The events are chosen by
-  their type or description: the ones equal to some values, starting with,
-  ending with, or containing some text, or matching a regular expression (for
-  example, the descriptions starting with "peak" are the blinks found by
-  `eeg_artif_peak()`). The EOG channels are band-pass filtered from 0.1 to 30 Hz
-  before the correlations, as in `plot_ica()`; `.eog_freq` changes the filter,
-  or turns it off, and so does a field in the app. Clicking a topography marks
-  its component, and the app returns the marked components and prints the call
-  to `eeg_ica_keep()` that removes them. shiny and bslib are suggested, not
-  imported.
+  explain and their correlation with the EOG channels. In order for it to work,
+  shiny and bslib need to be manually installed.
 
 # eeguana 0.1.12.9003
 

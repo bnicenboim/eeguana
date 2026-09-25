@@ -11,7 +11,7 @@ eeg_baseline(x, ..., .lim = -Inf, .unit = "s")
 
 \item{...}{Channels to include. All channels by default.}
 
-\item{.lim}{A negative number indicating from when to baseline; the interval is defined as [lim,0]. The default is to use all the negative times.}
+\item{.lim}{The start of the baseline interval, or a vector with its start and end. The interval includes its start but not its end. A single value, such as the default \code{-Inf}, is the start of an interval that ends at time zero, whatever the \code{.unit}, so the default uses all the samples before time zero.}
 
 \item{.unit}{"seconds" (or "s"), "milliseconds" (or "ms")}
 }

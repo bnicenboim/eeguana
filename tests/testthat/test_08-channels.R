@@ -6,6 +6,33 @@ data_sincos2id <- eeguana:::data_sincos2id
 reference_data <- data.table::copy(data_sincos2id)
 
 #### eeg_baseline
+# data_sincos2id has two recordings (.id 1 and 2) sampled at 500 Hz, so each
+# sample lasts 0.002 s, and time zero is sample 1:
+#
+#   .sample   -4     -3     -2     -1      0      1      2      3      4      5
+#   time (s) -0.010 -0.008 -0.006 -0.004 -0.002  0     0.002  0.004  0.006  0.008
+#
+# The baseline interval includes its start but not its end. The tests give the
+# expected baseline in samples, so they also check that eeg_baseline() converts
+# .lim from seconds into the right samples.
+
+# Baselines the channels by hand: in each recording, subtract from every sample
+# the mean of the samples from first_sample to last_sample (both included).
+baseline_by_hand <- function(data, first_sample, last_sample, chs = c("X", "Y")) {
+  signal <- as.data.frame(data$.signal)
+  for (id in unique(signal$.id)) {
+    in_recording <- signal$.id == id
+    in_baseline <- in_recording &
+      signal$.sample >= first_sample &
+      signal$.sample <= last_sample
+    for (ch in chs) {
+      baseline <- mean(signal[in_baseline, ch])
+      signal[in_recording, ch] <- signal[in_recording, ch] - baseline
+    }
+  }
+  signal[, c(".id", ".sample", "X", "Y")]
+}
+
 test_that("baseline works", {
   baselines <- dplyr::summarize(
     dplyr::group_by(
@@ -21,6 +48,59 @@ test_that("baseline works", {
   baselined <- eeg_baseline(data_sincos2id)
 
   expect_equal_plain_df(signal_tbl(baselined), signal_with_baselines)
+})
+
+test_that("baseline uses all the samples before time zero by default", {
+  # from the first sample to sample 0 (-0.002 s); sample 1 (0 s) is left out
+  baselined <- eeg_baseline(data_sincos2id)
+  expect_equal_plain_df(signal_tbl(baselined), baseline_by_hand(data_sincos2id, -Inf, 0))
+  expect_equal(baselined, eeg_baseline(data_sincos2id, .lim = c(-Inf, 0)))
+  expect_equal(baselined, eeg_baseline(data_sincos2id, .unit = "samples"))
+})
+
+test_that("a single value in .lim is the start of an interval that ends at time zero, in any unit", {
+  # sample -2 (-0.006 s) to sample 0 (-0.002 s)
+  baselined <- eeg_baseline(data_sincos2id, .lim = -.006)
+  expect_equal_plain_df(signal_tbl(baselined), baseline_by_hand(data_sincos2id, -2, 0))
+  expect_equal(baselined, eeg_baseline(data_sincos2id, .lim = c(-.006, 0)))
+  expect_equal(baselined, eeg_baseline(data_sincos2id, .lim = -6, .unit = "ms"))
+  # in samples, time zero is sample 1, so sample 0 is still included
+  expect_equal(baselined, eeg_baseline(data_sincos2id, .lim = -2, .unit = "samples"))
+})
+
+test_that("baseline can end before zero", {
+  # sample -3 (-0.008 s) to sample -2 (-0.006 s); sample -1 (-0.004 s) is left out
+  baselined <- eeg_baseline(data_sincos2id, .lim = c(-.008, -.004))
+  expect_equal_plain_df(signal_tbl(baselined), baseline_by_hand(data_sincos2id, -3, -2))
+})
+
+test_that("baseline can be after zero", {
+  # sample 2 (0.002 s) to sample 4 (0.006 s); sample 5 (0.008 s) is left out
+  baselined <- eeg_baseline(data_sincos2id, .lim = c(.002, .008))
+  expect_equal_plain_df(signal_tbl(baselined), baseline_by_hand(data_sincos2id, 2, 4))
+})
+
+test_that("baseline interval is interpreted in .unit", {
+  # the same interval, from sample -3 up to sample -1, in seconds, milliseconds, and samples
+  baselined <- eeg_baseline(data_sincos2id, .lim = c(-.008, -.004))
+  expect_equal(baselined, eeg_baseline(data_sincos2id, .lim = c(-8, -4), .unit = "ms"))
+  expect_equal(baselined, eeg_baseline(data_sincos2id, .lim = c(-3, -1), .unit = "samples"))
+})
+
+test_that("baseline only changes the selected channels", {
+  # Y is left as it was
+  baselined <- eeg_baseline(data_sincos2id, X, .lim = c(-.008, -.004))
+  expect_equal_plain_df(signal_tbl(baselined), baseline_by_hand(data_sincos2id, -3, -2, chs = "X"))
+})
+
+test_that("baseline rejects wrong intervals", {
+  expect_error(eeg_baseline(data_sincos2id, .lim = c(0, -.004)), "has no samples")
+  expect_error(eeg_baseline(data_sincos2id, .lim = c(-.004, -.004)), "has no samples")
+  expect_error(eeg_baseline(data_sincos2id, .lim = .004), "has no samples")
+  expect_error(eeg_baseline(data_sincos2id, .lim = 1, .unit = "samples"), "has no samples")
+  expect_error(eeg_baseline(data_sincos2id, .lim = c(-.008, -.004, 0)), "one or two numbers")
+  expect_error(eeg_baseline(data_sincos2id, .lim = NA_real_), "one or two numbers")
+  expect_error(eeg_baseline(data_sincos2id, .lim = "-.2"), "one or two numbers")
 })
 
 
