@@ -66,6 +66,8 @@ test_that("drop_incomplete_segments() ignores NAs outside the channels", {
 
 test_that("print() shows at most .max_channels channels, and says how to see more", {
   expect_snapshot(print(data_faces_ERPs, .max_channels = 3, topn = 2))
+  ## also none of them
+  expect_snapshot(print(data_faces_ERPs, .max_channels = 0, topn = 2))
 })
 
 test_that("the option eeguana.print_max_channels sets how many channels are printed", {

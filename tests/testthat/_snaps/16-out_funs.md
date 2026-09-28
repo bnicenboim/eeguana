@@ -316,3 +316,30 @@
       1:     1 faces.vhdr     faces
       2:     2 faces.vhdr non-faces
 
+---
+
+    Code
+      print(data_faces_ERPs, .max_channels = 0, topn = 2)
+    Output
+      # EEG data:
+      
+      # Signal table:
+             .id      .sample
+           <int> <sample_int>
+        1:     1          -99
+        2:     1          -98
+       ---                   
+      451:     2          125
+      452:     2          126
+      # ... and 34 more channels: Fp1, Fpz, Fp2, F7, F3, Fz, F4, F8, FC5, FC1, FC2, FC6, M1, T7, C3, Cz, C4, T8, M2, CP5, CP1, CP2, CP6, P7, P3, Pz, P4, P8, POz, O1, Oz, O2, EOGV, EOGH
+      # Use print(.max_channels = ...) or options(eeguana.print_max_channels = ...) to see more.
+      
+      # Events table:
+      No events.
+      
+      # Segments table:
+           .id .recording condition
+         <int>     <char>    <char>
+      1:     1 faces.vhdr     faces
+      2:     2 faces.vhdr non-faces
+

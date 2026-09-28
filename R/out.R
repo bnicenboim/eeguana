@@ -375,8 +375,15 @@ print_channels <- function(x, table, max, ...) {
     print(x[[table]], ...)
     return(invisible())
   }
-  hidden <- channels[-seq_len(max)]
-  print(eeg_select(x, -tidyselect::all_of(hidden))[[table]], ...)
+  hidden <- channels[seq_along(channels) > max]
+  shown <- if (max == 0) {
+    ## only the other columns, such as .id and .sample; eeg_select() would
+    ## warn about an eeg_lst without channels
+    x[[table]][, setdiff(names(x[[table]]), channels), with = FALSE]
+  } else {
+    eeg_select(x, -tidyselect::all_of(hidden))[[table]]
+  }
+  print(shown, ...)
   cat_line(
     "# ... and ", length(hidden), " more channel", if (length(hidden) > 1) "s", ": ",
     paste(hidden, collapse = ", ")
