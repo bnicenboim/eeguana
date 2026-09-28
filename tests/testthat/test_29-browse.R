@@ -39,35 +39,45 @@ test_that("the units agree with as_time() and as_sample_int()", {
   expect_equal(eeguana:::duration_to_samples(10, "ms", 500), 5)
 })
 
-test_that("windows stay inside their segment", {
+test_that("windows go on from one segment into the next and stay inside the recording", {
   b <- prep_seg$bounds
-  ## moved rather than shrunk when they fit
-  expect_equal(eeguana:::clamp_window(b, 2L, -150, 49), list(id = 2L, first = -99L, last = 100L))
-  expect_equal(eeguana:::clamp_window(b, 2L, 200, 399), list(id = 2L, first = 52L, last = 251L))
-  ## shrunk when they do not
-  expect_equal(eeguana:::clamp_window(b, 2L, -500, 500), list(id = 2L, first = -99L, last = 251L))
+  ## each segment has 351 samples, from -99 to 251
+  expect_equal(eeguana:::to_position(b, 1L, -99L), 0L)
+  expect_equal(eeguana:::to_position(b, 2L, -99L), 351L)
+  expect_equal(eeguana:::from_position(b, 360L), list(id = 2L, sample = -90L))
+  ## a window that fits in a segment
+  piece <- function(id, first, last) data.table::data.table(.id = id, first = first, last = last)
+  expect_equal(eeguana:::window_pieces(b, list(start = 351L, length = 100L)), piece(2L, -99L, 0L))
+  ## one that goes on into the next segments
+  expect_equal(
+    eeguana:::window_pieces(b, list(start = 300L, length = 500L)),
+    piece(c(1L, 2L, 3L), c(201L, -99L, -99L), c(251L, 251L, -2L))
+  )
+  ## windows past the edges of the recording are moved back, not shortened
+  total <- 351L * nrow(b)
+  expect_equal(eeguana:::clamp_span(b, -50, 100), list(start = 0L, length = 100L))
+  expect_equal(eeguana:::clamp_span(b, total - 10, 100), list(start = total - 100L, length = 100L))
+  ## and shortened only when the recording is shorter
+  expect_equal(eeguana:::clamp_span(b, 10, total + 5), list(start = 0L, length = total))
+  ## around an event, in either order
   ev <- prep_seg$events[.id == 3L][1]
-  w <- eeguana:::event_window(b, ev, from = -50, to = 50)
-  expect_equal(w$first, ev$.initial - 50L)
-  expect_equal(w$last, ev$.initial + 50L)
-  expect_equal(w$anchor, ev$.initial)
-  ## from and to in either order
-  expect_equal(eeguana:::event_window(b, ev, from = 50, to = -50), w)
+  span <- eeguana:::event_span(b, ev, from = -400, to = 50)
+  expect_equal(span$start, eeguana:::to_position(b, 3L, ev$.initial) - 400L)
+  expect_equal(span$length, 451L)
+  expect_equal(eeguana:::event_span(b, ev, from = 50, to = -400), span)
+  expect_equal(eeguana:::window_pieces(b, span)$.id, c(2L, 3L))
 })
 
-test_that("next and previous windows cross segments and stop at the ends", {
-  b <- prep_seg$bounds
-  nw <- eeguana:::next_window
-  expect_equal(nw(b, 1L, -99L, 100L, 1), list(id = 1L, first = 1L))
-  expect_equal(nw(b, 1L, 201L, 100L, 1), list(id = 2L, first = -99L))
-  expect_equal(nw(b, 2L, -99L, 100L, -1), list(id = 1L, first = 152L))
-  expect_equal(nw(b, 1L, -99L, 100L, -1), list(id = 1L, first = -99L))
-  last <- b$.id[nrow(b)]
-  expect_equal(nw(b, last, 201L, 100L, 1), list(id = last, first = 201L))
+test_that("a click on a column selects its segment, and elsewhere the one of the event", {
+  w <- list(focus = 7L)
+  click <- list(x = 1, panelvar1 = "Fz", panelvar2 = "5", mapping = list(panelvar1 = ".key", panelvar2 = ".id"))
+  expect_equal(eeguana:::clicked_segment(click, w), 5L)
+  expect_equal(eeguana:::clicked_segment(list(x = 1, panelvar1 = "Fz", mapping = list(panelvar1 = ".key")), w), 7L)
+  expect_equal(eeguana:::clicked_segment(list(x = 1), w), 7L)
 })
 
 test_that("the activations in a window are the ones eeg_ica_show() gives", {
-  w <- list(id = 4L, first = -20L, last = 80L)
+  w <- list(pieces = data.table::data.table(.id = 4L, first = -20L, last = 80L))
   tbl <- eeguana:::window_tbl(prep_seg, w, c("ICA1", "ICA3"), "EOGV")
   shown <- ica_seg %>%
     eeg_filter(.id == 4L, .sample >= -20L, .sample <= 80L) %>%
@@ -103,17 +113,30 @@ test_that("events are offered by type, with the blinks first chosen", {
   expect_equal(eeguana:::eog_abbreviation(c("VEOG", "EOGH", "EOG", "Fp1")), c("V", "H", "EOG", "Fp1"))
 })
 
-test_that("the code printed at the end removes the marked components", {
-  code <- eeguana:::ica_keep_code("ica_seg", stats::setNames(list(c("ICA1", "ICA3")), rec))
-  expect_match(code, "eeg_ica_keep(ica_seg, -c(ICA1, ICA3))", fixed = TRUE)
-  cleaned <- eval(parse(text = sub("^.*\n", "", code)))
-  expect_equal(component_names(cleaned), setdiff(component_names(ica_seg), c("ICA1", "ICA3")))
+test_that("the message at the end lists the components and how to keep or remove them", {
+  msg <- eeguana:::ica_selection_message("ica_seg", stats::setNames(list(c("ICA1", "ICA3")), rec))
+  lines <- strsplit(msg, "\n")[[1]]
+  expect_equal(lines[1], "Components selected: ICA1, ICA3")
+  expect_equal(lines[2], "To keep only these components: eeg_ica_keep(ica_seg, c(ICA1, ICA3))")
+  expect_equal(lines[3], "To remove them: eeg_ica_keep(ica_seg, -c(ICA1, ICA3))")
+  ## the calls do what they say
+  run <- function(line) eval(parse(text = sub("^[^:]*: ", "", line)))
+  expect_equal(component_names(run(lines[2])), c("ICA1", "ICA3"))
+  expect_equal(component_names(run(lines[3])), setdiff(component_names(ica_seg), c("ICA1", "ICA3")))
   expect_equal(
-    eeguana:::ica_keep_code("ica_seg", stats::setNames(list(character(0)), rec)),
-    "No components were marked for removal."
+    eeguana:::ica_selection_message("ica_seg", stats::setNames(list(character(0)), rec)),
+    "No components were selected."
   )
-  two <- eeguana:::ica_keep_code("x", list(a = "ICA1", b = character(0), c = c("ICA2", "ICA4")))
-  expect_match(two, "eeg_ica_keep(x, `a` = -c(ICA1), `c` = -c(ICA2, ICA4))", fixed = TRUE)
+  ## with several recordings, each one gets its own components
+  two <- eeguana:::ica_selection_message("x", list(a = "ICA1", b = character(0), c = c("ICA2", "ICA4")))
+  expect_equal(
+    strsplit(two, "\n")[[1]],
+    c(
+      "Components selected:", "  a: ICA1", "  c: ICA2, ICA4",
+      "To keep only these components: eeg_ica_keep(x, `a` = c(ICA1), `c` = c(ICA2, ICA4))",
+      "To remove them: eeg_ica_keep(x, `a` = -c(ICA1), `c` = -c(ICA2, ICA4))"
+    )
+  )
 })
 
 test_that("eeg_browse() checks its arguments", {
@@ -138,9 +161,12 @@ test_that("the app shows windows around events and through the recording", {
     ## the plots wait until the components stop changing
     session$elapse(1100)
     ev <- prep()$events[.description == "s71"]
-    expect_equal(window()$id, ev$.id[3])
-    expect_equal(window()$anchor, ev$.initial[3])
-    expect_equal(c(window()$first, window()$last), ev$.initial[3] + c(-50L, 150L))
+    expect_equal(window()$anchor, list(id = ev$.id[3], sample = ev$.initial[3]))
+    expect_equal(window()$focus, ev$.id[3])
+    expect_equal(
+      window()$pieces,
+      data.table::data.table(.id = ev$.id[3], first = ev$.initial[3] - 50L, last = ev$.initial[3] + 150L)
+    )
     expect_equal(output$n_events, "5 events")
     expect_match(output$where, "Event 3 of 5: [^ ]+ \u00b7 s71 at")
     expect_match(output$activations$src, "^data:image/png")
@@ -151,7 +177,7 @@ test_that("the app shows windows around events and through the recording", {
     expect_equal(event_i(), 5)
     expect_true(window()$at_end)
     session$setInputs(event_slider = 2)
-    expect_equal(window()$anchor, ev$.initial[2])
+    expect_equal(window()$anchor$sample, ev$.initial[2])
     session$setInputs(event_i = -4)
     expect_equal(event_i(), 1)
     expect_true(window()$at_start)
@@ -165,40 +191,72 @@ test_that("the app shows windows around events and through the recording", {
     ## the length first: the start is kept inside the segment for the length
     ## there is when it is set
     session$setInputs(mode = "continuous", unit_continuous = "ms", segment = "5", length = 200, start = 100)
-    expect_equal(window()[c("id", "first", "last")], list(id = 5L, first = 51L, last = 150L))
+    expect_equal(window()$pieces, data.table::data.table(.id = 5L, first = 51L, last = 150L))
     expect_match(output$where, "Segment 5, 100 ms to 298 ms")
     expect_match(output$activations$src, "^data:image/png")
   })
 })
 
-test_that("the window through the recording stays inside the data", {
+test_that("the window through the recording goes on into the next segments", {
   shiny::testServer(eeguana:::browse_app(ica_seg, .kind = "ica"), {
+    b <- prep()$bounds
     session$setInputs(mode = "continuous", unit_continuous = "ms", segment = "2", start = 0, length = 200)
-    ## a window longer than the segment is shortened to it
-    session$setInputs(length = 10000)
-    expect_equal(continuous(), list(id = 2L, first = -99L, length = 351L))
-    ## and one that goes past the end is moved back
-    session$setInputs(length = 200, start = 600)
-    expect_equal(continuous(), list(id = 2L, first = 152L, length = 100L))
-    ## the next window starts the next segment, the previous one ends the
-    ## previous segment
+    expect_equal(window()$pieces, data.table::data.table(.id = 2L, first = 1L, last = 100L))
+    ## a window longer than the segment goes on into the next ones
+    session$setInputs(length = 1500)
+    expect_equal(window()$pieces$.id, c(2L, 3L, 4L))
+    expect_equal(window()$pieces$first[1], 1L)
+    expect_match(output$where, "^Segments 2 to 4, 0 ms to ")
+    ## a start past the end of the segment is in the next one, and the fields
+    ## then refer to that segment
+    session$setInputs(length = 200, start = 800)
+    expect_equal(window()$pieces, data.table::data.table(.id = 3L, first = 50L, last = 149L))
+    ## the next window starts where this one ends, also in the next segment
+    session$setInputs(segment = "2", start = 400)
+    expect_equal(
+      window()$pieces,
+      data.table::data.table(.id = c(2L, 3L), first = c(201L, -99L), last = c(251L, -51L))
+    )
     session$setInputs(`next` = 1)
-    expect_equal(continuous(), list(id = 3L, first = -99L, length = 100L))
-    session$setInputs(prev = 1, start_slider = 0)
-    expect_equal(continuous()$id, 2L)
-    ## the slider moves the start, in the unit shown
-    session$setInputs(start_slider = 100)
-    expect_equal(continuous()$first, 51L)
+    expect_equal(window()$pieces, data.table::data.table(.id = 3L, first = -50L, last = 49L))
+    session$setInputs(prev = 1)
+    expect_equal(window()$pieces$.id, c(2L, 3L))
+    ## the slider places the start anywhere in the recording, counting the
+    ## segments one after the other: 1 s is 500 samples, in the second segment
+    session$setInputs(position_slider = 1000)
+    expect_equal(continuous()$start, 500L)
+    expect_equal(window()$pieces, data.table::data.table(.id = 2L, first = 50L, last = 149L))
+    session$setInputs(segment = "2", start = 400)
     ## changing the unit does not move the window
     session$setInputs(unit_continuous = "samples")
-    expect_equal(continuous()$first, 51L)
-    session$setInputs(start = 60)
-    expect_equal(continuous()$first, 60L)
-    ## at the edges of the recording, the buttons are grayed out
-    last <- prep()$bounds[.N]
+    expect_equal(window()$pieces$.id, c(2L, 3L))
+    ## at the edges of the recording, the window is moved back inside, and the
+    ## buttons are grayed out
+    last <- b[.N]
     session$setInputs(segment = as.character(last$.id), start = 1000)
+    expect_equal(window()$pieces, data.table::data.table(.id = last$.id, first = 152L, last = 251L))
     expect_true(window()$at_end)
     expect_false(window()$at_start)
+    session$setInputs(segment = "1", start = -99)
+    expect_true(window()$at_start)
+  })
+})
+
+test_that("the fields changed by the app are not taken as the user's when they come back", {
+  shiny::testServer(eeguana:::browse_app(ica_seg, .kind = "ica"), {
+    session$setInputs(mode = "continuous", unit_continuous = "s", length = .2)
+    session$setInputs(position_slider = 1)
+    expect_equal(continuous()$start, 500L)
+    ## the start of the window, in its segment, that the app sent to the field
+    first <- sent$start[[length(sent$start)]]
+    session$setInputs(position_slider = 2)
+    expect_equal(continuous()$start, 1000L)
+    ## the field comes back from the browser with the first start, late
+    session$setInputs(start = first)
+    expect_equal(continuous()$start, 1000L)
+    ## but a start written by the user moves the window
+    session$setInputs(start = 0)
+    expect_equal(from_position(prep()$bounds, continuous()$start)$sample, 1L)
   })
 })
 
@@ -253,9 +311,9 @@ test_that("amplitudes are scaled by their typical standard deviation", {
   expect_equal(shared$half, 2)
 })
 
-test_that("clicking a topography marks and unmarks the component", {
+test_that("clicking a topography selects and deselects the component", {
   shiny::testServer(eeguana:::browse_app(ica_seg, .kind = "ica"), {
-    session$setInputs(components = c("ICA1", "ICA2"), marked = NULL, electrodes = TRUE)
+    session$setInputs(components = c("ICA1", "ICA2"), selected = NULL, electrodes = TRUE)
     session$elapse(1100)
     session$setInputs(topo_click = list(panelvar1 = "ICA2"))
     expect_equal(marks()[[rec]], "ICA2")
@@ -265,18 +323,18 @@ test_that("clicking a topography marks and unmarks the component", {
     session$setInputs(topo_click = list(panelvar1 = "ICA2"))
     expect_equal(marks()[[rec]], "ICA1")
     ## the field in the sidebar replaces the marks
-    session$setInputs(marked = c("ICA3", "ICA4"))
+    session$setInputs(selected = c("ICA3", "ICA4"))
     expect_equal(marks()[[rec]], c("ICA3", "ICA4"))
   })
 })
 
-test_that("each recording keeps its own marks", {
+test_that("each recording keeps its own selection", {
   two <- bind(seg, eeg_mutate(seg, .recording = "second"))
   ica_two <- suppressWarnings(
     eeg_ica(two, -EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10))
   )
   shiny::testServer(eeguana:::browse_app(ica_two, .kind = "ica"), {
-    session$setInputs(recording = rec, components = "ICA1", marked = NULL)
+    session$setInputs(recording = rec, components = "ICA1", selected = NULL)
     session$setInputs(topo_click = list(panelvar1 = "ICA1"))
     session$setInputs(recording = "second")
     expect_equal(prep()$recording, "second")
@@ -371,77 +429,192 @@ test_that("the signal of the channels is shown, without components", {
     session$setInputs(channels = c("Fz", "Cz", "EOGV"), scale = "shared")
     session$elapse(1100)
     expect_equal(components(), character(0))
-    expect_equal(window()$id, 2L)
+    expect_equal(window()$focus, 2L)
     expect_match(output$activations$src, "^data:image/png")
-    expect_match(output$scale_text, "^Rows span ±[0-9.,]+ for the channels$")
+    expect_match(output$scale_text, "^Rows span \u00b1[0-9.,]+ for the channels$")
     ## the typical SDs are the ones of the channels
     expect_equal(prep()$sd[["EOGV"]], prep_seg$sd[["EOGV"]])
+    ## a window over several segments is drawn too
+    session$setInputs(length = 1500)
+    expect_equal(window()$pieces$.id, c(2L, 3L, 4L))
+    expect_match(output$activations$src, "^data:image/png")
   })
-  tbl <- eeguana:::window_tbl(eeguana:::browse_eeg_prep(seg, rec), list(id = 4L, first = -20L, last = 80L), character(0), "Fz")
-  fz <- as.numeric(eeg_filter(seg, .id == 4L, .sample >= -20L, .sample <= 80L)$.signal$Fz)
-  expect_equal(tbl$.value, fz - mean(fz))
+  w <- list(pieces = data.table::data.table(.id = c(4L, 5L), first = c(200L, -99L), last = c(251L, -50L)))
+  tbl <- eeguana:::window_tbl(eeguana:::browse_eeg_prep(seg, rec), w, character(0), "Fz")
+  ## each segment is centered on its own
+  fz <- function(id, from, to) {
+    x <- as.numeric(eeg_filter(seg, .id == id, .sample >= from, .sample <= to)$.signal$Fz)
+    x - mean(x)
+  }
+  expect_equal(tbl$.value, c(fz(4L, 200L, 251L), fz(5L, -99L, -50L)))
+  expect_equal(tbl$.id, rep(c(4L, 5L), c(52L, 50L)))
   expect_equal(as.character(unique(tbl$.key)), "Fz")
 })
 
-test_that("segments are marked and unmarked, and returned", {
+test_that("large amplitudes go beyond their row, or are cut, but are never flattened", {
+  p <- eeguana:::browse_eeg_prep(seg, rec)
+  w <- list(pieces = data.table::data.table(.id = 4L, first = -99L, last = 251L))
+  ## zoomed in 16 times, many values are beyond the rows
+  sc <- eeguana:::amplitude_scale(p, character(0), c("Fz", "Cz"), "shared", 16)
+  plot <- eeguana:::activations_plot(p, w, character(0), c("Fz", "Cz"), character(0), "s", 500, sc)
+  free <- plot$data$.y - plot$data$.center
+  expect_gt(max(abs(free)), 1.5)
+  ## no value is held at the edge of the row
+  expect_equal(sum(abs(free) == 1), 0)
+  ## cut, the lines reach the edges of the rows and stop there
+  cut <- eeguana:::cut_at_rows(plot$data)
+  rel <- c(cut$.y - cut$.center, cut$.yend - cut$.center)
+  expect_true(all(abs(rel) <= 1 + 1e-9))
+  expect_true(any(abs(rel) > 1 - 1e-9))
+  ## the parts inside the rows are the samples themselves
+  inside <- abs(free) < 1
+  expect_true(all(round(plot$data$.x[inside], 6) %in% round(c(cut$.x, cut$.xend), 6)))
+  ## a segment that leaves a row ends on its edge, on the line between samples
+  s1 <- data.table::data.table(
+    .key = "a", .id = 1L, .sample = 1:2, .x = c(0, 1), .y = c(0, 3), .center = 0
+  )
+  expect_equal(unlist(eeguana:::cut_at_rows(s1)[, list(.x, .y, .xend, .yend)]), c(.x = 0, .y = 0, .xend = 1 / 3, .yend = 1))
+  expect_s3_class(
+    eeguana:::activations_plot(p, w, character(0), c("Fz", "Cz"), character(0), "s", 500, sc, cut = TRUE),
+    "ggplot"
+  )
+})
+
+test_that("the topography is the mean of the window, one head per segment or their mean", {
+  seg_layout <- seg
+  p <- eeguana:::browse_eeg_prep(seg_layout, rec)
+  ## the channels without positions do not count
+  expect_false(any(c("EOGV", "EOGH") %in% p$coords$.channel))
+  expect_true(all(c("Fz", "Cz", "Oz") %in% p$coords$.channel))
+  w <- list(pieces = data.table::data.table(.id = c(4L, 5L), first = c(200L, -99L), last = c(251L, -50L)))
+  per_segment <- eeguana:::window_topo_tbl(p, w)
+  expect_equal(levels(per_segment$.group), c("4", "5"))
+  averaged <- eeguana:::window_topo_tbl(p, w, average = TRUE)
+  expect_equal(levels(averaged$.group), "all")
+  ## the value interpolated at an electrode is close to its mean over the window
+  mean_fz <- function(rows) mean(as.numeric(rows$.signal$Fz))
+  fz4 <- mean_fz(eeg_filter(seg, .id == 4L, .sample >= 200L))
+  fz5 <- mean_fz(eeg_filter(seg, .id == 5L, .sample <= -50L))
+  at_fz <- function(tbl, group) {
+    pos <- p$coords[.channel == "Fz"]
+    d <- data.table::as.data.table(tbl)[.group == group]
+    d[which.min((.x - pos$.x)^2 + (.y - pos$.y)^2)]$.value
+  }
+  expect_equal(at_fz(per_segment, "4"), fz4, tolerance = .1)
+  expect_equal(at_fz(per_segment, "5"), fz5, tolerance = .1)
+  both <- rbind(
+    eeg_filter(seg, .id == 4L, .sample >= 200L)$.signal,
+    eeg_filter(seg, .id == 5L, .sample <= -50L)$.signal
+  )
+  expect_equal(at_fz(averaged, "all"), mean(as.numeric(both$Fz)), tolerance = .1)
+  expect_s3_class(eeguana:::window_topo_plot(p, w, average = FALSE, selected = 5L, electrodes = TRUE), "ggplot")
   shiny::testServer(eeguana:::browse_app(seg), {
-    ## a window longer than the segment shows all of it
-    session$setInputs(mode = "continuous", unit_continuous = "ms", segment = "1", start = -200, length = 1000)
+    session$setInputs(mode = "continuous", unit_continuous = "ms", segment = "2", start = 0, length = 1500)
+    session$setInputs(channels = "Fz", scale = "shared", topo_average = FALSE, electrodes = FALSE)
+    expect_equal(n_heads(), 3)
+    expect_match(output$topographies$src, "^data:image/png")
+    session$setInputs(topo_average = TRUE)
+    expect_equal(n_heads(), 1)
+    expect_match(output$topographies$src, "^data:image/png")
+  })
+})
+
+test_that("segments are selected and deselected, and returned", {
+  shiny::testServer(eeguana:::browse_app(seg), {
+    ## a window of one whole segment
+    session$setInputs(mode = "continuous", unit_continuous = "ms", segment = "1", start = -200, length = 702)
     session$setInputs(channels = "Fz", scale = "shared")
-    expect_equal(window()$id, 1L)
-    ## the button marks the segment shown
-    session$setInputs(mark_segment = 1)
-    expect_equal(segment_marks(), 1L)
-    expect_match(output$where, "marked for removal$")
-    ## a click on the signal marks the next one
+    expect_equal(window()$pieces$.id, 1L)
+    ## the button selects the segment shown
+    session$setInputs(select_segment = 1)
+    expect_equal(selected_segments(), 1L)
+    expect_match(output$where, "segment 1 selected$")
+    ## a click on the signal selects the next one
     session$setInputs(`next` = 1)
-    expect_equal(window()$id, 2L)
-    expect_no_match(output$where, "marked for removal")
+    expect_equal(window()$focus, 2L)
+    expect_no_match(output$where, "selected")
     session$setInputs(trace_click = list(x = 0.1, y = 0))
-    expect_equal(segment_marks(), c(1L, 2L))
-    ## and M unmarks it
+    expect_equal(selected_segments(), c(1L, 2L))
+    ## and M deselects it
     session$setInputs(arrow_key = list(key = "m"))
-    expect_equal(segment_marks(), 1L)
-    ## the field in the sidebar replaces the marks
-    session$setInputs(marked_segments = c("5", "3"))
-    expect_equal(segment_marks(), c(3L, 5L))
+    expect_equal(selected_segments(), 1L)
+    ## with several segments shown, a click selects the one in its column
+    session$setInputs(length = 1500)
+    expect_equal(window()$pieces$.id, c(2L, 3L, 4L))
+    session$setInputs(trace_click = list(
+      x = 0.1, panelvar1 = "Fz", panelvar2 = "3", mapping = list(panelvar1 = ".key", panelvar2 = ".id")
+    ))
+    expect_equal(selected_segments(), c(1L, 3L))
+    ## the field in the sidebar replaces the selection
+    session$setInputs(selected_segments = c("5", "3"))
+    expect_equal(selected_segments(), c(3L, 5L))
     expect_equal(result(), c(3L, 5L))
   })
 })
 
-test_that("a recording that is one segment can be browsed but not marked", {
+test_that("a recording that is one segment can be browsed but not selected", {
   shiny::testServer(eeguana:::browse_app(data_faces_10_trials), {
     session$setInputs(mode = "continuous", unit_continuous = "s", segment = "1", start = 10, length = 4)
     session$setInputs(channels = "Fz", scale = "shared")
-    expect_equal(window()$id, 1L)
+    expect_equal(window()$focus, 1L)
     session$setInputs(arrow_key = list(key = "m"))
-    expect_equal(segment_marks(), integer(0))
+    expect_equal(selected_segments(), integer(0))
     expect_equal(result(), integer(0))
   })
 })
 
-test_that("the code printed at the end removes the marked segments", {
-  code <- eeguana:::filter_segments_code("seg", c(2L, 5L))
-  expect_match(code, "eeg_filter(seg, !.id %in% c(2, 5))", fixed = TRUE)
-  cleaned <- eval(parse(text = sub("^.*\n", "", code)))
-  expect_equal(unique(cleaned$.segments$.id), setdiff(seg$.segments$.id, c(2L, 5L)))
-  expect_equal(eeguana:::filter_segments_code("seg", integer(0)), "No segments were marked for removal.")
+test_that("the recording is in the title, and the buttons move to the others", {
+  two <- bind(seg, eeg_mutate(seg, .recording = "second"))
+  shiny::testServer(eeguana:::browse_app(two), {
+    session$setInputs(mode = "continuous", unit_continuous = "ms", start = 0, length = 200)
+    session$setInputs(channels = "Fz", scale = "shared")
+    expect_equal(output$recording_name, rec)
+    session$setInputs(next_recording = 1)
+    expect_equal(current_rec(), "second")
+    expect_equal(prep()$recording, "second")
+    expect_equal(output$recording_name, "second")
+    ## it stops at the last one
+    session$setInputs(next_recording = 2)
+    expect_equal(current_rec(), "second")
+    session$setInputs(prev_recording = 1)
+    expect_equal(current_rec(), rec)
+    session$setInputs(recording = "second")
+    expect_equal(current_rec(), "second")
+  })
+  ## with one recording, it is in the title too
+  shiny::testServer(eeguana:::browse_app(seg), {
+    expect_equal(output$recording_name, rec)
+  })
 })
 
-test_that("eeg_browse() returns the marks of the app and prints how to use them", {
+test_that("the message at the end lists the segments and how to keep or remove them", {
+  msg <- eeguana:::segment_selection_message("seg", c(2L, 5L))
+  lines <- strsplit(msg, "\n")[[1]]
+  expect_equal(lines, c(
+    "Segments selected: 2, 5",
+    "To keep only these segments: eeg_filter(seg, .id %in% c(2, 5))",
+    "To remove them: eeg_filter(seg, !.id %in% c(2, 5))"
+  ))
+  run <- function(line) eval(parse(text = sub("^[^:]*: ", "", line)))
+  expect_equal(unique(run(lines[2])$.segments$.id), c(2L, 5L))
+  expect_equal(nrow(run(lines[3])$.segments), nrow(seg$.segments) - 2)
+  expect_equal(eeguana:::segment_selection_message("seg", integer(0)), "No segments were selected.")
+})
+
+test_that("eeg_browse() returns the selection of the app and prints how to use it", {
   ## the viewer, which would open the app in a browser, closes it right away
-  ## with some marks, as clicking "Done" would
-  closing_with <- function(marks) function(url) later::later(function() shiny::stopApp(marks), 0)
+  ## with a selection, as clicking "Done" would
+  closing_with <- function(selected) function(url) later::later(function() shiny::stopApp(selected), 0)
   expect_message(
-    to_remove <- eeg_browse(seg, .viewer = closing_with(c(2L, 5L))),
-    "eeg_filter(seg, !.id %in% c(2, 5))",
+    selected <- eeg_browse(seg, .viewer = closing_with(c(2L, 5L))),
+    "Segments selected: 2, 5\nTo keep only these segments: eeg_filter(seg, .id %in% c(2, 5))",
     fixed = TRUE
   )
-  expect_equal(to_remove, c(2L, 5L))
+  expect_equal(selected, c(2L, 5L))
   expect_message(
-    to_remove <- eeg_browse(ica_seg, .viewer = closing_with(stats::setNames(list("ICA1"), rec))),
-    "eeg_ica_keep(ica_seg, -c(ICA1))",
+    selected <- eeg_browse(ica_seg, .viewer = closing_with(stats::setNames(list("ICA1"), rec))),
+    "Components selected: ICA1\nTo keep only these components: eeg_ica_keep(ica_seg, c(ICA1))\nTo remove them: eeg_ica_keep(ica_seg, -c(ICA1))",
     fixed = TRUE
   )
-  expect_equal(to_remove[[1]], "ICA1")
+  expect_equal(selected[[1]], "ICA1")
 })

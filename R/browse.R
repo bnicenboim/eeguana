@@ -1,16 +1,25 @@
 #' Browse the signal or the ICA components interactively
 #'
 #' `eeg_browse()` opens a Shiny app to look through the data. For an
-#' `eeg_lst`, it shows the signal of the channels, and the segments can be
-#' marked for removal. For an `eeg_ica_lst`, created with [eeg_ica()], it shows
+#' `eeg_lst`, it shows the signal of the channels and, on request, the
+#' topography of the window, and segments can be selected, for example the
+#' ones to remove. For
+#' an `eeg_ica_lst`, created with [eeg_ica()], it shows
 #' the activations of the components, together with the EOG channels or any
 #' other channels, and the topography of each component, labeled with the
 #' proportion of the variance of the channels it explains (see
 #' [eeg_ica_var_tbl()]) and its correlation with the EOG channels (see
-#' [eeg_ica_cor_tbl()]), and the components can be marked for removal.
+#' [eeg_ica_cor_tbl()]), and components can be selected, for example the ones
+#' to remove.
 #'
 #' The window can be placed around events and moved from one event to the
-#' next, or it can be moved through the recording. The events are chosen by
+#' next, or it can be moved through the recording. It goes on from one segment
+#' into the next, and each segment is shown in its own column. Through the
+#' recording, the start of the window is set relative to the time zero of its
+#' segment, or with a slider over the whole recording, with the segments one
+#' after the other. With several
+#' recordings, the buttons "Previous recording" and "Next recording", or the
+#' field, change the recording shown, whose name is in the title. The events are chosen by
 #' their type or their description: the ones that are equal to some values,
 #' start with, end with, or contain some text, or match a regular expression.
 #' For example, the descriptions that start with "peak" are the blinks found
@@ -25,22 +34,33 @@
 #' scale, and slow drifts do not flatten the traces. By default, all the
 #' channels share one scale, and all the components another, so their sizes
 #' can be compared; each trace can also be drawn at its own scale, which makes
-#' the small ones visible.
+#' the small ones visible. Large amplitudes go on into the rows of the traces
+#' around them, unless the option to cut the traces at the edges of their rows
+#' is on.
 #'
 #' The app needs the packages shiny and bslib.
 #'
-#' @section Marking segments of an `eeg_lst`:
-#' Clicking the signal, pressing M, or the "Mark" button marks the segment
-#' shown for removal, and doing it again unmarks it. A marked segment is
-#' tinted red. "Done" closes the app and returns the `.id` of the marked
-#' segments; closing the window returns them as well. Only segmented data can
-#' be marked: when each recording is a single segment, as before
+#' @section Selecting segments of an `eeg_lst`:
+#' Clicking a segment on the signal selects it, and clicking it again
+#' deselects it; M and the "Select segment" button do the same for the segment
+#' of the event, or for the first segment shown. Selected segments are tinted
+#' red. "Done" closes the app and returns the `.id` of the selected segments;
+#' closing the window returns them as well. What to do with them is up to
+#' [eeg_filter()]: keeping only them, or removing them. Only segmented data
+#' can be selected: when each recording is a single segment, as before
 #' [eeg_segment()], the app is only for browsing.
 #'
-#' @section Marking ICA components:
-#' Clicking a topography marks the component for removal, and clicking it
-#' again unmarks it. "Done" closes the app and returns the marked components;
-#' closing the window returns them as well.
+#' The topography is in a sidebar on the right, closed at first, and it is
+#' computed only while it is open. It shows the mean of each channel over the
+#' part of the window in each segment, one head per segment; a box shows one
+#' head for all the segments of the window, their mean, instead. It needs the
+#' positions of the electrodes, see [channels_tbl()].
+#'
+#' @section Selecting ICA components:
+#' Clicking a topography selects the component, and clicking it again
+#' deselects it. "Done" closes the app and returns the selected components;
+#' closing the window returns them as well. What to do with them is up to
+#' [eeg_ica_keep()]: keeping only them, or removing them.
 #'
 #' The EOG channels are filtered before they are correlated with the
 #' components, because slow drifts and offsets can hide how closely they
@@ -66,19 +86,23 @@
 #' @family ICA functions
 #' @family plotting functions
 #'
-#' @return For an `eeg_lst`, invisibly, the `.id` of the segments marked for
-#'   removal. A message shows the call to [eeg_filter()] that removes them.
+#' @return For an `eeg_lst`, invisibly, the `.id` of the segments selected. A
+#'   message lists them, and shows the calls to [eeg_filter()] that keep only
+#'   them or remove them.
 #'
 #'   For an `eeg_ica_lst`, invisibly, a list with one element per recording,
-#'   holding the names of the components marked for removal. A message shows
-#'   the call to [eeg_ica_keep()] that removes them.
+#'   holding the names of the components selected. A message lists them, and
+#'   shows the calls to [eeg_ica_keep()] that keep only them or remove them.
 #' @examples
 #' if (interactive()) {
-#'   ## mark the segments to remove
-#'   to_remove <- eeg_browse(data_faces_10_trials)
-#'   clean <- eeg_filter(data_faces_10_trials, !.id %in% to_remove)
+#'   ## select the segments to remove
+#'   segs <- eeg_segment(data_faces_10_trials, .description %in% c("s70", "s71"),
+#'     .lim = c(-.2, .5)
+#'   )
+#'   to_remove <- eeg_browse(segs)
+#'   clean <- eeg_filter(segs, !.id %in% to_remove)
 #'
-#'   ## mark the components to remove
+#'   ## select the components to remove
 #'   ica <- eeg_ica(data_faces_10_trials, -EOGH, -EOGV, -M1, -M2,
 #'     .method = fast_ICA
 #'   )
@@ -96,9 +120,9 @@ eeg_browse.eeg_lst <- function(.data, ..., .viewer = NULL) {
   ## the value of .data is already evaluated by UseMethod(), its expression is not
   name <- rlang::as_label(substitute(.data))
   app <- browse_app(.data, .kind = "eeg", .channels = unname(sel_ch(.data, ...)))
-  to_remove <- run_browse_app(app, .viewer)
-  message(filter_segments_code(name, to_remove))
-  invisible(to_remove)
+  selected <- run_browse_app(app, .viewer)
+  message(segment_selection_message(name, selected))
+  invisible(selected)
 }
 
 #' @rdname eeg_browse
@@ -110,9 +134,9 @@ eeg_browse.eeg_ica_lst <- function(.data, ..., .eog = NULL, .eog_freq = c(.1, 30
   app <- browse_app(.data,
     .kind = "ica", .eog = .eog, .eog_freq = .eog_freq, .n_components = .n_components
   )
-  to_remove <- run_browse_app(app, .viewer)
-  message(ica_keep_code(name, to_remove))
-  invisible(to_remove)
+  selected <- run_browse_app(app, .viewer)
+  message(ica_selection_message(name, selected))
+  invisible(selected)
 }
 
 #' Runs the app until "Done" is clicked or the window is closed
@@ -125,7 +149,7 @@ run_browse_app <- function(app, viewer) {
 
 #' The Shiny app behind eeg_browse(), separate so that it can be tested. With
 #' `.kind = "eeg"` it shows `.channels` and marks segments; with `.kind =
-#' "ica"`, it shows the components and marks them
+#' "ica"`, it shows the components and selects them
 #' @noRd
 browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = NULL,
                        .eog_freq = c(.1, 30), .n_components = 16) {
@@ -148,8 +172,8 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
     stop("Channels not found: ", toString(setdiff(.eog, channel_names(data))), call. = FALSE)
   }
   if (is.null(.channels)) .channels <- if (is_ica) .eog else channel_names(data)
-  ## segments can be marked only when there is more than one per recording
-  can_mark_segments <- !is_ica && nrow(data$.segments) > length(recs)
+  ## segments can be selected only when there is more than one per recording
+  can_select_segments <- !is_ica && nrow(data$.segments) > length(recs)
   srate <- sampling_rate(data)
   units <- c("s" = "s", "ms" = "ms", "samples" = "samples")
   matches <- c(
@@ -188,8 +212,8 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
       ),
       shiny::div(class = "small text-muted mb-2 browse-wrap", shiny::textOutput("n_events")),
       row(
-        shiny::numericInput("from", "From", -2),
-        shiny::numericInput("to", "To", 2),
+        shiny::numericInput("from", tip_label("From", "Where the window starts, relative to the onset of the event."), -2),
+        shiny::numericInput("to", tip_label("To", "Where the window ends, relative to the onset of the event."), 2),
         shiny::selectInput("unit", "Unit", units)
       ),
       row(
@@ -199,13 +223,25 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
     ),
     shiny::conditionalPanel(
       "input.mode == 'continuous'",
-      shiny::selectInput("segment", "Segment (.id)", NULL),
+      shiny::selectInput("segment", tip_label("Segment (.id)", "The segment where the window starts."), NULL),
       row(
-        shiny::numericInput("start", "Start", 0),
-        shiny::numericInput("length", "Length", 4, min = 0),
+        shiny::numericInput("start", tip_label(
+          "Start",
+          "Where the window starts, relative to the time zero of its segment: the event it was
+          segmented around, or the beginning of an unsegmented recording."
+        ), 0),
+        shiny::numericInput("length", tip_label(
+          "Length",
+          "How long the window is. It can be longer than a segment, and then it goes on into the
+          next ones."
+        ), 4, min = 0),
         shiny::selectInput("unit_continuous", "Unit", units)
       ),
-      shiny::sliderInput("start_slider", "Start", min = 0, max = 1, value = 0, ticks = FALSE)
+      shiny::sliderInput("position_slider", tip_label(
+        "Position in the recording",
+        "Where the window starts, counting the samples of all the segments of the recording one
+        after the other, from the beginning of the first one."
+      ), min = 0, max = 1, value = 0, ticks = FALSE)
     ),
     row(
       shiny::actionButton("prev", "\u2190 Previous"),
@@ -226,17 +262,21 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
       class = "small text-muted mt-2",
       paste0(
         "Keys: \u2190 \u2192 previous and next window; \u2191 \u2193 zoom the amplitudes in and out",
-        if (can_mark_segments) "; M marks or unmarks the segment shown",
+        if (can_select_segments) "; M selects or deselects the segment of the event, or the first one shown",
         "."
       )
     )
   )
-  segments_panel <- if (can_mark_segments) {
+  segments_panel <- if (can_select_segments) {
     bslib::accordion_panel(
       "Segments",
-      shiny::actionButton("mark_segment", "Mark the segment shown", class = "btn-sm mb-2"),
-      shiny::selectizeInput("marked_segments", "Marked for removal (.id)", NULL, multiple = TRUE),
-      shiny::div(class = "small text-muted", "Click the signal, or press M, to mark or unmark the segment shown.")
+      shiny::actionButton("select_segment", "Select segment", class = "btn-sm mb-2"),
+      shiny::selectizeInput("selected_segments", "Selected segments (.id)", NULL, multiple = TRUE),
+      shiny::div(
+        class = "small text-muted",
+        "Click a segment on the signal to select or deselect it. M and the button do it for the
+        segment of the event, or the first one shown."
+      )
     )
   }
   components_panel <- if (is_ica) {
@@ -248,7 +288,7 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
       ),
       shiny::numericInput("n_components", "Show the first", .n_components, min = 1, step = 1),
       shiny::selectizeInput("components", "Components shown", NULL, multiple = TRUE),
-      shiny::selectizeInput("marked", "Marked for removal", NULL, multiple = TRUE)
+      shiny::selectizeInput("selected", "Selected components", NULL, multiple = TRUE)
     )
   }
   eog_panel <- if (is_ica) {
@@ -295,6 +335,11 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
       standard deviations in stretches of 1 s of the whole recording, so the scale
       is the same in every window."
     ),
+    shiny::checkboxInput("cut", tip_label(
+      "Cut the traces at the edges of their rows",
+      "Large amplitudes go on into the rows around them. With this, what goes beyond the row of
+      a trace is not drawn, so the traces do not overlap."
+    ), FALSE),
     if (is_ica) shiny::checkboxInput("electrodes", "Electrode labels on the topographies", FALSE)
   )
   panels <- Filter(Negate(is.null), list(window_panel, segments_panel, components_panel, eog_panel, display_panel))
@@ -308,7 +353,7 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
     ),
     bslib::card_body(
       class = "browse-scroll",
-      shiny::plotOutput("activations", height = "100%", click = if (can_mark_segments) "trace_click")
+      shiny::plotOutput("activations", height = "100%", click = if (can_select_segments) "trace_click")
     )
   )
   cards <- if (is_ica) {
@@ -317,7 +362,7 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
       traces_card,
       bslib::card(
         full_screen = TRUE,
-        bslib::card_header("Topographies: click one to mark it for removal"),
+        bslib::card_header("Topographies: click one to select it"),
         bslib::card_body(
           class = "browse-scroll",
           shiny::plotOutput("topographies", height = "100%", click = "topo_click")
@@ -325,13 +370,31 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
       )
     )
   } else {
-    traces_card
+    ## the topography is in a sidebar on the right, closed at first; while it
+    ## is closed, it is not computed
+    bslib::layout_sidebar(
+      sidebar = bslib::sidebar(
+        title = tip_label(
+          "Topography",
+          "The mean of each channel over the part of the window in each segment. Only the
+          channels with positions are used."
+        ),
+        position = "right", open = FALSE, width = 420,
+        if (can_select_segments) {
+          shiny::checkboxInput("topo_average", "One head for all the segments shown, their mean", FALSE)
+        },
+        shiny::checkboxInput("electrodes", "Electrode labels", FALSE),
+        shiny::plotOutput("topographies", height = "auto")
+      ),
+      traces_card
+    )
   }
 
   ui <- bslib::page_sidebar(
     title = shiny::div(
       class = "d-flex w-100 align-items-center gap-3",
       shiny::span(if (is_ica) "ICA components" else "EEG signal"),
+      shiny::span(class = "fw-semibold", shiny::textOutput("recording_name", inline = TRUE)),
       shiny::span(class = "text-muted small text-truncate", shiny::textOutput("where", inline = TRUE)),
       shiny::actionButton("done", "Done", class = "btn-primary ms-auto")
     ),
@@ -339,7 +402,15 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
     shiny::tags$style(shiny::HTML(browse_css)),
     sidebar = bslib::sidebar(
       width = 360,
-      if (length(recs) > 1) shiny::selectInput("recording", "Recording", recs),
+      if (length(recs) > 1) {
+        shiny::div(
+          shiny::selectInput("recording", "Recording", recs),
+          row(
+            shiny::actionButton("prev_recording", "\u2190 Previous recording", class = "btn-sm"),
+            shiny::actionButton("next_recording", "Next recording \u2192", class = "btn-sm")
+          )
+        )
+      },
       do.call(bslib::accordion, c(list(multiple = TRUE), panels))
     ),
     cards
@@ -350,8 +421,29 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
     ## first time the recording is shown, and the correlations once for each
     ## filter of the EOG channels
     cache <- new.env(parent = emptyenv())
+    ## the recording shown: chosen in the field, or with the buttons
+    current_rec <- shiny::reactiveVal(recs[1])
+    shiny::observeEvent(input$recording, {
+      shiny::req(input$recording %in% recs)
+      current_rec(input$recording)
+    })
+    step_recording <- function(step) {
+      i <- match(current_rec(), recs)
+      current_rec(recs[min(max(1, i + step), length(recs))])
+    }
+    shiny::observeEvent(input$prev_recording, step_recording(-1))
+    shiny::observeEvent(input$next_recording, step_recording(1))
+    shiny::observe({
+      rec <- current_rec()
+      if (!identical(shiny::isolate(input$recording), rec)) {
+        shiny::updateSelectInput(session, "recording", selected = rec)
+      }
+      shiny::updateActionButton(session, "prev_recording", disabled = rec == recs[1])
+      shiny::updateActionButton(session, "next_recording", disabled = rec == recs[length(recs)])
+    })
+    output$recording_name <- shiny::renderText(current_rec())
     prep <- shiny::reactive({
-      rec <- input$recording %||% recs[1]
+      rec <- current_rec()
       if (is.null(cache[[rec]])) {
         shiny::withProgress(
           message = paste0("Preparing ", rec, "..."),
@@ -389,7 +481,7 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
     channels <- shiny::debounce(shiny::reactive(input$channels), 1000)
     ## the components marked in each recording, or the .id of the marked segments
     marks <- shiny::reactiveVal(stats::setNames(rep(list(character(0)), length(recs)), recs))
-    segment_marks <- shiny::reactiveVal(integer(0))
+    selected_segments <- shiny::reactiveVal(integer(0))
 
     ## The window is kept here, in samples, and the fields show it in the
     ## chosen unit. The fields change it, and when it had to be corrected, for
@@ -411,28 +503,29 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
         shiny::updateSelectInput(session, "unit_continuous", selected = new)
       }
     }
-    shiny::observeEvent(input$unit, set_unit(input$unit))
-    shiny::observeEvent(input$unit_continuous, set_unit(input$unit_continuous))
+    shiny::observeEvent(input$unit, priority = 3, set_unit(input$unit))
+    shiny::observeEvent(input$unit_continuous, priority = 3, set_unit(input$unit_continuous))
 
-    shiny::observeEvent(prep(), {
+    ## a new recording is set up before anything reads its window
+    shiny::observeEvent(prep(), priority = 2, {
       p <- prep()
       shiny::updateSelectInput(session, "segment", choices = p$bounds$.id)
       shiny::updateRadioButtons(session, "mode",
         selected = if (nrow(p$events) > 0) "events" else "continuous"
       )
       if (is_ica) {
-        shiny::updateSelectizeInput(session, "marked",
+        shiny::updateSelectizeInput(session, "selected",
           choices = p$order_var,
           selected = marks()[[p$recording]]
         )
       }
-      if (can_mark_segments) {
-        shiny::updateSelectizeInput(session, "marked_segments",
+      if (can_select_segments) {
+        shiny::updateSelectizeInput(session, "selected_segments",
           choices = data$.segments$.id,
-          selected = shiny::isolate(segment_marks())
+          selected = shiny::isolate(selected_segments())
         )
       }
-      continuous(clamp_continuous(p$bounds, p$bounds$.id[1], p$bounds$first[1], default_length))
+      continuous(clamp_span(p$bounds, 0, default_length))
     })
     shiny::observeEvent(list(prep(), input$event_field), {
       p <- prep()
@@ -522,37 +615,74 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
       }
     })
 
+    ## A field changed by the server comes back from the browser as a change of
+    ## that field, sometimes after newer changes; taken as the user's, it would
+    ## move the window back, and the fields would chase each other. The values
+    ## sent are kept until they come back, and then ignored.
+    sent <- new.env(parent = emptyenv())
+    send <- function(id, value, update) {
+      sent[[id]] <- c(sent[[id]], list(value))
+      update(value)
+    }
+    came_back <- function(id, value) {
+      same <- vapply(sent[[id]], function(v) {
+        if (is.numeric(v)) isTRUE(abs(as.numeric(value) - v) <= 1e-8 * max(1, abs(v))) else identical(as.character(v), as.character(value))
+      }, logical(1))
+      if (!any(same)) {
+        return(FALSE)
+      }
+      ## what was sent before it came back too, or never will
+      sent[[id]] <- sent[[id]][-seq_len(max(which(same)))]
+      TRUE
+    }
+    user_input <- function(id) {
+      value <- input[[id]]
+      !is.null(value) && !came_back(id, value)
+    }
+
     shiny::observeEvent(input$from, {
-      shiny::req(!is.na(input$from))
+      shiny::req(user_input("from"), !is.na(input$from))
       from(duration_to_samples(input$from, unit(), srate))
     })
     shiny::observeEvent(input$to, {
-      shiny::req(!is.na(input$to))
+      shiny::req(user_input("to"), !is.na(input$to))
       to(duration_to_samples(input$to, unit(), srate))
     })
 
-    ## the fields of the window through the recording
-    set_continuous <- function(id = NULL, first = NULL, length = NULL) {
+    ## The window through the recording is kept as the position of its first
+    ## sample, counting the samples of all the segments of the recording one
+    ## after the other, and its length, so it goes on into the next segments.
+    ## The segment and start in the fields are those of its first sample.
+    set_continuous <- function(start = NULL, length = NULL) {
       cur <- continuous()
       shiny::req(cur)
-      p <- prep()
-      id <- id %||% cur$id
-      shiny::req(id %in% p$bounds$.id)
-      continuous(clamp_continuous(p$bounds, id, first %||% cur$first, length %||% cur$length))
+      continuous(clamp_span(prep()$bounds, start %||% cur$start, length %||% cur$length))
+    }
+    start_of <- function() {
+      w <- continuous()
+      shiny::req(w)
+      from_position(prep()$bounds, w$start)
     }
     shiny::observeEvent(input$segment, {
-      shiny::req(nzchar(input$segment))
-      set_continuous(id = as.integer(input$segment))
+      shiny::req(user_input("segment"), nzchar(input$segment))
+      b <- prep()$bounds
+      id <- as.integer(input$segment)
+      shiny::req(id %in% b$.id)
+      if (!identical(id, start_of()$id)) set_continuous(start = to_position(b, id, b$first[b$.id == id]))
     })
     shiny::observeEvent(input$start, {
-      shiny::req(!is.na(input$start))
-      set_continuous(first = position_to_sample(input$start, unit(), srate))
+      shiny::req(user_input("start"), !is.na(input$start))
+      set_continuous(start = to_position(prep()$bounds, start_of()$id, position_to_sample(input$start, unit(), srate)))
     })
-    shiny::observeEvent(input$start_slider, {
-      set_continuous(first = position_to_sample(input$start_slider, unit(), srate))
+    ## the slider places the start anywhere in the recording
+    shiny::observeEvent(input$position_slider, {
+      shiny::req(user_input("position_slider"))
+      set_continuous(start = round(input$position_slider * scaling(srate, unit())))
     })
-    shiny::observeEvent(input$length, {
-      shiny::req(!is.na(input$length), input$length > 0)
+    ## the length is set before the start, which is kept inside the recording
+    ## for the length of the window
+    shiny::observeEvent(input$length, priority = 1, {
+      shiny::req(user_input("length"), !is.na(input$length), input$length > 0)
       set_continuous(length = max(1, duration_to_samples(input$length, unit(), srate)))
     })
 
@@ -561,7 +691,7 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
       shown <- shiny::isolate(input[[id]])
       read <- if (position) position_to_sample else duration_to_samples
       if (is.null(shown) || is.na(shown) || read(shown, unit(), srate) != samples) {
-        shiny::updateNumericInput(session, id, value = value)
+        send(id, value, function(v) shiny::updateNumericInput(session, id, value = v))
       }
     }
     shiny::observe({
@@ -573,47 +703,79 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
       w <- continuous()
       shiny::req(w)
       u <- unit()
-      b <- prep()$bounds[.id == w$id]
-      if (!identical(shiny::isolate(input$segment), as.character(w$id))) {
-        shiny::updateSelectInput(session, "segment", selected = w$id)
+      st <- start_of()
+      if (!identical(shiny::isolate(input$segment), as.character(st$id))) {
+        send("segment", as.character(st$id), function(v) shiny::updateSelectInput(session, "segment", selected = v))
       }
-      show("start", signif(sample_to_position(w$first, u, srate), 6), w$first, position = TRUE)
+      show("start", signif(sample_to_position(st$sample, u, srate), 6), st$sample, position = TRUE)
       show("length", signif(w$length / scaling(srate, u), 6), w$length)
-      shiny::updateSliderInput(session, "start_slider",
-        min = sample_to_position(b$first, u, srate),
-        max = sample_to_position(max(b$first, b$last - w$length + 1), u, srate),
-        value = sample_to_position(w$first, u, srate),
-        step = 1 / scaling(srate, u)
-      )
+    })
+    ## The slider spans the whole recording, from the first sample to the last
+    ## start that leaves room for the window. Its range is sent only when it
+    ## changes, and its value only when it is not the one shown.
+    slider_range <- NULL
+    shiny::observe({
+      w <- continuous()
+      shiny::req(w)
+      k <- scaling(srate, unit())
+      last_start <- segment_positions(prep()$bounds)$total - w$length
+      range <- c(last_start, k)
+      shown <- shiny::isolate(input$position_slider)
+      if (!identical(range, slider_range)) {
+        slider_range <<- range
+        send("position_slider", w$start / k, function(v) {
+          shiny::updateSliderInput(session, "position_slider",
+            min = 0, max = max(1, last_start) / k, value = v, step = 1 / k
+          )
+        })
+      } else if (is.null(shown) || round(shown * k) != w$start) {
+        send("position_slider", w$start / k, function(v) {
+          shiny::updateSliderInput(session, "position_slider", value = v)
+        })
+      }
     })
 
+    ## the window: the part of each segment it covers, the event it is around,
+    ## and the segment that M and the button select (the one of the event, or
+    ## the first one shown)
     window <- shiny::reactive({
       p <- prep()
       u <- unit()
+      b <- p$bounds
       shiny::req(input$mode)
       if (input$mode == "events") {
         ev <- selected_events()
         i <- min(event_i(), nrow(ev))
-        event_window(p$bounds, ev[i], from = from(), to = to()) %>%
-          c(list(
-            at_start = i == 1, at_end = i == nrow(ev),
-            label = sprintf(
-              "Event %d of %d: %s \u00b7 %s at %s",
-              i, nrow(ev), ev$.type[i], ev$.description[i], format_position(ev$.initial[i], u, srate)
-            )
-          ))
-      } else {
-        w <- continuous()
-        shiny::req(w)
-        b <- p$bounds
+        span <- event_span(b, ev[i], from = from(), to = to())
         list(
-          id = w$id, first = w$first, last = w$first + w$length - 1L, anchor = NA_integer_,
-          at_start = w$id == b$.id[1] && w$first <= b$first[1],
-          at_end = w$id == b$.id[nrow(b)] && w$first + w$length - 1L >= b$last[nrow(b)],
+          span = span, pieces = window_pieces(b, span),
+          anchor = list(id = ev$.id[i], sample = ev$.initial[i]), focus = ev$.id[i],
+          at_start = i == 1, at_end = i == nrow(ev),
           label = sprintf(
-            "Segment %d, %s to %s", w$id, format_position(w$first, u, srate),
-            format_position(w$first + w$length - 1L, u, srate)
+            "Event %d of %d: %s \u00b7 %s at %s",
+            i, nrow(ev), ev$.type[i], ev$.description[i], format_position(ev$.initial[i], u, srate)
           )
+        )
+      } else {
+        span <- continuous()
+        shiny::req(span)
+        pieces <- window_pieces(b, span)
+        n <- nrow(pieces)
+        list(
+          span = span, pieces = pieces, anchor = NULL, focus = pieces$.id[1],
+          at_start = span$start <= 0,
+          at_end = span$start + span$length >= segment_positions(b)$total,
+          label = if (n == 1) {
+            sprintf(
+              "Segment %d, %s to %s", pieces$.id, format_position(pieces$first, u, srate),
+              format_position(pieces$last, u, srate)
+            )
+          } else {
+            sprintf(
+              "Segments %d to %d, %s to %s", pieces$.id[1], pieces$.id[n],
+              format_position(pieces$first[1], u, srate), format_position(pieces$last[n], u, srate)
+            )
+          }
         )
       }
     })
@@ -631,8 +793,7 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
       } else {
         w <- continuous()
         shiny::req(w)
-        new <- next_window(prep()$bounds, w$id, w$first, w$length, step)
-        set_continuous(id = new$id, first = new$first)
+        set_continuous(start = w$start + step * w$length)
       }
     }
     ## the buttons and keys multiply the zoom by the square root of 2, and the
@@ -660,7 +821,7 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
         ArrowRight = move(1),
         ArrowUp = step_zoom(1),
         ArrowDown = step_zoom(-1),
-        m = if (can_mark_segments) toggle_segment()
+        m = if (can_select_segments) toggle_segment()
       )
     })
     shiny::observe({
@@ -674,8 +835,8 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
     output$where <- shiny::renderText({
       w <- window()
       paste0(
-        if (length(recs) > 1) paste0(prep()$recording, " \u00b7 "), w$label,
-        if (can_mark_segments && w$id %in% segment_marks()) " \u00b7 marked for removal"
+        w$label,
+        if (can_select_segments && w$focus %in% selected_segments()) paste(" \u00b7 segment", w$focus, "selected")
       )
     })
 
@@ -696,7 +857,7 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
         activations_plot(p, w,
           components = components(), channels = channels(),
           marked = marks()[[p$recording]], unit = unit(), srate = srate,
-          scale = scale(), window_marked = w$id %in% segment_marks()
+          scale = scale(), selected_segments = selected_segments(), cut = isTRUE(input$cut)
         )
       },
       ## the traces fill the card, and it scrolls when there are too many
@@ -705,14 +866,41 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
       }
     )
 
+    ## the heads keep their size, and the card scrolls when there are many
+    n_heads <- shiny::reactive({
+      if (is_ica) {
+        length(components())
+      } else if (isTRUE(input$topo_average)) {
+        1
+      } else {
+        nrow(window()$pieces)
+      }
+    })
+    topo_size <- shiny::reactive({
+      n <- max(1, n_heads())
+      ncol <- min(if (is_ica) 4 else 2, n)
+      width <- session$clientData$output_topographies_width %||% 500
+      panel <- min(floor(width / ncol), 300)
+      list(ncol = ncol, width = ncol * panel, height = ceiling(n / ncol) * (panel + 40) + if (is_ica) 0 else 60)
+    })
+    if (!is_ica) {
+      output$topographies <- shiny::renderPlot(
+        {
+          p <- prep()
+          shiny::validate(shiny::need(
+            nrow(p$coords) > 0,
+            "The channels have no positions: add a layout to see the topography."
+          ))
+          window_topo_plot(p, window(),
+            average = isTRUE(input$topo_average), selected = selected_segments(),
+            electrodes = isTRUE(input$electrodes), ncol = topo_size()$ncol
+          )
+        },
+        width = function() topo_size()$width,
+        height = function() topo_size()$height
+      )
+    }
     if (is_ica) {
-      topo_size <- shiny::reactive({
-        n <- max(1, length(components()))
-        ncol <- min(4, n)
-        width <- session$clientData$output_topographies_width %||% 500
-        panel <- min(floor(width / ncol), 300)
-        list(ncol = ncol, width = ncol * panel, height = ceiling(n / ncol) * (panel + 40))
-      })
       output$topographies <- shiny::renderPlot(
         {
           p <- prep()
@@ -727,9 +915,9 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
       )
 
       ## the marks of each recording are kept while another one is shown
-      shiny::observeEvent(input$marked, ignoreNULL = FALSE, ignoreInit = TRUE, {
+      shiny::observeEvent(input$selected, ignoreNULL = FALSE, ignoreInit = TRUE, {
         m <- marks()
-        m[[prep()$recording]] <- as.character(input$marked)
+        m[[prep()$recording]] <- as.character(input$selected)
         marks(m)
       })
       shiny::observeEvent(input$topo_click, {
@@ -739,38 +927,39 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
         rec <- prep()$recording
         m[[rec]] <- if (comp %in% m[[rec]]) setdiff(m[[rec]], comp) else c(m[[rec]], comp)
         marks(m)
-        shiny::updateSelectizeInput(session, "marked", selected = m[[rec]])
+        shiny::updateSelectizeInput(session, "selected", selected = m[[rec]])
       })
     }
 
-    ## a click on the signal, the M key, and the button mark the segment shown,
-    ## or unmark it; the field lists the marked segments and can edit them
-    toggle_segment <- function() {
-      id <- window()$id
-      m <- segment_marks()
-      segment_marks(if (id %in% m) setdiff(m, id) else sort(c(m, id)))
+    ## a click on a segment selects it, or deselects it; the M key and the
+    ## button do it for the segment of the event, or the first one shown; the
+    ## field lists the selected segments and can edit them
+    toggle_segment <- function(id = window()$focus) {
+      m <- selected_segments()
+      selected_segments(if (id %in% m) setdiff(m, id) else sort(c(m, id)))
     }
-    if (can_mark_segments) {
-      shiny::observeEvent(input$mark_segment, toggle_segment())
-      shiny::observeEvent(input$trace_click, toggle_segment())
-      shiny::observeEvent(input$marked_segments, ignoreNULL = FALSE, ignoreInit = TRUE, {
-        segment_marks(sort(as.integer(input$marked_segments)))
+    if (can_select_segments) {
+      shiny::observeEvent(input$select_segment, toggle_segment())
+      shiny::observeEvent(input$trace_click, toggle_segment(clicked_segment(input$trace_click, window())))
+      shiny::observeEvent(input$selected_segments, ignoreNULL = FALSE, ignoreInit = TRUE, {
+        selected_segments(sort(as.integer(input$selected_segments)))
       })
       shiny::observe({
-        m <- segment_marks()
-        if (!setequal(as.integer(shiny::isolate(input$marked_segments)), m)) {
-          shiny::updateSelectizeInput(session, "marked_segments", selected = m)
+        m <- selected_segments()
+        if (!setequal(as.integer(shiny::isolate(input$selected_segments)), m)) {
+          shiny::updateSelectizeInput(session, "selected_segments", selected = m)
         }
       })
       shiny::observe({
-        shiny::updateActionButton(session, "mark_segment",
-          label = if (window()$id %in% segment_marks()) "Unmark the segment shown" else "Mark the segment shown"
+        id <- window()$focus
+        shiny::updateActionButton(session, "select_segment",
+          label = paste(if (id %in% selected_segments()) "Deselect segment" else "Select segment", id)
         )
       })
     }
 
-    ## what the app returns: the marked components, or the marked segments
-    result <- function() if (is_ica) marks() else segment_marks()
+    ## what the app returns: the selected components, or the selected segments
+    result <- function() if (is_ica) marks() else selected_segments()
     shiny::observeEvent(input$done, shiny::stopApp(result()))
     session$onSessionEnded(function() shiny::stopApp(shiny::isolate(result())))
   }
@@ -791,11 +980,18 @@ document.addEventListener('keydown', function(e) {
 });
 "
 
+#' A label with an information sign that shows `tip` when the pointer is on it
+#' @noRd
+tip_label <- function(label, tip) {
+  shiny::span(label, bslib::tooltip(shiny::span(class = "browse-tip", "\u24d8"), tip))
+}
+
 browse_css <- "
 .browse-row > * { flex: 1 1 0; min-width: 0; }
 .browse-scroll { overflow-y: auto; }
 .browse-wrap { overflow-wrap: anywhere; }
 .browse-zoom .form-group { margin-bottom: 0; }
+.browse-tip { color: var(--bs-secondary-color); cursor: help; margin-left: .25em; }
 "
 
 #' Everything eeg_browse() needs from the signal of one recording, which does
@@ -821,7 +1017,11 @@ browse_eeg_prep <- function(data, rec, extra = NULL) {
     sd = typical_sd(
       cbind(extra, as.matrix(signal[, chs, with = FALSE])),
       ids = signal$.id, chunk = round(sampling_rate(one))
-    )
+    ),
+    ## the channels with positions, for the topographies
+    coords = data.table::as.data.table(change_coord(channels_tbl(one), "polar"))[
+      !is.na(.x) & !is.na(.y), list(.channel, .x, .y)
+    ]
   )
 }
 
@@ -929,58 +1129,95 @@ format_position <- function(s, unit, srate) {
   paste(signif(sample_to_position(s, unit, srate), 6), unit)
 }
 
-#' Keeps a window inside its segment, moving it rather than shrinking it
-#' when it fits
+## Windows can go on from one segment into the next: the segments of a
+## recording are laid one after the other, and a window is a range of
+## positions in that sequence, counted from 0
+
+#' Where each segment starts in the sequence of segments of a recording, and
+#' how many samples it has
 #' @noRd
-clamp_window <- function(bounds, id, first, last) {
-  b <- bounds[bounds$.id == id]
-  len <- last - first
-  if (first < b$first) {
-    first <- b$first
-    last <- first + len
-  }
-  if (last > b$last) {
-    last <- b$last
-    first <- max(b$first, last - len)
-  }
-  list(id = id, first = as.integer(first), last = as.integer(last))
+segment_positions <- function(bounds) {
+  n <- bounds$last - bounds$first + 1L
+  list(offset = cumsum(c(0L, utils::head(n, -1L))), n = n, total = sum(n))
 }
 
-#' The window around one event; `from` and `to` are in samples relative to its
-#' onset
+#' The position of a sample of a segment, and the segment and sample of a
+#' position
 #' @noRd
-event_window <- function(bounds, event, from, to) {
-  w <- clamp_window(bounds, event$.id, event$.initial + min(from, to), event$.initial + max(from, to))
-  c(w, list(anchor = event$.initial))
-}
-
-#' The first sample and segment of the next (step = 1) or previous (step = -1)
-#' window; past the edge of a segment, it goes to the next or previous
-#' segment, and it stops at the edges of the recording
-#' @noRd
-next_window <- function(bounds, id, first, length, step) {
+to_position <- function(bounds, id, sample) {
   i <- match(id, bounds$.id)
-  new_first <- first + step * length
-  if (new_first > bounds$last[i]) {
-    if (i == nrow(bounds)) {
-      return(list(id = id, first = first))
-    }
-    return(list(id = bounds$.id[i + 1], first = bounds$first[i + 1]))
-  }
-  if (new_first + length - 1 < bounds$first[i]) {
-    if (i == 1) {
-      return(list(id = id, first = bounds$first[i]))
-    }
-    return(list(id = bounds$.id[i - 1], first = max(bounds$first[i - 1], bounds$last[i - 1] - length + 1)))
-  }
-  list(id = id, first = max(bounds$first[i], new_first))
+  as.integer(segment_positions(bounds)$offset[i] + sample - bounds$first[i])
+}
+from_position <- function(bounds, pos) {
+  sp <- segment_positions(bounds)
+  i <- findInterval(pos, sp$offset)
+  list(id = bounds$.id[i], sample = as.integer(bounds$first[i] + pos - sp$offset[i]))
 }
 
-#' Rows of the signal table and the activations of the components in a window
+#' A window of `length` samples from position `start`, moved back inside the
+#' recording when it goes past an edge, and shortened only when the recording
+#' is shorter
+#' @noRd
+clamp_span <- function(bounds, start, length) {
+  total <- segment_positions(bounds)$total
+  length <- min(max(1, round(length)), total)
+  start <- min(max(round(start), 0), total - length)
+  list(start = as.integer(start), length = as.integer(length))
+}
+
+#' The window around one event: `from` and `to` are in samples relative to its
+#' onset, in either order
+#' @noRd
+event_span <- function(bounds, event, from, to) {
+  anchor <- to_position(bounds, event$.id, event$.initial)
+  clamp_span(bounds, anchor + min(from, to), abs(to - from) + 1)
+}
+
+#' The part of each segment that a window covers
+#' @noRd
+window_pieces <- function(bounds, span) {
+  sp <- segment_positions(bounds)
+  start <- span$start
+  end <- span$start + span$length - 1L
+  seg_end <- sp$offset + sp$n - 1L
+  keep <- seg_end >= start & sp$offset <= end
+  data.table::data.table(
+    .id = bounds$.id[keep],
+    first = as.integer(bounds$first[keep] + pmax(start, sp$offset[keep]) - sp$offset[keep]),
+    last = as.integer(bounds$first[keep] + pmin(end, seg_end[keep]) - sp$offset[keep])
+  )
+}
+
+#' The segment of a click on the signal, from the column it fell in, or else
+#' the segment of the event, or the first one shown
+#' @noRd
+clicked_segment <- function(click, w) {
+  m <- click$mapping
+  for (nm in names(m)) {
+    if (identical(m[[nm]], ".id") && !is.null(click[[nm]])) {
+      return(as.integer(click[[nm]]))
+    }
+  }
+  w$focus
+}
+
+#' Rows of the signal table and the activations of the components in a window,
+#' which can span several segments
 #' @noRd
 window_tbl <- function(p, w, components, channels) {
-  rows <- which(p$ids == w$id & p$samples >= w$first & p$samples <= w$last)
-  center <- function(m) sweep(m, 2, colMeans(m, na.rm = TRUE))
+  pieces <- w$pieces
+  rows <- unlist(lapply(seq_len(nrow(pieces)), function(k) {
+    which(p$ids == pieces$.id[k] & p$samples >= pieces$first[k] & p$samples <= pieces$last[k])
+  }))
+  seg <- p$ids[rows]
+  ## each segment is centered on its own, as their offsets can differ
+  center <- function(m) {
+    for (id in unique(seg)) {
+      r <- seg == id
+      m[r, ] <- sweep(m[r, , drop = FALSE], 2, colMeans(m[r, , drop = FALSE], na.rm = TRUE))
+    }
+    m
+  }
   S <- if (length(components) > 0) {
     X <- center(as.matrix(p$signal[rows, p$ica_channels, with = FALSE]))
     X %*% p$ica$unmixing_matrix[, components, drop = FALSE]
@@ -990,21 +1227,12 @@ window_tbl <- function(p, w, components, channels) {
   Y <- center(as.matrix(p$signal[rows, channels, with = FALSE]))
   values <- cbind(S, Y)
   data.table::data.table(
+    .id = rep(seg, ncol(values)),
     .sample = rep(p$samples[rows], ncol(values)),
     .key = factor(rep(colnames(values), each = length(rows)), levels = colnames(values)),
     .kind = rep(c("component", "channel"), c(ncol(S), ncol(Y)) * length(rows)),
     .value = c(values)
   )
-}
-
-#' A window through the recording that fits in its segment: no longer than
-#' the segment, and moved back inside it when it goes past an edge
-#' @noRd
-clamp_continuous <- function(bounds, id, first, length) {
-  b <- bounds[bounds$.id == id]
-  length <- min(max(1, round(length)), b$last - b$first + 1)
-  first <- min(max(round(first), b$first), b$last - length + 1)
-  list(id = as.integer(id), first = as.integer(first), length = as.integer(length))
 }
 
 #' The typical standard deviation of each column of `x`: the median of its
@@ -1049,91 +1277,221 @@ amplitude_scale <- function(p, components, channels, scale, zoom) {
 }
 
 activations_plot <- function(p, w, components, channels, marked, unit, srate, scale,
-                             window_marked = FALSE) {
-  .x <- .y <- .value <- .key <- .kind <- .marked <- xmin <- xmax <- label <- NULL
+                             selected_segments = integer(0), cut = FALSE) {
+  .x <- .y <- .value <- .key <- .kind <- .marked <- .center <- xmin <- xmax <- label <- x <- NULL
   tbl <- window_tbl(p, w, components, channels)
-  tbl[, .x := sample_to_position(.sample, unit, srate)]
-  tbl[, .y := .value / (scale$ref[as.character(.key)] * scale$half)]
-  tbl[, .marked := .key %in% marked]
   keys <- levels(tbl$.key)
+  ## All the traces are drawn in one panel, each around its own baseline, the
+  ## first on top, which is much faster than one panel per trace. Each trace
+  ## has a row from -1 to 1 around its baseline, and larger amplitudes go on
+  ## into the rows around it, as in any plot; with `cut`, what goes beyond the
+  ## row is not drawn (it is never flattened at the edge).
+  centers <- stats::setNames(2 * (rev(seq_along(keys)) - 1), keys)
+  tbl[, .x := sample_to_position(.sample, unit, srate)]
+  tbl[, .center := centers[as.character(.key)]]
+  tbl[, .y := .value / (scale$ref[as.character(.key)] * scale$half) + .center]
+  tbl[, .marked := .key %in% marked]
+  pieces <- w$pieces
+  ## a window over several segments shows each one in its own column
+  several <- nrow(pieces) > 1
 
-  plot <- ggplot2::ggplot(tbl, ggplot2::aes(x = .x, y = .y))
-  ## a segment marked for removal is tinted red
-  if (window_marked) {
-    plot <- plot + ggplot2::annotate("rect",
-      xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, fill = "#c0392b", alpha = .08
+  plot <- ggplot2::ggplot(tbl, ggplot2::aes(x = .x, y = .y, group = .key))
+  ## the selected segments are tinted red
+  selected <- intersect(pieces$.id, selected_segments)
+  if (length(selected) > 0) {
+    plot <- plot + ggplot2::geom_rect(
+      data = data.frame(.id = selected), xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf,
+      fill = "#c0392b", alpha = .08, inherit.aes = FALSE
     )
   }
-  plot <- plot + ggplot2::geom_hline(yintercept = 0, color = "gray85")
-  ev <- p$events[.id == w$id & .final >= w$first & .initial <= w$last]
-  ## events on one channel are drawn on that channel only, and dropped when
-  ## the channel is not shown
-  ev <- ev[is.na(.channel) | .channel %in% keys]
+  plot <- plot + ggplot2::geom_hline(yintercept = centers, color = "gray88")
+  ev <- data.table::rbindlist(lapply(seq_len(nrow(pieces)), function(k) {
+    piece <- pieces[k]
+    p$events[.id == piece$.id & .final >= piece$first & .initial <= piece$last][
+      , `:=`(
+        xmin = sample_to_position(pmax(.initial, piece$first), unit, srate),
+        xmax = sample_to_position(pmin(.final, piece$last), unit, srate)
+      )
+    ]
+  }))
+  ## events on one channel are drawn on the band of that channel only, and
+  ## dropped when the channel is not shown
+  if (nrow(ev) > 0) ev <- ev[is.na(.channel) | .channel %in% keys]
   types <- sort(unique(ev$.type))
   type_colors <- stats::setNames(rep_len(event_palette, length(types)), types)
   if (nrow(ev) > 0) {
     ev[, `:=`(
-      xmin = sample_to_position(pmax(.initial, w$first), unit, srate),
-      xmax = sample_to_position(pmin(.final, w$last), unit, srate),
-      label = short_description(.description)
+      label = short_description(.description),
+      ymin = ifelse(is.na(.channel), -Inf, centers[.channel] - 1),
+      ymax = ifelse(is.na(.channel), Inf, centers[.channel] + 1)
     )]
-    add_events <- function(plot, ev, layer) {
-      everywhere <- ev[is.na(.channel)]
-      channel <- ev[!is.na(.channel)][, .key := factor(.channel, levels = keys)]
-      if (nrow(everywhere) > 0) plot <- plot + layer(everywhere[, !".channel"])
-      if (nrow(channel) > 0) plot <- plot + layer(channel)
-      plot
+    long <- ev[.final > .initial]
+    if (nrow(long) > 0) {
+      plot <- plot + ggplot2::geom_rect(
+        data = long, ggplot2::aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = .type),
+        alpha = .3, inherit.aes = FALSE
+      ) +
+        ggplot2::scale_fill_manual(values = type_colors, breaks = types, name = NULL)
     }
-    plot <- add_events(plot, ev[.final > .initial], function(d) {
-      ggplot2::geom_rect(
-        data = d, ggplot2::aes(xmin = xmin, xmax = xmax, fill = .type),
-        ymin = -Inf, ymax = Inf, alpha = .3, inherit.aes = FALSE
+    point <- ev[.final == .initial]
+    if (nrow(point) > 0) {
+      plot <- plot + ggplot2::geom_segment(
+        data = point, ggplot2::aes(x = xmin, xend = xmin, y = ymin, yend = ymax, color = .type),
+        linewidth = .8, inherit.aes = FALSE
       )
-    })
-    plot <- add_events(plot, ev[.final == .initial], function(d) {
-      ggplot2::geom_vline(data = d, ggplot2::aes(xintercept = xmin, color = .type), linewidth = .8)
-    })
-    ## one label per event, on the top trace, while they are few enough to read
+    }
+    ## one label per event, at the top, while they are few enough to read
     if (nrow(ev) <= 30) {
-      labels <- unique(ev[, list(xmin, label)])[, .key := factor(keys[1], levels = keys)]
+      labels <- unique(ev[, list(.id, xmin, label)])
       plot <- plot + ggplot2::geom_text(
         data = labels, ggplot2::aes(x = xmin, y = Inf, label = label),
         hjust = -.05, vjust = 1.2, size = 4, color = "gray20", inherit.aes = FALSE
       )
     }
-    if (any(ev$.final > ev$.initial)) {
-      plot <- plot + ggplot2::scale_fill_manual(values = type_colors, breaks = types, name = NULL)
-    }
   }
-  if (!is.na(w$anchor)) {
+  if (!is.null(w$anchor)) {
     plot <- plot + ggplot2::geom_vline(
-      xintercept = sample_to_position(w$anchor, unit, srate), linetype = "dashed"
+      data = data.frame(.id = w$anchor$id, x = sample_to_position(w$anchor$sample, unit, srate)),
+      ggplot2::aes(xintercept = x), linetype = "dashed"
     )
   }
-  ## the lines of the traces and the events share the color scale; traces
-  ## beyond their panel are clipped, zooming out shows them
+  if (several) {
+    segment_label <- function(id) paste0(".id ", id, ifelse(as.integer(id) %in% selected_segments, " \u2713", ""))
+    plot <- plot + ggplot2::facet_grid(. ~ .id,
+      scales = "free_x", space = "free_x",
+      labeller = ggplot2::labeller(.id = segment_label)
+    )
+  }
+  ## the lines of the traces and the events share the color scale
+  traces <- if (cut) {
+    ggplot2::geom_segment(
+      data = cut_at_rows(tbl),
+      ggplot2::aes(x = .x, y = .y, xend = .xend, yend = .yend, color = ifelse(.marked, "marked", .kind)),
+      linewidth = .45
+    )
+  } else {
+    ggplot2::geom_line(ggplot2::aes(color = ifelse(.marked, "marked", .kind)), linewidth = .45)
+  }
   plot +
-    ggplot2::geom_line(ggplot2::aes(color = ifelse(.marked, "marked", .kind)), linewidth = .45) +
+    traces +
     ggplot2::scale_color_manual(
       values = c(component = "black", channel = "#1f5fa8", marked = "#c0392b", type_colors),
       breaks = types, name = NULL
     ) +
-    ggplot2::facet_grid(.key ~ ., switch = "y") +
-    ggplot2::coord_cartesian(ylim = c(-1, 1), expand = FALSE) +
-    ggplot2::scale_x_continuous(if (unit == "samples") "Sample" else paste0("Time (", unit, ")")) +
+    ggplot2::coord_cartesian(ylim = c(-1, max(centers) + 1), expand = FALSE) +
+    ggplot2::scale_y_continuous(breaks = centers, labels = names(centers)) +
+    ggplot2::scale_x_continuous(
+      if (unit == "samples") "Sample" else paste0("Time (", unit, ")"),
+      n.breaks = if (several) 3 else NULL
+    ) +
     ggplot2::labs(y = NULL) +
     theme_eeguana() +
     ggplot2::theme(
       text = ggplot2::element_text(size = 14),
-      strip.text.y.left = ggplot2::element_text(angle = 0, size = 13),
-      strip.placement = "outside",
-      axis.text.x = ggplot2::element_text(size = 12),
-      axis.text.y = ggplot2::element_blank(),
+      axis.text.y = ggplot2::element_text(size = 13, color = "black"),
       axis.ticks.y = ggplot2::element_blank(),
-      panel.spacing.y = ggplot2::unit(0, "lines"),
+      strip.text.x = ggplot2::element_text(size = 12),
+      axis.text.x = ggplot2::element_text(size = 11),
+      panel.spacing.x = ggplot2::unit(.4, "lines"),
       legend.position = "bottom",
       legend.text = ggplot2::element_text(size = 13)
     )
+}
+
+#' The traces as the segments between consecutive samples, cut where they
+#' leave the row of their trace, from -1 to 1 around its baseline, so that the
+#' lines reach the edge of the row and stop there
+#' @noRd
+cut_at_rows <- function(tbl) {
+  .x <- .y <- .xend <- .yend <- .key <- .id <- .sample <- .center <- NULL
+  d <- data.table::copy(tbl)[order(.key, .id, .sample)]
+  d[, `:=`(.xend = data.table::shift(.x, -1), .yend = data.table::shift(.y, -1)), by = list(.key, .id)]
+  d <- d[!is.na(.xend) & !is.na(.y) & !is.na(.yend)]
+  lo <- d$.center - 1
+  hi <- d$.center + 1
+  keep <- !((d$.y > hi & d$.yend > hi) | (d$.y < lo & d$.yend < lo))
+  d <- d[keep]
+  lo <- lo[keep]
+  hi <- hi[keep]
+  ## moves the end `a` along the segment to the edge it went past
+  to_edge <- function(xa, ya, xb, yb) {
+    for (edge in list(hi, lo)) {
+      out <- if (identical(edge, hi)) ya > hi else ya < lo
+      t <- (edge[out] - ya[out]) / (yb[out] - ya[out])
+      xa[out] <- xa[out] + t * (xb[out] - xa[out])
+      ya[out] <- edge[out]
+    }
+    list(xa, ya)
+  }
+  start <- to_edge(d$.x, d$.y, d$.xend, d$.yend)
+  end <- to_edge(d$.xend, d$.yend, d$.x, d$.y)
+  d[, `:=`(.x = start[[1]], .y = start[[2]], .xend = end[[1]], .yend = end[[2]])]
+  d
+}
+
+#' The topography of the mean of each channel over the part of the window in
+#' each segment, or over all of the window with `average`, as long tables
+#' interpolated for plot_topo(); only the channels with positions count
+#' @noRd
+window_topo_tbl <- function(p, w, average = FALSE) {
+  .x <- .y <- .channel <- .group <- NULL
+  pieces <- w$pieces
+  rows <- lapply(seq_len(nrow(pieces)), function(k) {
+    which(p$ids == pieces$.id[k] & p$samples >= pieces$first[k] & p$samples <= pieces$last[k])
+  })
+  names(rows) <- pieces$.id
+  if (average) rows <- list(all = unlist(rows))
+  chs <- p$coords$.channel
+  long <- data.table::rbindlist(lapply(names(rows), function(g) {
+    means <- colMeans(as.matrix(p$signal[rows[[g]], chs, with = FALSE]), na.rm = TRUE)
+    data.table::data.table(.group = g, .key = chs, .value = unname(means))
+  }))
+  long <- long[p$coords[, list(.key = .channel, .x, .y)], on = ".key"]
+  long[, .group := factor(.group, levels = names(rows))]
+  suppressWarnings(eeg_interpolate_tbl(tidytable::group_by(long, .group)))
+}
+
+window_topo_plot <- function(p, w, average, selected, electrodes, ncol = 2) {
+  .group <- NULL
+  topo <- data.table::as.data.table(window_topo_tbl(p, w, average))
+  pieces <- w$pieces
+  labels <- if (average) {
+    c(all = if (nrow(pieces) > 1) {
+      paste0("Mean of .id ", pieces$.id[1], " to ", pieces$.id[nrow(pieces)])
+    } else {
+      paste0(".id ", pieces$.id)
+    })
+  } else {
+    stats::setNames(
+      paste0(".id ", pieces$.id, ifelse(pieces$.id %in% selected, " \u2713", "")),
+      pieces$.id
+    )
+  }
+  ## all the heads share a scale centered on zero, so they can be compared
+  lim <- max(abs(topo$.value), na.rm = TRUE)
+  plot <- suppressMessages(
+    plot_topo(topo) +
+      annotate_head() +
+      ggplot2::geom_contour(color = "gray40", linewidth = .3) +
+      ggplot2::facet_wrap(~.group, ncol = ncol, labeller = ggplot2::as_labeller(labels)) +
+      ggplot2::coord_fixed() +
+      ggplot2::scale_fill_distiller(
+        type = "div", palette = "RdBu", limits = c(-lim, lim), oob = scales::squish, name = NULL
+      ) +
+      ggplot2::theme(
+        legend.position = "bottom", legend.key.width = ggplot2::unit(2, "lines"),
+        strip.text = ggplot2::element_text(size = 12)
+      )
+  )
+  if (electrodes) plot <- plot + annotate_electrodes(color = "black", size = 3)
+  if (!average && any(pieces$.id %in% selected)) {
+    plot <- plot + ggplot2::geom_rect(
+      data = data.frame(.group = factor(intersect(pieces$.id, selected), levels = pieces$.id)),
+      xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf,
+      fill = NA, color = "#c0392b", linewidth = 1.5, inherit.aes = FALSE
+    )
+  }
+  plot
 }
 
 ## colors of the event types, strong enough to see behind the traces
@@ -1146,7 +1504,7 @@ topographies_plot <- function(p, labels, components, marked, electrodes, ncol = 
   topo[, .ICA := factor(as.character(.ICA), levels = components)]
   labels <- labels[components]
   is_marked <- components %in% marked
-  labels[is_marked] <- paste("\u2715", labels[is_marked])
+  labels[is_marked] <- paste("\u2713", labels[is_marked])
   plot <- plot_topo(topo) +
     annotate_head() +
     ggplot2::geom_contour(color = "gray40", linewidth = .3) +
@@ -1226,31 +1584,44 @@ eog_abbreviation <- function(x) {
   ifelse(nchar(short) == 0, x, short)
 }
 
-#' The call to eeg_filter() that removes the marked segments
+#' The segments selected, and the calls to eeg_filter() that keep only them
+#' or remove them
 #' @noRd
-filter_segments_code <- function(name, to_remove) {
-  if (length(to_remove) == 0) {
-    return("No segments were marked for removal.")
+segment_selection_message <- function(name, selected) {
+  if (length(selected) == 0) {
+    return("No segments were selected.")
   }
+  ids <- paste(selected, collapse = ", ")
   paste0(
-    "To remove the marked segments:\neeg_filter(", name, ", !.id %in% c(",
-    paste(to_remove, collapse = ", "), "))"
+    "Segments selected: ", ids, "\n",
+    "To keep only these segments: eeg_filter(", name, ", .id %in% c(", ids, "))\n",
+    "To remove them: eeg_filter(", name, ", !.id %in% c(", ids, "))"
   )
 }
 
-#' The call to eeg_ica_keep() that removes the marked components
+#' The components selected, and the calls to eeg_ica_keep() that keep only
+#' them or remove them
 #' @noRd
-ica_keep_code <- function(name, to_remove) {
-  one_recording <- length(to_remove) == 1
-  to_remove <- to_remove[lengths(to_remove) > 0]
-  if (length(to_remove) == 0) {
-    return("No components were marked for removal.")
+ica_selection_message <- function(name, selected) {
+  one_recording <- length(selected) == 1
+  selected <- selected[lengths(selected) > 0]
+  if (length(selected) == 0) {
+    return("No components were selected.")
   }
-  sel <- vapply(to_remove, function(x) paste0("-c(", paste(x, collapse = ", "), ")"), character(1))
-  args <- if (one_recording) {
-    sel
+  comps <- vapply(selected, paste, character(1), collapse = ", ")
+  listed <- if (one_recording) {
+    paste0("Components selected: ", comps)
   } else {
-    paste0("`", names(to_remove), "` = ", sel, collapse = ", ")
+    paste0("Components selected:\n", paste0("  ", names(selected), ": ", comps, collapse = "\n"))
   }
-  paste0("To remove the marked components:\neeg_ica_keep(", name, ", ", args, ")")
+  call <- function(sign) {
+    sel <- paste0(sign, "c(", comps, ")")
+    args <- if (one_recording) sel else paste0("`", names(selected), "` = ", sel, collapse = ", ")
+    paste0("eeg_ica_keep(", name, ", ", args, ")")
+  }
+  paste0(
+    listed, "\n",
+    "To keep only these components: ", call(""), "\n",
+    "To remove them: ", call("-")
+  )
 }

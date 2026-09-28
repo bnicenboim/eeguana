@@ -171,26 +171,27 @@ faces_ica <- faces_ica |>
 ```
 
 
-The easiest way to investigate the ICA is interactively, with `eeg_browse()`. For an ICA, it opens a Shiny app that shows the activations of the components next to the EOG channels, and their topographies, labeled with the variance they explain and their correlation with the EOG channels. The window can be placed around events, such as the blinks we just marked, and moved from one blink to the next, or moved through the recording. Clicking a topography marks the component for removal, and when we are done, the app returns the marked components, one vector of names for each recording:
+The easiest way to investigate the ICA is interactively, with `eeg_browse()`. For an ICA, it opens a Shiny app that shows the activations of the components next to the EOG channels, and their topographies, labeled with the variance they explain and their correlation with the EOG channels. The window can be placed around events, such as the blinks we just marked, and moved from one blink to the next, or moved through the recording. Clicking a topography selects the component, and when we are done, the app returns the selected components, one vector of names for each recording. Here, we select the components that we want to remove:
 
 ```{r, eval = FALSE}
 to_remove <- eeg_browse(faces_ica)
 ```
 
-This is how the app looks around the first blink, after clicking the topography of ICA5 to mark it for removal:
+This is how the app looks around the first blink, after clicking the topography of ICA5 to select it:
 
-```{r browse-ica, echo = FALSE, out.width = "100%", fig.alt = "The eeg_browse() app: the settings of the window on the left, the activations of the components and the EOG channels around a blink in the middle, and the topographies of the components on the right, with ICA5 marked for removal."}
+```{r browse-ica, echo = FALSE, out.width = "100%", fig.alt = "The eeg_browse() app: the settings of the window on the left, the activations of the components and the EOG channels around a blink in the middle, and the topographies of the components on the right, with ICA5 selected."}
 ## The screenshot is taken each time this document is built, so it shows the
-## current app: eeg_browse() runs in headless Chrome, which marks ICA5, saves
+## current app: eeg_browse() runs in headless Chrome, which selects ICA5, saves
 ## the screenshot, and clicks "Done" (see browse_screenshot.R).
 source("browse_screenshot.R")
-screenshot <- knitr::fig_path(".png")
+## run by hand, outside knitr, it goes to a temporary file
+screenshot <- if (isTRUE(getOption("knitr.in.progress"))) knitr::fig_path(".png") else tempfile(fileext = ".png")
 dir.create(dirname(screenshot), recursive = TRUE, showWarnings = FALSE)
-to_remove <- browse_screenshot(faces_ica, screenshot, inputs = list(marked = "ICA5"))
+to_remove <- browse_screenshot(faces_ica, screenshot, inputs = list(selected = "ICA5"))
 knitr::include_graphics(screenshot)
 ```
 
-ICA5 is the clearest one: it explains a third of the variance and correlates 0.91 with the VEOG channel. So it's the only one we marked, and the only one we remove:
+ICA5 is the clearest one: it explains a third of the variance and correlates 0.91 with the VEOG channel. So it's the only one we selected, and the only one we remove:
 
 ```{r}
 to_remove
@@ -226,7 +227,7 @@ faces_seg_artif |>
   theme(legend.position = "bottom")
 ```
 
-The segments can also be inspected interactively with `eeg_browse()`. For an `eeg_lst`, it shows the signal of the channels around events, such as the artifacts, or through the segments, one at a time. Clicking the signal, or pressing M, marks the segment shown for removal, and when we are done, the app returns the `.id` of the marked segments, which we can then remove with `eeg_filter()`:
+The segments can also be inspected interactively with `eeg_browse()`. For an `eeg_lst`, it shows the signal of the channels around events, such as the artifacts, or through the recording, with each segment in its own column, and, on request, the topography of the window, one for each segment. Clicking a segment selects it, and when we are done, the app returns the `.id` of the selected segments. Here, we would select the segments we want to remove, and then remove them with `eeg_filter()`:
 
 ```{r, eval = FALSE}
 to_remove <- eeg_browse(faces_seg_artif, -VEOG, -HEOG)
@@ -413,7 +414,7 @@ for (file in files) {
 }
 ```
 
-Second, we look at the components of each participant with `eeg_browse()`, and keep the ones marked for removal. Saving them also documents the decisions:
+Second, we look at the components of each participant with `eeg_browse()`, and keep the ones we select for removal. Saving them also documents the decisions:
 
 ```{r, eval = FALSE}
 to_remove <- list()

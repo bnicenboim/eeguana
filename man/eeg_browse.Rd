@@ -42,26 +42,36 @@ low-pass filter, and with \code{NA} as the second, only a high-pass filter.
 order of the variance they explain.}
 }
 \value{
-For an \code{eeg_lst}, invisibly, the \code{.id} of the segments marked for
-removal. A message shows the call to \code{\link[=eeg_filter]{eeg_filter()}} that removes them.
+For an \code{eeg_lst}, invisibly, the \code{.id} of the segments selected. A
+message lists them, and shows the calls to \code{\link[=eeg_filter]{eeg_filter()}} that keep only
+them or remove them.
 
 For an \code{eeg_ica_lst}, invisibly, a list with one element per recording,
-holding the names of the components marked for removal. A message shows
-the call to \code{\link[=eeg_ica_keep]{eeg_ica_keep()}} that removes them.
+holding the names of the components selected. A message lists them, and
+shows the calls to \code{\link[=eeg_ica_keep]{eeg_ica_keep()}} that keep only them or remove them.
 }
 \description{
 \code{eeg_browse()} opens a Shiny app to look through the data. For an
-\code{eeg_lst}, it shows the signal of the channels, and the segments can be
-marked for removal. For an \code{eeg_ica_lst}, created with \code{\link[=eeg_ica]{eeg_ica()}}, it shows
+\code{eeg_lst}, it shows the signal of the channels and, on request, the
+topography of the window, and segments can be selected, for example the
+ones to remove. For
+an \code{eeg_ica_lst}, created with \code{\link[=eeg_ica]{eeg_ica()}}, it shows
 the activations of the components, together with the EOG channels or any
 other channels, and the topography of each component, labeled with the
 proportion of the variance of the channels it explains (see
 \code{\link[=eeg_ica_var_tbl]{eeg_ica_var_tbl()}}) and its correlation with the EOG channels (see
-\code{\link[=eeg_ica_cor_tbl]{eeg_ica_cor_tbl()}}), and the components can be marked for removal.
+\code{\link[=eeg_ica_cor_tbl]{eeg_ica_cor_tbl()}}), and components can be selected, for example the ones
+to remove.
 }
 \details{
 The window can be placed around events and moved from one event to the
-next, or it can be moved through the recording. The events are chosen by
+next, or it can be moved through the recording. It goes on from one segment
+into the next, and each segment is shown in its own column. Through the
+recording, the start of the window is set relative to the time zero of its
+segment, or with a slider over the whole recording, with the segments one
+after the other. With several
+recordings, the buttons "Previous recording" and "Next recording", or the
+field, change the recording shown, whose name is in the title. The events are chosen by
 their type or their description: the ones that are equal to some values,
 start with, end with, or contain some text, or match a regular expression.
 For example, the descriptions that start with "peak" are the blinks found
@@ -76,25 +86,36 @@ recording, so a window with a blink and one without are drawn at the same
 scale, and slow drifts do not flatten the traces. By default, all the
 channels share one scale, and all the components another, so their sizes
 can be compared; each trace can also be drawn at its own scale, which makes
-the small ones visible.
+the small ones visible. Large amplitudes go on into the rows of the traces
+around them, unless the option to cut the traces at the edges of their rows
+is on.
 
 The app needs the packages shiny and bslib.
 }
-\section{Marking segments of an \code{eeg_lst}}{
+\section{Selecting segments of an \code{eeg_lst}}{
 
-Clicking the signal, pressing M, or the "Mark" button marks the segment
-shown for removal, and doing it again unmarks it. A marked segment is
-tinted red. "Done" closes the app and returns the \code{.id} of the marked
-segments; closing the window returns them as well. Only segmented data can
-be marked: when each recording is a single segment, as before
+Clicking a segment on the signal selects it, and clicking it again
+deselects it; M and the "Select segment" button do the same for the segment
+of the event, or for the first segment shown. Selected segments are tinted
+red. "Done" closes the app and returns the \code{.id} of the selected segments;
+closing the window returns them as well. What to do with them is up to
+\code{\link[=eeg_filter]{eeg_filter()}}: keeping only them, or removing them. Only segmented data
+can be selected: when each recording is a single segment, as before
 \code{\link[=eeg_segment]{eeg_segment()}}, the app is only for browsing.
+
+The topography is in a sidebar on the right, closed at first, and it is
+computed only while it is open. It shows the mean of each channel over the
+part of the window in each segment, one head per segment; a box shows one
+head for all the segments of the window, their mean, instead. It needs the
+positions of the electrodes, see \code{\link[=channels_tbl]{channels_tbl()}}.
 }
 
-\section{Marking ICA components}{
+\section{Selecting ICA components}{
 
-Clicking a topography marks the component for removal, and clicking it
-again unmarks it. "Done" closes the app and returns the marked components;
-closing the window returns them as well.
+Clicking a topography selects the component, and clicking it again
+deselects it. "Done" closes the app and returns the selected components;
+closing the window returns them as well. What to do with them is up to
+\code{\link[=eeg_ica_keep]{eeg_ica_keep()}}: keeping only them, or removing them.
 
 The EOG channels are filtered before they are correlated with the
 components, because slow drifts and offsets can hide how closely they
@@ -105,11 +126,14 @@ only affects the correlations: the channels are shown unfiltered.
 
 \examples{
 if (interactive()) {
-  ## mark the segments to remove
-  to_remove <- eeg_browse(data_faces_10_trials)
-  clean <- eeg_filter(data_faces_10_trials, !.id \%in\% to_remove)
+  ## select the segments to remove
+  segs <- eeg_segment(data_faces_10_trials, .description \%in\% c("s70", "s71"),
+    .lim = c(-.2, .5)
+  )
+  to_remove <- eeg_browse(segs)
+  clean <- eeg_filter(segs, !.id \%in\% to_remove)
 
-  ## mark the components to remove
+  ## select the components to remove
   ica <- eeg_ica(data_faces_10_trials, -EOGH, -EOGV, -M1, -M2,
     .method = fast_ICA
   )
