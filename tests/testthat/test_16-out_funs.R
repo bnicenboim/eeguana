@@ -63,3 +63,29 @@ test_that("drop_incomplete_segments() ignores NAs outside the channels", {
   with_na$.segments[1, condition := NA]
   expect_equal(ids_in(drop_incomplete_segments(with_na)), ids_in(intact))
 })
+
+test_that("print() shows only some channels when asked, or when the option says so", {
+  chs <- channel_names(data_faces_ERPs)
+  out <- capture.output(print(data_faces_ERPs, .max_channels = 3))
+  header <- out[grep("^ +\\.id +\\.sample", out)[1]]
+  expect_match(header, paste(chs[1:3], collapse = " +"))
+  expect_no_match(header, chs[4])
+  expect_true(any(out == paste0("# ... and ", length(chs) - 3, " more channels: ", paste(chs[-(1:3)], collapse = ", "))))
+  ## and says how to see more
+  expect_true(any(grepl("options(eeguana.print_max_channels = ...)", out, fixed = TRUE)))
+  ## the option sets the default
+  withr::local_options(eeguana.print_max_channels = 1)
+  out <- capture.output(print(data_faces_ERPs))
+  expect_true(any(grepl(paste0("# ... and ", length(chs) - 1, " more channels"), out)))
+  ## by default, and when there are fewer channels than the maximum, all are shown
+  withr::local_options(eeguana.print_max_channels = Inf)
+  expect_false(any(grepl("more channel|max_channels", capture.output(print(data_faces_ERPs)))))
+  expect_false(any(grepl("more channel", capture.output(print(data_faces_ERPs, .max_channels = 100)))))
+  ## the object is returned invisibly, and not changed
+  capture.output(shown <- withVisible(print(data_faces_ERPs, .max_channels = 2)))
+  expect_false(shown$visible)
+  expect_identical(shown$value, data_faces_ERPs)
+  expect_identical(names(data_faces_ERPs$.signal), c(".id", ".sample", chs))
+  expect_error(print(data_faces_ERPs, .max_channels = -1), "0 or more")
+})
+

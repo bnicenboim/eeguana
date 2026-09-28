@@ -10,6 +10,19 @@
 
 Flexible manipulation of EEG data in R. It provides a data.table powered framework for manipulating EEG data with dplyr-based functions (e.g., `mutate`, `filter`, `summarize`) extended to a new class, eeg_lst, other EEG-specialized functions, and `ggplot` wrapper functions. The new class is inspired by tidyverse principles but it's not really "tidy" (due to space considerations), it's a list of (i) a wide data table (signal_tbl) that contains the signal amplitudes at every sample point of the EEG, (ii) an events data table with information about markers (or triggers), blinks and other exported information, and (iii) a long table with experimental information, such as participant number (.recording), conditions, etc. eeguana can do only basic pre-processing for now.
 }
+\section{Options}{
+
+\itemize{
+\item \code{eeguana.verbose}: \code{TRUE} by default; with \code{FALSE}, the functions do not
+show messages about what they do, such as the filters they apply.
+\item \code{eeguana.print_max_channels}: maximum number of channels shown when an
+\code{eeg_lst}, \code{psd_lst}, or \code{eeg_ica_lst} is printed; \code{Inf}, all of them, by
+default. See \code{\link[=print.eeg_lst]{print.eeg_lst()}}.
+}
+
+Set them with \code{\link[=options]{options()}}, for example \code{options(eeguana.print_max_channels = 8)}.
+}
+
 \seealso{
 Useful links:
 \itemize{

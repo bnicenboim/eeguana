@@ -102,6 +102,7 @@ reference:
     - starts_with("is_")
     - starts_with("n")
     - '`ica_matrix_lst`'
+    - '`print.eeg_lst`'
   - title: "Editing functions"
     desc: >
       Functions for showing (and sometimes editing) `eeg_lst` objects parts.

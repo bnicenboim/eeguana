@@ -362,15 +362,70 @@ print.eeg_summary <- function(x, ...) {
   invisible(x)
 }
 
+#' Prints the table (`.signal` or `.psd`) of `x` with its first `max`
+#' channels, and a line with the names of the others. eeg_select() does not
+#' copy the columns, so this is cheap also for long recordings.
+#' @noRd
+print_channels <- function(x, table, max, ...) {
+  if (!is.numeric(max) || length(max) != 1 || is.na(max) || max < 0) {
+    stop("`.max_channels` should be a number, 0 or more.", call. = FALSE)
+  }
+  channels <- channel_names(x)
+  if (length(channels) <= max) {
+    print(x[[table]], ...)
+    return(invisible())
+  }
+  hidden <- channels[-seq_len(max)]
+  print(eeg_select(x, -tidyselect::all_of(hidden))[[table]], ...)
+  cat_line(
+    "# ... and ", length(hidden), " more channel", if (length(hidden) > 1) "s", ": ",
+    paste(hidden, collapse = ", ")
+  )
+  cat_line("# Use print(.max_channels = ...) or options(eeguana.print_max_channels = ...) to see more.")
+  invisible()
+}
+
+#' Print an eeg_lst
+#'
+#' Prints the signal, events, and segments tables of an `eeg_lst`, a
+#' `psd_lst`, or an `eeg_ica_lst`. Recordings with many channels make the
+#' signal table very wide; `.max_channels` shows only the first ones, and a
+#' line lists the others.
+#'
+#' @param x An `eeg_lst`, `psd_lst`, or `eeg_ica_lst`.
+#' @param ... Passed to the `print()` method of data.table, for example
+#'   `topn`.
+#' @param .max_channels Maximum number of channels shown in the signal (or
+#'   PSD) table. By default, the value of the option
+#'   `eeguana.print_max_channels`, see below.
+#' @section Option `eeguana.print_max_channels`:
+#' The option sets how many channels are shown whenever an `eeg_lst`,
+#' `psd_lst`, or `eeg_ica_lst` is printed, also when its name is typed in the
+#' console. It is `Inf`, all the channels, unless it is changed:
+#'
+#' ```
+#' options(eeguana.print_max_channels = 8)
+#' ```
+#'
+#' For the whole session, it can be set in `.Rprofile`. `.max_channels`
+#' overrides it in one call. See [eeguana] for the other options.
+#' @return `x`, invisibly.
+#' @examples
+#' print(data_faces_ERPs, .max_channels = 4)
+#'
+#' ## the same for every print, until it is changed back
+#' op <- options(eeguana.print_max_channels = 4)
+#' data_faces_ERPs
+#' options(op)
 #' @export
-print.eeg_lst <- function(x, ...) {
+print.eeg_lst <- function(x, ..., .max_channels = getOption("eeguana.print_max_channels", Inf)) {
   cat_line("# EEG data:")
   if (length(eeg_group_vars(x)) > 0) {
     cat_line("# Grouped by: ", paste0(eeg_group_vars(x), sep = ", "))
   }
   cat_line("")
   cat_line("# Signal table:")
-  print(x$.signal, ...)
+  print_channels(x, ".signal", .max_channels, ...)
 
   cat_line("")
   cat_line("# Events table:")
@@ -387,30 +442,32 @@ print.eeg_lst <- function(x, ...) {
 }
 
 
+#' @rdname print.eeg_lst
 #' @export
-print.psd_lst <- function(x, ...) {
+print.psd_lst <- function(x, ..., .max_channels = getOption("eeguana.print_max_channels", Inf)) {
   cat_line("# PSD data:")
   if (length(eeg_group_vars(x)) > 0) {
     cat_line("# Grouped by: ", paste0(eeg_group_vars(x), sep = ", "))
   }
   cat_line("")
   cat_line("# PSD table:")
-  print(x$.psd, ...)
+  print_channels(x, ".psd", .max_channels, ...)
   cat_line("")
   cat_line("# Segments table:")
   print(x$.segments, ...)
   invisible(x)
 }
 
+#' @rdname print.eeg_lst
 #' @export
-print.eeg_ica_lst <- function(x, ...) {
+print.eeg_ica_lst <- function(x, ..., .max_channels = getOption("eeguana.print_max_channels", Inf)) {
   cat_line("# EEG data:")
   if (length(eeg_group_vars(x)) > 0) {
     cat_line("# Grouped by: ", paste0(eeg_group_vars(x), sep = ", "))
   }
   cat_line("")
   cat_line("# Signal table:")
-  print(x$.signal, ...)
+  print_channels(x, ".signal", .max_channels, ...)
 
   cat_line("")
   cat_line("## Events table:")
