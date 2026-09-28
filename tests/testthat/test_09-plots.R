@@ -104,7 +104,9 @@ test_that("plot() draws once, when it is printed, also with layers added", {
   figs <- file.path(tempdir(), "plot-once")
   rmd <- tempfile(fileext = ".Rmd")
   writeLines(c(
-    paste0("```{r, fig.path = '", figs, "/'}"),
+    ## pdf rather than knitr's default png(): once the Python tests loaded
+    ## matplotlib, R's cairo devices crash (see the gotchas vignette)
+    paste0("```{r, dev = 'pdf', fig.path = '", figs, "/'}"),
     "plot(eeguana::data_faces_ERPs) + eeguana::annotate_events()",
     "```"
   ), rmd)
