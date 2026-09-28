@@ -17,7 +17,8 @@
 #' into the next, and each segment is shown in its own column. Through the
 #' recording, the start of the window is set relative to the time zero of its
 #' segment, or with a slider over the whole recording, with the segments one
-#' after the other. With several
+#' after the other; the window starts where it is asked, and near the end it
+#' stops with the recording. With several
 #' recordings, the buttons "Previous recording" and "Next recording", or the
 #' field, change the recording shown, whose name is in the title. The events are chosen by
 #' their type or their description: the ones that are equal to some values,
@@ -799,15 +800,15 @@ serve_window <- function(input, session, cfg, prep, events, fields) {
     show("start", signif(sample_to_position(st$sample, u, srate), 6), st$sample, position = TRUE)
     show("length", signif(w$length / scaling(srate, u), 6), w$length)
   })
-  ## The slider spans the whole recording, from the first sample to the last
-  ## start that leaves room for the window. Its range is sent only when it
-  ## changes, and its value only when it is not the one shown.
+  ## The slider spans the whole recording, from its first sample to its last.
+  ## Its range is sent only when it changes, and its value only when it is not
+  ## the one shown.
   slider_range <- NULL
   shiny::observe({
     w <- continuous()
     shiny::req(w)
     k <- scaling(srate, unit())
-    last_start <- segment_positions(prep()$bounds)$total - w$length
+    last_start <- recording_length(prep()$bounds) - 1
     range <- c(last_start, k)
     shown <- shiny::isolate(input$position_slider)
     if (!identical(range, slider_range)) {
@@ -883,7 +884,7 @@ continuous_window <- function(bounds, span, unit, srate) {
   list(
     span = span, pieces = pieces, anchor = NULL, focus = pieces$.id[1],
     at_start = span$start <= 0,
-    at_end = span$start + span$length >= segment_positions(bounds)$total,
+    at_end = span$start + span$length >= recording_length(bounds),
     label = if (n == 1) {
       sprintf(
         "Segment %d, %s to %s", pieces$.id, format_position(pieces$first, unit, srate),
@@ -1112,7 +1113,7 @@ serve_plots <- function(input, output, session, cfg, prep, win, comps, zoom, sel
         )
       } else {
         shiny::validate(shiny::need(
-          nrow(p$coords) > 0,
+          nrow(electrode_positions(p$data)) > 0,
           "The channels have no positions: add a layout to see the topography."
         ))
         window_topo_plot(p, win$window(),
@@ -1169,90 +1170,74 @@ browse_css <- "
 .browse-tip { color: var(--bs-secondary-color); cursor: help; margin-left: .25em; }
 "
 
-#' Everything eeg_browse() needs from the signal of one recording, which does
-#' not depend on the window: `extra` are more traces, such as the activations
-#' of the components, whose typical standard deviations are also needed
+#' Everything eeg_browse() needs from one recording that does not depend on the
+#' window: its data, where its segments start and end, its events, and the
+#' typical standard deviation of each trace
 #' @noRd
-browse_eeg_prep <- function(data, rec, extra = NULL) {
+browse_eeg_prep <- function(data, rec) {
   one <- eeg_filter(data, .recording == !!rec)
-  signal <- one$.signal
-  chs <- channel_names(one)
   list(
     recording = rec,
     data = one,
-    signal = signal,
-    ids = signal$.id,
-    samples = as.integer(signal$.sample),
-    bounds = signal[, list(first = as.integer(min(.sample)), last = as.integer(max(.sample))), by = .id],
-    ## a copy: as.data.table() returns the same table, and := would change
-    ## the events of `data`
-    events = data.table::copy(data.table::as.data.table(one$.events))[
-      , `:=`(.initial = as.integer(.initial), .final = as.integer(.final))
-    ][order(.id, .initial)],
-    sd = typical_sd(
-      cbind(extra, as.matrix(signal[, chs, with = FALSE])),
-      ids = signal$.id, chunk = round(sampling_rate(one))
-    ),
-    ## the channels with positions, for the topographies
-    coords = data.table::as.data.table(change_coord(channels_tbl(one), "polar"))[
-      !is.na(.x) & !is.na(.y), list(.channel, .x, .y)
-    ]
+    bounds = segment_bounds(one$.signal),
+    events = events_tbl(one) %>%
+      tidytable::mutate(.initial = as.integer(.initial), .final = as.integer(.final)) %>%
+      tidytable::arrange(.id, .initial),
+    sd = typical_sd(one$.signal, channel_names(one), chunk = round(sampling_rate(one)))
   )
 }
 
-#' Everything eeg_browse() needs from one recording of an ICA that depends
-#' neither on the window nor on the filter of the EOG channels
+#' The same for one recording of an ICA, with the typical standard deviations
+#' of the activations of the components too (as eeg_ica_show() draws them), the
+#' variance each component explains, and their topographies
 #' @noRd
 browse_ica_prep <- function(data, rec) {
-  ica <- data$.ica[[rec]]
-  ica_chs <- rownames(ica$unmixing_matrix)
-  signal <- data$.signal[.id %in% data$.segments$.id[data$.segments$.recording == rec]]
-  activations <- scale(as.matrix(signal[, ica_chs, with = FALSE]), scale = FALSE) %*%
-    ica$unmixing_matrix
-  p <- browse_eeg_prep(data, rec, extra = activations)
+  p <- browse_eeg_prep(data, rec)
+  components <- component_names(p$data)
+  activations <- eeg_ica_show(p$data, tidyselect::everything())$.signal
+  p$sd <- c(typical_sd(activations, components, chunk = round(sampling_rate(p$data))), p$sd)
   var_tbl <- eeg_ica_var_tbl(p$data)
   c(p, list(
-    ica = ica,
-    ica_channels = ica_chs,
     var = var_tbl,
-    order_var = var_tbl$.ICA,
-    topo = data.table::as.data.table(components_topo_tbl(p$data))
+    order_var = as.character(var_tbl$.ICA),
+    topo = components_topo_tbl(p$data)
   ))
 }
 
-#' The labels of the topographies and the order of the components by their
-#' correlation with the EOG channels, filtered with the cutoffs `freq`
+#' The labels of the topographies (the variance each component explains, and
+#' its correlations with the EOG channels, filtered with the cutoffs `freq`),
+#' and the orders of the components by variance and by correlation
 #' @noRd
 browse_ica_summaries <- function(p, eog, freq) {
-  EOG <- NULL
+  .ICA <- EOG <- cor <- cors <- max_cor <- NULL
   cor_tbl <- if (length(eog) > 0) {
     p$data %>%
       filter_eog(eog, freq) %>%
       eeg_ica_cor_tbl(tidyselect::all_of(eog))
   } else {
-    data.table::data.table(EOG = character(0), .ICA = character(0), cor = numeric(0))
+    tidytable::tidytable(EOG = character(0), .ICA = character(0), cor = numeric(0))
   }
-  comps <- colnames(p$ica$unmixing_matrix)
-  max_cor <- vapply(comps, function(comp) {
-    x <- abs(cor_tbl[as.character(.ICA) == comp]$cor)
-    if (length(x) == 0) NA_real_ else max(x)
-  }, numeric(1))
-  labels <- vapply(comps, function(comp) {
-    cors <- cor_tbl[as.character(.ICA) == comp][order(EOG)]
-    cors_text <- if (nrow(cors) > 0) {
-      paste0(eog_abbreviation(cors$EOG), " ", sprintf("%.2f", cors$cor), collapse = " \u00b7 ")
-    }
-    paste0(
-      comp, " \u00b7 ", sprintf("%.1f%%", 100 * p$var[.ICA == comp]$var),
-      if (!is.null(cors_text)) paste0("\n", cors_text)
+  by_component <- cor_tbl %>%
+    tidytable::mutate(.ICA = as.character(.ICA)) %>%
+    tidytable::arrange(EOG) %>%
+    tidytable::summarize(
+      cors = paste0(eog_abbreviation(EOG), " ", sprintf("%.2f", cor), collapse = " \u00b7 "),
+      max_cor = max(abs(cor)),
+      .by = .ICA
     )
-  }, character(1))
+  components <- p$var %>%
+    tidytable::mutate(.ICA = as.character(.ICA)) %>%
+    tidytable::left_join(by_component, by = ".ICA") %>%
+    tidytable::mutate(label = paste0(
+      .ICA, " \u00b7 ", sprintf("%.1f%%", 100 * var),
+      tidytable::if_else(is.na(cors), "", paste0("\n", cors))
+    ))
   list(
     cor = cor_tbl,
-    labels = labels,
+    labels = stats::setNames(components$label, components$.ICA),
     order = list(
       var = p$order_var,
-      cor = if (all(is.na(max_cor))) p$order_var else comps[order(-max_cor)]
+      cor = if (all(is.na(components$max_cor))) p$order_var else components$.ICA[order(-components$max_cor)]
     )
   )
 }
@@ -1308,36 +1293,47 @@ format_position <- function(s, unit, srate) {
 ## recording are laid one after the other, and a window is a range of
 ## positions in that sequence, counted from 0
 
-#' Where each segment starts in the sequence of segments of a recording, and
-#' how many samples it has
+#' The first and last sample of each segment, how many samples it has, and the
+#' position where it starts in the sequence of segments
 #' @noRd
-segment_positions <- function(bounds) {
-  n <- bounds$last - bounds$first + 1L
-  list(offset = cumsum(c(0L, utils::head(n, -1L))), n = n, total = sum(n))
+segment_bounds <- function(signal) {
+  .sample <- first <- last <- n <- NULL
+  signal %>%
+    tidytable::summarize(first = as.integer(min(.sample)), last = as.integer(max(.sample)), .by = .id) %>%
+    tidytable::mutate(n = last - first + 1L, offset = cumsum(n) - n)
 }
+recording_length <- function(bounds) sum(bounds$n)
 
 #' The position of a sample of a segment, and the segment and sample of a
 #' position
 #' @noRd
 to_position <- function(bounds, id, sample) {
   i <- match(id, bounds$.id)
-  as.integer(segment_positions(bounds)$offset[i] + sample - bounds$first[i])
+  as.integer(bounds$offset[i] + sample - bounds$first[i])
 }
 from_position <- function(bounds, pos) {
-  sp <- segment_positions(bounds)
-  i <- findInterval(pos, sp$offset)
-  list(id = bounds$.id[i], sample = as.integer(bounds$first[i] + pos - sp$offset[i]))
+  i <- findInterval(pos, bounds$offset)
+  list(id = bounds$.id[i], sample = as.integer(bounds$first[i] + pos - bounds$offset[i]))
+}
+
+#' A window through the recording: it starts at position `start`, anywhere in
+#' the recording, and lasts `length` samples, at most the recording; near the
+#' end, it stops with the recording (see window_pieces())
+#' @noRd
+clamp_span <- function(bounds, start, length) {
+  total <- recording_length(bounds)
+  length <- min(max(1, round(length)), total)
+  list(start = as.integer(min(max(round(start), 0), total - 1)), length = as.integer(length))
 }
 
 #' A window of `length` samples from position `start`, moved back inside the
 #' recording when it goes past an edge, and shortened only when the recording
-#' is shorter
+#' is shorter; for the windows around events, which keep their length
 #' @noRd
-clamp_span <- function(bounds, start, length) {
-  total <- segment_positions(bounds)$total
+fit_span <- function(bounds, start, length) {
+  total <- recording_length(bounds)
   length <- min(max(1, round(length)), total)
-  start <- min(max(round(start), 0), total - length)
-  list(start = as.integer(start), length = as.integer(length))
+  list(start = as.integer(min(max(round(start), 0), total - length)), length = as.integer(length))
 }
 
 #' The window around one event: `from` and `to` are in samples relative to its
@@ -1345,22 +1341,29 @@ clamp_span <- function(bounds, start, length) {
 #' @noRd
 event_span <- function(bounds, event, from, to) {
   anchor <- to_position(bounds, event$.id, event$.initial)
-  clamp_span(bounds, anchor + min(from, to), abs(to - from) + 1)
+  fit_span(bounds, anchor + min(from, to), abs(to - from) + 1)
 }
 
 #' The part of each segment that a window covers
 #' @noRd
 window_pieces <- function(bounds, span) {
-  sp <- segment_positions(bounds)
-  start <- span$start
+  first <- n <- offset <- from <- to <- NULL
   end <- span$start + span$length - 1L
-  seg_end <- sp$offset + sp$n - 1L
-  keep <- seg_end >= start & sp$offset <= end
-  data.table::data.table(
-    .id = bounds$.id[keep],
-    first = as.integer(bounds$first[keep] + pmax(start, sp$offset[keep]) - sp$offset[keep]),
-    last = as.integer(bounds$first[keep] + pmin(end, seg_end[keep]) - sp$offset[keep])
-  )
+  bounds %>%
+    tidytable::filter(offset + n > span$start, offset <= end) %>%
+    tidytable::transmute(
+      .id,
+      from = first + pmax(span$start, offset) - offset,
+      to = first + pmin(end, offset + n - 1L) - offset
+    ) %>%
+    tidytable::rename(first = from, last = to)
+}
+
+#' Whether each sample is in the window, for eeg_filter()
+#' @noRd
+in_window <- function(.id, .sample, pieces) {
+  i <- match(.id, pieces$.id)
+  !is.na(i) & .sample >= pieces$first[i] & .sample <= pieces$last[i]
 }
 
 #' The segment of a click on the signal, from the column it fell in, or else
@@ -1376,54 +1379,43 @@ clicked_segment <- function(click, w) {
   w$focus
 }
 
-#' Rows of the signal table and the activations of the components in a window,
-#' which can span several segments
+#' The traces in the window, in long format: the channels, and the activations
+#' of the components as eeg_ica_show() gives them, each one centered in each
+#' segment, as their offsets can differ
 #' @noRd
 window_tbl <- function(p, w, components, channels) {
-  pieces <- w$pieces
-  rows <- unlist(lapply(seq_len(nrow(pieces)), function(k) {
-    which(p$ids == pieces$.id[k] & p$samples >= pieces$first[k] & p$samples <= pieces$last[k])
-  }))
-  seg <- p$ids[rows]
-  ## each segment is centered on its own, as their offsets can differ
-  center <- function(m) {
-    for (id in unique(seg)) {
-      r <- seg == id
-      m[r, ] <- sweep(m[r, , drop = FALSE], 2, colMeans(m[r, , drop = FALSE], na.rm = TRUE))
-    }
-    m
-  }
-  S <- if (length(components) > 0) {
-    X <- center(as.matrix(p$signal[rows, p$ica_channels, with = FALSE]))
-    X %*% p$ica$unmixing_matrix[, components, drop = FALSE]
-  } else {
-    matrix(numeric(0), nrow = length(rows), ncol = 0)
-  }
-  Y <- center(as.matrix(p$signal[rows, channels, with = FALSE]))
-  values <- cbind(S, Y)
-  data.table::data.table(
-    .id = rep(seg, ncol(values)),
-    .sample = rep(p$samples[rows], ncol(values)),
-    .key = factor(rep(colnames(values), each = length(rows)), levels = colnames(values)),
-    .kind = rep(c("component", "channel"), c(ncol(S), ncol(Y)) * length(rows)),
-    .value = c(values)
-  )
+  .id <- .sample <- .key <- .value <- NULL
+  shown <- eeg_filter(p$data, in_window(.id, .sample, !!w$pieces))
+  if (length(components) > 0) shown <- eeg_ica_show(shown, tidyselect::all_of(components))
+  shown$.signal %>%
+    tidytable::select(.id, .sample, tidyselect::all_of(c(components, channels))) %>%
+    tidytable::pivot_longer(-c(.id, .sample), names_to = ".key", values_to = ".value") %>%
+    tidytable::mutate(.value = as.vector(.value)) %>%
+    tidytable::mutate(.value = .value - mean(.value, na.rm = TRUE), .by = c(.id, .key)) %>%
+    tidytable::mutate(
+      .sample = as.integer(.sample),
+      .kind = tidytable::if_else(.key %in% components, "component", "channel"),
+      .key = factor(.key, levels = c(components, channels))
+    )
 }
 
-#' The typical standard deviation of each column of `x`: the median of its
-#' standard deviations in stretches of `chunk` samples of each segment, each
-#' one estimated with the MAD (scaled to match the SD of normal data). Unlike
-#' the standard deviation of the whole recording, it ignores slow drifts,
-#' which would flatten unfiltered channels, and large events such as blinks,
-#' both across the stretches and inside them
+#' The typical standard deviation of each of the `columns` of `signal`: the
+#' median of their standard deviations in stretches of `chunk` samples of each
+#' segment, each one estimated with the MAD (scaled to match the SD of normal
+#' data). Unlike the standard deviation of the whole recording, it ignores slow
+#' drifts, which would flatten unfiltered channels, and large events such as
+#' blinks, both across the stretches and inside them
 #' @noRd
-typical_sd <- function(x, ids, chunk) {
-  pos <- stats::ave(seq_along(ids), ids, FUN = seq_along)
-  groups <- interaction(ids, (pos - 1) %/% chunk, drop = TRUE)
-  apply(x, 2, function(col) {
-    sds <- tapply(col, groups, stats::mad, na.rm = TRUE)
-    stats::median(sds, na.rm = TRUE)
-  })
+typical_sd <- function(signal, columns, chunk) {
+  .chunk <- NULL
+  signal %>%
+    tidytable::mutate(.chunk = (tidytable::row_number() - 1L) %/% chunk, .by = .id) %>%
+    tidytable::summarize(
+      tidytable::across(tidyselect::all_of(columns), ~ stats::mad(.x, na.rm = TRUE)),
+      .by = c(.id, .chunk)
+    ) %>%
+    tidytable::summarize(tidytable::across(tidyselect::all_of(columns), ~ stats::median(.x, na.rm = TRUE))) %>%
+    unlist()
 }
 
 #' How the amplitudes are scaled: each trace is divided by `half` times its
@@ -1433,17 +1425,20 @@ typical_sd <- function(x, ids, chunk) {
 #' @noRd
 amplitude_scale <- function(p, components, channels, scale, zoom, amp_unit = NULL,
                             negative_up = FALSE) {
-  keys <- c(components, channels)
-  sd <- p$sd[keys]
+  sd <- p$sd[c(components, channels)]
   sd[!is.finite(sd) | sd == 0] <- 1
-  kind <- rep(c("component", "channel"), c(length(components), length(channels)))
-  pooled <- tapply(sd, kind, function(x) sqrt(mean(x^2)))
-  ref <- if (scale == "shared") as.vector(pooled[kind]) else unname(sd)
-  names(ref) <- keys
+  ## a shared scale is one for the components and one for the channels
+  pooled <- function(keys) sqrt(mean(sd[keys]^2))
+  ref <- if (scale == "shared") {
+    c(rep(pooled(components), length(components)), rep(pooled(channels), length(channels)))
+  } else {
+    unname(sd)
+  }
+  names(ref) <- names(sd)
   half <- 4 / zoom
   fmt <- function(x) format(signif(x, 2), big.mark = ",", scientific = FALSE, drop0trailing = TRUE)
   ## in the unit of the channels, how far the edge of a row is from its baseline
-  channel_half <- if (scale == "shared" && length(channels) > 0) half * pooled[["channel"]]
+  channel_half <- if (scale == "shared" && length(channels) > 0) half * pooled(channels)
   spans <- if (scale == "shared") {
     paste(c(
       if (length(channels) > 0) paste0("\u00b1", fmt(channel_half), if (!is.null(amp_unit)) paste0(" ", amp_unit), " for the channels"),
@@ -1465,22 +1460,40 @@ round_below <- function(x) {
   power * max(steps[steps <= x / power + 1e-9])
 }
 
+#' The events in the window, cut at its edges, in the unit shown; an event on
+#' one channel only when that channel is shown
+#' @noRd
+window_events <- function(events, pieces, keys, unit, srate) {
+  .final <- .initial <- .channel <- .description <- first <- last <- NULL
+  events %>%
+    tidytable::inner_join(pieces, by = ".id") %>%
+    tidytable::filter(.final >= first, .initial <= last, is.na(.channel) | .channel %in% keys) %>%
+    tidytable::mutate(
+      xmin = sample_to_position(pmax(.initial, first), unit, srate),
+      xmax = sample_to_position(pmin(.final, last), unit, srate),
+      label = short_description(.description)
+    )
+}
+
 activations_plot <- function(p, w, components, channels, marked, unit, srate, scale,
                              selected_segments = integer(0), cut = FALSE, negative_up = FALSE) {
-  .x <- .y <- .value <- .key <- .kind <- .marked <- .center <- xmin <- xmax <- label <- x <- NULL
-  tbl <- window_tbl(p, w, components, channels)
-  keys <- levels(tbl$.key)
+  .x <- .y <- .value <- .key <- .kind <- .marked <- .center <- .sample <- NULL
+  .channel <- .final <- .initial <- .type <- xmin <- xmax <- ymin <- ymax <- label <- x <- NULL
   ## All the traces are drawn in one panel, each around its own baseline, the
   ## first on top, which is much faster than one panel per trace. Each trace
   ## has a row from -1 to 1 around its baseline, and larger amplitudes go on
   ## into the rows around it, as in any plot; with `cut`, what goes beyond the
   ## row is not drawn (it is never flattened at the edge).
+  keys <- c(components, channels)
   centers <- stats::setNames(2 * (rev(seq_along(keys)) - 1), keys)
-  tbl[, .x := sample_to_position(.sample, unit, srate)]
-  tbl[, .center := centers[as.character(.key)]]
   up <- if (negative_up) -1 else 1
-  tbl[, .y := up * .value / (scale$ref[as.character(.key)] * scale$half) + .center]
-  tbl[, .marked := .key %in% marked]
+  tbl <- window_tbl(p, w, components, channels) %>%
+    tidytable::mutate(
+      .x = sample_to_position(.sample, unit, srate),
+      .center = centers[as.character(.key)],
+      .y = up * .value / (scale$ref[as.character(.key)] * scale$half) + .center,
+      .marked = .key %in% marked
+    )
   pieces <- w$pieces
   ## a window over several segments shows each one in its own column
   several <- nrow(pieces) > 1
@@ -1495,27 +1508,16 @@ activations_plot <- function(p, w, components, channels, marked, unit, srate, sc
     )
   }
   plot <- plot + ggplot2::geom_hline(yintercept = centers, color = "gray88")
-  ev <- data.table::rbindlist(lapply(seq_len(nrow(pieces)), function(k) {
-    piece <- pieces[k]
-    p$events[.id == piece$.id & .final >= piece$first & .initial <= piece$last][
-      , `:=`(
-        xmin = sample_to_position(pmax(.initial, piece$first), unit, srate),
-        xmax = sample_to_position(pmin(.final, piece$last), unit, srate)
-      )
-    ]
-  }))
-  ## events on one channel are drawn on the band of that channel only, and
-  ## dropped when the channel is not shown
-  if (nrow(ev) > 0) ev <- ev[is.na(.channel) | .channel %in% keys]
+  ## events on one channel are drawn on the row of that channel only
+  ev <- window_events(p$events, pieces, keys, unit, srate) %>%
+    tidytable::mutate(
+      ymin = tidytable::if_else(is.na(.channel), -Inf, centers[.channel] - 1),
+      ymax = tidytable::if_else(is.na(.channel), Inf, centers[.channel] + 1)
+    )
   types <- sort(unique(ev$.type))
   type_colors <- stats::setNames(rep_len(event_palette, length(types)), types)
   if (nrow(ev) > 0) {
-    ev[, `:=`(
-      label = short_description(.description),
-      ymin = ifelse(is.na(.channel), -Inf, centers[.channel] - 1),
-      ymax = ifelse(is.na(.channel), Inf, centers[.channel] + 1)
-    )]
-    long <- ev[.final > .initial]
+    long <- tidytable::filter(ev, .final > .initial)
     if (nrow(long) > 0) {
       plot <- plot + ggplot2::geom_rect(
         data = long, ggplot2::aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = .type),
@@ -1523,7 +1525,7 @@ activations_plot <- function(p, w, components, channels, marked, unit, srate, sc
       ) +
         ggplot2::scale_fill_manual(values = type_colors, breaks = types, name = NULL)
     }
-    point <- ev[.final == .initial]
+    point <- tidytable::filter(ev, .final == .initial)
     if (nrow(point) > 0) {
       plot <- plot + ggplot2::geom_segment(
         data = point, ggplot2::aes(x = xmin, xend = xmin, y = ymin, yend = ymax, color = .type),
@@ -1532,7 +1534,7 @@ activations_plot <- function(p, w, components, channels, marked, unit, srate, sc
     }
     ## one label per event, at the top, while they are few enough to read
     if (nrow(ev) <= 30) {
-      labels <- unique(ev[, list(.id, xmin, label)])
+      labels <- tidytable::distinct(ev, .id, xmin, label)
       plot <- plot + ggplot2::geom_text(
         data = labels, ggplot2::aes(x = xmin, y = Inf, label = label),
         hjust = -.05, vjust = 1.2, size = 4, color = "gray20", inherit.aes = FALSE
@@ -1623,30 +1625,31 @@ activations_plot <- function(p, w, components, channels, marked, unit, srate, sc
 #' lines reach the edge of the row and stop there
 #' @noRd
 cut_at_rows <- function(tbl) {
-  .x <- .y <- .xend <- .yend <- .key <- .id <- .sample <- .center <- NULL
-  d <- data.table::copy(tbl)[order(.key, .id, .sample)]
-  d[, `:=`(.xend = data.table::shift(.x, -1), .yend = data.table::shift(.y, -1)), by = list(.key, .id)]
-  d <- d[!is.na(.xend) & !is.na(.y) & !is.na(.yend)]
-  lo <- d$.center - 1
-  hi <- d$.center + 1
-  keep <- !((d$.y > hi & d$.yend > hi) | (d$.y < lo & d$.yend < lo))
-  d <- d[keep]
-  lo <- lo[keep]
-  hi <- hi[keep]
-  ## moves the end `a` along the segment to the edge it went past
-  to_edge <- function(xa, ya, xb, yb) {
-    for (edge in list(hi, lo)) {
-      out <- if (identical(edge, hi)) ya > hi else ya < lo
-      t <- (edge[out] - ya[out]) / (yb[out] - ya[out])
-      xa[out] <- xa[out] + t * (xb[out] - xa[out])
-      ya[out] <- edge[out]
-    }
-    list(xa, ya)
-  }
-  start <- to_edge(d$.x, d$.y, d$.xend, d$.yend)
-  end <- to_edge(d$.xend, d$.yend, d$.x, d$.y)
-  d[, `:=`(.x = start[[1]], .y = start[[2]], .xend = end[[1]], .yend = end[[2]])]
-  d
+  .x <- .y <- .xend <- .yend <- .key <- .id <- .sample <- .center <- .from <- .to <- NULL
+  tbl %>%
+    tidytable::arrange(.key, .id, .sample) %>%
+    tidytable::mutate(.xend = tidytable::lead(.x), .yend = tidytable::lead(.y), .by = c(.key, .id)) %>%
+    tidytable::filter(!is.na(.y), !is.na(.yend)) %>%
+    ## the steps entirely above or below the row are not drawn
+    tidytable::filter(pmin(.y, .yend) <= .center + 1, pmax(.y, .yend) >= .center - 1) %>%
+    tidytable::mutate(
+      .from = to_row_edge(.x, .y, .xend, .yend, .center),
+      .to = to_row_edge(.xend, .yend, .x, .y, .center),
+      .y = pmin(pmax(.y, .center - 1), .center + 1),
+      .yend = pmin(pmax(.yend, .center - 1), .center + 1),
+      .x = .from,
+      .xend = .to
+    ) %>%
+    tidytable::select(-.from, -.to)
+}
+
+#' Where the step from (xa, ya) to (xb, yb) reaches the edge of the row around
+#' `center` that ya is beyond, or xa when ya is inside the row
+#' @noRd
+to_row_edge <- function(xa, ya, xb, yb, center) {
+  edge <- pmin(pmax(ya, center - 1), center + 1)
+  tidytable::if_else(edge == ya, xa, xa + (edge - ya) / (yb - ya) * (xb - xa))
+
 }
 
 #' The topography of the mean of each channel over the part of the window in
@@ -1654,26 +1657,37 @@ cut_at_rows <- function(tbl) {
 #' interpolated for plot_topo(); only the channels with positions count
 #' @noRd
 window_topo_tbl <- function(p, w, average = FALSE) {
-  .x <- .y <- .channel <- .group <- NULL
-  pieces <- w$pieces
-  rows <- lapply(seq_len(nrow(pieces)), function(k) {
-    which(p$ids == pieces$.id[k] & p$samples >= pieces$first[k] & p$samples <= pieces$last[k])
-  })
-  names(rows) <- pieces$.id
-  if (average) rows <- list(all = unlist(rows))
-  chs <- p$coords$.channel
-  long <- data.table::rbindlist(lapply(names(rows), function(g) {
-    means <- colMeans(as.matrix(p$signal[rows[[g]], chs, with = FALSE]), na.rm = TRUE)
-    data.table::data.table(.group = g, .key = chs, .value = unname(means))
-  }))
-  long <- long[p$coords[, list(.key = .channel, .x, .y)], on = ".key"]
-  long[, .group := factor(.group, levels = names(rows))]
-  suppressWarnings(eeg_interpolate_tbl(tidytable::group_by(long, .group)))
+  .id <- .sample <- .key <- .value <- NULL
+  channels <- electrode_positions(p$data)$.key
+  by <- if (average) character(0) else ".id"
+  means <- eeg_filter(p$data, in_window(.id, .sample, !!w$pieces))$.signal %>%
+    tidytable::summarize(
+      tidytable::across(tidyselect::all_of(channels), function(x) mean(x, na.rm = TRUE)),
+      .by = tidyselect::all_of(by)
+    )
+  if (average) means <- tidytable::mutate(means, .id = "all")
+  means %>%
+    tidytable::pivot_longer(tidyselect::all_of(channels), names_to = ".key", values_to = ".value") %>%
+    tidytable::mutate(.value = as.vector(.value), .id = factor(.id, levels = unique(.id))) %>%
+    tidytable::inner_join(electrode_positions(p$data), by = ".key") %>%
+    tidytable::group_by(.id) %>%
+    eeg_interpolate_tbl() %>%
+    suppressWarnings()
+
+}
+
+#' The channels with positions, as they are drawn on the head
+#' @noRd
+electrode_positions <- function(data) {
+  .x <- .y <- .channel <- NULL
+  change_coord(channels_tbl(data), "polar") %>%
+    tidytable::filter(!is.na(.x), !is.na(.y)) %>%
+    tidytable::select(.key = .channel, .x, .y)
 }
 
 window_topo_plot <- function(p, w, average, selected, electrodes, ncol = 2) {
-  .group <- NULL
-  topo <- data.table::as.data.table(window_topo_tbl(p, w, average))
+  .id <- NULL
+  topo <- window_topo_tbl(p, w, average)
   pieces <- w$pieces
   labels <- if (average) {
     c(all = if (nrow(pieces) > 1) {
@@ -1693,7 +1707,7 @@ window_topo_plot <- function(p, w, average, selected, electrodes, ncol = 2) {
     plot_topo(topo) +
       annotate_head() +
       ggplot2::geom_contour(color = "gray40", linewidth = .3) +
-      ggplot2::facet_wrap(~.group, ncol = ncol, labeller = ggplot2::as_labeller(labels)) +
+      ggplot2::facet_wrap(~.id, ncol = ncol, labeller = ggplot2::as_labeller(labels)) +
       ggplot2::coord_fixed() +
       ggplot2::scale_fill_distiller(
         type = "div", palette = "RdBu", limits = c(-lim, lim), oob = scales::squish, name = NULL
@@ -1706,7 +1720,7 @@ window_topo_plot <- function(p, w, average, selected, electrodes, ncol = 2) {
   if (electrodes) plot <- plot + annotate_electrodes(color = "black", size = 3)
   if (!average && any(pieces$.id %in% selected)) {
     plot <- plot + ggplot2::geom_rect(
-      data = data.frame(.group = factor(intersect(pieces$.id, selected), levels = pieces$.id)),
+      data = data.frame(.id = factor(intersect(pieces$.id, selected), levels = pieces$.id)),
       xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf,
       fill = NA, color = "#c0392b", linewidth = 1.5, inherit.aes = FALSE
     )
@@ -1720,8 +1734,9 @@ event_palette <- c("#E69F00", "#56B4E9", "#009E73", "#CC79A7", "#0072B2", "#D55E
 
 topographies_plot <- function(p, labels, components, marked, electrodes, ncol = 4) {
   .ICA <- NULL
-  topo <- p$topo[as.character(.ICA) %in% components]
-  topo[, .ICA := factor(as.character(.ICA), levels = components)]
+  topo <- p$topo %>%
+    tidytable::filter(.ICA %in% components) %>%
+    tidytable::mutate(.ICA = factor(as.character(.ICA), levels = components))
   labels <- labels[components]
   is_marked <- components %in% marked
   labels[is_marked] <- paste("\u2713", labels[is_marked])
@@ -1747,19 +1762,18 @@ topographies_plot <- function(p, labels, components, marked, electrodes, ncol = 
 #' many events there are of each
 #' @noRd
 event_choices <- function(events, field = ".description") {
-  .type <- .description <- NULL
+  .type <- .description <- n <- NULL
   if (nrow(events) == 0) {
     return(character(0))
   }
   if (field == ".type") {
-    counts <- events[, list(n = .N), by = .type][order(.type)]
+    counts <- tidytable::count(events, .type) %>% tidytable::arrange(.type)
     return(stats::setNames(counts$.type, paste0(counts$.type, " (", counts$n, ")")))
   }
-  counts <- events[, list(n = .N), by = list(.type, .description)][order(.type, .description)]
-  labels <- stats::setNames(short_labels(counts$.description), counts$.description)
-  lapply(split(counts, by = ".type"), function(d) {
-    stats::setNames(d$.description, paste0(labels[d$.description], " (", d$n, ")"))
-  })
+  counts <- tidytable::count(events, .type, .description) %>%
+    tidytable::arrange(.type, .description) %>%
+    tidytable::mutate(label = paste0(short_labels(.description), " (", n, ")"))
+  lapply(split(counts, counts$.type), function(d) stats::setNames(d$.description, d$label))
 }
 
 #' The blinks from eeg_artif_peak() when there are, or else the first
@@ -1774,13 +1788,10 @@ default_events <- function(events, field = ".description") {
     types <- unique(events$.type)
     return(if ("artifact" %in% types) "artifact" else types[1])
   }
-  desc <- unique(events$.description)
-  peaks <- grep("^peak", desc, value = TRUE)
-  if (length(peaks) > 0) {
-    return(peaks)
-  }
+  descriptions <- unique(events$.description)
+  peaks <- grep("^peak", descriptions, value = TRUE)
   artifacts <- unique(events$.description[events$.type == "artifact"])
-  if (length(artifacts) > 0) artifacts[1] else desc[1]
+  if (length(peaks) > 0) peaks else if (length(artifacts) > 0) artifacts[1] else descriptions[1]
 }
 
 #' The artifact functions describe their events as "peak_threshold=100_...",
@@ -1793,8 +1804,10 @@ short_description <- function(x) sub("_.*$", "", x)
 #' @noRd
 short_labels <- function(x) {
   short <- short_description(x)
-  clash <- tapply(x, short, function(d) length(unique(d)) > 1)
-  as.vector(ifelse(clash[short], x, short))
+  labels <- short_description(unique(x))
+  ## the short labels of more than one description
+  shared <- labels[duplicated(labels)]
+  ifelse(short %in% shared, x, short)
 }
 
 #' "VEOG" and "EOGV" become "V"; other names stay as they are

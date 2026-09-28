@@ -46,19 +46,25 @@ test_that("windows go on from one segment into the next and stay inside the reco
   expect_equal(eeguana:::to_position(b, 2L, -99L), 351L)
   expect_equal(eeguana:::from_position(b, 360L), list(id = 2L, sample = -90L))
   ## a window that fits in a segment
-  piece <- function(id, first, last) data.table::data.table(.id = id, first = first, last = last)
+  piece <- function(id, first, last) tidytable::tidytable(.id = id, first = first, last = last)
   expect_equal(eeguana:::window_pieces(b, list(start = 351L, length = 100L)), piece(2L, -99L, 0L))
   ## one that goes on into the next segments
   expect_equal(
     eeguana:::window_pieces(b, list(start = 300L, length = 500L)),
     piece(c(1L, 2L, 3L), c(201L, -99L, -99L), c(251L, 251L, -2L))
   )
-  ## windows past the edges of the recording are moved back, not shortened
+  ## through the recording, a window starts anywhere in it, and stops with it
   total <- 351L * nrow(b)
   expect_equal(eeguana:::clamp_span(b, -50, 100), list(start = 0L, length = 100L))
-  expect_equal(eeguana:::clamp_span(b, total - 10, 100), list(start = total - 100L, length = 100L))
-  ## and shortened only when the recording is shorter
-  expect_equal(eeguana:::clamp_span(b, 10, total + 5), list(start = 0L, length = total))
+  expect_equal(eeguana:::clamp_span(b, total - 10, 100), list(start = total - 10L, length = 100L))
+  expect_equal(eeguana:::clamp_span(b, total + 10, 100), list(start = total - 1L, length = 100L))
+  expect_equal(eeguana:::window_pieces(b, list(start = total - 10L, length = 100L))$last, 251L)
+  ## and it is never longer than the recording
+  expect_equal(eeguana:::clamp_span(b, 10, total + 5), list(start = 10L, length = total))
+  ## around events, a window past the edges is moved back, not shortened,
+  ## unless the recording is shorter
+  expect_equal(eeguana:::fit_span(b, total - 10, 100), list(start = total - 100L, length = 100L))
+  expect_equal(eeguana:::fit_span(b, 10, total + 5), list(start = 0L, length = total))
   ## around an event, in either order
   ev <- prep_seg$events[.id == 3L][1]
   span <- eeguana:::event_span(b, ev, from = -400, to = 50)
@@ -77,16 +83,15 @@ test_that("a click on a column selects its segment, and elsewhere the one of the
 })
 
 test_that("the activations in a window are the ones eeg_ica_show() gives", {
-  w <- list(pieces = data.table::data.table(.id = 4L, first = -20L, last = 80L))
+  w <- list(pieces = tidytable::tidytable(.id = 4L, first = -20L, last = 80L))
   tbl <- eeguana:::window_tbl(prep_seg, w, c("ICA1", "ICA3"), "EOGV")
   shown <- ica_seg %>%
     eeg_filter(.id == 4L, .sample >= -20L, .sample <= 80L) %>%
     eeg_ica_show(ICA1, ICA3)
-  ## eeg_ica_show() multiplies the activations by 10
-  expect_equal(tbl[.key == "ICA1"]$.value * 10, as.numeric(shown$.signal$ICA1))
-  expect_equal(tbl[.key == "ICA3"]$.value * 10, as.numeric(shown$.signal$ICA3))
-  eogv <- as.numeric(shown$.signal$EOGV)
-  expect_equal(tbl[.key == "EOGV"]$.value, eogv - mean(eogv))
+  centered <- function(x) as.numeric(x) - mean(as.numeric(x))
+  expect_equal(tbl[.key == "ICA1"]$.value, centered(shown$.signal$ICA1))
+  expect_equal(tbl[.key == "ICA3"]$.value, centered(shown$.signal$ICA3))
+  expect_equal(tbl[.key == "EOGV"]$.value, centered(shown$.signal$EOGV))
   expect_equal(unique(tbl$.sample), -20:80)
 })
 
@@ -165,7 +170,7 @@ test_that("the app shows windows around events and through the recording", {
     expect_equal(window()$focus, ev$.id[3])
     expect_equal(
       window()$pieces,
-      data.table::data.table(.id = ev$.id[3], first = ev$.initial[3] - 50L, last = ev$.initial[3] + 150L)
+      tidytable::tidytable(.id = ev$.id[3], first = as.integer(ev$.initial[3]) - 50L, last = as.integer(ev$.initial[3]) + 150L)
     )
     expect_equal(output$n_events, "5 events")
     expect_match(output$where, "Event 3 of 5: [^ ]+ \u00b7 s71 at")
@@ -191,7 +196,7 @@ test_that("the app shows windows around events and through the recording", {
     ## the length first: the start is kept inside the segment for the length
     ## there is when it is set
     session$setInputs(mode = "continuous", unit_continuous = "ms", segment = "5", length = 200, start = 100)
-    expect_equal(window()$pieces, data.table::data.table(.id = 5L, first = 51L, last = 150L))
+    expect_equal(window()$pieces, tidytable::tidytable(.id = 5L, first = 51L, last = 150L))
     expect_match(output$where, "Segment 5, 100 ms to 298 ms")
     expect_match(output$activations$src, "^data:image/png")
   })
@@ -201,7 +206,7 @@ test_that("the window through the recording goes on into the next segments", {
   shiny::testServer(eeguana:::browse_app(ica_seg, .kind = "ica"), {
     b <- prep()$bounds
     session$setInputs(mode = "continuous", unit_continuous = "ms", segment = "2", start = 0, length = 200)
-    expect_equal(window()$pieces, data.table::data.table(.id = 2L, first = 1L, last = 100L))
+    expect_equal(window()$pieces, tidytable::tidytable(.id = 2L, first = 1L, last = 100L))
     ## a window longer than the segment goes on into the next ones
     session$setInputs(length = 1500)
     expect_equal(window()$pieces$.id, c(2L, 3L, 4L))
@@ -210,31 +215,31 @@ test_that("the window through the recording goes on into the next segments", {
     ## a start past the end of the segment is in the next one, and the fields
     ## then refer to that segment
     session$setInputs(length = 200, start = 800)
-    expect_equal(window()$pieces, data.table::data.table(.id = 3L, first = 50L, last = 149L))
+    expect_equal(window()$pieces, tidytable::tidytable(.id = 3L, first = 50L, last = 149L))
     ## the next window starts where this one ends, also in the next segment
     session$setInputs(segment = "2", start = 400)
     expect_equal(
       window()$pieces,
-      data.table::data.table(.id = c(2L, 3L), first = c(201L, -99L), last = c(251L, -51L))
+      tidytable::tidytable(.id = c(2L, 3L), first = c(201L, -99L), last = c(251L, -51L))
     )
     session$setInputs(`next` = 1)
-    expect_equal(window()$pieces, data.table::data.table(.id = 3L, first = -50L, last = 49L))
+    expect_equal(window()$pieces, tidytable::tidytable(.id = 3L, first = -50L, last = 49L))
     session$setInputs(prev = 1)
     expect_equal(window()$pieces$.id, c(2L, 3L))
     ## the slider places the start anywhere in the recording, counting the
     ## segments one after the other: 1 s is 500 samples, in the second segment
     session$setInputs(position_slider = 1000)
     expect_equal(continuous()$start, 500L)
-    expect_equal(window()$pieces, data.table::data.table(.id = 2L, first = 50L, last = 149L))
+    expect_equal(window()$pieces, tidytable::tidytable(.id = 2L, first = 50L, last = 149L))
     session$setInputs(segment = "2", start = 400)
     ## changing the unit does not move the window
     session$setInputs(unit_continuous = "samples")
     expect_equal(window()$pieces$.id, c(2L, 3L))
-    ## at the edges of the recording, the window is moved back inside, and the
-    ## buttons are grayed out
+    ## a start past the end of the recording is its last sample, and the
+    ## buttons are grayed out at the edges
     last <- b[.N]
     session$setInputs(segment = as.character(last$.id), start = 1000)
-    expect_equal(window()$pieces, data.table::data.table(.id = last$.id, first = 152L, last = 251L))
+    expect_equal(window()$pieces, tidytable::tidytable(.id = last$.id, first = 251L, last = 251L))
     expect_true(window()$at_end)
     expect_false(window()$at_start)
     session$setInputs(segment = "1", start = -99)
@@ -250,18 +255,18 @@ test_that("start and length beyond the recording are replaced by the values used
       mode = "continuous", unit_continuous = "samples", segment = as.character(b$.id[nrow(b)]),
       length = 100, start = 1000
     )
-    ## the window ends with the recording, and the field shows where it starts
+    ## the window starts at the last sample, and the field says so
     expect_true(window()$at_end)
-    expect_equal(last_sent("start"), b$last[nrow(b)] - 99)
+    expect_equal(last_sent("start"), b$last[nrow(b)])
     ## also when the window does not move
     n <- length(sent$start)
     session$setInputs(start = 2000)
     expect_length(sent$start, n + 1)
-    expect_equal(last_sent("start"), b$last[nrow(b)] - 99)
+    expect_equal(last_sent("start"), b$last[nrow(b)])
     ## a length longer than the recording is the recording, and a length of
     ## zero or less is one sample
     session$setInputs(length = 1e6)
-    total <- eeguana:::segment_positions(b)$total
+    total <- eeguana:::recording_length(b)
     expect_equal(continuous()$length, total)
     expect_equal(last_sent("length"), total)
     session$setInputs(length = -3)
@@ -270,6 +275,21 @@ test_that("start and length beyond the recording are replaced by the values used
     ## an emptied field shows the current value again
     session$setInputs(start = NA)
     expect_false(is.na(last_sent("start")))
+  })
+})
+
+test_that("the start is kept, also when the window is longer than what is left", {
+  ## data_faces_ERPs has two segments of 226 samples, from -0.2 s to 0.25 s:
+  ## the window of 4 s is the whole recording, and it still starts where asked
+  shiny::testServer(eeguana:::browse_app(data_faces_ERPs), {
+    session$setInputs(mode = "continuous", unit_continuous = "s", channels = "Fz", scale = "shared")
+    session$setInputs(start = -.1)
+    b <- prep()$bounds
+    expect_equal(from_position(b, continuous()$start), list(id = 1L, sample = -49L))
+    session$setInputs(start = .1)
+    expect_equal(from_position(b, continuous()$start), list(id = 1L, sample = 51L))
+    expect_equal(window()$pieces$.id, c(1L, 2L))
+    expect_true(window()$at_end)
   })
 })
 
@@ -325,19 +345,19 @@ test_that("amplitudes are scaled by their typical standard deviation", {
   ## activations by 10
   shown <- eeg_ica_show(ica_seg, ICA1)
   per_segment <- function(x) stats::median(tapply(as.numeric(x), shown$.signal$.id, stats::mad))
-  expect_equal(prep_seg$sd[["ICA1"]], per_segment(shown$.signal$ICA1) / 10)
+  expect_equal(prep_seg$sd[["ICA1"]], per_segment(shown$.signal$ICA1))
   expect_equal(prep_seg$sd[["EOGV"]], per_segment(shown$.signal$EOGV))
   ## a slow drift does not change it, and it is split into stretches
-  x <- cbind(a = rep(c(-1, 1), 500), b = rep(c(-1, 1), 500) + seq(0, 20, length.out = 1000))
-  sds <- eeguana:::typical_sd(x, ids = rep(1L, 1000), chunk = 10)
+  x <- tidytable::tidytable(.id = 1L, a = rep(c(-1, 1), 500), b = rep(c(-1, 1), 500) + seq(0, 20, length.out = 1000))
+  sds <- eeguana:::typical_sd(x, c("a", "b"), chunk = 10)
   expect_equal(sds[["a"]], stats::mad(rep(c(-1, 1), 5)))
   expect_lt(abs(sds[["b"]] - sds[["a"]]) / sds[["a"]], .05)
-  expect_gt(stats::sd(x[, "b"]), 3 * sds[["b"]])
+  expect_gt(stats::sd(x$b), 3 * sds[["b"]])
   ## and neither does a large outlier in every stretch, which the median over
   ## the stretches alone would not remove
   spiky <- rep(c(-1, 1), 500)
   spiky[seq(1, 1000, by = 10)] <- 50
-  expect_equal(eeguana:::typical_sd(cbind(spiky), ids = rep(1L, 1000), chunk = 10)[[1]], sds[["a"]])
+  expect_equal(eeguana:::typical_sd(tidytable::tidytable(.id = 1L, spiky = spiky), "spiky", chunk = 10)[[1]], sds[["a"]])
 
   each <- eeguana:::amplitude_scale(prep_seg, c("ICA1", "ICA2"), c("EOGV", "Fz"), "each", 1)
   expect_equal(each$ref, prep_seg$sd[c("ICA1", "ICA2", "EOGV", "Fz")])
@@ -476,7 +496,7 @@ test_that("the signal of the channels is shown, without components", {
     expect_equal(window()$pieces$.id, c(2L, 3L, 4L))
     expect_match(output$activations$src, "^data:image/png")
   })
-  w <- list(pieces = data.table::data.table(.id = c(4L, 5L), first = c(200L, -99L), last = c(251L, -50L)))
+  w <- list(pieces = tidytable::tidytable(.id = c(4L, 5L), first = c(200L, -99L), last = c(251L, -50L)))
   tbl <- eeguana:::window_tbl(eeguana:::browse_eeg_prep(seg, rec), w, character(0), "Fz")
   ## each segment is centered on its own
   fz <- function(id, from, to) {
@@ -490,7 +510,7 @@ test_that("the signal of the channels is shown, without components", {
 
 test_that("large amplitudes go beyond their row, or are cut, but are never flattened", {
   p <- eeguana:::browse_eeg_prep(seg, rec)
-  w <- list(pieces = data.table::data.table(.id = 4L, first = -99L, last = 251L))
+  w <- list(pieces = tidytable::tidytable(.id = 4L, first = -99L, last = 251L))
   ## zoomed in 16 times, many values are beyond the rows
   sc <- eeguana:::amplitude_scale(p, character(0), c("Fz", "Cz"), "shared", 16)
   plot <- eeguana:::activations_plot(p, w, character(0), c("Fz", "Cz"), character(0), "s", 500, sc)
@@ -521,7 +541,7 @@ test_that("large amplitudes go beyond their row, or are cut, but are never flatt
 
 test_that("negative can be up, and a scale bar shows a round amplitude in the unit of the channels", {
   p <- eeguana:::browse_eeg_prep(seg, rec)
-  w <- list(pieces = data.table::data.table(.id = 4L, first = -99L, last = 251L))
+  w <- list(pieces = tidytable::tidytable(.id = 4L, first = -99L, last = 251L))
   sc <- eeguana:::amplitude_scale(p, character(0), c("Fz", "Cz"), "shared", 1, amp_unit = "\u00b5V")
   expect_match(sc$text, "^Each row spans \u00b1[0-9.,]+ \u00b5V for the channels; positive up$")
   draw <- function(negative_up) {
@@ -555,21 +575,22 @@ test_that("the topography is the mean of the window, one head per segment or the
   seg_layout <- seg
   p <- eeguana:::browse_eeg_prep(seg_layout, rec)
   ## the channels without positions do not count
-  expect_false(any(c("EOGV", "EOGH") %in% p$coords$.channel))
-  expect_true(all(c("Fz", "Cz", "Oz") %in% p$coords$.channel))
-  w <- list(pieces = data.table::data.table(.id = c(4L, 5L), first = c(200L, -99L), last = c(251L, -50L)))
+  positions <- eeguana:::electrode_positions(seg)
+  expect_false(any(c("EOGV", "EOGH") %in% positions$.key))
+  expect_true(all(c("Fz", "Cz", "Oz") %in% positions$.key))
+  w <- list(pieces = tidytable::tidytable(.id = c(4L, 5L), first = c(200L, -99L), last = c(251L, -50L)))
   per_segment <- eeguana:::window_topo_tbl(p, w)
-  expect_equal(levels(per_segment$.group), c("4", "5"))
+  expect_equal(levels(per_segment$.id), c("4", "5"))
   averaged <- eeguana:::window_topo_tbl(p, w, average = TRUE)
-  expect_equal(levels(averaged$.group), "all")
+  expect_equal(levels(averaged$.id), "all")
   ## the value interpolated at an electrode is close to its mean over the window
   mean_fz <- function(rows) mean(as.numeric(rows$.signal$Fz))
   fz4 <- mean_fz(eeg_filter(seg, .id == 4L, .sample >= 200L))
   fz5 <- mean_fz(eeg_filter(seg, .id == 5L, .sample <= -50L))
-  at_fz <- function(tbl, group) {
-    pos <- p$coords[.channel == "Fz"]
-    d <- data.table::as.data.table(tbl)[.group == group]
-    d[which.min((.x - pos$.x)^2 + (.y - pos$.y)^2)]$.value
+  at_fz <- function(tbl, id) {
+    fz <- positions[.key == "Fz"]
+    d <- tidytable::filter(tbl, .id == id)
+    d$.value[which.min((d$.x - fz$.x)^2 + (d$.y - fz$.y)^2)]
   }
   expect_equal(at_fz(per_segment, "4"), fz4, tolerance = .1)
   expect_equal(at_fz(per_segment, "5"), fz5, tolerance = .1)

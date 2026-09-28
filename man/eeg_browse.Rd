@@ -80,7 +80,8 @@ next, or it can be moved through the recording. It goes on from one segment
 into the next, and each segment is shown in its own column. Through the
 recording, the start of the window is set relative to the time zero of its
 segment, or with a slider over the whole recording, with the segments one
-after the other. With several
+after the other; the window starts where it is asked, and near the end it
+stops with the recording. With several
 recordings, the buttons "Previous recording" and "Next recording", or the
 field, change the recording shown, whose name is in the title. The events are chosen by
 their type or their description: the ones that are equal to some values,
