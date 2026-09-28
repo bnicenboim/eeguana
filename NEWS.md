@@ -7,15 +7,20 @@
   before zero, or lie after it. The interval includes its start but not its
   end. A single value, such as the default `-Inf`, is still the start of an
   interval that ends at time zero, so existing calls give the same results.
-- `eeg_browse()` opens a Shiny app to look through the data and mark what to
-  remove. For an `eeg_lst`, it shows the signal of the channels, and the
-  segments can be marked by clicking the signal, pressing M, or a button; it
-  returns their `.id`. For an `eeg_ica_lst`, it shows the activations of the
-  components next to the EOG channels, or any other channels, and their
-  topographies, labeled with the variance they explain and their correlation
-  with the EOG channels; clicking a topography marks the component, and it
-  returns the marked components. In order for it to work, shiny and bslib
-  need to be manually installed.
+- `eeg_browse()` opens a Shiny app to look through the data and select parts
+  of it, for example the ones to remove. For an `eeg_lst`, it shows the signal of the channels and the topography. For an `eeg_ica_lst`, it shows the
+  activations of the components next to the EOG channels, or any other
+  channels, and their topographies. In order for it to work, shiny and
+  bslib need to be manually installed.
+
+## Bugs fixed
+
+- `plot()` on an `eeg_lst` or a `psd_lst` printed the plot, besides
+  returning it, so `plot(x) + annotate_events()` drew two plots, the first
+  one without the added layers; in R Markdown documents every such chunk
+  showed the plot twice. It now returns the plot, which is drawn when it is
+  printed, as any ggplot. Inside functions or loops, it has to be printed
+  with `print()`.
 
 # eeguana 0.1.12.9003
 

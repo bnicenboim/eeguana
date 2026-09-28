@@ -99,3 +99,18 @@ test_that("plot functions create ggplot2::ggplots", {
   expect_gg(plot(data_faces_ERPs) + annotate_events())
 })
 
+test_that("plot() draws once, when it is printed, also with layers added", {
+  skip_if_not_installed("knitr")
+  figs <- file.path(tempdir(), "plot-once")
+  rmd <- tempfile(fileext = ".Rmd")
+  writeLines(c(
+    paste0("```{r, fig.path = '", figs, "/'}"),
+    "plot(eeguana::data_faces_ERPs) + eeguana::annotate_events()",
+    "```"
+  ), rmd)
+  md <- knitr::knit(rmd, output = tempfile(fileext = ".md"), quiet = TRUE, envir = new.env())
+  expect_length(grep("^!\\[", readLines(md)), 1)
+  expect_s3_class(withVisible(plot(data_faces_ERPs))$value, "ggplot")
+  expect_true(withVisible(plot(data_faces_ERPs))$visible)
+})
+

@@ -45,3 +45,4 @@ tests/testthat/Rplots.pdf
 /internal_pipeline_files/
 # scratch space for throwaway experiments (see playground/README.md)
 playground/
+s1_faces.eeg

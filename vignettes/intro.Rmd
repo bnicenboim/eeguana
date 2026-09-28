@@ -227,10 +227,10 @@ faces_seg_artif |>
   theme(legend.position = "bottom")
 ```
 
-The segments can also be inspected interactively with `eeg_browse()`. For an `eeg_lst`, it shows the signal of the channels around events, such as the artifacts, or through the recording, with each segment in its own column, and, on request, the topography of the window, one for each segment. Clicking a segment selects it, and when we are done, the app returns the `.id` of the selected segments. Here, we would select the segments we want to remove, and then remove them with `eeg_filter()`:
+The segments can also be inspected interactively with `eeg_browse()`. For an `eeg_lst`, it shows the signal of the channels around events, such as the artifacts, or through the recording, with each segment in its own column, and the topography of the window, one for each segment. Clicking a segment selects it, and when we are done, the app returns the `.id` of the selected segments. Here, we would select the segments we want to remove, and then remove them with `eeg_filter()`:
 
 ```{r, eval = FALSE}
-to_remove <- eeg_browse(faces_seg_artif, -VEOG, -HEOG)
+to_remove <- eeg_browse(faces_seg_artif)
 faces_seg_artif <- faces_seg_artif |>
   eeg_filter(!.id %in% to_remove)
 ```
