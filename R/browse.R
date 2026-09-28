@@ -28,9 +28,11 @@
 #' and next window, and the up and down arrow keys zoom the amplitudes in and
 #' out.
 #'
-#' The amplitudes are shown in units of their typical standard deviation, the
-#' median of their standard deviations in stretches of one second of the whole
-#' recording, so a window with a blink and one without are drawn at the same
+#' The amplitudes are shown in units of their typical standard deviation: the
+#' median, over stretches of one second of the whole recording, of their
+#' standard deviations, each estimated with the median absolute deviation
+#' (MAD, see [stats::mad()]), which blinks and other large events barely
+#' change. So a window with a blink and one without are drawn at the same
 #' scale, and slow drifts do not flatten the traces. By default, all the
 #' channels share one scale, and all the components another, so their sizes
 #' can be compared; each trace can also be drawn at its own scale, which makes
@@ -81,6 +83,10 @@
 #'   `NULL` does not filter. It can also be changed in the app.
 #' @param .n_components Number of components shown when the app opens, in the
 #'   order of the variance they explain.
+#' @param .negative_up Whether negative amplitudes are drawn up, as is usual in
+#'   some EEG traditions. By default, the value of the option
+#'   `eeguana.negative_up`, which is `FALSE`, positive up. It can also be
+#'   changed in the app.
 #' @param .viewer Where the app opens, see [shiny::viewer]. By default, in the
 #'   browser.
 #' @family ICA functions
@@ -116,10 +122,13 @@ eeg_browse <- function(.data, ...) {
 
 #' @rdname eeg_browse
 #' @export
-eeg_browse.eeg_lst <- function(.data, ..., .viewer = NULL) {
+eeg_browse.eeg_lst <- function(.data, ..., .negative_up = getOption("eeguana.negative_up", FALSE),
+                               .viewer = NULL) {
   ## the value of .data is already evaluated by UseMethod(), its expression is not
   name <- rlang::as_label(substitute(.data))
-  app <- browse_app(.data, .kind = "eeg", .channels = unname(sel_ch(.data, ...)))
+  app <- browse_app(.data,
+    .kind = "eeg", .channels = unname(sel_ch(.data, ...)), .negative_up = .negative_up
+  )
   selected <- run_browse_app(app, .viewer)
   message(segment_selection_message(name, selected))
   invisible(selected)
@@ -128,11 +137,14 @@ eeg_browse.eeg_lst <- function(.data, ..., .viewer = NULL) {
 #' @rdname eeg_browse
 #' @export
 eeg_browse.eeg_ica_lst <- function(.data, ..., .eog = NULL, .eog_freq = c(.1, 30),
-                                   .n_components = 16, .viewer = NULL) {
+                                   .n_components = 16,
+                                   .negative_up = getOption("eeguana.negative_up", FALSE),
+                                   .viewer = NULL) {
   ## the value of .data is already evaluated by UseMethod(), its expression is not
   name <- rlang::as_label(substitute(.data))
   app <- browse_app(.data,
-    .kind = "ica", .eog = .eog, .eog_freq = .eog_freq, .n_components = .n_components
+    .kind = "ica", .eog = .eog, .eog_freq = .eog_freq, .n_components = .n_components,
+    .negative_up = .negative_up
   )
   selected <- run_browse_app(app, .viewer)
   message(ica_selection_message(name, selected))
@@ -148,11 +160,19 @@ run_browse_app <- function(app, viewer) {
 }
 
 #' The Shiny app behind eeg_browse(), separate so that it can be tested. With
-#' `.kind = "eeg"` it shows `.channels` and marks segments; with `.kind =
+#' `.kind = "eeg"` it shows `.channels` and selects segments; with `.kind =
 #' "ica"`, it shows the components and selects them
 #' @noRd
 browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = NULL,
-                       .eog_freq = c(.1, 30), .n_components = 16) {
+                       .eog_freq = c(.1, 30), .n_components = 16, .negative_up = FALSE) {
+  cfg <- browse_settings(data, .kind, .channels, .eog, .eog_freq, .n_components, .negative_up)
+  shiny::shinyApp(browse_ui(cfg), browse_server(cfg, data))
+}
+
+#' What the app is set up with, from the arguments of eeg_browse(), checked
+#' @noRd
+browse_settings <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = NULL,
+                            .eog_freq = c(.1, 30), .n_components = 16, .negative_up = FALSE) {
   .kind <- match.arg(.kind)
   is_ica <- .kind == "ica"
   if (is_ica && !inherits(data, "eeg_ica_lst")) {
@@ -165,30 +185,95 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
     (length(.eog_freq) != 2 || !(is.numeric(.eog_freq) || all(is.na(.eog_freq))))) {
     stop("`.eog_freq` must be NULL or two cutoff frequencies, one of them can be NA.", call. = FALSE)
   }
-  recs <- if (is_ica) names(data$.ica) else unique(data$.segments$.recording)
   if (is.null(.eog)) {
     .eog <- grep("(^eog)|(eog$)", channel_names(data), ignore.case = TRUE, value = TRUE)
   } else if (!all(.eog %in% channel_names(data))) {
     stop("Channels not found: ", toString(setdiff(.eog, channel_names(data))), call. = FALSE)
   }
-  if (is.null(.channels)) .channels <- if (is_ica) .eog else channel_names(data)
-  ## segments can be selected only when there is more than one per recording
-  can_select_segments <- !is_ica && nrow(data$.segments) > length(recs)
+  recs <- if (is_ica) names(data$.ica) else unique(data$.segments$.recording)
   srate <- sampling_rate(data)
-  units <- c("s" = "s", "ms" = "ms", "samples" = "samples")
+  list(
+    is_ica = is_ica,
+    recs = recs,
+    eog = .eog,
+    eog_freq = .eog_freq,
+    n_components = .n_components,
+    all_channels = channel_names(data),
+    channels = .channels %||% if (is_ica) .eog else channel_names(data),
+    segment_ids = data$.segments$.id,
+    ## segments can be selected only when there is more than one per recording
+    can_select_segments = !is_ica && nrow(data$.segments) > length(recs),
+    srate = srate,
+    ## the window starts as 2 s on each side of the events, or the first 4 s
+    default_from = -2 * srate,
+    default_to = 2 * srate,
+    default_length = 4 * srate,
+    negative_up = isTRUE(.negative_up),
+    amp_unit = channel_unit_label(data)
+  )
+}
+
+#' The unit of the channels, when they all share one, as it is shown: "\u00b5V"
+#' for microvolts; NULL when it is not known
+#' @noRd
+channel_unit_label <- function(data) {
+  unit <- unique(channels_tbl(data)$unit)
+  if (length(unit) != 1 || is.na(unit) || unit %in% c("", "?")) {
+    return(NULL)
+  }
+  if (unit == "microvolt") "\u00b5V" else unit
+}
+
+# The user interface ============================================================
+
+browse_ui <- function(cfg) {
+  panels <- list(
+    browse_window_panel(cfg),
+    if (cfg$can_select_segments) browse_segments_panel(),
+    if (cfg$is_ica) browse_components_panel(cfg),
+    if (cfg$is_ica) browse_eog_panel(cfg),
+    browse_display_panel(cfg)
+  )
+  bslib::page_sidebar(
+    title = shiny::div(
+      class = "d-flex w-100 align-items-center gap-3",
+      shiny::span(if (cfg$is_ica) "ICA components" else "EEG signal"),
+      shiny::span(class = "fw-semibold", shiny::textOutput("recording_name", inline = TRUE)),
+      shiny::span(class = "text-muted small text-truncate", shiny::textOutput("where", inline = TRUE)),
+      shiny::actionButton("done", "Done", class = "btn-primary ms-auto")
+    ),
+    shiny::tags$script(shiny::HTML(browse_keys_js)),
+    shiny::tags$style(shiny::HTML(browse_css)),
+    sidebar = bslib::sidebar(
+      width = 360,
+      if (length(cfg$recs) > 1) browse_recordings_ui(cfg$recs),
+      do.call(bslib::accordion, c(list(multiple = TRUE), Filter(Negate(is.null), panels)))
+    ),
+    if (cfg$is_ica) browse_ica_cards(cfg) else browse_eeg_cards(cfg)
+  )
+}
+
+## the inputs of a row share its width, unless they are wide
+browse_row <- function(...) shiny::div(class = "d-flex gap-2 browse-row", ...)
+browse_wide <- function(...) shiny::div(style = "flex: 3 1 0;", ...)
+browse_units <- c("s" = "s", "ms" = "ms", "samples" = "samples")
+
+browse_recordings_ui <- function(recs) {
+  shiny::div(
+    shiny::selectInput("recording", "Recording", recs),
+    browse_row(
+      shiny::actionButton("prev_recording", "\u2190 Previous recording", class = "btn-sm"),
+      shiny::actionButton("next_recording", "Next recording \u2192", class = "btn-sm")
+    )
+  )
+}
+
+browse_window_panel <- function(cfg) {
   matches <- c(
     "is one of" = "exact", "starts with" = "starts", "ends with" = "ends",
     "contains" = "contains", "matches the regex" = "regex"
   )
-  ## the inputs of a row share its width, unless they say otherwise
-  row <- function(...) shiny::div(class = "d-flex gap-2 browse-row", ...)
-  wide <- function(...) shiny::div(style = "flex: 3 1 0;", ...)
-  ## the window starts as 2 s on each side of the events, or the first 4 s
-  default_from <- -2 * srate
-  default_to <- 2 * srate
-  default_length <- 4 * srate
-
-  window_panel <- bslib::accordion_panel(
+  bslib::accordion_panel(
     "Window",
     shiny::radioButtons("mode", NULL,
       c("Around events" = "events", "Through the recording" = "continuous"),
@@ -196,7 +281,7 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
     ),
     shiny::conditionalPanel(
       "input.mode == 'events'",
-      row(
+      browse_row(
         shiny::selectInput("event_field", "Events whose",
           c("description" = ".description", "type" = ".type")
         ),
@@ -211,31 +296,31 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
         shiny::textInput("event_pattern", NULL, placeholder = "text to match")
       ),
       shiny::div(class = "small text-muted mb-2 browse-wrap", shiny::textOutput("n_events")),
-      row(
+      browse_row(
         shiny::numericInput("from", tip_label("From", "Where the window starts, relative to the onset of the event."), -2),
         shiny::numericInput("to", tip_label("To", "Where the window ends, relative to the onset of the event."), 2),
-        shiny::selectInput("unit", "Unit", units)
+        shiny::selectInput("unit", "Unit", browse_units)
       ),
-      row(
-        wide(shiny::sliderInput("event_slider", "Event", min = 1, max = 1, value = 1, step = 1, ticks = FALSE)),
+      browse_row(
+        browse_wide(shiny::sliderInput("event_slider", "Event", min = 1, max = 1, value = 1, step = 1, ticks = FALSE)),
         shiny::numericInput("event_i", "Number", 1, min = 1, max = 1, step = 1)
       )
     ),
     shiny::conditionalPanel(
       "input.mode == 'continuous'",
       shiny::selectInput("segment", tip_label("Segment (.id)", "The segment where the window starts."), NULL),
-      row(
+      browse_row(
         shiny::numericInput("start", tip_label(
           "Start",
           "Where the window starts, relative to the time zero of its segment: the event it was
           segmented around, or the beginning of an unsegmented recording."
-        ), 0),
+        ), 0, updateOn = "blur"),
         shiny::numericInput("length", tip_label(
           "Length",
           "How long the window is. It can be longer than a segment, and then it goes on into the
           next ones."
-        ), 4, min = 0),
-        shiny::selectInput("unit_continuous", "Unit", units)
+        ), 4, min = 0, updateOn = "blur"),
+        shiny::selectInput("unit_continuous", "Unit", browse_units)
       ),
       shiny::sliderInput("position_slider", tip_label(
         "Position in the recording",
@@ -243,7 +328,7 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
         after the other, from the beginning of the first one."
       ), min = 0, max = 1, value = 0, ticks = FALSE)
     ),
-    row(
+    browse_row(
       shiny::actionButton("prev", "\u2190 Previous"),
       shiny::actionButton("next", "Next \u2192")
     ),
@@ -262,58 +347,67 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
       class = "small text-muted mt-2",
       paste0(
         "Keys: \u2190 \u2192 previous and next window; \u2191 \u2193 zoom the amplitudes in and out",
-        if (can_select_segments) "; M selects or deselects the segment of the event, or the first one shown",
+        if (cfg$can_select_segments) "; M selects or deselects the segment of the event, or the first one shown",
         "."
       )
     )
   )
-  segments_panel <- if (can_select_segments) {
-    bslib::accordion_panel(
-      "Segments",
-      shiny::actionButton("select_segment", "Select segment", class = "btn-sm mb-2"),
-      shiny::selectizeInput("selected_segments", "Selected segments (.id)", NULL, multiple = TRUE),
-      shiny::div(
-        class = "small text-muted",
-        "Click a segment on the signal to select or deselect it. M and the button do it for the
-        segment of the event, or the first one shown."
-      )
+}
+
+browse_segments_panel <- function() {
+  bslib::accordion_panel(
+    "Segments",
+    shiny::actionButton("select_segment", "Select segment", class = "btn-sm mb-2"),
+    shiny::selectizeInput("selected_segments", "Selected segments (.id)", NULL, multiple = TRUE),
+    shiny::div(
+      class = "small text-muted",
+      "Click a segment on the signal to select or deselect it. M and the button do it for the
+      segment of the event, or the first one shown."
     )
-  }
-  components_panel <- if (is_ica) {
-    bslib::accordion_panel(
-      "Components",
-      shiny::radioButtons("order", "Order by",
-        c("Variance explained" = "var", "Correlation with EOG" = "cor"),
-        inline = TRUE
+  )
+}
+
+browse_components_panel <- function(cfg) {
+  bslib::accordion_panel(
+    "Components",
+    shiny::radioButtons("order", "Order by",
+      c("Variance explained" = "var", "Correlation with EOG" = "cor"),
+      inline = TRUE
+    ),
+    shiny::numericInput("n_components", "Show the first", cfg$n_components, min = 1, step = 1),
+    shiny::selectizeInput("components", "Components shown", NULL, multiple = TRUE),
+    shiny::selectizeInput("selected", "Selected components", NULL, multiple = TRUE)
+  )
+}
+
+browse_eog_panel <- function(cfg) {
+  freq <- cfg$eog_freq
+  bslib::accordion_panel(
+    "EOG correlations",
+    shiny::checkboxInput("eog_filter", "Filter the EOG channels before correlating them", !is.null(freq)),
+    shiny::conditionalPanel(
+      "input.eog_filter",
+      browse_row(
+        shiny::numericInput("eog_low", "High-pass (Hz)", if (!is.null(freq)) freq[1] else NA, min = 0),
+        shiny::numericInput("eog_high", "Low-pass (Hz)", if (!is.null(freq)) freq[2] else NA, min = 0)
       ),
-      shiny::numericInput("n_components", "Show the first", .n_components, min = 1, step = 1),
-      shiny::selectizeInput("components", "Components shown", NULL, multiple = TRUE),
-      shiny::selectizeInput("selected", "Selected components", NULL, multiple = TRUE)
+      shiny::div(class = "small text-muted", "Leave one empty to filter only on the other side.")
     )
-  }
-  eog_panel <- if (is_ica) {
-    bslib::accordion_panel(
-      "EOG correlations",
-      shiny::checkboxInput("eog_filter", "Filter the EOG channels before correlating them",
-        !is.null(.eog_freq)
-      ),
-      shiny::conditionalPanel(
-        "input.eog_filter",
-        row(
-          shiny::numericInput("eog_low", "High-pass (Hz)", if (!is.null(.eog_freq)) .eog_freq[1] else NA, min = 0),
-          shiny::numericInput("eog_high", "Low-pass (Hz)", if (!is.null(.eog_freq)) .eog_freq[2] else NA, min = 0)
-        ),
-        shiny::div(class = "small text-muted", "Leave one empty to filter only on the other side.")
-      )
-    )
-  }
-  display_panel <- bslib::accordion_panel(
+  )
+}
+
+browse_display_panel <- function(cfg) {
+  bslib::accordion_panel(
     "Display",
-    shiny::selectizeInput("channels", "Channels shown", channel_names(data),
-      selected = .channels, multiple = TRUE
+    shiny::selectizeInput("channels", "Channels shown", cfg$all_channels,
+      selected = cfg$channels, multiple = TRUE
+    ),
+    shiny::radioButtons("polarity", "Polarity",
+      c("Positive up" = "up", "Negative up" = "down"),
+      selected = if (cfg$negative_up) "down" else "up", inline = TRUE
     ),
     shiny::radioButtons("scale", "Amplitude scale",
-      if (is_ica) {
+      if (cfg$is_ica) {
         c(
           "Shared: one for the components, one for the channels" = "shared",
           "Separate: each trace fills its row" = "each"
@@ -324,647 +418,728 @@ browse_app <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eog = N
     ),
     shiny::div(
       class = "small text-muted mb-3",
-      if (is_ica) {
+      if (cfg$is_ica) {
         "Shared: a larger component looks larger, so the components can be compared
         with each other, and so can the channels."
       } else {
         "Shared: a larger signal looks larger, so the channels can be compared."
       },
       "Separate: each trace is scaled to its own typical size, so even small ones are
-      visible. The typical size of a trace is its typical SD, the median of its
-      standard deviations in stretches of 1 s of the whole recording, so the scale
-      is the same in every window."
+      visible. The typical size of a trace is its typical SD: the median, over stretches of
+      1 s of the whole recording, of its SD estimated with the MAD, which blinks and other
+      large events barely change. So the scale is the same in every window."
     ),
     shiny::checkboxInput("cut", tip_label(
       "Cut the traces at the edges of their rows",
       "Large amplitudes go on into the rows around them. With this, what goes beyond the row of
       a trace is not drawn, so the traces do not overlap."
     ), FALSE),
-    if (is_ica) shiny::checkboxInput("electrodes", "Electrode labels on the topographies", FALSE)
+    if (cfg$is_ica) shiny::checkboxInput("electrodes", "Electrode labels on the topographies", FALSE)
   )
-  panels <- Filter(Negate(is.null), list(window_panel, segments_panel, components_panel, eog_panel, display_panel))
+}
 
-  traces_card <- bslib::card(
+browse_traces_card <- function(cfg) {
+  bslib::card(
     full_screen = TRUE,
     bslib::card_header(
       class = "d-flex justify-content-between gap-2",
-      if (is_ica) "Activations" else "Signal",
+      if (cfg$is_ica) "Activations" else "Signal",
       shiny::span(class = "small text-muted", shiny::textOutput("scale_text", inline = TRUE))
     ),
     bslib::card_body(
       class = "browse-scroll",
-      shiny::plotOutput("activations", height = "100%", click = if (can_select_segments) "trace_click")
+      shiny::plotOutput("activations", height = "100%", click = if (cfg$can_select_segments) "trace_click")
     )
   )
-  cards <- if (is_ica) {
-    bslib::layout_columns(
-      col_widths = c(7, 5),
-      traces_card,
-      bslib::card(
-        full_screen = TRUE,
-        bslib::card_header("Topographies: click one to select it"),
-        bslib::card_body(
-          class = "browse-scroll",
-          shiny::plotOutput("topographies", height = "100%", click = "topo_click")
-        )
+}
+
+## the topographies of the components, next to their activations
+browse_ica_cards <- function(cfg) {
+  bslib::layout_columns(
+    col_widths = c(7, 5),
+    browse_traces_card(cfg),
+    bslib::card(
+      full_screen = TRUE,
+      bslib::card_header("Topographies: click one to select it"),
+      bslib::card_body(
+        class = "browse-scroll",
+        shiny::plotOutput("topographies", height = "100%", click = "topo_click")
       )
     )
-  } else {
-    ## the topography is in a sidebar on the right, closed at first; while it
-    ## is closed, it is not computed
-    bslib::layout_sidebar(
-      sidebar = bslib::sidebar(
-        title = tip_label(
-          "Topography",
-          "The mean of each channel over the part of the window in each segment. Only the
-          channels with positions are used."
-        ),
-        position = "right", open = FALSE, width = 420,
-        if (can_select_segments) {
-          shiny::checkboxInput("topo_average", "One head for all the segments shown, their mean", FALSE)
-        },
-        shiny::checkboxInput("electrodes", "Electrode labels", FALSE),
-        shiny::plotOutput("topographies", height = "auto")
-      ),
-      traces_card
-    )
-  }
+  )
+}
 
-  ui <- bslib::page_sidebar(
-    title = shiny::div(
-      class = "d-flex w-100 align-items-center gap-3",
-      shiny::span(if (is_ica) "ICA components" else "EEG signal"),
-      shiny::span(class = "fw-semibold", shiny::textOutput("recording_name", inline = TRUE)),
-      shiny::span(class = "text-muted small text-truncate", shiny::textOutput("where", inline = TRUE)),
-      shiny::actionButton("done", "Done", class = "btn-primary ms-auto")
-    ),
-    shiny::tags$script(shiny::HTML(browse_keys_js)),
-    shiny::tags$style(shiny::HTML(browse_css)),
+## the topography of the signal is in a sidebar on the right, closed at first;
+## while it is closed, it is not computed
+browse_eeg_cards <- function(cfg) {
+  bslib::layout_sidebar(
     sidebar = bslib::sidebar(
-      width = 360,
-      if (length(recs) > 1) {
-        shiny::div(
-          shiny::selectInput("recording", "Recording", recs),
-          row(
-            shiny::actionButton("prev_recording", "\u2190 Previous recording", class = "btn-sm"),
-            shiny::actionButton("next_recording", "Next recording \u2192", class = "btn-sm")
-          )
-        )
+      title = tip_label(
+        "Topography",
+        "The mean of each channel over the part of the window in each segment. Only the
+        channels with positions are used."
+      ),
+      position = "right", open = FALSE, width = 420,
+      if (cfg$can_select_segments) {
+        shiny::checkboxInput("topo_average", "One head for all the segments shown, their mean", FALSE)
       },
-      do.call(bslib::accordion, c(list(multiple = TRUE), panels))
+      shiny::checkboxInput("electrodes", "Electrode labels", FALSE),
+      shiny::plotOutput("topographies", height = "auto")
     ),
-    cards
+    browse_traces_card(cfg)
   )
+}
 
-  server <- function(input, output, session) {
-    ## the summaries and topographies of each recording are computed once, the
-    ## first time the recording is shown, and the correlations once for each
-    ## filter of the EOG channels
-    cache <- new.env(parent = emptyenv())
-    ## the recording shown: chosen in the field, or with the buttons
-    current_rec <- shiny::reactiveVal(recs[1])
-    shiny::observeEvent(input$recording, {
-      shiny::req(input$recording %in% recs)
-      current_rec(input$recording)
-    })
-    step_recording <- function(step) {
-      i <- match(current_rec(), recs)
-      current_rec(recs[min(max(1, i + step), length(recs))])
-    }
-    shiny::observeEvent(input$prev_recording, step_recording(-1))
-    shiny::observeEvent(input$next_recording, step_recording(1))
-    shiny::observe({
-      rec <- current_rec()
-      if (!identical(shiny::isolate(input$recording), rec)) {
-        shiny::updateSelectInput(session, "recording", selected = rec)
-      }
-      shiny::updateActionButton(session, "prev_recording", disabled = rec == recs[1])
-      shiny::updateActionButton(session, "next_recording", disabled = rec == recs[length(recs)])
-    })
-    output$recording_name <- shiny::renderText(current_rec())
-    prep <- shiny::reactive({
-      rec <- current_rec()
-      if (is.null(cache[[rec]])) {
-        shiny::withProgress(
-          message = paste0("Preparing ", rec, "..."),
-          cache[[rec]] <- if (is_ica) browse_ica_prep(data, rec) else browse_eeg_prep(data, rec)
-        )
-      }
-      cache[[rec]]
-    })
-    eog_freq <- shiny::debounce(shiny::reactive({
-      if (!isTRUE(input$eog_filter %||% !is.null(.eog_freq))) {
-        return(NULL)
-      }
-      freq <- c(input$eog_low %||% .eog_freq[1], input$eog_high %||% .eog_freq[2])
-      freq <- as.numeric(freq)
-      if (all(is.na(freq))) NULL else freq
-    }), 800)
-    summaries <- shiny::reactive({
-      p <- prep()
-      freq <- eog_freq()
-      key <- paste(p$recording, toString(freq))
-      if (is.null(cache[[key]])) {
-        shiny::withProgress(
-          message = "Correlating the components with the EOG channels...",
-          cache[[key]] <- browse_ica_summaries(p, .eog, freq)
-        )
-      }
-      cache[[key]]
-    })
-    ## redrawing waits until the components or channels stop changing
-    components <- if (is_ica) {
-      shiny::debounce(shiny::reactive(input$components), 1000)
-    } else {
-      shiny::reactive(character(0))
-    }
-    channels <- shiny::debounce(shiny::reactive(input$channels), 1000)
-    ## the components marked in each recording, or the .id of the marked segments
-    marks <- shiny::reactiveVal(stats::setNames(rep(list(character(0)), length(recs)), recs))
-    selected_segments <- shiny::reactiveVal(integer(0))
+# The server ====================================================================
 
-    ## The window is kept here, in samples, and the fields show it in the
-    ## chosen unit. The fields change it, and when it had to be corrected, for
-    ## example when it went past the end of a segment, the fields are updated
-    ## to show what is displayed.
-    unit <- shiny::reactiveVal("s")
-    from <- shiny::reactiveVal(default_from)
-    to <- shiny::reactiveVal(default_to)
-    event_i <- shiny::reactiveVal(1)
-    continuous <- shiny::reactiveVal(NULL)
-    zoom <- shiny::reactiveVal(1)
+#' The server of the app, made of one part for each thing it does. The names
+#' bound here are the ones the tests read with shiny::testServer().
+#' @noRd
+browse_server <- function(cfg, data) {
+  function(input, output, session) {
+    recording <- serve_recordings(input, output, session, cfg, data)
+    current_rec <- recording$current
+    prep <- recording$prep
 
-    ## the unit is changed first, so that the other fields changed at the same
-    ## time are read in the new unit
-    set_unit <- function(new) {
-      if (!is.null(new) && !identical(new, unit())) {
-        unit(new)
-        shiny::updateSelectInput(session, "unit", selected = new)
-        shiny::updateSelectInput(session, "unit_continuous", selected = new)
-      }
-    }
-    shiny::observeEvent(input$unit, priority = 3, set_unit(input$unit))
-    shiny::observeEvent(input$unit_continuous, priority = 3, set_unit(input$unit_continuous))
+    events <- serve_events(input, output, session, prep)
+    selected_events <- events$selected
+    event_i <- events$i
 
-    ## a new recording is set up before anything reads its window
-    shiny::observeEvent(prep(), priority = 2, {
-      p <- prep()
-      shiny::updateSelectInput(session, "segment", choices = p$bounds$.id)
-      shiny::updateRadioButtons(session, "mode",
-        selected = if (nrow(p$events) > 0) "events" else "continuous"
-      )
-      if (is_ica) {
-        shiny::updateSelectizeInput(session, "selected",
-          choices = p$order_var,
-          selected = marks()[[p$recording]]
-        )
-      }
-      if (can_select_segments) {
-        shiny::updateSelectizeInput(session, "selected_segments",
-          choices = data$.segments$.id,
-          selected = shiny::isolate(selected_segments())
-        )
-      }
-      continuous(clamp_span(p$bounds, 0, default_length))
-    })
-    shiny::observeEvent(list(prep(), input$event_field), {
-      p <- prep()
-      field <- input$event_field %||% ".description"
-      shiny::updateSelectizeInput(session, "event_values",
-        choices = event_choices(p$events, field),
-        selected = default_events(p$events, field)
-      )
-    })
+    fields <- sync_fields(input)
+    sent <- fields$sent
 
-    ## the first components in the chosen order; they can then be edited. The
-    ## order by correlation changes with the filter of the EOG channels
-    shiny::observeEvent(
-      list(prep(), input$order, input$n_components, if (identical(input$order, "cor")) summaries()),
-      {
-        shiny::req(is_ica, input$order)
-        ord <- summaries()$order[[input$order]]
-        n <- if (is.na(input$n_components)) .n_components else input$n_components
-        shiny::updateSelectizeInput(session, "components",
-          choices = ord, selected = utils::head(ord, n)
-        )
-      }
-    )
+    win <- serve_window(input, session, cfg, prep, events, fields)
+    continuous <- win$continuous
+    window <- win$window
 
-    selected_events <- shiny::reactive({
-      p <- prep()
-      shiny::req(input$event_field, input$event_match)
-      if (input$event_match == "exact") {
-        shiny::validate(shiny::need(length(input$event_values) > 0, "Choose the events to browse."))
-      } else {
-        shiny::validate(shiny::need(
-          nzchar(input$event_pattern %||% ""), "Write the text the events should match."
-        ))
-      }
-      ev <- tryCatch(
-        suppressWarnings(match_events(p$events, input$event_field, input$event_match,
-          values = input$event_values, pattern = input$event_pattern
-        )),
-        error = function(e) e
-      )
-      if (inherits(ev, "error")) {
-        shiny::validate(paste("Invalid regular expression:", conditionMessage(ev)))
-      }
-      shiny::validate(shiny::need(nrow(ev) > 0, "No events match."))
-      ev
-    })
-    ## what the text matched; the values chosen are already in their field
-    output$n_events <- shiny::renderText({
-      ev <- selected_events()
-      n <- paste(nrow(ev), if (nrow(ev) == 1) "event" else "events")
-      if (identical(input$event_match, "exact")) {
-        return(n)
-      }
-      labels <- short_labels(ev[[input$event_field]])
-      counts <- sort(table(labels), decreasing = TRUE)
-      shown <- utils::head(counts, 4)
-      paste0(
-        n, ": ", paste0(names(shown), " (", shown, ")", collapse = ", "),
-        if (length(counts) > length(shown)) ", ..."
-      )
-    })
+    zooming <- serve_zoom(input, session)
+    zoom <- zooming$zoom
 
-    ## the fields of the event: a new set of events starts from the first one,
-    ## and the number is kept between 1 and the number of events
-    n_events <- shiny::reactive(nrow(selected_events()))
-    shiny::observeEvent(selected_events(), {
-      event_i(1)
-      n <- n_events()
-      shiny::updateSliderInput(session, "event_slider", min = 1, max = max(n, 2), value = 1)
-      shiny::updateNumericInput(session, "event_i", max = n, value = 1)
-    })
-    set_event <- function(i) {
-      if (is.null(i) || is.na(i)) {
-        return()
-      }
-      event_i(min(max(1, round(i)), n_events()))
-    }
-    shiny::observeEvent(input$event_i, set_event(input$event_i))
-    shiny::observeEvent(input$event_slider, set_event(input$event_slider))
-    shiny::observe({
-      i <- event_i()
-      if (!identical(as.numeric(shiny::isolate(input$event_i)), i)) {
-        shiny::updateNumericInput(session, "event_i", value = i)
-      }
-      if (!identical(as.numeric(shiny::isolate(input$event_slider)), i)) {
-        shiny::updateSliderInput(session, "event_slider", value = i)
-      }
-    })
+    comps <- serve_components(input, session, cfg, prep)
+    components <- comps$components
+    summaries <- comps$summaries
 
-    ## A field changed by the server comes back from the browser as a change of
-    ## that field, sometimes after newer changes; taken as the user's, it would
-    ## move the window back, and the fields would chase each other. The values
-    ## sent are kept until they come back, and then ignored.
-    sent <- new.env(parent = emptyenv())
-    send <- function(id, value, update) {
-      sent[[id]] <- c(sent[[id]], list(value))
-      update(value)
-    }
-    came_back <- function(id, value) {
-      same <- vapply(sent[[id]], function(v) {
-        if (is.numeric(v)) isTRUE(abs(as.numeric(value) - v) <= 1e-8 * max(1, abs(v))) else identical(as.character(v), as.character(value))
-      }, logical(1))
-      if (!any(same)) {
-        return(FALSE)
-      }
-      ## what was sent before it came back too, or never will
-      sent[[id]] <- sent[[id]][-seq_len(max(which(same)))]
-      TRUE
-    }
-    user_input <- function(id) {
-      value <- input[[id]]
-      !is.null(value) && !came_back(id, value)
-    }
+    selection <- serve_selection(input, session, cfg, prep, window)
+    marks <- selection$marks
+    selected_segments <- selection$segments
+    result <- selection$result
 
-    shiny::observeEvent(input$from, {
-      shiny::req(user_input("from"), !is.na(input$from))
-      from(duration_to_samples(input$from, unit(), srate))
-    })
-    shiny::observeEvent(input$to, {
-      shiny::req(user_input("to"), !is.na(input$to))
-      to(duration_to_samples(input$to, unit(), srate))
-    })
+    plots <- serve_plots(input, output, session, cfg, prep, win, comps, zoom, selection)
+    n_heads <- plots$n_heads
 
-    ## The window through the recording is kept as the position of its first
-    ## sample, counting the samples of all the segments of the recording one
-    ## after the other, and its length, so it goes on into the next segments.
-    ## The segment and start in the fields are those of its first sample.
-    set_continuous <- function(start = NULL, length = NULL) {
-      cur <- continuous()
-      shiny::req(cur)
-      continuous(clamp_span(prep()$bounds, start %||% cur$start, length %||% cur$length))
-    }
-    start_of <- function() {
-      w <- continuous()
-      shiny::req(w)
-      from_position(prep()$bounds, w$start)
-    }
-    shiny::observeEvent(input$segment, {
-      shiny::req(user_input("segment"), nzchar(input$segment))
-      b <- prep()$bounds
-      id <- as.integer(input$segment)
-      shiny::req(id %in% b$.id)
-      if (!identical(id, start_of()$id)) set_continuous(start = to_position(b, id, b$first[b$.id == id]))
-    })
-    shiny::observeEvent(input$start, {
-      shiny::req(user_input("start"), !is.na(input$start))
-      set_continuous(start = to_position(prep()$bounds, start_of()$id, position_to_sample(input$start, unit(), srate)))
-    })
-    ## the slider places the start anywhere in the recording
-    shiny::observeEvent(input$position_slider, {
-      shiny::req(user_input("position_slider"))
-      set_continuous(start = round(input$position_slider * scaling(srate, unit())))
-    })
-    ## the length is set before the start, which is kept inside the recording
-    ## for the length of the window
-    shiny::observeEvent(input$length, priority = 1, {
-      shiny::req(user_input("length"), !is.na(input$length), input$length > 0)
-      set_continuous(length = max(1, duration_to_samples(input$length, unit(), srate)))
-    })
+    serve_keys(input, cfg, win$move, zooming$step, selection$toggle_segment)
 
-    ## the fields follow the window and the unit
-    show <- function(id, value, samples, position = FALSE) {
-      shown <- shiny::isolate(input[[id]])
-      read <- if (position) position_to_sample else duration_to_samples
-      if (is.null(shown) || is.na(shown) || read(shown, unit(), srate) != samples) {
-        send(id, value, function(v) shiny::updateNumericInput(session, id, value = v))
-      }
-    }
-    shiny::observe({
-      u <- unit()
-      show("from", signif(from() / scaling(srate, u), 6), from())
-      show("to", signif(to() / scaling(srate, u), 6), to())
-    })
-    shiny::observe({
-      w <- continuous()
-      shiny::req(w)
-      u <- unit()
-      st <- start_of()
-      if (!identical(shiny::isolate(input$segment), as.character(st$id))) {
-        send("segment", as.character(st$id), function(v) shiny::updateSelectInput(session, "segment", selected = v))
-      }
-      show("start", signif(sample_to_position(st$sample, u, srate), 6), st$sample, position = TRUE)
-      show("length", signif(w$length / scaling(srate, u), 6), w$length)
-    })
-    ## The slider spans the whole recording, from the first sample to the last
-    ## start that leaves room for the window. Its range is sent only when it
-    ## changes, and its value only when it is not the one shown.
-    slider_range <- NULL
-    shiny::observe({
-      w <- continuous()
-      shiny::req(w)
-      k <- scaling(srate, unit())
-      last_start <- segment_positions(prep()$bounds)$total - w$length
-      range <- c(last_start, k)
-      shown <- shiny::isolate(input$position_slider)
-      if (!identical(range, slider_range)) {
-        slider_range <<- range
-        send("position_slider", w$start / k, function(v) {
-          shiny::updateSliderInput(session, "position_slider",
-            min = 0, max = max(1, last_start) / k, value = v, step = 1 / k
-          )
-        })
-      } else if (is.null(shown) || round(shown * k) != w$start) {
-        send("position_slider", w$start / k, function(v) {
-          shiny::updateSliderInput(session, "position_slider", value = v)
-        })
-      }
-    })
-
-    ## the window: the part of each segment it covers, the event it is around,
-    ## and the segment that M and the button select (the one of the event, or
-    ## the first one shown)
-    window <- shiny::reactive({
-      p <- prep()
-      u <- unit()
-      b <- p$bounds
-      shiny::req(input$mode)
-      if (input$mode == "events") {
-        ev <- selected_events()
-        i <- min(event_i(), nrow(ev))
-        span <- event_span(b, ev[i], from = from(), to = to())
-        list(
-          span = span, pieces = window_pieces(b, span),
-          anchor = list(id = ev$.id[i], sample = ev$.initial[i]), focus = ev$.id[i],
-          at_start = i == 1, at_end = i == nrow(ev),
-          label = sprintf(
-            "Event %d of %d: %s \u00b7 %s at %s",
-            i, nrow(ev), ev$.type[i], ev$.description[i], format_position(ev$.initial[i], u, srate)
-          )
-        )
-      } else {
-        span <- continuous()
-        shiny::req(span)
-        pieces <- window_pieces(b, span)
-        n <- nrow(pieces)
-        list(
-          span = span, pieces = pieces, anchor = NULL, focus = pieces$.id[1],
-          at_start = span$start <= 0,
-          at_end = span$start + span$length >= segment_positions(b)$total,
-          label = if (n == 1) {
-            sprintf(
-              "Segment %d, %s to %s", pieces$.id, format_position(pieces$first, u, srate),
-              format_position(pieces$last, u, srate)
-            )
-          } else {
-            sprintf(
-              "Segments %d to %d, %s to %s", pieces$.id[1], pieces$.id[n],
-              format_position(pieces$first[1], u, srate), format_position(pieces$last[n], u, srate)
-            )
-          }
-        )
-      }
-    })
-    ## the buttons are grayed out at the first and last windows
-    shiny::observe({
-      w <- window()
-      shiny::updateActionButton(session, "prev", disabled = w$at_start)
-      shiny::updateActionButton(session, "next", disabled = w$at_end)
-    })
-
-    move <- function(step) {
-      shiny::req(input$mode)
-      if (input$mode == "events") {
-        event_i(min(max(1, event_i() + step), n_events()))
-      } else {
-        w <- continuous()
-        shiny::req(w)
-        set_continuous(start = w$start + step * w$length)
-      }
-    }
-    ## the buttons and keys multiply the zoom by the square root of 2, and the
-    ## field sets it by hand
-    set_zoom <- function(value) {
-      if (!is.null(value) && !is.na(value) && value > 0) zoom(min(64, max(1 / 64, value)))
-    }
-    step_zoom <- function(step) set_zoom(zoom() * sqrt(2)^step)
-    shiny::observeEvent(input$prev, move(-1))
-    shiny::observeEvent(input$`next`, move(1))
-    shiny::observeEvent(input$zoom_in, step_zoom(1))
-    shiny::observeEvent(input$zoom_out, step_zoom(-1))
-    shiny::observeEvent(input$zoom, {
-      set_zoom(input$zoom)
-      ## a value out of range shows the multiplier used instead; an empty
-      ## field is left alone, it is empty while a new number is typed
-      z <- zoom()
-      if (!is.na(input$zoom) && abs(input$zoom - z) > 1e-3 * z) {
-        shiny::updateNumericInput(session, "zoom", value = signif(z, 3))
-      }
-    })
-    shiny::observeEvent(input$arrow_key, {
-      switch(input$arrow_key$key,
-        ArrowLeft = move(-1),
-        ArrowRight = move(1),
-        ArrowUp = step_zoom(1),
-        ArrowDown = step_zoom(-1),
-        m = if (can_select_segments) toggle_segment()
-      )
-    })
-    shiny::observe({
-      z <- zoom()
-      shown <- shiny::isolate(input$zoom)
-      if (is.null(shown) || is.na(shown) || abs(shown - z) > 1e-3 * z) {
-        shiny::updateNumericInput(session, "zoom", value = signif(z, 3))
-      }
-    })
-
-    output$where <- shiny::renderText({
-      w <- window()
-      paste0(
-        w$label,
-        if (can_select_segments && w$focus %in% selected_segments()) paste(" \u00b7 segment", w$focus, "selected")
-      )
-    })
-
-    scale <- shiny::reactive({
-      amplitude_scale(prep(), components(), channels(), input$scale %||% "shared", zoom())
-    })
-    output$scale_text <- shiny::renderText(scale()$text)
-
-    n_traces <- shiny::reactive(length(components()) + length(channels()))
-    output$activations <- shiny::renderPlot(
-      {
-        p <- prep()
-        w <- window()
-        shiny::validate(shiny::need(
-          n_traces() > 0,
-          if (is_ica) "Choose components or channels to show." else "Choose channels to show."
-        ))
-        activations_plot(p, w,
-          components = components(), channels = channels(),
-          marked = marks()[[p$recording]], unit = unit(), srate = srate,
-          scale = scale(), selected_segments = selected_segments(), cut = isTRUE(input$cut)
-        )
-      },
-      ## the traces fill the card, and it scrolls when there are too many
-      height = function() {
-        max(session$clientData$output_activations_height %||% 400, 60 + 28 * n_traces())
-      }
-    )
-
-    ## the heads keep their size, and the card scrolls when there are many
-    n_heads <- shiny::reactive({
-      if (is_ica) {
-        length(components())
-      } else if (isTRUE(input$topo_average)) {
-        1
-      } else {
-        nrow(window()$pieces)
-      }
-    })
-    topo_size <- shiny::reactive({
-      n <- max(1, n_heads())
-      ncol <- min(if (is_ica) 4 else 2, n)
-      width <- session$clientData$output_topographies_width %||% 500
-      panel <- min(floor(width / ncol), 300)
-      list(ncol = ncol, width = ncol * panel, height = ceiling(n / ncol) * (panel + 40) + if (is_ica) 0 else 60)
-    })
-    if (!is_ica) {
-      output$topographies <- shiny::renderPlot(
-        {
-          p <- prep()
-          shiny::validate(shiny::need(
-            nrow(p$coords) > 0,
-            "The channels have no positions: add a layout to see the topography."
-          ))
-          window_topo_plot(p, window(),
-            average = isTRUE(input$topo_average), selected = selected_segments(),
-            electrodes = isTRUE(input$electrodes), ncol = topo_size()$ncol
-          )
-        },
-        width = function() topo_size()$width,
-        height = function() topo_size()$height
-      )
-    }
-    if (is_ica) {
-      output$topographies <- shiny::renderPlot(
-        {
-          p <- prep()
-          shiny::validate(shiny::need(length(components()) > 0, "Choose components to show."))
-          topographies_plot(p, summaries()$labels, components(),
-            marked = marks()[[p$recording]], electrodes = isTRUE(input$electrodes),
-            ncol = topo_size()$ncol
-          )
-        },
-        width = function() topo_size()$width,
-        height = function() topo_size()$height
-      )
-
-      ## the marks of each recording are kept while another one is shown
-      shiny::observeEvent(input$selected, ignoreNULL = FALSE, ignoreInit = TRUE, {
-        m <- marks()
-        m[[prep()$recording]] <- as.character(input$selected)
-        marks(m)
-      })
-      shiny::observeEvent(input$topo_click, {
-        comp <- input$topo_click$panelvar1
-        shiny::req(comp)
-        m <- marks()
-        rec <- prep()$recording
-        m[[rec]] <- if (comp %in% m[[rec]]) setdiff(m[[rec]], comp) else c(m[[rec]], comp)
-        marks(m)
-        shiny::updateSelectizeInput(session, "selected", selected = m[[rec]])
-      })
-    }
-
-    ## a click on a segment selects it, or deselects it; the M key and the
-    ## button do it for the segment of the event, or the first one shown; the
-    ## field lists the selected segments and can edit them
-    toggle_segment <- function(id = window()$focus) {
-      m <- selected_segments()
-      selected_segments(if (id %in% m) setdiff(m, id) else sort(c(m, id)))
-    }
-    if (can_select_segments) {
-      shiny::observeEvent(input$select_segment, toggle_segment())
-      shiny::observeEvent(input$trace_click, toggle_segment(clicked_segment(input$trace_click, window())))
-      shiny::observeEvent(input$selected_segments, ignoreNULL = FALSE, ignoreInit = TRUE, {
-        selected_segments(sort(as.integer(input$selected_segments)))
-      })
-      shiny::observe({
-        m <- selected_segments()
-        if (!setequal(as.integer(shiny::isolate(input$selected_segments)), m)) {
-          shiny::updateSelectizeInput(session, "selected_segments", selected = m)
-        }
-      })
-      shiny::observe({
-        id <- window()$focus
-        shiny::updateActionButton(session, "select_segment",
-          label = paste(if (id %in% selected_segments()) "Deselect segment" else "Select segment", id)
-        )
-      })
-    }
-
-    ## what the app returns: the selected components, or the selected segments
-    result <- function() if (is_ica) marks() else selected_segments()
     shiny::observeEvent(input$done, shiny::stopApp(result()))
     session$onSessionEnded(function() shiny::stopApp(shiny::isolate(result())))
   }
+}
 
-  shiny::shinyApp(ui, server)
+#' The recording shown, chosen in the field or with the buttons, and what the
+#' app needs from it, computed once, the first time it is shown
+#' @noRd
+serve_recordings <- function(input, output, session, cfg, data) {
+  recs <- cfg$recs
+  current <- shiny::reactiveVal(recs[1])
+  shiny::observeEvent(input$recording, {
+    shiny::req(input$recording %in% recs)
+    current(input$recording)
+  })
+  step <- function(step) {
+    i <- match(current(), recs)
+    current(recs[min(max(1, i + step), length(recs))])
+  }
+  shiny::observeEvent(input$prev_recording, step(-1))
+  shiny::observeEvent(input$next_recording, step(1))
+  shiny::observe({
+    rec <- current()
+    if (!identical(shiny::isolate(input$recording), rec)) {
+      shiny::updateSelectInput(session, "recording", selected = rec)
+    }
+    shiny::updateActionButton(session, "prev_recording", disabled = rec == recs[1])
+    shiny::updateActionButton(session, "next_recording", disabled = rec == recs[length(recs)])
+  })
+  output$recording_name <- shiny::renderText(current())
+
+  cache <- new.env(parent = emptyenv())
+  prep <- shiny::reactive({
+    rec <- current()
+    if (is.null(cache[[rec]])) {
+      shiny::withProgress(
+        message = paste0("Preparing ", rec, "..."),
+        cache[[rec]] <- if (cfg$is_ica) browse_ica_prep(data, rec) else browse_eeg_prep(data, rec)
+      )
+    }
+    cache[[rec]]
+  })
+  list(current = current, prep = prep)
+}
+
+#' The events the window is placed around: the ones that match the fields,
+#' and the number of the one shown, kept between 1 and the number of events
+#' @noRd
+serve_events <- function(input, output, session, prep) {
+  shiny::observeEvent(list(prep(), input$event_field), {
+    p <- prep()
+    field <- input$event_field %||% ".description"
+    shiny::updateSelectizeInput(session, "event_values",
+      choices = event_choices(p$events, field),
+      selected = default_events(p$events, field)
+    )
+  })
+
+  selected <- shiny::reactive({
+    p <- prep()
+    shiny::req(input$event_field, input$event_match)
+    if (input$event_match == "exact") {
+      shiny::validate(shiny::need(length(input$event_values) > 0, "Choose the events to browse."))
+    } else {
+      shiny::validate(shiny::need(
+        nzchar(input$event_pattern %||% ""), "Write the text the events should match."
+      ))
+    }
+    ev <- tryCatch(
+      suppressWarnings(match_events(p$events, input$event_field, input$event_match,
+        values = input$event_values, pattern = input$event_pattern
+      )),
+      error = function(e) e
+    )
+    if (inherits(ev, "error")) {
+      shiny::validate(paste("Invalid regular expression:", conditionMessage(ev)))
+    }
+    shiny::validate(shiny::need(nrow(ev) > 0, "No events match."))
+    ev
+  })
+  ## what the text matched; the values chosen are already in their field
+  output$n_events <- shiny::renderText({
+    ev <- selected()
+    n <- paste(nrow(ev), if (nrow(ev) == 1) "event" else "events")
+    if (identical(input$event_match, "exact")) {
+      return(n)
+    }
+    labels <- short_labels(ev[[input$event_field]])
+    counts <- sort(table(labels), decreasing = TRUE)
+    shown <- utils::head(counts, 4)
+    paste0(
+      n, ": ", paste0(names(shown), " (", shown, ")", collapse = ", "),
+      if (length(counts) > length(shown)) ", ..."
+    )
+  })
+
+  ## a new set of events starts from the first one
+  n <- shiny::reactive(nrow(selected()))
+  i <- shiny::reactiveVal(1)
+  shiny::observeEvent(selected(), {
+    i(1)
+    shiny::updateSliderInput(session, "event_slider", min = 1, max = max(n(), 2), value = 1)
+    shiny::updateNumericInput(session, "event_i", max = n(), value = 1)
+  })
+  set_event <- function(value) {
+    if (!is.null(value) && !is.na(value)) i(min(max(1, round(value)), n()))
+  }
+  shiny::observeEvent(input$event_i, set_event(input$event_i))
+  shiny::observeEvent(input$event_slider, set_event(input$event_slider))
+  shiny::observe({
+    shown <- i()
+    if (!identical(as.numeric(shiny::isolate(input$event_i)), shown)) {
+      shiny::updateNumericInput(session, "event_i", value = shown)
+    }
+    if (!identical(as.numeric(shiny::isolate(input$event_slider)), shown)) {
+      shiny::updateSliderInput(session, "event_slider", value = shown)
+    }
+  })
+  list(selected = selected, i = i, n = n)
+}
+
+#' A field changed by the app comes back from the browser as a change of that
+#' field, sometimes after newer changes; taken as the user's, it would move
+#' the window back, and the fields would chase each other. The values sent are
+#' kept until they come back, and then ignored.
+#' @noRd
+sync_fields <- function(input) {
+  sent <- new.env(parent = emptyenv())
+  send <- function(id, value, update) {
+    sent[[id]] <- c(sent[[id]], list(value))
+    update(value)
+  }
+  came_back <- function(id, value) {
+    same <- vapply(sent[[id]], function(v) {
+      if (is.numeric(v)) {
+        isTRUE(abs(as.numeric(value) - v) <= 1e-8 * max(1, abs(v)))
+      } else {
+        identical(as.character(v), as.character(value))
+      }
+    }, logical(1))
+    if (!any(same)) {
+      return(FALSE)
+    }
+    ## what was sent before it came back too, or never will
+    sent[[id]] <- sent[[id]][-seq_len(max(which(same)))]
+    TRUE
+  }
+  user_input <- function(id) {
+    value <- input[[id]]
+    !is.null(value) && !came_back(id, value)
+  }
+  list(sent = sent, send = send, user_input = user_input)
+}
+
+#' The window: around an event, or through the recording, kept in samples,
+#' with the fields that show it in the chosen unit
+#' @noRd
+serve_window <- function(input, session, cfg, prep, events, fields) {
+  srate <- cfg$srate
+  send <- fields$send
+  user_input <- fields$user_input
+  unit <- shiny::reactiveVal("s")
+  from <- shiny::reactiveVal(cfg$default_from)
+  to <- shiny::reactiveVal(cfg$default_to)
+  continuous <- shiny::reactiveVal(NULL)
+
+  ## The order matters when several fields change at once: the unit is set
+  ## first, so that the others are read in it; then a new recording is set
+  ## up; then the length, so that the start is kept inside the recording for
+  ## the length of the window.
+  set_unit <- function(new) {
+    if (!is.null(new) && !identical(new, unit())) {
+      unit(new)
+      shiny::updateSelectInput(session, "unit", selected = new)
+      shiny::updateSelectInput(session, "unit_continuous", selected = new)
+    }
+  }
+  shiny::observeEvent(input$unit, priority = 3, set_unit(input$unit))
+  shiny::observeEvent(input$unit_continuous, priority = 3, set_unit(input$unit_continuous))
+  shiny::observeEvent(prep(), priority = 2, {
+    p <- prep()
+    shiny::updateSelectInput(session, "segment", choices = p$bounds$.id)
+    shiny::updateRadioButtons(session, "mode",
+      selected = if (nrow(p$events) > 0) "events" else "continuous"
+    )
+    continuous(clamp_span(p$bounds, 0, cfg$default_length))
+  })
+
+  ## around events
+  shiny::observeEvent(input$from, {
+    shiny::req(user_input("from"), !is.na(input$from))
+    from(duration_to_samples(input$from, unit(), srate))
+  })
+  shiny::observeEvent(input$to, {
+    shiny::req(user_input("to"), !is.na(input$to))
+    to(duration_to_samples(input$to, unit(), srate))
+  })
+
+  ## Through the recording, the window is kept as the position of its first
+  ## sample, counting the samples of all the segments of the recording one
+  ## after the other, and its length, so it goes on into the next segments.
+  ## The segment and start in the fields are those of its first sample.
+  set_continuous <- function(start = NULL, length = NULL) {
+    cur <- continuous()
+    shiny::req(cur)
+    continuous(clamp_span(prep()$bounds, start %||% cur$start, length %||% cur$length))
+  }
+  start_of <- function() {
+    w <- continuous()
+    shiny::req(w)
+    from_position(prep()$bounds, w$start)
+  }
+  shiny::observeEvent(input$segment, {
+    shiny::req(user_input("segment"), nzchar(input$segment))
+    b <- prep()$bounds
+    id <- as.integer(input$segment)
+    shiny::req(id %in% b$.id)
+    if (!identical(id, start_of()$id)) set_continuous(start = to_position(b, id, b$first[b$.id == id]))
+  })
+  ## Start and Length are read on Enter or when the field is left. A value
+  ## beyond what the recording allows is replaced by the one used, also when
+  ## the window was already there and does not move, and an empty field shows
+  ## the current value again: `rewrite` makes the fields be shown again, after
+  ## all the changes of the moment.
+  rewrite <- shiny::reactiveVal(0)
+  shiny::observeEvent(input$start, {
+    shiny::req(user_input("start"))
+    if (!is.na(input$start)) {
+      set_continuous(start = to_position(prep()$bounds, start_of()$id, position_to_sample(input$start, unit(), srate)))
+    }
+    rewrite(rewrite() + 1)
+  })
+  ## the slider places the start anywhere in the recording
+  shiny::observeEvent(input$position_slider, {
+    shiny::req(user_input("position_slider"))
+    set_continuous(start = round(input$position_slider * scaling(srate, unit())))
+  })
+  shiny::observeEvent(input$length, priority = 1, {
+    shiny::req(user_input("length"))
+    if (!is.na(input$length)) {
+      set_continuous(length = max(1, duration_to_samples(input$length, unit(), srate)))
+    }
+    rewrite(rewrite() + 1)
+  })
+
+  ## the fields follow the window and the unit
+  show <- function(id, value, samples, position = FALSE) {
+    shown <- shiny::isolate(input[[id]])
+    read <- if (position) position_to_sample else duration_to_samples
+    if (is.null(shown) || is.na(shown) || read(shown, unit(), srate) != samples) {
+      send(id, value, function(v) shiny::updateNumericInput(session, id, value = v))
+    }
+  }
+  shiny::observe({
+    u <- unit()
+    show("from", signif(from() / scaling(srate, u), 6), from())
+    show("to", signif(to() / scaling(srate, u), 6), to())
+  })
+  shiny::observe({
+    rewrite()
+    w <- continuous()
+    shiny::req(w)
+    u <- unit()
+    st <- start_of()
+    if (!identical(shiny::isolate(input$segment), as.character(st$id))) {
+      send("segment", as.character(st$id), function(v) shiny::updateSelectInput(session, "segment", selected = v))
+    }
+    show("start", signif(sample_to_position(st$sample, u, srate), 6), st$sample, position = TRUE)
+    show("length", signif(w$length / scaling(srate, u), 6), w$length)
+  })
+  ## The slider spans the whole recording, from the first sample to the last
+  ## start that leaves room for the window. Its range is sent only when it
+  ## changes, and its value only when it is not the one shown.
+  slider_range <- NULL
+  shiny::observe({
+    w <- continuous()
+    shiny::req(w)
+    k <- scaling(srate, unit())
+    last_start <- segment_positions(prep()$bounds)$total - w$length
+    range <- c(last_start, k)
+    shown <- shiny::isolate(input$position_slider)
+    if (!identical(range, slider_range)) {
+      slider_range <<- range
+      send("position_slider", w$start / k, function(v) {
+        shiny::updateSliderInput(session, "position_slider",
+          min = 0, max = max(1, last_start) / k, value = v, step = 1 / k
+        )
+      })
+    } else if (is.null(shown) || round(shown * k) != w$start) {
+      send("position_slider", w$start / k, function(v) {
+        shiny::updateSliderInput(session, "position_slider", value = v)
+      })
+    }
+  })
+
+  ## the window: the part of each segment it covers, the event it is around,
+  ## and the segment that M and the button select (the one of the event, or
+  ## the first one shown)
+  window <- shiny::reactive({
+    p <- prep()
+    shiny::req(input$mode)
+    if (input$mode == "events") {
+      event_window(p$bounds, events$selected(), events$i(), from(), to(), unit(), srate)
+    } else {
+      span <- continuous()
+      shiny::req(span)
+      continuous_window(p$bounds, span, unit(), srate)
+    }
+  })
+  ## the buttons are grayed out at the first and last windows
+  shiny::observe({
+    w <- window()
+    shiny::updateActionButton(session, "prev", disabled = w$at_start)
+    shiny::updateActionButton(session, "next", disabled = w$at_end)
+  })
+  move <- function(step) {
+    shiny::req(input$mode)
+    if (input$mode == "events") {
+      events$i(min(max(1, events$i() + step), events$n()))
+    } else {
+      w <- continuous()
+      shiny::req(w)
+      set_continuous(start = w$start + step * w$length)
+    }
+  }
+  shiny::observeEvent(input$prev, move(-1))
+  shiny::observeEvent(input$`next`, move(1))
+  list(unit = unit, continuous = continuous, window = window, move = move)
+}
+
+#' The window around event `i` of `ev`, from `from` to `to` samples around it
+#' @noRd
+event_window <- function(bounds, ev, i, from, to, unit, srate) {
+  i <- min(i, nrow(ev))
+  span <- event_span(bounds, ev[i], from = from, to = to)
+  list(
+    span = span, pieces = window_pieces(bounds, span),
+    anchor = list(id = ev$.id[i], sample = ev$.initial[i]), focus = ev$.id[i],
+    at_start = i == 1, at_end = i == nrow(ev),
+    label = sprintf(
+      "Event %d of %d: %s \u00b7 %s at %s",
+      i, nrow(ev), ev$.type[i], ev$.description[i], format_position(ev$.initial[i], unit, srate)
+    )
+  )
+}
+
+#' The window through the recording that `span` covers
+#' @noRd
+continuous_window <- function(bounds, span, unit, srate) {
+  pieces <- window_pieces(bounds, span)
+  n <- nrow(pieces)
+  list(
+    span = span, pieces = pieces, anchor = NULL, focus = pieces$.id[1],
+    at_start = span$start <= 0,
+    at_end = span$start + span$length >= segment_positions(bounds)$total,
+    label = if (n == 1) {
+      sprintf(
+        "Segment %d, %s to %s", pieces$.id, format_position(pieces$first, unit, srate),
+        format_position(pieces$last, unit, srate)
+      )
+    } else {
+      sprintf(
+        "Segments %d to %d, %s to %s", pieces$.id[1], pieces$.id[n],
+        format_position(pieces$first[1], unit, srate), format_position(pieces$last[n], unit, srate)
+      )
+    }
+  )
+}
+
+#' The zoom of the amplitudes: the buttons and keys multiply it by the square
+#' root of 2, and the field sets it by hand, between 1/64 and 64
+#' @noRd
+serve_zoom <- function(input, session) {
+  zoom <- shiny::reactiveVal(1)
+  set_zoom <- function(value) {
+    if (!is.null(value) && !is.na(value) && value > 0) zoom(min(64, max(1 / 64, value)))
+  }
+  step <- function(step) set_zoom(zoom() * sqrt(2)^step)
+  shiny::observeEvent(input$zoom_in, step(1))
+  shiny::observeEvent(input$zoom_out, step(-1))
+  shiny::observeEvent(input$zoom, {
+    set_zoom(input$zoom)
+    ## a value out of range shows the multiplier used instead; an empty
+    ## field is left alone, it is empty while a new number is typed
+    z <- zoom()
+    if (!is.na(input$zoom) && abs(input$zoom - z) > 1e-3 * z) {
+      shiny::updateNumericInput(session, "zoom", value = signif(z, 3))
+    }
+  })
+  shiny::observe({
+    z <- zoom()
+    shown <- shiny::isolate(input$zoom)
+    if (is.null(shown) || is.na(shown) || abs(shown - z) > 1e-3 * z) {
+      shiny::updateNumericInput(session, "zoom", value = signif(z, 3))
+    }
+  })
+  list(zoom = zoom, step = step)
+}
+
+#' The components shown, and their labels and orders, which depend on the
+#' filter of the EOG channels; for an eeg_lst there are none
+#' @noRd
+serve_components <- function(input, session, cfg, prep) {
+  if (!cfg$is_ica) {
+    return(list(components = shiny::reactive(character(0)), summaries = NULL))
+  }
+  eog_freq <- shiny::debounce(shiny::reactive({
+    if (!isTRUE(input$eog_filter %||% !is.null(cfg$eog_freq))) {
+      return(NULL)
+    }
+    freq <- as.numeric(c(input$eog_low %||% cfg$eog_freq[1], input$eog_high %||% cfg$eog_freq[2]))
+    if (all(is.na(freq))) NULL else freq
+  }), 800)
+  ## computed once for each recording and filter
+  cache <- new.env(parent = emptyenv())
+  summaries <- shiny::reactive({
+    p <- prep()
+    freq <- eog_freq()
+    key <- paste(p$recording, toString(freq))
+    if (is.null(cache[[key]])) {
+      shiny::withProgress(
+        message = "Correlating the components with the EOG channels...",
+        cache[[key]] <- browse_ica_summaries(p, cfg$eog, freq)
+      )
+    }
+    cache[[key]]
+  })
+  ## the first components in the chosen order; they can then be edited
+  shiny::observeEvent(
+    list(prep(), input$order, input$n_components, if (identical(input$order, "cor")) summaries()),
+    {
+      shiny::req(input$order)
+      ord <- summaries()$order[[input$order]]
+      n <- if (is.na(input$n_components)) cfg$n_components else input$n_components
+      shiny::updateSelectizeInput(session, "components", choices = ord, selected = utils::head(ord, n))
+    }
+  )
+  ## redrawing waits until the components stop changing
+  components <- shiny::debounce(shiny::reactive(input$components), 1000)
+  list(components = components, summaries = summaries)
+}
+
+#' What is selected, and returned when the app closes: the components of each
+#' recording, or the .id of the segments
+#' @noRd
+serve_selection <- function(input, session, cfg, prep, window) {
+  marks <- shiny::reactiveVal(stats::setNames(rep(list(character(0)), length(cfg$recs)), cfg$recs))
+  segments <- shiny::reactiveVal(integer(0))
+
+  if (cfg$is_ica) {
+    ## a click on a topography selects its component, or deselects it; the
+    ## selection of each recording is kept while another one is shown
+    shiny::observeEvent(prep(), priority = 2, {
+      p <- prep()
+      shiny::updateSelectizeInput(session, "selected", choices = p$order_var, selected = marks()[[p$recording]])
+    })
+    shiny::observeEvent(input$selected, ignoreNULL = FALSE, ignoreInit = TRUE, {
+      m <- marks()
+      m[[prep()$recording]] <- as.character(input$selected)
+      marks(m)
+    })
+    shiny::observeEvent(input$topo_click, {
+      comp <- input$topo_click$panelvar1
+      shiny::req(comp)
+      m <- marks()
+      rec <- prep()$recording
+      m[[rec]] <- if (comp %in% m[[rec]]) setdiff(m[[rec]], comp) else c(m[[rec]], comp)
+      marks(m)
+      shiny::updateSelectizeInput(session, "selected", selected = m[[rec]])
+    })
+  }
+
+  ## a click on a segment selects it, or deselects it; the M key and the
+  ## button do it for the segment of the event, or the first one shown; the
+  ## field lists the selected segments and can edit them
+  toggle_segment <- function(id = window()$focus) {
+    m <- segments()
+    segments(if (id %in% m) setdiff(m, id) else sort(c(m, id)))
+  }
+  if (cfg$can_select_segments) {
+    shiny::observeEvent(prep(), priority = 2, {
+      shiny::updateSelectizeInput(session, "selected_segments",
+        choices = cfg$segment_ids, selected = shiny::isolate(segments())
+      )
+    })
+    shiny::observeEvent(input$select_segment, toggle_segment())
+    shiny::observeEvent(input$trace_click, toggle_segment(clicked_segment(input$trace_click, window())))
+    shiny::observeEvent(input$selected_segments, ignoreNULL = FALSE, ignoreInit = TRUE, {
+      segments(sort(as.integer(input$selected_segments)))
+    })
+    shiny::observe({
+      m <- segments()
+      if (!setequal(as.integer(shiny::isolate(input$selected_segments)), m)) {
+        shiny::updateSelectizeInput(session, "selected_segments", selected = m)
+      }
+    })
+    shiny::observe({
+      id <- window()$focus
+      shiny::updateActionButton(session, "select_segment",
+        label = paste(if (id %in% segments()) "Deselect segment" else "Select segment", id)
+      )
+    })
+  }
+
+  result <- function() if (cfg$is_ica) marks() else segments()
+  list(marks = marks, segments = segments, toggle_segment = toggle_segment, result = result)
+}
+
+#' What is drawn: the header, the traces, and the topographies
+#' @noRd
+serve_plots <- function(input, output, session, cfg, prep, win, comps, zoom, selection) {
+  components <- comps$components
+  ## redrawing waits until the channels stop changing
+  channels <- shiny::debounce(shiny::reactive(input$channels), 1000)
+
+  output$where <- shiny::renderText({
+    w <- win$window()
+    paste0(
+      w$label,
+      if (cfg$can_select_segments && w$focus %in% selection$segments()) {
+        paste(" \u00b7 segment", w$focus, "selected")
+      }
+    )
+  })
+
+  negative_up <- shiny::reactive(if (is.null(input$polarity)) cfg$negative_up else input$polarity == "down")
+  scale <- shiny::reactive({
+    amplitude_scale(prep(), components(), channels(), input$scale %||% "shared", zoom(),
+      amp_unit = cfg$amp_unit, negative_up = negative_up()
+    )
+  })
+  output$scale_text <- shiny::renderText(scale()$text)
+
+  n_traces <- shiny::reactive(length(components()) + length(channels()))
+  output$activations <- shiny::renderPlot(
+    {
+      p <- prep()
+      w <- win$window()
+      shiny::validate(shiny::need(
+        n_traces() > 0,
+        if (cfg$is_ica) "Choose components or channels to show." else "Choose channels to show."
+      ))
+      activations_plot(p, w,
+        components = components(), channels = channels(),
+        marked = selection$marks()[[p$recording]], unit = win$unit(), srate = cfg$srate,
+        scale = scale(), selected_segments = selection$segments(), cut = isTRUE(input$cut),
+        negative_up = negative_up()
+      )
+    },
+    ## the traces fill the card, and it scrolls when there are too many
+    height = function() {
+      max(session$clientData$output_activations_height %||% 400, 60 + 28 * n_traces())
+    }
+  )
+
+  ## the heads keep their size, and the card scrolls when there are many
+  n_heads <- shiny::reactive({
+    if (cfg$is_ica) {
+      length(components())
+    } else if (isTRUE(input$topo_average)) {
+      1
+    } else {
+      nrow(win$window()$pieces)
+    }
+  })
+  topo_size <- shiny::reactive({
+    n <- max(1, n_heads())
+    ncol <- min(if (cfg$is_ica) 4 else 2, n)
+    width <- session$clientData$output_topographies_width %||% 500
+    panel <- min(floor(width / ncol), 300)
+    list(ncol = ncol, width = ncol * panel, height = ceiling(n / ncol) * (panel + 40) + if (cfg$is_ica) 0 else 60)
+  })
+  output$topographies <- shiny::renderPlot(
+    {
+      p <- prep()
+      if (cfg$is_ica) {
+        shiny::validate(shiny::need(length(components()) > 0, "Choose components to show."))
+        topographies_plot(p, comps$summaries()$labels, components(),
+          marked = selection$marks()[[p$recording]], electrodes = isTRUE(input$electrodes),
+          ncol = topo_size()$ncol
+        )
+      } else {
+        shiny::validate(shiny::need(
+          nrow(p$coords) > 0,
+          "The channels have no positions: add a layout to see the topography."
+        ))
+        window_topo_plot(p, win$window(),
+          average = isTRUE(input$topo_average), selected = selection$segments(),
+          electrodes = isTRUE(input$electrodes), ncol = topo_size()$ncol
+        )
+      }
+    },
+    width = function() topo_size()$width,
+    height = function() topo_size()$height
+  )
+  list(n_heads = n_heads)
+}
+
+#' The arrow keys move the window and zoom the amplitudes, and M selects the
+#' segment shown
+#' @noRd
+serve_keys <- function(input, cfg, move, step_zoom, toggle_segment) {
+  shiny::observeEvent(input$arrow_key, {
+    switch(input$arrow_key$key,
+      ArrowLeft = move(-1),
+      ArrowRight = move(1),
+      ArrowUp = step_zoom(1),
+      ArrowDown = step_zoom(-1),
+      m = if (cfg$can_select_segments) toggle_segment()
+    )
+  })
 }
 
 ## Sends the arrow keys and M to the server, unless the focus is in a field,
@@ -1236,15 +1411,17 @@ window_tbl <- function(p, w, components, channels) {
 }
 
 #' The typical standard deviation of each column of `x`: the median of its
-#' standard deviations in stretches of `chunk` samples of each segment. Unlike
-#' the standard deviation of the whole recording, it ignores slow drifts, which
-#' would flatten unfiltered channels, and rare large events such as blinks
+#' standard deviations in stretches of `chunk` samples of each segment, each
+#' one estimated with the MAD (scaled to match the SD of normal data). Unlike
+#' the standard deviation of the whole recording, it ignores slow drifts,
+#' which would flatten unfiltered channels, and large events such as blinks,
+#' both across the stretches and inside them
 #' @noRd
 typical_sd <- function(x, ids, chunk) {
   pos <- stats::ave(seq_along(ids), ids, FUN = seq_along)
   groups <- interaction(ids, (pos - 1) %/% chunk, drop = TRUE)
   apply(x, 2, function(col) {
-    sds <- tapply(col, groups, stats::sd, na.rm = TRUE)
+    sds <- tapply(col, groups, stats::mad, na.rm = TRUE)
     stats::median(sds, na.rm = TRUE)
   })
 }
@@ -1254,7 +1431,8 @@ typical_sd <- function(x, ids, chunk) {
 #' the typical standard deviation over the recording, of each trace or pooled
 #' over the components and over the channels
 #' @noRd
-amplitude_scale <- function(p, components, channels, scale, zoom) {
+amplitude_scale <- function(p, components, channels, scale, zoom, amp_unit = NULL,
+                            negative_up = FALSE) {
   keys <- c(components, channels)
   sd <- p$sd[keys]
   sd[!is.finite(sd) | sd == 0] <- 1
@@ -1264,20 +1442,31 @@ amplitude_scale <- function(p, components, channels, scale, zoom) {
   names(ref) <- keys
   half <- 4 / zoom
   fmt <- function(x) format(signif(x, 2), big.mark = ",", scientific = FALSE, drop0trailing = TRUE)
-  text <- if (scale == "shared") {
-    parts <- c(
-      if (length(channels) > 0) paste0("\u00b1", fmt(half * pooled[["channel"]]), " for the channels"),
+  ## in the unit of the channels, how far the edge of a row is from its baseline
+  channel_half <- if (scale == "shared" && length(channels) > 0) half * pooled[["channel"]]
+  spans <- if (scale == "shared") {
+    paste(c(
+      if (length(channels) > 0) paste0("\u00b1", fmt(channel_half), if (!is.null(amp_unit)) paste0(" ", amp_unit), " for the channels"),
       if (length(components) > 0) paste0("\u00b1", fmt(half), " typical SDs for the components")
-    )
-    paste0("Rows span ", paste(parts, collapse = " and "))
+    ), collapse = " and ")
   } else {
-    paste0("Rows span \u00b1", fmt(half), " times the typical SD of each trace")
+    paste0("\u00b1", fmt(half), " times the typical SD of its trace")
   }
-  list(ref = ref, half = half, text = text)
+  text <- paste0("Each row spans ", spans, "; ", if (negative_up) "negative" else "positive", " up")
+  list(ref = ref, half = half, text = text, channel_half = channel_half, amp_unit = amp_unit)
+}
+
+#' The largest round number, 1, 2, or 5 times a power of 10, that is not larger
+#' than `x`
+#' @noRd
+round_below <- function(x) {
+  power <- 10^floor(log10(x))
+  steps <- c(1, 2, 5)
+  power * max(steps[steps <= x / power + 1e-9])
 }
 
 activations_plot <- function(p, w, components, channels, marked, unit, srate, scale,
-                             selected_segments = integer(0), cut = FALSE) {
+                             selected_segments = integer(0), cut = FALSE, negative_up = FALSE) {
   .x <- .y <- .value <- .key <- .kind <- .marked <- .center <- xmin <- xmax <- label <- x <- NULL
   tbl <- window_tbl(p, w, components, channels)
   keys <- levels(tbl$.key)
@@ -1289,7 +1478,8 @@ activations_plot <- function(p, w, components, channels, marked, unit, srate, sc
   centers <- stats::setNames(2 * (rev(seq_along(keys)) - 1), keys)
   tbl[, .x := sample_to_position(.sample, unit, srate)]
   tbl[, .center := centers[as.character(.key)]]
-  tbl[, .y := .value / (scale$ref[as.character(.key)] * scale$half) + .center]
+  up <- if (negative_up) -1 else 1
+  tbl[, .y := up * .value / (scale$ref[as.character(.key)] * scale$half) + .center]
   tbl[, .marked := .key %in% marked]
   pieces <- w$pieces
   ## a window over several segments shows each one in its own column
@@ -1362,6 +1552,33 @@ activations_plot <- function(p, w, components, channels, marked, unit, srate, sc
       labeller = ggplot2::labeller(.id = segment_label)
     )
   }
+  ## a scale bar next to the lowest channel, at the right of the last segment:
+  ## a round amplitude in the unit of the channels, with + at its positive end
+  if (!is.null(scale$channel_half) && length(channels) > 0) {
+    amplitude <- round_below(scale$channel_half)
+    last <- pieces$.id[nrow(pieces)]
+    xs <- range(tbl$.x[tbl$.id == last])
+    bar <- data.frame(
+      .id = last, x = xs[2] + .03 * diff(xs),
+      y = centers[[channels[length(channels)]]],
+      yend = centers[[channels[length(channels)]]] + up * amplitude / scale$channel_half
+    )
+    fmt <- function(x) format(x, big.mark = ",", scientific = FALSE, drop0trailing = TRUE)
+    plot <- plot +
+      ggplot2::geom_segment(
+        data = bar, ggplot2::aes(x = x, xend = x, y = y, yend = yend),
+        linewidth = 1, inherit.aes = FALSE
+      ) +
+      ggplot2::geom_text(
+        data = bar, ggplot2::aes(x = x, y = yend, label = "+"),
+        vjust = if (negative_up) 1.2 else -.3, size = 4, inherit.aes = FALSE
+      ) +
+      ggplot2::geom_text(
+        data = bar,
+        ggplot2::aes(x = x, y = (y + yend) / 2, label = paste0(" ", fmt(amplitude), if (!is.null(scale$amp_unit)) paste0(" ", scale$amp_unit))),
+        hjust = 0, size = 3.5, inherit.aes = FALSE
+      )
+  }
   ## the lines of the traces and the events share the color scale
   traces <- if (cut) {
     ggplot2::geom_segment(
@@ -1378,7 +1595,8 @@ activations_plot <- function(p, w, components, channels, marked, unit, srate, sc
       values = c(component = "black", channel = "#1f5fa8", marked = "#c0392b", type_colors),
       breaks = types, name = NULL
     ) +
-    ggplot2::coord_cartesian(ylim = c(-1, max(centers) + 1), expand = FALSE) +
+    ## large amplitudes of the top and bottom traces also go beyond the panel
+    ggplot2::coord_cartesian(ylim = c(-1, max(centers) + 1), expand = FALSE, clip = "off") +
     ggplot2::scale_y_continuous(breaks = centers, labels = names(centers)) +
     ggplot2::scale_x_continuous(
       if (unit == "samples") "Sample" else paste0("Time (", unit, ")"),
@@ -1394,7 +1612,9 @@ activations_plot <- function(p, w, components, channels, marked, unit, srate, sc
       axis.text.x = ggplot2::element_text(size = 11),
       panel.spacing.x = ggplot2::unit(.4, "lines"),
       legend.position = "bottom",
-      legend.text = ggplot2::element_text(size = 13)
+      legend.text = ggplot2::element_text(size = 13),
+      ## room for large amplitudes of the top trace, and for the scale bar
+      plot.margin = ggplot2::margin(t = 30, r = 60, b = 5, l = 5)
     )
 }
 

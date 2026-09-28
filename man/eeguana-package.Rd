@@ -18,6 +18,8 @@ show messages about what they do, such as the filters they apply.
 \item \code{eeguana.print_max_channels}: maximum number of channels shown when an
 \code{eeg_lst}, \code{psd_lst}, or \code{eeg_ica_lst} is printed; \code{Inf}, all of them, by
 default. See \code{\link[=print.eeg_lst]{print.eeg_lst()}}.
+\item \code{eeguana.negative_up}: whether \code{\link[=eeg_browse]{eeg_browse()}} draws negative amplitudes up;
+\code{FALSE}, positive up, by default.
 }
 
 Set them with \code{\link[=options]{options()}}, for example \code{options(eeguana.print_max_channels = 8)}.

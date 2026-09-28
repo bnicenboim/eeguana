@@ -8,7 +8,12 @@
 \usage{
 eeg_browse(.data, ...)
 
-\method{eeg_browse}{eeg_lst}(.data, ..., .viewer = NULL)
+\method{eeg_browse}{eeg_lst}(
+  .data,
+  ...,
+  .negative_up = getOption("eeguana.negative_up", FALSE),
+  .viewer = NULL
+)
 
 \method{eeg_browse}{eeg_ica_lst}(
   .data,
@@ -16,6 +21,7 @@ eeg_browse(.data, ...)
   .eog = NULL,
   .eog_freq = c(0.1, 30),
   .n_components = 16,
+  .negative_up = getOption("eeguana.negative_up", FALSE),
   .viewer = NULL
 )
 }
@@ -24,6 +30,11 @@ eeg_browse(.data, ...)
 
 \item{...}{For an \code{eeg_lst}, the channels shown when the app opens, all of
 them by default. Not used for an \code{eeg_ica_lst}.}
+
+\item{.negative_up}{Whether negative amplitudes are drawn up, as is usual in
+some EEG traditions. By default, the value of the option
+\code{eeguana.negative_up}, which is \code{FALSE}, positive up. It can also be
+changed in the app.}
 
 \item{.viewer}{Where the app opens, see \link[shiny:viewer]{shiny::viewer}. By default, in the
 browser.}
@@ -80,9 +91,11 @@ milliseconds, or seconds. The left and right arrow keys move to the previous
 and next window, and the up and down arrow keys zoom the amplitudes in and
 out.
 
-The amplitudes are shown in units of their typical standard deviation, the
-median of their standard deviations in stretches of one second of the whole
-recording, so a window with a blink and one without are drawn at the same
+The amplitudes are shown in units of their typical standard deviation: the
+median, over stretches of one second of the whole recording, of their
+standard deviations, each estimated with the median absolute deviation
+(MAD, see \code{\link[stats:mad]{stats::mad()}}), which blinks and other large events barely
+change. So a window with a blink and one without are drawn at the same
 scale, and slow drifts do not flatten the traces. By default, all the
 channels share one scale, and all the components another, so their sizes
 can be compared; each trace can also be drawn at its own scale, which makes

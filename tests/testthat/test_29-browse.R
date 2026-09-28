@@ -242,6 +242,37 @@ test_that("the window through the recording goes on into the next segments", {
   })
 })
 
+test_that("start and length beyond the recording are replaced by the values used", {
+  shiny::testServer(eeguana:::browse_app(ica_seg, .kind = "ica"), {
+    b <- prep()$bounds
+    last_sent <- function(id) sent[[id]][[length(sent[[id]])]]
+    session$setInputs(
+      mode = "continuous", unit_continuous = "samples", segment = as.character(b$.id[nrow(b)]),
+      length = 100, start = 1000
+    )
+    ## the window ends with the recording, and the field shows where it starts
+    expect_true(window()$at_end)
+    expect_equal(last_sent("start"), b$last[nrow(b)] - 99)
+    ## also when the window does not move
+    n <- length(sent$start)
+    session$setInputs(start = 2000)
+    expect_length(sent$start, n + 1)
+    expect_equal(last_sent("start"), b$last[nrow(b)] - 99)
+    ## a length longer than the recording is the recording, and a length of
+    ## zero or less is one sample
+    session$setInputs(length = 1e6)
+    total <- eeguana:::segment_positions(b)$total
+    expect_equal(continuous()$length, total)
+    expect_equal(last_sent("length"), total)
+    session$setInputs(length = -3)
+    expect_equal(continuous()$length, 1L)
+    expect_equal(last_sent("length"), 1)
+    ## an emptied field shows the current value again
+    session$setInputs(start = NA)
+    expect_false(is.na(last_sent("start")))
+  })
+})
+
 test_that("the fields changed by the app are not taken as the user's when they come back", {
   shiny::testServer(eeguana:::browse_app(ica_seg, .kind = "ica"), {
     session$setInputs(mode = "continuous", unit_continuous = "s", length = .2)
@@ -264,13 +295,13 @@ test_that("the arrow keys and buttons zoom the amplitudes", {
   shiny::testServer(eeguana:::browse_app(ica_seg, .kind = "ica"), {
     session$setInputs(components = "ICA1", channels = "EOGV", scale = "shared")
     session$elapse(1100)
-    expect_match(output$scale_text, "^Rows span \u00b1[0-9.]+ for the channels and \u00b14 typical SDs for the components$")
+    expect_match(output$scale_text, "^Each row spans \u00b1[0-9.]+ for the channels and \u00b14 typical SDs for the components; positive up$")
     session$setInputs(arrow_key = list(key = "ArrowUp"))
     session$setInputs(zoom_in = 1)
     expect_equal(zoom(), 2)
     expect_match(output$scale_text, "\u00b12 typical SDs for the components")
     session$setInputs(scale = "each")
-    expect_equal(output$scale_text, "Rows span \u00b12 times the typical SD of each trace")
+    expect_equal(output$scale_text, "Each row spans \u00b12 times the typical SD of its trace; positive up")
     session$setInputs(arrow_key = list(key = "ArrowDown"))
     expect_equal(zoom(), sqrt(2))
     ## the multiplier can be written by hand, and stays between 1/64 and 64
@@ -288,19 +319,25 @@ test_that("the arrow keys and buttons zoom the amplitudes", {
 })
 
 test_that("amplitudes are scaled by their typical standard deviation", {
-  ## the median of the standard deviations of stretches of one second (500
-  ## samples here) of each segment; the segments are shorter, so each segment
-  ## is one stretch. eeg_ica_show() multiplies activations by 10
+  ## the median of the standard deviations, estimated with the MAD, of
+  ## stretches of one second (500 samples here) of each segment; the segments
+  ## are shorter, so each segment is one stretch. eeg_ica_show() multiplies
+  ## activations by 10
   shown <- eeg_ica_show(ica_seg, ICA1)
-  per_segment <- function(x) stats::median(tapply(as.numeric(x), shown$.signal$.id, stats::sd))
+  per_segment <- function(x) stats::median(tapply(as.numeric(x), shown$.signal$.id, stats::mad))
   expect_equal(prep_seg$sd[["ICA1"]], per_segment(shown$.signal$ICA1) / 10)
   expect_equal(prep_seg$sd[["EOGV"]], per_segment(shown$.signal$EOGV))
   ## a slow drift does not change it, and it is split into stretches
   x <- cbind(a = rep(c(-1, 1), 500), b = rep(c(-1, 1), 500) + seq(0, 20, length.out = 1000))
   sds <- eeguana:::typical_sd(x, ids = rep(1L, 1000), chunk = 10)
-  expect_equal(sds[["a"]], stats::sd(rep(c(-1, 1), 5)))
+  expect_equal(sds[["a"]], stats::mad(rep(c(-1, 1), 5)))
   expect_lt(abs(sds[["b"]] - sds[["a"]]) / sds[["a"]], .05)
-  expect_gt(stats::sd(x[, "b"]), 5 * sds[["b"]])
+  expect_gt(stats::sd(x[, "b"]), 3 * sds[["b"]])
+  ## and neither does a large outlier in every stretch, which the median over
+  ## the stretches alone would not remove
+  spiky <- rep(c(-1, 1), 500)
+  spiky[seq(1, 1000, by = 10)] <- 50
+  expect_equal(eeguana:::typical_sd(cbind(spiky), ids = rep(1L, 1000), chunk = 10)[[1]], sds[["a"]])
 
   each <- eeguana:::amplitude_scale(prep_seg, c("ICA1", "ICA2"), c("EOGV", "Fz"), "each", 1)
   expect_equal(each$ref, prep_seg$sd[c("ICA1", "ICA2", "EOGV", "Fz")])
@@ -431,7 +468,7 @@ test_that("the signal of the channels is shown, without components", {
     expect_equal(components(), character(0))
     expect_equal(window()$focus, 2L)
     expect_match(output$activations$src, "^data:image/png")
-    expect_match(output$scale_text, "^Rows span \u00b1[0-9.,]+ for the channels$")
+    expect_match(output$scale_text, "^Each row spans \u00b1[0-9.,]+ for the channels; positive up$")
     ## the typical SDs are the ones of the channels
     expect_equal(prep()$sd[["EOGV"]], prep_seg$sd[["EOGV"]])
     ## a window over several segments is drawn too
@@ -457,6 +494,8 @@ test_that("large amplitudes go beyond their row, or are cut, but are never flatt
   ## zoomed in 16 times, many values are beyond the rows
   sc <- eeguana:::amplitude_scale(p, character(0), c("Fz", "Cz"), "shared", 16)
   plot <- eeguana:::activations_plot(p, w, character(0), c("Fz", "Cz"), character(0), "s", 500, sc)
+  ## also beyond the top and the bottom of the panel
+  expect_equal(plot$coordinates$clip, "off")
   free <- plot$data$.y - plot$data$.center
   expect_gt(max(abs(free)), 1.5)
   ## no value is held at the edge of the row
@@ -478,6 +517,38 @@ test_that("large amplitudes go beyond their row, or are cut, but are never flatt
     eeguana:::activations_plot(p, w, character(0), c("Fz", "Cz"), character(0), "s", 500, sc, cut = TRUE),
     "ggplot"
   )
+})
+
+test_that("negative can be up, and a scale bar shows a round amplitude in the unit of the channels", {
+  p <- eeguana:::browse_eeg_prep(seg, rec)
+  w <- list(pieces = data.table::data.table(.id = 4L, first = -99L, last = 251L))
+  sc <- eeguana:::amplitude_scale(p, character(0), c("Fz", "Cz"), "shared", 1, amp_unit = "\u00b5V")
+  expect_match(sc$text, "^Each row spans \u00b1[0-9.,]+ \u00b5V for the channels; positive up$")
+  draw <- function(negative_up) {
+    d <- eeguana:::activations_plot(p, w, character(0), c("Fz", "Cz"), character(0), "s", 500, sc,
+      negative_up = negative_up
+    )$data
+    d$.y - d$.center
+  }
+  expect_equal(draw(TRUE), -draw(FALSE))
+  ## the bar is 1, 2, or 5 times a power of 10, and fits in a row
+  expect_equal(
+    vapply(c(1, 5, 22, 99, .37), eeguana:::round_below, numeric(1)),
+    c(1, 5, 20, 50, .2)
+  )
+  ## the unit comes from the channels table, and is shown only when known
+  expect_null(eeguana:::channel_unit_label(seg))
+  with_unit <- seg
+  channels_tbl(with_unit) <- tidytable::mutate(channels_tbl(with_unit), unit = "microvolt")
+  expect_equal(eeguana:::channel_unit_label(with_unit), "\u00b5V")
+  ## the app starts with the polarity asked, which can be changed
+  shiny::testServer(eeguana:::browse_app(with_unit, .negative_up = TRUE), {
+    session$setInputs(mode = "continuous", channels = "Fz", scale = "shared")
+    expect_match(output$scale_text, "\u00b5V for the channels; negative up$")
+    expect_match(output$activations$src, "^data:image/png")
+    session$setInputs(polarity = "up")
+    expect_match(output$scale_text, "positive up$")
+  })
 })
 
 test_that("the topography is the mean of the window, one head per segment or their mean", {

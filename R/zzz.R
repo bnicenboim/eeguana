@@ -73,7 +73,8 @@ mne <- NULL
   op <- options()
   op.eeguana <- list(
     eeguana.verbose = TRUE,
-    eeguana.print_max_channels = Inf
+    eeguana.print_max_channels = Inf,
+    eeguana.negative_up = FALSE
   )
   toset <- !(names(op.eeguana) %in% names(op))
   if (any(toset)) options(op.eeguana[toset])
