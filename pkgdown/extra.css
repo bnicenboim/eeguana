@@ -1,0 +1,11 @@
+/* A bit wider content than pkgdown's 50rem, leaving room for the table of
+   contents next to it */
+.row > main {
+  max-width: 56rem;
+}
+
+/* All the levels of the table of contents are shown, not only the ones of the
+   section being read (pkgdown hides them with !important) */
+#toc > .nav .nav {
+  display: flex !important;
+}
