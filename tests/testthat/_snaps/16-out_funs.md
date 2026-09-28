@@ -289,3 +289,30 @@
       7:     Stimulus          s71     5
       8:  UserDefined        Blink     6
 
+# print() shows at most .max_channels channels, and says how to see more
+
+    Code
+      print(data_faces_ERPs, .max_channels = 3, topn = 2)
+    Output
+      # EEG data:
+      
+      # Signal table:
+             .id      .sample           Fp1           Fpz           Fp2
+           <int> <sample_int> <channel_dbl> <channel_dbl> <channel_dbl>
+        1:     1          -99     0.2235343     0.6683971   -0.03621027
+        2:     1          -98     0.2525760     0.7361622   -0.04687375
+       ---                                                             
+      451:     2          125   -13.2928641   -14.7043950  -13.39205897
+      452:     2          126   -13.2244533   -14.7907774  -13.53960969
+      # ... and 31 more channels: F7, F3, Fz, F4, F8, FC5, FC1, FC2, FC6, M1, T7, C3, Cz, C4, T8, M2, CP5, CP1, CP2, CP6, P7, P3, Pz, P4, P8, POz, O1, Oz, O2, EOGV, EOGH
+      # Use print(.max_channels = ...) or options(eeguana.print_max_channels = ...) to see more.
+      
+      # Events table:
+      No events.
+      
+      # Segments table:
+           .id .recording condition
+         <int>     <char>    <char>
+      1:     1 faces.vhdr     faces
+      2:     2 faces.vhdr non-faces
+
