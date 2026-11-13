@@ -29,7 +29,7 @@ jobs:
       # Without Python, every MNE code path (read_fif, as_eeg_lst on an mne
       # raw object, the filter comparisons) counts as uncovered and drags the
       # reported coverage down.
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
 

@@ -51,7 +51,7 @@ jobs:
       # that install_py_eeguana() builds locally: pip wheels are much faster in
       # CI, and RETICULATE_PYTHON takes precedence over the
       # use_condaenv("r-eeguana", required = FALSE) hint in .onLoad().
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
 
