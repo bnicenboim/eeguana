@@ -25,6 +25,7 @@ navbar:
   components:
     home:
       icon: fa-home fa-lg
+      aria-label: Home
       href: index.html
     reference:
       text: Reference
@@ -48,6 +49,7 @@ navbar:
       href: https://github.com/bnicenboim/eeguana/discussions
     github:
       icon: fa-github fa-lg
+      aria-label: GitHub
       href: https://github.com/bnicenboim/eeguana
 
 deploy:
