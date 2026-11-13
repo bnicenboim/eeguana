@@ -2,6 +2,8 @@
 
 ## New features
 
+- `eeg_artif_peak()` gets a `.direction` argument ("above", "below", or "any"),
+  and it now also finds negative peaks by default.
 - `eeg_baseline()`: `.lim` also takes the end of the baseline, `c(start, end)`.
 - `eeg_browse()` opens a Shiny app to look through the data and select parts
   of it, for example the ones to remove. For an `eeg_lst`, it shows the signal of the channels and the topography. For an `eeg_ica_lst`, it shows the

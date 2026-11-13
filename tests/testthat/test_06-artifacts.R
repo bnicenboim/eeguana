@@ -311,4 +311,81 @@ test_that("low freq works", {
 })
 
 
-message("test amplitude and peak, they are not too well tested")
+###### peaks ######################3
+bump <- function(center, height, width = 10) {
+  height * exp(-(seq_len(N) - center)^2 / (2 * width^2))
+}
+data_peaks <- function(x) {
+  eeg_lst(
+    signal_tbl = data.frame(
+      X = channel_dbl(x),
+      .id = 1L,
+      .sample = sample_int(seq_len(N), .sampling_rate = 500)
+    ),
+    segments = data.frame(.id = 1L, .recording = "recording1", segment = 1L)
+  )
+}
+# a positive peak at 200, a negative one at 500, and two small ones
+x_peaks <- bump(200, 50) + bump(500, -60) + bump(800, 20) + bump(830, 5)
+# the events start 50 samples before each peak
+peaks_found <- function(x, ...) {
+  events <- data_peaks(x) %>%
+    eeg_artif_peak(..., .window = .1, .lim = c(-.1, .1)) %>%
+    events_tbl()
+  as.numeric(events$.initial) + 50
+}
+
+test_that("peak: .direction selects positive and negative peaks", {
+  expect_equal(peaks_found(x_peaks, .threshold = 30, .direction = "above"), 200)
+  expect_equal(peaks_found(x_peaks, .threshold = 30, .direction = "below"), 500)
+  expect_equal(peaks_found(x_peaks, .threshold = 30, .direction = "any"), c(200, 500))
+  expect_equal(peaks_found(x_peaks, .threshold = 30), c(200, 500))
+  expect_equal(peaks_found(x_peaks, .threshold = 55), 500)
+  expect_equal(peaks_found(x_peaks, .threshold = 100), numeric(0))
+  expect_error(eeg_artif_peak(data_peaks(x_peaks), .direction = "up"), "direction")
+  expect_error(eeg_artif_peak(data_peaks(x_peaks), .threshold = -30), "threshold")
+  expect_error(eeg_artif_peak(data_peaks(x_peaks), .threshold = c(30, 50)), "threshold")
+})
+
+test_that("peak: only the highest peak inside .window counts", {
+  expect_equal(peaks_found(x_peaks, .threshold = 3, .direction = "above"), c(200, 800))
+})
+
+test_that("peak: the description of the events has the settings", {
+  events <- events_tbl(eeg_artif_peak(data_peaks(x_peaks), .direction = "below"))
+  expect_equal(events$.type, "artifact")
+  expect_match(events$.description, "^peak_threshold=30_direction=below_")
+})
+
+test_that("peak: works with noise, NAs, and signals without peaks", {
+  set.seed(123)
+  noisy <- peaks_found(x_peaks + rnorm(N, 0, 2), .threshold = 30)
+  expect_true(all(abs(noisy - c(200, 500)) <= 5))
+  x_na <- x_peaks
+  x_na[c(1:5, 300:310, 498)] <- NA
+  expect_equal(peaks_found(x_na, .threshold = 30), c(200, 500))
+  expect_equal(peaks_found(rep(0, N), .threshold = 30), numeric(0))
+  expect_equal(peaks_found(rep(NA_real_, N), .threshold = 30), numeric(0))
+})
+
+test_that("peak: looks in every channel and segment", {
+  events <- data_more %>%
+    eeg_mutate(Pz = Pz + rep(bump(100, -50)[1:250], 4)) %>%
+    eeg_artif_peak(.threshold = 30, .window = .1) %>%
+    events_tbl()
+  expect_equal(events$.id, 1:4)
+  expect_equal(events$.channel, rep("Pz", 4))
+})
+
+test_that("peak: works when the signal stays beyond the threshold", {
+  set.seed(123)
+  x_offset <- rep(rnorm(N), 20) + 200
+  d <- eeg_lst(signal_tbl = data.frame(
+    X = channel_dbl(x_offset), .id = 1L,
+    .sample = sample_int(seq_along(x_offset), .sampling_rate = 500)
+  ))
+  expect_gt(nrow(events_tbl(eeg_artif_peak(d, .threshold = 30))), 0)
+  expect_equal(nrow(events_tbl(eeg_artif_peak(d, .threshold = 30, .freq = c(1, 10)))), 0)
+})
+
+message("test amplitude, it is not too well tested")
