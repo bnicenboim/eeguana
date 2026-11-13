@@ -76,7 +76,9 @@ to remove.
 }
 \details{
 The window can be placed around events and moved from one event to the
-next, or it can be moved through the recording. It goes on from one segment
+next, or it can be moved through the recording. For an \code{eeg_lst}, the app
+opens moving through the recording, and for an \code{eeg_ica_lst}, around events,
+when there are any. The window goes on from one segment
 into the next, and each segment is shown in its own column. Through the
 recording, the start of the window is set relative to the time zero of its
 segment, or with a slider over the whole recording, with the segments one
@@ -109,7 +111,7 @@ The app needs the packages shiny and bslib.
 \section{Selecting segments of an \code{eeg_lst}}{
 
 Clicking a segment on the signal selects it, and clicking it again
-deselects it; M and the "Select segment" button do the same for the segment
+deselects it; the S key and the "Select segment" button do the same for the segment
 of the event, or for the first segment shown. Selected segments are tinted
 red. "Done" closes the app and returns the \code{.id} of the selected segments;
 closing the window returns them as well. What to do with them is up to

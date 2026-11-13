@@ -13,7 +13,9 @@
 #' to remove.
 #'
 #' The window can be placed around events and moved from one event to the
-#' next, or it can be moved through the recording. It goes on from one segment
+#' next, or it can be moved through the recording. For an `eeg_lst`, the app
+#' opens moving through the recording, and for an `eeg_ica_lst`, around events,
+#' when there are any. The window goes on from one segment
 #' into the next, and each segment is shown in its own column. Through the
 #' recording, the start of the window is set relative to the time zero of its
 #' segment, or with a slider over the whole recording, with the segments one
@@ -45,7 +47,7 @@
 #'
 #' @section Selecting segments of an `eeg_lst`:
 #' Clicking a segment on the signal selects it, and clicking it again
-#' deselects it; M and the "Select segment" button do the same for the segment
+#' deselects it; the S key and the "Select segment" button do the same for the segment
 #' of the event, or for the first segment shown. Selected segments are tinted
 #' red. "Done" closes the app and returns the `.id` of the selected segments;
 #' closing the window returns them as well. What to do with them is up to
@@ -222,7 +224,7 @@ channel_unit_label <- function(data) {
   if (length(unit) != 1 || is.na(unit) || unit %in% c("", "?")) {
     return(NULL)
   }
-  if (unit == "microvolt") "\u00b5V" else unit
+  if (tolower(unit) %in% c("microvolt", "microvolts", "\u00b5v", "\u03bcv", "uv")) "\u00b5V" else unit
 }
 
 # The user interface ============================================================
@@ -258,6 +260,10 @@ browse_ui <- function(cfg) {
 browse_row <- function(...) shiny::div(class = "d-flex gap-2 browse-row", ...)
 browse_wide <- function(...) shiny::div(style = "flex: 3 1 0;", ...)
 browse_units <- c("s" = "s", "ms" = "ms", "samples" = "samples")
+## each item of a field with several values has an "x" that removes it
+browse_selectize <- function(placeholder = NULL) {
+  c(list(plugins = list("remove_button")), if (!is.null(placeholder)) list(placeholder = placeholder))
+}
 
 browse_recordings_ui <- function(recs) {
   shiny::div(
@@ -278,7 +284,7 @@ browse_window_panel <- function(cfg) {
     "Window",
     shiny::radioButtons("mode", NULL,
       c("Around events" = "events", "Through the recording" = "continuous"),
-      inline = TRUE
+      selected = if (cfg$is_ica) "events" else "continuous", inline = TRUE
     ),
     shiny::conditionalPanel(
       "input.mode == 'events'",
@@ -290,7 +296,9 @@ browse_window_panel <- function(cfg) {
       ),
       shiny::conditionalPanel(
         "input.event_match == 'exact'",
-        shiny::selectizeInput("event_values", NULL, NULL, multiple = TRUE)
+        shiny::selectizeInput("event_values", NULL, NULL,
+          multiple = TRUE, options = browse_selectize("Choose from the events of the recording")
+        )
       ),
       shiny::conditionalPanel(
         "input.event_match != 'exact'",
@@ -309,7 +317,11 @@ browse_window_panel <- function(cfg) {
     ),
     shiny::conditionalPanel(
       "input.mode == 'continuous'",
-      shiny::selectInput("segment", tip_label("Segment (.id)", "The segment where the window starts."), NULL),
+      shiny::selectInput("segment", tip_label(
+        "Segment (.id)",
+        "The segment where the window starts, by its .id in the segments table. After
+        eeg_segment(), each epoch is one segment."
+      ), NULL),
       browse_row(
         shiny::numericInput("start", tip_label(
           "Start",
@@ -318,8 +330,8 @@ browse_window_panel <- function(cfg) {
         ), 0, updateOn = "blur"),
         shiny::numericInput("length", tip_label(
           "Length",
-          "How long the window is. It can be longer than a segment, and then it goes on into the
-          next ones."
+          "How long the window is. When it is longer than what is left of the segment, it
+          continues into the next segments, and each segment is shown in its own column."
         ), 4, min = 0, updateOn = "blur"),
         shiny::selectInput("unit_continuous", "Unit", browse_units)
       ),
@@ -348,7 +360,7 @@ browse_window_panel <- function(cfg) {
       class = "small text-muted mt-2",
       paste0(
         "Keys: \u2190 \u2192 previous and next window; \u2191 \u2193 zoom the amplitudes in and out",
-        if (cfg$can_select_segments) "; M selects or deselects the segment of the event, or the first one shown",
+        if (cfg$can_select_segments) "; the S key selects or deselects the segment of the event, or the first one shown",
         "."
       )
     )
@@ -359,11 +371,13 @@ browse_segments_panel <- function() {
   bslib::accordion_panel(
     "Segments",
     shiny::actionButton("select_segment", "Select segment", class = "btn-sm mb-2"),
-    shiny::selectizeInput("selected_segments", "Selected segments (.id)", NULL, multiple = TRUE),
+    shiny::selectizeInput("selected_segments", "Selected segments (.id)", NULL,
+      multiple = TRUE, options = browse_selectize()
+    ),
     shiny::div(
       class = "small text-muted",
-      "Click a segment on the signal to select or deselect it. M and the button do it for the
-      segment of the event, or the first one shown."
+      "Click a segment on the signal to select or deselect it. The S key and the button do it
+      for the segment of the event, or the first one shown."
     )
   )
 }
@@ -376,8 +390,12 @@ browse_components_panel <- function(cfg) {
       inline = TRUE
     ),
     shiny::numericInput("n_components", "Show the first", cfg$n_components, min = 1, step = 1),
-    shiny::selectizeInput("components", "Components shown", NULL, multiple = TRUE),
-    shiny::selectizeInput("selected", "Selected components", NULL, multiple = TRUE)
+    shiny::selectizeInput("components", "Components shown", NULL,
+      multiple = TRUE, options = browse_selectize()
+    ),
+    shiny::selectizeInput("selected", "Selected components", NULL,
+      multiple = TRUE, options = browse_selectize()
+    )
   )
 }
 
@@ -401,7 +419,7 @@ browse_display_panel <- function(cfg) {
   bslib::accordion_panel(
     "Display",
     shiny::selectizeInput("channels", "Channels shown", cfg$all_channels,
-      selected = cfg$channels, multiple = TRUE
+      selected = cfg$channels, multiple = TRUE, options = browse_selectize()
     ),
     shiny::radioButtons("polarity", "Polarity",
       c("Positive up" = "up", "Negative up" = "down"),
@@ -411,10 +429,10 @@ browse_display_panel <- function(cfg) {
       if (cfg$is_ica) {
         c(
           "Shared: one for the components, one for the channels" = "shared",
-          "Separate: each trace fills its row" = "each"
+          "Separate: each trace has its own" = "each"
         )
       } else {
-        c("Shared by all the channels" = "shared", "Separate: each trace fills its row" = "each")
+        c("Shared by all the channels" = "shared", "Separate: each channel has its own" = "each")
       }
     ),
     shiny::div(
@@ -713,7 +731,7 @@ serve_window <- function(input, session, cfg, prep, events, fields) {
     p <- prep()
     shiny::updateSelectInput(session, "segment", choices = p$bounds$.id)
     shiny::updateRadioButtons(session, "mode",
-      selected = if (nrow(p$events) > 0) "events" else "continuous"
+      selected = if (cfg$is_ica && nrow(p$events) > 0) "events" else "continuous"
     )
     continuous(clamp_span(p$bounds, 0, cfg$default_length))
   })
@@ -808,25 +826,27 @@ serve_window <- function(input, session, cfg, prep, events, fields) {
     w <- continuous()
     shiny::req(w)
     k <- scaling(srate, unit())
+    ## the slider moves in milliseconds or samples, so that its labels are short
+    digits <- if (unit() == "s") 3 else 0
     last_start <- recording_length(prep()$bounds) - 1
     range <- c(last_start, k)
     shown <- shiny::isolate(input$position_slider)
     if (!identical(range, slider_range)) {
       slider_range <<- range
-      send("position_slider", w$start / k, function(v) {
+      send("position_slider", round(w$start / k, digits), function(v) {
         shiny::updateSliderInput(session, "position_slider",
-          min = 0, max = max(1, last_start) / k, value = v, step = 1 / k
+          min = 0, max = round(max(1, last_start) / k, digits), value = v, step = 10^-digits
         )
       })
     } else if (is.null(shown) || round(shown * k) != w$start) {
-      send("position_slider", w$start / k, function(v) {
+      send("position_slider", round(w$start / k, digits), function(v) {
         shiny::updateSliderInput(session, "position_slider", value = v)
       })
     }
   })
 
   ## the window: the part of each segment it covers, the event it is around,
-  ## and the segment that M and the button select (the one of the event, or
+  ## and the segment that S and the button select (the one of the event, or
   ## the first one shown)
   window <- shiny::reactive({
     p <- prep()
@@ -1002,7 +1022,7 @@ serve_selection <- function(input, session, cfg, prep, window) {
     })
   }
 
-  ## a click on a segment selects it, or deselects it; the M key and the
+  ## a click on a segment selects it, or deselects it; the S key and the
   ## button do it for the segment of the event, or the first one shown; the
   ## field lists the selected segments and can edit them
   toggle_segment <- function(id = window()$focus) {
@@ -1128,7 +1148,7 @@ serve_plots <- function(input, output, session, cfg, prep, win, comps, zoom, sel
   list(n_heads = n_heads)
 }
 
-#' The arrow keys move the window and zoom the amplitudes, and M selects the
+#' The arrow keys move the window and zoom the amplitudes, and S selects the
 #' segment shown
 #' @noRd
 serve_keys <- function(input, cfg, move, step_zoom, toggle_segment) {
@@ -1138,17 +1158,17 @@ serve_keys <- function(input, cfg, move, step_zoom, toggle_segment) {
       ArrowRight = move(1),
       ArrowUp = step_zoom(1),
       ArrowDown = step_zoom(-1),
-      m = if (cfg$can_select_segments) toggle_segment()
+      s = if (cfg$can_select_segments) toggle_segment()
     )
   })
 }
 
-## Sends the arrow keys and M to the server, unless the focus is in a field,
+## Sends the arrow keys and S to the server, unless the focus is in a field,
 ## where they move the cursor, change the number, or are typed
 browse_keys_js <- "
 document.addEventListener('keydown', function(e) {
-  var key = e.key === 'M' ? 'm' : e.key;
-  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'm'].indexOf(key) < 0) return;
+  var key = e.key === 'S' ? 's' : e.key;
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 's'].indexOf(key) < 0) return;
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   if (e.target.closest('input, textarea, select, [contenteditable], .irs')) return;
   e.preventDefault();
@@ -1163,6 +1183,7 @@ tip_label <- function(label, tip) {
 }
 
 browse_css <- "
+.browse-row { align-items: flex-end; }
 .browse-row > * { flex: 1 1 0; min-width: 0; }
 .browse-scroll { overflow-y: auto; }
 .browse-wrap { overflow-wrap: anywhere; }
@@ -1439,15 +1460,15 @@ amplitude_scale <- function(p, components, channels, scale, zoom, amp_unit = NUL
   fmt <- function(x) format(signif(x, 2), big.mark = ",", scientific = FALSE, drop0trailing = TRUE)
   ## in the unit of the channels, how far the edge of a row is from its baseline
   channel_half <- if (scale == "shared" && length(channels) > 0) half * pooled(channels)
-  spans <- if (scale == "shared") {
+  height <- if (scale == "shared") {
     paste(c(
-      if (length(channels) > 0) paste0("\u00b1", fmt(channel_half), if (!is.null(amp_unit)) paste0(" ", amp_unit), " for the channels"),
-      if (length(components) > 0) paste0("\u00b1", fmt(half), " typical SDs for the components")
+      if (length(channels) > 0) paste0(fmt(2 * channel_half), if (!is.null(amp_unit)) paste0(" ", amp_unit), " for the channels"),
+      if (length(components) > 0) paste0(fmt(2 * half), " typical SDs for the components")
     ), collapse = " and ")
   } else {
-    paste0("\u00b1", fmt(half), " times the typical SD of its trace")
+    paste0(fmt(2 * half), " times the typical SD of its trace")
   }
-  text <- paste0("Each row spans ", spans, "; ", if (negative_up) "negative" else "positive", " up")
+  text <- paste0("Height of a row: ", height, "; ", if (negative_up) "negative" else "positive", " up")
   list(ref = ref, half = half, text = text, channel_half = channel_half, amp_unit = amp_unit)
 }
 
@@ -1547,7 +1568,8 @@ activations_plot <- function(p, w, components, channels, marked, unit, srate, sc
       ggplot2::aes(xintercept = x), linetype = "dashed"
     )
   }
-  if (several) {
+  ## in a recording with several segments, the .id is always on top
+  if (nrow(p$bounds) > 1) {
     segment_label <- function(id) paste0(".id ", id, ifelse(as.integer(id) %in% selected_segments, " \u2713", ""))
     plot <- plot + ggplot2::facet_grid(. ~ .id,
       scales = "free_x", space = "free_x",

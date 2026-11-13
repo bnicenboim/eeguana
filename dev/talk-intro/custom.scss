@@ -1,0 +1,77 @@
+/*-- scss:defaults --*/
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono&display=swap');
+
+$body-bg: #f4f5f7;
+$body-color: #2b2f36;
+$link-color: #2f7d32;
+$presentation-heading-color: #1d2127;
+$presentation-heading-font: 'Inter', sans-serif;
+$presentation-heading-font-weight: 700;
+$presentation-heading-text-transform: none;
+$font-family-sans-serif: 'Inter', sans-serif;
+$font-family-monospace: 'JetBrains Mono', monospace;
+$presentation-font-size-root: 34px;
+$code-block-bg: #ffffff;
+$code-block-border-color: #e1e4e8;
+
+/*-- scss:rules --*/
+.reveal .slides section h2 {
+  letter-spacing: -0.02em;
+}
+
+.reveal .slides section h2::after {
+  content: "";
+  display: block;
+  width: 2.5em;
+  height: 4px;
+  margin-top: 0.2em;
+  border-radius: 2px;
+  background: #7ac143;
+}
+
+.reveal strong {
+  font-weight: 600;
+  color: #1d2127;
+}
+
+.reveal ul li::marker {
+  color: #7ac143;
+}
+
+.reveal .slides section img {
+  border-radius: 6px;
+}
+
+.reveal pre code {
+  border-radius: 8px;
+}
+
+.reveal code {
+  font-variant-ligatures: none;
+}
+
+/* title slide */
+#title-slide .title {
+  font-size: 2.4em;
+  letter-spacing: -0.03em;
+}
+
+#title-slide .subtitle {
+  font-size: 0.85em;
+  color: #5a616b;
+  line-height: 1.5;
+  margin-top: 1em;
+}
+
+.ref {
+  font-size: 0.65em;
+  color: #5a616b;
+}
+
+/* logo inline at the end of a slide title */
+.reveal h2 img.title-logo {
+  height: 1.9em;
+  margin: 0 0 0 0.3em;
+  vertical-align: middle;
+  border-radius: 0;
+}

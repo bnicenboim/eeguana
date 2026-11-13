@@ -76,6 +76,30 @@ faces
 summary(faces)
 ```
 
+A first look at the recording is easiest interactively, with `eeg_browse()`. It opens a Shiny app (it needs the packages *shiny* and *bslib*) that shows the signal of all the channels in a window that we move through the recording, with the events marked on top of the signal. The arrow keys move the window and zoom the amplitudes in and out, and the panel on the left sets where the window starts, how long it is, and which channels are shown. Instead of moving through the recording, the window can also be placed around events, such as the triggers of the experiment, and moved from one event to the next.
+
+```{r, eval = FALSE}
+eeg_browse(faces)
+```
+
+This is how the app looks when it opens, at the beginning of the recording:
+
+```{r browse-faces, echo = FALSE, out.width = "100%", fig.alt = "The eeg_browse() app: the settings of the window on the left, and the signal of the channels in the first four seconds of the recording on the right."}
+## The screenshot is taken each time this document is built, so it shows the
+## current app: eeg_browse() runs in headless Chrome, which saves the
+## screenshot and clicks "Done" (see browse_screenshot.R).
+source("browse_screenshot.R")
+## run by hand, outside knitr, it goes to a temporary file
+screenshot_file <- function() {
+  file <- if (isTRUE(getOption("knitr.in.progress"))) knitr::fig_path(".png") else tempfile(fileext = ".png")
+  dir.create(dirname(file), recursive = TRUE, showWarnings = FALSE)
+  file
+}
+screenshot <- screenshot_file()
+browse_screenshot(faces, screenshot)
+knitr::include_graphics(screenshot)
+```
+
 We see that there is no electrode positions in the object, but since we know that the layout was a standard 10/20, we'll add this layout to the object, using the dataset `layout_32_1020`. This is required to be able to create topographic plots.
 
 ```{r}
@@ -179,13 +203,8 @@ to_remove <- eeg_browse(faces_ica)
 This is how the app looks around the first blink, after clicking the topography of ICA5 to select it:
 
 ```{r browse-ica, echo = FALSE, out.width = "100%", fig.alt = "The eeg_browse() app: the settings of the window on the left, the activations of the components and the EOG channels around a blink in the middle, and the topographies of the components on the right, with ICA5 selected."}
-## The screenshot is taken each time this document is built, so it shows the
-## current app: eeg_browse() runs in headless Chrome, which selects ICA5, saves
-## the screenshot, and clicks "Done" (see browse_screenshot.R).
-source("browse_screenshot.R")
-## run by hand, outside knitr, it goes to a temporary file
-screenshot <- if (isTRUE(getOption("knitr.in.progress"))) knitr::fig_path(".png") else tempfile(fileext = ".png")
-dir.create(dirname(screenshot), recursive = TRUE, showWarnings = FALSE)
+## headless Chrome selects ICA5 before it saves the screenshot
+screenshot <- screenshot_file()
 to_remove <- browse_screenshot(faces_ica, screenshot, inputs = list(selected = "ICA5"))
 knitr::include_graphics(screenshot)
 ```

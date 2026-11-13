@@ -315,13 +315,13 @@ test_that("the arrow keys and buttons zoom the amplitudes", {
   shiny::testServer(eeguana:::browse_app(ica_seg, .kind = "ica"), {
     session$setInputs(components = "ICA1", channels = "EOGV", scale = "shared")
     session$elapse(1100)
-    expect_match(output$scale_text, "^Each row spans \u00b1[0-9.]+ for the channels and \u00b14 typical SDs for the components; positive up$")
+    expect_match(output$scale_text, "^Height of a row: [0-9.]+ for the channels and 8 typical SDs for the components; positive up$")
     session$setInputs(arrow_key = list(key = "ArrowUp"))
     session$setInputs(zoom_in = 1)
     expect_equal(zoom(), 2)
-    expect_match(output$scale_text, "\u00b12 typical SDs for the components")
+    expect_match(output$scale_text, " 4 typical SDs for the components")
     session$setInputs(scale = "each")
-    expect_equal(output$scale_text, "Each row spans \u00b12 times the typical SD of its trace; positive up")
+    expect_equal(output$scale_text, "Height of a row: 4 times the typical SD of its trace; positive up")
     session$setInputs(arrow_key = list(key = "ArrowDown"))
     expect_equal(zoom(), sqrt(2))
     ## the multiplier can be written by hand, and stays between 1/64 and 64
@@ -488,7 +488,7 @@ test_that("the signal of the channels is shown, without components", {
     expect_equal(components(), character(0))
     expect_equal(window()$focus, 2L)
     expect_match(output$activations$src, "^data:image/png")
-    expect_match(output$scale_text, "^Each row spans \u00b1[0-9.,]+ for the channels; positive up$")
+    expect_match(output$scale_text, "^Height of a row: [0-9.,]+ for the channels; positive up$")
     ## the typical SDs are the ones of the channels
     expect_equal(prep()$sd[["EOGV"]], prep_seg$sd[["EOGV"]])
     ## a window over several segments is drawn too
@@ -543,7 +543,7 @@ test_that("negative can be up, and a scale bar shows a round amplitude in the un
   p <- eeguana:::browse_eeg_prep(seg, rec)
   w <- list(pieces = tidytable::tidytable(.id = 4L, first = -99L, last = 251L))
   sc <- eeguana:::amplitude_scale(p, character(0), c("Fz", "Cz"), "shared", 1, amp_unit = "\u00b5V")
-  expect_match(sc$text, "^Each row spans \u00b1[0-9.,]+ \u00b5V for the channels; positive up$")
+  expect_match(sc$text, "^Height of a row: [0-9.,]+ \u00b5V for the channels; positive up$")
   draw <- function(negative_up) {
     d <- eeguana:::activations_plot(p, w, character(0), c("Fz", "Cz"), character(0), "s", 500, sc,
       negative_up = negative_up
@@ -627,8 +627,8 @@ test_that("segments are selected and deselected, and returned", {
     expect_no_match(output$where, "selected")
     session$setInputs(trace_click = list(x = 0.1, y = 0))
     expect_equal(selected_segments(), c(1L, 2L))
-    ## and M deselects it
-    session$setInputs(arrow_key = list(key = "m"))
+    ## and S deselects it
+    session$setInputs(arrow_key = list(key = "s"))
     expect_equal(selected_segments(), 1L)
     ## with several segments shown, a click selects the one in its column
     session$setInputs(length = 1500)
@@ -649,7 +649,7 @@ test_that("a recording that is one segment can be browsed but not selected", {
     session$setInputs(mode = "continuous", unit_continuous = "s", segment = "1", start = 10, length = 4)
     session$setInputs(channels = "Fz", scale = "shared")
     expect_equal(window()$focus, 1L)
-    session$setInputs(arrow_key = list(key = "m"))
+    session$setInputs(arrow_key = list(key = "s"))
     expect_equal(selected_segments(), integer(0))
     expect_equal(result(), integer(0))
   })
