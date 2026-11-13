@@ -16,6 +16,8 @@
 ## Bugs fixed
 
 - `plot()` no longer draws the plot twice when layers are added to it.
+- `annotate_events()` draws the events without a channel, such as triggers,
+  in every channel, instead of in an extra panel called NA.
 
 # eeguana 0.1.12.9003
 

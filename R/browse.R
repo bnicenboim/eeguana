@@ -53,7 +53,7 @@
 #' closing the window returns them as well. What to do with them is up to
 #' [eeg_filter()]: keeping only them, or removing them. Only segmented data
 #' can be selected: when each recording is a single segment, as before
-#' [eeg_segment()], the app is only for browsing.
+#' [eeg_segment()], the app is only for browsing, and returns `NULL`.
 #'
 #' The topography is in a sidebar on the right, closed at first, and it is
 #' computed only while it is open. It shows the mean of each channel over the
@@ -97,7 +97,8 @@
 #'
 #' @return For an `eeg_lst`, invisibly, the `.id` of the segments selected. A
 #'   message lists them, and shows the calls to [eeg_filter()] that keep only
-#'   them or remove them.
+#'   them or remove them. When each recording is a single segment, `NULL`,
+#'   invisibly, and no message.
 #'
 #'   For an `eeg_ica_lst`, invisibly, a list with one element per recording,
 #'   holding the names of the components selected. A message lists them, and
@@ -133,7 +134,7 @@ eeg_browse.eeg_lst <- function(.data, ..., .negative_up = getOption("eeguana.neg
     .kind = "eeg", .channels = unname(sel_ch(.data, ...)), .negative_up = .negative_up
   )
   selected <- run_browse_app(app, .viewer)
-  message(segment_selection_message(name, selected))
+  if (!is.null(selected)) message(segment_selection_message(name, selected))
   invisible(selected)
 }
 
@@ -1068,7 +1069,10 @@ serve_selection <- function(input, session, cfg, prep, window) {
     })
   }
 
-  result <- function() if (cfg$is_ica) marks() else segments()
+  ## NULL when there is nothing to select from
+  result <- function() {
+    if (cfg$is_ica) marks() else if (cfg$can_select_segments) segments()
+  }
   list(marks = marks, segments = segments, toggle_segment = toggle_segment, result = result)
 }
 

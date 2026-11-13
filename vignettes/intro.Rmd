@@ -96,9 +96,11 @@ screenshot_file <- function() {
   file
 }
 screenshot <- screenshot_file()
-browse_screenshot(faces, screenshot)
+invisible(browse_screenshot(faces, screenshot))
 knitr::include_graphics(screenshot)
 ```
+
+Here the recording is one long segment, so there is nothing to select, and the app is only for browsing. Once the data are segmented, clicking a segment in the app selects it, and `eeg_browse()` returns the `.id` of the selected segments, which `eeg_filter()` can then remove or keep. We use it this way below, after segmenting.
 
 We see that there is no electrode positions in the object, but since we know that the layout was a standard 10/20, we'll add this layout to the object, using the dataset `layout_32_1020`. This is required to be able to create topographic plots.
 

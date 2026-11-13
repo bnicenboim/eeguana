@@ -167,8 +167,8 @@ unnest_dt <- function(.data, col) {
   tbl <- eval(
     rlang::expr(.data[, as.character(unlist(!!!col)), by = list(!!!clnms)])
   )
-  colnames(.data) <- c(as.character(clnms), as.character(col))
-  .data
+  colnames(tbl) <- c(as.character(clnms), as.character(col))
+  tbl
 }
 
 #' Converts a struct from matlab into a data table

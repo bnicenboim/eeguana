@@ -656,7 +656,8 @@ test_that("a recording that is one segment can be browsed but not selected", {
     expect_equal(window()$focus, 1L)
     session$setInputs(arrow_key = list(key = "s"))
     expect_equal(selected_segments(), integer(0))
-    expect_equal(result(), integer(0))
+    ## nothing to select from, so nothing is returned
+    expect_null(result())
   })
 })
 

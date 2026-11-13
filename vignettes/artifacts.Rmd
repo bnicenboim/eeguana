@@ -15,6 +15,7 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
+  message = FALSE,
   fig.dim = c(8, 5),
   out.width = "100%"
 )
@@ -27,10 +28,9 @@ In *eeguana*, this takes two steps. First, the `eeg_artif_*()` functions look fo
 
 Suppose that we want to know what each detector finds and what it misses. With real data we never know for sure where the artifacts are, so we simulate a short recording in which we do.
 
-```{r, message = FALSE}
+```{r}
 library(eeguana)
 library(ggplot2)
-theme_set(theme_eeguana() + theme(legend.position = "bottom"))
 set.seed(123)
 ```
 
@@ -80,16 +80,14 @@ eeg <- eeg_lst(
 )
 ```
 
-The channels have very different ranges, so we plot each one with its own vertical axis. We'll use this function throughout; `annotate_events()` adds a shaded rectangle for every event in the events table, and so far there are none.
+`plot()` draws all the channels of an `eeg_lst` on the same vertical scale, which it takes from the last channel. Our channels have very different ranges, so we set the range ourselves with `coord_cartesian()`. `annotate_events()` adds a shaded rectangle for every event in the events table (so far there are none). We'll make this plot many times, so we wrap it in a function:
 
-```{r, message = FALSE}
+```{r}
 plot_artifacts <- function(x) {
-  ggplot(x, aes(x = .time, y = .value)) +
-    geom_line(linewidth = .3) +
+  plot(x) +
     annotate_events() +
-    facet_grid(.key ~ ., scales = "free_y") +
-    labs(x = "Time (s)", y = "Amplitude (µV)") +
-    guides(color = guide_legend(ncol = 1), fill = guide_legend(ncol = 1))
+    coord_cartesian(ylim = c(-40, 170)) +
+    theme(legend.position = "bottom", legend.direction = "vertical")
 }
 plot_artifacts(eeg)
 ```
@@ -126,7 +124,9 @@ eeg_step <- eeg |>
 plot_artifacts(eeg_step)
 ```
 
-The detector found the two moments in which the eyes moved. It also marked the blinks, because a blink rises and falls fast enough to look like a step. If we only want the eye movements, we restrict the detector to the HEOG channel:
+The detector found the two moments in which the eyes moved. It also marked the blinks, even though a blink doesn't look like a step. The detector only sees 200 ms at a time: on the rising side of a blink, the first half of the window has a mean close to 0 µV and the second half a mean close to 100 µV, well above our threshold of 30 µV. It never checks whether the voltage stays at the new level, so a blink counts as a step up followed by a step down.
+
+What separates the two is the channel: blinks are large in VEOG and small in HEOG, and sideways eye movements are the opposite. If we only want the eye movements, we restrict the detector to the HEOG channel:
 
 ```{r}
 eeg |>
@@ -138,7 +138,7 @@ For the EOG channels, a relatively low threshold such as 30 µV works well. For 
 
 ### Peaks: `eeg_artif_peak()`
 
-`eeg_artif_peak()` looks for peaks: points that are higher (or lower) than their neighbors and whose absolute voltage is beyond `.threshold`. Here, `.window` is the minimum distance between two peaks; when two of them are closer than that, only the larger one counts.
+`eeg_artif_peak()` looks for peaks, that is, points that are higher than the samples right before and after them (or lower, for negative peaks). A peak counts when its voltage is beyond `.threshold`. The threshold applies to the voltage itself, measured from zero, and how much the peak stands out from the signal around it plays no role. Here, `.window` is the minimum distance between two peaks; when two of them are closer than that, only the larger one counts.
 
 ```{r}
 eeg_peak <- eeg |>
@@ -180,7 +180,7 @@ As with the peaks, the drift is a problem: the detector marks the blinks, and al
 
 ### Which detector should we use?
 
-| Function | What it marks | Typical use | Fooled by drifts? |
+| Function | What it marks | Typical use | Marks slow drifts? |
 |:--|:--|:--|:--|
 | `eeg_artif_minmax()` | A large difference between the maximum and the minimum inside a window | Blinks, and large artifacts in any channel | No |
 | `eeg_artif_step()` | A jump between the mean of the two halves of a window | Sideways eye movements in HEOG, and voltage jumps | No |
@@ -219,7 +219,7 @@ Once we are satisfied with the events, `eeg_events_to_NA()` uses them to set par
 
 In a recording that isn't segmented yet, we usually want to remove only the marked intervals, and we need `.entire_seg = FALSE` for that. Each event affects only its own channel.
 
-```{r, message = FALSE}
+```{r}
 eeg_clean <- eeg_artif |>
   eeg_events_to_NA(.type == "artifact", .entire_seg = FALSE)
 plot_artifacts(eeg_clean)
@@ -254,24 +254,29 @@ events_tbl(eeg_seg) |>
   subset(.type == "artifact")
 ```
 
-By default (`.entire_seg = TRUE`), `eeg_events_to_NA()` sets to `NA` the entire segment of the channel that has the artifact:
+In the plot, each segment gets its own column, and the vertical line at 0 s is the trigger. We only label the time of the trigger and 500 ms after it, so that the labels of neighboring segments don't overlap:
 
 ```{r, fig.dim = c(8, 6)}
+plot_artifacts(eeg_seg) +
+  scale_x_continuous("Time (s)", breaks = c(0, .5))
+```
+
+By default (`.entire_seg = TRUE`), `eeg_events_to_NA()` sets to `NA` the entire segment of the channel that has the artifact:
+
+```{r, fig.dim = c(8, 6), warning = FALSE}
 eeg_seg_clean <- eeg_seg |>
   eeg_events_to_NA(.type == "artifact")
-
-ggplot(eeg_seg_clean, aes(x = .time, y = .value)) +
-  geom_line(linewidth = .3, na.rm = TRUE) +
-  facet_grid(.key ~ .id, scales = "free_y") +
-  labs(x = "Time (s)", y = "Amplitude (µV)") +
-  scale_x_continuous(breaks = c(0, .5))
+plot_artifacts(eeg_seg_clean) +
+  scale_x_continuous("Time (s)", breaks = c(0, .5))
 ```
 
 The segments with the blinks are missing only in VEOG, and the segments in which the eyes moved are missing only in HEOG. (Segment 6 is kept: the eyes were to the side during all of it, so it has no step.) That is often what we want for bad channels. For eye artifacts it is not, because a blink distorts all the channels even when we only detect it in VEOG. The argument `.n_chs` handles this: when a segment has at least that many artifacts, the segment is removed from every channel.
 
-```{r}
+```{r, fig.dim = c(8, 6), warning = FALSE}
 eeg_seg_clean <- eeg_seg |>
   eeg_events_to_NA(.type == "artifact", .n_chs = 1)
+plot_artifacts(eeg_seg_clean) +
+  scale_x_continuous("Time (s)", breaks = c(0, .5))
 ```
 
 `count_complete_cases_tbl()` counts the segments that have no missing values. Six of the ten segments are left:

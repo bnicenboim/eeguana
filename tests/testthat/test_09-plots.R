@@ -99,6 +99,17 @@ test_that("plot functions create ggplot2::ggplots", {
   expect_gg(plot(data_faces_ERPs) + annotate_events())
 })
 
+test_that("annotate_events() draws the events without a channel in every channel", {
+  p <- plot(data_1) + annotate_events()
+  events <- p$layers[[length(p$layers)]]$data
+  no_channel <- is.na(events$.channel)
+  n_no_channel <- sum(is.na(events_tbl(data_1)$.channel))
+  expect_false(anyNA(events$.key))
+  expect_equal(c(table(as.character(events$.key[no_channel]))), c(X = n_no_channel, Y = n_no_channel))
+  expect_equal(as.character(events$.key[!no_channel]), events$.channel[!no_channel])
+  expect_no_error(ggplot2::ggplot_build(p))
+})
+
 test_that("plot() draws once, when it is printed, also with layers added", {
   skip_if_not_installed("knitr")
   figs <- file.path(tempdir(), "plot-once")

@@ -55,7 +55,8 @@ order of the variance they explain.}
 \value{
 For an \code{eeg_lst}, invisibly, the \code{.id} of the segments selected. A
 message lists them, and shows the calls to \code{\link[=eeg_filter]{eeg_filter()}} that keep only
-them or remove them.
+them or remove them. When each recording is a single segment, \code{NULL},
+invisibly, and no message.
 
 For an \code{eeg_ica_lst}, invisibly, a list with one element per recording,
 holding the names of the components selected. A message lists them, and
@@ -117,7 +118,7 @@ red. "Done" closes the app and returns the \code{.id} of the selected segments;
 closing the window returns them as well. What to do with them is up to
 \code{\link[=eeg_filter]{eeg_filter()}}: keeping only them, or removing them. Only segmented data
 can be selected: when each recording is a single segment, as before
-\code{\link[=eeg_segment]{eeg_segment()}}, the app is only for browsing.
+\code{\link[=eeg_segment]{eeg_segment()}}, the app is only for browsing, and returns \code{NULL}.
 
 The topography is in a sidebar on the right, closed at first, and it is
 computed only while it is open. It shows the mean of each channel over the
