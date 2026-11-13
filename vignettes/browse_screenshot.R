@@ -6,7 +6,7 @@
 ## chromote, and Chrome or chromote's chrome-headless-shell (see
 ## ?chromote::chrome_versions_add).
 browse_screenshot <- function(data, file, inputs = list(), clicks = character(0),
-                              width = 1400, height = 900, timeout = 300) {
+                              width = 1400, height = 900, timeout = 600) {
   ## shinytest2 does not overwrite the screenshot of an earlier build
   unlink(file)
   driver <- NULL
@@ -17,14 +17,16 @@ browse_screenshot <- function(data, file, inputs = list(), clicks = character(0)
       }
       Sys.setenv(NOT_CRAN = "true")
       app <- shinytest2::AppDriver$new(url,
-        width = width, height = height, load_timeout = 60 * 1000, timeout = 60 * 1000
+        ## preparing a long recording can take more than a minute
+        width = width, height = height, load_timeout = 240 * 1000, timeout = 240 * 1000
       )
       app$wait_for_idle()
       if (length(inputs) > 0) do.call(app$set_inputs, inputs)
       for (id in clicks) app$click(id)
       app$wait_for_idle()
       app$get_screenshot(file)
-      try(app$click("done"), silent = TRUE)
+      ## the app stops, so no output would ever answer the click
+      try(app$click("done", wait_ = FALSE), silent = TRUE)
       try(app$stop(), silent = TRUE)
       file
     }, args = list(url, file, inputs, clicks, width, height))

@@ -561,6 +561,11 @@ test_that("negative can be up, and a scale bar shows a round amplitude in the un
   with_unit <- seg
   channels_tbl(with_unit) <- tidytable::mutate(channels_tbl(with_unit), unit = "microvolt")
   expect_equal(eeguana:::channel_unit_label(with_unit), "\u00b5V")
+  other_unit <- seg
+  channels_tbl(other_unit) <- tidytable::mutate(channels_tbl(other_unit), unit = "microvolts")
+  expect_equal(eeguana:::channel_unit_label(other_unit), "\u00b5V")
+  channels_tbl(other_unit) <- tidytable::mutate(channels_tbl(other_unit), unit = "mV")
+  expect_equal(eeguana:::channel_unit_label(other_unit), "mV")
   ## the app starts with the polarity asked, which can be changed
   shiny::testServer(eeguana:::browse_app(with_unit, .negative_up = TRUE), {
     session$setInputs(mode = "continuous", channels = "Fz", scale = "shared")
@@ -709,4 +714,26 @@ test_that("eeg_browse() returns the selection of the app and prints how to use i
     fixed = TRUE
   )
   expect_equal(selected[[1]], "ICA1")
+})
+
+test_that("the signal opens through the recording, and an ICA around events", {
+  checked <- function(data, kind) {
+    cfg <- eeguana:::browse_settings(data, kind)
+    html <- as.character(eeguana:::browse_window_panel(cfg))
+    regmatches(html, regexpr('value="[a-z]+" checked', html))
+  }
+  expect_equal(checked(seg, "eeg"), 'value="continuous" checked')
+  expect_equal(checked(ica_seg, "ica"), 'value="events" checked')
+})
+
+test_that("segmented data always shows the .id of the segments", {
+  draw <- function(data) {
+    p <- eeguana:::browse_eeg_prep(data, rec)
+    w <- list(pieces = eeguana:::window_pieces(p$bounds, list(start = 0L, length = 50L)))
+    sc <- eeguana:::amplitude_scale(p, character(0), "Fz", "shared", 1)
+    eeguana:::activations_plot(p, w, character(0), "Fz", character(0), "s", 500, sc)
+  }
+  ## also when the window is inside one segment
+  expect_s3_class(draw(seg)$facet, "FacetGrid")
+  expect_s3_class(draw(data_faces_10_trials)$facet, "FacetNull")
 })

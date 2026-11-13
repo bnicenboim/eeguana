@@ -548,8 +548,15 @@ browse_server <- function(cfg, data) {
 
     serve_keys(input, cfg, win$move, zooming$step, selection$toggle_segment)
 
-    shiny::observeEvent(input$done, shiny::stopApp(result()))
-    session$onSessionEnded(function() shiny::stopApp(shiny::isolate(result())))
+    ## Closing the window returns the selection too. After "Done", the session
+    ## can end when the app is no longer running, and stopping again then would
+    ## stop the next app of the R session as soon as it opens.
+    done <- FALSE
+    shiny::observeEvent(input$done, {
+      done <<- TRUE
+      shiny::stopApp(result())
+    })
+    session$onSessionEnded(function() if (!done) shiny::stopApp(shiny::isolate(result())))
   }
 }
 
@@ -730,9 +737,13 @@ serve_window <- function(input, session, cfg, prep, events, fields) {
   shiny::observeEvent(prep(), priority = 2, {
     p <- prep()
     shiny::updateSelectInput(session, "segment", choices = p$bounds$.id)
-    shiny::updateRadioButtons(session, "mode",
-      selected = if (cfg$is_ica && nrow(p$events) > 0) "events" else "continuous"
-    )
+    ## an ICA is browsed around its events when it has any; the signal keeps
+    ## the mode it has
+    if (cfg$is_ica) {
+      shiny::updateRadioButtons(session, "mode",
+        selected = if (nrow(p$events) > 0) "events" else "continuous"
+      )
+    }
     continuous(clamp_span(p$bounds, 0, cfg$default_length))
   })
 
@@ -819,27 +830,30 @@ serve_window <- function(input, session, cfg, prep, events, fields) {
     show("length", signif(w$length / scaling(srate, u), 6), w$length)
   })
   ## The slider spans the whole recording, from its first sample to its last.
-  ## Its range is sent only when it changes, and its value only when it is not
-  ## the one shown.
+  ## It moves in milliseconds or samples, so that its labels are short, and it
+  ## shows the start of the window rounded to them. Its range is sent only when
+  ## it changes, and its value only when it is not the one shown: the browser
+  ## does not send back a value that did not change, and it would be taken for
+  ## an echo later.
   slider_range <- NULL
   shiny::observe({
     w <- continuous()
     shiny::req(w)
     k <- scaling(srate, unit())
-    ## the slider moves in milliseconds or samples, so that its labels are short
     digits <- if (unit() == "s") 3 else 0
+    value <- round(w$start / k, digits)
     last_start <- recording_length(prep()$bounds) - 1
     range <- c(last_start, k)
     shown <- shiny::isolate(input$position_slider)
+    moved <- is.null(shown) || abs(shown - value) > 10^-digits / 2
     if (!identical(range, slider_range)) {
       slider_range <<- range
-      send("position_slider", round(w$start / k, digits), function(v) {
-        shiny::updateSliderInput(session, "position_slider",
-          min = 0, max = round(max(1, last_start) / k, digits), value = v, step = 10^-digits
-        )
-      })
-    } else if (is.null(shown) || round(shown * k) != w$start) {
-      send("position_slider", round(w$start / k, digits), function(v) {
+      shiny::updateSliderInput(session, "position_slider",
+        min = 0, max = round(max(1, last_start) / k, digits), step = 10^-digits
+      )
+    }
+    if (moved) {
+      send("position_slider", value, function(v) {
         shiny::updateSliderInput(session, "position_slider", value = v)
       })
     }
@@ -1243,7 +1257,8 @@ browse_ica_summaries <- function(p, eog, freq) {
     tidytable::arrange(EOG) %>%
     tidytable::summarize(
       cors = paste0(eog_abbreviation(EOG), " ", sprintf("%.2f", cor), collapse = " \u00b7 "),
-      max_cor = max(abs(cor)),
+      ## -Inf avoids the warning of max() when there are no EOG channels
+      max_cor = max(abs(cor), -Inf),
       .by = .ICA
     )
   components <- p$var %>%
