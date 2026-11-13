@@ -18,8 +18,17 @@
 #' registrations are real, `system.file()` points at the installed `inst/`,
 #' and nothing leaks in from the source directory.
 #'
+#' The help pages and NAMESPACE are regenerated from the roxygen comments
+#' first.
+#'
 #' @param quick Skip docs and vignettes. Fast, and fine for running tests.
 dev_install <- function(quick = TRUE, quiet = TRUE) {
+  message("* Updating the documentation")
+  ## in another R process, because document() loads the source package
+  callr::r(function(path, quiet) devtools::document(path, quiet = quiet),
+    list(dev_pkg_root(), quiet),
+    show = !quiet
+  )
   message("* Installing eeguana from source")
   # devtools::install() takes upgrade as TRUE/FALSE/NA, unlike
   # remotes::install_deps() which takes the string "never".
@@ -644,7 +653,7 @@ dev_check <- function(..., upgrade = TRUE) {
 message(
   "eeguana dev helpers loaded:\n",
   "  dev_test()            set up, install eeguana, run the tests\n",
-  "  dev_install()         reinstall eeguana from source\n",
+  "  dev_install()         update the docs, reinstall eeguana from source\n",
   "  dev_test(deps = FALSE, python = FALSE, fixtures = FALSE)   just the tests\n",
   "  dev_fixture_status()  what large files are cached, and where\n",
   "  dev_fixtures_ensure() ask once per session about missing large files\n",

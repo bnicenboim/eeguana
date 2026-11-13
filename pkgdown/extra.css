@@ -2,7 +2,7 @@
    next to it, and slightly smaller code (pkgdown's is 15.75px), so that
    printed tables of about 100 characters fit without scrolling */
 .row > main {
-  max-width: 60rem;
+  max-width: 56rem;
 }
 main pre,
 main pre code {
