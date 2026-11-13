@@ -112,7 +112,7 @@ test_that("annotate_events() draws the events without a channel in every channel
 
 test_that("plot() draws once, when it is printed, also with layers added", {
   skip_if_not_installed("knitr")
-  figs <- file.path(tempdir(), "plot-once")
+  figs <- file.path(normalizePath(tempdir(), winslash = "/"), "plot-once")
   rmd <- tempfile(fileext = ".Rmd")
   writeLines(c(
     ## pdf rather than knitr's default png(): once the Python tests loaded
