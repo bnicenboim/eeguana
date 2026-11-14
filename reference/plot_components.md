@@ -73,6 +73,6 @@ suppressWarnings(data_faces_10_trials %>%
   annotate_electrodes(color = "black") +
   theme(legend.position = "none")
 #> # ICA is being done using fast_ICA...
-#> # ICA finished in 9 iterations. With a tolerance of 0.667753. (Maximum expected tolerance: 1e-06.)
-#> # ICA took 0.42 secs
+#> # ICA finished in 9 iterations. With a tolerance of 0.847028. (Maximum expected tolerance: 1e-06.)
+#> # ICA took 0.54 secs
 ```

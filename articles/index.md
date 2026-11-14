@@ -11,3 +11,5 @@
 - [Another example from a Fieldtrip tutorial: Preprocessing of EEG data
   and computing
   ERPs](https://bruno.nicenboim.me/eeguana/articles/preprocessing_erp.md):
+- [Work using
+  eeguana](https://bruno.nicenboim.me/eeguana/articles/work-using-eeguana.md):

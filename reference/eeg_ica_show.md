@@ -43,8 +43,8 @@ suppressWarnings(data_faces_10_trials %>%
   eeg_ica_show(ICA1) %>%
   plot()
 #> # ICA is being done using fast_ICA...
-#> # ICA finished in 9 iterations. With a tolerance of 0.962562. (Maximum expected tolerance: 1e-06.)
-#> # ICA took 0.67 secs
+#> # ICA finished in 9 iterations. With a tolerance of 0.90922. (Maximum expected tolerance: 1e-06.)
+#> # ICA took 0.74 secs
 #> # Downsampling from 500Hz to 250Hz.
 #> # Object size in memory 6.1 Mb
 ```

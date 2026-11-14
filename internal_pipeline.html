@@ -23,6 +23,7 @@
     <li><a class="dropdown-item" href="articles/preprocessing_erp.html">Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs</a></li>
     <li><a class="dropdown-item" href="articles/artifacts.html">Artifact detection and rejection</a></li>
     <li><a class="dropdown-item" href="articles/gotchas.html">Pitfalls and gotchas</a></li>
+    <li><a class="dropdown-item" href="articles/work-using-eeguana.html">Work using eeguana</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/bnicenboim/eeguana/discussions">Forum</a></li>
@@ -205,8 +206,16 @@
 </div>
 </div>
 <div class="section level2">
-<h2 id="release-checklist">Release checklist<a class="anchor" aria-label="anchor" href="#release-checklist"></a></h2>
+<h2 id="who-uses-eeguana">Who uses eeguana<a class="anchor" aria-label="anchor" href="#who-uses-eeguana"></a></h2>
+<p>The list on the home page and in the “Work using eeguana” article comes from <code>vignettes/papers.bib</code>, sorted by year with <code>vignettes/apa-by-year.csl</code>.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">dev_citations</span><span class="op">(</span><span class="op">)</span>                <span class="co"># new papers and packages that mention eeguana</span></span>
+<span><span class="fu">dev_citations</span><span class="op">(</span>update <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>   <span class="co"># and record them in dev/citations.csv</span></span></code></pre></div>
+<p>It asks OpenAlex (title, abstract, and full text of open access papers) and GitHub (DESCRIPTION files that mention eeguana), and reports what is not yet in <code>dev/citations.csv</code>. The <code>citations</code> workflow runs it when a release is published, commits the updated csv to master, and opens an issue listing the new entries. Papers that used the package then go into <code>papers.bib</code> by hand. Google Scholar cannot be queried automatically, so a Scholar alert for “eeguana” remains the more complete source.</p>
+</div>
+<div class="section level2">
+<h2 id="release-checklist">Release checklist<a class="anchor" aria-label="anchor" href="#release-checklist"></a></h2>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">dev_test</span><span class="op">(</span><span class="op">)</span>          <span class="co"># 0 failures</span></span>
 <span><span class="fu">dev_check</span><span class="op">(</span><span class="op">)</span>         <span class="co"># R CMD check</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">document</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>

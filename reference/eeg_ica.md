@@ -95,8 +95,8 @@ Other preprocessing functions:
 suppressWarnings(data_faces_10_trials %>%
   eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10)))
 #> # ICA is being done using fast_ICA...
-#> # ICA finished in 9 iterations. With a tolerance of 0.913101. (Maximum expected tolerance: 1e-06.)
-#> # ICA took 1.21 secs
+#> # ICA finished in 9 iterations. With a tolerance of 0.971137. (Maximum expected tolerance: 1e-06.)
+#> # ICA took 1.25 secs
 #> # EEG data:
 #> 
 #> # Signal table:

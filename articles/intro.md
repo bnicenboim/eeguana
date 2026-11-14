@@ -421,7 +421,7 @@ faces_ica <- faces_ls |>
   eeg_ica(-HEOG, -VEOG, -M1, -M2, .method = adapt_fast_ICA, .ignore = .type == "artifact")
 #> # ICA is being done using adapt_fast_ICA...
 #> # 97% of the samples will be used.
-#> # ICA took 1.26 mins
+#> # ICA took 1.18 mins
 ```
 
 We can now check the different topographic plots of the ICAs with
