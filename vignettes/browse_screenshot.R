@@ -16,6 +16,8 @@ browse_screenshot <- function(data, file, inputs = list(), clicks = character(0)
         chromote::local_chrome_version("latest-installed", binary = "chrome-headless-shell")
       }
       Sys.setenv(NOT_CRAN = "true")
+      ## Chrome can take longer than chromote's 10 seconds to start on a fresh CI runner
+      options(chromote.timeout = 60)
       app <- shinytest2::AppDriver$new(url,
         ## preparing a long recording can take more than a minute
         width = width, height = height, load_timeout = 240 * 1000, timeout = 240 * 1000
