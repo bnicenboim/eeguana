@@ -4,110 +4,75 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Introduction - Preprocessing and visualization of EEG data • eeguana</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="48x48" href="../favicon-48x48.png">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
-<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Introduction - Preprocessing and visualization of EEG data">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]--><script>if(!sessionStorage.getItem("_swa")&&document.referrer.indexOf(location.protocol+"//"+location.host)!== 0){fetch("https://counter.dev/track?"+new URLSearchParams({referrer:document.referrer,screen:screen.width+"x"+screen.height,user:"bnicenboim",utcoffset:"1"}))};sessionStorage.setItem("_swa","1");</script>
+<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<script src="../extra.js"></script><meta property="og:title" content="Introduction - Preprocessing and visualization of EEG data">
+<script>if(!sessionStorage.getItem("_swa")&&document.referrer.indexOf(location.protocol+"//"+location.host)!== 0){fetch("https://counter.dev/track?"+new URLSearchParams({referrer:document.referrer,screen:screen.width+"x"+screen.height,user:"bnicenboim",utcoffset:"1"}))};sessionStorage.setItem("_swa","1");</script>
 </head>
 <body>
 <p>,<script data-goatcounter="https://bnicenboim.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script></p>
+    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <div class="container template-article">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">eeguana</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.12.9003</span>
-      </span>
-    </div>
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <a class="navbar-brand me-2" href="../index.html">eeguana</a>
 
-  </a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Articles
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.12.9004</small>
 
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/intro.html">Introduction - Preprocessing and visualization of EEG data</a>
-    </li>
-    <li>
-      <a href="../articles/preprocessing_erp.html">Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs</a>
-    </li>
-    <li>
-      <a href="../articles/gotchas.html">Pitfalls and gotchas</a>
-    </li>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar" class="collapse navbar-collapse ms-3">
+      <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="../index.html" aria-label="Home"><span class="fa fa-home fa-lg"></span></a></li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="active nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="../articles/intro.html">Introduction - Preprocessing and visualization of EEG data</a></li>
+    <li><a class="dropdown-item" href="../articles/preprocessing_erp.html">Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs</a></li>
+    <li><a class="dropdown-item" href="../articles/artifacts.html">Artifact detection and rejection</a></li>
+    <li><a class="dropdown-item" href="../articles/gotchas.html">Pitfalls and gotchas</a></li>
   </ul>
 </li>
-<li>
-  <a href="../news/index.html">Changelog</a>
-</li>
-<li>
-  <a href="https://github.com/bnicenboim/eeguana/discussions" class="external-link">Forum</a>
-</li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/bnicenboim/eeguana/discussions">Forum</a></li>
       </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="https://github.com/bnicenboim/eeguana" class="external-link">
-    <span class="fa fa-github fa-lg"></span>
-
-  </a>
-</li>
+<ul class="navbar-nav">
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/bnicenboim/eeguana" aria-label="GitHub"><span class="fa fa-github fa-lg"></span></a></li>
       </ul>
 </div>
-<!--/.nav-collapse -->
+
+
   </div>
-<!--/.container -->
-</div>
-<!--/.navbar -->
+</nav><div class="container template-article">
 
 
 
-      </header><div class="row">
-  <div class="col-md-9 contents">
-    <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Introduction - Preprocessing and visualization
-of EEG data</h1>
+
+<div class="row">
+  <main id="main" class="col-md-9"><div class="page-header">
+      <img src="../logo.png" class="logo" alt=""><h1>Introduction - Preprocessing and visualization of EEG data</h1>
                         <h4 data-toc-skip class="author">Bruno
 Nicenboim</h4>
             
-            <h4 data-toc-skip class="date">2026-09-17</h4>
+            <h4 data-toc-skip class="date">2026-11-14</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bnicenboim/eeguana/blob/master/vignettes/intro.Rmd" class="external-link"><code>vignettes/intro.Rmd</code></a></small>
-      <div class="hidden name"><code>intro.Rmd</code></div>
-
+      <div class="d-none name"><code>intro.Rmd</code></div>
     </div>
 
     
@@ -134,9 +99,6 @@ has to do with size considerations. In this case, the original file was
 generates an object of 556 MB. While this will still work here, a long
 format quickly becomes prohibitive in real settings with longer
 recordings.</p>
-<div class="section level2">
-<h2 id="working-with-eeguana">Working with eeguana<a class="anchor" aria-label="anchor" href="#working-with-eeguana"></a>
-</h2>
 <p>Dplyr-like verbs always return an <code>eeg_lst</code> object, which
 allows us to use <code>magrittr</code>’s pipe, <code>%&gt;%</code> (see
 <code>?`dplyr-eeguana`</code>) or the relatively new R pipe
@@ -147,7 +109,6 @@ general, we will work with the <code>eeg_lst</code>, unless we want to
 modify the channels information (with <code><a href="../reference/channels_tbl.html">channels_tbl()</a></code>) or
 the events table containing markers, artifacts ans custom annotations
 (with <code>events_tbl</code>).</p>
-</div>
 <div class="section level2">
 <h2 id="a-practical-example-the-n170-effect">A practical example: the N170 effect<a class="anchor" aria-label="anchor" href="#a-practical-example-the-n170-effect"></a>
 </h2>
@@ -184,7 +145,6 @@ signals at every sample for every channel recorded.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://markfairbanks.github.io/tidytable/" class="external-link">tidytable</a></span><span class="op">)</span> <span class="co"># faster alternative to dplyr</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://stringr.tidyverse.org" class="external-link">stringr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bruno.nicenboim.me/eeguana">eeguana</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span> <span class="co"># ICA will always find the same components</span></span></code></pre></div>
 <p>We first need to read the data:</p>
@@ -333,11 +293,32 @@ attributes generic EEG information.</p>
 <span><span class="co">#&gt; 6:    Stimulus         s130   200</span></span>
 <span><span class="co">#&gt; 7:    Stimulus          s70   100</span></span>
 <span><span class="co">#&gt; 8:    Stimulus          s71   100</span></span></code></pre></div>
+<p>A first look at the recording is easiest interactively, with
+<code><a href="../reference/eeg_browse.html">eeg_browse()</a></code>. It opens a Shiny app (it needs the packages
+<em>shiny</em> and <em>bslib</em>) that shows the signal of all the
+channels in a window that we move through the recording, with the events
+marked on top of the signal. The arrow keys move the window and zoom the
+amplitudes in and out, and the panel on the left sets where the window
+starts, how long it is, and which channels are shown. Instead of moving
+through the recording, the window can also be placed around events, such
+as the triggers of the experiment, and moved from one event to the
+next.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/eeg_browse.html">eeg_browse</a></span><span class="op">(</span><span class="va">faces</span><span class="op">)</span></span></code></pre></div>
+<p>This is how the app looks when it opens, at the beginning of the
+recording:</p>
+<p><img src="intro_files/figure-html/browse-faces-1.png" class="r-plt" alt="The eeg_browse() app: the settings of the window on the left, and the signal of the channels in the first four seconds of the recording on the right." width="100%"></p>
+<p>Here the recording is one long segment, so there is nothing to
+select, and the app is only for browsing. Once the data are segmented,
+clicking a segment in the app selects it, and <code><a href="../reference/eeg_browse.html">eeg_browse()</a></code>
+returns the <code>.id</code> of the selected segments, which
+<code><a href="../reference/dplyr_verbs.html">eeg_filter()</a></code> can then remove or keep. We use it this way
+below, after segmenting.</p>
 <p>We see that there is no electrode positions in the object, but since
 we know that the layout was a standard 10/20, we’ll add this layout to
 the object, using the dataset <code>layout_32_1020</code>. This is
 required to be able to create topographic plots.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/channels_tbl.html">channels_tbl</a></span><span class="op">(</span><span class="va">faces</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     .channel number .reference resolution       unit radius theta   phi    .x    .y    .z</span></span>
 <span><span class="co">#&gt;       &lt;char&gt; &lt;char&gt;     &lt;char&gt;      &lt;num&gt;     &lt;char&gt;  &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;</span></span>
@@ -383,44 +364,45 @@ required to be able to create topographic plots.</p>
 <p>The plots that <strong>eeguana</strong> produce are
 <code>ggplot</code> objects that can be modified like regular
 <code>ggplot</code>.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">faces</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"All the experiment"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # Downsampling from 512Hz to 256Hz.</span></span>
 <span><span class="co">#&gt; # Object size in memory 56.7 Mb</span></span></code></pre></div>
-<p><img src="intro_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="100%"><img src="intro_files/figure-html/unnamed-chunk-3-2.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="intro_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="100%"></p>
+</div>
+<div class="section level2">
+<h2 id="pre-processing">Pre-processing<a class="anchor" aria-label="anchor" href="#pre-processing"></a>
+</h2>
+<p>Here the preprocessing is done with only one EEG dataset. The last
+section, <a href="#more-than-one-participant">More than one
+participant</a>, shows how to repeat it for the data of several
+participants and bind them together.</p>
 <div class="section level3">
-<h3 id="pre-processing">Pre-processing<a class="anchor" aria-label="anchor" href="#pre-processing"></a>
+<h3 id="rereferencing">Rereferencing<a class="anchor" aria-label="anchor" href="#rereferencing"></a>
 </h3>
-<p>Here the preprocessing is done with only one EEG dataset. If the EEG
-data of different participants is available, one can repeat a similar
-preprocessing pipeline for each dataset and bind the EEG datasets with
-<code><a href="../reference/eeg_bind.html">bind()</a></code>.</p>
-<div class="section level4">
-<h4 id="rereferencing">Rereferencing<a class="anchor" aria-label="anchor" href="#rereferencing"></a>
-</h4>
 <p>In this dataset, the signal from all electrodes is monopolar and
 referenced to the left mastoid (M1). We want the signal (excluding the
 EOG channels) to be referenced to linked (left and right) mastoids (M1
 and M2).</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">faces</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/eeg_rereference.html">eeg_rereference</a></span><span class="op">(</span><span class="va">faces</span>, <span class="op">-</span><span class="va">VEOG</span>, <span class="op">-</span><span class="va">HEOG</span>, .ref <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"M1"</span>, <span class="st">"M2"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level4">
-<h4 id="filtering">Filtering<a class="anchor" aria-label="anchor" href="#filtering"></a>
-</h4>
+<div class="section level3">
+<h3 id="filtering">Filtering<a class="anchor" aria-label="anchor" href="#filtering"></a>
+</h3>
 <p>We apply a band pass filter of 0.1 to 30 Hz to all the channels
 except the EOG channels. We don’t segment yet, because discontinuities
 in the signal create artifacts on the edges.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">faces_filt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/filt.html">eeg_filt_band_pass</a></span><span class="op">(</span><span class="va">faces</span>, <span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span>, .freq <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.1</span>, <span class="fl">30</span><span class="op">)</span><span class="op">)</span> </span>
 <span><span class="co">#&gt; Setting up band-pass filter from 0.1 - 30 Hz</span></span>
 <span><span class="co">#&gt; Width of the transition band at the low cut-off frequency is 0.1 Hz</span></span>
 <span><span class="co">#&gt; Width of the transition band at the high cut-off frequency is 7.5 Hz</span></span></code></pre></div>
 </div>
-<div class="section level4">
-<h4 id="ica">ICA<a class="anchor" aria-label="anchor" href="#ica"></a>
-</h4>
+<div class="section level3">
+<h3 id="ica">ICA<a class="anchor" aria-label="anchor" href="#ica"></a>
+</h3>
 <p>We want to apply ICA to as much data as possible, but to
 “representative” data: to data of the experiment and not when the
 participants were moving or reading the instructions. For the same
@@ -431,7 +413,7 @@ signal.</p>
 experiment was ran using <code><a href="../reference/eeg_segment.html">eeg_segment()</a></code> (that is, only data
 from the marker “s111” to “s121”), and then we mark differences of 200
 microvolts between peaks with <code><a href="../reference/eeg_artif.html">eeg_artif_minmax()</a></code>.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">faces_ls</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/eeg_segment.html">eeg_segment</a></span><span class="op">(</span><span class="va">faces_filt</span>, </span>
 <span>                        <span class="va">.description</span> <span class="op">==</span> <span class="st">"s111"</span>, </span>
 <span>                        .end <span class="op">=</span> <span class="va">.description</span> <span class="op">==</span> <span class="st">"s121"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -448,7 +430,7 @@ type of artifacts that were detected, by plotting the signal and the
 events with <code><a href="../reference/annotate_events.html">annotate_events()</a></code>. It would be a good idea to
 just check a couple of seconds of the signal, for that we use the
 dplyr-like function <code><a href="../reference/dplyr_verbs.html">eeg_filter()</a></code>.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">faces_ls</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_select</a></span><span class="op">(</span><span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span><span class="op">)</span><span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_filter</a></span><span class="op">(</span><span class="fu"><a href="../reference/as_time.html">as_time</a></span><span class="op">(</span><span class="va">.sample</span>, .unit <span class="op">=</span> <span class="st">"s"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/between.html">between</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">90</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -457,95 +439,93 @@ dplyr-like function <code><a href="../reference/dplyr_verbs.html">eeg_filter()</
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # Downsampling from 512Hz to 256Hz.</span></span>
 <span><span class="co">#&gt; # Object size in memory 5.9 Mb</span></span></code></pre></div>
-<p><img src="intro_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="100%"><img src="intro_files/figure-html/unnamed-chunk-4-2.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="intro_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="100%"></p>
 <p>Now we can run ICA, removing the EOG and reference electrodes, and
 ignoring the artifacts.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## By default, it will ignore artifacts</span></span>
 <span><span class="va">faces_ica</span> <span class="op">&lt;-</span> <span class="va">faces_ls</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/eeg_ica.html">eeg_ica</a></span><span class="op">(</span><span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span>, <span class="op">-</span><span class="va">M1</span>, <span class="op">-</span><span class="va">M2</span>, .method <span class="op">=</span> <span class="va">adapt_fast_ICA</span>, .ignore <span class="op">=</span> <span class="va">.type</span> <span class="op">==</span> <span class="st">"artifact"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # ICA is being done using adapt_fast_ICA...</span></span>
 <span><span class="co">#&gt; # 97% of the samples will be used.</span></span>
-<span><span class="co">#&gt; # ICA took 1.09 mins</span></span></code></pre></div>
+<span><span class="co">#&gt; # ICA took 1.26 mins</span></span></code></pre></div>
 <p>We can now check the different topographic plots of the ICAs with
 <code><a href="../reference/plot_components.html">plot_components()</a></code>, and their correlation with the EOG
 channels looking a the summary of the object.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">faces_ica</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/plot_components.html">plot_components</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="intro_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="100%"></p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">faces_ica</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/plot_components.html">plot_components</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="intro_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="100%"></p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/eeg_ica_summary_tbl.html">eeg_ica_summary_tbl</a></span><span class="op">(</span><span class="va">faces_ica</span><span class="op">)</span></span>
 <span><span class="co">#&gt; EOG channels detected as: HEOG, VEOG</span></span>
-<span><span class="co">#&gt; # Downsampling from 512Hz to 256Hz.</span></span>
-<span><span class="co">#&gt; # Object size in memory 53.8 Mb</span></span>
-<span><span class="co">#&gt;        .recording    EOG   .ICA           cor           var</span></span>
-<span><span class="co">#&gt;            &lt;char&gt; &lt;char&gt; &lt;char&gt;         &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1: s1_faces.vhdr   VEOG   ICA5  0.3110616894  3.757060e-01</span></span>
-<span><span class="co">#&gt;  2: s1_faces.vhdr   HEOG   ICA5  0.0060600201  3.757060e-01</span></span>
-<span><span class="co">#&gt;  3: s1_faces.vhdr   VEOG  ICA14  0.0594109202  7.014123e-02</span></span>
-<span><span class="co">#&gt;  4: s1_faces.vhdr   HEOG  ICA14  0.0115211860  7.014123e-02</span></span>
-<span><span class="co">#&gt;  5: s1_faces.vhdr   VEOG  ICA25  0.0191137136  5.700112e-02</span></span>
-<span><span class="co">#&gt;  6: s1_faces.vhdr   HEOG  ICA25  0.0079409656  5.700112e-02</span></span>
-<span><span class="co">#&gt;  7: s1_faces.vhdr   VEOG  ICA28  0.0215901453  5.238918e-02</span></span>
-<span><span class="co">#&gt;  8: s1_faces.vhdr   HEOG  ICA28 -0.0026613292  5.238918e-02</span></span>
-<span><span class="co">#&gt;  9: s1_faces.vhdr   VEOG  ICA13 -0.0733915975  4.883691e-02</span></span>
-<span><span class="co">#&gt; 10: s1_faces.vhdr   HEOG  ICA13  0.0028042746  4.883691e-02</span></span>
-<span><span class="co">#&gt; 11: s1_faces.vhdr   VEOG  ICA16  0.0189808192  3.920680e-02</span></span>
-<span><span class="co">#&gt; 12: s1_faces.vhdr   HEOG  ICA16 -0.0052139432  3.920680e-02</span></span>
-<span><span class="co">#&gt; 13: s1_faces.vhdr   VEOG  ICA27 -0.0146958686  3.894493e-02</span></span>
-<span><span class="co">#&gt; 14: s1_faces.vhdr   HEOG  ICA27 -0.0005737728  3.894493e-02</span></span>
-<span><span class="co">#&gt; 15: s1_faces.vhdr   HEOG  ICA26 -0.0127623329  3.356974e-02</span></span>
-<span><span class="co">#&gt; 16: s1_faces.vhdr   VEOG  ICA26 -0.0103929696  3.356974e-02</span></span>
-<span><span class="co">#&gt; 17: s1_faces.vhdr   VEOG  ICA21 -0.0110379588  3.209207e-02</span></span>
-<span><span class="co">#&gt; 18: s1_faces.vhdr   HEOG  ICA21  0.0041385932  3.209207e-02</span></span>
-<span><span class="co">#&gt; 19: s1_faces.vhdr   VEOG  ICA30 -0.0318988532  3.195685e-02</span></span>
-<span><span class="co">#&gt; 20: s1_faces.vhdr   HEOG  ICA30 -0.0049492927  3.195685e-02</span></span>
-<span><span class="co">#&gt; 21: s1_faces.vhdr   HEOG  ICA11 -0.0080689883  1.531692e-02</span></span>
-<span><span class="co">#&gt; 22: s1_faces.vhdr   VEOG  ICA11 -0.0022034332  1.531692e-02</span></span>
-<span><span class="co">#&gt; 23: s1_faces.vhdr   VEOG   ICA8 -0.0061078333  1.503484e-02</span></span>
-<span><span class="co">#&gt; 24: s1_faces.vhdr   HEOG   ICA8 -0.0033160702  1.503484e-02</span></span>
-<span><span class="co">#&gt; 25: s1_faces.vhdr   VEOG  ICA22 -0.0729992398  1.342674e-02</span></span>
-<span><span class="co">#&gt; 26: s1_faces.vhdr   HEOG  ICA22 -0.0075857794  1.342674e-02</span></span>
-<span><span class="co">#&gt; 27: s1_faces.vhdr   VEOG  ICA19 -0.0113037545  1.276725e-02</span></span>
-<span><span class="co">#&gt; 28: s1_faces.vhdr   HEOG  ICA19  0.0040990970  1.276725e-02</span></span>
-<span><span class="co">#&gt; 29: s1_faces.vhdr   HEOG  ICA29 -0.0098960226  1.268456e-02</span></span>
-<span><span class="co">#&gt; 30: s1_faces.vhdr   VEOG  ICA29  0.0082034132  1.268456e-02</span></span>
-<span><span class="co">#&gt; 31: s1_faces.vhdr   VEOG  ICA10  0.0029772146  1.075145e-02</span></span>
-<span><span class="co">#&gt; 32: s1_faces.vhdr   HEOG  ICA10 -0.0012705350  1.075145e-02</span></span>
-<span><span class="co">#&gt; 33: s1_faces.vhdr   VEOG  ICA23 -0.0139531104  1.074641e-02</span></span>
-<span><span class="co">#&gt; 34: s1_faces.vhdr   HEOG  ICA23  0.0080386572  1.074641e-02</span></span>
-<span><span class="co">#&gt; 35: s1_faces.vhdr   VEOG   ICA1  0.0590125612  9.976911e-03</span></span>
-<span><span class="co">#&gt; 36: s1_faces.vhdr   HEOG   ICA1 -0.0556782278  9.976911e-03</span></span>
-<span><span class="co">#&gt; 37: s1_faces.vhdr   VEOG   ICA2 -0.0126428949  7.926289e-03</span></span>
-<span><span class="co">#&gt; 38: s1_faces.vhdr   HEOG   ICA2 -0.0078820112  7.926289e-03</span></span>
-<span><span class="co">#&gt; 39: s1_faces.vhdr   VEOG  ICA24 -0.0121801971  4.817679e-03</span></span>
-<span><span class="co">#&gt; 40: s1_faces.vhdr   HEOG  ICA24 -0.0016042248  4.817679e-03</span></span>
-<span><span class="co">#&gt; 41: s1_faces.vhdr   HEOG   ICA7 -0.0020891334  3.213752e-03</span></span>
-<span><span class="co">#&gt; 42: s1_faces.vhdr   VEOG   ICA7 -0.0003910153  3.213752e-03</span></span>
-<span><span class="co">#&gt; 43: s1_faces.vhdr   VEOG  ICA12  0.0144307012  1.612964e-03</span></span>
-<span><span class="co">#&gt; 44: s1_faces.vhdr   HEOG  ICA12  0.0128083915  1.612964e-03</span></span>
-<span><span class="co">#&gt; 45: s1_faces.vhdr   HEOG  ICA17 -0.0091874914  1.242015e-03</span></span>
-<span><span class="co">#&gt; 46: s1_faces.vhdr   VEOG  ICA17  0.0017426840  1.242015e-03</span></span>
-<span><span class="co">#&gt; 47: s1_faces.vhdr   VEOG  ICA18 -0.0131764353  8.322457e-04</span></span>
-<span><span class="co">#&gt; 48: s1_faces.vhdr   HEOG  ICA18 -0.0117696565  8.322457e-04</span></span>
-<span><span class="co">#&gt; 49: s1_faces.vhdr   HEOG   ICA4 -0.0190202998  5.031454e-04</span></span>
-<span><span class="co">#&gt; 50: s1_faces.vhdr   VEOG   ICA4 -0.0171506626  5.031454e-04</span></span>
-<span><span class="co">#&gt; 51: s1_faces.vhdr   VEOG   ICA6 -0.0089105463  4.392834e-05</span></span>
-<span><span class="co">#&gt; 52: s1_faces.vhdr   HEOG   ICA6  0.0049753303  4.392834e-05</span></span>
-<span><span class="co">#&gt; 53: s1_faces.vhdr   VEOG  ICA20 -0.0062150226  1.952812e-06</span></span>
-<span><span class="co">#&gt; 54: s1_faces.vhdr   HEOG  ICA20 -0.0011994425  1.952812e-06</span></span>
-<span><span class="co">#&gt; 55: s1_faces.vhdr   HEOG   ICA9 -0.0019097967 -4.193406e-04</span></span>
-<span><span class="co">#&gt; 56: s1_faces.vhdr   VEOG   ICA9  0.0015343447 -4.193406e-04</span></span>
-<span><span class="co">#&gt; 57: s1_faces.vhdr   VEOG  ICA15 -0.0265727074 -1.012186e-03</span></span>
-<span><span class="co">#&gt; 58: s1_faces.vhdr   HEOG  ICA15 -0.0041488999 -1.012186e-03</span></span>
-<span><span class="co">#&gt; 59: s1_faces.vhdr   VEOG   ICA3  0.0866623859 -7.459674e-03</span></span>
-<span><span class="co">#&gt; 60: s1_faces.vhdr   HEOG   ICA3 -0.0019740756 -7.459674e-03</span></span>
-<span><span class="co">#&gt;        .recording    EOG   .ICA           cor           var</span></span>
-<span><span class="co">#&gt;            &lt;char&gt; &lt;char&gt; &lt;char&gt;         &lt;num&gt;         &lt;num&gt;</span></span></code></pre></div>
+<span><span class="co">#&gt;        .recording    EOG   .ICA           cor         var</span></span>
+<span><span class="co">#&gt;            &lt;char&gt; &lt;char&gt; &lt;char&gt;         &lt;num&gt;       &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1: s1_faces.vhdr   VEOG   ICA5  0.3110616894 0.334239850</span></span>
+<span><span class="co">#&gt;  2: s1_faces.vhdr   HEOG   ICA5  0.0060600201 0.334239850</span></span>
+<span><span class="co">#&gt;  3: s1_faces.vhdr   VEOG  ICA14  0.0594109202 0.084217036</span></span>
+<span><span class="co">#&gt;  4: s1_faces.vhdr   HEOG  ICA14  0.0115211860 0.084217036</span></span>
+<span><span class="co">#&gt;  5: s1_faces.vhdr   VEOG  ICA13 -0.0733915975 0.057057041</span></span>
+<span><span class="co">#&gt;  6: s1_faces.vhdr   HEOG  ICA13  0.0028042746 0.057057041</span></span>
+<span><span class="co">#&gt;  7: s1_faces.vhdr   VEOG   ICA1  0.0590125612 0.052589289</span></span>
+<span><span class="co">#&gt;  8: s1_faces.vhdr   HEOG   ICA1 -0.0556782278 0.052589289</span></span>
+<span><span class="co">#&gt;  9: s1_faces.vhdr   VEOG  ICA25  0.0191137136 0.037790859</span></span>
+<span><span class="co">#&gt; 10: s1_faces.vhdr   HEOG  ICA25  0.0079409656 0.037790859</span></span>
+<span><span class="co">#&gt; 11: s1_faces.vhdr   VEOG  ICA22 -0.0729992398 0.036215814</span></span>
+<span><span class="co">#&gt; 12: s1_faces.vhdr   HEOG  ICA22 -0.0075857794 0.036215814</span></span>
+<span><span class="co">#&gt; 13: s1_faces.vhdr   VEOG  ICA30 -0.0318988532 0.030671273</span></span>
+<span><span class="co">#&gt; 14: s1_faces.vhdr   HEOG  ICA30 -0.0049492927 0.030671273</span></span>
+<span><span class="co">#&gt; 15: s1_faces.vhdr   VEOG  ICA28  0.0215901453 0.030593954</span></span>
+<span><span class="co">#&gt; 16: s1_faces.vhdr   HEOG  ICA28 -0.0026613292 0.030593954</span></span>
+<span><span class="co">#&gt; 17: s1_faces.vhdr   VEOG  ICA27 -0.0146958686 0.029824133</span></span>
+<span><span class="co">#&gt; 18: s1_faces.vhdr   HEOG  ICA27 -0.0005737728 0.029824133</span></span>
+<span><span class="co">#&gt; 19: s1_faces.vhdr   HEOG  ICA26 -0.0127623329 0.026000815</span></span>
+<span><span class="co">#&gt; 20: s1_faces.vhdr   VEOG  ICA26 -0.0103929696 0.026000815</span></span>
+<span><span class="co">#&gt; 21: s1_faces.vhdr   VEOG  ICA21 -0.0110379588 0.024648945</span></span>
+<span><span class="co">#&gt; 22: s1_faces.vhdr   HEOG  ICA21  0.0041385932 0.024648945</span></span>
+<span><span class="co">#&gt; 23: s1_faces.vhdr   VEOG  ICA16  0.0189808192 0.024065801</span></span>
+<span><span class="co">#&gt; 24: s1_faces.vhdr   HEOG  ICA16 -0.0052139432 0.024065801</span></span>
+<span><span class="co">#&gt; 25: s1_faces.vhdr   VEOG   ICA6 -0.0089105463 0.022756936</span></span>
+<span><span class="co">#&gt; 26: s1_faces.vhdr   HEOG   ICA6  0.0049753303 0.022756936</span></span>
+<span><span class="co">#&gt; 27: s1_faces.vhdr   HEOG  ICA17 -0.0091874914 0.022147912</span></span>
+<span><span class="co">#&gt; 28: s1_faces.vhdr   VEOG  ICA17  0.0017426840 0.022147912</span></span>
+<span><span class="co">#&gt; 29: s1_faces.vhdr   VEOG  ICA23 -0.0139531104 0.021567157</span></span>
+<span><span class="co">#&gt; 30: s1_faces.vhdr   HEOG  ICA23  0.0080386572 0.021567157</span></span>
+<span><span class="co">#&gt; 31: s1_faces.vhdr   VEOG  ICA24 -0.0121801971 0.019263447</span></span>
+<span><span class="co">#&gt; 32: s1_faces.vhdr   HEOG  ICA24 -0.0016042248 0.019263447</span></span>
+<span><span class="co">#&gt; 33: s1_faces.vhdr   VEOG  ICA10  0.0029772146 0.018948088</span></span>
+<span><span class="co">#&gt; 34: s1_faces.vhdr   HEOG  ICA10 -0.0012705350 0.018948088</span></span>
+<span><span class="co">#&gt; 35: s1_faces.vhdr   HEOG  ICA29 -0.0098960226 0.016990873</span></span>
+<span><span class="co">#&gt; 36: s1_faces.vhdr   VEOG  ICA29  0.0082034132 0.016990873</span></span>
+<span><span class="co">#&gt; 37: s1_faces.vhdr   HEOG   ICA7 -0.0020891334 0.016963604</span></span>
+<span><span class="co">#&gt; 38: s1_faces.vhdr   VEOG   ICA7 -0.0003910153 0.016963604</span></span>
+<span><span class="co">#&gt; 39: s1_faces.vhdr   VEOG   ICA8 -0.0061078333 0.012798386</span></span>
+<span><span class="co">#&gt; 40: s1_faces.vhdr   HEOG   ICA8 -0.0033160702 0.012798386</span></span>
+<span><span class="co">#&gt; 41: s1_faces.vhdr   VEOG  ICA19 -0.0113037545 0.012625051</span></span>
+<span><span class="co">#&gt; 42: s1_faces.vhdr   HEOG  ICA19  0.0040990970 0.012625051</span></span>
+<span><span class="co">#&gt; 43: s1_faces.vhdr   HEOG  ICA11 -0.0080689883 0.011544475</span></span>
+<span><span class="co">#&gt; 44: s1_faces.vhdr   VEOG  ICA11 -0.0022034332 0.011544475</span></span>
+<span><span class="co">#&gt; 45: s1_faces.vhdr   VEOG  ICA20 -0.0062150226 0.007460283</span></span>
+<span><span class="co">#&gt; 46: s1_faces.vhdr   HEOG  ICA20 -0.0011994425 0.007460283</span></span>
+<span><span class="co">#&gt; 47: s1_faces.vhdr   VEOG   ICA2 -0.0126428949 0.007089662</span></span>
+<span><span class="co">#&gt; 48: s1_faces.vhdr   HEOG   ICA2 -0.0078820112 0.007089662</span></span>
+<span><span class="co">#&gt; 49: s1_faces.vhdr   VEOG   ICA3  0.0866623859 0.006302069</span></span>
+<span><span class="co">#&gt; 50: s1_faces.vhdr   HEOG   ICA3 -0.0019740756 0.006302069</span></span>
+<span><span class="co">#&gt; 51: s1_faces.vhdr   HEOG   ICA9 -0.0019097967 0.006254332</span></span>
+<span><span class="co">#&gt; 52: s1_faces.vhdr   VEOG   ICA9  0.0015343447 0.006254332</span></span>
+<span><span class="co">#&gt; 53: s1_faces.vhdr   VEOG  ICA15 -0.0265727074 0.005244650</span></span>
+<span><span class="co">#&gt; 54: s1_faces.vhdr   HEOG  ICA15 -0.0041488999 0.005244650</span></span>
+<span><span class="co">#&gt; 55: s1_faces.vhdr   VEOG  ICA18 -0.0131764353 0.005012006</span></span>
+<span><span class="co">#&gt; 56: s1_faces.vhdr   HEOG  ICA18 -0.0117696565 0.005012006</span></span>
+<span><span class="co">#&gt; 57: s1_faces.vhdr   HEOG   ICA4 -0.0190202998 0.004207052</span></span>
+<span><span class="co">#&gt; 58: s1_faces.vhdr   VEOG   ICA4 -0.0171506626 0.004207052</span></span>
+<span><span class="co">#&gt; 59: s1_faces.vhdr   VEOG  ICA12  0.0144307012 0.004146247</span></span>
+<span><span class="co">#&gt; 60: s1_faces.vhdr   HEOG  ICA12  0.0128083915 0.004146247</span></span>
+<span><span class="co">#&gt;        .recording    EOG   .ICA           cor         var</span></span>
+<span><span class="co">#&gt;            &lt;char&gt; &lt;char&gt; &lt;char&gt;         &lt;num&gt;       &lt;num&gt;</span></span></code></pre></div>
 <p>We’ll look closer at the ICA that are more likely to be related to
 eye movements, and we’ll compare with signals that look like blinks and
 saccades:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">faces_ica</span> <span class="op">&lt;-</span> <span class="va">faces_ica</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/eeg_artif.html">eeg_artif_step</a></span><span class="op">(</span><span class="va">HEOG</span>, <span class="va">VEOG</span>, </span>
 <span>                 .threshold <span class="op">=</span> <span class="fl">30</span>, </span>
@@ -560,44 +540,35 @@ saccades:</p>
 <span><span class="co">#&gt; Setting up band-pass filter from 1 - 10 Hz</span></span>
 <span><span class="co">#&gt; Width of the transition band at the low cut-off frequency is 1 Hz</span></span>
 <span><span class="co">#&gt; Width of the transition band at the high cut-off frequency is 2.5 Hz</span></span>
-<span><span class="co">#&gt; # Number of intervals with artifacts: 158</span></span></code></pre></div>
-<p>In order to investigate the ICA, we are using an experimental
-function not yet exported (that’s why we use the :::). This function
-will probably converted into a shiny app. It’s possible to get the same
-plots by using a combination of <code>plot_topo</code>,
-<code>eeg_ica_show</code>, <code>eeg_ica_summary_tbl</code>, and some
-<code>ggplot</code> and <code>cowplot</code> functions.</p>
-<p>We’ll see how the components explaining the most variance and most
-correlated to the EOG channels behave:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#samples with blinks</span></span>
-<span><span class="va">s_peaks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://markfairbanks.github.io/tidytable/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">faces_ica</span><span class="op">)</span>,  <span class="fu"><a href="https://stringr.tidyverse.org/reference/str_starts.html" class="external-link">str_starts</a></span><span class="op">(</span><span class="va">.description</span>, <span class="st">"peak"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://markfairbanks.github.io/tidytable/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">.initial</span><span class="op">)</span></span>
-<span><span class="fu">eeguana</span><span class="fu">:::</span><span class="fu">plot_ica.eeg_ica_lst</span><span class="op">(</span><span class="va">faces_ica</span>, samples <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="va">s_peaks</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">-</span><span class="fl">2000</span>,<span class="va">s_peaks</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">+</span><span class="fl">2000</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in eeguana:::plot_ica.eeg_ica_lst(faces_ica, samples = seq(s_peaks[1] - : This is</span></span>
-<span><span class="co">#&gt; an experimental function, and it might change or disappear in the future. (Or it might be</span></span>
-<span><span class="co">#&gt; transformed into a shinyapp)</span></span>
-<span><span class="co">#&gt; Using recording: s1_faces.vhdr</span></span>
-<span><span class="co">#&gt; EOG channels detected as: HEOG, VEOG</span></span>
-<span><span class="co">#&gt; Calculating the correlation of ICA components with filtered EOG channels...</span></span>
-<span><span class="co">#&gt; Setting up band-pass filter from 0.1 - 30 Hz</span></span>
-<span><span class="co">#&gt; Width of the transition band at the low cut-off frequency is 0.1 Hz</span></span>
-<span><span class="co">#&gt; Width of the transition band at the high cut-off frequency is 7.5 Hz</span></span>
-<span><span class="co">#&gt; EOG channels detected as: HEOG, VEOG</span></span>
-<span><span class="co">#&gt; # Downsampling from 512Hz to 256Hz.</span></span>
-<span><span class="co">#&gt; # Object size in memory 53.9 Mb</span></span>
-<span><span class="co">#&gt; The following columns of signal_tbl are not channels (or ICA components): ICA5ICA14ICA25ICA28ICA13ICA16ICA27ICA26ICA21ICA30ICA11ICA8ICA22ICA19ICA29ICA10</span></span>
-<span><span class="co">#&gt; * To build a channel use `channel_dbl()` function, e.g. channel_dbl(0) to populate the table with a channel containing 0 microvolts.</span></span>
-<span><span class="co">#&gt; * To copy the structure of an existing channel one can do `new_ch = existing_channel * 0 + ...`</span></span></code></pre></div>
-<p><img src="intro_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="90%"><img src="intro_files/figure-html/unnamed-chunk-7-2.png" class="r-plt" alt="" width="90%"></p>
-<p>The clearest ones is ICA5, and so we’ll just remove that one.</p>
+<span><span class="co">#&gt; # Number of intervals with artifacts: 160</span></span></code></pre></div>
+<p>The easiest way to investigate the ICA is interactively, with
+<code><a href="../reference/eeg_browse.html">eeg_browse()</a></code>. For an ICA, it opens a Shiny app that shows
+the activations of the components next to the EOG channels, and their
+topographies, labeled with the variance they explain and their
+correlation with the EOG channels. The window can be placed around
+events, such as the blinks we just marked, and moved from one blink to
+the next, or moved through the recording. Clicking a topography selects
+the component, and when we are done, the app returns the selected
+components, one vector of names for each recording. Here, we select the
+components that we want to remove:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">faces_icaed</span> <span class="op">&lt;-</span> <span class="va">faces_ica</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/eeg_ica_keep.html">eeg_ica_keep</a></span><span class="op">(</span><span class="op">-</span><span class="va">ICA5</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">to_remove</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/eeg_browse.html">eeg_browse</a></span><span class="op">(</span><span class="va">faces_ica</span><span class="op">)</span></span></code></pre></div>
+<p>This is how the app looks around the first blink, after clicking the
+topography of ICA5 to select it:</p>
+<p><img src="intro_files/figure-html/browse-ica-1.png" class="r-plt" alt="The eeg_browse() app: the settings of the window on the left, the activations of the components and the EOG channels around a blink in the middle, and the topographies of the components on the right, with ICA5 selected." width="100%"></p>
+<p>ICA5 is the clearest one: it explains a third of the variance and
+correlates 0.91 with the VEOG channel. So it’s the only one we selected,
+and the only one we remove:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">to_remove</span></span>
+<span><span class="co">#&gt; $s1_faces.vhdr</span></span>
+<span><span class="co">#&gt; [1] "ICA5"</span></span>
+<span><span class="va">faces_icaed</span> <span class="op">&lt;-</span> <span class="va">faces_ica</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/eeg_ica_keep.html">eeg_ica_keep</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html" class="external-link">all_of</a></span><span class="op">(</span><span class="va">to_remove</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/as_eeg_lst.html">as_eeg_lst</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Now we’ll segment the data to appropriate check if there are still
 artifacts.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">faces_icaed</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">faces_icaed</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://markfairbanks.github.io/tidytable/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="va">.type</span> <span class="op"><a href="https://markfairbanks.github.io/tidytable/reference/in-notin.html" class="external-link">%in%</a></span> <span class="st">"artifact"</span><span class="op">)</span></span>
 <span></span>
@@ -624,10 +595,23 @@ artifacts.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="../reference/annotate_events.html">annotate_events</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="intro_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="100%"><img src="intro_files/figure-html/unnamed-chunk-9-2.png" class="r-plt" alt="" width="100%"></p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="va">faces_seg</span> <span class="op">&lt;-</span> <span class="va">faces_seg_artif</span> <span class="op">|&gt;</span></span>
+<p><img src="intro_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="100%"></p>
+<p>The segments can also be inspected interactively with
+<code><a href="../reference/eeg_browse.html">eeg_browse()</a></code>. For an <code>eeg_lst</code>, it shows the
+signal of the channels through the recording, with each segment in its
+own column, or around events, such as the artifacts, and the topography
+of the window, one for each segment. Clicking a segment selects it, and
+when we are done, the app returns the <code>.id</code> of the selected
+segments. Here, we would select the segments we want to remove, and then
+remove them with <code><a href="../reference/dplyr_verbs.html">eeg_filter()</a></code>:</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">to_remove</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/eeg_browse.html">eeg_browse</a></span><span class="op">(</span><span class="va">faces_seg_artif</span><span class="op">)</span></span>
+<span><span class="va">faces_seg_artif</span> <span class="op">&lt;-</span> <span class="va">faces_seg_artif</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_filter</a></span><span class="op">(</span><span class="op">!</span><span class="va">.id</span> <span class="op"><a href="https://markfairbanks.github.io/tidytable/reference/in-notin.html" class="external-link">%in%</a></span> <span class="va">to_remove</span><span class="op">)</span></span></code></pre></div>
+<p>Here, we remove all the segments with artifacts, by converting their
+samples to <code>NA</code>:</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">faces_seg</span> <span class="op">&lt;-</span> <span class="va">faces_seg_artif</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/eeg_events_to_NA.html">eeg_events_to_NA</a></span><span class="op">(</span><span class="va">.type</span> <span class="op">==</span> <span class="st">"artifact"</span>, .entire_seg <span class="op">=</span> <span class="cn">TRUE</span>, .drop_events <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">faces_seg</span><span class="op">)</span></span>
@@ -645,17 +629,17 @@ artifacts.</p>
 <span><span class="co">#&gt; 1: Stimulus          s70   100</span></span>
 <span><span class="co">#&gt; 2: Stimulus          s71   100</span></span></code></pre></div>
 <p>Finally, we can baseline the segments:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">faces_seg</span> <span class="op">&lt;-</span> <span class="va">faces_seg</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/eeg_baseline.html">eeg_baseline</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
-<div class="section level3">
-<h3 id="visualization">Visualization<a class="anchor" aria-label="anchor" href="#visualization"></a>
-</h3>
+<div class="section level2">
+<h2 id="visualization">Visualization<a class="anchor" aria-label="anchor" href="#visualization"></a>
+</h2>
 <p>We edit the segmentation information and add more descriptive
 labels.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">faces_seg</span> <span class="op">&lt;-</span> <span class="va">faces_seg</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_mutate</a></span><span class="op">(</span></span>
 <span>    condition <span class="op">=</span></span>
@@ -796,7 +780,7 @@ object can then be customized. (Notice that the channels, or component
 names are in a <code>.key</code> column and their amplitude in
 <code>.value</code> column, and instead of samples there are now
 <code>.time</code> in seconds).</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## ggplot uses internally a table that looks like this:</span></span>
 <span><span class="va">faces_seg</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_filter</a></span><span class="op">(</span><span class="va">.id</span> <span class="op"><a href="https://markfairbanks.github.io/tidytable/reference/in-notin.html" class="external-link">%in%</a></span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -824,7 +808,7 @@ names are in a <code>.key</code> column and their amplitude in
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Please use `linewidth` instead.</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once per session.</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.</span></span></span></code></pre></div>
-<p><img src="intro_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="intro_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="100%"></p>
 <p>We can see here the N170 component in the faces condition for the
 average trial on a single participant. We can investigate the signal by
 averaging the channels of the occipital and parietal lobes using
@@ -832,7 +816,7 @@ averaging the channels of the occipital and parietal lobes using
 <code><a href="../reference/chs_mean.html">chs_mean()</a></code>, a wrapper for <code><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans()</a></code>, which
 takes as arguments the relevant channels and whether missing values
 should be omitted from the calculations.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">faces_seg</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_transmute</a></span><span class="op">(</span></span>
 <span>    Occipital <span class="op">=</span> <span class="fu"><a href="../reference/chs_mean.html">chs_mean</a></span><span class="op">(</span><span class="fu"><a href="../reference/dplyr_verbs.html">across</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"O"</span><span class="op">)</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="co">#O1, O2, Oz</span></span>
@@ -846,11 +830,11 @@ should be omitted from the calculations.</p>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">.key</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="intro_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="intro_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" alt="" width="100%"></p>
 <p>We can also calculate the ERPs and then plot them in their layout
 (and we’ll add the same theme that plot uses for
 <code>eeg_lst</code>s):</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ERP_faces</span> <span class="op">&lt;-</span> <span class="va">faces_seg</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_group_by</a></span><span class="op">(</span><span class="va">.sample</span>, <span class="va">condition</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_summarize</a></span><span class="op">(</span><span class="fu"><a href="../reference/dplyr_verbs.html">across_ch</a></span><span class="op">(</span><span class="va">mean</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
@@ -876,7 +860,7 @@ conditions, by first making segments that include only the interval
 .1-.2 <em>s</em> after the onset of the stimuli, creating a table with
 interpolated amplitudes and using the ggplot wrapper
 <code><a href="../reference/plot_topo.html">plot_topo()</a></code>.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">faces_seg</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_filter</a></span><span class="op">(</span><span class="fu"><a href="../reference/between.html">between</a></span><span class="op">(</span><span class="fu"><a href="../reference/as_time.html">as_time</a></span><span class="op">(</span><span class="va">.sample</span>, .unit <span class="op">=</span> <span class="st">"s"</span><span class="op">)</span>, <span class="fl">.1</span>, <span class="fl">.2</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_group_by</a></span><span class="op">(</span><span class="va">condition</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -892,7 +876,7 @@ extract the data in long data frame format first. Even though, we can do
 this without transforming the object, here, we transform the data first
 and then we visualize independent t-tests at every electrode and time
 point.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">faces_seg</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_select</a></span><span class="op">(</span><span class="va">O1</span>, <span class="va">O2</span>, <span class="va">P7</span>, <span class="va">P8</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://markfairbanks.github.io/tidytable/reference/as_tidytable.html" class="external-link">as_tidytable</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co">#or alternatively as_tibble() if one uses dplyr</span></span>
@@ -922,13 +906,13 @@ point.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> O1    -<span style="color: #BB0000;">0.082</span><span style="color: #BB0000; text-decoration: underline;">0</span>   -<span style="color: #BB0000;">0.713</span> </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1,222 more rows</span></span></span></code></pre></div>
 <p>Then we just load the data frame into <code>ggplot</code>.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.time</span>, y <span class="op">=</span> <span class="va">`t-value`</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">.key</span><span class="op">)</span></span></code></pre></div>
-<p><img src="intro_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="intro_files/figure-html/unnamed-chunk-17-1.png" class="r-plt" alt="" width="100%"></p>
 <p>However, this can be also done in the without transforming the
 <code>eeg_lst</code> object:</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">faces_seg_t</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">faces_seg</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_select</a></span><span class="op">(</span><span class="va">O1</span>, <span class="va">O2</span>, <span class="va">P7</span>, <span class="va">P8</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -944,32 +928,112 @@ point.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/stat_summary.html" class="external-link">stat_summary</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="st">"mean"</span>, geom <span class="op">=</span> <span class="st">"line"</span>, alpha <span class="op">=</span> <span class="fl">1</span>, size <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">.key</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="intro_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="intro_files/figure-html/unnamed-chunk-18-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
+<div class="section level2">
+<h2 id="more-than-one-participant">More than one participant<a class="anchor" aria-label="anchor" href="#more-than-one-participant"></a>
+</h2>
+<p>The continuous recording of a single participant is already large
+(the file of this one is 113 MB), so keeping the recordings of all the
+participants in memory at the same time quickly becomes impossible. A
+better strategy is to preprocess each participant on their own, keep
+only what the analysis needs (usually the segments around the relevant
+events, and maybe fewer channels or a lower sampling rate), save that
+small object, and bind the objects of all the participants at the
+end.</p>
+<p>Since choosing the ICA components to remove needs someone to look at
+them, the preprocessing goes over the files three times. First, we run
+everything up to the ICA for every file, and save the result, because
+the ICA takes a while:</p>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">files</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">"\\.vhdr$"</span><span class="op">)</span> <span class="co"># "s1_faces.vhdr", "s2_faces.vhdr", ...</span></span>
+<span><span class="va">rds_name</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">dir</span>, <span class="va">file</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"\\.vhdr$"</span>, <span class="st">".rds"</span>, <span class="va">file</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">prepare_ica</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">file</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">eeg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_vhdr.html">read_vhdr</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/channels_tbl.html">channels_tbl</a></span><span class="op">(</span><span class="va">eeg</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://markfairbanks.github.io/tidytable/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="fu"><a href="../reference/channels_tbl.html">channels_tbl</a></span><span class="op">(</span><span class="va">eeg</span><span class="op">)</span>, <span class="va">.channel</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://markfairbanks.github.io/tidytable/reference/left_join.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">layout_32_1020</span><span class="op">)</span></span>
+<span>  <span class="va">eeg</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/eeg_rereference.html">eeg_rereference</a></span><span class="op">(</span><span class="op">-</span><span class="va">VEOG</span>, <span class="op">-</span><span class="va">HEOG</span>, .ref <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"M1"</span>, <span class="st">"M2"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/filt.html">eeg_filt_band_pass</a></span><span class="op">(</span><span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span>, .freq <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.1</span>, <span class="fl">30</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/eeg_segment.html">eeg_segment</a></span><span class="op">(</span><span class="va">.description</span> <span class="op">==</span> <span class="st">"s111"</span>, .end <span class="op">=</span> <span class="va">.description</span> <span class="op">==</span> <span class="st">"s121"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/eeg_artif.html">eeg_artif_minmax</a></span><span class="op">(</span><span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span>, .threshold <span class="op">=</span> <span class="fl">200</span>, .window <span class="op">=</span> <span class="fl">200</span>, .unit <span class="op">=</span> <span class="st">"ms"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/eeg_ica.html">eeg_ica</a></span><span class="op">(</span><span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span>, <span class="op">-</span><span class="va">M1</span>, <span class="op">-</span><span class="va">M2</span>, .method <span class="op">=</span> <span class="va">adapt_fast_ICA</span>, .ignore <span class="op">=</span> <span class="va">.type</span> <span class="op">==</span> <span class="st">"artifact"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/eeg_artif.html">eeg_artif_step</a></span><span class="op">(</span><span class="va">HEOG</span>, <span class="va">VEOG</span>, .threshold <span class="op">=</span> <span class="fl">30</span>, .window <span class="op">=</span> <span class="fl">200</span>, .unit <span class="op">=</span> <span class="st">"ms"</span>, .freq <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/eeg_artif.html">eeg_artif_peak</a></span><span class="op">(</span><span class="va">VEOG</span>, .threshold <span class="op">=</span> <span class="fl">100</span>, .freq <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="st">"ica"</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">file</span> <span class="kw">in</span> <span class="va">files</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="fu">prepare_ica</span><span class="op">(</span><span class="va">file</span><span class="op">)</span>, <span class="fu">rds_name</span><span class="op">(</span><span class="st">"ica"</span>, <span class="va">file</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>Second, we look at the components of each participant with
+<code><a href="../reference/eeg_browse.html">eeg_browse()</a></code>, and keep the ones we select for removal.
+Saving them also documents the decisions:</p>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">to_remove</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">file</span> <span class="kw">in</span> <span class="va">files</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">to_remove</span><span class="op">[[</span><span class="va">file</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/eeg_browse.html">eeg_browse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu">rds_name</span><span class="op">(</span><span class="st">"ica"</span>, <span class="va">file</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">to_remove</span>, <span class="st">"to_remove.rds"</span><span class="op">)</span></span></code></pre></div>
+<p>Third, we remove the components, segment the data, reject the
+segments with artifacts, and baseline them, as we did above for one
+participant, and save only the segments:</p>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">segment_clean</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">file</span>, <span class="va">to_remove</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">eeg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu">rds_name</span><span class="op">(</span><span class="st">"ica"</span>, <span class="va">file</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/eeg_ica_keep.html">eeg_ica_keep</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html" class="external-link">all_of</a></span><span class="op">(</span><span class="va">to_remove</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/as_eeg_lst.html">as_eeg_lst</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">eeg</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/events_tbl.html">events_tbl</a></span><span class="op">(</span><span class="va">eeg</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://markfairbanks.github.io/tidytable/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="va">.type</span> <span class="op"><a href="https://markfairbanks.github.io/tidytable/reference/in-notin.html" class="external-link">%in%</a></span> <span class="st">"artifact"</span><span class="op">)</span></span>
+<span>  <span class="va">eeg</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_select</a></span><span class="op">(</span><span class="op">-</span><span class="va">description</span>, <span class="op">-</span><span class="va">type</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/eeg_segment.html">eeg_segment</a></span><span class="op">(</span><span class="va">.description</span> <span class="op"><a href="https://markfairbanks.github.io/tidytable/reference/in-notin.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"s70"</span>, <span class="st">"s71"</span><span class="op">)</span>, .lim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">.1</span>, <span class="fl">.5</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/eeg_artif.html">eeg_artif_minmax</a></span><span class="op">(</span><span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span>, .threshold <span class="op">=</span> <span class="fl">100</span>, .window <span class="op">=</span> <span class="fl">150</span>, .unit <span class="op">=</span> <span class="st">"ms"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/eeg_artif.html">eeg_artif_step</a></span><span class="op">(</span><span class="op">-</span><span class="va">HEOG</span>, <span class="op">-</span><span class="va">VEOG</span>, .threshold <span class="op">=</span> <span class="fl">50</span>, .window <span class="op">=</span> <span class="fl">200</span>, .unit <span class="op">=</span> <span class="st">"ms"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/eeg_events_to_NA.html">eeg_events_to_NA</a></span><span class="op">(</span><span class="va">.type</span> <span class="op">==</span> <span class="st">"artifact"</span>, .entire_seg <span class="op">=</span> <span class="cn">TRUE</span>, .drop_events <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/eeg_baseline.html">eeg_baseline</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_mutate</a></span><span class="op">(</span>condition <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">description</span> <span class="op">==</span> <span class="st">"s70"</span>, <span class="st">"faces"</span>, <span class="st">"non-faces"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_select</a></span><span class="op">(</span><span class="op">-</span><span class="va">type</span><span class="op">)</span></span>
+<span>  <span class="co">## To make the objects even smaller, one could also keep only some channels</span></span>
+<span>  <span class="co">## with eeg_select(), or halve the sampling rate with eeg_downsample(.q = 2).</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="st">"segments"</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">file</span> <span class="kw">in</span> <span class="va">files</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="fu">segment_clean</span><span class="op">(</span><span class="va">file</span>, <span class="va">to_remove</span><span class="op">[[</span><span class="va">file</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>, <span class="fu">rds_name</span><span class="op">(</span><span class="st">"segments"</span>, <span class="va">file</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>Finally, we read the segments of all the participants and bind them
+into one <code>eeg_lst</code> with <code><a href="../reference/eeg_bind.html">eeg_bind()</a></code>. All the
+objects need to have the same channels, otherwise
+<code><a href="../reference/eeg_bind.html">eeg_bind()</a></code> warns about the differences:</p>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">faces_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu">rds_name</span><span class="op">(</span><span class="st">"segments"</span>, <span class="va">files</span><span class="op">)</span>, <span class="va">readRDS</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/eeg_bind.html">eeg_bind</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>The column <code>.recording</code> of the segments table tells the
+participants apart, so, for example, the ERPs of each participant
+are:</p>
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ERP_all</span> <span class="op">&lt;-</span> <span class="va">faces_all</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_group_by</a></span><span class="op">(</span><span class="va">.recording</span>, <span class="va">.sample</span>, <span class="va">condition</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/dplyr_verbs.html">eeg_summarize</a></span><span class="op">(</span><span class="fu"><a href="../reference/dplyr_verbs.html">across_ch</a></span><span class="op">(</span><span class="va">mean</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-  </div>
-
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-
-      </div>
-
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
 
-      <footer><div class="copyright">
-  <p></p>
-<p>Developed by <a href="https://bruno.nicenboim.me/" class="external-link">Bruno Nicenboim</a>.</p>
+    <footer><div class="pkgdown-footer-left">
+  <p>Developed by <a href="https://bruno.nicenboim.me/" class="external-link">Bruno Nicenboim</a>.</p>
 </div>
 
-<div class="pkgdown">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
+<div class="pkgdown-footer-right">
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
-      </footer>
+    </footer>
 </div>
-
 
 
 

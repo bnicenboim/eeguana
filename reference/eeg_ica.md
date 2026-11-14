@@ -1,0 +1,249 @@
+# EEG signal decomposition using Independent Component Analysis (ICA)
+
+This function returns an extended `eeg_lst`, `eeg_ica_lst`, with the
+mixing and unmixing matrix of every recording. It is possible to
+visualize the topography of the components with
+[`plot_components()`](https://bruno.nicenboim.me/eeguana/reference/plot_components.md).
+In order to extract the amplitude of the components with respect to time
+use
+[`eeg_ica_show()`](https://bruno.nicenboim.me/eeguana/reference/eeg_ica_show.md),
+see examples section. To remove the unwanted components, use
+[`eeg_ica_keep()`](https://bruno.nicenboim.me/eeguana/reference/eeg_ica_keep.md).
+
+## Usage
+
+``` r
+eeg_ica(
+  .data,
+  ...,
+  .ignore = .type == "artifact",
+  .method = fast_ICA,
+  .config = list()
+)
+```
+
+## Arguments
+
+- .data:
+
+  An eeg_lst object
+
+- ...:
+
+  Channels to include in ICA transformation. All the channels by
+  default, but eye channels and reference channels should be removed.
+
+- .ignore:
+
+  Events that should be ignored in the ICA, set to NULL for not using
+  the events table.
+
+- .method:
+
+  Methods from different packages:
+  [fast_ICA](https://bruno.nicenboim.me/eeguana/reference/fast_ICA.md),
+  a wrapper of
+  [fastICA::fastICA](https://rdrr.io/pkg/fastICA/man/fastICA.html),
+  (default), and some more experimental .methods:
+  [fast_ICA2](https://bruno.nicenboim.me/eeguana/reference/fICA.md) and
+  [adapt_fast_ICA](https://bruno.nicenboim.me/eeguana/reference/fICA.md)
+  adapted from [fICA](https://rdrr.io/pkg/fICA/man/fICA.html) package.
+  It can also accept a custom function, see details.
+
+- .config:
+
+  Other parameters passed in a list to the ICA method. See the
+  documentation of the relevant .method.
+
+## Value
+
+An eeg_ica_lst object
+
+## Details
+
+It is possible to also use a custom function in the `method` argument.
+The function should return a list that with `A` (mixing matrix),
+consistent with the formulation `X = S %*% A`, where X is matrix of
+N_samples by N_channels and/or `W` (unmixing matrix), consistent with
+the formulation `X %*% W = S`. Some packages with other ICA methods or
+implementations: `steadyICA` and `ica`.
+
+## See also
+
+Other ICA functions:
+[`eeg_browse()`](https://bruno.nicenboim.me/eeguana/reference/eeg_browse.md),
+[`eeg_ica_cor_tbl()`](https://bruno.nicenboim.me/eeguana/reference/eeg_ica_cor_tbl.md),
+[`eeg_ica_keep()`](https://bruno.nicenboim.me/eeguana/reference/eeg_ica_keep.md),
+[`eeg_ica_show()`](https://bruno.nicenboim.me/eeguana/reference/eeg_ica_show.md),
+[`eeg_ica_summary_tbl()`](https://bruno.nicenboim.me/eeguana/reference/eeg_ica_summary_tbl.md),
+[`eeg_ica_var_tbl()`](https://bruno.nicenboim.me/eeguana/reference/eeg_ica_var_tbl.md),
+[`plot_components()`](https://bruno.nicenboim.me/eeguana/reference/plot_components.md)
+
+Other preprocessing functions:
+[`eeg_baseline()`](https://bruno.nicenboim.me/eeguana/reference/eeg_baseline.md),
+[`eeg_downsample()`](https://bruno.nicenboim.me/eeguana/reference/eeg_downsample.md),
+[`eeg_ica_keep()`](https://bruno.nicenboim.me/eeguana/reference/eeg_ica_keep.md),
+[`eeg_rereference()`](https://bruno.nicenboim.me/eeguana/reference/eeg_rereference.md),
+[`eeg_segment()`](https://bruno.nicenboim.me/eeguana/reference/eeg_segment.md),
+[`filt`](https://bruno.nicenboim.me/eeguana/reference/filt.md)
+
+## Examples
+
+``` r
+# For demonstration only, since ICA won't converge
+# Suppressing an important warning:
+suppressWarnings(data_faces_10_trials %>%
+  eeg_ica(-EOGH, -EOGV, -M1, -M2, .method = fast_ICA, .config = list(maxit = 10)))
+#> # ICA is being done using fast_ICA...
+#> # ICA finished in 9 iterations. With a tolerance of 0.913101. (Maximum expected tolerance: 1e-06.)
+#> # ICA took 1.21 secs
+#> # EEG data:
+#> 
+#> # Signal table:
+#>          .id      .sample           Fp1           Fpz           Fp2
+#>        <int> <sample_int> <channel_dbl> <channel_dbl> <channel_dbl>
+#>     1:     1        15000     -75.03562     -28.57522    -28.165712
+#>     2:     1        15001     -65.61619     -33.53533    -24.389921
+#>     3:     1        15002     -53.28476     -33.01109    -16.815264
+#>     4:     1        15003     -49.85156     -31.56947    -12.792553
+#>     5:     1        15004     -51.95777     -30.04367    -11.117691
+#>    ---                                                             
+#> 43325:     1        58324     -20.42674     -14.87641    -10.669024
+#> 43326:     1        58325     -19.79967     -13.65431     -9.698612
+#> 43327:     1        58326     -18.61094     -13.91012    -10.128812
+#> 43328:     1        58327     -16.96312     -14.78610    -11.301287
+#> 43329:     1        58328     -15.31518     -15.08285    -11.722956
+#>                   F7            F3            Fz            F4            F8
+#>        <channel_dbl> <channel_dbl> <channel_dbl> <channel_dbl> <channel_dbl>
+#>     1:   -35.1809807    -29.561008    -11.504043     -4.137532      9.616964
+#>     2:   -24.2422733    -26.622681    -13.667097     -6.835285     11.225069
+#>     3:   -11.4339190    -19.439884    -13.724218     -7.711213     10.861008
+#>     4:    -6.6371970    -16.500380    -13.453588     -7.477996      9.886633
+#>     5:    -7.1528592    -15.707507    -12.726236     -6.223224     10.369526
+#>    ---                                                                      
+#> 43325:    -0.5581126    -10.197008     -8.468801     -5.040645     -9.132243
+#> 43326:    -0.6716754     -8.732699     -7.252934     -3.377731     -8.813243
+#> 43327:    -0.7749598     -8.517799     -6.654031     -2.315117     -7.843120
+#> 43328:    -0.7414806     -9.084275     -6.622538     -1.845731     -6.556810
+#> 43329:    -0.3960888     -9.219618     -6.436240     -1.520404     -5.406781
+#>                  FC5           FC1           FC2           FC6            M1
+#>        <channel_dbl> <channel_dbl> <channel_dbl> <channel_dbl> <channel_dbl>
+#>     1:    -13.626797   -16.7902756     -4.733483   20.05954933    -1.8668146
+#>     2:     -9.239326   -15.9672518     -8.509321    4.00367641    -3.2960243
+#>     3:    -10.491687   -11.6829367    -10.936778   -5.81625843    -3.7450671
+#>     4:    -13.772001    -9.7923832    -11.740524   -5.40025806    -3.7946916
+#>     5:    -11.491154    -9.8350058    -10.939524   -0.02480793    -3.2719884
+#>    ---                                                                      
+#> 43325:     -7.535339    -2.3418787     -3.478385   -9.38459492     0.8050708
+#> 43326:     -9.061241    -1.0433049     -1.930508   -7.47599792     0.9832335
+#> 43327:     -7.603340    -0.6127751     -1.379790   -5.71040392     1.2051768
+#> 43328:     -2.782797    -1.4022492     -1.640656   -4.64086485     1.4103985
+#> 43329:      2.897767    -2.5480108     -1.864611   -4.35131598     1.1627738
+#>                   T7            C3            Cz            C4            T8
+#>        <channel_dbl> <channel_dbl> <channel_dbl> <channel_dbl> <channel_dbl>
+#>     1: -24.323915482   -16.1792583    -17.846788     7.3229218    -16.999569
+#>     2: -15.526218414   -14.2676773    -16.833292     2.9823387      1.561563
+#>     3:  -9.126789093    -6.4200578    -14.397903     0.2715862     16.691229
+#>     4: -12.452255249    -1.2270993    -14.878461     0.3950298     16.609812
+#>     5: -17.832372665    -1.3789420    -16.662720     1.3136983      9.947195
+#>    ---                                                                      
+#> 43325:   0.003161311    -0.1895013     -4.354355    -8.3621836     -5.082950
+#> 43326:   0.534484148     1.4632750     -2.513818    -6.4180498     -5.036983
+#> 43327:   0.933975220     1.7615180     -1.322806    -5.1856117     -1.183164
+#> 43328:   1.373799086    -0.1813622     -1.508159    -5.1739321      3.655909
+#> 43329:   1.512201071    -3.2800312     -2.576048    -5.2422166      5.829760
+#>                   M2           CP5           CP1           CP2           CP6
+#>        <channel_dbl> <channel_dbl> <channel_dbl> <channel_dbl> <channel_dbl>
+#>     1:     1.8668146    -5.6213522   -19.5446644    -10.161226      9.255368
+#>     2:     3.2960243    -5.7683177   -18.2775211     -9.952282     12.423758
+#>     3:     3.7450671    -1.5748284   -14.0693884     -7.703567     16.022276
+#>     4:     3.7946916     3.9857802   -12.2347841     -7.086234     18.729359
+#>     5:     3.2719884     6.8450770   -13.1421146     -8.301058     16.974117
+#>    ---                                                                      
+#> 43325:    -0.8050708     3.3321576     0.7318851     -8.517914    -14.386089
+#> 43326:    -0.9832335     3.6177154     2.1529536     -6.548975    -11.468288
+#> 43327:    -1.2051768     3.1916180     2.6771717     -5.318815     -8.818744
+#> 43328:    -1.4103985     1.9870222     1.8302985     -5.515146     -7.753020
+#> 43329:    -1.1627738     0.5995106     0.1455368     -6.459312     -7.319424
+#>                   P7            P3            Pz            P4            P8
+#>        <channel_dbl> <channel_dbl> <channel_dbl> <channel_dbl> <channel_dbl>
+#>     1:    -2.1418185    -7.6355362    -12.714437     -5.254761   -10.3836517
+#>     2:    -1.8970445    -8.8778076    -12.883518     -4.029041    -4.5240870
+#>     3:     0.5571944    -6.6042719    -11.049878     -1.706636     0.7570043
+#>     4:     3.3928101    -3.9107032    -10.942114     -1.011510     1.3604219
+#>     5:     4.5437369    -3.4414954    -12.527228     -2.947548    -2.2667072
+#>    ---                                                                      
+#> 43325:     7.0251837     0.5382314     -4.589949    -10.580815   -11.0312319
+#> 43326:     6.4313159     0.9306827     -3.111303     -8.619126    -9.3256149
+#> 43327:     4.4492149     0.3993354     -2.119561     -6.606555    -6.3650703
+#> 43328:     2.3532932    -1.1857104     -2.376006     -5.663703    -4.0656471
+#> 43329:     1.0884135    -3.2549555     -3.662545     -5.691663    -3.3207316
+#>                  POz            O1            Oz            O2          EOGV
+#>        <channel_dbl> <channel_dbl> <channel_dbl> <channel_dbl> <channel_dbl>
+#>     1:    -14.801150   -13.6920586    -16.631485   -15.5945311    -205.85693
+#>     2:    -13.380352   -10.6821909    -12.549113   -11.1155939    -214.15259
+#>     3:    -10.860615    -7.1099706     -8.650514    -7.0801344    -220.57965
+#>     4:    -10.532288    -5.4831371     -8.433714    -7.1516109    -218.24934
+#>     5:    -12.728923    -7.6384282    -12.844979   -11.7087927    -217.16670
+#>    ---                                                                      
+#> 43325:     -5.136292     1.4443915     -5.164615    -8.2288170      18.41424
+#> 43326:     -3.689569     1.4091530     -3.915735    -6.4314718      19.22052
+#> 43327:     -2.319134     0.5369543     -2.351812    -3.4845843      19.74028
+#> 43328:     -1.927569    -0.5624531     -1.339175    -1.1418194      19.20309
+#> 43329:     -2.687999    -1.2014523     -1.284558    -0.7185705      18.72752
+#>                 EOGH
+#>        <channel_dbl>
+#>     1:    164.320831
+#>     2:    158.389755
+#>     3:    157.559784
+#>     4:    162.165161
+#>     5:    168.559723
+#>    ---              
+#> 43325:      6.434383
+#> 43326:      7.837689
+#> 43327:      8.659687
+#> 43328:      8.609533
+#> 43329:      8.829977
+#> 
+#> ## Events table:
+#>        .id        .type .description     .initial       .final .channel
+#>      <int>       <char>       <char> <sample_int> <sample_int>   <char>
+#>   1:     1 Bad Interval  Bad Min-Max        15000        15128      FC6
+#>   2:     1 Bad Interval  Bad Min-Max        15000        15146       F8
+#>   3:     1 Bad Interval  Bad Min-Max        15000        15142      Fp1
+#>   4:     1 Bad Interval  Bad Min-Max        15000        15132      Fp2
+#>   5:     1 Bad Interval  Bad Min-Max        15000        15140      Fpz
+#>  ---                                                                   
+#> 540:     1 Bad Interval  Bad Min-Max        55058        55400      Fpz
+#> 541:     1 Bad Interval  Bad Min-Max        55077        55314       F8
+#> 542:     1     Stimulus         s130        56380        56380     <NA>
+#> 543:     1     Stimulus          s70        56750        56750     <NA>
+#> 544:     1     Stimulus         s130        58328        58328     <NA>
+#> 
+#> # ICA:
+#> # Component_names:ICA1, ICA2, ICA3, ICA4, ICA5, ICA6, ICA7, ICA8, ICA9, ICA10, ICA11, ICA12, ICA13, ICA14, ICA15, ICA16, ICA17, ICA18, ICA19, ICA20, ICA21, ICA22, ICA23, ICA24, ICA25, ICA26, ICA27, ICA28, ICA29, ICA30
+#> # Channels_used: Fp1, Fpz, Fp2, F7, F3, Fz, F4, F8, FC5, FC1, FC2, FC6, T7, C3, Cz, C4, T8, CP5, CP1, CP2, CP6, P7, P3, Pz, P4, P8, POz, O1, Oz, O2
+#> 
+#> # Segments table:
+#>      .id .recording segment
+#>    <int>     <char>   <int>
+#> 1:     1 faces.vhdr       1
+
+## The example can only bu run, if python is properly configured (see reticulate package help)
+## Here a python ICA function is used:
+if (FALSE) { # \dontrun{
+library(reticulate)
+use_condaenv("anaconda3") # use the appropriate environment
+sk <- import("sklearn.decomposition")
+py_fica <- function(x) {
+  x <- as.matrix(x)
+  ica <- sk$FastICA(whiten = TRUE, random_state = 23L)
+  X <- scale(x, scale = FALSE) %>%
+    as.matrix(x)
+  S <- ica$fit_transform(X)
+  W <- t(ica$components_)
+  list(W = W)
+}
+data_ica_py <- eeg_ica(data_faces_10_trials, -EOGH, -EOGV, -M1, -M2, .method = py_fica)
+} # }
+```

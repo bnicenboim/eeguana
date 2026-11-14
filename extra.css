@@ -1,0 +1,16 @@
+/* Wider content than pkgdown's 50rem, leaving room for the table of contents
+   next to it, and slightly smaller code (pkgdown's is 15.75px), so that
+   printed tables of about 100 characters fit without scrolling */
+.row > main {
+  max-width: 56rem;
+}
+main pre,
+main pre code {
+  font-size: 0.9rem;
+}
+
+/* All the levels of the table of contents are shown, not only the ones of the
+   section being read (pkgdown hides them with !important) */
+#toc > .nav .nav {
+  display: flex !important;
+}
