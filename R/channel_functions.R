@@ -172,7 +172,7 @@ chs_fun.eeg_lst <- function(x, .funs, .pars = list(), ...) {
 #'
 #' @param ... Channels to include. All channels by default.
 #' @param x An `eeg_lst` object or a channel.
-#' @param .lim A negative number indicating from when to baseline; the interval is defined as \[lim,0\]. The default is to use all the negative times.
+#' @param .lim The start of the baseline interval, or a vector with its start and end. The interval includes its start but not its end. A single value, such as the default `-Inf`, is the start of an interval that ends at time zero, whatever the `.unit`, so the default uses all the samples before time zero.
 #' @inheritParams eeg_artif
 #' 
 #' @family preprocessing functions
@@ -185,18 +185,27 @@ eeg_baseline <- function(x, ..., .lim = -Inf, .unit = "s") {
 }
 #' @export
 eeg_baseline.eeg_lst <- function(x, ..., .lim = -Inf, .unit = "s") {
+  if (!is.numeric(.lim) || !length(.lim) %in% c(1, 2) || anyNA(.lim)) {
+    stop("'.lim' should be one or two numbers.", call. = FALSE)
+  }
+  sample_lim <- as_sample_int(.lim, .sampling_rate = sampling_rate(x), .unit)
+  # with only a start, the baseline ends at time zero, which is sample 1 in any .unit
+  if (length(.lim) == 1) sample_lim <- c(sample_lim[[1]], 1)
+  if (sample_lim[[1]] >= sample_lim[[2]]) {
+    stop("The baseline interval ('.lim') has no samples: its start should be earlier than its end.", call. = FALSE)
+  }
   ch_sel <- sel_ch(x, ...)
-  sample_id <- as_sample_int(.lim, .sampling_rate = sampling_rate(x), .unit)
 
   x$.signal <- data.table::copy(x$.signal)
-  x$.signal <- x$.signal[, (ch_sel) := lapply(.SD, fun_baseline, .sample, sample_id),
+  x$.signal <- x$.signal[, (ch_sel) := lapply(.SD, fun_baseline, .sample, sample_lim[[1]], sample_lim[[2]]),
     .SDcols = (ch_sel),
     by = .id
   ]
   x
 }
 
+# the baseline interval includes its start (lower) but not its end (upper)
 #' @noRd
-fun_baseline <- function(x, .sample, lower) {
-  x - mean(x[between(.sample, lower, 0)], na.rm = TRUE)
+fun_baseline <- function(x, .sample, lower, upper) {
+  x - mean(x[.sample >= lower & .sample < upper], na.rm = TRUE)
 }

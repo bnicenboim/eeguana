@@ -19,7 +19,7 @@
 eeg_bind <- function(...) {
   eeg_lsts <- list(...)
   # hack to allow that "..." would already be a list
-  if (class(eeg_lsts[[1]]) != "eeg_lst") {
+  if (!inherits(eeg_lsts[[1]], "eeg_lst")) {
     eeg_lsts <- list(...)[[1]]
   }
 

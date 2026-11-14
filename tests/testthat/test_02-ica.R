@@ -244,3 +244,83 @@ test_that("other functions work correctly in the eeg_ica_lst", {
   expect_equal(class(as_eeg_lst(data_fast_ICA)), "eeg_lst")
 })
 
+
+## eeg_ica_var_tbl() computes the variance explained from the covariance
+## matrix of the channels. These tests check it against its definition, and
+## check two properties that do not depend on how it is computed. The fit on
+## data_blinks_more has two recordings, each with its own ICA.
+data_fast_ICA_more <- eeg_ica(data_blinks_more,
+  .method = fast_ICA,
+  .config = list(w.init = m)
+)
+
+test_that("eeg_ica_var_tbl() matches keeping each component with eeg_ica_keep()", {
+  ## the definition: keep one component, subtract the reconstruction from
+  ## the channels, and compare the variance of what is left with the
+  ## variance of the channels, where the variance of several channels is the
+  ## mean of their variances (as in EEGLAB's eeg_pvaf())
+  chs <- channel_ica_names(data_fast_ICA_more)
+  recs <- names(data_fast_ICA_more$.ica)
+  expected <- do.call(rbind, lapply(recs, function(rec) {
+    one <- eeg_filter(data_fast_ICA_more, .recording == !!rec)
+    X <- as.matrix(one$.signal[, chs, with = FALSE])
+    do.call(rbind, lapply(component_names(one), function(comp) {
+      kept <- eeg_ica_keep(one, tidyselect::all_of(comp))
+      R <- X - as.matrix(kept$.signal[, chs, with = FALSE])
+      data.frame(
+        .recording = rec, .ICA = comp,
+        var = 1 - mean(apply(R, 2, stats::var)) / mean(apply(X, 2, stats::var))
+      )
+    }))
+  }))
+  obtained <- as.data.frame(eeg_ica_var_tbl(data_fast_ICA_more))
+  expected <- expected[order(expected$.recording, -expected$var), ]
+  rownames(expected) <- NULL
+  expect_equal(obtained, expected, tolerance = 1e-10)
+  ## each recording has its own values
+  expect_false(isTRUE(all.equal(
+    obtained$var[obtained$.recording == "recording1"],
+    obtained$var[obtained$.recording == "recording2"]
+  )))
+})
+
+test_that("eeg_ica_var_tbl() stays accurate with rank-deficient channels", {
+  ## the channels of data_faces_10_trials, without EOG and mastoids, are
+  ## almost collinear; the unmixing weights are then large, and computing the
+  ## variances from the covariance of the channels lost digits
+  set.seed(1)
+  ica <- suppressWarnings(eeg_ica(data_faces_10_trials, -EOGH, -EOGV, -M1, -M2,
+    .method = fast_ICA, .config = list(maxit = 10)
+  ))
+  chs <- channel_ica_names(ica)
+  X <- as.matrix(ica$.signal[, chs, with = FALSE])
+  expect_gt(kappa(stats::var(X)), 1e12)
+  expected <- vapply(component_names(ica), function(comp) {
+    kept <- eeg_ica_keep(ica, tidyselect::all_of(comp))
+    R <- X - as.matrix(kept$.signal[, chs, with = FALSE])
+    1 - mean(apply(R, 2, stats::var)) / mean(apply(X, 2, stats::var))
+  }, numeric(1))
+  obtained <- eeg_ica_var_tbl(ica)
+  expect_equal(obtained$var, unname(expected[obtained$.ICA]), tolerance = 1e-9)
+})
+
+test_that("the variance explained by uncorrelated components sums to one", {
+  ## fastICA whitens the data, so the components are uncorrelated in the
+  ## data the ICA was fitted on, and the variance they explain adds up
+  sums <- tapply(
+    eeg_ica_var_tbl(data_fast_ICA_more)$var,
+    eeg_ica_var_tbl(data_fast_ICA_more)$.recording, sum
+  )
+  expect_equal(as.vector(sums), c(1, 1), tolerance = 1e-10)
+})
+
+test_that("an offset in a channel does not change the variance explained", {
+  shifted <- data_fast_ICA_more
+  shifted$.signal <- data.table::copy(shifted$.signal)
+  shifted$.signal[, Fz := Fz + 100]
+  expect_equal(
+    eeg_ica_var_tbl(shifted),
+    eeg_ica_var_tbl(data_fast_ICA_more),
+    tolerance = 1e-10
+  )
+})

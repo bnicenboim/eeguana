@@ -45,6 +45,7 @@ eeg_artif_peak(
   .data,
   ...,
   .threshold = 30,
+  .direction = "any",
   .window = 0.2,
   .lim = c(-.window, .window),
   .unit = "s",
@@ -59,7 +60,7 @@ eeg_artif_peak(
 
 \item{.threshold}{Voltage threshold that indicates an artifact}
 
-\item{.direction}{Whether to look "above" or "below" the threshold.}
+\item{.direction}{For \code{eeg_artif_minmax()}, whether to look "above" (default) or "below" the threshold. For \code{eeg_artif_peak()}, whether the peaks are positive ("above"), negative ("below"), or either of them ("any", default).}
 
 \item{.window}{Sliding window length for the artifact detection (same unit as \code{lim}). This is the full width of the step function: this means that we are looking for a period of one voltage for half of the window  immediately followed by a period of a different voltage (indicated by the threshold) for half of the window.}
 
@@ -78,7 +79,7 @@ An \code{eeg_lst}.
 These functions search for artifacts on the signal table based on a threshold and a sliding window (when relevant), and annotate an event in the events table that spans from \code{-lim} to \code{+lim}. The signal table remains unchanged until \code{\link[=eeg_events_to_NA]{eeg_events_to_NA()}}.
 }
 \details{
-\code{eeg_artif_peak()} is wrapper around \link[pracma:findpeaks]{pracma::findpeaks},  \code{.threshold} is the minimum (absolute) height a peak has to have to be recognized as such and \code{.window} is the minimum distance  peaks have to have to be counted.
+\code{eeg_artif_peak()} is a wrapper around \code{\link[pracma:findpeaks]{pracma::findpeaks()}}: \code{.threshold} is the minimum absolute height that a peak needs to be counted, and \code{.window} is the minimum distance between two peaks. \code{.direction} sets whether to look for positive peaks ("above"), negative peaks ("below"), or both ("any"). The signal should stay around zero: if a drift or an offset keeps it beyond the threshold, use \code{.freq} or \code{eeg_artif_minmax()}.
 
 \code{eeg_artif_minmax()} is also refered as a peak-to-peak artifact detector.  It is less sensitive to drifts than \code{eeg_artif_peak()}.
 

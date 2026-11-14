@@ -241,12 +241,19 @@ eeg_ica_cor_tbl.eeg_ica_lst <- function(.data, ...) {
 }
 #' Show the variance explained for each ICA sources.
 #'
-#' This function shows the variance explained by each ICA component following the approach of the matlab function ....
+#' This function shows the proportion of the variance of the channels that each
+#' ICA component explains, as the function `eeg_pvaf()` of EEGLAB does: one minus
+#' the variance left in the channels after removing everything but that
+#' component, divided by the variance of the channels, where the variance of
+#' several channels is the mean of their variances.
 #'
-#' If the dataset is large, this function can take very long to run. Setting a maximum number of samples (`max_sample`) will speed up the calculations by downsampling the data.
+#' If the components are uncorrelated, as the ones found with fastICA in the
+#' data they were fitted to, the proportions of each recording add up to one.
 #'
 #' @param .data An `eeg_ica_lst` object
-#' @param .max_sample The maximum number of samples to use for calculating the variance explained.
+#' @param .max_sample The maximum number of samples to use for calculating the
+#'   variance explained. `NULL`, the default, uses all of them; a number
+#'   downsamples the data to about that many samples first.
 #' @param ... Not in use.
 #' @family ICA functions
 #' @family summary functions
@@ -254,41 +261,45 @@ eeg_ica_cor_tbl.eeg_ica_lst <- function(.data, ...) {
 #' @return A table with the variance explained by each component in each recording.
 #
 #' @export
-eeg_ica_var_tbl <- function(.data, ..., .max_sample = 100000) {
+eeg_ica_var_tbl <- function(.data, ..., .max_sample = NULL) {
   UseMethod("eeg_ica_var_tbl")
 }
 
 #' @export
-eeg_ica_var_tbl.eeg_ica_lst <- function(.data, ..., .max_sample = 100000) {
+eeg_ica_var_tbl.eeg_ica_lst <- function(.data, ..., .max_sample = NULL) {
   # to avoid no visible global function definition
   var <- NULL
-  cor <- NULL
 
   .data <- try_to_downsample(.data, max_sample = .max_sample)
-  m_v <- eeg_group_by(.data, .recording) %>%
-    extended_signal() %>%
-    split(by = ".recording", keep.by = FALSE) %>%
-    lapply(function(dt) mean(stats::var(dt[, channel_ica_names(.data), with = FALSE])))
+  signal <- extended_signal(.data, ".recording") %>%
+    split(by = ".recording", keep.by = FALSE)
 
-  comp_names <- c(component_names(.data))
-  names(comp_names) <- comp_names
-  vars <- map_dtr(comp_names, function(ica) {
-    .data %>%
-      eeg_ica_keep(tidyselect::all_of(ica)) %>%
-      extended_signal(".recording") %>%
-      .[, c(
-        list(.recording = .recording),
-        imap(.SD, ~ .x - signal_tbl(.data)[[.y]])
-      ),
-      .SDcols = channel_ica_names(.data)
-      ] %>%
-      split(by = ".recording", keep.by = FALSE) %>%
-      map2_dtr(m_v, ~ data.table::data.table(var = 1 - mean(stats::var(.x)) / .y), .id = ".recording")
-  },
-  .id = ".ICA"
-  )
-
-  data.table::setcolorder(vars, c(".recording", ".ICA", "var"))
+  ## Keeping only component k leaves the residual X_c - s_k a_kc in each
+  ## channel c, where s_k = X w_k are the centered activations, w_k is column k
+  ## of the unmixing matrix, and a_kc is an entry of the mixing matrix. Its
+  ## variance is var(X_c) - 2 a_kc cov(X_c, s_k) + a_kc^2 var(s_k), so every
+  ## component is computed from the activations, without reconstructing the
+  ## signal once per component. The covariances are computed from the
+  ## activations rather than as w_k' Sigma w_k: with rank-deficient channels,
+  ## such as average-referenced ones, the unmixing weights are large and
+  ## the product loses digits.
+  vars <- map_dtr(names(.data$.ica), function(rec) {
+    ica <- .data$.ica[[rec]]
+    chs <- rownames(ica$unmixing_matrix)
+    X <- scale(as.matrix(signal[[rec]][, chs, with = FALSE]), scale = FALSE)
+    S <- X %*% ica$unmixing_matrix
+    n1 <- nrow(X) - 1
+    B <- crossprod(X, S) / n1
+    s <- colSums(S^2) / n1
+    A <- ica$mixing_matrix[, chs, drop = FALSE]
+    m_var <- mean(colSums(X^2) / n1)
+    m_res <- m_var - 2 * rowMeans(A * t(B)) + s * rowMeans(A^2)
+    data.table::data.table(
+      .recording = rec,
+      .ICA = colnames(ica$unmixing_matrix),
+      var = 1 - m_res / m_var
+    )
+  })
   vars[order(.recording, -var)]
 }
 
@@ -311,7 +322,7 @@ eeg_ica_summary_tbl <- function(.data, ...) {
 }
 
 #' @export
-eeg_ica_summary_tbl.eeg_ica_lst <- function(.data, ..., .max_sample = 100000) {
+eeg_ica_summary_tbl.eeg_ica_lst <- function(.data, ..., .max_sample = NULL) {
   # to avoid no visible global function definition
   var <- NULL
   cor <- NULL
@@ -351,15 +362,77 @@ print.eeg_summary <- function(x, ...) {
   invisible(x)
 }
 
+#' Prints the table (`.signal` or `.psd`) of `x` with its first `max`
+#' channels, and a line with the names of the others. eeg_select() does not
+#' copy the columns, so this is cheap also for long recordings.
+#' @noRd
+print_channels <- function(x, table, max, ...) {
+  if (!is.numeric(max) || length(max) != 1 || is.na(max) || max < 0) {
+    stop("`.max_channels` should be a number, 0 or more.", call. = FALSE)
+  }
+  channels <- channel_names(x)
+  if (length(channels) <= max) {
+    print(x[[table]], ...)
+    return(invisible())
+  }
+  hidden <- channels[seq_along(channels) > max]
+  shown <- if (max == 0) {
+    ## only the other columns, such as .id and .sample; eeg_select() would
+    ## warn about an eeg_lst without channels
+    x[[table]][, setdiff(names(x[[table]]), channels), with = FALSE]
+  } else {
+    eeg_select(x, -tidyselect::all_of(hidden))[[table]]
+  }
+  print(shown, ...)
+  cat_line(
+    "# ... and ", length(hidden), " more channel", if (length(hidden) > 1) "s", ": ",
+    paste(hidden, collapse = ", ")
+  )
+  cat_line("# Use print(.max_channels = ...) or options(eeguana.print_max_channels = ...) to see more.")
+  invisible()
+}
+
+#' Print an eeg_lst
+#'
+#' Prints the signal, events, and segments tables of an `eeg_lst`, a
+#' `psd_lst`, or an `eeg_ica_lst`. Recordings with many channels make the
+#' signal table very wide; `.max_channels` shows only the first ones, and a
+#' line lists the others.
+#'
+#' @param x An `eeg_lst`, `psd_lst`, or `eeg_ica_lst`.
+#' @param ... Passed to the `print()` method of data.table, for example
+#'   `topn`.
+#' @param .max_channels Maximum number of channels shown in the signal (or
+#'   PSD) table. By default, the value of the option
+#'   `eeguana.print_max_channels`, see below.
+#' @section Option `eeguana.print_max_channels`:
+#' The option sets how many channels are shown whenever an `eeg_lst`,
+#' `psd_lst`, or `eeg_ica_lst` is printed, also when its name is typed in the
+#' console. It is `Inf`, all the channels, unless it is changed:
+#'
+#' ```
+#' options(eeguana.print_max_channels = 8)
+#' ```
+#'
+#' For the whole session, it can be set in `.Rprofile`. `.max_channels`
+#' overrides it in one call. See [eeguana] for the other options.
+#' @return `x`, invisibly.
+#' @examples
+#' print(data_faces_ERPs, .max_channels = 4)
+#'
+#' ## the same for every print, until it is changed back
+#' op <- options(eeguana.print_max_channels = 4)
+#' data_faces_ERPs
+#' options(op)
 #' @export
-print.eeg_lst <- function(x, ...) {
+print.eeg_lst <- function(x, ..., .max_channels = getOption("eeguana.print_max_channels", Inf)) {
   cat_line("# EEG data:")
   if (length(eeg_group_vars(x)) > 0) {
     cat_line("# Grouped by: ", paste0(eeg_group_vars(x), sep = ", "))
   }
   cat_line("")
   cat_line("# Signal table:")
-  print(x$.signal, ...)
+  print_channels(x, ".signal", .max_channels, ...)
 
   cat_line("")
   cat_line("# Events table:")
@@ -376,30 +449,32 @@ print.eeg_lst <- function(x, ...) {
 }
 
 
+#' @rdname print.eeg_lst
 #' @export
-print.psd_lst <- function(x, ...) {
+print.psd_lst <- function(x, ..., .max_channels = getOption("eeguana.print_max_channels", Inf)) {
   cat_line("# PSD data:")
   if (length(eeg_group_vars(x)) > 0) {
     cat_line("# Grouped by: ", paste0(eeg_group_vars(x), sep = ", "))
   }
   cat_line("")
   cat_line("# PSD table:")
-  print(x$.psd, ...)
+  print_channels(x, ".psd", .max_channels, ...)
   cat_line("")
   cat_line("# Segments table:")
   print(x$.segments, ...)
   invisible(x)
 }
 
+#' @rdname print.eeg_lst
 #' @export
-print.eeg_ica_lst <- function(x, ...) {
+print.eeg_ica_lst <- function(x, ..., .max_channels = getOption("eeguana.print_max_channels", Inf)) {
   cat_line("# EEG data:")
   if (length(eeg_group_vars(x)) > 0) {
     cat_line("# Grouped by: ", paste0(eeg_group_vars(x), sep = ", "))
   }
   cat_line("")
   cat_line("# Signal table:")
-  print(x$.signal, ...)
+  print_channels(x, ".signal", .max_channels, ...)
 
   cat_line("")
   cat_line("## Events table:")

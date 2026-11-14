@@ -369,6 +369,7 @@ group_by.eeg_lst <- eeg_group_by.eeg_lst
 # so a method whose first argument is called .data leaves it empty when the
 # caller writes ungroup(x = d). Name it x here and accept .data too.
 # registered in zzz.R, so that dplyr can stay in Suggests
+#' @exportS3Method NULL
 ungroup.eeg_lst <- function(x, ...) {
   eeg_ungroup(first_arg_either(x, ..., .other = ".data"))
 }

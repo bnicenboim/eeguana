@@ -63,3 +63,25 @@ test_that("drop_incomplete_segments() ignores NAs outside the channels", {
   with_na$.segments[1, condition := NA]
   expect_equal(ids_in(drop_incomplete_segments(with_na)), ids_in(intact))
 })
+
+test_that("print() shows at most .max_channels channels, and says how to see more", {
+  expect_snapshot(print(data_faces_ERPs, .max_channels = 3, topn = 2))
+  ## also none of them
+  expect_snapshot(print(data_faces_ERPs, .max_channels = 0, topn = 2))
+})
+
+test_that("the option eeguana.print_max_channels sets how many channels are printed", {
+  withr::local_options(eeguana.print_max_channels = 3)
+  expect_identical(
+    capture.output(print(data_faces_ERPs)),
+    capture.output(print(data_faces_ERPs, .max_channels = 3))
+  )
+})
+
+test_that("print() returns the eeg_lst unchanged and invisibly, and checks .max_channels", {
+  expect_output(printed <- withVisible(print(data_faces_ERPs, .max_channels = 2)))
+  expect_false(printed$visible)
+  expect_identical(printed$value, data_faces_ERPs)
+  expect_error(print(data_faces_ERPs, .max_channels = -1), "0 or more")
+})
+

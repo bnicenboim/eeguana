@@ -5,6 +5,7 @@ authors:
 url: https://bruno.nicenboim.me/eeguana
 
 template:
+  bootstrap: 5
   includes:
     in_header: 
     - <script>if(!sessionStorage.getItem("_swa")&&document.referrer.indexOf(location.protocol+"//"+location.host)!== 0){fetch("https://counter.dev/track?"+new URLSearchParams({referrer:document.referrer,screen:screen.width+"x"+screen.height,user:"bnicenboim",utcoffset:"1"}))};sessionStorage.setItem("_swa","1");</script>
@@ -24,6 +25,7 @@ navbar:
   components:
     home:
       icon: fa-home fa-lg
+      aria-label: Home
       href: index.html
     reference:
       text: Reference
@@ -35,6 +37,8 @@ navbar:
         href: articles/intro.html
       - text: "Another example from a Fieldtrip tutorial: Preprocessing of EEG data and computing ERPs"
         href: articles/preprocessing_erp.html
+      - text: Artifact detection and rejection
+        href: articles/artifacts.html
       - text: Pitfalls and gotchas
         href: articles/gotchas.html
     news:
@@ -45,6 +49,7 @@ navbar:
       href: https://github.com/bnicenboim/eeguana/discussions
     github:
       icon: fa-github fa-lg
+      aria-label: GitHub
       href: https://github.com/bnicenboim/eeguana
 
 deploy:
@@ -91,6 +96,7 @@ reference:
     - starts_with("plot")
     - starts_with("annotate")
     - starts_with("theme")
+    - '`eeg_browse`'
   - title: "'base'-inspired functions"
     desc: >
       Functions for getting specific information about the objects that compose an `eeg_lst`.
@@ -100,6 +106,7 @@ reference:
     - starts_with("is_")
     - starts_with("n")
     - '`ica_matrix_lst`'
+    - '`print.eeg_lst`'
   - title: "Editing functions"
     desc: >
       Functions for showing (and sometimes editing) `eeg_lst` objects parts.

@@ -2,7 +2,7 @@
 #'
 #' These functions search for artifacts on the signal table based on a threshold and a sliding window (when relevant), and annotate an event in the events table that spans from `-lim` to `+lim`. The signal table remains unchanged until [eeg_events_to_NA()].
 #'
-#' `eeg_artif_peak()` is wrapper around [pracma::findpeaks],  `.threshold` is the minimum (absolute) height a peak has to have to be recognized as such and `.window` is the minimum distance  peaks have to have to be counted.
+#' `eeg_artif_peak()` is a wrapper around [pracma::findpeaks()]: `.threshold` is the minimum absolute height that a peak needs to be counted, and `.window` is the minimum distance between two peaks. `.direction` sets whether to look for positive peaks ("above"), negative peaks ("below"), or both ("any"). The signal should stay around zero: if a drift or an offset keeps it beyond the threshold, use `.freq` or `eeg_artif_minmax()`.
 #'
 #' `eeg_artif_minmax()` is also refered as a peak-to-peak artifact detector.  It is less sensitive to drifts than `eeg_artif_peak()`.
 #'
@@ -13,7 +13,7 @@
 #' @param .data An `eeg_lst` object.
 #' @param ... Channels to include. All the channels by default, but eye channels should be removed.
 #' @param .threshold Voltage threshold that indicates an artifact
-#' @param .direction Whether to look "above" or "below" the threshold.
+#' @param .direction For `eeg_artif_minmax()`, whether to look "above" (default) or "below" the threshold. For `eeg_artif_peak()`, whether the peaks are positive ("above"), negative ("below"), or either of them ("any", default).
 #' @param .window Sliding window length for the artifact detection (same unit as `lim`). This is the full width of the step function: this means that we are looking for a period of one voltage for half of the window  immediately followed by a period of a different voltage (indicated by the threshold) for half of the window.
 #' @param .lim Vector with two values indicating the time before and after the artifact that will be included in events_tbl (by default the size the window before and afterwards).
 #' @param .freq Vector with two values indicates whether to prefilter the signal prior to the artifact detection. (The filtering is not saved in the signal). For a low pass filter the first value should be `NA`, for a high-pass filter the second value should be `NA`.
@@ -200,6 +200,7 @@ eeg_artif_amplitude.eeg_lst <- function(.data,
 eeg_artif_peak <- function(.data,
                            ...,
                            .threshold = 30,
+                           .direction = "any",
                            .window = .2,
                            .lim = c(-.window, .window),
                            .unit = "s",
@@ -211,6 +212,7 @@ eeg_artif_peak <- function(.data,
 eeg_artif_peak.eeg_lst <- function(.data,
                                    ...,
                                    .threshold = 30,
+                                   .direction = "any",
                                    .window = .2,
                                    .lim = c(-.window, .window),
                                    .unit = "s",
@@ -218,6 +220,12 @@ eeg_artif_peak.eeg_lst <- function(.data,
                                    .config = list()) {
   if (!is.numeric(.window) || .window < 0) {
     stop("`.window` should be a positive number.", call. = FALSE)
+  }
+  if (!is.numeric(.threshold) || length(.threshold) != 1 || is.na(.threshold) || .threshold <= 0) {
+    stop("`.threshold` should be a positive number.", call. = FALSE)
+  }
+  if (length(.direction) != 1 || !.direction %in% c("above", "below", "any")) {
+    stop("`.direction` can only be 'above', 'below', or 'any'.", call. = FALSE)
   }
   .signal <- .data$.signal
   if (!is.null(.freq)) {
@@ -237,6 +245,7 @@ eeg_artif_peak.eeg_lst <- function(.data,
     fun = detect_peak,
     args = list(
       threshold = .threshold,
+      direction = .direction,
       lim_samples = lim_samples(.lim, sampling_rate(.data), .unit),
       window_samples = window_samples(.window, sampling_rate(.data), .unit)
     )

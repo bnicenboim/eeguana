@@ -24,7 +24,8 @@ That is the full path, in order:
    fail rather than skip without `R.matlab`, `plotly`, or `akima`.
 2. `dev_check_updates()` lists dependencies with a newer version available.
    Once per session; reports only.
-3. `dev_install()` installs eeguana from source.
+3. `dev_install()` updates the documentation with `devtools::document()` and
+   installs eeguana from source.
 4. `dev_python()` sets up the `r-eeguana` conda environment with `mne`,
    `pandas`, and `scipy`. `.onLoad()` looks for that environment by name.
 5. `dev_fixtures_ensure()` checks the large test files, and if any are missing

@@ -111,4 +111,35 @@ A possible workaround is the following:
 head(min(signal_tbl(data_faces_10_trials)$Oz)) + 0 * signal_tbl(data_faces_10_trials)$Oz[1]
 ```
 
+## R crashes when plotting after using MNE
+
+Functions that use MNE through {reticulate}, such as `read_fif()`, make Python load matplotlib, and matplotlib brings its own copies of the font libraries HarfBuzz and FreeType into the R session. When Python comes from a conda environment, such as the one `install_py_eeguana()` can create, these copies can be newer than the ones installed in the system. R's cairo graphics devices then use them by mistake, and R crashes the first time it draws text. This affects `png()` on Linux, `ggplot2::ggsave()` to a PNG file when {ragg} is not installed, and the PNG figures of R Markdown documents. The crash looks like this:
+
+```
+ *** caught segfault ***
+address 0x55d9a05b63b0, cause 'invalid permissions'
+
+Traceback:
+ 1: grid.Call(C_stringMetric, as.graphicsAnnot(x$label))
+```
+
+The data and eeguana play no part in it: any R session that imported matplotlib before a cairo device draws text can crash in this way. The graphics devices of the {ragg} package do not crash, and neither does `pdf()`. So after using MNE, draw PNG files with {ragg}:
+
+```{r, eval = FALSE}
+ragg::agg_png("plot.png")
+plot(data_faces_ERPs)
+dev.off()
+
+# ggsave() uses ragg for PNG files whenever ragg is installed
+ggplot2::ggsave("plot.png", plot(data_faces_ERPs))
+```
+
+In R Markdown or Quarto documents, set the device of the figures in the setup chunk:
+
+```{r, eval = FALSE}
+knitr::opts_chunk$set(dev = "ragg_png")
+```
+
+Shiny apps, such as `eeg_browse()`, use {ragg} by themselves when it is installed. Another way out is to use MNE in a separate R session: read the file there, save the result with `saveRDS()`, and plot it in a session that never loaded Python.
+
 

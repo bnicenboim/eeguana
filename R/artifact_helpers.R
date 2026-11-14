@@ -72,17 +72,30 @@ detect_minmax <- function(x, args = list(window_samples = NULL, threshold = NULL
 }
 
 #' @noRd
-detect_peak <- function(x, args = list(window_samples = NULL, threshold = NULL)) {
-  ## TODO better version of findpeaks
-  peaks <- pracma::findpeaks(as.numeric(x),
-    minpeakheight = args$threshold,
-    minpeakdistance = args$window_samples,
-    ## setting threshold for avoiding flat peaks
-    threshold = .0001
-  )[, 2]
-  x <- rep(FALSE, length(x))
-  x[peaks] <- TRUE
-  x
+detect_peak <- function(x, args = list(window_samples = NULL, threshold = NULL, direction = "any")) {
+  x <- as.numeric(x)
+  find_above <- function(x) {
+    if (all(is.na(x))) {
+      return(integer(0))
+    }
+    ## pracma::findpeaks() fails with missing values
+    x[is.na(x)] <- min(x, na.rm = TRUE)
+    pracma::findpeaks(x,
+      minpeakheight = args$threshold,
+      minpeakdistance = args$window_samples,
+      ## setting threshold for avoiding flat peaks
+      threshold = .0001
+    )[, 2]
+  }
+  peaks <- switch(args$direction,
+    above = find_above(x),
+    below = find_above(-x),
+    any = c(find_above(x), find_above(-x)),
+    stop("`.direction` can only be 'above', 'below', or 'any'.", call. = FALSE)
+  )
+  is_peak <- rep(FALSE, length(x))
+  is_peak[peaks] <- TRUE
+  is_peak
 }
 
 #' @noRd

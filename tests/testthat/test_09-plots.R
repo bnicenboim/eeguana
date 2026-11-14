@@ -99,3 +99,31 @@ test_that("plot functions create ggplot2::ggplots", {
   expect_gg(plot(data_faces_ERPs) + annotate_events())
 })
 
+test_that("annotate_events() draws the events without a channel in every channel", {
+  p <- plot(data_1) + annotate_events()
+  events <- p$layers[[length(p$layers)]]$data
+  no_channel <- is.na(events$.channel)
+  n_no_channel <- sum(is.na(events_tbl(data_1)$.channel))
+  expect_false(anyNA(events$.key))
+  expect_equal(c(table(as.character(events$.key[no_channel]))), c(X = n_no_channel, Y = n_no_channel))
+  expect_equal(as.character(events$.key[!no_channel]), events$.channel[!no_channel])
+  expect_no_error(ggplot2::ggplot_build(p))
+})
+
+test_that("plot() draws once, when it is printed, also with layers added", {
+  skip_if_not_installed("knitr")
+  figs <- file.path(normalizePath(tempdir(), winslash = "/"), "plot-once")
+  rmd <- tempfile(fileext = ".Rmd")
+  writeLines(c(
+    ## pdf rather than knitr's default png(): once the Python tests loaded
+    ## matplotlib, R's cairo devices crash (see the gotchas vignette)
+    paste0("```{r, dev = 'pdf', fig.path = '", figs, "/'}"),
+    "plot(eeguana::data_faces_ERPs) + eeguana::annotate_events()",
+    "```"
+  ), rmd)
+  md <- knitr::knit(rmd, output = tempfile(fileext = ".md"), quiet = TRUE, envir = new.env())
+  expect_length(grep("^!\\[", readLines(md)), 1)
+  expect_s3_class(withVisible(plot(data_faces_ERPs))$value, "ggplot")
+  expect_true(withVisible(plot(data_faces_ERPs))$visible)
+})
+
