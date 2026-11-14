@@ -461,102 +461,141 @@ faces_segs_some |>
 
 ## Articles and dissertations using `eeguana`
 
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent"
+line-spacing="2">
+
+<div id="ref-oestergaard2026corpus" class="csl-entry">
+
+Østergaard, S. M., Lichtenberg, L. D., Boon, L., & Nicenboim, B. (2026).
+A corpus of joint EEG and self-paced reading of natural Dutch texts.
+*Proceedings of the Fifteenth Language Resources and Evaluation
+Conference (LREC 2026)*, 11260–11271.
+<https://doi.org/10.63317/49tvxys2q4zc>
+
+</div>
+
+<div id="ref-shalu2026similar" class="csl-entry">
+
+Shalu, S., Muralikrishnan, R., Mathew, A. M., & Choudhary, K. K. (2026).
+Similar but different: ERP evidence on the processing of mental and
+physical experiencer verbs in Malayalam. *Frontiers in Language
+Sciences*, *4*, 1599924. <https://doi.org/10.3389/flang.2025.1599924>
+
+</div>
+
+<div id="ref-stone2026time" class="csl-entry">
+
+Stone, K., Holle, H., & Rabovsky, M. (2026). Time resolves
+syntactic-semantic conflict in temporary semantic illusions: Evidence
+from role reversal sentences. *Cognition*, *275*, 106625.
+<https://doi.org/10.1016/j.cognition.2026.106625>
+
+</div>
+
+<div id="ref-green2025using" class="csl-entry">
+
+Green, D. L. (2025). *Using EEG to measure attentional spreading across
+objects* \[PhD thesis, Mississippi State University\].
+<https://doi.org/10.54718/frwx9918>
+
+</div>
+
+<div id="ref-shalu2025similar" class="csl-entry">
+
+Shalu, S., Muralikrishnan, R., & Choudhary, K. K. (2025). Similar does
+not mean the same: ERP correlates of mental and physical experiencer
+verb processing in Malayalam complex constructions. *Frontiers in Human
+Neuroscience*, *19*, 1632844.
+<https://doi.org/10.3389/fnhum.2025.1632844>
+
+</div>
+
+<div id="ref-stone2025role" class="csl-entry">
+
+Stone, K., & Rabovsky, M. (2025). The role of syntactic and semantic
+cues in preventing temporary illusions of plausibility. *Journal of
+Cognitive Neuroscience*, *37*(9), 1535–1561.
+<https://doi.org/10.1162/jocn_a_02320>
+
+</div>
 
 <div id="ref-aristei2023affect" class="csl-entry">
 
-Aristei, Sabrina, Christine A Knoop, Oliver Lubrich, Thomas Nehrlich,
-Alexander Enge, Kirsten Stark, Werner Sommer, and Rasha Abdel Rahman.
-2023. “Affect as Anaesthetic: How Emotional Contexts Modulate the
-Processing of Counterintuitive Concepts.” *Language, Cognition and
-Neuroscience* 38 (10): 1514–30.
-
-</div>
-
-<div id="ref-corput2020locked" class="csl-entry">
-
-Corput, Daniël van den. 2020. “Locked in Syndrome Machine Learning
-Classification Using Sentence Comprehension EEG Data.” *arXiv Preprint
-arXiv:2006.12336*.
-
-</div>
-
-<div id="ref-nicenboim2020words" class="csl-entry">
-
-Nicenboim, Bruno, Shravan Vasishth, and Frank Rösler. 2020. “Are Words
-Pre-Activated Probabilistically During Sentence Comprehension? Evidence
-from New Data and a Bayesian Random-Effects Meta-Analysis Using Publicly
-Available Data.” *Neuropsychologia* 142: 107427.
-
-</div>
-
-<div id="ref-oestergaard_lichtenberg_boon_nicenboim_2025"
-class="csl-entry">
-
-Østergaard, Sara M, Lenneke Lichtenberg, Laura Boon, and Bruno
-Nicenboim. 2026. “A Corpus of Joint EEG and Self-Paced Reading of
-Natural Dutch Texts.” In *Language Resources and Evaluation Conference
-(LREC)*. PsyArXiv. <https://doi.org/10.31234/osf.io/g32rp_v2>.
-
-</div>
-
-<div id="ref-10.3389/fnhum.2025.1632844" class="csl-entry">
-
-Shalu, S., R. Muralikrishnan, and Kamal Kumar Choudhary. 2025. “Similar
-Does Not Mean the Same: ERP Correlates of Mental and Physical
-Experiencer Verb Processing in Malayalam Complex Constructions.”
-*Frontiers in Human Neuroscience* Volume 19 - 2025.
-<https://doi.org/10.3389/fnhum.2025.1632844>.
-
-</div>
-
-<div id="ref-10.3389/flang.2025.1599924" class="csl-entry">
-
-Shalu, S., R. Muralikrishnan, Anna Merin Mathew, and Kamal Kumar
-Choudhary. 2026. “Similar but Different: ERP Evidence on the Processing
-of Mental and Physical Experiencer Verbs in Malayalam.” *Frontiers in
-Language Sciences* Volume 4 - 2025.
-<https://doi.org/10.3389/flang.2025.1599924>.
+Aristei, S., Knoop, C. A., Lubrich, O., Nehrlich, T., Enge, A., Stark,
+K., Sommer, W., & Abdel Rahman, R. (2023). Affect as anaesthetic: How
+emotional contexts modulate the processing of counterintuitive concepts.
+*Language, Cognition and Neuroscience*, *38*(10), 1514–1530.
+<https://doi.org/10.1080/23273798.2022.2085312>
 
 </div>
 
 <div id="ref-stone2023n400" class="csl-entry">
 
-Stone, Kate, Naghmeh Khaleghi, and Milena Rabovsky. 2023. “The N400 Is
-Elicited by Meaning Changes but Not Synonym Substitutions: Evidence from
-Persian Phrasal Verbs.” *Cognitive Science* 47 (12): e13394.
+Stone, K., Khaleghi, N., & Rabovsky, M. (2023). The N400 is elicited by
+meaning changes but not synonym substitutions: Evidence from Persian
+phrasal verbs. *Cognitive Science*, *47*(12), e13394.
+<https://doi.org/10.1111/cogs.13394>
 
 </div>
 
 <div id="ref-stone2023understanding" class="csl-entry">
 
-Stone, Kate, Bruno Nicenboim, Shravan Vasishth, and Frank Rösler. 2023.
-“Understanding the Effects of Constraint and Predictability in ERP.”
-*Neurobiology of Language* 4 (2): 221–56.
+Stone, K., Nicenboim, B., Vasishth, S., & Rösler, F. (2023).
+Understanding the effects of constraint and predictability in ERP.
+*Neurobiology of Language*, *4*(2), 221–256.
+<https://doi.org/10.1162/nol_a_00094>
 
 </div>
 
 <div id="ref-stone2022does" class="csl-entry">
 
-Stone, Kate, Shravan Vasishth, and Titus von der Malsburg. 2022. “Does
-Entropy Modulate the Prediction of German Long-Distance Verb Particles?”
-*Plos One* 17 (8): e0267813.
+Stone, K., Vasishth, S., & Malsburg, T. von der. (2022). Does entropy
+modulate the prediction of German long-distance verb particles? *PLOS
+ONE*, *17*(8), e0267813. <https://doi.org/10.1371/journal.pone.0267813>
 
 </div>
 
 <div id="ref-szewczyk2022context" class="csl-entry">
 
-Szewczyk, Jakub M, and Kara D Federmeier. 2022. “Context-Based
-Facilitation of Semantic Access Follows Both Logarithmic and Linear
-Functions of Stimulus Probability.” *Journal of Memory and Language*
-123: 104311.
+Szewczyk, J. M., & Federmeier, K. D. (2022). Context-based facilitation
+of semantic access follows both logarithmic and linear functions of
+stimulus probability. *Journal of Memory and Language*, *123*, 104311.
+<https://doi.org/10.1016/j.jml.2021.104311>
 
 </div>
 
 <div id="ref-vik2021deteccion" class="csl-entry">
 
-Vik Espárrago, Erik Martı́n. 2021. “Detección de Perfiles Psicopáticos
-Mediante El análisis Automático de Señales de Encefalogramas.”
+Vik Espárrago, E. M. (2021). *Detección de perfiles psicopáticos
+mediante el análisis automático de señales de encefalogramas* \[Master’s
+thesis, Universidad Pontificia Comillas\].
+<http://hdl.handle.net/11531/55722>
+
+</div>
+
+<div id="ref-corput2020locked" class="csl-entry">
+
+Corput, D. van den. (2020). *Locked in syndrome machine learning
+classification using sentence comprehension EEG data*. arXiv.
+<https://doi.org/10.48550/arXiv.2006.12336>
+
+</div>
+
+<div id="ref-nicenboim2020words" class="csl-entry">
+
+Nicenboim, B., Vasishth, S., & Rösler, F. (2020). Are words
+pre-activated probabilistically during sentence comprehension? Evidence
+from new data and a Bayesian random-effects meta-analysis using publicly
+available data. *Neuropsychologia*, *142*, 107427.
+<https://doi.org/10.1016/j.neuropsychologia.2020.107427>
+
+</div>
+
+<div id="ref-stone2020predicting" class="csl-entry">
+
+Stone, K. (2020). *Predicting long-distance lexical content in German
+verb-particle constructions* \[PhD thesis, Universität Potsdam\].
+<https://doi.org/10.25932/publishup-47679>
 
 </div>
 

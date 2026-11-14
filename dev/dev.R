@@ -626,6 +626,87 @@ dev_test <- function(filter = NULL,
   )
 }
 
+# ----------------------------------------------------------------- citations --
+
+#' Papers and packages that mention eeguana
+#'
+#' Asks OpenAlex for works whose title, abstract, or full text mention
+#' "eeguana", and GitHub for DESCRIPTION files outside this repo that mention
+#' it. Compares with `dev/citations.csv`, prints what is new, and returns it.
+#' `update = TRUE` adds the new rows to the file.
+#'
+#' OpenAlex only sees the open access papers, so a paper behind a paywall that
+#' does not cite the Zenodo DOI goes unnoticed. The GitHub search needs a
+#' GITHUB_PAT or GITHUB_TOKEN. Without an OPENALEX_API_KEY (free, see
+#' https://openalex.org/rest-api) OpenAlex rate-limits the searches at times.
+dev_citations <- function(update = FALSE,
+                          file = file.path(dev_pkg_root(), "dev", "citations.csv")) {
+  found <- rbind(dev_citations_openalex(), dev_citations_github())
+  known <- if (file.exists(file)) {
+    utils::read.csv(file, stringsAsFactors = FALSE)
+  } else {
+    found[0, ]
+  }
+  new <- found[!found$id %in% known$id, ]
+  rownames(new) <- NULL
+  if (nrow(new) == 0) {
+    message("No new citations.")
+  } else {
+    message(nrow(new), " new citation(s):")
+    print(new[, c("source", "year", "title", "url")], row.names = FALSE, right = FALSE)
+  }
+  if (isTRUE(update) && nrow(new) > 0) {
+    all <- rbind(known, new)
+    all <- all[order(-all$year, all$title, na.last = TRUE), ]
+    utils::write.csv(all, file, row.names = FALSE)
+    message("  Added to ", file)
+  }
+  invisible(new)
+}
+
+#' @noRd
+dev_citations_openalex <- function() {
+  query <- list(search = "eeguana", `per-page` = 200,
+                select = "id,doi,title,publication_year,type")
+  key <- Sys.getenv("OPENALEX_API_KEY")
+  if (nzchar(key)) query$api_key <- key
+  r <- httr::GET("https://api.openalex.org/works", query = query)
+  httr::stop_for_status(r)
+  works <- httr::content(r)$results
+  ## datasets are mostly analysis code on Zenodo, and "eeguana" is the package
+  works <- Filter(function(w) !identical(w$type, "dataset") &&
+                    !identical(tolower(w$title), "eeguana"), works)
+  data.frame(
+    source = rep("openalex", length(works)),
+    id = vapply(works, function(w) w$id, ""),
+    year = vapply(works, function(w) as.integer(w$publication_year %||% NA), 1L),
+    title = vapply(works, function(w) w$title %||% "", ""),
+    url = vapply(works, function(w) w$doi %||% w$id, ""),
+    stringsAsFactors = FALSE
+  )
+}
+
+#' @noRd
+dev_citations_github <- function(repo = "bnicenboim/eeguana") {
+  r <- dev_gh("/search/code",
+    query = list(q = "eeguana filename:DESCRIPTION", per_page = 100)
+  )
+  httr::stop_for_status(r)
+  repos <- lapply(httr::content(r)$items, function(i) i$repository)
+  repos <- Filter(function(x) !isTRUE(x$fork) && x$full_name != repo, repos)
+  repos <- repos[!duplicated(vapply(repos, function(x) x$full_name, ""))]
+  data.frame(
+    source = rep("github", length(repos)),
+    id = vapply(repos, function(x) x$full_name, ""),
+    year = rep(NA_integer_, length(repos)),
+    title = vapply(repos, function(x) x$description %||% x$full_name, ""),
+    url = vapply(repos, function(x) x$html_url, ""),
+    stringsAsFactors = FALSE
+  )
+}
+
+`%||%` <- function(x, y) if (is.null(x)) y else x
+
 #' Everything dev_test() does, then a full R CMD check
 #' @param upgrade Passed to `dev_check_updates()`. TRUE, the default,
 #'   brings dependencies up to date first, because CI installs them fresh
@@ -661,5 +742,6 @@ message(
   "  dev_python()          set up mne/pandas/scipy\n",
   "  dev_check_updates()   once-per-session check for newer dependencies\n",
   "  dev_fixtures_publish() upload the cached files to a GitHub release\n",
+  "  dev_citations()       new papers and packages that mention eeguana\n",
   "  dev_check()           the above, then R CMD check"
 )

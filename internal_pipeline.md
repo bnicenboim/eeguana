@@ -218,6 +218,24 @@ Both files currently carry alt text for the logo and the two README plots. If
 you only edit `README.Rmd` you must re-knit, and note that re-knitting
 re-downloads the ~69 MB faces dataset.
 
+## Who uses eeguana
+
+The list on the home page and in the "Work using eeguana" article comes from
+`vignettes/papers.bib`, sorted by year with `vignettes/apa-by-year.csl`.
+
+```r
+dev_citations()                # new papers and packages that mention eeguana
+dev_citations(update = TRUE)   # and record them in dev/citations.csv
+```
+
+It asks OpenAlex (title, abstract, and full text of open access papers) and
+GitHub (DESCRIPTION files that mention eeguana), and reports what is not yet
+in `dev/citations.csv`. The `citations` workflow runs it when a release is
+published, commits the updated csv to master, and opens an issue listing the
+new entries. Papers that used the package then go into `papers.bib` by hand.
+Google Scholar cannot be queried automatically, so a Scholar alert for
+"eeguana" remains the more complete source.
+
 ## Release checklist
 
 ```r

@@ -28,7 +28,6 @@ experimental
 ^pkgdown.*
 ^_pipeline.*
 ^_.*
-^papers.bib
 ^unused$
 ^dev$
 ^\.Rprofile$
