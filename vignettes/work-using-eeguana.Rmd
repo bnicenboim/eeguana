@@ -1,0 +1,17 @@
+---
+title: "Work using eeguana"
+output: rmarkdown::html_vignette
+bibliography: papers.bib
+csl: apa-by-year.csl
+nocite: '@*'
+vignette: >
+  %\VignetteIndexEntry{Work using eeguana}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Articles, conference papers, and theses that used eeguana, newest first. If yours is missing, please [open an issue](https://github.com/bnicenboim/eeguana/issues) or send a pull request that adds it to `vignettes/papers.bib`.
+
+To cite eeguana itself, see `citation("eeguana")`.
+
+<div id="refs"></div>

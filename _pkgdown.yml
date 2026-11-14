@@ -41,6 +41,8 @@ navbar:
         href: articles/artifacts.html
       - text: Pitfalls and gotchas
         href: articles/gotchas.html
+      - text: Work using eeguana
+        href: articles/work-using-eeguana.html
     news:
       text: Changelog
       href: news/index.html

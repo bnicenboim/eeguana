@@ -1,5 +1,6 @@
 ---
-bibliography: papers.bib
+bibliography: vignettes/papers.bib
+csl: vignettes/apa-by-year.csl
 output: github_document
 ---
  [![R build status](https://github.com/bnicenboim/eeguana/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bnicenboim/eeguana/actions)

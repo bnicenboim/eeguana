@@ -1,0 +1,57 @@
+# Looks for new papers and packages that mention eeguana when a release is
+# published (or by hand, from the Actions tab). New ones are added to
+# dev/citations.csv on master and listed in an issue; see dev_citations() in
+# dev/dev.R and internal_pipeline.md.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+name: citations
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  citations:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      # optional: lifts OpenAlex's rate limit (free key, https://openalex.org/rest-api)
+      OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: master
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Look for new citations
+        shell: Rscript {0}
+        run: |
+          install.packages("httr")
+          source("dev/dev.R")
+          new <- dev_citations(update = TRUE)
+          if (nrow(new) > 0) {
+            lines <- sprintf("- %s%s: [%s](%s)", ifelse(is.na(new$year), "", paste0(new$year, ", ")),
+                             new$source, new$title, new$url)
+            writeLines(c("Found by the citations workflow and added to `dev/citations.csv`.",
+                         "Add the papers that used eeguana to `vignettes/papers.bib`.", "", lines),
+                       "new_citations.md")
+          }
+
+      - name: Commit the updated list
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dev/citations.csv
+          git diff --cached --quiet || (git commit -m "New citations found by the citations workflow" && git push)
+
+      - name: Open an issue with the new citations
+        if: ${{ hashFiles('new_citations.md') != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue create --title "New work citing eeguana" --body-file new_citations.md
