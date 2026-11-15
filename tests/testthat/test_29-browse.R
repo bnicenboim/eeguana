@@ -400,6 +400,19 @@ test_that("each recording keeps its own selection", {
   })
 })
 
+test_that("a numeric .recording is browsed by its name", {
+  num <- eeg_mutate(seg, .recording = 1)
+  shiny::testServer(eeguana:::browse_app(num, .kind = "eeg"), {
+    expect_equal(prep()$recording, "1")
+    expect_equal(nrow(prep()$data$.segments), nrow(seg$.segments))
+    session$setInputs(mode = "continuous", unit_continuous = "ms", segment = "1", start = -200, length = 702)
+    session$setInputs(channels = "Fz", scale = "shared")
+    expect_match(output$where, "^Segment 1,")
+    session$setInputs(select_segment = 1)
+    expect_equal(result(), 1L)
+  })
+})
+
 test_that("events are matched by their type or description", {
   ev <- prep_seg$events
   me <- eeguana:::match_events

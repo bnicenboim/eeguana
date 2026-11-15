@@ -194,7 +194,7 @@ browse_settings <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eo
   } else if (!all(.eog %in% channel_names(data))) {
     stop("Channels not found: ", toString(setdiff(.eog, channel_names(data))), call. = FALSE)
   }
-  recs <- if (is_ica) names(data$.ica) else unique(data$.segments$.recording)
+  recs <- if (is_ica) names(data$.ica) else as.character(unique(data$.segments$.recording))
   srate <- sampling_rate(data)
   list(
     is_ica = is_ica,

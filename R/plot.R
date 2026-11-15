@@ -265,13 +265,14 @@ plot_components.eeg_ica_lst <- function(data, ..., .projection = "polar", .stand
 components_topo_tbl <- function(data, ..., .projection = "polar", .standardize = TRUE) {
   channels_tbl(data) <- change_coord(channels_tbl(data), .projection)
   ## TODO: move to data.table, ignore group, just do it by .recording
-  long_table <- map_dtr(data$.ica, ~ {
-    dt <- .x$mixing_matrix %>%
+  ## the recordings as they are in the data, so that .recording keeps its
+  ## type; the list is named with their character version
+  long_table <- map_dtr(unique(data$.segments$.recording), function(rec) {
+    dt <- data$.ica[[as.character(rec)]]$mixing_matrix %>%
       data.table::as.data.table(keep.rownames = TRUE)
-    dt[, .ICA := factor(rn, levels = rn)][, rn := NULL][]
-  },
-  .id = ".recording"
-  ) %>%
+    dt[, .ICA := factor(rn, levels = rn)][, rn := NULL][, .recording := rec]
+    data.table::setcolorder(dt, c(".recording", ".ICA"))[]
+  }) %>%
     data.table::melt(
       variable.name = ".key",
       id.vars = c(".ICA", ".recording"),
