@@ -41,7 +41,10 @@ fast_ICA <- function(X, n.comp = NULL, alg.typ = "parallel",
 
 #' Wrapper for FastICA methods for Independent Component Analysis from fICA package
 #'
-#' `adapt_fast_ICA()` and `fast_ICA2()` are wrappers for [fICA::adapt_fICA] and [fICA::fICA] that only run in C, and return a transposed
+#' `adapt_fast_ICA()` implements the adaptive deflation-based FastICA of [fICA::adapt_fICA] in R,
+#' with the fixed-point update written as a matrix-vector product, so that no samples-by-channels
+#' matrix is allocated inside the iterations; on long recordings this is much faster than fICA's
+#' C code. `fast_ICA2()` is a wrapper for [fICA::fICA] that only runs in C. Both return a transposed
 #' version
 #' of the original estimated unmixing matrix in W, and the mixing matrix A,
 #' consistent with the formulation `X= S %*% A`, where X is the matrix of data with
@@ -64,51 +67,109 @@ NULL
 adapt_fast_ICA <-
   function(X, gs = fICA::gf, dgs = fICA::dgf, kj = 0, eps = 1e-06, maxiter = 1000) {
     X <- as.matrix(X)
-    n <- nrow(X)
     p <- ncol(X)
     eps <- p * eps
-    init_est <- "k-JADE"
     if (!(kj %in% 1:p)) {
       W0 <- JADE::FOBI(X)$W
-      init_est <- "FOBI"
     } else {
       W0 <- JADE::k_JADE(X, k = kj, eps = eps, maxiter = maxiter)$W
-      init_est <- paste(kj, "-JADE", sep = "")
     }
-    X <- tcrossprod(X, W0)
-    X <- sweep(X, 2, colMeans(X))
-    name <- fICA::gnames
-    # garbage collection before calling the function:
-    # TODO: may need to clean this up later
-    if ("full" %in% methods::formalArgs(gc)) {
-      gc(full = TRUE)
-    } else {
-      # older version of R
-      gc()
-    }
-
-    res <- .Call("adfica", X, eps, maxiter, PACKAGE = "fICA")
-    cnam <- paste("comp", 1:p)
-    V <- res$W
-    alphas <- res$alphas
-    ord <- res$ord + 1
-    usedg <- res$usedg + 1
-    used_gs <- NULL
-    for (i in 1:(p - 1)) {
-      used_gs[i] <- name[usedg[i]]
-    }
-    if (length(ord) == (p - 1)) {
-      ord[p] <- sum(1:p) - sum(ord)
-    } else {
-      ord <- 1:p
-    }
+    Z <- tcrossprod(X, W0)
+    rm(X)
+    Z <- sweep(Z, 2, colMeans(Z))
+    V <- adaptive_deflation(Z, gs, dgs, eps, maxiter)
     W <- crossprod(V, W0)
     W <- t(crossprod(diag(sign(rowMeans(W))), W))
-    alphas <- matrix(alphas[, ord], ncol = p)
-    dimnames(alphas) <- list(name, cnam)
     A <- MASS::ginv(W)
     list(W = W, A = A)
   }
+
+## Adaptive deflation-based FastICA (Miettinen et al., 2014), as fICA's adfica
+## does it, but with the update written as a matrix-vector product, so that no
+## samples-by-channels matrix is allocated inside the iterations.
+## Z is whitened and centered. Returns the p x p matrix of unit vectors V.
+adaptive_deflation <- function(Z, gs, dgs, eps, maxiter) {
+  p <- ncol(Z)
+  alphas <- asymptotic_variances(Z, gs, dgs)
+  alphas[alphas <= 0] <- Inf
+  V <- matrix(0, p, p)
+  for (j in seq_len(p - 1)) {
+    repeat {
+      if (all(is.infinite(alphas))) stop("no convergence")
+      ## first minimum, scanning the components within each nonlinearity, as fICA does
+      am <- which(t(alphas) == min(alphas), arr.ind = TRUE)[1, ]
+      g <- am[[2]]
+      comp <- am[[1]]
+      w0 <- diag(p)[, comp]
+      w <- one_component(Z, gs[[g]], dgs[[g]], eps, maxiter, w0, V)
+      if (!is.null(w)) {
+        V[, j] <- w
+        alphas[, comp] <- Inf
+        break
+      }
+      alphas[g, comp] <- Inf
+    }
+  }
+  w <- diag(p)[, 1]
+  w <- w - V %*% crossprod(V, w)
+  V[, p] <- w / sqrt(sum(w^2))
+  V
+}
+
+## alpha_{g, j}: asymptotic variance of the estimate of component j with
+## nonlinearity g, which decides which nonlinearity is used for which component.
+asymptotic_variances <- function(Z, gs, dgs) {
+  p <- ncol(Z)
+  alphas <- matrix(0, length(gs), p)
+  for (j in seq_len(p)) {
+    z <- Z[, j]
+    for (i in seq_along(gs)) {
+      gz <- as.vector(gs[[i]](z))
+      Eg <- mean(gz)
+      Eg2 <- mean(gz^2)
+      Egz <- mean(gz * z)
+      Edg <- mean(dgs[[i]](z))
+      if (Egz != Edg) {
+        alphas[i, j] <- (Eg2 - Eg^2 - Egz^2) / (Egz - Edg)^2
+      }
+    }
+  }
+  alphas
+}
+
+## One FastICA fixed-point iteration with the stabilization of fICA's adfica,
+## orthogonal to the components in V. NULL when it does not converge.
+one_component <- function(Z, g, dg, eps, maxiter, w0, V) {
+  n <- nrow(Z)
+  VVt <- tcrossprod(V)
+  wn <- w0
+  iter <- 0L
+  restarts <- 0L
+  repeat {
+    iter <- iter + 1L
+    w <- wn
+    zw <- Z %*% w
+    gzw <- as.vector(g(zw))
+    wn <- as.vector(crossprod(Z, gzw)) / n - mean(dg(zw)) * w
+    wn <- wn / sqrt(sum(wn^2))
+    if (sqrt(sum((wn - w)^2)) > 1) wn <- -wn
+    if (restarts > 0L) {
+      wn <- (1 - 1 / 5) * wn + w / 5
+    } else {
+      wn <- (1 - 1 / (iter + 20)) * wn + w / (iter + 20)
+    }
+    wn <- wn - as.vector(VVt %*% wn)
+    wn <- wn / sqrt(sum(wn^2))
+    if (sqrt(sum((w - wn)^2)) < eps || sqrt(sum((w + wn)^2)) < eps) {
+      return(wn)
+    }
+    if (iter == maxiter) {
+      restarts <- restarts + 1L
+      iter <- 0L
+      if (restarts > 10L) return(NULL)
+    }
+  }
+}
 
 #' @rdname fICA
 #' @export
