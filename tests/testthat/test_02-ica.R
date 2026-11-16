@@ -68,6 +68,18 @@ test_that("the summaries and the plots work when .recording is a number", {
   expect_no_error(suppressWarnings(eeguana:::plot_ica(faces_num)))
 })
 
+test_that("without EOG channels, the summaries say so and plot_ica() uses its eog channels", {
+  ## data_blinks has no channel named like EOG
+  expect_error(eeg_ica_summary_tbl(data_fast_ICA), "No EOG channel found")
+  expect_error(eeg_ica_cor_tbl(data_fast_ICA), "No EOG channel found")
+  faces_no_eog <- suppressWarnings(eeg_ica(
+    eeg_select(data_faces_10_trials, -EOGH, -EOGV), -M1, -M2,
+    .method = fast_ICA, .config = list(maxit = 10)
+  ))
+  expect_error(suppressWarnings(eeguana:::plot_ica(faces_no_eog)), "No EOG channel found")
+  expect_no_error(suppressWarnings(eeguana:::plot_ica(faces_no_eog, eog = "Fp1")))
+})
+
 
 
 test_that("different implementations aren't too different", {
@@ -338,4 +350,23 @@ test_that("an offset in a channel does not change the variance explained", {
     eeg_ica_var_tbl(data_fast_ICA_more),
     tolerance = 1e-10
   )
+})
+
+test_that("eeg_ica() with .decim estimates on every n-th sample and applies to all", {
+  rows_seen <- NULL
+  spy <- function(X, ...) {
+    rows_seen <<- nrow(X)
+    fast_ICA(X, ...)
+  }
+  thinned <- eeg_ica(data_blinks, .method = spy, .config = list(w.init = m), .decim = 2)
+  expect_equal(rows_seen, ceiling(nsamples(data_blinks) / 2))
+  expect_equal(dim(thinned$.ica[[1]]$unmixing_matrix), dim(data_fast_ICA$.ica[[1]]$unmixing_matrix))
+  full <- eeg_ica_show(data_fast_ICA, ICA1, ICA2, ICA3)$.signal[, .(ICA1, ICA2, ICA3)]
+  thin <- eeg_ica_show(thinned, ICA1, ICA2, ICA3)$.signal[, .(ICA1, ICA2, ICA3)]
+  best_match <- apply(abs(stats::cor(as.matrix(full), as.matrix(thin))), 1, max)
+  expect_true(all(best_match > .9))
+  expect_error(eeg_ica(data_blinks, .decim = 0), "whole number")
+  expect_error(eeg_ica(data_blinks, .decim = 1.5), "whole number")
+  expect_error(eeg_ica(data_blinks, .decim = Inf), "whole number")
+  expect_error(eeg_ica(data_blinks, .decim = "2"), "whole number")
 })

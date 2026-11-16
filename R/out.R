@@ -213,6 +213,12 @@ eeg_ica_cor_tbl.eeg_ica_lst <- function(.data, ...) {
   } else {
     eogs <- sel_ch(.data, ...)
   }
+  if (length(eogs) == 0) {
+    stop("No EOG channel found: no channel name starts or ends with \"eog\". ",
+      "Name the channels to correlate the components with, e.g. `eeg_ica_cor_tbl(.data, Fz)`.",
+      call. = FALSE
+    )
+  }
 
   names(eogs) <- eogs
   comps <- .data %>%
