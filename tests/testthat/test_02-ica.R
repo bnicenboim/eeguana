@@ -351,3 +351,22 @@ test_that("an offset in a channel does not change the variance explained", {
     tolerance = 1e-10
   )
 })
+
+test_that("eeg_ica() with .decim estimates on every n-th sample and applies to all", {
+  rows_seen <- NULL
+  spy <- function(X, ...) {
+    rows_seen <<- nrow(X)
+    fast_ICA(X, ...)
+  }
+  thinned <- eeg_ica(data_blinks, .method = spy, .config = list(w.init = m), .decim = 2)
+  expect_equal(rows_seen, ceiling(nsamples(data_blinks) / 2))
+  expect_equal(dim(thinned$.ica[[1]]$unmixing_matrix), dim(data_fast_ICA$.ica[[1]]$unmixing_matrix))
+  full <- eeg_ica_show(data_fast_ICA, ICA1, ICA2, ICA3)$.signal[, .(ICA1, ICA2, ICA3)]
+  thin <- eeg_ica_show(thinned, ICA1, ICA2, ICA3)$.signal[, .(ICA1, ICA2, ICA3)]
+  best_match <- apply(abs(stats::cor(as.matrix(full), as.matrix(thin))), 1, max)
+  expect_true(all(best_match > .9))
+  expect_error(eeg_ica(data_blinks, .decim = 0), "whole number")
+  expect_error(eeg_ica(data_blinks, .decim = 1.5), "whole number")
+  expect_error(eeg_ica(data_blinks, .decim = Inf), "whole number")
+  expect_error(eeg_ica(data_blinks, .decim = "2"), "whole number")
+})

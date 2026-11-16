@@ -1,3 +1,10 @@
+# eeguana 0.1.12.9006
+
+## Improvements
+
+- `eeg_ica()` gets `.decim`: estimate the ICA on every n-th sample and apply
+  it to all of them.
+
 # eeguana 0.1.12.9005
 
 ## Improvements

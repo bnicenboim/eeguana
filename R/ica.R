@@ -18,6 +18,10 @@
 #' [fast_ICA2] and [adapt_fast_ICA] adapted from [fICA][fICA::fICA] package. It can also accept a custom function, see details.
 #' @param .config Other parameters passed in a list to the ICA method. See the documentation of the relevant .method.
 #' @param .ignore Events that should be ignored in the ICA, set to NULL for not using the events table.
+#' @param .decim Keep only every `.decim`-th usable sample (after `.ignore` and NAs) of each recording when estimating the ICA. The unmixing
+#'   matrix is still applied to every sample afterwards. The ICA treats samples as unordered draws, so
+#'   thinning only reduces the sample size; `.decim = 4` on a 512 Hz recording usually gives the same eye
+#'   components in a quarter of the time.
 #' @family ICA functions
 #' @family preprocessing functions
 #' @return An eeg_ica_lst object
@@ -50,7 +54,8 @@ eeg_ica <- function(.data,
                     ...,
                     .ignore = .type == "artifact",
                     .method = fast_ICA,
-                    .config = list()) {
+                    .config = list(),
+                    .decim = 1L) {
   UseMethod("eeg_ica")
 }
 
@@ -60,8 +65,14 @@ eeg_ica.eeg_lst <- function(.data,
                             ...,
                             .ignore = .type == "artifact",
                             .method = fast_ICA,
-                            .config = list()) {
+                            .config = list(),
+                            .decim = 1L) {
   start_time <- Sys.time()
+  if (!is.numeric(.decim) || length(.decim) != 1 || !is.finite(.decim) || .decim < 1 ||
+      .decim != round(.decim) || .decim > .Machine$integer.max) {
+    stop("`.decim` must be a whole number of 1 or more.")
+  }
+  .decim <- as.integer(.decim)
 
   ## if(unique(.data$segment$.recording) %>% length() != 1 && !".recording" %in% group_vars(.data)) {
   ##     warning("It seems that there is more than one recording. It may be appropriate to do 'data %>% group_by(recording)' before applying 'eeg_ica()' ")
@@ -114,6 +125,9 @@ eeg_ica.eeg_lst <- function(.data,
   if (total > used) {
     message_verbose("# ", round(used / total, 2) * 100, "% of the samples will be used.")
   }
+  if (.decim > 1) {
+    message_verbose("# One sample in every ", .decim, " is used to estimate the ICA.")
+  }
   data_out <- function(x) {
     out <- list()
     if (is.null(x$W)) {
@@ -136,7 +150,7 @@ eeg_ica.eeg_lst <- function(.data,
   }
 
   l_ica <- lapply(signal_raw, function(x) {
-    ica <- ICA_fun(x)
+    ica <- ICA_fun(x[seq(1L, nrow(x), by = .decim), ])
     # A:
     colnames(ica$mixing_matrix) <- colnames(x)
     rownames(ica$mixing_matrix) <- paste0("ICA", seq_len(nrow(ica$mixing_matrix)))

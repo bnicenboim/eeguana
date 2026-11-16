@@ -9,7 +9,8 @@ eeg_ica(
   ...,
   .ignore = .type == "artifact",
   .method = fast_ICA,
-  .config = list()
+  .config = list(),
+  .decim = 1L
 )
 }
 \arguments{
@@ -24,6 +25,11 @@ and reference channels should be removed.}
 \link{fast_ICA2} and \link{adapt_fast_ICA} adapted from \link[fICA:fICA]{fICA} package. It can also accept a custom function, see details.}
 
 \item{.config}{Other parameters passed in a list to the ICA method. See the documentation of the relevant .method.}
+
+\item{.decim}{Keep only every \code{.decim}-th usable sample (after \code{.ignore} and NAs) of each recording when estimating the ICA. The unmixing
+matrix is still applied to every sample afterwards. The ICA treats samples as unordered draws, so
+thinning only reduces the sample size; \code{.decim = 4} on a 512 Hz recording usually gives the same eye
+components in a quarter of the time.}
 }
 \value{
 An eeg_ica_lst object
