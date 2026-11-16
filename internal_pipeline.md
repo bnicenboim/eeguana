@@ -274,7 +274,7 @@ Then:
 
 - update `NEWS.md` and bump `Version:` in `DESCRIPTION`
 - `codemetar::write_codemeta(".")`
-- [`spelling::spell_check_package()`](https://docs.ropensci.org/spelling//reference/spell_check_package.html)
+- [`spelling::spell_check_package()`](https://docs.ropensci.org/spelling/reference/spell_check_package.html)
 - `goodpractice::gp()`
 - before a release, test against current CRAN:
   `dev_r_deps(upgrade = "always")`

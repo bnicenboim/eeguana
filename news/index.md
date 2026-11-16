@@ -1,5 +1,29 @@
 # Changelog
 
+## eeguana 0.1.12.9005
+
+### Improvements
+
+- [`eeg_browse()`](https://bruno.nicenboim.me/eeguana/reference/eeg_browse.md)
+  opens a recording much faster: the scale of the amplitudes is
+  estimated from at most 300 stretches of one second, spread over the
+  recording.
+
+### Bugs fixed
+
+- [`eeg_browse()`](https://bruno.nicenboim.me/eeguana/reference/eeg_browse.md)
+  works when `.recording` is a number.
+- [`eeg_ica_summary_tbl()`](https://bruno.nicenboim.me/eeguana/reference/eeg_ica_summary_tbl.md),
+  [`plot_components()`](https://bruno.nicenboim.me/eeguana/reference/plot_components.md),
+  and `plot_ica()` work when `.recording` is a number.
+- [`eeg_ica_cor_tbl()`](https://bruno.nicenboim.me/eeguana/reference/eeg_ica_cor_tbl.md)
+  and
+  [`eeg_ica_summary_tbl()`](https://bruno.nicenboim.me/eeguana/reference/eeg_ica_summary_tbl.md)
+  say when no EOG channel is found, instead of failing with an error
+  about `.recording`.
+- `plot_ica()` uses its `eog` channels for the correlations too, not
+  only for the traces.
+
 ## eeguana 0.1.12.9004
 
 ### New features

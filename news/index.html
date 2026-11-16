@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">eeguana</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.12.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.12.9005</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,6 +39,25 @@
       <small>Source: <a href="https://github.com/bnicenboim/eeguana/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.12.9005" id="eeguana-01129005">eeguana 0.1.12.9005<a class="anchor" aria-label="anchor" href="#eeguana-01129005"></a></h2>
+<div class="section level3">
+<h3 id="improvements-0-1-12-9005">Improvements<a class="anchor" aria-label="anchor" href="#improvements-0-1-12-9005"></a></h3>
+<ul><li>
+<code><a href="../reference/eeg_browse.html">eeg_browse()</a></code> opens a recording much faster: the scale of the amplitudes is estimated from at most 300 stretches of one second, spread over the recording.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bugs-fixed-0-1-12-9005">Bugs fixed<a class="anchor" aria-label="anchor" href="#bugs-fixed-0-1-12-9005"></a></h3>
+<ul><li>
+<code><a href="../reference/eeg_browse.html">eeg_browse()</a></code> works when <code>.recording</code> is a number.</li>
+<li>
+<code><a href="../reference/eeg_ica_summary_tbl.html">eeg_ica_summary_tbl()</a></code>, <code><a href="../reference/plot_components.html">plot_components()</a></code>, and <code>plot_ica()</code> work when <code>.recording</code> is a number.</li>
+<li>
+<code><a href="../reference/eeg_ica_cor_tbl.html">eeg_ica_cor_tbl()</a></code> and <code><a href="../reference/eeg_ica_summary_tbl.html">eeg_ica_summary_tbl()</a></code> say when no EOG channel is found, instead of failing with an error about <code>.recording</code>.</li>
+<li>
+<code>plot_ica()</code> uses its <code>eog</code> channels for the correlations too, not only for the traces.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.12.9004" id="eeguana-01129004">eeguana 0.1.12.9004<a class="anchor" aria-label="anchor" href="#eeguana-01129004"></a></h2>
 <div class="section level3">
