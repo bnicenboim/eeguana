@@ -194,7 +194,7 @@ browse_settings <- function(data, .kind = c("eeg", "ica"), .channels = NULL, .eo
   } else if (!all(.eog %in% channel_names(data))) {
     stop("Channels not found: ", toString(setdiff(.eog, channel_names(data))), call. = FALSE)
   }
-  recs <- if (is_ica) names(data$.ica) else unique(data$.segments$.recording)
+  recs <- if (is_ica) names(data$.ica) else as.character(unique(data$.segments$.recording))
   srate <- sampling_rate(data)
   list(
     is_ica = is_ica,
@@ -1233,8 +1233,13 @@ browse_eeg_prep <- function(data, rec) {
 browse_ica_prep <- function(data, rec) {
   p <- browse_eeg_prep(data, rec)
   components <- component_names(p$data)
-  activations <- eeg_ica_show(p$data, tidyselect::everything())$.signal
-  p$sd <- c(typical_sd(activations, components, chunk = round(sampling_rate(p$data))), p$sd)
+  chunk <- round(sampling_rate(p$data))
+  ## only the stretches that typical_sd() uses are unmixed; chunked again,
+  ## they are the same stretches
+  some <- p$data
+  some$.signal <- some$.signal[unlist(chunk_rows(some$.signal, chunk))]
+  activations <- eeg_ica_show(some, tidyselect::everything())$.signal
+  p$sd <- c(typical_sd(activations, components, chunk), p$sd)
   var_tbl <- eeg_ica_var_tbl(p$data)
   c(p, list(
     var = var_tbl,
@@ -1444,18 +1449,30 @@ window_tbl <- function(p, w, components, channels) {
 #' segment, each one estimated with the MAD (scaled to match the SD of normal
 #' data). Unlike the standard deviation of the whole recording, it ignores slow
 #' drifts, which would flatten unfiltered channels, and large events such as
-#' blinks, both across the stretches and inside them
+#' blinks, both across the stretches and inside them. At most `max_chunks`
+#' stretches, spread over the recording, are used: more barely change a median
+#' and a long recording has thousands
 #' @noRd
-typical_sd <- function(signal, columns, chunk) {
-  .chunk <- NULL
-  signal %>%
-    tidytable::mutate(.chunk = (tidytable::row_number() - 1L) %/% chunk, .by = .id) %>%
-    tidytable::summarize(
-      tidytable::across(tidyselect::all_of(columns), ~ stats::mad(.x, na.rm = TRUE)),
-      .by = c(.id, .chunk)
-    ) %>%
-    tidytable::summarize(tidytable::across(tidyselect::all_of(columns), ~ stats::median(.x, na.rm = TRUE))) %>%
-    unlist()
+typical_sd <- function(signal, columns, chunk, max_chunks = 300) {
+  rows <- chunk_rows(signal, chunk, max_chunks)
+  vapply(columns, function(col) {
+    x <- as.numeric(signal[[col]])
+    stats::median(vapply(rows, function(r) stats::mad(x[r], na.rm = TRUE), numeric(1)), na.rm = TRUE)
+  }, numeric(1))
+}
+
+#' The rows of the stretches that typical_sd() uses, one integer vector per
+#' stretch; the signal is sorted by segment and sample
+#' @noRd
+chunk_rows <- function(signal, chunk, max_chunks = 300) {
+  starts <- which((data.table::rowid(signal$.id) - 1L) %% chunk == 0L)
+  ends <- c(starts[-1] - 1L, nrow(signal))
+  if (length(starts) > max_chunks) {
+    keep <- unique(round(seq(1, length(starts), length.out = max_chunks)))
+    starts <- starts[keep]
+    ends <- ends[keep]
+  }
+  Map(seq.int, starts, ends)
 }
 
 #' How the amplitudes are scaled: each trace is divided by `half` times its

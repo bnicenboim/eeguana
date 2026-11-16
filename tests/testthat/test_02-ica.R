@@ -53,6 +53,33 @@ test_that("ica summaries", {
   expect_snapshot(eeg_ica_summary_tbl(data_fast_ICA2))
 })
 
+test_that("the summaries and the plots work when .recording is a number", {
+  data_num <- eeg_ica(eeg_mutate(data_blinks, .recording = 1), .method = fast_ICA, .config = list(w.init = m))
+  summ_num <- eeg_ica_summary_tbl(data_num, "Fz")
+  summ_chr <- eeg_ica_summary_tbl(data_fast_ICA, "Fz")
+  expect_type(summ_num$.recording, "double")
+  expect_equal(summ_num[, -".recording"], summ_chr[, -".recording"])
+  ## the plots need electrode positions and EOG channels
+  faces_num <- suppressWarnings(eeg_ica(eeg_mutate(data_faces_10_trials, .recording = 1),
+    -EOGH, -EOGV, -M1, -M2,
+    .method = fast_ICA, .config = list(maxit = 10)
+  ))
+  expect_no_error(plot_components(faces_num))
+  expect_no_error(suppressWarnings(eeguana:::plot_ica(faces_num)))
+})
+
+test_that("without EOG channels, the summaries say so and plot_ica() uses its eog channels", {
+  ## data_blinks has no channel named like EOG
+  expect_error(eeg_ica_summary_tbl(data_fast_ICA), "No EOG channel found")
+  expect_error(eeg_ica_cor_tbl(data_fast_ICA), "No EOG channel found")
+  faces_no_eog <- suppressWarnings(eeg_ica(
+    eeg_select(data_faces_10_trials, -EOGH, -EOGV), -M1, -M2,
+    .method = fast_ICA, .config = list(maxit = 10)
+  ))
+  expect_error(suppressWarnings(eeguana:::plot_ica(faces_no_eog)), "No EOG channel found")
+  expect_no_error(suppressWarnings(eeguana:::plot_ica(faces_no_eog, eog = "Fp1")))
+})
+
 
 
 test_that("different implementations aren't too different", {

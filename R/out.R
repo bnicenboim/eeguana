@@ -213,6 +213,12 @@ eeg_ica_cor_tbl.eeg_ica_lst <- function(.data, ...) {
   } else {
     eogs <- sel_ch(.data, ...)
   }
+  if (length(eogs) == 0) {
+    stop("No EOG channel found: no channel name starts or ends with \"eog\". ",
+      "Name the channels to correlate the components with, e.g. `eeg_ica_cor_tbl(.data, Fz)`.",
+      call. = FALSE
+    )
+  }
 
   names(eogs) <- eogs
   comps <- .data %>%
@@ -283,10 +289,12 @@ eeg_ica_var_tbl.eeg_ica_lst <- function(.data, ..., .max_sample = NULL) {
   ## activations rather than as w_k' Sigma w_k: with rank-deficient channels,
   ## such as average-referenced ones, the unmixing weights are large and
   ## the product loses digits.
-  vars <- map_dtr(names(.data$.ica), function(rec) {
-    ica <- .data$.ica[[rec]]
+  ## the recordings as they are in the data, so that .recording keeps its
+  ## type; the lists are named with their character version
+  vars <- map_dtr(unique(.data$.segments$.recording), function(rec) {
+    ica <- .data$.ica[[as.character(rec)]]
     chs <- rownames(ica$unmixing_matrix)
-    X <- scale(as.matrix(signal[[rec]][, chs, with = FALSE]), scale = FALSE)
+    X <- scale(as.matrix(signal[[as.character(rec)]][, chs, with = FALSE]), scale = FALSE)
     S <- X %*% ica$unmixing_matrix
     n1 <- nrow(X) - 1
     B <- crossprod(X, S) / n1

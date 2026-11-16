@@ -358,6 +358,13 @@ test_that("amplitudes are scaled by their typical standard deviation", {
   spiky <- rep(c(-1, 1), 500)
   spiky[seq(1, 1000, by = 10)] <- 50
   expect_equal(eeguana:::typical_sd(tidytable::tidytable(.id = 1L, spiky = spiky), "spiky", chunk = 10)[[1]], sds[["a"]])
+  ## a long recording is estimated from stretches spread over it
+  long <- tidytable::tidytable(.id = rep(1:2, each = 5000), a = rep(c(-1, 1), 5000))
+  rows <- eeguana:::chunk_rows(long, chunk = 10, max_chunks = 100)
+  expect_length(rows, 100)
+  expect_true(all(lengths(rows) == 10))
+  expect_equal(range(unlist(rows)), c(1, 10000))
+  expect_equal(eeguana:::typical_sd(long, "a", chunk = 10, max_chunks = 100)[["a"]], sds[["a"]])
 
   each <- eeguana:::amplitude_scale(prep_seg, c("ICA1", "ICA2"), c("EOGV", "Fz"), "each", 1)
   expect_equal(each$ref, prep_seg$sd[c("ICA1", "ICA2", "EOGV", "Fz")])
@@ -397,6 +404,19 @@ test_that("each recording keeps its own selection", {
     expect_equal(prep()$recording, "second")
     session$setInputs(topo_click = list(panelvar1 = "ICA2"))
     expect_equal(marks(), stats::setNames(list("ICA1", "ICA2"), c(rec, "second")))
+  })
+})
+
+test_that("a numeric .recording is browsed by its name", {
+  num <- eeg_mutate(seg, .recording = 1)
+  shiny::testServer(eeguana:::browse_app(num, .kind = "eeg"), {
+    expect_equal(prep()$recording, "1")
+    expect_equal(nrow(prep()$data$.segments), nrow(seg$.segments))
+    session$setInputs(mode = "continuous", unit_continuous = "ms", segment = "1", start = -200, length = 702)
+    session$setInputs(channels = "Fz", scale = "shared")
+    expect_match(output$where, "^Segment 1,")
+    session$setInputs(select_segment = 1)
+    expect_equal(result(), 1L)
   })
 })
 
