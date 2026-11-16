@@ -67,7 +67,8 @@ Suggests:
     shiny (>= 1.7.0),
     later,
     bslib (>= 0.5.0),
-    ragg
+    ragg,
+    fftw
 Config/Needs/website: shinytest2, chromote, callr
 LazyData: true
 LazyDataCompression: xz

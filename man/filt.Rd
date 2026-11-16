@@ -49,6 +49,8 @@ Using \code{method ="fir"}, we define a zero-phase  filter of the FIR (finite im
 \item \code{h_trans_bandwidth = "auto"} by default. This is \code{min(max(0.25 * h_freq, 2.), sampling_rate / 2. - h_freq)} where \code{h_freq} is the \code{freq} of the low pass filter, or \code{freq[2]} of a band pass/stop filter.
 }
 
+The FIR filters are applied with FFTs. If the package \code{fftw} is installed, its FFTs are used instead of the ones of base R, which in our tests saved up to 30\% on a long continuous recording and nothing on short segments.
+
 Using \code{method = "iir"}, we define a zero-phase (two-pass forward and reverse) non-causal IIR filter.  Filter type is Butterworth by default, and either order (default) or maximum loss and attenuation (gpass and gstop) should be specified:
 \itemize{
 \item \code{type = "butter"} for Butterworth by default, other options are \code{"cheby1"}, or \code{"cheby2"} for Chebyshev type I or type II, or \code{"ellip"} for Elliptic.

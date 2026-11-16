@@ -752,7 +752,6 @@ next_fast_len <- function(target) {
     bits <- intToBits(x) %>% as.numeric()
     length(bits) - which.max(rev(bits)) + 1
   }
-  ## message("starts loop")
   while (p5 < target) {
     p35 <- p5
     while (p35 < target) {
@@ -763,21 +762,18 @@ next_fast_len <- function(target) {
       
       N <- p2 * p35
       if (N == target) {
-        message("ends 1")
         return(N)
       } else if (N < match) {
         match <- N
       }
       p35 <- p35 * 3
       if (p35 == target) {
-        message("ends 2")
         return(p35)
       }
     }
     if (p35 < match) match <- p35
     p5 <- p5 * 5
     if (p5 == target) {
-      message("ends 3")
       return(p5)
     }
   }
@@ -786,25 +782,21 @@ next_fast_len <- function(target) {
   return(match)
 }
 
-fft_multiply_repeated <- function(x, h, n_fft = NULL) {
-  ## """Do FFT multiplication by a filter function (possibly using CUDA).
-  ## Parameters
-  ## ----------
-  ## h_fft : 1-d array or gpuarray
-  ##     The filtering array to apply.
-  ## x : 1-d array
-  ##     The array to filter.
-  ## n_fft : int
-  ##     The number of points in the FFT.
-  ## cuda_dict : dict
-  ##     Dictionary constructed using setup_cuda_multiply_repeated().
-  ## Returns
-  ## -------
-  ## x : 1-d array
-  ##     Filtered version of x.
-  ## """
-  x_fft <- rfft(x, n_fft) * rfft(h, n_fft)
-  irfft(x_fft, n_fft)
+#' FFTs through the fftw package when it is installed, otherwise stats::fft().
+#' Both directions are unscaled, like stats::fft(). The plan is made once for
+#' a given length and reused for every transform of that length.
+#' @noRd
+fft_plan <- function(n) {
+  if (requireNamespace("fftw", quietly = TRUE)) fftw::planFFT(n) else NULL
+}
+
+#' @noRd
+fft_fun <- function(z, plan = NULL, inverse = FALSE) {
+  if (is.null(plan)) {
+    stats::fft(z, inverse = inverse)
+  } else {
+    fftw::FFT(z, plan = plan, inverse = inverse)
+  }
 }
 
 smart_pad <- function(x, n_pad, pad = "reflect_limited") {
@@ -834,9 +826,14 @@ smart_pad <- function(x, n_pad, pad = "reflect_limited") {
   }
 }
 
-#' Filter the signal x using h with overlap-add FFTs.
+#' Filter the signals in x using h with overlap-add FFTs.
 #'
-#' @param x 1 dimension, Signals to filter.
+#' Follows mne's `_overlap_add_filter`. The FFT of `h` is computed once, and
+#' the columns of `x` are filtered in pairs: one column goes in the real part
+#' and the other in the imaginary part of a single complex FFT, which is valid
+#' because both signals and `h` are real.
+#'
+#' @param x Numeric vector or matrix with one signal per column.
 #' @param h  1d array.   Filter impulse response (FIR filter coefficients).
 #'  Must be odd length     if phase == "linear".
 #' @param n_fft int,  Length of the FFT. If None, the best size is determined automatically.
@@ -847,30 +844,16 @@ smart_pad <- function(x, n_pad, pad = "reflect_limited") {
 #'   filter will be used.
 #' @param pad str. Padding type for ``_smart_pad``.
 #'
-#' @return array, shape (n_signals, n_times)
+#' @return A matrix with the same shape as `x`, or a vector when `x` is one.
 #' @noRd
 #'
 overlap_add_filter <- function(x, h, n_fft = NULL, phase = "zero",
                                pad = "reflect_limited") {
-  ## """
-  ## Parameters
-  ## ----------
-  ## picks : list | None
-  ##     See calling functions.
-  ## n_jobs : int | str
-  ##     Number of jobs to run in parallel. Can be "cuda" if ``cupy``
-  ##     is installed properly.
-  ## copy : bool
-  ##     If True, a copy of x, filtered, is returned. Otherwise, it operates
-  ##     on x in place.
-  ## Returns
-  ## -------
-  ## """
-  # Extend the signal by mirroring the edges to reduce transient filter
-  # response
-  
-  # TODO?
-  ## _check_zero_phase_length(len(h), phase)
+  if (is.null(dim(x))) {
+    r <- overlap_add_filter(matrix(as.numeric(x), ncol = 1), h, n_fft, phase, pad)[, 1]
+    mostattributes(r) <- attributes(x)
+    return(r)
+  }
   if (length(h) == 1) {
     if (phase == "zero-double") {
       return(x * h^2)
@@ -878,18 +861,21 @@ overlap_add_filter <- function(x, h, n_fft = NULL, phase = "zero",
       return(x * h)
     }
   }
-  n_edge <- max(min(length(h), length(x)) - 1, 0)
-  ## message("Smart-padding with,",n_edge," samples")
-  n_x <- length(x) + 2 * n_edge
-  
+  n_times <- nrow(x)
+  n_ch <- ncol(x)
+  n_h <- length(h)
+  # Extend the signal by mirroring the edges to reduce transient filter
+  # response
+  n_edge <- max(min(n_h, n_times) - 1, 0)
+  n_x <- n_times + 2 * n_edge
+
   if (phase == "zero-double") {
     ## h = np.convolve(h, h[::-1])
-    ## h <- linear_convolve(h, rev(h)) #TODO: see how to implement in R
     stop("phase zero-double not implemented")
   }
-  
+
   ## Determine FFT length to use
-  min_fft <- 2 * length(h) - 1
+  min_fft <- 2 * n_h - 1
   if (is.null(n_fft)) {
     max_fft <- n_x
     if (max_fft >= min_fft) {
@@ -898,34 +884,31 @@ overlap_add_filter <- function(x, h, n_fft = NULL, phase = "zero",
         ceiling(log2(min_fft)),
         ceiling(log2(max_fft))
       )
-      cost <- (ceiling(n_x / (N - length(h) + 1)) *
+      cost <- (ceiling(n_x / (N - n_h + 1)) *
                  N * (log2(N) + 1)) +
         ## add a heuristic term to prevent too-long FFT"s which are slow
         ## (not predicted by mult. cost alone, 4e-5 exp. determined)
         4e-5 * N * n_x
-      
+
       n_fft <- N[which.min(cost)]
     } else {
-      ## Use only a single block
-      n_fft <- next_fast_len(as.integer(min_fft))
+      ## Use only a single block, long enough for the padded signal to fit in it
+      n_fft <- next_fast_len(as.integer(max(min_fft, n_x + n_h - 1)))
     }
   }
-  ## message("FFT block length :", n_fft)
   if (n_fft < min_fft) {
     stop(
       "n_fft is too short, has to be at least ",
       "2 * len(h) - 1,", min_fft, ", got", n_fft
     )
   }
-  
-  ## x = _1d_overlap_filter(x, len(h), n_edge, phase,
-  ## cuda_dict, pad, n_fft)
+
   ## pad to reduce ringing
-  x_ext <- smart_pad(x, c(n_edge, n_edge), pad)
-  ## works x2 = mne$cuda$`_smart_pad`(np$array(x), c(n_edge,n_edge) %>% as.integer, pad)
-  n_x <- length(x_ext)
-  x_filtered <- rep(0 * x[1], n_x) ## BN: this should keep the class and attr
-  n_h <- length(h)
+  x_ext <- matrix(0, n_x, n_ch)
+  for (j in seq_len(n_ch)) {
+    x_ext[, j] <- smart_pad(x[, j], c(n_edge, n_edge), pad)
+  }
+  x_filtered <- matrix(0, n_x, n_ch)
   n_seg <- n_fft - n_h + 1
   n_segments <- as.integer(ceiling(n_x / n_seg))
   if (phase %in% c("zero", "zero-double")) {
@@ -933,27 +916,42 @@ overlap_add_filter <- function(x, h, n_fft = NULL, phase = "zero",
   } else {
     shift <- n_edge
   }
-  ## warning("remove dict")
-  ## cuda_dict <- dict(n_fft=n_fft,
-  ##                   rfft=np$fft$rfft,
-  ##                   irfft=np$fft$irfft,
-  ##                   h_fft=np$fft$rfft(h, n=n_fft))
-  
-  for (seg_idx in (seq_len(n_segments) - 1)) {
-    start <- seg_idx * n_seg
-    stop <- (seg_idx + 1) * n_seg
-    seg <- x_ext[seq.int(start + 1, min(stop, n_x))]
-    seg <- c(seg, rep(0, n_fft - length(seg)))
-    prod <- fft_multiply_repeated(seg, h, n_fft) #
-    ## good, prod2= mne$cuda$`_fft_multiply_repeated`(seg, cuda_dict2) %>% c()
-    start_filt <- max(0, start - shift)
-    stop_filt <- min(start - shift + n_fft, n_x)
-    start_prod <- max(0, shift - start)
-    stop_prod <- start_prod + stop_filt - start_filt
-    x_filtered[seq.int(start_filt + 1, stop_filt)] <- x_filtered[seq.int(start_filt + 1, stop_filt)] + prod[seq.int(start_prod + 1, stop_prod)]
+  plan <- fft_plan(n_fft)
+  h_fft <- fft_fun(c(h, rep(0, n_fft - n_h)), plan)
+  ## a column with NAs is all NA after filtering, and it must not share an FFT
+  ## with a complete column
+  has_na <- colSums(is.na(x)) > 0
+  x_filtered[, has_na] <- NA_real_
+  ok <- which(!has_na)
+
+  for (k in seq_len(ceiling(length(ok) / 2))) {
+    ## two columns share one complex FFT; a last odd column goes alone
+    j <- ok[2 * k - 1]
+    j2 <- if (2 * k <= length(ok)) ok[2 * k] else NA_integer_
+    for (seg_idx in (seq_len(n_segments) - 1)) {
+      start <- seg_idx * n_seg
+      stop <- min((seg_idx + 1) * n_seg, n_x)
+      idx <- seq.int(start + 1, stop)
+      seg <- complex(length.out = n_fft)
+      seg[seq_along(idx)] <- complex(
+        real = x_ext[idx, j],
+        imaginary = if (is.na(j2)) 0 else x_ext[idx, j2]
+      )
+      prod <- fft_fun(fft_fun(seg, plan) * h_fft, plan, inverse = TRUE) / n_fft
+      start_filt <- max(0, start - shift)
+      stop_filt <- min(start - shift + n_fft, n_x)
+      start_prod <- max(0, shift - start)
+      stop_prod <- start_prod + stop_filt - start_filt
+      out_idx <- seq.int(start_filt + 1, stop_filt)
+      prod <- prod[seq.int(start_prod + 1, stop_prod)]
+      x_filtered[out_idx, j] <- x_filtered[out_idx, j] + Re(prod)
+      if (!is.na(j2)) {
+        x_filtered[out_idx, j2] <- x_filtered[out_idx, j2] + Im(prod)
+      }
+    }
   }
-  ## Remove mirrored edges that we added and cast (n_edge can be zero)
-  x_filtered[seq.int(from = 1, to = length(x))]
+  ## Remove mirrored edges that we added (n_edge can be zero)
+  x_filtered[seq_len(n_times), , drop = FALSE]
 }
 
 

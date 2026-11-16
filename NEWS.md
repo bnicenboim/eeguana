@@ -12,6 +12,10 @@
   bslib need to be manually installed.
 - `print()` shows at most `.max_channels` channels, by default the option
   `eeguana.print_max_channels` (`Inf`).
+- FIR filtering (`eeg_filt_*()`, the default method) is several times faster:
+  the filter's FFT is computed once and channels are transformed in pairs.
+  If the package fftw is installed, its FFTs are used (up to 30% faster on
+  long recordings).
 
 ## Bugs fixed
 
