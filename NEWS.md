@@ -2,6 +2,8 @@
 
 ## Improvements
 
+- `adapt_fast_ICA()` is implemented in R and no longer allocates a copy of the
+  data on every iteration, which makes it much faster on long recordings.
 - `eeg_browse()` opens a recording much faster: the scale of the amplitudes
   is estimated from at most 300 stretches of one second, spread over the
   recording.

@@ -56,7 +56,10 @@ fast_ICA2(
 A list with the unmixing matrix W and the mixing matrix A.
 }
 \description{
-\code{adapt_fast_ICA()} and \code{fast_ICA2()} are wrappers for \link[fICA:adapt_fICA]{fICA::adapt_fICA} and \link[fICA:fICA]{fICA::fICA} that only run in C, and return a transposed
+\code{adapt_fast_ICA()} implements the adaptive deflation-based FastICA of \link[fICA:adapt_fICA]{fICA::adapt_fICA} in R,
+with the fixed-point update written as a matrix-vector product, so that no samples-by-channels
+matrix is allocated inside the iterations; on long recordings this is much faster than fICA's
+C code. \code{fast_ICA2()} is a wrapper for \link[fICA:fICA]{fICA::fICA} that only runs in C. Both return a transposed
 version
 of the original estimated unmixing matrix in W, and the mixing matrix A,
 consistent with the formulation \code{X= S \%*\% A}, where X is the matrix of data with
