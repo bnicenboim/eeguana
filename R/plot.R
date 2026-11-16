@@ -349,7 +349,9 @@ plot_ica.eeg_ica_lst <- function(data,
     eeg_filt_band_pass(tidyselect::all_of(!!eog), .freq = c(.1, 30)) %>%
     eeg_ica_summary_tbl(tidyselect::all_of(!!eog))
   data.table::setorderv(summ, .order, order = -1)
-  ICAs <- unique(summ$.ICA)[components]
+  ICAs <- unique(summ$.ICA)
+  ## `components` can ask for more than there are
+  ICAs <- ICAs[components[components <= length(ICAs)]]
 
   summ <- summ[.ICA %in% ICAs]
 
