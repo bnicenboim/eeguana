@@ -46,3 +46,4 @@ tests/testthat/Rplots.pdf
 # scratch space for throwaway experiments (see playground/README.md)
 playground/
 s1_faces.eeg
+.claude/worktrees/
