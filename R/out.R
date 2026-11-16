@@ -209,6 +209,12 @@ eeg_ica_cor_tbl.eeg_ica_lst <- function(.data, ...) {
   if (length(rlang::enquos(...)) == 0) {
     eogs <- # sel_ch(.data, c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
       tidyselect::vars_select(channel_names(.data), c(tidyselect::starts_with("eog"), tidyselect::ends_with("eog")))
+    if (length(eogs) == 0) {
+      stop("No EOG channel found: no channel name starts or ends with \"eog\". ",
+        "Name the channels to correlate the components with, e.g. `eeg_ica_cor_tbl(.data, Fz)`.",
+        call. = FALSE
+      )
+    }
     message_verbose("EOG channels detected as: ", toString(eogs))
   } else {
     eogs <- sel_ch(.data, ...)

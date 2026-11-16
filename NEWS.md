@@ -1,5 +1,23 @@
 # eeguana 0.1.12.9005
 
+## Improvements
+
+- `eeg_browse()` opens a recording much faster: the scale of the amplitudes
+  is estimated from at most 300 stretches of one second, spread over the
+  recording.
+
+## Bugs fixed
+
+- `eeg_browse()` works when `.recording` is a number.
+- `eeg_ica_summary_tbl()`, `plot_components()`, and `plot_ica()` work when
+  `.recording` is a number.
+- `eeg_ica_cor_tbl()` and `eeg_ica_summary_tbl()` say when no EOG channel is
+  found, instead of failing with an error about `.recording`.
+- `plot_ica()` uses its `eog` channels for the correlations too, not only for
+  the traces.
+
+# eeguana 0.1.12.9004
+
 ## New features
 
 - `eeg_artif_peak()` gets a `.direction` argument ("above", "below", or "any"),
@@ -15,9 +33,6 @@
 
 ## Bugs fixed
 
-- `eeg_browse()` works when `.recording` is a number.
-- `eeg_ica_summary_tbl()`, `plot_components()`, and `plot_ica()` work when
-  `.recording` is a number.
 - `plot()` no longer draws the plot twice when layers are added to it.
 - `annotate_events()` draws the events without a channel, such as triggers,
   in every channel, instead of in an extra panel called NA.
